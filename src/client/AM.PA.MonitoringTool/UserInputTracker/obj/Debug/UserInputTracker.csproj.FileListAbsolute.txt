@@ -1,0 +1,12 @@
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\UserInputTracker\bin\Debug\x64\SQLite.Interop.dll
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\UserInputTracker\bin\Debug\x86\SQLite.Interop.dll
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\UserInputTracker\bin\Debug\UserInputTracker.dll
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\UserInputTracker\bin\Debug\UserInputTracker.pdb
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\UserInputTracker\bin\Debug\Shared.dll
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\UserInputTracker\bin\Debug\System.Data.SQLite.dll
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\UserInputTracker\bin\Debug\Shared.pdb
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\UserInputTracker\bin\Debug\System.Data.SQLite.xml
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\UserInputTracker\obj\Debug\UserInputTracker.csprojResolveAssemblyReference.cache
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\UserInputTracker\obj\Debug\UserInputTracker.dll
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\UserInputTracker\obj\Debug\UserInputTracker.pdb
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\UserInputTracker\bin\Debug\Gma.System.MouseKeyHook.dll

@@ -1,0 +1,240 @@
+﻿<!--    Created by André Meyer (ameyer@ifi.uzh.ch) from the University of Zurich
+        Created: 2015-10-20
+        
+        Licensed under the MIT License. -->
+    
+    <Window x:Class="UserEfficiencyTracker.UserSurveyWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:helpers="clr-namespace:UserEfficiencyTracker.Helpers"
+        Closing="UserSurveyWindow_OnClosing" Topmost="True" 
+        Title="Personal Analytics: Participant Survey"
+        Height="Auto" SizeToContent="WidthAndHeight" MaxHeight="800" MinWidth="670" MaxWidth="670" Width="670">
+    
+    <Window.Resources>
+        <helpers:AutoSuggestionListVisibilityConverter x:Key="AutoSuggestionListVisibilityConverter" />
+    </Window.Resources>
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="10">
+            <TextBlock FontSize="15" Margin="0 0 0 10" Text="Please fill out the following survey:" x:Name="PreviousSurveyDateTime" />
+            <TextBlock Text="Hint: The term session refers to the time period since the beginning of your workday or the time you last answered this survey today." TextWrapping="Wrap" />
+
+            <!-- for Manu -->
+            <!--<TextBlock Margin="0 20 0 0" FontSize="9" Text="Biometrics Study:"  />
+            <TextBlock Margin="0 0 0 10" FontSize="15" Text="1. How do you rate your interruptibility 5 minutes ago?" TextWrapping="Wrap" />
+            <StackPanel HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Margin="0 0 10 0" FontSize="9" Text="very interruptible" />
+                    <Slider x:Name="InterruptibilitySlider" Width="380" Foreground="Black" IsSnapToTickEnabled="True" Maximum="5" Minimum="1" TickPlacement="BottomRight" TickFrequency="1" SmallChange="1" LargeChange="1" AutoToolTipPrecision="2"  />
+                    <TextBlock Margin="10 0 0 0" FontSize="9" Text="not at all interruptible" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock HorizontalAlignment="Left" Margin="82 0 0 0" Text="1" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="86 0 0 0" Text="2" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="88 0 0 0" Text="3" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="87 0 0 0" Text="4" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="88 0 0 0" Text="5" FontSize="9" />
+                </StackPanel>
+            </StackPanel>-->
+
+            <!-- Q1 -->
+            <!--<TextBlock Margin="0 20 0 0" FontSize="9" Text="Retrospection Study:"  />-->
+            <TextBlock Margin="0 40 0 0" FontSize="15" Text="Compared to your normal level of productivity," />
+            <TextBlock Margin="16 0 0 10" FontSize="15" Text="how productive do you consider the previous session?" />
+            <StackPanel HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Margin="0 0 10 0" FontSize="9" Text="not at all" />
+                    <Slider x:Name="ProductivitySlider" Width="380" Foreground="Black" IsSnapToTickEnabled="True" Maximum="7" Minimum="1" TickPlacement="BottomRight" TickFrequency="1" SmallChange="1" LargeChange="1" AutoToolTipPrecision="2"  />
+                    <TextBlock Margin="10 0 0 0" FontSize="9" Text="very much" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock HorizontalAlignment="Left" Margin="48 0 0 0" Text="1" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="56 0 0 0" Text="2" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="56 0 0 0" Text="3" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="57 0 0 0" Text="4" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="57 0 0 0" Text="5" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="57 0 0 0" Text="6" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="56 0 0 0" Text="7" FontSize="9" />
+                </StackPanel>
+            </StackPanel>
+
+            <!--<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Margin="0 0 10 0" FontSize="9" Text="not at all" />
+                <RadioButton IsChecked="{Binding Path=ProductivityChecked, Mode=TwoWay, Converter={StaticResource EnumConverter}, ConverterParameter=Option1}" GroupName="Productivity" Margin="10 0 0 0" />
+                <RadioButton IsChecked="{Binding Path=ProductivityChecked, Mode=TwoWay, Converter={StaticResource EnumConverter}, ConverterParameter=Option2}" GroupName="Productivity" Margin="30 0 0 0" />
+                <RadioButton IsChecked="{Binding Path=ProductivityChecked, Mode=TwoWay, Converter={StaticResource EnumConverter}, ConverterParameter=Option3}" GroupName="Productivity" Margin="30 0 0 0" />
+                <RadioButton IsChecked="{Binding Path=ProductivityChecked, Mode=TwoWay, Converter={StaticResource EnumConverter}, ConverterParameter=Option4}" GroupName="Productivity" Margin="30 0 0 0" />
+                <RadioButton IsChecked="{Binding Path=ProductivityChecked, Mode=TwoWay, Converter={StaticResource EnumConverter}, ConverterParameter=Option5}" GroupName="Productivity" Margin="30 0 0 0" />
+                <RadioButton IsChecked="{Binding Path=ProductivityChecked, Mode=TwoWay, Converter={StaticResource EnumConverter}, ConverterParameter=Option6}" GroupName="Productivity" Margin="30 0 0 0" />
+                <RadioButton IsChecked="{Binding Path=ProductivityChecked, Mode=TwoWay, Converter={StaticResource EnumConverter}, ConverterParameter=Option7}" GroupName="Productivity" Margin="30 0 0 0" />
+                <TextBlock Margin="10 0 0 0" FontSize="9" Text="very much" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock HorizontalAlignment="Left" Margin="100 0 0 0" Text="1" FontSize="9" />
+                <TextBlock HorizontalAlignment="Left" Margin="40 0 0 0" Text="2" FontSize="9" />
+                <TextBlock HorizontalAlignment="Left" Margin="40 0 0 0" Text="3" FontSize="9" />
+                <TextBlock HorizontalAlignment="Left" Margin="40 0 0 0" Text="4" FontSize="9" />
+                <TextBlock HorizontalAlignment="Left" Margin="40 0 0 0" Text="5" FontSize="9" />
+                <TextBlock HorizontalAlignment="Left" Margin="40 0 0 0" Text="6" FontSize="9" />
+                <TextBlock HorizontalAlignment="Left" Margin="40 0 100 0" Text="7" FontSize="9" />
+            </StackPanel>-->
+
+            <!-- Q2 -->
+            <!--<TextBlock Margin="0 20 0 10" FontSize="15" Text="3. How satisfied are you at the moment with the way your work is going?" TextWrapping="Wrap" />
+            <StackPanel HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Margin="0 0 10 0" FontSize="9" Text="not at all" />
+                    <Slider x:Name="SatisfactionSlider" Width="380" Foreground="Black" IsSnapToTickEnabled="True" Maximum="7" Minimum="1" TickPlacement="BottomRight" TickFrequency="1" SmallChange="1" LargeChange="1" AutoToolTipPrecision="2"  />
+                    <TextBlock Margin="10 0 0 0" FontSize="9" Text="very much" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock HorizontalAlignment="Left" Margin="48 0 0 0" Text="1" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="56 0 0 0" Text="2" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="56 0 0 0" Text="3" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="57 0 0 0" Text="4" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="57 0 0 0" Text="5" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="57 0 0 0" Text="6" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="56 0 0 0" Text="7" FontSize="9" />
+                </StackPanel>
+            </StackPanel>-->
+
+            <!-- Q5 -->
+            <!-- old question:  Please specify the tasks you worked on in the previous session: -->
+            <TextBlock Margin="0 20 0 0" FontSize="15" Text="Please specify the activities (tasks, meetings, breaks, etc.)" />
+            <TextBlock Margin="12 0 0 10" FontSize="15" Text=" you performed on in the previous session:" />
+
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Quick insert:" FontWeight="Bold" Margin="16 0 33 0" />
+                <WrapPanel Margin="16 0 0 10" MaxWidth="510">
+                    <TextBlock Text="Lunch" Margin="0 0 10 0" MouseDown="PredefinedText_Clicked" TextDecorations="Underline" />
+                    <TextBlock Text="Break" Margin="0 0 10 0" MouseDown="PredefinedText_Clicked" TextDecorations="Underline" />
+                    <TextBlock Text="Planning" Margin="0 0 10 0" MouseDown="PredefinedText_Clicked" TextDecorations="Underline" />
+                    <TextBlock Text="Emails" Margin="0 0 10 0" MouseDown="PredefinedText_Clicked" TextDecorations="Underline" />
+                    <TextBlock Text="Planned meeting" MouseDown="PredefinedText_Clicked" Margin="0 0 10 0" TextDecorations="Underline" />
+                    <TextBlock Text="Ad-hoc meeting (e.g. helped co-worker)" MouseDown="PredefinedText_Clicked" Margin="0 0 10 0" TextDecorations="Underline" />
+                </WrapPanel>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" x:Name="PreviousInsertsStackPanel">
+                <TextBlock Text="Previous activities:" FontWeight="Bold" Margin="16 0 0 0" />
+                <WrapPanel Margin="16 0 0 10" MaxWidth="510">
+                    <TextBlock x:Name="Prev1TextBlock" Margin="0 0 10 0" MouseDown="PredefinedText_Clicked" TextDecorations="Underline" />
+                    <TextBlock x:Name="Prev2TextBlock" Margin="0 0 10 0" MouseDown="PredefinedText_Clicked" TextDecorations="Underline" />
+                    <TextBlock x:Name="Prev3TextBlock" Margin="0 0 10 0" MouseDown="PredefinedText_Clicked" TextDecorations="Underline" />
+                    <TextBlock x:Name="Prev4TextBlock" Margin="0 0 10 0" MouseDown="PredefinedText_Clicked" TextDecorations="Underline" />
+                    <TextBlock x:Name="Prev5TextBlock" Margin="0 0 10 0" MouseDown="PredefinedText_Clicked" TextDecorations="Underline" />
+                    <TextBlock x:Name="Prev6TextBlock" Margin="0 0 10 0" MouseDown="PredefinedText_Clicked" TextDecorations="Underline" />
+                </WrapPanel>
+            </StackPanel>
+
+            <TextBlock Text="Activities in previous session:" FontWeight="Bold" Margin="16 10 0 10" />
+            <ItemsControl Margin="16 0 0 0" x:Name="UserTaskList" ItemsSource="{Binding UserTasks}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBox Text="{Binding TaskDescription, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     TextChanged="TaskDescription_TextChanged" Grid.Column="0" Margin="0 0 5 0"/>
+                            <ListBox x:Name="lbSuggestion" ItemsSource="{Binding AutoSuggestionList, UpdateSourceTrigger=PropertyChanged}"
+                                     SelectionChanged="lbSuggestion_SuggestionChanged" Background="LightGray" Grid.Column="0" Grid.Row="1"
+                                     Visibility="{Binding AutoSuggestionList, Converter={StaticResource AutoSuggestionListVisibilityConverter}, UpdateSourceTrigger=PropertyChanged}"
+                                     Width="540" Margin="0 0 0 5" />
+                            <Button Content="Remove" Click="RemoveTaskEntry_Click" Grid.Column="1" Grid.Row="0" />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <!--<TextBox Margin="0 0 0 5" x:Name="TasksWorkedOn" Height="70" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" />-->
+
+            <!-- Q5 -->
+            <!--<TextBlock Margin="0 20 0 10" FontSize="15" Text="5. How difficult were the tasks you were working in the previous session?" TextWrapping="Wrap" />
+            <StackPanel HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Margin="0 0 10 0" FontSize="9" Text="not at all" />
+                    <Slider x:Name="TaskDifficultySlider" Width="380" Foreground="Black" IsSnapToTickEnabled="True" Maximum="7" Minimum="1" TickPlacement="BottomRight" TickFrequency="1" SmallChange="1" LargeChange="1" AutoToolTipPrecision="2"  />
+                    <TextBlock Margin="10 0 0 0" FontSize="9" Text="very much" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock HorizontalAlignment="Left" Margin="48 0 0 0" Text="1" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="56 0 0 0" Text="2" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="56 0 0 0" Text="3" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="57 0 0 0" Text="4" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="57 0 0 0" Text="5" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="57 0 0 0" Text="6" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="56 0 0 0" Text="7" FontSize="9" />
+                </StackPanel>
+            </StackPanel>-->
+
+            <TextBlock Margin="0 20 0 10" FontSize="15" Text="How do you rate the emotions you had during the previous session?" />
+            <StackPanel HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Margin="0 0 10 0" FontSize="9" Text="unpleasant" />
+                    <Slider x:Name="EmotionsSlider" Width="380" Foreground="Black" Maximum="200" Minimum="-200" TickPlacement="BottomRight" TickFrequency="50" SmallChange="1" LargeChange="50"   />
+                    <TextBlock Margin="10 0 0 0" FontSize="9" Text="pleasant" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock HorizontalAlignment="Left" Margin="47 0 0 0" Text="-200" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="74 0 0 0" Text="-100" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="84 0 0 0" Text="0" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="76 0 0 0" Text="+100" FontSize="9" />
+                    <TextBlock HorizontalAlignment="Left" Margin="72 0 0 0" Text="+200" FontSize="9" />
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Q6 -->
+            <!--<TextBlock Margin="0 20 0 10" FontSize="15" Text="6. Estimate how much of the past two hours did you lose due to the slow network:" TextWrapping="Wrap" />
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Margin="0 0 10 0" FontSize="9" Text="nothing" />
+                <Slider x:Name="SlowNetworkSlider" Width="380" Foreground="Black" Maximum="100" Minimum="0" TickPlacement="BottomRight" TickFrequency="25" SmallChange="5" LargeChange="25" AutoToolTipPrecision="2"  />
+                <TextBlock Margin="10 0 0 0" FontSize="9" Text="a lot" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock HorizontalAlignment="Left" Margin="42 0 0 0" Text="0%" FontSize="9" />
+                <TextBlock HorizontalAlignment="Left" Margin="77 0 0 0" Text="25%" FontSize="9" />
+                <TextBlock HorizontalAlignment="Left" Margin="77 0 0 0" Text="50%" FontSize="9" />
+                <TextBlock HorizontalAlignment="Left" Margin="76 0 0 0" Text="75%" FontSize="9" />
+                <TextBlock HorizontalAlignment="Left" Margin="72 0 0 0" Text="100%" FontSize="9" />
+            </StackPanel>-->
+
+            <!--<TextBlock Margin="0 20 0 0" FontSize="15" Text="Comment (optional)" />-->
+            <!--<TextBox Margin="0 0 0 5" x:Name="CommmentsTexbox" Height="40" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" />-->
+
+
+            <TextBlock Margin="0 30 0 0" FontSize="15" Text="Thank you!" />
+            <Button Margin="0 5 0 5" Background="LightBlue" Content="Finish Survey" Click="OKButton_Click" />
+            <TextBlock TextWrapping="Wrap" Text="Please contact andre.meyer@uzh.ch in case you have any questions." />
+        </StackPanel>
+    </ScrollViewer>
+</Window>
+
+
+<!--<TextBlock Margin="0 20 0 0" FontSize="18" Text="Your efficiency" />
+            <TextBlock Margin="0 0 0 0" Text="How efficient have you been in this session compared to the previous session?" />
+            <TextBlock Margin="0 0 0 0" FontSize="9" Text="1: very inefficient, 2: inefficient, 3: neutral, 4: efficient, 5: very efficient" />
+            <Slider x:Name="EfficiencySlider" Foreground="Black" Margin="-5 5 -5 0" Maximum="5" Minimum="1" TickPlacement="BottomRight" TickFrequency="1" SmallChange="0.1" AutoToolTipPrecision="2"  />
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Margin="0 0 0 0" Text="Previous session efficiency: " />
+                <TextBlock Margin="0 0 0 0" x:Name="PreviousSessionEfficiency" Foreground="Blue" FontWeight="Bold" Text="x.x" />
+                <TextBlock Margin="10 0 0 0" Text="This session efficiency: " />
+                <TextBlock Margin="0 0 0 0" Foreground="Blue" FontWeight="Bold" Text="{Binding Value, ElementName=EfficiencySlider, StringFormat={}{0:0.0}}" />
+                <TextBlock Margin="5 0 0 0" Text="{Binding Value, ElementName=EfficiencySlider, Converter={StaticResource UserEfficiencyToDescriptionConverter}}" />
+            </StackPanel>-->
+
+<!--<TextBlock Margin="0 20 0 0" FontSize="18" Text="How productive do you consider the last two hours of work?" />
+            <TextBlock Margin="0 0 0 0" FontSize="9" Text="1: very unproductive, 2: unproductive, 3: neutral, 4: productive, 5: very productive" />
+            <Slider x:Name="ProductivitySlider" Foreground="Black" Margin="-5 5 -5 0" Maximum="5" Minimum="1" TickPlacement="BottomRight" TickFrequency="1" SmallChange="0.1" LargeChange="0.5" AutoToolTipPrecision="2"  />
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Margin="0 0 0 0" Text="Previous session productivity: " />
+                <TextBlock Margin="0 0 0 0" x:Name="PreviousSessionProductivity" Foreground="Blue" FontWeight="Bold" Text="x.x" />
+                <TextBlock Margin="10 0 0 0" Text="This session productivity: " />
+                <TextBlock Margin="0 0 0 0" Foreground="Blue" FontWeight="Bold" Text="{Binding Value, ElementName=ProductivitySlider, StringFormat={}{0:0.0}}" />
+                <TextBlock Margin="5 0 0 0" Text="{Binding Value, ElementName=ProductivitySlider, Converter={StaticResource UserProductivityToDescriptionConverter}}" />
+            </StackPanel>-->

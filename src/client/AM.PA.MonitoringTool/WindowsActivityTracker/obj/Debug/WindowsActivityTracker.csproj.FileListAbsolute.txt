@@ -1,0 +1,12 @@
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\WindowsActivityTracker\bin\Debug\x64\SQLite.Interop.dll
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\WindowsActivityTracker\bin\Debug\x86\SQLite.Interop.dll
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\WindowsActivityTracker\bin\Debug\WindowsActivityTracker.dll.config
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\WindowsActivityTracker\bin\Debug\WindowsActivityTracker.dll
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\WindowsActivityTracker\bin\Debug\WindowsActivityTracker.pdb
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\WindowsActivityTracker\bin\Debug\Shared.dll
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\WindowsActivityTracker\bin\Debug\System.Data.SQLite.dll
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\WindowsActivityTracker\bin\Debug\Shared.pdb
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\WindowsActivityTracker\bin\Debug\System.Data.SQLite.xml
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\WindowsActivityTracker\obj\Debug\WindowsActivityTracker.csprojResolveAssemblyReference.cache
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\WindowsActivityTracker\obj\Debug\WindowsActivityTracker.dll
+C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\WindowsActivityTracker\obj\Debug\WindowsActivityTracker.pdb

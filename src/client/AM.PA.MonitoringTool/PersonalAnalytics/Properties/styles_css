@@ -1,0 +1,36 @@
+/* =============================
+   GENERAL
+   ============================= */
+body, td, th { font-family: Segoe UI Light, Segoe UI, Tahoma, Arial, Verdana; font-size: 10pt; margin: 0px; color: #000; }
+h1 { font-family: Segoe UI Light, Segoe UI, Tahoma, Arial, Verdana; font-size: 14pt; font-weight: bold; margin: 0; padding: 5px; }
+h2 { font-family: Segoe UI Light, Segoe UI, Tahoma, Arial, Verdana; font-size: 10pt; font-weight: bold; }
+h3 { font-family: Segoe UI Light, Segoe UI, Tahoma, Arial, Verdana; font-size: 17pt; font-weight: bold; }
+img { border: 0; }
+#header { color: #ffffff; background-color: #007acc; padding: 0px 20px; line-height: 35px; height: 35px; }
+#menu { padding-top: 30px; padding-bottom: 5px; }
+#menu a { padding-left: 15px; }
+#content { margin: 20px; }
+#footer { margin-top: 20px; margin-bottom: 10px; text-align: center; color: #666; }
+
+   
+   
+/* =============================
+   GANT TIMELINE
+   ============================= */
+.axis path,
+.axis line {
+  fill: none;
+  stroke: black;
+  shape-rendering: crispEdges;
+}
+.axis text {
+  font-family: sans-serif;
+  font-size: 10px;
+}
+.timeline-label {
+  font-family: sans-serif;
+  font-size: 11px;
+}
+.coloredDiv {
+  height:20px; width:20px; float:left; margin-right:5px;
+}

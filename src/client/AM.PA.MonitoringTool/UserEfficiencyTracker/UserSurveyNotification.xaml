@@ -1,0 +1,65 @@
+﻿<!--    Created by André Meyer (ameyer@ifi.uzh.ch) from the University of Zurich
+        Created: 2015-10-20
+        
+        Licensed under the MIT License. -->
+    
+    <Window x:Class="UserEfficiencyTracker.UserSurveyNotification"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PersonalAnalytics: Please take the short survey now!" 
+        SizeToContent="Height" Height="180" Width="320"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent">
+
+    <Grid RenderTransformOrigin="0,1" >
+
+        <!-- Notification area -->
+        <Border BorderThickness="1" Background="LightGray" BorderBrush="Black" CornerRadius="10">
+            <StackPanel Margin="10">
+                <TextBlock Text="Personal Analytics: Mini-Survey" FontWeight="Bold" TextWrapping="Wrap" Margin="0 0 0 20" />
+                <TextBlock Text="Please fill out the survey. It will take less than a minute." TextWrapping="Wrap" Margin="0 0 0 20" />
+
+                <Grid Margin="0 0 0 10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Vertical">
+                        <Button Content="Take Survey now" Height="36" Background="LightBlue" Padding="5" Margin="0 0 5 0" Click="RunSurveyClicked" />
+                        <TextBlock Text="Thank you!"  />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Vertical" Margin="0 0 5 0">
+                        <Button Content="Take Survey in 5mins" Background="LightGray" Height="25" Margin="0 0 0 1" Click="PostponeShortSurveyClicked" />
+                        <Button Content="Take Survey in 1 hour" Background="LightGray" Height="25" Margin="0 0 0 1" Click="PostponeHourSurveyClicked" />
+                        <Button Content="Take Survey in 1 day" Background="LightGray" Height="25" Click="PostponeDaySurveyClicked"  />
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Animation -->
+        <Grid.Triggers>
+            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)">
+                            <SplineDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+                            <SplineDoubleKeyFrame KeyTime="0:0:0.5" Value="1"/>
+                        </DoubleAnimationUsingKeyFrames>
+                        <!--<DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)">
+                            <SplineDoubleKeyFrame KeyTime="0:0:2" Value="1"/>
+                            <SplineDoubleKeyFrame KeyTime="0:0:4" Value="0"/>
+                        </DoubleAnimationUsingKeyFrames>-->
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Grid.Triggers>
+
+        <Grid.RenderTransform>
+            <ScaleTransform ScaleY="1" />
+        </Grid.RenderTransform>
+
+    </Grid>
+
+</Window>
