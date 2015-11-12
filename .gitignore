@@ -3,3 +3,11 @@ documentation/OCR Stuff/2015-05-29 StandaloneOcr_Output.txt
 documentation/OCR Stuff/GetWindowContent.rar
 documentation/OCR Stuff/OcrPlayground.rar
 documentation/OCR Stuff/StandaloneOcr.rar
+*.suo
+*.user
+_ReSharper.*/
+*.sdf
+bin/
+obj/
+Debug/
+Release/
