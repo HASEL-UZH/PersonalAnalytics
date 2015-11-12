@@ -23,7 +23,7 @@
     </SccProvider>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <NuGetPackageImportStamp>fb7073f3</NuGetPackageImportStamp>
-    <PublishUrl>C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\Client\AM.PA.MonitoringTool\DEPLOYMENT\PersonalAnalytics\DEV\</PublishUrl>
+    <PublishUrl>C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\deployment\PersonalAnalytics\DEV\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
     <UpdateEnabled>false</UpdateEnabled>
@@ -41,7 +41,7 @@
     <SuiteName>Personal Analytics</SuiteName>
     <MinimumRequiredVersion>0.9.2.1</MinimumRequiredVersion>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>4</ApplicationRevision>
+    <ApplicationRevision>5</ApplicationRevision>
     <ApplicationVersion>0.9.2.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
