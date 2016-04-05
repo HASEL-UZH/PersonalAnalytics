@@ -1,0 +1,11 @@
+Copyright (c) Microsoft Corporation 
+All rights reserved.
+
+Third party notices:
+
+JQuery 1.11.3 https://jquery.org/license/
+Masonry 3.3.0 http://desandro.mit-license.org/
+D3 Visualization 3.5.9 https://github.com/mbostock/d3/blob/master/LICENSE
+C3.js https://github.com/masayuki0812/c3/blob/master/LICENSE
+HTML FilterTable 20150312 http://koalyptus.github.io/TableFilter/LICENSE
+Timeline https://github.com/jiahuang/d3-timeline
