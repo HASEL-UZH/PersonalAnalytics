@@ -10,7 +10,10 @@ namespace UserEfficiencyTracker
 {
     public static class Settings
     {
-        public static bool IsEnabled = Database.GetInstanceSettings().MiniSurveysEnabled;
+        public static bool DefaultPopUpIsEnabled = true;
+        public const int DefaultPopUpInterval = 60; // in minutes
+
+        //public static bool IsEnabled = MiniSurveysEnabled;
         public const string DbTable = "user_efficiency_survey";
 
         //private const double DefaultMinutes = 60.0; //every 2h
@@ -20,20 +23,5 @@ namespace UserEfficiencyTracker
         //public static TimeSpan DefaultInterval = GetDefaultInterval(); 
         public static TimeSpan PostponeShortInterval = TimeSpan.FromMinutes(PostponeShortInMinutes);
         public static TimeSpan SurveyCheckerInterval = TimeSpan.FromMinutes(SurveyCheckerMinutes);
-
-        /// <summary>
-        /// the number of previously inserted tasks shown to the user in the autocompletion box
-        /// </summary>
-        public const int NumberOfPreviousTasksShown = 50;
-
-        /// <summary>
-        /// get the default interval from the settings
-        /// (not a property to udpate it every time it's needed; TODO: not so efficient!)
-        /// </summary>
-        /// <returns></returns>
-        public static TimeSpan GetDefaultInterval()
-        {
-            return TimeSpan.FromMinutes(Database.GetInstanceSettings().MiniSurveyInterval);
-        }
     }
 }

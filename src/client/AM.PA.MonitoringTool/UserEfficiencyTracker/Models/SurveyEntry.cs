@@ -9,23 +9,10 @@ namespace UserEfficiencyTracker.Models
     public class SurveyEntry
     {
         public DateTime TimeStampNotification { get; set; }
-        public DateTime TimeStampStarted { get; private set; }
+        public DateTime TimeStampStarted { get; set; }
         public DateTime TimeStampFinished { get; set; }
-        public int Productivity { get; set; }
 
-        public int Satisfaction { get; set; }
-
-        public int Emotions { get; set; }
-
-        public int TaskDifficulty { get; set; }
-
-        public string TasksWorkedOn { get; set; }
-
-        public int Interruptibility { get; set; }
-
-        public int SlowNetwork { get; set; }
-
-        public string Comments { get; set; }
+        public int Productivity { get; set; } // 1-7
 
         public SurveyEntry()
         {

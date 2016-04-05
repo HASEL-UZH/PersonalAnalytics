@@ -117,23 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="styles_css" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>styles_css;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="d3_min_js" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>d3_min_js;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="personalanalytics_html" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>personalanalytics.html;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
-  </data>
-  <data name="d3_timeline_js" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>d3_timeline_js;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="c3_min_css" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>c3_min_css;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="c3_min_js" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>c3_min_js;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
 </root>

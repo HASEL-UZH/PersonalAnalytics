@@ -3,6 +3,7 @@
 // 
 // Licensed under the MIT License.
 using System;
+using System.Globalization;
 using System.Windows.Forms;
 
 namespace UserInputTracker.Models
@@ -35,7 +36,7 @@ namespace UserInputTracker.Models
 
         public override string ToString()
         {
-            return String.Format("MouseClickEvent: {0}\t{1}\t{2}\t{3}", X, Y, Button, Timestamp);
+            return String.Format(CultureInfo.InvariantCulture, "MouseClickEvent: {0}\t{1}\t{2}\t{3}", X, Y, Button, Timestamp);
         }
     }
 
@@ -53,7 +54,7 @@ namespace UserInputTracker.Models
 
         public override string ToString()
         {
-            return String.Format("MouseScrollSnapshot: {0}\t{1}\t{2}\t{3}", X, Y, ScrollDelta, Timestamp);
+            return String.Format(CultureInfo.InvariantCulture, "MouseScrollSnapshot: {0}\t{1}\t{2}\t{3}", X, Y, ScrollDelta, Timestamp);
         }
     }
 
@@ -71,7 +72,7 @@ namespace UserInputTracker.Models
 
         public override string ToString()
         {
-            return String.Format("MouseMovementSnapshot: {0}\t{1}\t{2}\t{3}", X, Y, MovedDistance, Timestamp);
+            return String.Format(CultureInfo.InvariantCulture, "MouseMovementSnapshot: {0}\t{1}\t{2}\t{3}", X, Y, MovedDistance, Timestamp);
         }
     }
 }

@@ -4,10 +4,15 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Globalization;
 using System.Windows.Forms;
 
 namespace UserInputTracker.Models
 {
+    /// <summary>
+    /// Type to obfuscate the collected keystroke data. Only store the type,
+    /// never store the exact keystroke!
+    /// </summary>
     public enum KeystrokeType
     {
         Key,
@@ -20,6 +25,12 @@ namespace UserInputTracker.Models
         public DateTime Timestamp { get; protected set; }
         public KeystrokeType KeystrokeType { get; private set; }
 
+        /// <summary>
+        /// Created per cached keystrokeevent
+        /// 
+        /// doesn't store the exact keystroke, but the type of the keystroke (KeystrokeType)
+        /// </summary>
+        /// <param name="e"></param>
         public KeystrokeEvent(KeyEventArgs e)
         {
             Timestamp = DateTime.Now;
@@ -27,13 +38,13 @@ namespace UserInputTracker.Models
         }
 
         /// <summary>
-        /// todo: different languages?
+        /// todo: check if this works in other languages
         /// </summary>
         /// <param name="stroke"></param>
         /// <returns></returns>
         private static KeystrokeType GetKeyStrokeType(string stroke)
         {
-            stroke = stroke.ToLower();
+            stroke = stroke.ToLower(CultureInfo.InvariantCulture);
             if (stroke.Equals("delete") || stroke.Equals("back"))
             {
                 return KeystrokeType.Backspace;
@@ -52,7 +63,7 @@ namespace UserInputTracker.Models
 
         public override string ToString()
         {
-            return String.Format("Keystroke: {0}\t {1}", KeystrokeType, Timestamp);
+            return String.Format(CultureInfo.InvariantCulture, "Keystroke: {0}\t {1}", KeystrokeType, Timestamp);
         }
     }
 }

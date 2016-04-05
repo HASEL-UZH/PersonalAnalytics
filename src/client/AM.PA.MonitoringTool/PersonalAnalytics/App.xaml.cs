@@ -9,9 +9,9 @@ using System.Windows;
 using NetFwTypeLib;
 using System.Windows.Threading;
 using Microsoft.Win32;
-using PersonalAnalytics.Tracker;
 using Shared;
 using Shared.Data;
+using System.Globalization;
 
 namespace PersonalAnalytics
 {
@@ -37,22 +37,29 @@ namespace PersonalAnalytics
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);
 
             //////////////////////////////////////////////////////
-            // Set Window Options
+            // Various Initializations
             //////////////////////////////////////////////////////
 
             // don't automatically shut down
             this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
-
-            //////////////////////////////////////////////////////
             // Initialize & Connect the database
-            //////////////////////////////////////////////////////
-
-            RegisterAppForPcStartup();
-            //AddFirewallException(); // TODO: problems if not system admin
-
-            // Connect to the database
             Database.GetInstance().Connect();
+
+            // prepare settings
+            TrackerManager.GetInstance().PrepareSettings();
+
+            // Check if the user accepted the consent form, if not: shut down the application
+/*          if (!TrackerManager.GetInstance().UserConsentsToUseApplication())
+            {
+                // todo: shut down
+            } */
+
+            // register app for PC startup
+            RegisterAppForPcStartup();
+
+            // add a firewall exception
+            //AddFirewallException(); // TODO: problems if not system admin
 
 
             //////////////////////////////////////////////////////
@@ -61,17 +68,38 @@ namespace PersonalAnalytics
             ITracker t = new WindowsActivityTracker.Daemon();
             TrackerManager.GetInstance().Register(t);
 
+            ITracker t1 = new TimeSpentVisualizer.Visualizers.TimeSpentVisualizer();
+            TrackerManager.GetInstance().Register(t1);
+
+            ITracker t9 = new PeopleVisualizer.PeopleVisualizer();
+            //TrackerManager.GetInstance().Register(t9); // disabled, as it's not finished and pretty slow
+
             ITracker t2 = new UserEfficiencyTracker.Daemon();
             TrackerManager.GetInstance().Register(t2);
-
-            //ITracker t3 = new TaskSwitchTracker.Daemon();
-            //TrackerManager.GetInstance().Register(t3);
 
             ITracker t4 = new UserInputTracker.Daemon();
             TrackerManager.GetInstance().Register(t4);
 
-            ITracker t5 = new WindowsContextTracker.Daemon();
-            TrackerManager.GetInstance().Register(t5);
+            ITracker t3 = new MsOfficeTracker.Daemon();
+            TrackerManager.GetInstance().Register(t3);
+
+            //ITracker t6 = new TimeSpentVisualizer.Visualizers.ArtifactVisualizer();
+            ////TrackerManager.GetInstance().Register(t6);
+
+            //ITracker t7 = new TimeSpentVisualizer.Visualizers.WebsitesVisualizer();
+            ////TrackerManager.GetInstance().Register(t7);
+
+            //ITracker t8 = new TimeSpentVisualizer.Visualizers.MeetingsVisualizer();
+            ////TrackerManager.GetInstance().Register(t8);
+
+            //ITracker t5 = new TimeSpentVisualizer.Visualizers.CodeVisualizer();
+            ////TrackerManager.GetInstance().Register(t5);
+
+            //ITracker t3 = new TaskSwitchTracker.Daemon();
+            //TrackerManager.GetInstance().Register(t3);
+
+            //ITracker t5 = new WindowsContextTracker.Daemon();
+            //TrackerManager.GetInstance().Register(t5);
 
 
             //////////////////////////////////////////////////////
@@ -135,24 +163,13 @@ namespace PersonalAnalytics
         }
 
         /// <summary>
-        /// On Shutdown all trackers are stopped and the database closed
+        /// Application is closed
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private static void App_SessionEnding(object sender, SessionEndingCancelEventArgs e)
         {
-            //DisposeTaskbarIcon();
             TrackerManager.GetInstance().Stop();
-            Database.GetInstance().Disconnect();
-        }
-
-        private static void DisposeTaskbarIcon()
-        {
-            var taskbarIcon = TrackerManager.GetInstance().TaskbarIcon;
-            if (taskbarIcon != null)
-            {
-                taskbarIcon.Dispatcher.Invoke(taskbarIcon.Dispose);
-            }
         }
 
         /// <summary>
@@ -164,7 +181,7 @@ namespace PersonalAnalytics
         {
             try
             {
-                Database.GetInstance().LogError(string.Format("An error occurred. Please see the log file. ({0})", e.Exception.Message));
+                Database.GetInstance().LogError(string.Format(CultureInfo.InvariantCulture, "An error occurred. Please see the log file. ({0})", e.Exception.Message));
             }
             catch (Exception e2) { Logger.WriteToLogFile(e2); }
 
@@ -172,7 +189,7 @@ namespace PersonalAnalytics
             Logger.WriteToLogFile(e.Exception);
 
             // Tell the user
-            MessageBox.Show("Oops, something really bad happened. Please try again later. If the problem persists, please contact us via andre.meyer@uzh.ch and attach the logfile.",
+            MessageBox.Show("Oops, something really bad happened. Please try again later. If the problem persists, please contact us via t-anmeye@microsoft.com and attach the logfile.",
                 "Error", MessageBoxButton.OK);
 
 

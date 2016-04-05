@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.Platform</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.PlatformParameters">
+            <summary>
+            Additional parameters used in acquiring user's authorization
+            </summary>
+        </member>
+        <member name="P:Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.PlatformParameters.CallerActivity">
+            <summary>
+            Caller Android Activity
+            </summary>
+        </member>
+    </members>
+</doc>

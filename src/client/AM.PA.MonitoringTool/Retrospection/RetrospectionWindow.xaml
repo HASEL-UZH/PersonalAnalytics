@@ -1,0 +1,98 @@
+﻿<Window x:Class="Retrospection.RetrospectionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Retrospection"
+        xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        mc:Ignorable="d"
+        Title="Personal Analytics: Retrospection &amp; Insights" 
+        Loaded="WindowLoaded"
+        Height="1000" Width="1310" MinHeight="500" MinWidth="890"> <!-- width was: 1310 -->
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="RetrospectionColor" Color="#007acc" />
+        <SolidColorBrush x:Key="GrayColor" Color="#E8E8E8" />
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="20" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Background="{StaticResource RetrospectionColor}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Title -->
+            <TextBlock Grid.Column="0" x:Name="RetrospectionTitle" Text="Retrospection and insights" VerticalAlignment="Center" Foreground="White" FontSize="16" Margin="10 0 0 0" />
+
+            <!-- Day/Week View -->
+            <StackPanel x:Name="DayControl" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                <StackPanel.Resources>
+                    <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
+                        <Setter Property="Foreground" Value="White" />
+                        <Setter Property="Background" Value="{StaticResource RetrospectionColor}" />
+                        <Setter Property="BorderBrush" Value="White" />
+                        <Setter Property="Padding" Value="5 2 5 2" />
+                    </Style>
+                </StackPanel.Resources>
+
+                <Button x:Name="SwitchToWeekButton" Content="Switch to Weekly Retrospection" Click="SwitchToWeek_Clicked" VerticalAlignment="Center" />
+                <Button x:Name="SwitchToDayButton" Content="Switch to Daily Retrospection" Click="SwitchToDay_Clicked" VerticalAlignment="Center" />
+                
+                <Line Stroke="White" X1="0" Y1="31" X2="0" Y2="9" Margin="10 0 10 0" />
+                
+                <Button x:Name="TodayButton" Content="Today" Click="Today_Clicked" VerticalAlignment="Center" Margin="0 0 10 0" />
+                <Button x:Name="MinusOneButton" Content="&lt;" Click="MinusOne_Clicked" VerticalAlignment="Center" Margin="0 0 4 0" />
+                <DatePicker Name="DatePicker" Foreground="{StaticResource RetrospectionColor}" BorderBrush="{StaticResource RetrospectionColor}" HorizontalAlignment="Right" VerticalAlignment="Center" SelectedDate="{x:Static sys:DateTime.Now}" SelectedDateChanged="DatePicker_SelectedDateChanged"/>
+                <Button x:Name="PlusOneButton" Content="&gt;" Click="PlusOne_Clicked" VerticalAlignment="Center" Margin="-1 0 10 0" />
+            </StackPanel>
+        </Grid>
+
+        <WindowsFormsHost Name="wbWinForms" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <WindowsFormsHost.Child>
+                <wf:WebBrowser DocumentTitleChanged="wbWinForms_DocumentTitleChanged" />
+            </WindowsFormsHost.Child>
+        </WindowsFormsHost>
+
+        <Border x:Name="LoadingSign"  Background="{StaticResource GrayColor}" Grid.Row="1">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock HorizontalAlignment="Center" Text="Preparing your Retrospection ..." Foreground="{StaticResource RetrospectionColor}" FontSize="30" />
+                <TextBlock HorizontalAlignment="Center" Text="This might take a few moments. It will be worth the wait :)" Margin="0 5 0 0" />
+            </StackPanel>
+        </Border>
+
+        <Grid Background="#E8E8E8" Grid.Row="3">
+            <Grid.Resources>
+                <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
+                    <Setter Property="Foreground" Value="Gray" />
+                    <Setter Property="Background" Value="{StaticResource GrayColor}" />
+                    <Setter Property="BorderBrush" Value="{StaticResource GrayColor}" />
+                    <Setter Property="Padding" Value="5 0 5 0" />
+                </Style>
+            </Grid.Resources>
+                
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+                
+            <TextBlock Grid.Column="0" Text="" />
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Content="Refresh" Click="Refresh_Clicked" VerticalAlignment="Center" Margin="0 0 10 0" />
+                <Button Content="Feedback" Click="Feedback_Clicked" VerticalAlignment="Center" Margin="0 0 10 0" />
+                <!--<Button Content="Settings" Click="Settings_Clicked" VerticalAlignment="Center" Margin="0 0 10 0" />-->
+                <Button Content="About" Click="About_Clicked" VerticalAlignment="Center" Margin="0 0 10 0" />
+            </StackPanel>
+        </Grid>
+
+    </Grid>
+</Window>

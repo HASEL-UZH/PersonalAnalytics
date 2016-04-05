@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.Platform</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.PromptBehavior">
+            <summary>
+            Indicates whether AcquireToken should automatically prompt only if necessary or whether
+            it should prompt regardless of whether there is a cached token.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.PromptBehavior.Auto">
+            <summary>
+            Acquire token will prompt the user for credentials only when necessary.  If a token
+            that meets the requirements is already cached then the user will not be prompted.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.PromptBehavior.Always">
+            <summary>
+            The user will be prompted for credentials even if there is a token that meets the requirements
+            already in the cache.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.PromptBehavior.Never">
+            <summary>
+            The user will not be prompted for credentials.  If prompting is necessary then the AcquireToken request
+            will fail.
+            </summary>
+        </member>
+        <member name="F:Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.PromptBehavior.RefreshSession">
+            <summary>
+            Re-authorizes (through displaying webview) the resource usage, making sure that the resulting access
+            token contains updated claims. If user logon cookies are available, the user will not be asked for 
+            credentials again and the logon dialog will dismiss automatically.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.PlatformParameters">
+            <summary>
+            Additional parameters used in acquiring user's authorization
+            </summary>
+        </member>
+        <member name="P:Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.PlatformParameters.UseCorporateNetwork">
+            <summary>
+            Gets or Sets flag to enable logged in user authentication. Note that enabling this flag requires some extra application capabilites.
+            This flag only works in SSO mode and is ignored otherwise. To enable SSO mode, call AcquireTokenAsync with null or application's callback URI as redirectUri.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory.PlatformParameters.PromptBehavior">
+            <summary>
+            Gets prompt behavior. If <see cref="!:PromptBehavior.Always"/>, asks service to show user the authentication page which gives them chance to authenticate as a different user.
+            </summary>
+        </member>
+    </members>
+</doc>

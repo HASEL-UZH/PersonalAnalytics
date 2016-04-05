@@ -6,10 +6,12 @@ namespace Shared
 {
     public class Dict
     {
-        public static readonly string RetrospectionPageTitle = "Your retrospection";
-        public static readonly string NotEnoughDataMiniSurvey = "We don't yet have enough data to show you a retrospection of your workday.<br />Regularly fill out the mini-surveys to have the best experience!";
+        public const string ToolName = "Personal Analytics"; // hint: not yet used everywhere
+        //public static readonly string RetrospectionPageTitle = "Your retrospection";
+        public static readonly string NotEnoughData = "We do not have enough data to create a visualization.";
         public static readonly string Other = "OTHER";
         public static readonly string Idle = "IDLE"; // needs to be upper case
-        public static readonly string NoCategorizedTask = "Uncategorized Task";
+        //public static readonly string NoCategorizedTask = "Uncategorized Task";
+        public static readonly string Anonymized = "[anonymized]";
     }
 }

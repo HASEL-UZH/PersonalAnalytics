@@ -22,30 +22,33 @@
     <SccProvider>
     </SccProvider>
     <IsWebBootstrapper>false</IsWebBootstrapper>
-    <NuGetPackageImportStamp>fb7073f3</NuGetPackageImportStamp>
-    <PublishUrl>C:\DATA\DEV\DOT.NET\UZH\PA\PersonalAnalytics\deployment\PersonalAnalytics\DEV\</PublishUrl>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <PublishUrl>\\ESESERVER\Andre Meyer\DEPLOY\DEV\</PublishUrl>
     <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Background</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <InstallFrom>Unc</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>1</UpdateInterval>
+    <UpdateIntervalUnits>Hours</UpdateIntervalUnits>
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>true</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <SupportUrl>http://www.andre-meyer.ch/tracker-support</SupportUrl>
-    <ErrorReportUrl>http://www.andre-meyer.ch/tracker-support</ErrorReportUrl>
+    <SupportUrl>http://eseserver/Andre/support.html</SupportUrl>
+    <ErrorReportUrl>http://eseserver/Andre/support.html</ErrorReportUrl>
     <TargetCulture>en</TargetCulture>
     <ProductName>Personal Analytics</ProductName>
-    <PublisherName>Andre Meyer %28S.E.A.L., University of Zurich%29</PublisherName>
+    <PublisherName>Personal Analytics %28MSR%29</PublisherName>
     <SuiteName>Personal Analytics</SuiteName>
-    <MinimumRequiredVersion>0.9.2.1</MinimumRequiredVersion>
+    <MinimumRequiredVersion>0.9.5.5</MinimumRequiredVersion>
+    <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>5</ApplicationRevision>
-    <ApplicationVersion>0.9.2.%2a</ApplicationVersion>
+    <ApplicationRevision>7</ApplicationRevision>
+    <ApplicationVersion>0.9.5.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <!-- <PublisherName>Andre Meyer %28MSR%29</PublisherName> -->
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -84,28 +87,49 @@
   <PropertyGroup>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>Sdl7.0.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Hardcodet.Wpf.TaskbarNotification">
+    <Reference Include="Hardcodet.Wpf.TaskbarNotification, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Hardcodet.NotifyIcon.Wpf.1.0.5\lib\net45\Hardcodet.Wpf.TaskbarNotification.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Data.SQLite, Version=1.0.97.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\System.Data.SQLite.Core.1.0.97.0\lib\net45\System.Data.SQLite.dll</HintPath>
+    <Reference Include="System.Data.SQLite, Version=1.0.98.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.Core.1.0.98.1\lib\net45\System.Data.SQLite.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="System.Data.SQLite.EF6, Version=1.0.97.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\System.Data.SQLite.EF6.1.0.97.0\lib\net45\System.Data.SQLite.EF6.dll</HintPath>
+    <Reference Include="System.Data.SQLite.EF6, Version=1.0.98.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.EF6.1.0.98.1\lib\net45\System.Data.SQLite.EF6.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="System.Data.SQLite.Linq, Version=1.0.97.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\System.Data.SQLite.Linq.1.0.97.0\lib\net45\System.Data.SQLite.Linq.dll</HintPath>
+    <Reference Include="System.Data.SQLite.Linq, Version=1.0.98.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SQLite.Linq.1.0.98.1\lib\net45\System.Data.SQLite.Linq.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -124,23 +148,20 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="FirstStartWindow.xaml.cs">
+      <DependentUpon>FirstStartWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Tracker\TrackerManager.cs" />
+    <Compile Include="TrackerManager.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Visualizations\ActivityPieChart.cs" />
-    <Compile Include="Visualizations\ContextTimelineChart.cs" />
-    <Compile Include="Visualizations\HttpInterface.cs" />
-    <Compile Include="Visualizations\IChart.cs" />
-    <Compile Include="Visualizations\PersonalAnalyticsHttp.cs" />
-    <Compile Include="Visualizations\ProductivityGaugeChart.cs" />
-    <Compile Include="Visualizations\VisHelper.cs" />
+    <Compile Include="TrackerSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -156,14 +177,6 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="Assets\tessdata\eng.DangAmbigs" />
-    <None Include="Assets\tessdata\eng.freq-dawg" />
-    <None Include="Assets\tessdata\eng.inttemp" />
-    <None Include="Assets\tessdata\eng.normproto" />
-    <None Include="Assets\tessdata\eng.pffmtable" />
-    <None Include="Assets\tessdata\eng.unicharset" />
-    <None Include="Assets\tessdata\eng.user-words" />
-    <None Include="Assets\tessdata\eng.word-dawg" />
     <None Include="bin\Release\tessdata\eng.DangAmbigs" />
     <None Include="bin\Release\tessdata\eng.freq-dawg" />
     <None Include="bin\Release\tessdata\eng.inttemp" />
@@ -174,24 +187,11 @@
     <None Include="bin\Release\tessdata\eng.word-dawg" />
     <None Include="packages.config" />
     <None Include="PersonalAnalytics_TemporaryKey.pfx" />
-    <None Include="Properties\c3_min_css" />
-    <None Include="Properties\c3_min_js" />
-    <None Include="Properties\d3_min_js" />
-    <None Include="Properties\d3_timeline_js" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
-    <None Include="Properties\styles_css" />
-    <Content Include="tessdata\eng.DangAmbigs" />
-    <Content Include="tessdata\eng.freq-dawg" />
-    <Content Include="tessdata\eng.inttemp" />
-    <Content Include="tessdata\eng.normproto" />
-    <Content Include="tessdata\eng.pffmtable" />
-    <Content Include="tessdata\eng.unicharset" />
-    <Content Include="tessdata\eng.user-words" />
-    <Content Include="tessdata\eng.word-dawg" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -214,13 +214,25 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TimeSpentVisualizer\TimeSpentVisualizer.csproj">
+      <Project>{8eba3b95-be0e-4498-9eac-20d417176a00}</Project>
+      <Name>TimeSpentVisualizer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MsOfficeTracker\MsOfficeTracker.csproj">
+      <Project>{82ed616d-1508-41c5-a72a-b6a4f7c9b7e6}</Project>
+      <Name>MsOfficeTracker</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PeopleVisualizer\PeopleVisualizer.csproj">
+      <Project>{e1767d02-a50f-4447-9c9c-ebeb91d4d581}</Project>
+      <Name>PeopleVisualizer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Retrospection\Retrospection.csproj">
+      <Project>{ebd795e6-e7ad-49e4-a812-d2de29186c49}</Project>
+      <Name>Retrospection</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Shared\Shared.csproj">
       <Project>{2bbdfa6d-20dd-4a7b-893e-43c388382c9a}</Project>
       <Name>Shared</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\TaskSwitchTracker\TaskSwitchTracker.csproj">
-      <Project>{6505e53e-9890-4cd6-88dd-c72710a7f7ab}</Project>
-      <Name>TaskSwitchTracker</Name>
     </ProjectReference>
     <ProjectReference Include="..\UserEfficiencyTracker\UserEfficiencyTracker.csproj">
       <Project>{30dda905-2068-4985-8372-ffb11c8ad4d9}</Project>
@@ -234,10 +246,6 @@
       <Project>{2b903556-4dd2-41ce-beac-3ddd045f717d}</Project>
       <Name>WindowsActivityTracker</Name>
     </ProjectReference>
-    <ProjectReference Include="..\WindowsContextTracker\WindowsContextTracker.csproj">
-      <Project>{e91dc4e4-21d4-4c99-ba73-13f33e3d111d}</Project>
-      <Name>WindowsContextTracker</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\icon.ico">
@@ -245,8 +253,6 @@
     </Resource>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Assets\icon.png" />
-    <Content Include="Properties\personalanalytics.html" />
     <Content Include="x64\SQLite.Interop.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -274,14 +280,19 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Page Include="FirstStartWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\System.Data.SQLite.Core.1.0.97.0\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.97.0\build\net45\System.Data.SQLite.Core.targets')" />
+  <Import Project="..\packages\System.Data.SQLite.Core.1.0.98.1\build\net45\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.98.1\build\net45\System.Data.SQLite.Core.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.97.0\build\net45\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.97.0\build\net45\System.Data.SQLite.Core.targets'))" />
+    <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.98.1\build\net45\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.98.1\build\net45\System.Data.SQLite.Core.targets'))" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

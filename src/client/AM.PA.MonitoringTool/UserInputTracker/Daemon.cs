@@ -13,13 +13,16 @@ using Shared;
 using UserInputTracker.Data;
 using UserInputTracker.Models;
 using Timer = System.Timers.Timer;
+using UserInputTracker.Visualizations;
+using Shared.Data;
 
 namespace UserInputTracker
 {
-    public class Daemon : BaseTracker, ITracker
+    public sealed class Daemon : BaseTrackerDisposable, ITracker
     {
         #region FIELDS
 
+        private bool _disposed = false;
         private IKeyboardMouseEvents _mEvents;
         private Timer _mouseSnapshotTimer;
         private Timer _saveToDatabaseTimer;
@@ -43,6 +46,26 @@ namespace UserInputTracker
         public Daemon()
         {
             Name = "User Input Tracker";
+        }
+
+        protected override  void Dispose(bool disposing)
+        {
+            if (! _disposed)
+            {
+                if (disposing)
+                {
+                    _saveToDatabaseTimer.Dispose();
+                    _mouseSnapshotTimer.Dispose();
+                    _mEvents.Dispose();
+                }
+
+                // Release unmanaged resources.
+                // Set large fields to null.                
+                _disposed = true;
+            }
+
+            // Call Dispose on your base class.
+            base.Dispose(disposing);
         }
 
         public override void Start()
@@ -78,9 +101,14 @@ namespace UserInputTracker
             if (_saveToDatabaseTimer != null)
             {
                 _saveToDatabaseTimer.Stop();
+                _saveToDatabaseTimer.Dispose();
                 _saveToDatabaseTimer = null;
+            }
 
+            if (_mouseSnapshotTimer != null)
+            {
                 _mouseSnapshotTimer.Stop();
+                _mouseSnapshotTimer.Dispose();
                 _mouseSnapshotTimer = null;
             }
 
@@ -99,6 +127,12 @@ namespace UserInputTracker
             IsRunning = false;
         }
 
+        public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
+        {
+            var vis = new DayUserInputLineChart(date);
+            return new List<IVisualization> { vis };
+        }
+
         public override void CreateDatabaseTablesIfNotExist()
         {
             Queries.CreateUserInputTables();
@@ -106,7 +140,40 @@ namespace UserInputTracker
 
         public override bool IsEnabled()
         {
-            return Settings.IsEnabled;
+            return UserInputTrackerEnabled;
+        }
+
+        private bool _userInputTrackerEnabled;
+        public bool UserInputTrackerEnabled
+        {
+            get
+            {
+                _userInputTrackerEnabled = Database.GetInstance().GetSettingsBool("UserInputTrackerEnabled", Settings.IsEnabledByDefault);
+                return _userInputTrackerEnabled;
+            }
+            set
+            {
+                var updatedIsEnabled = value;
+
+                // only update if settings changed
+                if (updatedIsEnabled == _userInputTrackerEnabled) return;
+
+                // update settings
+                Database.GetInstance().SetSettings("UserInputTrackerEnabled", value);
+
+                // start/stop tracker if necessary
+                if (!updatedIsEnabled && IsRunning)
+                {
+                    Stop();
+                }
+                else if (updatedIsEnabled && !IsRunning)
+                {
+                    Start();
+                }
+
+                // log
+                Database.GetInstance().LogInfo("The participant updated the setting 'UserInputTrackerEnabled' to " + updatedIsEnabled);
+            }
         }
 
         #endregion
@@ -324,6 +391,7 @@ namespace UserInputTracker
                 Logger.WriteToLogFile(e);
             }
         }
+
         #endregion
 
         //#region Calculate User Input

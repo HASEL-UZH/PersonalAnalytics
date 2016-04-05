@@ -10,8 +10,7 @@ namespace Shared.Data
     public class Database
     {
         private static DatabaseImplementation _localDb;
-        private static DatabaseImplementation _remoteDb;
-        private static DatabaseImplementation _settingsDb;
+        //private static DatabaseImplementation _remoteDb;
 
         /// <summary>
         /// Singleton. Returns the instance of the local database.
@@ -26,16 +25,16 @@ namespace Shared.Data
         /// Singleton. Returns the instance of the remote database.
         /// </summary>
         /// <returns></returns>
-        public static DatabaseImplementation GetInstanceRemote()
-        {
-            if (_remoteDb == null)
-            {
-                _remoteDb = new DatabaseImplementation(GetRemoteDatabaseSavePath());
-                _remoteDb.Connect();
-            }
+        //public static DatabaseImplementation GetInstanceRemote()
+        //{
+        //    if (_remoteDb == null)
+        //    {
+        //        _remoteDb = new DatabaseImplementation(GetRemoteDatabaseSavePath());
+        //        _remoteDb.Connect();
+        //    }
 
-            return _remoteDb;
-        }
+        //    return _remoteDb;
+        //}
 
         /// <summary>
         /// Singleton. Returns the instance of the settings database.
@@ -43,14 +42,16 @@ namespace Shared.Data
         /// <returns></returns>
         public static DatabaseImplementation GetInstanceSettings()
         {
-            if (_settingsDb == null)
-            {
-                _settingsDb = new DatabaseImplementation(GetSettingsDatabaseSavePath());
-                _settingsDb.Connect();
-                _settingsDb.CreateSettingsTable();
-            }
+            return _localDb ?? (_localDb = new DatabaseImplementation(GetLocalDatabaseSavePath()));
 
-            return _settingsDb;
+            //if (_settingsDb == null)
+            //{
+            //    _settingsDb = new DatabaseImplementation(GetSettingsDatabaseSavePath());
+            //    _settingsDb.Connect();
+            //    _settingsDb.CreateSettingsTable();
+            //}
+
+            //return _settingsDb;
         }
 
         /// <summary>
@@ -69,10 +70,10 @@ namespace Shared.Data
         /// there to be merged for the visualizations.
         /// </summary>
         /// <returns></returns>
-        public static string GetRemoteDatabaseSavePath()
-        {
-            return GetDatabaseSavePath(Settings.ExportFilePath + Settings.RemoteFolderName);
-        }
+        //public static string GetRemoteDatabaseSavePath()
+        //{
+        //    return GetDatabaseSavePath(Settings.ExportFilePath + Settings.RemoteFolderName);
+        //}
 
         /// <summary>
         /// Returns the path of the database file that stores the settings.
@@ -93,8 +94,8 @@ namespace Shared.Data
         private static string GetDatabaseSavePath(string exportPath)
         {
             return Path.Combine(exportPath, "pa.dat"); // New file name since 20.10.15
-            //var dbPath = string.Format("{0}pa_{1}.dat", exportPath, DateTime.Now.Year); // New file name since 07.04.15
-            //var dbPath = string.Format("{0}pa_{1}_{2}.dat", exportPath, DateTime.Now.Year, Helpers.GetIso8601WeekOfYear(DateTime.Now));
+            //var dbPath = string.Format(CultureInfo.InvariantCulture,"{0}pa_{1}.dat", exportPath, DateTime.Now.Year); // New file name since 07.04.15
+            //var dbPath = string.Format(CultureInfo.InvariantCulture,"{0}pa_{1}_{2}.dat", exportPath, DateTime.Now.Year, Helpers.GetIso8601WeekOfYear(DateTime.Now));
         }
 
         private static string GetSettingsSavePath(string exportPath)

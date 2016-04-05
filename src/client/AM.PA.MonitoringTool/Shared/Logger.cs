@@ -51,7 +51,7 @@ namespace Shared
         /// Returns the path to the logfile
         /// </summary>
         /// <returns></returns>
-        private static string GetLogPath()
+        public static string GetLogPath()
         {
             return Path.Combine(Settings.ExportFilePath, "errors.log");
         }

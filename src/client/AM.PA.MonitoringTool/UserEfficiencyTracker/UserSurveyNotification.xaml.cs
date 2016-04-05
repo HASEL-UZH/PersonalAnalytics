@@ -4,16 +4,18 @@
 // Licensed under the MIT License.
 using System;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Threading;
+using UserEfficiencyTracker.Models;
 
 namespace UserEfficiencyTracker
 {
     public enum PostPoneSurvey
     {
         None,
-        PostponeShort,
-        PostponeDay,
-        PostponeHour
+        Postpone1,
+        Postpone2,
+        Postpone3
     };
 
     /// <summary>
@@ -21,12 +23,23 @@ namespace UserEfficiencyTracker
     /// </summary>
     public partial class UserSurveyNotification : Window
     {
-        public bool TakeSurveyNow { get; set; }
+        public SurveyEntry _previousSurveyEntry;
+        public int UserSelectedProductivity { get; set; }
         public PostPoneSurvey PostPoneSurvey { get; set; }
 
-        public UserSurveyNotification()
+        public UserSurveyNotification(SurveyEntry previousSurveyEntry)
         {
             this.InitializeComponent();
+
+            _previousSurveyEntry = previousSurveyEntry;
+
+            if (_previousSurveyEntry != null && _previousSurveyEntry.TimeStampFinished  != null && // if available
+                _previousSurveyEntry.TimeStampFinished.Day == DateTime.Now.Day) // only if it was answered today
+            {
+                LastTimeFilledOut.Text = "Last entry was: "
+                    + _previousSurveyEntry.TimeStampFinished.ToShortDateString() + " " 
+                    + _previousSurveyEntry.TimeStampFinished.ToShortTimeString();
+            }
         }
 
         /// <summary>
@@ -36,8 +49,8 @@ namespace UserEfficiencyTracker
         /// <returns></returns>
         public new bool? ShowDialog()
         {
-            const int windowWidth = 320; //this.ActualWidth;
-            const int windowHeight = 230; //this.ActualHeight;
+            const int windowWidth = 510; //this.ActualWidth;
+            const int windowHeight = 295; //this.ActualHeight;
 
             this.Topmost = true;
             this.ShowActivated = false;
@@ -75,6 +88,7 @@ namespace UserEfficiencyTracker
                 var windowName = window.GetType().Name;
 
                 if (!windowName.Equals("NotificationWindow") || window == this) continue;
+
                 // Adjust any windows that were above this one to drop down
                 if (window.Top < this.Top)
                 {
@@ -84,55 +98,129 @@ namespace UserEfficiencyTracker
         }
 
         /// <summary>
-        /// user clicks to take the survey now
+        /// If the user uses shortcuts to escape or fill out the survey.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void RunSurveyClicked(object sender, RoutedEventArgs e)
+        private void OnKeyDownHandler(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            TakeSurveyNow = true;
+            if (e.Key == Key.Escape)
+            {
+                Postpone2Clicked(null, null);
+            }
+            else if (e.Key == Key.D7)
+            {
+                UserFinishedSurvey(7);
+            }
+            else if (e.Key == Key.D6)
+            {
+                UserFinishedSurvey(6);
+            }
+            else if (e.Key == Key.D5)
+            {
+                UserFinishedSurvey(5);
+            }
+            else if (e.Key == Key.D4)
+            {
+                UserFinishedSurvey(4);
+            }
+            else if (e.Key == Key.D3)
+            {
+                UserFinishedSurvey(3);
+            }
+            else if (e.Key == Key.D2)
+            {
+                UserFinishedSurvey(2);
+            }
+            else if (e.Key == Key.D1)
+            {
+                UserFinishedSurvey(1);
+            }
+            // else: do nothing
+        }
+
+        /// <summary>
+        /// Close the pop-up and save the value.
+        /// </summary>
+        /// <param name="selectedProductivityValue"></param>
+        private void UserFinishedSurvey(int selectedProductivityValue)
+        {
+            UserSelectedProductivity = selectedProductivityValue;
             PostPoneSurvey = PostPoneSurvey.None;
             DialogResult = true;
-            this.Close();
+            this.Close(); // todo: enable
         }
 
-        /// <summary>
-        /// user postpones the survey for a couple of minutes
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PostponeShortSurveyClicked(object sender, RoutedEventArgs e)
+        #region Productivity Radio Button
+
+        private void Productivity7_Checked(object sender, RoutedEventArgs e)
         {
-            TakeSurveyNow = false;
-            PostPoneSurvey = PostPoneSurvey.PostponeShort;
+            UserFinishedSurvey(7);
+        }
+
+        private void Productivity6_Checked(object sender, RoutedEventArgs e)
+        {
+            UserFinishedSurvey(6);
+        }
+
+        private void Productivity5_Checked(object sender, RoutedEventArgs e)
+        {
+            UserFinishedSurvey(5);
+        }
+
+        private void Productivity4_Checked(object sender, RoutedEventArgs e)
+        {
+            UserFinishedSurvey(4);
+        }
+
+        private void Productivity3_Checked(object sender, RoutedEventArgs e)
+        {
+            UserFinishedSurvey(3);
+        }
+
+        private void Productivity2_Checked(object sender, RoutedEventArgs e)
+        {
+            UserFinishedSurvey(2);
+        }
+
+        private void Productivity1_Checked(object sender, RoutedEventArgs e)
+        {
+            UserFinishedSurvey(1);
+        }
+
+        #endregion
+
+        #region Button Events
+
+        private void Postpone0Clicked(object sender, RoutedEventArgs e)
+        {
+            UserFinishedSurvey(-1); // didn't work
+        }
+
+        private void Postpone1Clicked(object sender, RoutedEventArgs e)
+        {
+            UserSelectedProductivity = 0; // didn't take it
+            PostPoneSurvey = PostPoneSurvey.Postpone1;
             DialogResult = true;
             this.Close();
         }
 
-        /// <summary>
-        /// user postpones the survey for one day
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PostponeDaySurveyClicked(object sender, RoutedEventArgs e)
+        private void Postpone2Clicked(object sender, RoutedEventArgs e)
         {
-            TakeSurveyNow = false;
-            PostPoneSurvey = PostPoneSurvey.PostponeDay;
+            UserSelectedProductivity = 0; // didn't take it
+            PostPoneSurvey = PostPoneSurvey.Postpone2;
             DialogResult = true;
             this.Close();
         }
 
-        /// <summary>
-        /// user postpones the survey for one week
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PostponeHourSurveyClicked(object sender, RoutedEventArgs e)
+        private void Postpone3Clicked(object sender, RoutedEventArgs e)
         {
-            TakeSurveyNow = false;
-            PostPoneSurvey = PostPoneSurvey.PostponeHour;
+            UserSelectedProductivity = 0; // didn't take it
+            PostPoneSurvey = PostPoneSurvey.Postpone3;
             DialogResult = true;
             this.Close();
         }
+
+        #endregion
     }
 }

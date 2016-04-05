@@ -2,9 +2,13 @@
 // Created: 2015-10-20
 // 
 // Licensed under the MIT License.
+using Shared;
 using Shared.Data;
+using Shared.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
 using UserInputTracker.Models;
 
 namespace UserInputTracker.Data {
@@ -21,12 +25,12 @@ namespace UserInputTracker.Data {
             } 
             catch (Exception e) 
             {
-                Shared.Logger.WriteToLogFile(e);
+                Logger.WriteToLogFile(e);
             }
         }
 
         /// <summary>
-        /// Save the keystrokes to the database. If there are more than 500 entries, 
+        /// Save the keystroke type (not exact keystroke) to the database. If there are more than 500 entries, 
         /// it is saved with multiple queries.
         /// </summary>
         /// <param name="keystrokes"></param>
@@ -51,7 +55,7 @@ namespace UserInputTracker.Data {
 
                     query += "SELECT strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
                                 Database.GetInstance().QTime(item.Timestamp) + ", " +
-                                Database.GetInstance().Q((item).KeystrokeType.ToString()) + " ";
+                                Database.GetInstance().Q((item).KeystrokeType.ToString()) + " "; // keystroke-type not keystroke
 
                     //executing remaining lines
                     if (i != 0 && i % 499 == 0) {
@@ -99,9 +103,9 @@ namespace UserInputTracker.Data {
 
                     query += "SELECT strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
                                 Database.GetInstance().QTime(item.Timestamp) + ", " +
-                                       Database.GetInstance().Q(item.X.ToString()) + ", " +
-                                       Database.GetInstance().Q(item.Y.ToString()) + ", " +
-                                       Database.GetInstance().Q(item.ScrollDelta.ToString()) + " ";
+                                       Database.GetInstance().Q(item.X.ToString(CultureInfo.InvariantCulture)) + ", " +
+                                       Database.GetInstance().Q(item.Y.ToString(CultureInfo.InvariantCulture)) + ", " +
+                                       Database.GetInstance().Q(item.ScrollDelta.ToString(CultureInfo.InvariantCulture)) + " ";
 
                     //executing remaining lines
                     if (i != 0 && i % 499 == 0) {
@@ -149,8 +153,8 @@ namespace UserInputTracker.Data {
 
                     query += "SELECT strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
                                 Database.GetInstance().QTime(item.Timestamp) + ", " +
-                                Database.GetInstance().Q(item.X.ToString()) + ", " +
-                                Database.GetInstance().Q(item.Y.ToString()) + ", " +
+                                Database.GetInstance().Q(item.X.ToString(CultureInfo.InvariantCulture)) + ", " +
+                                Database.GetInstance().Q(item.Y.ToString(CultureInfo.InvariantCulture)) + ", " +
                                 Database.GetInstance().Q(item.Button.ToString()) + " ";
 
                     //executing remaining lines
@@ -199,9 +203,9 @@ namespace UserInputTracker.Data {
 
                     query += "SELECT strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
                                 Database.GetInstance().QTime(item.Timestamp) + ", " +
-                                Database.GetInstance().Q(item.X.ToString()) + ", " +
-                                Database.GetInstance().Q(item.Y.ToString()) + ", " +
-                                Database.GetInstance().Q(item.MovedDistance.ToString()) + " ";
+                                Database.GetInstance().Q(item.X.ToString(CultureInfo.InvariantCulture)) + ", " +
+                                Database.GetInstance().Q(item.Y.ToString(CultureInfo.InvariantCulture)) + ", " +
+                                Database.GetInstance().Q(item.MovedDistance.ToString(CultureInfo.InvariantCulture)) + " ";
 
                     //executing remaining lines
                     if (i != 0 && i % 499 == 0) {
@@ -220,6 +224,123 @@ namespace UserInputTracker.Data {
             {
                 Shared.Logger.WriteToLogFile(e);
             }
+        }
+
+        /// <summary>
+        /// Returns a dictionary with an input-level like data set for each interval (Settings.UserInputVisMinutesInterval)
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        internal static Dictionary<DateTime, int> GetUserInputTimelineData(DateTimeOffset date)
+        {
+            var dto = new Dictionary<DateTime, int>();
+
+            try
+            {
+                // 1. prepare Dictionary
+                VisHelper.PrepareTimeAxis(date, dto, Settings.UserInputVisMinutesInterval);
+
+                // 2. fill keyboard data
+                try
+                {
+                    var queryKeystrokes = "SELECT timestamp FROM " + Settings.DbTableKeyboard + " WHERE STRFTIME('%s', DATE(time))==STRFTIME('%s', DATE('" + date.Date.ToString("u", CultureInfo.InvariantCulture) + "'));";
+                    var tableKeystrokes = Database.GetInstance().ExecuteReadQuery(queryKeystrokes);
+
+                    foreach (DataRow row in tableKeystrokes.Rows)
+                    {
+                        var time = DateTime.Parse((string)row["timestamp"], CultureInfo.InvariantCulture);
+                        time = time.AddSeconds(-time.Second); // nice seconds
+
+                        // find 15 minutes interval
+                        time = Shared.Helpers.DateTimeHelper.RoundUp(time, TimeSpan.FromMinutes(Settings.UserInputVisMinutesInterval));
+
+                        // add keystroke
+                        if (dto.ContainsKey(time)) dto[time]++;
+                    }
+                    tableKeystrokes.Dispose();
+                }
+                catch (Exception e)
+                {
+                    Logger.WriteToLogFile(e);
+                }
+
+                // 3. fill mouse click data
+                try
+                {
+                    var queryMouseClicks = "SELECT timestamp FROM " + Settings.DbTableMouseClick + " WHERE STRFTIME('%s', DATE(time))==STRFTIME('%s', DATE('" + date.Date.ToString("u", CultureInfo.InvariantCulture) + "'));";
+                    var tableMouseClicks = Database.GetInstance().ExecuteReadQuery(queryMouseClicks);
+                    foreach (DataRow row in tableMouseClicks.Rows)
+                    {
+                        var time = DateTime.Parse((string)row["timestamp"], CultureInfo.InvariantCulture);
+                        time = time.AddSeconds(-time.Second); // nice seconds
+
+                        // find 10 minutes interval
+                        time = Shared.Helpers.DateTimeHelper.RoundUp(time, TimeSpan.FromMinutes(Settings.UserInputVisMinutesInterval));
+
+                        // add mouse click (with weighting)
+                        if (dto.ContainsKey(time)) dto[time] += Settings.MouseClickKeyboardRatio;
+                    }
+                    tableMouseClicks.Dispose();
+                }
+                catch (Exception e)
+                {
+                    Logger.WriteToLogFile(e);
+                }
+
+                // 4. fill mouse scrolling data
+                try
+                {
+                    var queryMouseScrolls = "SELECT timestamp, scrollDelta FROM " + Settings.DbTableMouseScrolling + " WHERE STRFTIME('%s', DATE(time))==STRFTIME('%s', DATE('" + date.Date.ToString("u", CultureInfo.InvariantCulture) + "')) AND scrollDelta > 0;";
+                    var tableMouseScrolls = Database.GetInstance().ExecuteReadQuery(queryMouseScrolls);
+                    foreach (DataRow row in tableMouseScrolls.Rows)
+                    {
+                        var time = DateTime.Parse((string)row["timestamp"], CultureInfo.InvariantCulture);
+                        time = time.AddSeconds(-time.Second); // nice seconds
+
+                        // find 10 minutes interval
+                        time = Shared.Helpers.DateTimeHelper.RoundUp(time, TimeSpan.FromMinutes(Settings.UserInputVisMinutesInterval));
+
+                        // add mouse scrolling (with weighting)
+                        var scroll = (long)row["scrollDelta"];
+                        if (scroll > 0 && dto.ContainsKey(time)) dto[time] += (int)Math.Round(scroll * Settings.MouseScrollingKeyboardRatio, 0);
+                    }
+                    tableMouseScrolls.Dispose();
+                }
+                catch (Exception e)
+                {
+                    Logger.WriteToLogFile(e);
+                }
+
+                // 5. fill mouse move data
+                try
+                {
+                    var queryMouseMovements = "SELECT timestamp, movedDistance FROM " + Settings.DbTableMouseMovement + " WHERE STRFTIME('%s', DATE(time))==STRFTIME('%s', DATE('" + date.Date.ToString("u", CultureInfo.InvariantCulture) + "')) AND movedDistance > 0;";
+                    var tableMouseMovements = Database.GetInstance().ExecuteReadQuery(queryMouseMovements);
+                    foreach (DataRow row in tableMouseMovements.Rows)
+                    {
+                        var time = DateTime.Parse((string)row["timestamp"], CultureInfo.InvariantCulture);
+                        time = time.AddSeconds(-time.Second); // nice seconds
+
+                        // find 10 minutes interval
+                        time = Shared.Helpers.DateTimeHelper.RoundUp(time, TimeSpan.FromMinutes(Settings.UserInputVisMinutesInterval));
+
+                        // add mouse movement (with weighting)
+                        var moved = (long)row["movedDistance"];
+                        if (moved > 0 && dto.ContainsKey(time)) dto[time] += (int)Math.Round(moved * Settings.MouseMovementKeyboardRatio, 0);
+                    }
+                    tableMouseMovements.Dispose();
+                }
+                catch (Exception e)
+                {
+                    Logger.WriteToLogFile(e);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+
+            return dto;
         }
     }
 }

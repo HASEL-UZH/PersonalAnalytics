@@ -10,6 +10,10 @@ using System.Timers;
 using WindowsActivityTracker.Helpers;
 using Shared;
 using Shared.Data;
+using System.Collections.Generic;
+using WindowsActivityTracker.Visualizations;
+using WindowsActivityTracker.Data;
+using System.Globalization;
 
 namespace WindowsActivityTracker
 {
@@ -17,9 +21,10 @@ namespace WindowsActivityTracker
     /// This tracker stores all program switches (window switch) and changes of the
     /// window titles in the database (using Windows Hooks and its events).
     /// </summary>
-    public class Daemon : BaseTracker, ITracker
+    public sealed class Daemon : BaseTrackerDisposable, ITracker
     {
-        User32.WinEventDelegate _dele; // to ensure it's not collected while using
+        private bool _disposed = false;
+        NativeMethods.WinEventDelegate _dele; // to ensure it's not collected while using
         private IntPtr _hWinEventHookForWindowSwitch;
         private IntPtr _hWinEventHookForWindowTitleChange;
         private Timer _idleCheckTimer;
@@ -35,14 +40,32 @@ namespace WindowsActivityTracker
             Name = "Windows Activity Tracker";
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _idleCheckTimer.Dispose();
+                }
+
+                // Release unmanaged resources.
+                // Set large fields to null.                
+                _disposed = true;
+            }
+
+            // Call Dispose on your base class.
+            base.Dispose(disposing);
+        }
+
         public override void Start()
         {
             try
             {
                 // Register for Window Events
-                _dele = new User32.WinEventDelegate(WinEventProc);
-                _hWinEventHookForWindowSwitch = User32.SetWinEventHook(User32.EVENT_SYSTEM_FOREGROUND, User32.EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, _dele, 0, 0, User32.WINEVENT_OUTOFCONTEXT);
-                _hWinEventHookForWindowTitleChange = User32.SetWinEventHook(User32.EVENT_OBJECT_NAMECHANGE, User32.EVENT_OBJECT_NAMECHANGE, IntPtr.Zero, _dele, 0, 0, User32.WINEVENT_OUTOFCONTEXT);
+                _dele = new NativeMethods.WinEventDelegate(WinEventProc);
+                _hWinEventHookForWindowSwitch = NativeMethods.SetWinEventHook(NativeMethods.EVENT_SYSTEM_FOREGROUND, NativeMethods.EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, _dele, 0, 0, NativeMethods.WINEVENT_OUTOFCONTEXT);
+                _hWinEventHookForWindowTitleChange = NativeMethods.SetWinEventHook(NativeMethods.EVENT_OBJECT_NAMECHANGE, NativeMethods.EVENT_OBJECT_NAMECHANGE, IntPtr.Zero, _dele, 0, 0, NativeMethods.WINEVENT_OUTOFCONTEXT);
 
                 // Register to check if idle or not
                 if (Settings.RecordIdle)
@@ -54,7 +77,7 @@ namespace WindowsActivityTracker
                     _idleCheckTimer.Elapsed += CheckIfIdleTime;
                     _idleCheckTimer.Start();
 
-                    _lastInputInfo = new User32.LASTINPUTINFO();
+                    _lastInputInfo = new NativeMethods.LASTINPUTINFO();
                     _lastInputInfo.cbSize = (uint)Marshal.SizeOf(_lastInputInfo);
                     _lastInputInfo.dwTime = 0;
                 }
@@ -74,13 +97,14 @@ namespace WindowsActivityTracker
             try
             {
                 // unregister for window events
-                User32.UnhookWinEvent(_hWinEventHookForWindowSwitch);
-                User32.UnhookWinEvent(_hWinEventHookForWindowTitleChange);
+                NativeMethods.UnhookWinEvent(_hWinEventHookForWindowSwitch);
+                NativeMethods.UnhookWinEvent(_hWinEventHookForWindowTitleChange);
 
                 // unregister idle time checker
                 if (_idleCheckTimer != null)
                 {
                     _idleCheckTimer.Stop();
+                    _idleCheckTimer.Dispose();
                     _idleCheckTimer = null;
                 }
             }
@@ -94,7 +118,7 @@ namespace WindowsActivityTracker
 
         public override void CreateDatabaseTablesIfNotExist()
         {
-            Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTable + " (id INTEGER PRIMARY KEY, time TEXT, window TEXT, process TEXT)");
+            Queries.CreateWindowsActivityTable();
         }
 
         public override bool IsEnabled()
@@ -102,31 +126,24 @@ namespace WindowsActivityTracker
             return Settings.IsEnabled;
         }
 
-        #endregion
-
-        /// <summary>
-        /// Saves the timestamp, process name and window title into the database.
-        /// 
-        /// In case the user doesn't want the window title to be stored (For privacy reasons),
-        /// it is obfuscated.
-        /// </summary>
-        /// <param name="window"></param>
-        /// <param name="process"></param>
-        internal void InsertSnapshot(string window, string process)
+        public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
         {
-            if (!Settings.RecordWindowTitles)
-            {
-                var dto = new ContextDto { Context = new ContextInfos {ProgramInUse = process, WindowTitle = window} };
-                window = "[anonymized] " + ContextMapper.GetContextCategory(dto);  // obfuscate window title
-            }
-
-            Database.GetInstance().ExecuteDefaultQuery("INSERT INTO " + Settings.DbTable + " (time, window, process) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " +
-                Database.GetInstance().Q(window) + ", " + Database.GetInstance().Q(process) + ")");
+            var vis1 = new DayProgramsUsedPieChart(date);
+            var vis2 = new DayMostFocusedProgram(date);
+            return new List<IVisualization> { vis1, vis2 };
         }
+
+        public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)
+        {
+            var vis = new WeekProgramsUsedTable(date);
+            return new List<IVisualization> { vis };
+        }
+
+        #endregion
 
         #region Idle Time Checker
 
-        private User32.LASTINPUTINFO _lastInputInfo;
+        private NativeMethods.LASTINPUTINFO _lastInputInfo;
 
         /// <summary>
         ///  check every 10 seconds if the user has been idle for the past 120s
@@ -136,7 +153,7 @@ namespace WindowsActivityTracker
         private void CheckIfIdleTime(object sender, ElapsedEventArgs e)
         {
             // get a timestamp of the last user input
-            User32.GetLastInputInfo(ref _lastInputInfo);
+            NativeMethods.GetLastInputInfo(ref _lastInputInfo);
 
             // idle if no input for more than 'Interval' milliseconds (120s)
             var isIdle = ((Environment.TickCount - _lastInputInfo.dwTime) > Settings.NotCountingAsIdleInterval);
@@ -171,7 +188,7 @@ namespace WindowsActivityTracker
             {
                 _lastEntryWasIdle = true;
                 _previousWindowTitleEntry = currentWindowTitle;
-                InsertSnapshot(currentWindowTitle, process);
+                Queries.InsertSnapshot(currentWindowTitle, process);
                 //Console.WriteLine(DateTime.Now.ToString("t") + " " + DateTime.Now.Millisecond + "\t" + process + "\t" + currentWindowTitle);
             }
         }
@@ -212,28 +229,32 @@ namespace WindowsActivityTracker
         {
             // get current window title
             var handle = IntPtr.Zero;
-            handle = User32.GetForegroundWindow();
+            handle = NativeMethods.GetForegroundWindow();
             var currentWindowTitle = GetActiveWindowTitle(handle);
 
             // get current process name
             var currentProcess = GetProcessName(handle);
 
             // special cases: lockscreen, shutdown, restart
-            if (!string.IsNullOrEmpty(currentProcess) && currentProcess.Trim().ToLower().Contains("lockapp"))
+            if (!string.IsNullOrEmpty(currentProcess) && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture).Contains("lockapp"))
             {
-                currentProcess = "LockScreen";
-                currentWindowTitle = Dict.Idle;
+                currentWindowTitle = "LockScreen";
+                currentProcess = Dict.Idle;
             }
             //TODO: add more special cases
+            
+            // save if process or window title changed and user was not IDLE in past interval
+            var differentProcessNotIdle = !string.IsNullOrEmpty(currentProcess) && _previousProcess != currentProcess && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture) != "idle";
+            var differentWindowTitle = !string.IsNullOrEmpty(currentWindowTitle) && _previousWindowTitleEntry != currentWindowTitle;
+            var notIdleLastInterval = !((Environment.TickCount - _lastInputInfo.dwTime) > Settings.NotCountingAsIdleInterval);
 
-            if ((!string.IsNullOrEmpty(currentProcess) && _previousProcess != currentProcess && currentProcess.Trim().ToLower() != "idle") ||
-                (!string.IsNullOrEmpty(currentWindowTitle) && _previousWindowTitleEntry != currentWindowTitle))
+            if ((differentProcessNotIdle || differentWindowTitle) && notIdleLastInterval)
             {
                 _previousWindowTitleEntry = currentWindowTitle;
                 _previousProcess = currentProcess;
                 _lastEntryWasIdle = false;
 
-                InsertSnapshot(currentWindowTitle, currentProcess);
+                Queries.InsertSnapshot(currentWindowTitle, currentProcess);
                 //Console.WriteLine(DateTime.Now.ToString("t") + " " + DateTime.Now.Millisecond + "\t" + currentProcess + "\t" + currentWindowTitle);
             }
         }
@@ -248,7 +269,7 @@ namespace WindowsActivityTracker
             try
             {
                 uint processId;
-                User32.GetWindowThreadProcessId(handle, out processId);
+                NativeMethods.GetWindowThreadProcessId(handle, out processId);
                 return Process.GetProcessById((int)processId).ProcessName;
             }
             catch {}
@@ -267,7 +288,7 @@ namespace WindowsActivityTracker
                 const int nChars = 256;
                 var buff = new StringBuilder(nChars);
 
-                if (handle != IntPtr.Zero && User32.GetWindowText(handle, buff, nChars) > 0)
+                if (handle != IntPtr.Zero && NativeMethods.GetWindowText(handle, buff, nChars) > 0)
                 {
                     return buff.ToString();
                 }

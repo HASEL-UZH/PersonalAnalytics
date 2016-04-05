@@ -10,7 +10,7 @@ namespace WindowsContextTracker
 {
     public static class Settings
     {
-        public static bool IsEnabled = Database.GetInstanceSettings().WindowsContextTrackerEnabled;
+        public static bool IsEnabled = false; // Database.GetInstanceSettings().WindowsContextTrackerEnabled;
         public const string DbTable = "windows_context";
         public const string ScreenshotsSaveFolder = "screenshots\\"; // TEMP
 

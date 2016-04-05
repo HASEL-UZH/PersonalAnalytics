@@ -7,33 +7,62 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="PersonalAnalytics: Please take the short survey now!" 
-        SizeToContent="Height" Height="180" Width="320"
+        SizeToContent="Height" Height="245" Width="500"
+        KeyDown="OnKeyDownHandler"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent">
 
     <Grid RenderTransformOrigin="0,1" >
 
         <!-- Notification area -->
-        <Border BorderThickness="1" Background="LightGray" BorderBrush="Black" CornerRadius="10">
+        <Border BorderThickness="1" Background="LightGray" BorderBrush="Black">
             <StackPanel Margin="10">
-                <TextBlock Text="Personal Analytics: Mini-Survey" FontWeight="Bold" TextWrapping="Wrap" Margin="0 0 0 20" />
-                <TextBlock Text="Please fill out the survey. It will take less than a minute." TextWrapping="Wrap" Margin="0 0 0 20" />
+                <TextBlock Text="Compared to your normal level of productivity," Foreground="#007acc" FontWeight="Bold" FontSize="15" />
+                <TextBlock Text="how productive do you consider the previous session?" Foreground="#007acc" FontWeight="Bold" FontSize="15" />
+                <TextBlock Text="Hint: you can also just type the key 1-7 if this pop-up is in focus." />
+                <TextBlock x:Name="LastTimeFilledOut" Text="" />
 
-                <Grid Margin="0 0 0 10">
+                <StackPanel Margin="-2 30 -2 5" HorizontalAlignment="Left" Orientation="Horizontal">
+                    <Button Content="1" Width="30" Height="30" Margin="15 0 40 0" Click="Productivity1_Checked" />
+                    <Button Content="2" Width="30" Height="30" Margin="0 0 40 0" Click="Productivity2_Checked" />
+                    <Button Content="3" Width="30" Height="30" Margin="0 0 40 0" Click="Productivity3_Checked" />
+                    <Button Content="4" Width="30" Height="30" Margin="0 0 40 0" Click="Productivity4_Checked" />
+                    <Button Content="5" Width="30" Height="30" Margin="0 0 40 0" Click="Productivity5_Checked" />
+                    <Button Content="6" Width="30" Height="30" Margin="0 0 40 0" Click="Productivity6_Checked" />
+                    <Button Content="7" Width="30" Height="30" Click="Productivity7_Checked" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock HorizontalAlignment="Left" Margin="0 0 0 0" Text="not at all productive" />
+                    <TextBlock HorizontalAlignment="Left" Margin="75 0 0 0" Text="moderately productive" />
+                    <TextBlock HorizontalAlignment="Left" Margin="95 0 0 0" Text="very productive" />
+                </StackPanel>
+
+                <!--<StackPanel Margin="-2 30 -2 5" HorizontalAlignment="Left" Orientation="Horizontal">
+                    <Button Content="7" Width="30" Height="30" Margin="15 0 40 0" Click="Productivity7_Checked" />
+                    <Button Content="6" Width="30" Height="30" Margin="0 0 40 0" Click="Productivity6_Checked" />
+                    <Button Content="5" Width="30" Height="30" Margin="0 0 40 0" Click="Productivity5_Checked" />
+                    <Button Content="4" Width="30" Height="30" Margin="0 0 40 0" Click="Productivity4_Checked" />
+                    <Button Content="3" Width="30" Height="30" Margin="0 0 40 0" Click="Productivity3_Checked" />
+                    <Button Content="2" Width="30" Height="30" Margin="0 0 40 0" Click="Productivity2_Checked" />
+                    <Button Content="1" Width="30" Height="30" Click="Productivity1_Checked" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock HorizontalAlignment="Left" Margin="0 0 0 0" Text="very productive" />
+                    <TextBlock HorizontalAlignment="Left" Margin="94 0 0 0" Text="moderately productive" />
+                    <TextBlock HorizontalAlignment="Left" Margin="76 0 0 0" Text="not at all productive" />
+                </StackPanel>-->
+
+                <TextBlock HorizontalAlignment="Left" Margin="0 29 0 5" Foreground="Gray" Text="Or, postpone the pop-up:" FontWeight="Bold" />
+                <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0" Orientation="Vertical">
-                        <Button Content="Take Survey now" Height="36" Background="LightBlue" Padding="5" Margin="0 0 5 0" Click="RunSurveyClicked" />
-                        <TextBlock Text="Thank you!"  />
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="1" Orientation="Vertical" Margin="0 0 5 0">
-                        <Button Content="Take Survey in 5mins" Background="LightGray" Height="25" Margin="0 0 0 1" Click="PostponeShortSurveyClicked" />
-                        <Button Content="Take Survey in 1 hour" Background="LightGray" Height="25" Margin="0 0 0 1" Click="PostponeHourSurveyClicked" />
-                        <Button Content="Take Survey in 1 day" Background="LightGray" Height="25" Click="PostponeDaySurveyClicked"  />
-                    </StackPanel>
+                    <Button Grid.Column="0" Content="I didn't work" Background="LightGray" Height="20" Margin="0 0 5 0" Click="Postpone0Clicked"  />
+                    <Button Grid.Column="1" Content="Postpone for 5mins" Background="LightGray" Height="20" Margin="0 0 5 0" Click="Postpone1Clicked" />
+                    <Button Grid.Column="2" Content="Postpone for 1hr" Background="LightGray" Height="20" Margin="0 0 5 0" Click="Postpone2Clicked" />
+                    <Button Grid.Column="3" Content="Postpone for 6hrs" Background="LightGray" Height="20" Click="Postpone3Clicked"  />
                 </Grid>
             </StackPanel>
         </Border>

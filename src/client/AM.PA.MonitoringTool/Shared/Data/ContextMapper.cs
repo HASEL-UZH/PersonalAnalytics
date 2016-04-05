@@ -13,7 +13,7 @@ namespace Shared.Data
     /// This helper class tries to automatically classify an activity
     /// to one of the predefined categories (based on the available information).
     /// 
-    /// Created by André Meyer.
+    /// Hint: The WindowsActivityTracker must be enabled to make use of the mapper
     /// </summary>
     public static class ContextMapper
     {
@@ -124,7 +124,7 @@ namespace Shared.Data
             }
             catch (Exception e)
             {
-                Console.WriteLine("> ERROR while Mapping: {0}", e.Message);
+                Logger.WriteToLogFile(e);
             }
 
             return ContextCategory.Unknown; // should never happen!
@@ -190,11 +190,6 @@ namespace Shared.Data
             return CodeTypeApps.Any(windowName.Contains);
         }
 
-        private static bool EditorNotEnoughInfo(string windowName)
-        {
-            return string.IsNullOrEmpty(windowName) || EditorNotEnoughInfoList.Any(windowName.Contains);
-        }
-
         #endregion
 
         #region Context Mapping Lists
@@ -212,7 +207,7 @@ namespace Shared.Data
         private static readonly List<string> ReadingWritingApps = new List<string> { "snagiteditor", "confluence", "picasa", "windows photo viewer", "flashmedialiveencoder", "photofiltre", "jmp", "treepad", "winword", "word", "leo", "translate", "übersetzer", "mspub", "excel", "powerpnt", "onenote", "evernote", "acrord", "sharepoint", "pdf", "foxitreader", "adobe reader", "reader", "glcnd", "wiki", "keep", "google docs", "yammer", "docs", "office", "paint", "gimp", "photoshop", "lightroom", "tex", "latex", "photo", "foto" }; //not "note" as notepad is more coding
         private static readonly List<string> InstantMessagingApps = new List<string> { "skype", "lync", "sip", "g2mlauncher", "ciscowebexstart", "nbrplay", "g2mui", "chatter", "atmgr", "hangout", "viber" }; // includes skype for business
 
-        private static readonly List<string> BrowserApps = new List<string> { "iexplore", "chrome", "firefox", "opera", "safari", "applicationframehost", "edge" }; // ApplicationFrameHost stands for Edge
+        private static readonly List<string> BrowserApps = new List<string> { "iexplore", "chrome", "firefox", "opera", "safari", "applicationframehost", "edge" }; // ApplicationFrameHost stands for Microsoft Edge
         private static readonly List<string> WorkUnrelatedBrowsingKeywords = new List<string> { "gopro", "saldo", "halo", "book", "party", "swag", "birthday", "therapy", "vacation", "wohnung", "flat", "airbnb", "money", "hotel", "mietwagen", "rental", "credit", "hockeybuzz.com", "empatica", "wallpaper", "flight", "travel", "store", "phone", "buy", "engadget", "motorcycle", "car", "auto", "honda", "bmw", "nissan", "subaru", "winter", "summer", "bike", "bicycle", "arcgis", "finance", "portfolio", "toy", "gadget", "geek", "wellness", "health", "saturday", "sunday", "weekend", "sushi", "eat", "dessert", "restaurant", "holiday", "hotel", "cafe", "gas", "deal", "shop", "shopping", "craigslist", "vancouver", "indoor", "club", "loan", "maps", "flower", "florist", "valentine", "zalando", "tripadvisor", "golem", "pr0gramm", "tilllate", "heise", "jedipedia", "blick", "daydeal.ch", "renovero", "brack.ch", "skyscanner", "easyjet", "booking.com", "meteocheck", "scientific american", "ars technica", "national post", "sensecore", "core pro", "| time", "hockey inside/out", "netflix", "wired", "popular science", "habsrus", "flickr", "imdb", "xkcd", "derStandard.at", "amazon", "nhl.com", "20 minuten", "facebook", "reddit", "twitter", "google+", "news", "aktuell", "9gag", "youtube", "vimeo", "yahoo", "comic", "ebay", "ricardo", "whatsapp", "stream", "movie", "cinema", "kino", "music", "musik", "tumblr" };
         private static readonly List<string> WorkRelatedBrowsingWebsites = new List<string> { "batmon", "calculator", "analytics", "azure", "power bi", "business", "php", "proffix", "centmin", "picturex", "ios", "schmelzmetall", "natur- und tierpark goldau", "tierpark", "amazon web service", "cyon", "salesforce.com", "silverlight", "issue", "junit", "mylyn", "jetbrains", "telerik", "testcomplete", "application lifecycle management", "all reports", "advanced search", ".net", "c#", "java", "vbforums", "dashboard", "virtualbox", "document", "dropbox", "onedrive", "proxy", "jenkins", "databasics", "suite", "abb", "shadowbot", "office", "windows", "namespace", "ventyx", "api", "apache", "oracle", "server", "system", "ibm", "code", "codeplex", "retrospection", "stack overflow", "msdn", "developer", "documentation", "blog", "coding", "programmer" };
 
