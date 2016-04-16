@@ -26,8 +26,8 @@ namespace MsOfficeTracker.Helpers
 
         private string[] _scopes = { "https://outlook.office.com/mail.read", "https://outlook.office.com/calendars.read" }; // "https://outlook.office.com/user.readbasic.all" };
         private const string _apiUrl = "https://outlook.office.com/api/v2.0";
-        private string _loggedInUserEmail;
-        private string _loggedInUserName;
+        //private string _loggedInUserEmail;
+        //private string _loggedInUserName;
 
         /// <summary>
         /// Singleton
@@ -100,6 +100,11 @@ namespace MsOfficeTracker.Helpers
                     return false;
                 }
             }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+                return false;
+            }
         }
 
         /// <summary>
@@ -111,8 +116,8 @@ namespace MsOfficeTracker.Helpers
             try
             {
                 _authResult = await _authContext.AcquireTokenAsync(_scopes, null, Settings.ClientId, redirectUri, new PlatformParameters(PromptBehavior.Always, null));
-                _loggedInUserEmail = _authResult.UserInfo.DisplayableId;
-                _loggedInUserName = _authResult.UserInfo.Name;
+                //_loggedInUserEmail = _authResult.UserInfo.DisplayableId; // hint: UserInfo empty after authentication
+                //_loggedInUserName = _authResult.UserInfo.Name; // hint: UserInfo empty after authentication
                 return true;
             }
             catch (AdalException ex)
@@ -137,6 +142,11 @@ namespace MsOfficeTracker.Helpers
                     Logger.WriteToLogFile(ex);
                     return false;
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteToLogFile(ex);
+                return false;
             }
         }
 
@@ -168,7 +178,7 @@ namespace MsOfficeTracker.Helpers
             var res = await TrySilentAuthentication();
             if (res)
             {
-                Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "Successfully logged in with Office 365 ({0})", _loggedInUserEmail));
+                Database.GetInstance().LogInfo("Successfully logged in with Office 365.");
                 return true;
             }
             else
@@ -178,10 +188,10 @@ namespace MsOfficeTracker.Helpers
             }
         }
 
-        public bool IsAuthenticatedUser(string name, string email)
-        {
-            return (name == _loggedInUserName || email == _loggedInUserEmail);
-        }
+        //public bool IsAuthenticatedUser(string name, string email)
+        //{
+        //    return (name == _loggedInUserName || email == _loggedInUserEmail);
+        //}
 
         /// <summary>
         /// Returns true if the user is already authenticated with Office 365
