@@ -10,3 +10,4 @@ _ReSharper.*/
 bin/
 obj/
 Debug/
+/deployment/PersonalDeveloperAnalytics.old.rar

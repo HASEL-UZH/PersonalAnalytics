@@ -37,7 +37,7 @@ namespace Shared
         public const int Port = 57827; // needed for the retrospection (local web server)
 
         // path (Regedit): Computer\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run
-        public const string RegAppPath = @"\Personal Analytics (MSR)\Personal Analytics\Personal Analytics.appref-ms"; // change also publisher name in .csproj
+        public const string RegAppPath = @"\Personal Analytics\Personal Analytics\Personal Analytics.appref-ms"; // change also publisher name in .csproj
         // was: public const string RegAppPath = @"\Andre Meyer (S.E.A.L., University of Zurich)\Personal Analytics\Personal Analytics.appref-ms";
 
         ////////////////////////////////////////////////////////////
