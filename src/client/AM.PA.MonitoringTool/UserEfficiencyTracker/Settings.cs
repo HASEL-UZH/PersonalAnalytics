@@ -11,7 +11,7 @@ namespace UserEfficiencyTracker
     public static class Settings
     {
         public static bool DefaultPopUpIsEnabled = true;
-        public const int DefaultPopUpInterval = 60; // in minutes
+        public const int DefaultPopUpInterval = 1; //TODO: 60; // in minutes
 
         //public static bool IsEnabled = MiniSurveysEnabled;
         public const string DbTable = "user_efficiency_survey";
@@ -23,5 +23,6 @@ namespace UserEfficiencyTracker
         public static TimeSpan IntervalPostponeShortInterval = TimeSpan.FromMinutes(IntervalPostponeShortInMinutes);
         public static TimeSpan SurveyCheckerInterval = TimeSpan.FromMinutes(SurveyCheckerMinutes);
         public static TimeSpan IntervalCloseIfNotAnsweredInterval = TimeSpan.FromHours(IntervalCloseIfNotAnsweredAfterHours);
+        public static TimeSpan DailyPopUpEarliestMoment = new TimeSpan(4, 0, 0); // 4 am in the morning
     }
 }

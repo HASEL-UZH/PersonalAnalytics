@@ -20,6 +20,7 @@ namespace UserEfficiencyTracker.Data
 
         /// <summary>
         /// Saves the survey entry to the database
+        /// (used for both, daily and interval survey)
         /// </summary>
         /// <param name="entry"></param>
         internal static void SaveEntry(SurveyEntry entry)
@@ -28,11 +29,12 @@ namespace UserEfficiencyTracker.Data
 
             try
             {
-                var query = "INSERT INTO " + Settings.DbTable + " (time, surveyNotifyTime, surveyStartTime, surveyEndTime, userProductivity) VALUES (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
+                var query = "INSERT INTO " + Settings.DbTable + " (time, surveyNotifyTime, surveyStartTime, surveyEndTime, userProductivity, column1) VALUES (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
                 Database.GetInstance().QTime(entry.TimeStampNotification) + ", " +
                 Database.GetInstance().QTime(entry.TimeStampStarted) + ", " +
                 Database.GetInstance().QTime(entry.TimeStampFinished) + ", " +
-                Database.GetInstance().Q(entry.Productivity.ToString(CultureInfo.InvariantCulture)) + ");";
+                Database.GetInstance().Q(entry.Productivity.ToString(CultureInfo.InvariantCulture)) + ", " +
+                Database.GetInstance().Q(entry.SurveyMode.ToString()) + ");";
 
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }
@@ -41,11 +43,12 @@ namespace UserEfficiencyTracker.Data
 
         /// <summary>
         /// returns the previous survey entry if available
+        /// (only get interval survey responses)
         /// </summary>
         /// <returns>previous survey entry or null, if there isn't any</returns>
-        internal static SurveyEntry GetPreviousSurveyEntry()
+        internal static SurveyEntry GetPreviousIntervalSurveyEntry()
         {
-            var res = Database.GetInstance().ExecuteReadQuery("SELECT surveyNotifyTime, surveyStartTime, surveyEndTime, userProductivity FROM " + Settings.DbTable + " ORDER BY time DESC;");
+            var res = Database.GetInstance().ExecuteReadQuery("SELECT surveyNotifyTime, surveyStartTime, surveyEndTime, userProductivity FROM " + Settings.DbTable + " WHERE column1 == '" + SurveyMode.DailyPopUp.ToString() + "' ORDER BY time DESC;");
             if (res == null || res.Rows.Count == 0) return null;
 
             var entry = new SurveyEntry();
@@ -87,6 +90,16 @@ namespace UserEfficiencyTracker.Data
                 catch { } // necessary, if we run it after the DB initialization, there is no value
             }
             return entry;
+        }
+
+        /// <summary>
+        /// Get Previous Work Day
+        /// </summary>
+        /// <returns></returns>
+        internal static DateTime GetPreviousActiveWorkDay()
+        {
+            //TODO: Implement
+            return DateTime.Now.AddDays(-12).Date; //TODO: fetch
         }
 
         /// <summary>

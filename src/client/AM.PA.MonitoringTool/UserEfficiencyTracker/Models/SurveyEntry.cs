@@ -8,6 +8,7 @@ namespace UserEfficiencyTracker.Models
 {
     public class SurveyEntry
     {
+        public SurveyMode SurveyMode { get; set; }
         public DateTime TimeStampNotification { get; set; }
         public DateTime TimeStampStarted { get; set; }
         public DateTime TimeStampFinished { get; set; }

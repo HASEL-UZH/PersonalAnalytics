@@ -17,11 +17,18 @@ using System.Globalization;
 
 namespace UserEfficiencyTracker
 {
+    public enum SurveyMode
+    {
+        IntervalPopUp,
+        DailyPopUp
+    }
+
     public class Daemon : BaseTracker, ITracker
     {
         private DispatcherTimer _timer;
         private static TimeSpan _timeRemainingUntilNextSurvey;
         private SurveyEntry _currentSurveyEntry;
+        private DateTime _lastDailyPopUpResponse;
 
         #region METHODS
 
@@ -163,29 +170,39 @@ namespace UserEfficiencyTracker
 
         #endregion
 
-        #region Daemon
+        #region PopUp Daemon
 
         /// <summary>
         /// loop runs in a separate thread
         /// </summary>
         private void TimerTick(object sender, EventArgs args)
         {
-            // only show survey when its ready to be shown
-            if (_timeRemainingUntilNextSurvey > Settings.SurveyCheckerInterval)
+            // daily survey
+            if (DateTime.Now.Date != _lastDailyPopUpResponse.Date &&  // no pop-up today yet
+                DateTime.Now.TimeOfDay >= Settings.DailyPopUpEarliestMoment && // not before 04.00 am
+                Queries.GetPreviousActiveWorkDay() != null) // only if there is a previous work day
             {
-              _timeRemainingUntilNextSurvey = _timeRemainingUntilNextSurvey.Subtract(Settings.SurveyCheckerInterval);
-                return;
+                RunSurvey(SurveyMode.DailyPopUp);
+                return; // don't immediately show interval survey
             }
 
-            // show survey
-            RunSurvey(DateTime.Now);
+            // inverval survey
+            if (_timeRemainingUntilNextSurvey > Settings.SurveyCheckerInterval)
+            {
+                _timeRemainingUntilNextSurvey = _timeRemainingUntilNextSurvey.Subtract(Settings.SurveyCheckerInterval);
+                return; // not necessary
+            }
+            else
+            {
+                RunSurvey(SurveyMode.IntervalPopUp);
+            }
         }
 
         /// <summary>
         /// runs the survey and handles the response
         /// </summary>
         /// <returns></returns>
-        private void RunSurvey(DateTime notifyTimeStamp)
+        private void RunSurvey(SurveyMode mode)
         {
             try
             {
@@ -193,49 +210,32 @@ namespace UserEfficiencyTracker
                 () =>
                 {
                     // set previous entry to show previous entry time in popup
-                    var previousSurveyEntry = Queries.GetPreviousSurveyEntry();
+                    var popup = (mode == SurveyMode.IntervalPopUp)
+                        ? (Window)new IntervalProductivityPopUp(Queries.GetPreviousIntervalSurveyEntry())
+                        : (Window)new DailyProductivityPopUp(Queries.GetPreviousActiveWorkDay());
 
-                    var popup = new UserSurveyNotification(previousSurveyEntry);
-
-                    // first time the notification is shown
+                    // if it's the first time the notification is shown
                     if (_currentSurveyEntry == null)
                     {
                         _currentSurveyEntry = new SurveyEntry();
                         _currentSurveyEntry.TimeStampNotification = DateTime.Now;
+                            _currentSurveyEntry.SurveyMode = mode;
                     }
 
                     // (re-)set the timestamp of filling out the survey
                     _currentSurveyEntry.TimeStampStarted = DateTime.Now;
-
-                    // show interval survey
-                    var response = popup.ShowDialog();
-
-                    // handle response
-                    if (response == true)
+                
+                    // show popup & handle response
+                    if (popup.ShowDialog() == true)
                     {
-                        // user took the survey
-                        if (popup.UserSelectedProductivity >= 1 && popup.UserSelectedProductivity <= 7)
+                        switch (mode)
                         {
-                            SaveSurvey(popup);
-                            Database.GetInstance().LogInfo("The participant completed the survey.");
-                        }
-                        // user didn't work
-                        else if (popup.UserSelectedProductivity == -1)
-                        {
-                            SaveSurvey(popup);
-                            Database.GetInstance().LogInfo("The participant didn't work when the pop-up was shown");
-                        }
-                        // user postponed the survey
-                        else if (popup.PostPoneSurvey != PostPoneSurvey.None)
-                        {
-                            PostponeSurvey(popup);
-                            Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "The participant postponed the survey ({0}).", popup.PostPoneSurvey));
-                        }
-                        // something strange happened
-                        else
-                        {
-                            _currentSurveyEntry = null;
-                            _timeRemainingUntilNextSurvey = Settings.IntervalPostponeShortInterval;
+                            case SurveyMode.DailyPopUp:
+                                HandleDailyPopUpResponse((DailyProductivityPopUp)popup);
+                                break;
+                            case SurveyMode.IntervalPopUp:
+                                HandleIntervalPopUpResponse((IntervalProductivityPopUp)popup);
+                                break;
                         }
                     }
                     else
@@ -249,11 +249,40 @@ namespace UserEfficiencyTracker
             catch (Exception e) { Database.GetInstance().LogError(Name + ": " + e.Message); }
         }
 
+        #region Interval Survey Methods
+
         /// <summary>
-        /// Saves the survey in the db & resets some items
+        /// handles the response to the interval popup
         /// </summary>
         /// <param name="popup"></param>
-        private void SaveSurvey(UserSurveyNotification popup)
+        private void HandleIntervalPopUpResponse(IntervalProductivityPopUp popup)
+        {
+            // user took the survey || user didn't work
+            if ((popup.UserSelectedProductivity >= 1 && popup.UserSelectedProductivity <= 7) || popup.UserSelectedProductivity == -1)
+            {
+                SaveIntervalSurvey(popup);
+                //Database.GetInstance().LogInfo("The participant completed the interval-survey.");
+                //Database.GetInstance().LogInfo("The participant didn't work when the interval-survey was shown.");
+            }
+            // user postponed the survey
+            else if (popup.PostPoneSurvey != PostPoneSurvey.None)
+            {
+                PostponeIntervalSurvey(popup);
+                Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "The participant postponed the interval-survey ({0}).", popup.PostPoneSurvey));
+            }
+            // something strange happened
+            else
+            {
+                _currentSurveyEntry = null;
+                _timeRemainingUntilNextSurvey = Settings.IntervalPostponeShortInterval;
+            }
+        }
+
+        /// <summary>
+        /// Saves the interval-survey results in the db & resets some items
+        /// </summary>
+        /// <param name="popup"></param>
+        private void SaveIntervalSurvey(IntervalProductivityPopUp popup)
         {
             _timeRemainingUntilNextSurvey = PopUpIntervalInMins; // set new default interval
 
@@ -268,7 +297,7 @@ namespace UserEfficiencyTracker
         /// Hint: the selected time (e.g. postpone 1 hour) equals 1 hour of computer running (i.e. developer working) time
         /// </summary>
         /// <param name="notify"></param>
-        private void PostponeSurvey(UserSurveyNotification notify)
+        private void PostponeIntervalSurvey(IntervalProductivityPopUp notify)
         {
             switch (notify.PostPoneSurvey)
             {
@@ -296,8 +325,50 @@ namespace UserEfficiencyTracker
         /// </summary>
         public void ManualTakeSurveyNow()
         {
-            RunSurvey(DateTime.Now);
+            RunSurvey(SurveyMode.IntervalPopUp);
         }
+
+        #endregion
+
+        #region Daily Survey Methods
+
+        /// <summary>
+        /// Handles the response to the daily popup
+        /// </summary>
+        /// <param name="popup"></param>
+        private void HandleDailyPopUpResponse(DailyProductivityPopUp popup)
+        {
+            // user took the survey || user didn't work
+            if ((popup.UserSelectedProductivity >= 1 && popup.UserSelectedProductivity <= 7) || popup.UserSelectedProductivity == -1)
+            {
+                SaveDailySurvey(popup);
+                //Database.GetInstance().LogInfo("The participant completed the daily-survey.");
+                //Database.GetInstance().LogInfo("The participant didn't work when the daily-survey was shown.");
+            }
+            // something strange happened
+            else
+            {
+                _currentSurveyEntry = null;
+                _timeRemainingUntilNextSurvey = Settings.IntervalPostponeShortInterval;
+            }
+        }
+
+        /// <summary>
+        /// Saves the daily survey result in the db & resets some items
+        /// </summary>
+        /// <param name="popup"></param>
+        private void SaveDailySurvey(DailyProductivityPopUp popup)
+        {
+            _lastDailyPopUpResponse = DateTime.Now.Date; // no more daily pop-up for today
+
+            _currentSurveyEntry.Productivity = popup.UserSelectedProductivity;
+            _currentSurveyEntry.TimeStampFinished = DateTime.Now;
+            Queries.SaveEntry(_currentSurveyEntry);
+            _currentSurveyEntry = null; // reset
+        }
+
+        #endregion
+
         #endregion
 
         #endregion

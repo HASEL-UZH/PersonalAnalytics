@@ -1,64 +1,29 @@
 ﻿// Created by André Meyer (ameyer@ifi.uzh.ch) from the University of Zurich
-// Created: 2015-10-20
+// Created: 2016-04-20
 // 
 // Licensed under the MIT License.
 using System;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
-using UserEfficiencyTracker.Models;
 
 namespace UserEfficiencyTracker
 {
-    public enum PostPoneSurvey
-    {
-        None,
-        Postpone1,
-        Postpone2,
-        Postpone3
-    };
-
     /// <summary>
-    /// Interaction logic for UserSurveyNotification.xaml
+    /// This pop-up is shown once a day.
+    /// 
+    /// Interaction logic for DailyProductivityPopUp.xaml
     /// </summary>
-    public partial class UserSurveyNotification : Window
+    public partial class DailyProductivityPopUp : Window
     {
-        public SurveyEntry _previousSurveyEntry;
         public int UserSelectedProductivity { get; set; }
-        public PostPoneSurvey PostPoneSurvey { get; set; }
-        private DispatcherTimer _closeifNotAnsweredAfterHoursTimer;
 
-        public UserSurveyNotification(SurveyEntry previousSurveyEntry)
+        public DailyProductivityPopUp(DateTime lastActiveWorkday)
         {
-            this.InitializeComponent();
+            InitializeComponent();
 
             // set default values
-            _previousSurveyEntry = previousSurveyEntry;
-
-            if (_previousSurveyEntry != null && _previousSurveyEntry.TimeStampFinished  != null && // if available
-                _previousSurveyEntry.TimeStampFinished.Day == DateTime.Now.Day) // only if it was answered today
-            {
-                LastTimeFilledOut.Text = "Last entry was: "
-                    + _previousSurveyEntry.TimeStampFinished.ToShortDateString() + " " 
-                    + _previousSurveyEntry.TimeStampFinished.ToShortTimeString();
-            }
-
-            // start timer to close if not responded within a few hours
-            _closeifNotAnsweredAfterHoursTimer = new DispatcherTimer();
-            _closeifNotAnsweredAfterHoursTimer.Interval = Settings.IntervalCloseIfNotAnsweredInterval;
-            _closeifNotAnsweredAfterHoursTimer.Tick += NotAnsweredAfterHours;
-            _closeifNotAnsweredAfterHoursTimer.Start();
-        }
-
-        /// <summary>
-        /// closes the survey pop-up if the user didn't fill out the survey 
-        /// after x hours
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void NotAnsweredAfterHours(object sender, EventArgs e)
-        {
-            UserFinishedSurvey(-1); // user didn't work
+            LastTimeWorked.Text = "Your previous work day was on the: "
+                    + lastActiveWorkday.ToShortDateString();
         }
 
         /// <summary>
@@ -76,8 +41,8 @@ namespace UserEfficiencyTracker
             this.ShowInTaskbar = false;
             this.ResizeMode = ResizeMode.NoResize;
             //this.Owner = Application.Current.MainWindow;
-            
-            this.Closed += this.UserSurveyNotification_OnClosed;
+
+            this.Closed += this.IntervalProductivityPopUp_OnClosed;
 
             this.Left = SystemParameters.PrimaryScreenWidth - windowWidth;
             var top = SystemParameters.PrimaryScreenHeight - windowHeight;
@@ -86,7 +51,7 @@ namespace UserEfficiencyTracker
             {
                 var windowName = window.GetType().Name;
 
-                if (!windowName.Equals("UserSurveyNotification") || window == this) continue;
+                if (!windowName.Equals("IntervalProductivityPopUp") || window == this) continue;
                 window.Topmost = true;
                 top = window.Top - windowHeight;
             }
@@ -100,7 +65,7 @@ namespace UserEfficiencyTracker
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void UserSurveyNotification_OnClosed(object sender, EventArgs e)
+        private void IntervalProductivityPopUp_OnClosed(object sender, EventArgs e)
         {
             foreach (Window window in Application.Current.Windows)
             {
@@ -125,7 +90,7 @@ namespace UserEfficiencyTracker
         {
             if (e.Key == Key.Escape)
             {
-                Postpone2Clicked(null, null);
+                UserFinishedSurvey(0); // user didn't respond
             }
             else if (e.Key == Key.D7)
             {
@@ -164,13 +129,8 @@ namespace UserEfficiencyTracker
         /// <param name="selectedProductivityValue"></param>
         private void UserFinishedSurvey(int selectedProductivityValue)
         {
-            // reset timer
-            _closeifNotAnsweredAfterHoursTimer.Stop();
-            _closeifNotAnsweredAfterHoursTimer = null;
-
             // set responses
             UserSelectedProductivity = selectedProductivityValue;
-            PostPoneSurvey = PostPoneSurvey.None;
 
             // close window
             DialogResult = true;
@@ -223,26 +183,9 @@ namespace UserEfficiencyTracker
             UserFinishedSurvey(-1); // user didn't work
         }
 
-        private void Postpone1Clicked(object sender, RoutedEventArgs e)
-        {
-            UserSelectedProductivity = 0; // didn't take it
-            PostPoneSurvey = PostPoneSurvey.Postpone1;
-            DialogResult = true;
-            this.Close();
-        }
-
-        private void Postpone2Clicked(object sender, RoutedEventArgs e)
-        {
-            UserSelectedProductivity = 0; // didn't take it
-            PostPoneSurvey = PostPoneSurvey.Postpone2;
-            DialogResult = true;
-            this.Close();
-        }
-
         private void Postpone3Clicked(object sender, RoutedEventArgs e)
         {
             UserSelectedProductivity = 0; // didn't take it
-            PostPoneSurvey = PostPoneSurvey.Postpone3;
             DialogResult = true;
             this.Close();
         }

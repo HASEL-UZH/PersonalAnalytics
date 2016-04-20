@@ -72,12 +72,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Daemon.cs" />
+    <Compile Include="DailyProductivityPopUp.xaml.cs">
+      <DependentUpon>DailyProductivityPopUp.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Data\Queries.cs" />
     <Compile Include="Models\SurveyEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="UserSurveyNotification.xaml.cs">
-      <DependentUpon>UserSurveyNotification.xaml</DependentUpon>
+    <Compile Include="IntervalProductivityPopUp.xaml.cs">
+      <DependentUpon>IntervalProductivityPopUp.xaml</DependentUpon>
     </Compile>
     <Compile Include="Visualizations\DayProductivityTimeLine.cs" />
     <Compile Include="Visualizations\DayWeekProductivityProgramsTable.cs" />
@@ -90,7 +93,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="UserSurveyNotification.xaml">
+    <Page Include="DailyProductivityPopUp.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="IntervalProductivityPopUp.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
