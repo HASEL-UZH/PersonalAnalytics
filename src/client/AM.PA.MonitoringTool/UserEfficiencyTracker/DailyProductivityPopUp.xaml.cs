@@ -22,8 +22,8 @@ namespace UserEfficiencyTracker
             InitializeComponent();
 
             // set default values
-            LastTimeWorked.Text = "Your previous work day was on the: "
-                    + lastActiveWorkday.ToShortDateString();
+            LastTimeWorked.Text = "do you consider your previous work day ("
+                    + lastActiveWorkday.ToShortDateString() + ")?";
         }
 
         /// <summary>

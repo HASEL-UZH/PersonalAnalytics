@@ -16,10 +16,10 @@
         <!-- Notification area -->
         <Border BorderThickness="1" Background="#007acc" BorderBrush="Black">
             <StackPanel Margin="10">
-                <TextBlock Text="Compared to your normal level of productivity," Foreground="White" FontWeight="Bold" FontSize="15" />
-                <TextBlock Text="how productive do you consider your previous work day?" Foreground="White" FontWeight="Bold" FontSize="15" />
-                <TextBlock Text="Hint: you can also just type the key 1-7 if this pop-up is in focus." />
-                <TextBlock x:Name="LastTimeWorked" Text="" />
+                <TextBlock Text="Compared to your normal level of productivity, how productive" Foreground="White" FontWeight="Bold" FontSize="15" />
+                <TextBlock x:Name="LastTimeWorked" Text="do you consider your previous work day?" Foreground="White" FontWeight="Bold" FontSize="15" />
+                <TextBlock Text="Hint: you can also just type the key 1-7 if this pop-up is in focus." Foreground="White" />
+                <!--<TextBlock x:Name="LastTimeWorked" Text="" Foreground="White" />-->
 
                 <StackPanel Margin="-2 30 -2 5" HorizontalAlignment="Left" Orientation="Horizontal">
                     <Button Content="1" Width="30" Height="30" Margin="15 0 40 0" Click="Productivity1_Checked" />
@@ -31,9 +31,9 @@
                     <Button Content="7" Width="30" Height="30" Click="Productivity7_Checked" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock HorizontalAlignment="Left" Margin="0 0 0 0" Text="not at all productive" />
-                    <TextBlock HorizontalAlignment="Left" Margin="75 0 0 0" Text="moderately productive" />
-                    <TextBlock HorizontalAlignment="Left" Margin="95 0 0 0" Text="very productive" />
+                    <TextBlock HorizontalAlignment="Left" Margin="0 0 0 0" Text="not at all productive" Foreground="LightGray" />
+                    <TextBlock HorizontalAlignment="Left" Margin="75 0 0 0" Text="moderately productive" Foreground="LightGray" />
+                    <TextBlock HorizontalAlignment="Left" Margin="95 0 0 0" Text="very productive" Foreground="LightGray" />
                 </StackPanel>
 
                 <TextBlock HorizontalAlignment="Left" Margin="0 29 0 5" Foreground="White" Text="Or, postpone the pop-up:" FontWeight="Bold" />

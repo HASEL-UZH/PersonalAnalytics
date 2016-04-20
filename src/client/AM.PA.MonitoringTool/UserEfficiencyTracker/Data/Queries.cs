@@ -48,7 +48,7 @@ namespace UserEfficiencyTracker.Data
         /// <returns>previous survey entry or null, if there isn't any</returns>
         internal static SurveyEntry GetPreviousIntervalSurveyEntry()
         {
-            var res = Database.GetInstance().ExecuteReadQuery("SELECT surveyNotifyTime, surveyStartTime, surveyEndTime, userProductivity FROM " + Settings.DbTable + " WHERE column1 == '" + SurveyMode.DailyPopUp.ToString() + "' ORDER BY time DESC;");
+            var res = Database.GetInstance().ExecuteReadQuery("SELECT surveyNotifyTime, surveyStartTime, surveyEndTime, userProductivity FROM " + Settings.DbTable + " WHERE column1 == '" + SurveyMode.DailyPopUp + "' ORDER BY time DESC;");
             if (res == null || res.Rows.Count == 0) return null;
 
             var entry = new SurveyEntry();
@@ -98,8 +98,41 @@ namespace UserEfficiencyTracker.Data
         /// <returns></returns>
         internal static DateTime GetPreviousActiveWorkDay()
         {
-            //TODO: Implement
-            return DateTime.Now.AddDays(-12).Date; //TODO: fetch
+            var date = DateTime.MinValue;
+
+            var query = "SELECT date FROM ( "
+                        + "SELECT date(time) as 'date', count(*) as 'sumInSec' "
+                        + "FROM windows_activity "
+                        + "WHERE process <> 'IDLE' AND date(time) <> " + Database.GetInstance().QDate(DateTime.Now) + " "
+                        + "GROUP BY date(time) "
+                        + "ORDER BY date(time) DESC "
+                        + ") WHERE sumInSec > 600 "
+                        + "LIMIT 1;";
+
+            var table = Database.GetInstance().ExecuteReadQuery(query);
+
+            try
+            {
+                if (table != null && table.Rows.Count == 1)
+                {
+                    var row = table.Rows[0];
+                    date = DateTime.Parse((string)row["date"], CultureInfo.InvariantCulture);
+                }
+                else
+                {
+                    table.Dispose();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+            finally
+            {
+                table.Dispose();
+            }
+
+            return date;
         }
 
         /// <summary>
@@ -117,6 +150,7 @@ namespace UserEfficiencyTracker.Data
 
                 var query = "SELECT userProductivity, surveyEndTime FROM " + Settings.DbTable + " " + // end time is the time the participant answered
                                       "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(type, date, "surveyNotifyTime") + " " + // only show perceived productivity values for the day
+                                      "AND (column1 == '" + SurveyMode.DailyPopUp.ToString() + "' OR column1 is NULL) " +
                                       filterNonWork +
                                       " ORDER BY surveyEndTime;";
                 var table = Database.GetInstance().ExecuteReadQuery(query);

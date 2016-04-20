@@ -274,6 +274,18 @@ namespace Shared.Data
         }
 
         /// <summary>
+        /// Formats and magicifies a datetime
+        /// '%Y-%m-%d'
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <returns></returns>
+        public string QDate(DateTime dateTime)
+        {
+            var dateTimeString = dateTime.ToString("yyyy-MM-dd"); // dateTime.ToShortDateString() + " " + dateTime.ToLongTimeString();
+            return Q(dateTimeString);
+        }
+
+        /// <summary>
         /// Logs the query if the global setting allows it and it's not
         /// enforced my the calling method.
         /// </summary>

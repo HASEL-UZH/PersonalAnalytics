@@ -180,7 +180,7 @@ namespace UserEfficiencyTracker
             // daily survey
             if (DateTime.Now.Date != _lastDailyPopUpResponse.Date &&  // no pop-up today yet
                 DateTime.Now.TimeOfDay >= Settings.DailyPopUpEarliestMoment && // not before 04.00 am
-                Queries.GetPreviousActiveWorkDay() != null) // only if there is a previous work day
+                Queries.GetPreviousActiveWorkDay() > DateTime.MinValue) // only if there is a previous work day
             {
                 RunSurvey(SurveyMode.DailyPopUp);
                 return; // don't immediately show interval survey
