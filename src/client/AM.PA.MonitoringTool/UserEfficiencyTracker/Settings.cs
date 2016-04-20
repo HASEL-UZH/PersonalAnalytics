@@ -11,10 +11,11 @@ namespace UserEfficiencyTracker
     public static class Settings
     {
         public static bool DefaultPopUpIsEnabled = true;
-        public const int DefaultPopUpInterval = 1; //TODO: 60; // in minutes
+        public const int DefaultPopUpInterval = 60; // in minutes
 
         //public static bool IsEnabled = MiniSurveysEnabled;
-        public const string DbTable = "user_efficiency_survey";
+        public const string DbTableIntervalPopup = "user_efficiency_survey";
+        public const string DbTableDailyPopUp = "user_efficiency_survey_day";
 
         private const double IntervalPostponeShortInMinutes = 5.0; // every 5mins
         private const double SurveyCheckerMinutes = 1.0; // every minute

@@ -15,26 +15,49 @@ namespace UserEfficiencyTracker.Data
         /// </summary>
         internal static void CreateUserEfficiencyTables()
         {
-            Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTable + " (id INTEGER PRIMARY KEY, time TEXT, surveyNotifyTime TEXT, surveyStartTime TEXT, surveyEndTime TEXT, userProductivity NUMBER, column1 TEXT, column2 TEXT, column3 TEXT, column4 TEXT, column5 TEXT, column6 TEXT, column7 TEXT, column8 TEXT )");
+            Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableIntervalPopup + " (id INTEGER PRIMARY KEY, time TEXT, surveyNotifyTime TEXT, surveyStartTime TEXT, surveyEndTime TEXT, userProductivity NUMBER, column1 TEXT, column2 TEXT, column3 TEXT, column4 TEXT, column5 TEXT, column6 TEXT, column7 TEXT, column8 TEXT )");
+            Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableDailyPopUp + " (id INTEGER PRIMARY KEY, time TEXT, workDay TEXT, surveyNotifyTime TEXT, surveyStartTime TEXT, surveyEndTime TEXT, userProductivity NUMBER, column1 TEXT, column2 TEXT, column3 TEXT, column4 TEXT, column5 TEXT, column6 TEXT, column7 TEXT, column8 TEXT )");
         }
 
         /// <summary>
         /// Saves the survey entry to the database
-        /// (used for both, daily and interval survey)
         /// </summary>
         /// <param name="entry"></param>
-        internal static void SaveEntry(SurveyEntry entry)
+        internal static void SaveIntervalEntry(SurveyEntry entry)
         {
             if (entry == null) return;
 
             try
             {
-                var query = "INSERT INTO " + Settings.DbTable + " (time, surveyNotifyTime, surveyStartTime, surveyEndTime, userProductivity, column1) VALUES (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
-                Database.GetInstance().QTime(entry.TimeStampNotification) + ", " +
-                Database.GetInstance().QTime(entry.TimeStampStarted) + ", " +
-                Database.GetInstance().QTime(entry.TimeStampFinished) + ", " +
-                Database.GetInstance().Q(entry.Productivity.ToString(CultureInfo.InvariantCulture)) + ", " +
-                Database.GetInstance().Q(entry.SurveyMode.ToString()) + ");";
+                var query = "INSERT INTO " + Settings.DbTableIntervalPopup + " (time, surveyNotifyTime, surveyStartTime, surveyEndTime, userProductivity) VALUES " +
+                            "(strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
+                            Database.GetInstance().QTime(entry.TimeStampNotification) + ", " +
+                            Database.GetInstance().QTime(entry.TimeStampStarted) + ", " +
+                            Database.GetInstance().QTime(entry.TimeStampFinished) + ", " +
+                            Database.GetInstance().Q(entry.Productivity.ToString(CultureInfo.InvariantCulture)) + ");";
+
+                Database.GetInstance().ExecuteDefaultQuery(query);
+            }
+            catch { }
+        }
+
+        /// <summary>
+        /// Saves the survey entry to the database
+        /// </summary>
+        /// <param name="entry"></param>
+        internal static void SaveDailyEntry(SurveyEntry entry)
+        {
+            if (entry == null) return;
+
+            try
+            {
+                var query = "INSERT INTO " + Settings.DbTableDailyPopUp + " (time, workDay, surveyNotifyTime, surveyStartTime, surveyEndTime, userProductivity) VALUES " +
+                            "(strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
+                            Database.GetInstance().QTime(entry.PreviousWorkDay) + ", " +
+                            Database.GetInstance().QTime(entry.TimeStampNotification) + ", " +
+                            Database.GetInstance().QTime(entry.TimeStampStarted) + ", " +
+                            Database.GetInstance().QTime(entry.TimeStampFinished) + ", " +
+                            Database.GetInstance().Q(entry.Productivity.ToString(CultureInfo.InvariantCulture)) + ");";
 
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }
@@ -48,7 +71,7 @@ namespace UserEfficiencyTracker.Data
         /// <returns>previous survey entry or null, if there isn't any</returns>
         internal static SurveyEntry GetPreviousIntervalSurveyEntry()
         {
-            var res = Database.GetInstance().ExecuteReadQuery("SELECT surveyNotifyTime, surveyStartTime, surveyEndTime, userProductivity FROM " + Settings.DbTable + " WHERE column1 == '" + SurveyMode.DailyPopUp + "' ORDER BY time DESC;");
+            var res = Database.GetInstance().ExecuteReadQuery("SELECT surveyNotifyTime, surveyStartTime, surveyEndTime, userProductivity FROM " + Settings.DbTableDailyPopUp + "' ORDER BY time DESC;");
             if (res == null || res.Rows.Count == 0) return null;
 
             var entry = new SurveyEntry();
@@ -90,6 +113,41 @@ namespace UserEfficiencyTracker.Data
                 catch { } // necessary, if we run it after the DB initialization, there is no value
             }
             return entry;
+        }
+
+        /// <summary>
+        /// returns the previous survey entry if available
+        /// (only get daily survey responses)
+        /// </summary>
+        /// <returns>previous survey entry or null, if there isn't any</returns>
+        internal static DateTime GetLastPopUpResponse()
+        {
+            var date = DateTime.MinValue;
+            var query = "SELECT date(time) as 'date' FROM " + Settings.DbTableIntervalPopup + " ORDER BY time DESC LIMIT 1;";
+            var table = Database.GetInstance().ExecuteReadQuery(query);
+
+            try
+            {
+                if (table != null && table.Rows.Count == 1)
+                {
+                    var row = table.Rows[0];
+                    date = DateTime.Parse((string)row["date"], CultureInfo.InvariantCulture);
+                }
+                else
+                {
+                    table.Dispose();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+            finally
+            {
+                table.Dispose();
+            }
+
+            return date;
         }
 
         /// <summary>
@@ -148,9 +206,8 @@ namespace UserEfficiencyTracker.Data
             {
                 var filterNonWork = (withNonWork) ? "" :" AND userProductivity <> -1 ";
 
-                var query = "SELECT userProductivity, surveyEndTime FROM " + Settings.DbTable + " " + // end time is the time the participant answered
+                var query = "SELECT userProductivity, surveyEndTime FROM " + Settings.DbTableIntervalPopup + " " + // end time is the time the participant answered
                                       "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(type, date, "surveyNotifyTime") + " " + // only show perceived productivity values for the day
-                                      "AND (column1 == '" + SurveyMode.DailyPopUp.ToString() + "' OR column1 is NULL) " +
                                       filterNonWork +
                                       " ORDER BY surveyEndTime;";
                 var table = Database.GetInstance().ExecuteReadQuery(query);

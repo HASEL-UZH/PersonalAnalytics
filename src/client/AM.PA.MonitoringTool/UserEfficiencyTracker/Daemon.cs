@@ -180,7 +180,7 @@ namespace UserEfficiencyTracker
             // daily survey
             if (DateTime.Now.Date != _lastDailyPopUpResponse.Date &&  // no pop-up today yet
                 DateTime.Now.TimeOfDay >= Settings.DailyPopUpEarliestMoment && // not before 04.00 am
-                Queries.GetPreviousActiveWorkDay() > DateTime.MinValue) // only if there is a previous work day
+                Queries.GetPreviousActiveWorkDay() != DateTime.Now.Date) // only if there is a previous work day
             {
                 RunSurvey(SurveyMode.DailyPopUp);
                 return; // don't immediately show interval survey
@@ -209,17 +209,19 @@ namespace UserEfficiencyTracker
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(
                 () =>
                 {
+                    var previousActiveWorkday = Queries.GetPreviousActiveWorkDay();
+
                     // set previous entry to show previous entry time in popup
                     var popup = (mode == SurveyMode.IntervalPopUp)
                         ? (Window)new IntervalProductivityPopUp(Queries.GetPreviousIntervalSurveyEntry())
-                        : (Window)new DailyProductivityPopUp(Queries.GetPreviousActiveWorkDay());
+                        : (Window)new DailyProductivityPopUp(previousActiveWorkday);
 
                     // if it's the first time the notification is shown
                     if (_currentSurveyEntry == null)
                     {
                         _currentSurveyEntry = new SurveyEntry();
                         _currentSurveyEntry.TimeStampNotification = DateTime.Now;
-                            _currentSurveyEntry.SurveyMode = mode;
+                        if (previousActiveWorkday > DateTime.MinValue) _currentSurveyEntry.PreviousWorkDay = previousActiveWorkday;
                     }
 
                     // (re-)set the timestamp of filling out the survey
@@ -240,7 +242,7 @@ namespace UserEfficiencyTracker
                     }
                     else
                     {
-                        //TODO: what happens here?
+                        //when do we get here?
                         Database.GetInstance().LogErrorUnknown(Name);
                     }
                 }));
@@ -288,7 +290,7 @@ namespace UserEfficiencyTracker
 
             _currentSurveyEntry.Productivity = popup.UserSelectedProductivity;
             _currentSurveyEntry.TimeStampFinished = DateTime.Now;
-            Queries.SaveEntry(_currentSurveyEntry);
+            Queries.SaveIntervalEntry(_currentSurveyEntry);
             _currentSurveyEntry = null; // reset
         }
 
@@ -363,7 +365,7 @@ namespace UserEfficiencyTracker
 
             _currentSurveyEntry.Productivity = popup.UserSelectedProductivity;
             _currentSurveyEntry.TimeStampFinished = DateTime.Now;
-            Queries.SaveEntry(_currentSurveyEntry);
+            Queries.SaveDailyEntry(_currentSurveyEntry);
             _currentSurveyEntry = null; // reset
         }
 
