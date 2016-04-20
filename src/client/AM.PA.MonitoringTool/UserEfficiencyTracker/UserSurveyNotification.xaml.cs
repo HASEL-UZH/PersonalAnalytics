@@ -26,11 +26,13 @@ namespace UserEfficiencyTracker
         public SurveyEntry _previousSurveyEntry;
         public int UserSelectedProductivity { get; set; }
         public PostPoneSurvey PostPoneSurvey { get; set; }
+        private DispatcherTimer _closeifNotAnsweredAfterHoursTimer;
 
         public UserSurveyNotification(SurveyEntry previousSurveyEntry)
         {
             this.InitializeComponent();
 
+            // set default values
             _previousSurveyEntry = previousSurveyEntry;
 
             if (_previousSurveyEntry != null && _previousSurveyEntry.TimeStampFinished  != null && // if available
@@ -40,6 +42,23 @@ namespace UserEfficiencyTracker
                     + _previousSurveyEntry.TimeStampFinished.ToShortDateString() + " " 
                     + _previousSurveyEntry.TimeStampFinished.ToShortTimeString();
             }
+
+            // start timer to close if not responded within a few hours
+            _closeifNotAnsweredAfterHoursTimer = new DispatcherTimer();
+            _closeifNotAnsweredAfterHoursTimer.Interval = Settings.IntervalCloseIfNotAnsweredInterval;
+            _closeifNotAnsweredAfterHoursTimer.Tick += NotAnsweredAfterHours;
+            _closeifNotAnsweredAfterHoursTimer.Start();
+        }
+
+        /// <summary>
+        /// closes the survey pop-up if the user didn't fill out the survey 
+        /// after x hours
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void NotAnsweredAfterHours(object sender, EventArgs e)
+        {
+            UserFinishedSurvey(-1); // user didn't work
         }
 
         /// <summary>
@@ -77,7 +96,7 @@ namespace UserEfficiencyTracker
         }
 
         /// <summary>
-        /// todo: unsure if needed
+        /// todo: unsure if still needed
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -145,8 +164,15 @@ namespace UserEfficiencyTracker
         /// <param name="selectedProductivityValue"></param>
         private void UserFinishedSurvey(int selectedProductivityValue)
         {
+            // reset timer
+            _closeifNotAnsweredAfterHoursTimer.Stop();
+            _closeifNotAnsweredAfterHoursTimer = null;
+
+            // set responses
             UserSelectedProductivity = selectedProductivityValue;
             PostPoneSurvey = PostPoneSurvey.None;
+
+            // close window
             DialogResult = true;
             this.Close(); // todo: enable
         }
@@ -194,7 +220,7 @@ namespace UserEfficiencyTracker
 
         private void Postpone0Clicked(object sender, RoutedEventArgs e)
         {
-            UserFinishedSurvey(-1); // didn't work
+            UserFinishedSurvey(-1); // user didn't work
         }
 
         private void Postpone1Clicked(object sender, RoutedEventArgs e)

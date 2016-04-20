@@ -16,12 +16,12 @@ namespace UserEfficiencyTracker
         //public static bool IsEnabled = MiniSurveysEnabled;
         public const string DbTable = "user_efficiency_survey";
 
-        //private const double DefaultMinutes = 60.0; //every 2h
-        private const double PostponeShortInMinutes = 5.0; // every 5mins
+        private const double IntervalPostponeShortInMinutes = 5.0; // every 5mins
         private const double SurveyCheckerMinutes = 1.0; // every minute
+        private const double IntervalCloseIfNotAnsweredAfterHours = 2.0; // close survey if not answered after 2 hours
 
-        //public static TimeSpan DefaultInterval = GetDefaultInterval(); 
-        public static TimeSpan PostponeShortInterval = TimeSpan.FromMinutes(PostponeShortInMinutes);
+        public static TimeSpan IntervalPostponeShortInterval = TimeSpan.FromMinutes(IntervalPostponeShortInMinutes);
         public static TimeSpan SurveyCheckerInterval = TimeSpan.FromMinutes(SurveyCheckerMinutes);
+        public static TimeSpan IntervalCloseIfNotAnsweredInterval = TimeSpan.FromHours(IntervalCloseIfNotAnsweredAfterHours);
     }
 }

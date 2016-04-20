@@ -207,13 +207,23 @@ namespace UserEfficiencyTracker
                     // (re-)set the timestamp of filling out the survey
                     _currentSurveyEntry.TimeStampStarted = DateTime.Now;
 
-                    if (popup.ShowDialog() == true)
+                    // show interval survey
+                    var response = popup.ShowDialog();
+
+                    // handle response
+                    if (response == true)
                     {
                         // user took the survey
-                        if (popup.UserSelectedProductivity >= 1 && popup.UserSelectedProductivity <= 7 || popup.UserSelectedProductivity == -1)
+                        if (popup.UserSelectedProductivity >= 1 && popup.UserSelectedProductivity <= 7)
                         {
                             SaveSurvey(popup);
                             Database.GetInstance().LogInfo("The participant completed the survey.");
+                        }
+                        // user didn't work
+                        else if (popup.UserSelectedProductivity == -1)
+                        {
+                            SaveSurvey(popup);
+                            Database.GetInstance().LogInfo("The participant didn't work when the pop-up was shown");
                         }
                         // user postponed the survey
                         else if (popup.PostPoneSurvey != PostPoneSurvey.None)
@@ -225,7 +235,7 @@ namespace UserEfficiencyTracker
                         else
                         {
                             _currentSurveyEntry = null;
-                            _timeRemainingUntilNextSurvey = Settings.PostponeShortInterval;
+                            _timeRemainingUntilNextSurvey = Settings.IntervalPostponeShortInterval;
                         }
                     }
                     else
@@ -245,7 +255,7 @@ namespace UserEfficiencyTracker
         /// <param name="popup"></param>
         private void SaveSurvey(UserSurveyNotification popup)
         {
-            _timeRemainingUntilNextSurvey = PopUpIntervalInMins;
+            _timeRemainingUntilNextSurvey = PopUpIntervalInMins; // set new default interval
 
             _currentSurveyEntry.Productivity = popup.UserSelectedProductivity;
             _currentSurveyEntry.TimeStampFinished = DateTime.Now;
@@ -263,7 +273,7 @@ namespace UserEfficiencyTracker
             switch (notify.PostPoneSurvey)
             {
                 case (PostPoneSurvey.Postpone1):
-                    _timeRemainingUntilNextSurvey = Settings.PostponeShortInterval;
+                    _timeRemainingUntilNextSurvey = Settings.IntervalPostponeShortInterval;  // set new interval
                     break;
                 case (PostPoneSurvey.Postpone2):
                     _timeRemainingUntilNextSurvey = TimeSpan.FromHours(1); // in one hour
@@ -276,7 +286,7 @@ namespace UserEfficiencyTracker
                     //_timeRemainingUntilNextSurvey = TimeSpan.FromHours(totalHours);
                     break;
                 default:
-                    _timeRemainingUntilNextSurvey = Settings.PostponeShortInterval;
+                    _timeRemainingUntilNextSurvey = Settings.IntervalPostponeShortInterval;  // set new interval
                     break;
             }
         }
