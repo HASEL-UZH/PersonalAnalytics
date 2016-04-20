@@ -71,7 +71,7 @@ namespace UserEfficiencyTracker.Data
         /// <returns>previous survey entry or null, if there isn't any</returns>
         internal static SurveyEntry GetPreviousIntervalSurveyEntry()
         {
-            var res = Database.GetInstance().ExecuteReadQuery("SELECT surveyNotifyTime, surveyStartTime, surveyEndTime, userProductivity FROM " + Settings.DbTableDailyPopUp + "' ORDER BY time DESC;");
+            var res = Database.GetInstance().ExecuteReadQuery("SELECT surveyNotifyTime, surveyStartTime, surveyEndTime, userProductivity FROM " + Settings.DbTableIntervalPopup + "' ORDER BY time DESC;");
             if (res == null || res.Rows.Count == 0) return null;
 
             var entry = new SurveyEntry();
@@ -116,14 +116,13 @@ namespace UserEfficiencyTracker.Data
         }
 
         /// <summary>
-        /// returns the previous survey entry if available
-        /// (only get daily survey responses)
+        /// returns the previous daily survey entry if available
         /// </summary>
         /// <returns>previous survey entry or null, if there isn't any</returns>
-        internal static DateTime GetLastPopUpResponse()
+        internal static DateTime GetPreviousDailyPopUpResponse()
         {
             var date = DateTime.MinValue;
-            var query = "SELECT date(time) as 'date' FROM " + Settings.DbTableIntervalPopup + " ORDER BY time DESC LIMIT 1;";
+            var query = "SELECT date(time) as 'date' FROM " + Settings.DbTableDailyPopUp + " ORDER BY time DESC LIMIT 1;";
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
             try

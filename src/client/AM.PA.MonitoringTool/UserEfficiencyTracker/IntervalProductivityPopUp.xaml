@@ -6,7 +6,6 @@
     <Window x:Class="UserEfficiencyTracker.IntervalProductivityPopUp"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="PersonalAnalytics: Please take the short survey now!" 
         SizeToContent="Height" Height="245" Width="500"
         KeyDown="OnKeyDownHandler"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent">

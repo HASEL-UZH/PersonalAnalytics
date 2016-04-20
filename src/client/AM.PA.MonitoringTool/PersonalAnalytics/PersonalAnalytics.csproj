@@ -21,20 +21,19 @@
     </SccAuxPath>
     <SccProvider>
     </SccProvider>
-    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <PublishUrl>ftp://www.andre-meyer.ch/public_html/DATA/PA/ONLINE/</PublishUrl>
+    <PublishUrl>C:\DATA\DEV\UZH\PA\Tool_Git\PersonalAnalytics\deployment\PersonalAnalytics\DEV\</PublishUrl>
     <Install>true</Install>
-    <InstallFrom>Web</InstallFrom>
-    <UpdateEnabled>true</UpdateEnabled>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
     <UpdateMode>Foreground</UpdateMode>
     <UpdateInterval>1</UpdateInterval>
     <UpdateIntervalUnits>Hours</UpdateIntervalUnits>
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>true</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <InstallUrl>http://www.andre-meyer.ch/DATA/PA/ONLINE/publish.htm/</InstallUrl>
     <SupportUrl>http://www.andre-meyer.ch/DATA/PA/ONLINE/publish.html</SupportUrl>
     <ErrorReportUrl>http://www.andre-meyer.ch/DATA/PA/ONLINE/publish.html</ErrorReportUrl>
     <TargetCulture>en</TargetCulture>
@@ -42,9 +41,8 @@
     <PublisherName>Personal Analytics</PublisherName>
     <SuiteName>Personal Analytics</SuiteName>
     <MinimumRequiredVersion>0.9.5.5</MinimumRequiredVersion>
-    <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>11</ApplicationRevision>
+    <ApplicationRevision>15</ApplicationRevision>
     <ApplicationVersion>0.9.5.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>

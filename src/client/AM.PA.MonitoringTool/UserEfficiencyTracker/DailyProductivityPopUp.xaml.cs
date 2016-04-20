@@ -42,7 +42,7 @@ namespace UserEfficiencyTracker
             this.ResizeMode = ResizeMode.NoResize;
             //this.Owner = Application.Current.MainWindow;
 
-            this.Closed += this.IntervalProductivityPopUp_OnClosed;
+            this.Closed += this.DailyProductivityPopUp_OnClosed;
 
             this.Left = SystemParameters.PrimaryScreenWidth - windowWidth;
             var top = SystemParameters.PrimaryScreenHeight - windowHeight;
@@ -51,7 +51,7 @@ namespace UserEfficiencyTracker
             {
                 var windowName = window.GetType().Name;
 
-                if (!windowName.Equals("IntervalProductivityPopUp") || window == this) continue;
+                if (!windowName.Equals("DailyProductivityPopUp") || window == this) continue;
                 window.Topmost = true;
                 top = window.Top - windowHeight;
             }
@@ -65,13 +65,13 @@ namespace UserEfficiencyTracker
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void IntervalProductivityPopUp_OnClosed(object sender, EventArgs e)
+        private void DailyProductivityPopUp_OnClosed(object sender, EventArgs e)
         {
             foreach (Window window in Application.Current.Windows)
             {
                 var windowName = window.GetType().Name;
 
-                if (!windowName.Equals("NotificationWindow") || window == this) continue;
+                if (!windowName.Equals("DailyProductivityPopUp") || window == this) continue;
 
                 // Adjust any windows that were above this one to drop down
                 if (window.Top < this.Top)

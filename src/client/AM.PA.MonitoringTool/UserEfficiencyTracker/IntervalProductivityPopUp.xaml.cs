@@ -108,7 +108,7 @@ namespace UserEfficiencyTracker
             {
                 var windowName = window.GetType().Name;
 
-                if (!windowName.Equals("NotificationWindow") || window == this) continue;
+                if (!windowName.Equals("IntervalProductivityPopUp") || window == this) continue;
 
                 // Adjust any windows that were above this one to drop down
                 if (window.Top < this.Top)

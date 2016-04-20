@@ -180,7 +180,7 @@ namespace UserEfficiencyTracker
             // daily survey
             if (DateTime.Now.Date != _lastDailyPopUpResponse.Date &&  // no pop-up today yet
                 DateTime.Now.TimeOfDay >= Settings.DailyPopUpEarliestMoment && // not before 04.00 am
-                Queries.GetPreviousActiveWorkDay() != DateTime.Now.Date) // only if there is a previous work day
+                Queries.GetPreviousDailyPopUpResponse() != DateTime.Now.Date) // only if there is a previous work day
             {
                 RunSurvey(SurveyMode.DailyPopUp);
                 return; // don't immediately show interval survey
@@ -228,17 +228,15 @@ namespace UserEfficiencyTracker
                     _currentSurveyEntry.TimeStampStarted = DateTime.Now;
                 
                     // show popup & handle response
-                    if (popup.ShowDialog() == true)
+                    if (mode == SurveyMode.DailyPopUp 
+                        && ((DailyProductivityPopUp)popup).ShowDialog() == true)
                     {
-                        switch (mode)
-                        {
-                            case SurveyMode.DailyPopUp:
-                                HandleDailyPopUpResponse((DailyProductivityPopUp)popup);
-                                break;
-                            case SurveyMode.IntervalPopUp:
-                                HandleIntervalPopUpResponse((IntervalProductivityPopUp)popup);
-                                break;
-                        }
+                        HandleDailyPopUpResponse((DailyProductivityPopUp)popup);
+                    }
+                    else if (mode == SurveyMode.IntervalPopUp
+                        && ((IntervalProductivityPopUp)popup).ShowDialog() == true)
+                    {
+                        HandleIntervalPopUpResponse((IntervalProductivityPopUp)popup);
                     }
                     else
                     {
