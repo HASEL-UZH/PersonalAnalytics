@@ -47,6 +47,21 @@ namespace PersonalAnalytics
             // Get (and set) app version
             _publishedAppVersion = GetPublishedAppVersion();
 
+            // User First Start: Welcome
+            if (!Database.GetInstance().HasSetting("FirstStartWindowShown"))
+            {
+                var firstStart = new FirstStartWindow(_publishedAppVersion);
+                firstStart.ShowDialog();
+
+                Database.GetInstance().SetSettings("FirstStartWindowShown", true);
+            }
+
+            // Check if the user accepted the consent form, if not: shut down the application
+            /*  if (!TrackerManager.GetInstance().UserConsentsToUseApplication())
+                {
+                    // todo: shut down
+                } */
+
             // Start all registered trackers
             foreach (var tracker in _trackers)
             {

@@ -127,8 +127,7 @@ namespace Retrospection
 
         public void SendFeedback(string subject = "Feedback", string body = "")
         {
-            var email = VisHelper.CreateFeedbackMailtoString(subject, _publishedAppVersion, body);
-            Process.Start(email); // open email application
+            FeedbackHelper.SendFeedback(subject, body, _publishedAppVersion);
         }
 
         public void OpenUploadWizard()

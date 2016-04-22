@@ -33,7 +33,7 @@ namespace MsOfficeTracker
             // on first start, a pop-up is shown to ask the user to enable/disable the tracker
             if (IsOffice365ApiFirstUse())
             {
-                var msg = string.Format(CultureInfo.InvariantCulture, "This (updated) version of the {1} tool allows you to collect information about the meetings you attend and the emails you send/receive in a work day. In case you enable this tracker, you will need to authenticate with your Office 365 work account.\n\nThe contents of the emails and meetings are NOT accessed. You can manually disable or enable this tracker anytime in the settings.\n\nDo you want to enable the {0}?", Name, Dict.ToolName);
+                var msg = string.Format(CultureInfo.InvariantCulture, "This version of the {1} tool allows you to collect information about the meetings you attend and the emails you send/receive in a work day. In case you enable this tracker, you will need to authenticate with your Office 365 work account.\n\nThe contents of the emails and meetings are NOT accessed. You can manually disable or enable this tracker anytime in the settings.\n\nDo you want to enable the {0}?", Name, Dict.ToolName);
                 var res = MessageBox.Show(msg,
                     Dict.ToolName + ": " + Name, 
                     MessageBoxButton.YesNo);
@@ -59,7 +59,7 @@ namespace MsOfficeTracker
             {
                 IsRunning = false;
 
-                var msg = string.Format(CultureInfo.InvariantCulture, "The {0} was disabled as the authentication with Office 365 failed.\n\nThe tool will prompt the Office 365 login again with the next start of the application. You can also disable the {0} in the settings.\n\nIf the problem persists, please contact us via t-anmeye@microsoft.com and attach the logfile.", Name);
+                var msg = string.Format(CultureInfo.InvariantCulture, "The {0} was disabled as the authentication with Office 365 failed.\n\nThe tool will prompt the Office 365 login again with the next start of the application. You can also disable the {0} in the settings.\n\nIf the problem persists, please contact us via " + Shared.Settings.EmailAddress1 + " and attach the logfile.", Name);
                 MessageBox.Show(msg, Dict.ToolName + ": Error", MessageBoxButton.OK); //todo: use toast message
             }
             else

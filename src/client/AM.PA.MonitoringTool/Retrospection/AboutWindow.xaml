@@ -25,12 +25,17 @@
         <StackPanel Margin="10" Grid.Row="1">
             <TextBlock Margin="0 0 0 5" Text="Authors:" TextWrapping="Wrap" FontWeight="Bold" />
             <StackPanel Margin="0 0 0 5" PreviewMouseDown="Andre_Clicked" Orientation="Horizontal">
-                <TextBlock Text="Andre Meyer (Intern, Microsoft Research): " />
-                <TextBlock Text="t-anmeye@microsoft.com" TextDecorations="Underline" />
+                <TextBlock Text="Andre Meyer (PhD Student, University of Zurich): " />
+                <TextBlock Text="ameyer@ifi.uzh.ch" TextDecorations="Underline" />
+                <TextBlock Text=" (Developer of the software)" />
             </StackPanel>
-            <StackPanel Margin="0 0 0 30" PreviewMouseDown="Tom_Clicked" Orientation="Horizontal">
+            <StackPanel Margin="0 0 0 5" PreviewMouseDown="Tom_Clicked" Orientation="Horizontal">
                 <TextBlock Text="Tom Zimmermann (Senior Researcher, Microsoft Research): " />
                 <TextBlock Text="tzimmer@microsoft.com" TextDecorations="Underline" />
+            </StackPanel>
+            <StackPanel Margin="0 0 0 30" PreviewMouseDown="Thomas_Clicked" Orientation="Horizontal">
+                <TextBlock Text="Thomas Fritz (Professor, University of Zurich): " />
+                <TextBlock Text="fritz@ifi.uzh.ch" TextDecorations="Underline" />
             </StackPanel>
 
             <TextBlock Margin="0 0 0 5" Text="Credits:" TextWrapping="Wrap" FontWeight="Bold" />

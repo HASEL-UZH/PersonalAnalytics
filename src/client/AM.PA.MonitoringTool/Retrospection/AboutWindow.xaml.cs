@@ -40,6 +40,11 @@ namespace Retrospection
             Handler.GetInstance().SendFeedback();
         }
 
+        private void Thomas_Clicked(object sender, MouseButtonEventArgs e)
+        {
+            Handler.GetInstance().SendFeedback();
+        }
+
         //private void CheckForUpdates_Clicked(object sender, RoutedEventArgs e)
         //{
         //    // todo: implement

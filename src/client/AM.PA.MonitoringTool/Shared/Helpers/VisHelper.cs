@@ -14,31 +14,6 @@ namespace Shared.Helpers
     public static class VisHelper
     {
         /// <summary>
-        /// Creates a HTML mailto email (with encoded text)
-        /// can add an optional subject (with the current app version if available), and body
-        /// </summary>
-        /// <param name="subject"></param>
-        /// <param name="publishedAppVersion"></param>
-        /// <param name="body"></param>
-        /// <returns></returns>
-        public static string CreateFeedbackMailtoString(string subject = "Feedback", string publishedAppVersion = "", string body = "")
-        {
-            subject = Dict.ToolName + ": " + subject;
-            if (! string.IsNullOrEmpty(publishedAppVersion)) subject = subject + string.Format(CultureInfo.InvariantCulture, " ({0})", publishedAppVersion);
-            var encodedSubject = Uri.EscapeDataString(subject);
-
-            var email = string.Format(CultureInfo.InvariantCulture, "mailto:{0}?CC={1}&subject={2}", "t-anmeye@microsoft.com", "tzimmer@microsoft.com", encodedSubject);
-
-            if (!string.IsNullOrEmpty(body))
-            {
-                var encodedBody = Uri.EscapeDataString(body);
-                email += "&Body=" + encodedBody;
-            }
-
-            return email;
-        }
-
-        /// <summary>
         /// Returns a message that says that there is not enough data to
         /// provide a visualization and a standard message if no other is specified.
         /// </summary>

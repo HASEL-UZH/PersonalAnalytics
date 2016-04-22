@@ -35,7 +35,7 @@
                     <TextBlock HorizontalAlignment="Left" Margin="95 0 0 0" Text="very productive" Foreground="LightGray" />
                 </StackPanel>
 
-                <TextBlock HorizontalAlignment="Left" Margin="0 29 0 5" Foreground="White" Text="Or, postpone the pop-up:" FontWeight="Bold" />
+                <TextBlock HorizontalAlignment="Left" Margin="0 29 0 5" Foreground="White" Text="Or, don't respond to the pop-up:" FontWeight="Bold" />
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>

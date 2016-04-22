@@ -40,19 +40,19 @@ namespace Shared.Data
         /// Singleton. Returns the instance of the settings database.
         /// </summary>
         /// <returns></returns>
-        public static DatabaseImplementation GetInstanceSettings()
-        {
-            return _localDb ?? (_localDb = new DatabaseImplementation(GetLocalDatabaseSavePath()));
+        //public static DatabaseImplementation GetInstanceSettings()
+        //{
+        //    return _localDb ?? (_localDb = new DatabaseImplementation(GetLocalDatabaseSavePath()));
 
-            //if (_settingsDb == null)
-            //{
-            //    _settingsDb = new DatabaseImplementation(GetSettingsDatabaseSavePath());
-            //    _settingsDb.Connect();
-            //    _settingsDb.CreateSettingsTable();
-            //}
+        //    //if (_settingsDb == null)
+        //    //{
+        //    //    _settingsDb = new DatabaseImplementation(GetSettingsDatabaseSavePath());
+        //    //    _settingsDb.Connect();
+        //    //    _settingsDb.CreateSettingsTable();
+        //    //}
 
-            //return _settingsDb;
-        }
+        //    //return _settingsDb;
+        //}
 
         /// <summary>
         /// Returns the path the (SQLight) database file should be stored on the users

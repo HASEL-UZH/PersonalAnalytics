@@ -34,7 +34,7 @@ namespace PersonalAnalytics
         {
             // Create log directory if it doesn't already exist
             var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PersonalAnalytics");
-            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+            if (!Directory.Exists(path)) { Directory.CreateDirectory(path); }
 
             //////////////////////////////////////////////////////
             // Various Initializations
@@ -48,12 +48,6 @@ namespace PersonalAnalytics
 
             // prepare settings
             TrackerManager.GetInstance().PrepareSettings();
-
-            // Check if the user accepted the consent form, if not: shut down the application
-/*          if (!TrackerManager.GetInstance().UserConsentsToUseApplication())
-            {
-                // todo: shut down
-            } */
 
             // register app for PC startup
             RegisterAppForPcStartup();
@@ -189,7 +183,7 @@ namespace PersonalAnalytics
             Logger.WriteToLogFile(e.Exception);
 
             // Tell the user
-            MessageBox.Show("Oops, something really bad happened. Please try again later. If the problem persists, please contact us via t-anmeye@microsoft.com and attach the logfile.",
+            MessageBox.Show("Oops, something really bad happened. Please try again later. If the problem persists, please contact us via " + Settings.EmailAddress1 + " and attach the logfile.",
                 "Error", MessageBoxButton.OK);
 
 

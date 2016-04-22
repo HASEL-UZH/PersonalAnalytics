@@ -1,18 +1,25 @@
-﻿<Window x:Class="PersonalAnalytics.FirstStartWindow"
+﻿<!-- 
+    Created by André Meyer at University of Zurich
+    Created: 2016-04-22
+    
+    Licensed under the MIT License.
+    -->
+    
+    <Window x:Class="PersonalAnalytics.FirstStartWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PersonalAnalytics"
         mc:Ignorable="d"
-        Title="Personal Analytics: First Start" Height="380" Width="600" ResizeMode="NoResize">
+        Title="Personal Analytics: First Start" Height="450" Width="650" ResizeMode="NoResize">
     <Window.Resources>
         <SolidColorBrush x:Key="RetrospectionColor" Color="#007acc" />
         <SolidColorBrush x:Key="GrayColor" Color="#E8E8E8" />
     </Window.Resources>
 
     <Grid>
-        <!--<Grid.RowDefinitions>
+        <Grid.RowDefinitions>
             <RowDefinition Height="40" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
@@ -20,20 +27,26 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Background="{StaticResource RetrospectionColor}">
-            <TextBlock Grid.Row="0" FontSize="16" VerticalAlignment="Center" Margin="10 0 0 0" Text="Settings" Foreground="White" />
+            <TextBlock Grid.Row="0" FontSize="16" VerticalAlignment="Center" Margin="10 0 0 0" Text="Thank you for using the Personal Analytics tool!" Foreground="White" />
         </Grid>
 
         <StackPanel Margin="10" Grid.Row="1">
-            <TextBlock Margin="0 0 0 0" Text="Thank you for installing the personal analytics tool and participating in our study. Before you start you need to " TextWrapping="Wrap" />
-
-            <CheckBox x:Name="CbApplicationHasUserConsent" Margin="0 20 0 0" Content="Productivity pop-ups enabled" />
-            <TextBlock Margin="20 0 0 0" Foreground="Gray" Text="Hint: This will show you a pop-up to chose your perceived productivity in an interval specified below. We suggest you to enable this feature as it may give you additional, unique insights." TextWrapping="Wrap" />
-
+            <TextBlock TextWrapping="Wrap">
+                Thank you for installing the Personal Analytics tool and participating in our study. A few hints before you start:
+                <LineBreak  /><LineBreak  />
+                <Span Foreground="White" Background="{StaticResource RetrospectionColor}" FontWeight="Bold">Goal:</Span> Our goal is to make you more productive and happier, by increasing your awareness about your work (habits) and productivity.
+                <LineBreak /><LineBreak />
+                <Span Foreground="White" Background="{StaticResource RetrospectionColor}" FontWeight="Bold">Monitoring Component:</Span> The tool can collect information about how you spend your time on your computer (e.g. the programs you use), how active you are (based on your keyboard and mouse use), the meetings you attend, the emails you send/receive, and more. Use the tool settings to chose what data you want to be collected.
+                <LineBreak /><LineBreak />
+                <Span Foreground="White" Background="{StaticResource RetrospectionColor}" FontWeight="Bold">Retrospection:</Span> This is the heart of the tool. It visualized the collected data in a daily and weekly retrospection. If you use it regularly, you can learn more about your work patterns and get valuable insights into your productivity.
+                <LineBreak /><LineBreak />
+                <Span Foreground="White" Background="{StaticResource RetrospectionColor}" FontWeight="Bold">The Icon:</Span> In your task bar on the bottom right, you will find the Personal Analytics icon (<Image Source="Assets/icon.ico" Width="15" Height="15" />), whenever the tool is running. Right click on the icon to access all features, such as opening the Retrospection, pausing/continuing the monitoring component, or looking at the collected data.
+            </TextBlock>
         </StackPanel>
 
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="10">
-            <Button Content="Save" x:Name="BtnSave" Click="SaveClicked" Foreground="White" Background="{StaticResource RetrospectionColor}" BorderBrush="{StaticResource RetrospectionColor}" Padding="5 0 5 0" Margin="20 0 0 0" />
-        </StackPanel>
+        <Grid Grid.Row="2" HorizontalAlignment="Right" Margin="10">
+            <Button Content="Got it, thanks!" Padding="10 5 10 5" Click="NextClicked" Foreground="White" Background="{StaticResource RetrospectionColor}" BorderBrush="{StaticResource RetrospectionColor}"  />
+        </Grid>
 
         <Grid Background="#E8E8E8" Grid.Row="3">
             <Grid.Resources>
@@ -50,7 +63,7 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock Grid.Column="0" x:Name="TbVersion" Margin="10 0 0 0" Foreground="Gray" />
-            <Button Grid.Column="1" Content="Feedback" Click="Feedback_Clicked" VerticalAlignment="Center" Margin="0 0 5 0" />
-        </Grid>-->
+            <Button Grid.Column="1" Content="Feedback or Questions" Click="Feedback_Clicked" VerticalAlignment="Center" Margin="0 0 5 0" />
+        </Grid>
     </Grid>
 </Window>

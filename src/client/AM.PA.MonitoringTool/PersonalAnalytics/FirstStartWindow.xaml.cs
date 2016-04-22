@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Created by André Meyer at University of Zurich
+// Created: 2016-04-22
+// 
+// Licensed under the MIT License.
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace PersonalAnalytics
 {
@@ -19,9 +11,24 @@ namespace PersonalAnalytics
     /// </summary>
     public partial class FirstStartWindow : Window
     {
-        public FirstStartWindow()
+        private string _appVersion;
+        public FirstStartWindow(string version)
         {
             InitializeComponent();
+            _appVersion = version;
+            TbVersion.Text = "Version: " + _appVersion;
+        }
+
+        private void NextClicked(object sender, RoutedEventArgs e)
+        {
+            // currently: don't do anything else
+            DialogResult = true;
+            this.Close();
+        }
+
+        private void Feedback_Clicked(object sender, RoutedEventArgs e)
+        {
+            Shared.Helpers.FeedbackHelper.SendFeedback("", "", _appVersion);
         }
     }
 }

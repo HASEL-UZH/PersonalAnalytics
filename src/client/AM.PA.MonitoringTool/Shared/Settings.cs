@@ -51,5 +51,12 @@ namespace Shared
         internal static double ItemWideHeightEm = (21.25 - titleMargin);
         internal const double sideMargin = 1.25; //2.5; //1.25;
         internal const double titleMargin = 4.0; //5.625; //3.125;
+
+        ////////////////////////////////////////////////////////////
+        // contact emails
+
+        public const string EmailAddress1 = "ameyer@ifi.uzh.ch"; // main email address
+        public const string EmailAddress2 = "tzimmer@microsoft.com";
+
     }
 }
