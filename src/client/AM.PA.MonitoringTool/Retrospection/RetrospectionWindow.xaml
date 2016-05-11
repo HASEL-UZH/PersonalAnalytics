@@ -8,7 +8,7 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         Title="Personal Analytics: Retrospection &amp; Insights" 
-        Loaded="WindowLoaded"
+        Loaded="WindowLoaded" Closing="WindowClosing"
         Height="1000" Width="1310" MinHeight="500" MinWidth="890"> <!-- width was: 1310 -->
 
     <Window.Resources>

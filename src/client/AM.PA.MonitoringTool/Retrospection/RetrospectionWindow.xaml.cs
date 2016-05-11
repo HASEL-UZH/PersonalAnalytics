@@ -29,37 +29,42 @@ namespace Retrospection
     webBrowser.ScriptErrorsSuppressed = true;
 #endif
 
-            webBrowser.Navigating += (o, ex) =>
-            {
-                ShowLoading(true);
-            };
+        webBrowser.Navigating += (o, ex) =>
+        {
+            ShowLoading(true);
+        };
 
-            webBrowser.Navigated += (o, ex) =>
-            {
-                ShowLoading(false);
+        webBrowser.Navigated += (o, ex) =>
+        {
+            ShowLoading(false);
 
 #if DEBUG
-                webBrowser.Document.Window.Error += (w, we) =>
-                {
-                    we.Handled = true;
-                    Logger.WriteToConsole(string.Format(CultureInfo.InvariantCulture, "# URL:{1}, LN: {0}, ERROR: {2}", we.LineNumber, we.Url, we.Description));
-                };    
+            webBrowser.Document.Window.Error += (w, we) =>
+            {
+                we.Handled = true;
+                Logger.WriteToConsole(string.Format(CultureInfo.InvariantCulture, "# URL: {1}, LN: {0}, ERROR: {2}", we.LineNumber, we.Url, we.Description));
+            };    
 #endif
-            };
+        };
 
-            webBrowser.IsWebBrowserContextMenuEnabled = false;
-            webBrowser.ObjectForScripting = new ObjectForScriptingHelper(); // allows to use javascript to call functions in this class
-            webBrowser.WebBrowserShortcutsEnabled = false;
-            webBrowser.AllowWebBrowserDrop = false;
+        webBrowser.IsWebBrowserContextMenuEnabled = false;
+        webBrowser.ObjectForScripting = new ObjectForScriptingHelper(); // allows to use javascript to call functions in this class
+        webBrowser.WebBrowserShortcutsEnabled = false;
+        webBrowser.AllowWebBrowserDrop = false;
 
 
-            // load default page
-            WebBrowserNavigateTo(Handler.GetInstance().GetDashboardHome());
-            SwitchToWeekButton.Visibility = Visibility.Visible;
-            SwitchToDayButton.Visibility = Visibility.Collapsed;
-        }
+        // load default page
+        WebBrowserNavigateTo(Handler.GetInstance().GetDashboardHome());
+        SwitchToWeekButton.Visibility = Visibility.Visible;
+        SwitchToDayButton.Visibility = Visibility.Collapsed;
+    }
 
-        private void ShowLoading(bool isLoading)
+    private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
+    {  
+        Database.GetInstance().LogInfo("Retrospection closed");  
+    }
+
+    private void ShowLoading(bool isLoading)
         {
             if (isLoading)
             {
@@ -221,6 +226,11 @@ namespace Retrospection
             Handler.GetInstance().OpenAbout();
         }
 
-        #endregion     
+        #endregion
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+
+        }
     }
 }
