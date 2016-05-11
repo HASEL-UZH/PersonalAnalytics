@@ -29,6 +29,7 @@ namespace Shared
         public static TimeSpan CheckForToolUpdatesInterval = TimeSpan.FromHours(3); // every 3 hours
         public static TimeSpan TooltipIconUpdateInterval = TimeSpan.FromSeconds(10); // every 10 seconds
         public static TimeSpan RemindToResumeToolInterval = TimeSpan.FromMinutes(30); // every 30 minutes
+        public static TimeSpan CheckTimeZoneInterval = TimeSpan.FromSeconds(20); // TimeSpan.FromMinutes(10); // every 10 minutes, temporary
 
         public static string ExportFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PersonalAnalytics");
         //public static string RemoteFolderName = "remote\\";

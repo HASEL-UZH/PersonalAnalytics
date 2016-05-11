@@ -13,21 +13,28 @@ using Shared;
 using Shared.Data;
 using System.Windows;
 using System.Globalization;
+using Microsoft.Win32;
 
 namespace PersonalAnalytics
 {
     public class TrackerManager
     {
-        private static TrackerManager _manager;
+        private static TrackerManager _manager; // singleton instance
         private static TrackerSettings _settings;
         private readonly List<ITracker> _trackers = new List<ITracker>();
         public TaskbarIcon TaskbarIcon;
+
         private DispatcherTimer _taskbarIconTimer;
         private DispatcherTimer _remindToContinueTrackerTimer;
         private DispatcherTimer _checkForUpdatesTimer;
+        private DispatcherTimer _checkTimeZoneTimer;
+
+        private TimeZoneInfo _previousTimeZone;
         private System.Windows.Controls.MenuItem _pauseContinueMenuItem;
         private string _publishedAppVersion;
         private bool _isPaused;
+
+        #region Initialize & Handle TrackerManager
 
         /// <summary>
         /// Singleton
@@ -79,7 +86,7 @@ namespace PersonalAnalytics
             Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "TrackerManager (V{0}) started with {1} trackers ({2})", _publishedAppVersion, _trackers.Where(t => t.IsRunning).ToList().Count, trackersString));
             SetTaskbarIconTooltip("Tracker started");
 
-            // Initialize & start the imer to update the taskbaricon toolitp
+            // Initialize & start the timer to update the taskbaricon toolitp
             _taskbarIconTimer = new DispatcherTimer();
             _taskbarIconTimer.Interval = Settings.TooltipIconUpdateInterval;
             _taskbarIconTimer.Tick += UpdateTooltipIcon;
@@ -90,6 +97,43 @@ namespace PersonalAnalytics
             _checkForUpdatesTimer.Interval = Settings.CheckForToolUpdatesInterval;
             _checkForUpdatesTimer.Tick += UpdateApplicationIfNecessary;
             _checkForUpdatesTimer.Start();
+
+            // initialize & start the (temporary) timer to check and store the timezone
+            _checkTimeZoneTimer = new DispatcherTimer();
+            _checkTimeZoneTimer.Interval = Settings.CheckTimeZoneInterval;
+            _checkTimeZoneTimer.Tick += ((s, e) =>
+            {
+                CultureInfo.CurrentCulture.ClearCachedData(); // clear the currently cached data
+                var currentTimeZone = TimeZoneInfo.Local;
+                if (_previousTimeZone != null && _previousTimeZone == currentTimeZone) return;
+
+                // save the current time zone info to the DB
+                Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "TimeZoneInfo: local=[{0}], utc=[{1}], zone=[{2}], offset=[{3}].", 
+                    DateTime.Now.ToLocalTime(), DateTime.Now.ToUniversalTime(), currentTimeZone.Id, currentTimeZone.BaseUtcOffset));
+
+                _previousTimeZone = currentTimeZone;
+            });
+            _checkTimeZoneTimer.Start();
+
+            // track time zone changes
+            // TODO: store now already!
+            SystemEvents.TimeChanged += TimeZoneChanged;
+        }
+
+        /// <summary>
+        /// Saves the current (updated) time zone to the database
+        /// (temporary workaround)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TimeZoneChanged(object sender, EventArgs e)
+        {
+            CultureInfo.CurrentCulture.ClearCachedData();
+            var currentTimeZone = TimeZoneInfo.Local;
+
+            // save the current time zone info to the DB
+            Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "TimeZoneInfo: local=[{0}], utc=[{1}], zone=[{2}], offset=[{3}].",
+                DateTime.Now.ToLocalTime(), DateTime.Now.ToUniversalTime(), currentTimeZone.Id, currentTimeZone.BaseUtcOffset));
         }
 
         /// <summary>
@@ -158,17 +202,6 @@ namespace PersonalAnalytics
             Database.GetInstance().LogInfo("The participant paused the trackers.");
         }
 
-        /// <summary>
-        /// Click on a TaskbarIcon Balloon to resume the tracker
-        /// todo: as soon as there are other balloons shown, we need to be able to distinguish which one
-        /// </summary>
-        /// <param name="s"></param>
-        /// <param name="e"></param>
-        private void TrayBallonTipClicked(object s, RoutedEventArgs e)
-        {
-            PauseContinueTracker(_pauseContinueMenuItem);
-        }
-
         // continues all trackers (that are enabled)
         public void Continue()
         {
@@ -206,6 +239,10 @@ namespace PersonalAnalytics
             _settings = new TrackerSettings(_trackers);
         }
 
+        #endregion
+
+        #region Taskbar Icon Options
+
         /// <summary>
         /// Dreates a taskbar icon to modify its tooltip and create the context menu options
         /// </summary>
@@ -217,6 +254,17 @@ namespace PersonalAnalytics
             TaskbarIcon.TrayMouseDoubleClick += (o, i) => OpenRetrospection();
             TaskbarIcon.TrayBalloonTipClicked += TrayBallonTipClicked;
             SetContextMenuOptions();
+        }
+
+        /// <summary>
+        /// Click on a TaskbarIcon Balloon to resume the tracker
+        /// todo: as soon as there are other balloons shown, we need to be able to distinguish which one
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        private void TrayBallonTipClicked(object s, RoutedEventArgs e)
+        {
+            PauseContinueTracker(_pauseContinueMenuItem);
         }
 
         /// <summary>
@@ -379,6 +427,20 @@ namespace PersonalAnalytics
         }
 
         /// <summary>
+        /// helper method to change the tooltip text
+        /// </summary>
+        /// <param name="message"></param>
+        private void SetTaskbarIconTooltip(string message)
+        {
+            if (TaskbarIcon == null) return;
+            TaskbarIcon.ToolTipText = message;
+        }
+
+        #endregion
+
+        #region Helpers
+
+        /// <summary>
         /// Gets and Formats the currently published
         /// application version.
         /// </summary>
@@ -388,16 +450,6 @@ namespace PersonalAnalytics
             if (!ApplicationDeployment.IsNetworkDeployed) return "?.?.?.?";
             var cd = ApplicationDeployment.CurrentDeployment;
             return string.Format(CultureInfo.InvariantCulture, "{0}.{1}.{2}.{3}", cd.CurrentVersion.Major, cd.CurrentVersion.Minor, cd.CurrentVersion.Build, cd.CurrentVersion.Revision);
-        }
-
-        /// <summary>
-        /// helper method to change the tooltip text
-        /// </summary>
-        /// <param name="message"></param>
-        private void SetTaskbarIconTooltip(string message)
-        {
-            if (TaskbarIcon == null) return;
-            TaskbarIcon.ToolTipText = message;
         }
 
         /// <summary>
@@ -558,5 +610,7 @@ namespace PersonalAnalytics
            }
 
            #endregion */
+
+        #endregion
     }
 }
