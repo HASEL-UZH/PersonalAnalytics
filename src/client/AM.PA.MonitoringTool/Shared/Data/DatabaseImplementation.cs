@@ -511,10 +511,18 @@ namespace Shared.Data
             LogInfo(string.Format(CultureInfo.InvariantCulture, "Opened the connection to the database (File={0}).", CurrentDatabaseDumpFile));
         }
 
-        public void Reconnect(string dbFilePath)
+        public void Reconnect()
         {
-            CurrentDatabaseDumpFile = dbFilePath;
-            Connect();
+            try
+            {
+                Disconnect();
+                Connect();
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+            //CurrentDatabaseDumpFile = dbFilePath;
         }
 
         /// <summary>
@@ -540,7 +548,7 @@ namespace Shared.Data
             } 
             catch (Exception e) 
             {
-                Shared.Logger.WriteToLogFile(e);
+                Logger.WriteToLogFile(e);
             }
         }
 
@@ -549,17 +557,76 @@ namespace Shared.Data
         /// </summary>
         public void CreateSettingsTable()
         {
-            try 
+            try
             {
                 const string query = "CREATE TABLE IF NOT EXISTS " + Settings.SettingsDbTable + " (id INTEGER PRIMARY KEY, key TEXT, value TEXT)";
                 ExecuteDefaultQuery(query);
-            } 
-            catch (Exception e) 
+            }
+            catch (Exception e)
             {
-                Shared.Logger.WriteToLogFile(e);
+                Logger.WriteToLogFile(e);
+            }
+        }
+
+        #endregion
+
+        #region TimeZone Tracking
+
+
+        /// <summary>
+        /// Creates a table for the time zone (if it doesn't yet exist)
+        /// </summary>
+        public void CreateTimeZoneTable()
+        {
+            try
+            {
+                const string query = "CREATE TABLE IF NOT EXISTS " + Settings.TimeZoneTable + " (id INTEGER PRIMARY KEY, time TEXT, timezone TEXT, offset TEXT, localTime TEXT, utcTime TEXT)";
+                ExecuteDefaultQuery(query);
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+        }
+
+        public TimeZoneInfo GetLastTimeZoneEntry()
+        {
+            try
+            {
+                var reader = new SQLiteCommand("SELECT timezone FROM " + Settings.TimeZoneTable + " ORDER BY time ASC LIMIT 1;", _connection).ExecuteReader();
+                if (reader.HasRows)
+                {
+                    reader.Read(); // read only once
+                    var timeZone = TimeZoneInfo.FindSystemTimeZoneById((string)reader["timezone"]);
+                    return timeZone;
+                }
+                reader.Close();
+                return null; // no entry or failed to parse
+            }
+            catch (Exception e)
+            {
+                LogError(e.Message);
+                return null; // other error
+            }
+        }
+
+        public void LogTimeZoneChange(TimeZoneInfo currentTimeZone)
+        {
+            try
+            {
+                Database.GetInstance().ExecuteDefaultQuery("INSERT INTO " + Settings.TimeZoneTable + " (time, timezone, offset, localTime, utcTime) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " +
+                Q(currentTimeZone.Id) + ", " + Q(currentTimeZone.BaseUtcOffset.ToString()) + ", " + QTime(DateTime.Now.ToLocalTime()) + ", " + QTime(DateTime.Now.ToUniversalTime()) + ")");
+
+                Logger.WriteToConsole(string.Format(CultureInfo.InvariantCulture, "TimeZoneInfo: local=[{0}], utc=[{1}], zone=[{2}], offset=[{3}].",
+                   DateTime.Now.ToLocalTime(), DateTime.Now.ToUniversalTime(), currentTimeZone.Id, currentTimeZone.BaseUtcOffset));
+            } 
+            catch (Exception e)
+            {
+                LogError(e.Message);
             }
         }
 
         #endregion
     }
 }
+ 

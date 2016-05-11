@@ -20,6 +20,7 @@ namespace Shared
         internal const string LogDbTable = "log";
         public const string SettingsDbTable = "settings";
         public const string FeedbackDbTable = "feedback";
+        public const string TimeZoneTable = "timezone";
 
         public const string WindowsActivityTable = "windows_activity"; //used for the retrospection
         public const string UserEfficiencySurveyTable = "user_efficiency_survey"; // used for the retrospection

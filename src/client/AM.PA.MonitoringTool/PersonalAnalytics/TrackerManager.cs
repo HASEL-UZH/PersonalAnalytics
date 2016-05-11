@@ -98,42 +98,24 @@ namespace PersonalAnalytics
             _checkForUpdatesTimer.Tick += UpdateApplicationIfNecessary;
             _checkForUpdatesTimer.Start();
 
-            // initialize & start the (temporary) timer to check and store the timezone
-            _checkTimeZoneTimer = new DispatcherTimer();
-            _checkTimeZoneTimer.Interval = Settings.CheckTimeZoneInterval;
-            _checkTimeZoneTimer.Tick += ((s, e) =>
-            {
-                CultureInfo.CurrentCulture.ClearCachedData(); // clear the currently cached data
-                var currentTimeZone = TimeZoneInfo.Local;
-                if (_previousTimeZone != null && _previousTimeZone == currentTimeZone) return;
-
-                // save the current time zone info to the DB
-                Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "TimeZoneInfo: local=[{0}], utc=[{1}], zone=[{2}], offset=[{3}].", 
-                    DateTime.Now.ToLocalTime(), DateTime.Now.ToUniversalTime(), currentTimeZone.Id, currentTimeZone.BaseUtcOffset));
-
-                _previousTimeZone = currentTimeZone;
-            });
-            _checkTimeZoneTimer.Start();
-
             // track time zone changes
-            // TODO: store now already!
-            SystemEvents.TimeChanged += TimeZoneChanged;
+            Database.GetInstance().CreateTimeZoneTable();
+            SaveCurrentTimeZone(null, null);
+            SystemEvents.TimeChanged += SaveCurrentTimeZone;
         }
 
         /// <summary>
         /// Saves the current (updated) time zone to the database
         /// (temporary workaround)
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void TimeZoneChanged(object sender, EventArgs e)
+        private void SaveCurrentTimeZone(object sender, EventArgs e)
         {
             CultureInfo.CurrentCulture.ClearCachedData();
+            var lastEntryTimeZone = Database.GetInstance().GetLastTimeZoneEntry();
             var currentTimeZone = TimeZoneInfo.Local;
 
-            // save the current time zone info to the DB
-            Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "TimeZoneInfo: local=[{0}], utc=[{1}], zone=[{2}], offset=[{3}].",
-                DateTime.Now.ToLocalTime(), DateTime.Now.ToUniversalTime(), currentTimeZone.Id, currentTimeZone.BaseUtcOffset));
+            if (lastEntryTimeZone != null && lastEntryTimeZone.Id == currentTimeZone.Id) return;
+            Database.GetInstance().LogTimeZoneChange(currentTimeZone);
         }
 
         /// <summary>
@@ -159,6 +141,7 @@ namespace PersonalAnalytics
             if (_checkForUpdatesTimer != null) _checkForUpdatesTimer.Stop();
             TaskbarIcon.TrayBalloonTipClicked -= TrayBallonTipClicked;
             TaskbarIcon.TrayMouseDoubleClick -= (o, i) => OpenRetrospection();
+            SystemEvents.TimeChanged -= SaveCurrentTimeZone;
 
             // sometimes the icon doesn't go away unless we manually dispose it
             TaskbarIcon.Dispose();
