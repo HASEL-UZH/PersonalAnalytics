@@ -593,7 +593,7 @@ namespace Shared.Data
         {
             try
             {
-                var reader = new SQLiteCommand("SELECT timezone FROM " + Settings.TimeZoneTable + " ORDER BY time ASC LIMIT 1;", _connection).ExecuteReader();
+                var reader = new SQLiteCommand("SELECT timezone FROM " + Settings.TimeZoneTable + " ORDER BY time DESC LIMIT 1;", _connection).ExecuteReader();
                 if (reader.HasRows)
                 {
                     reader.Read(); // read only once
