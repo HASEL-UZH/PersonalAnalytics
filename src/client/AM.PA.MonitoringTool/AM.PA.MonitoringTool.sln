@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Retrospection", "Retrospect
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimeSpentVisualizer", "TimeSpentVisualizer\TimeSpentVisualizer.csproj", "{8EBA3B95-BE0E-4498-9EAC-20D417176A00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimeSpentVisualizerTests", "VisualizerTest\TimeSpentVisualizerTests.csproj", "{D5B8E8C4-DEF0-4225-9BF0-1C85FAC535B5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimeSpentVisualizerTests", "TimeSpentVisualizerTests\TimeSpentVisualizerTests.csproj", "{D5B8E8C4-DEF0-4225-9BF0-1C85FAC535B5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsOfficeTracker", "MsOfficeTracker\MsOfficeTracker.csproj", "{82ED616D-1508-41C5-A72A-B6A4F7C9B7E6}"
 EndProject

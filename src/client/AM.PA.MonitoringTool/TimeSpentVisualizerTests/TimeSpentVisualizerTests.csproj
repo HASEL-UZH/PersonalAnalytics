@@ -6,8 +6,8 @@
     <ProjectGuid>{D5B8E8C4-DEF0-4225-9BF0-1C85FAC535B5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VisualizerTest</RootNamespace>
-    <AssemblyName>VisualizerTest</AssemblyName>
+    <RootNamespace>TimeSpentVisualizerTests</RootNamespace>
+    <AssemblyName>TimeSpentVisualizerTests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
