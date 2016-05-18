@@ -12,6 +12,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Shared.Data;
 using MsOfficeTracker.Models;
+using System.Net;
+using System.Runtime.InteropServices;
 
 namespace MsOfficeTracker.Helpers
 {
@@ -19,7 +21,7 @@ namespace MsOfficeTracker.Helpers
     {
         private static Office365Api _api;
         private Uri redirectUri = new Uri(Settings.RedirectUriString);
-        private string _authority = string.Format(CultureInfo.InvariantCulture, Settings.AadInstance, "common"); // use microsoft.onmicrosoft.com for just this tenand, use "common" if used for everyone
+        private string _authority = string.Format(CultureInfo.InvariantCulture, Settings.AadInstance, "common"); // use microsoft.onmicrosoft.com for just this tenant, use "common" if used for everyone
         private AuthenticationContext _authContext;
         private AuthenticationResult _authResult;
         private OutlookServicesClient _client;
@@ -68,6 +70,8 @@ namespace MsOfficeTracker.Helpers
 
         /// <summary>
         /// This method is called from a method if the user is not properly signed in yet
+        /// and to check if the user can be authenticated
+        /// (also checks for an active internet connection)
         /// </summary>
         private async Task<bool> TrySilentAuthentication()
         {
@@ -204,6 +208,15 @@ namespace MsOfficeTracker.Helpers
             return true;
         }
 
+        [DllImport("wininet.dll")]
+        private extern static bool InternetGetConnectedState(out int description, int reservedValue);
+
+        private static bool IsInternetAvailable()
+        {
+            int description;
+            return InternetGetConnectedState(out description, 0);
+        }
+
         #endregion
 
         #region Meeting Queries
@@ -212,7 +225,7 @@ namespace MsOfficeTracker.Helpers
         {
             var meetings = new List<DisplayEvent>();
 
-            if (!await TrySilentAuthentication() || _authResult == null) return meetings;
+            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return meetings;
 
             try
             {
@@ -284,7 +297,7 @@ namespace MsOfficeTracker.Helpers
 
         //internal async void LoadEvents()
         //{
-        //    if (!await TrySilentAuthentication()) return;
+        //    if (!IsInternetAvailable() || !await TrySilentAuthentication()) return;
 
         //    try
         //    {
@@ -341,7 +354,7 @@ namespace MsOfficeTracker.Helpers
         /// <returns>number of items, -1 in case of an error</returns>
         public async Task<long> GetNumberOfEmailsInInbox()
         {
-            if (! await TrySilentAuthentication() || _authResult == null) return -1;
+            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return -1;
 
             try
             {
@@ -378,7 +391,7 @@ namespace MsOfficeTracker.Helpers
         /// <returns></returns>
         public async Task<int> GetNumberOfEmailsSent(DateTimeOffset date)
         {
-            if (!await TrySilentAuthentication() || _authResult == null) return -1;
+            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return -1;
 
             try
             {
@@ -417,7 +430,7 @@ namespace MsOfficeTracker.Helpers
         /// <returns></returns>
         public async Task<int> GetNumberOfEmailsReceived(DateTimeOffset date)
         {
-            if (!await TrySilentAuthentication() || _authResult == null) return -1;
+            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return -1;
 
             try
             {
@@ -455,7 +468,7 @@ namespace MsOfficeTracker.Helpers
         //{
         //    var attendees = new List<ContactItem>();
 
-        //    if (!await TrySilentAuthentication() || _authResult == null) return attendees;
+        //    if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return attendees;
 
         //    try
         //    {
@@ -530,7 +543,7 @@ namespace MsOfficeTracker.Helpers
 
         public async Task<string> GetPhotoForUser(string email)
         {
-            if (!await TrySilentAuthentication() || _authResult == null) return string.Empty;
+            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return string.Empty;
 
             try
             {
