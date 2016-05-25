@@ -411,7 +411,7 @@ namespace MsOfficeTracker.Helpers
                     numberEmailsSent += mailResults.Count;
                     groups = await groups.GetNextPageAsync(); // next page
                 }
-                while (groups != null && groups.MorePagesAvailable);
+                while (groups != null); // && groups.MorePagesAvailable);
 
                 return numberEmailsSent;
             }
@@ -453,7 +453,7 @@ namespace MsOfficeTracker.Helpers
 
                     groups = await groups.GetNextPageAsync();
                 }
-                while (groups != null && groups.MorePagesAvailable);
+                while (groups != null); //&& groups.MorePagesAvailable);
 
                 return numberOfEmailsReceived;
             }
