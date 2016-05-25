@@ -14,6 +14,7 @@ using Shared.Data;
 using System.Globalization;
 using PersonalAnalytics.Helpers;
 using System.Collections.Generic;
+using System.Deployment.Application;
 
 namespace PersonalAnalytics
 {
@@ -32,16 +33,26 @@ namespace PersonalAnalytics
             if (SingleInstance<App>.InitializeAsFirstInstance(UniqueAppName))
             {
                 var application = new App();
-                //application.InitializeComponent();
+                application.InitializeComponent();
                 application.Run();
 
                 // Allow single instance code to perform cleanup operations
                 SingleInstance<App>.Cleanup();
-            }
 
-            // then do the rest
-            Current.DispatcherUnhandledException += App_DispatcherUnhandledException;
-            Current.SessionEnding += App_SessionEnding;
+                // then do the rest
+                if (null == Current)
+                {
+                    new Application();
+                }
+
+                Current.DispatcherUnhandledException += App_DispatcherUnhandledException;
+                Current.SessionEnding += App_SessionEnding;
+            }
+            //else
+            //{
+            //    var msg = "An instance of PersonalAnalytics was already running. Access it from the task bar on the bottom right of your screen.";
+            //    MessageBox.Show("Info", msg);
+            //}
         }
 
         /// <summary>
@@ -52,18 +63,12 @@ namespace PersonalAnalytics
         /// <returns></returns>
         public bool SignalExternalCommandLineArgs(IList<string> args)
         {
-            TrackerManager.GetInstance().
-
-            MessageBox.Show("An instance was already running");
-
-
-
-            // Bring window to foreground
-            //if (this.MainWindow.WindowState == WindowState.Minimized)
-            //{
-            //    this.MainWindow.WindowState = WindowState.Normal;
-            //}
-            //this.MainWindow.Activate();
+            if (! Retrospection.Handler.GetInstance().OpenRetrospection())
+            {
+                var msg = "PersonalAnalytics is already running in the background! Access the it from the task bar icon on the bottom right of your screen.";
+                MessageBox.Show(msg, "PersonalAnalytics - An instance is already running");
+                // todo: show balloontooltip
+            }
 
             return true;
         }
@@ -99,55 +104,24 @@ namespace PersonalAnalytics
 
 
             //////////////////////////////////////////////////////
-            // Register Tracker
-            //////////////////////////////////////////////////////
-            ITracker t = new WindowsActivityTracker.Daemon();
-            TrackerManager.GetInstance().Register(t);
-
-            ITracker t1 = new TimeSpentVisualizer.Visualizers.TimeSpentVisualizer();
-            TrackerManager.GetInstance().Register(t1);
-
-            ITracker t9 = new PeopleVisualizer.PeopleVisualizer();
-            //TrackerManager.GetInstance().Register(t9); // disabled, as it's not finished and pretty slow
-
-            ITracker t2 = new UserEfficiencyTracker.Daemon();
-            TrackerManager.GetInstance().Register(t2);
-
-            ITracker t4 = new UserInputTracker.Daemon();
-            TrackerManager.GetInstance().Register(t4);
-
-            ITracker t3 = new MsOfficeTracker.Daemon();
-            TrackerManager.GetInstance().Register(t3);
-
-            //ITracker t6 = new TimeSpentVisualizer.Visualizers.ArtifactVisualizer();
-            ////TrackerManager.GetInstance().Register(t6);
-
-            //ITracker t7 = new TimeSpentVisualizer.Visualizers.WebsitesVisualizer();
-            ////TrackerManager.GetInstance().Register(t7);
-
-            //ITracker t8 = new TimeSpentVisualizer.Visualizers.MeetingsVisualizer();
-            ////TrackerManager.GetInstance().Register(t8);
-
-            //ITracker t5 = new TimeSpentVisualizer.Visualizers.CodeVisualizer();
-            ////TrackerManager.GetInstance().Register(t5);
-
-            //ITracker t3 = new TaskSwitchTracker.Daemon();
-            //TrackerManager.GetInstance().Register(t3);
-
-            //ITracker t5 = new WindowsContextTracker.Daemon();
-            //TrackerManager.GetInstance().Register(t5);
-
-
-            //////////////////////////////////////////////////////
             // initialize task bar icon & context menu
             //////////////////////////////////////////////////////
             TrackerManager.GetInstance().InitializeTaskBarIcon();
 
 
             //////////////////////////////////////////////////////
-            // Start Tracker Manager
+            // Start Tracker Manager (i.e. the monitoring tool)
             //////////////////////////////////////////////////////
+            var trackers = TrackerManager.GetInstance().RegisterTrackers();
             TrackerManager.GetInstance().Start();
+            TrackerManager.GetInstance().SetAppVersion(GetPublishedAppVersion());
+
+
+            //////////////////////////////////////////////////////
+            // Start the Retrospection
+            //////////////////////////////////////////////////////
+            Retrospection.Handler.GetInstance().SetTrackers(trackers); // register the same trackers from the monitoring tool for the retrospection
+            Retrospection.Handler.GetInstance().SetAppVersion(GetPublishedAppVersion());
         }
 
         /// <summary>
@@ -231,6 +205,18 @@ namespace PersonalAnalytics
 
             // Prevent default unhandled exception processing
             e.Handled = true;
+        }
+
+        /// <summary>
+        /// Gets and Formats the currently published
+        /// application version.
+        /// </summary>
+        /// <returns></returns>
+        private static string GetPublishedAppVersion()
+        {
+            if (!ApplicationDeployment.IsNetworkDeployed) return "?.?.?.?";
+            var cd = ApplicationDeployment.CurrentDeployment;
+            return string.Format(CultureInfo.InvariantCulture, "{0}.{1}.{2}.{3}", cd.CurrentVersion.Major, cd.CurrentVersion.Minor, cd.CurrentVersion.Build, cd.CurrentVersion.Revision);
         }
     }
 }

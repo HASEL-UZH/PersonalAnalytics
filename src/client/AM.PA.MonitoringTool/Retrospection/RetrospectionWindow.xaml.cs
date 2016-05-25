@@ -59,12 +59,23 @@ namespace Retrospection
         SwitchToDayButton.Visibility = Visibility.Collapsed;
     }
 
-    private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
-    {  
-        Database.GetInstance().LogInfo("Retrospection closed");  
-    }
+        private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        {  
+            Database.GetInstance().LogInfo("Retrospection closed");  
+        }
 
-    private void ShowLoading(bool isLoading)
+        /// <summary>
+        /// Not closing the window, as it cannot be opened again
+        /// Just hide it, and then show it again.
+        /// </summary>
+        /// <param name="e"></param>
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            this.Hide();
+            e.Cancel = true;
+        }
+
+        private void ShowLoading(bool isLoading)
         {
             if (isLoading)
             {
@@ -205,6 +216,11 @@ namespace Retrospection
         #endregion
 
         #region Other Options
+
+        public void RefreshWindow()
+        {
+            WebBrowserNavigateTo(_currentPage, true);
+        }
 
         private void Feedback_Clicked(object sender, EventArgs e)
         {

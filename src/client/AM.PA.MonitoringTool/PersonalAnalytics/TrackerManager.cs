@@ -44,14 +44,30 @@ namespace PersonalAnalytics
         }
 
         /// <summary>
+        /// Register trackers for the TrackerManager (i.e. monitoring tool)
+        /// (add a new tracker here to make it being integrated into the monitoring tool
+        /// and retrospection)
+        /// </summary>
+        public List<ITracker> RegisterTrackers()
+        {
+            Register(new WindowsActivityTracker.Daemon());
+            Register(new TimeSpentVisualizer.Visualizers.TimeSpentVisualizer());
+            //Register(new PeopleVisualizer.PeopleVisualizer()); // disabled, as it's not finished and pretty slow
+            Register(new UserEfficiencyTracker.Daemon());
+            Register(new UserInputTracker.Daemon());
+            Register(new MsOfficeTracker.Daemon());
+            //Register(new TaskSwitchTracker.Daemon();); // implementation not finished
+            //Register(new WindowsContextTracker.Daemon();); // implementation not finished
+
+            return _trackers; // return trackers for retrospection
+        }
+
+        /// <summary>
         /// Initialize the TrackerManager
         /// (prepares the settings, starts every tracker, creates a connection to the database, etc.)
         /// </summary>
         public void Start()
         {
-            // Get (and set) app version
-            _publishedAppVersion = GetPublishedAppVersion();
-
             // User First Start: Welcome
             if (!Database.GetInstance().HasSetting("FirstStartWindowShown"))
             {
@@ -75,10 +91,6 @@ namespace PersonalAnalytics
                 tracker.Start();
             }
 
-            // Start Visualization
-            Retrospection.Handler.GetInstance().SetTrackers(_trackers);
-            Retrospection.Handler.GetInstance().SetAppVersion(_publishedAppVersion);
-
             // Communication
             var trackersString = string.Join(", ", _trackers.Where(t => t.IsRunning).ToList().ConvertAll(t => t.Name).ToArray());
             Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "TrackerManager (V{0}) started with {1} trackers ({2})", _publishedAppVersion, _trackers.Where(t => t.IsRunning).ToList().Count, trackersString));
@@ -100,6 +112,15 @@ namespace PersonalAnalytics
             Database.GetInstance().CreateTimeZoneTable();
             SaveCurrentTimeZone(null, null);
             SystemEvents.TimeChanged += SaveCurrentTimeZone;
+        }
+
+        /// <summary>
+        /// Sets the current published app version 
+        /// </summary>
+        /// <param name="v"></param>
+        public void SetAppVersion(string v)
+        {
+            _publishedAppVersion = v;
         }
 
         /// <summary>
@@ -183,7 +204,9 @@ namespace PersonalAnalytics
             Database.GetInstance().LogInfo("The participant paused the trackers.");
         }
 
-        // continues all trackers (that are enabled)
+        /// <summary>
+        /// continues all trackers (that are enabled)
+        /// </summary>
         public void Continue()
         {
             // disable the reminder
@@ -218,6 +241,11 @@ namespace PersonalAnalytics
         public void PrepareSettings()
         {
             _settings = new TrackerSettings(_trackers);
+        }
+
+        public List<ITracker> GetTrackers()
+        {
+            return _trackers;
         }
 
         #endregion
@@ -420,18 +448,6 @@ namespace PersonalAnalytics
         #endregion
 
         #region Helpers
-
-        /// <summary>
-        /// Gets and Formats the currently published
-        /// application version.
-        /// </summary>
-        /// <returns></returns>
-        private static string GetPublishedAppVersion()
-        {
-            if (!ApplicationDeployment.IsNetworkDeployed) return "?.?.?.?";
-            var cd = ApplicationDeployment.CurrentDeployment;
-            return string.Format(CultureInfo.InvariantCulture, "{0}.{1}.{2}.{3}", cd.CurrentVersion.Major, cd.CurrentVersion.Minor, cd.CurrentVersion.Build, cd.CurrentVersion.Revision);
-        }
 
         /// <summary>
         /// Called in a regular interval to try and update the tool.

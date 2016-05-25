@@ -104,11 +104,37 @@ namespace Retrospection
             return "http://localhost:" + Settings.Port + "/" + parameters;
         }
 
-        public void OpenRetrospection()
+        public bool OpenRetrospection()
         {
-            _retrospection = new RetrospectionWindow();
-            _retrospection.WindowState = (OpenRetrospectionInFullScreen) ? WindowState.Maximized : WindowState.Normal;
-            _retrospection.Show();
+            try
+            {
+                // new window
+                if (_retrospection == null)
+                {
+                    _retrospection = new RetrospectionWindow();
+                    _retrospection.WindowState = (OpenRetrospectionInFullScreen) ? WindowState.Maximized : WindowState.Normal;
+                    _retrospection.Topmost = true;
+                    _retrospection.Topmost = false;
+                    _retrospection.Show();
+                }
+                // open again if it lost focus, is minimized or was in the background
+                else
+                {
+                    _retrospection.RefreshWindow();
+                    _retrospection.WindowState = (OpenRetrospectionInFullScreen) ? WindowState.Maximized : WindowState.Normal;
+                    _retrospection.Activate();
+                    _retrospection.Topmost = true;
+                    _retrospection.Topmost = false;
+                    _retrospection.Focus();
+                    _retrospection.Show();
+                }
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         /// <summary>
