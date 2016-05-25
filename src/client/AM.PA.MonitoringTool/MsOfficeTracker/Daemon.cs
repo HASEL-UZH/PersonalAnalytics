@@ -106,8 +106,10 @@ namespace MsOfficeTracker
 
         public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
         {
-            var vis = new DayEmailsReceivedAndSent(date);
-            return new List<IVisualization> { vis };
+            var vis1 = new DayEmailsSent(date);
+            //var vis2 = new DayEmailsReceived(date);
+            var vis3 = new DayEmailsAvgUnreadInbox(date);
+            return new List<IVisualization> { vis1, vis3 };
         }
 
         public override bool IsEnabled()

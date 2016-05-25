@@ -257,11 +257,11 @@ namespace MsOfficeTracker.Data
         /// </summary>
         /// <param name="date"></param>
         /// <returns>Tuple item1: sent, item2: received</returns>
-        internal static int GetAverageInboxSize(DateTimeOffset date)
+        internal static Tuple<DateTime, int> GetAverageInboxSize(DateTimeOffset date)
         {
             try
             {
-                var query = "SELECT avg(inbox) as avg FROM " + Settings.EmailsTable + " "
+                var query = "SELECT time, avg(inbox) as avg FROM " + Settings.EmailsTable + " "
                             + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date) + " "
                             + "AND inbox != -1 "
                             + "ORDER BY timestamp DESC "
@@ -274,20 +274,21 @@ namespace MsOfficeTracker.Data
                     var row = table.Rows[0];
                     var inbox = Convert.ToDouble(row["avg"], CultureInfo.InvariantCulture);
                     var inboxRounded = (int)Math.Round(inbox, 0);
+                    var timestamp = DateTime.Parse((string)row["time"], CultureInfo.InvariantCulture);
 
                     table.Dispose();
-                    return inboxRounded;
+                    return new Tuple<DateTime, int>(timestamp, inboxRounded);
                 }
                 else
                 {
                     table.Dispose();
-                    return -1;
+                    return new Tuple<DateTime, int>(DateTime.MinValue, -1);
                 }
             }
             catch (Exception e)
             {
                 //Logger.WriteToLogFile(e);
-                return -1;
+                return new Tuple<DateTime, int>(DateTime.MinValue, -1);
             }
         }
     }

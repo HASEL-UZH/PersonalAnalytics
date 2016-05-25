@@ -450,7 +450,6 @@ namespace MsOfficeTracker.Helpers
                 {
                     var mailResults = groups.CurrentPage.ToList();
                     numberOfEmailsReceived += mailResults.Count;
-
                     groups = await groups.GetNextPageAsync();
                 }
                 while (groups != null); //&& groups.MorePagesAvailable);
