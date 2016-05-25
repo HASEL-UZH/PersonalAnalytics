@@ -12,18 +12,60 @@ using Microsoft.Win32;
 using Shared;
 using Shared.Data;
 using System.Globalization;
+using PersonalAnalytics.Helpers;
+using System.Collections.Generic;
 
 namespace PersonalAnalytics
 {
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App : Application, ISingleInstanceApp
     {
-        public App()
+        private const string UniqueAppName = "AM.PersonalAnalytics"; // unique app name needed to only have one instance at a time
+
+        //public App()
+        [STAThread]
+        public static void Main()
         {
+            // before actually starting up, check if there is already an instance running
+            if (SingleInstance<App>.InitializeAsFirstInstance(UniqueAppName))
+            {
+                var application = new App();
+                //application.InitializeComponent();
+                application.Run();
+
+                // Allow single instance code to perform cleanup operations
+                SingleInstance<App>.Cleanup();
+            }
+
+            // then do the rest
             Current.DispatcherUnhandledException += App_DispatcherUnhandledException;
             Current.SessionEnding += App_SessionEnding;
+        }
+
+        /// <summary>
+        /// This method is used to handle the command line arguments of the
+        /// second instance. 
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public bool SignalExternalCommandLineArgs(IList<string> args)
+        {
+            TrackerManager.GetInstance().
+
+            MessageBox.Show("An instance was already running");
+
+
+
+            // Bring window to foreground
+            //if (this.MainWindow.WindowState == WindowState.Minimized)
+            //{
+            //    this.MainWindow.WindowState = WindowState.Normal;
+            //}
+            //this.MainWindow.Activate();
+
+            return true;
         }
 
         /// <summary>

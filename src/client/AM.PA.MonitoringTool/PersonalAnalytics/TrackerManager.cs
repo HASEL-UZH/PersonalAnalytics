@@ -27,9 +27,7 @@ namespace PersonalAnalytics
         private DispatcherTimer _taskbarIconTimer;
         private DispatcherTimer _remindToContinueTrackerTimer;
         private DispatcherTimer _checkForUpdatesTimer;
-        private DispatcherTimer _checkTimeZoneTimer;
 
-        private TimeZoneInfo _previousTimeZone;
         private System.Windows.Controls.MenuItem _pauseContinueMenuItem;
         private string _publishedAppVersion;
         private bool _isPaused;
