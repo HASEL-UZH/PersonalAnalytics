@@ -219,7 +219,13 @@ namespace Retrospection
 
         public void ForceRefreshWindow()
         {
-            //WebBrowserNavigateTo(_currentPage, true);
+            if (DatePicker.SelectedDate.HasValue && DatePicker.SelectedDate.Value.Date == DateTime.Now.Date)
+            {
+                // to force refresh
+                //DatePickerSelectDate(DateTime.MinValue);
+                _currentPage = Handler.GetInstance().GetDashboardNavigateUriForType(DateTime.MinValue, _currentVisType);
+            }
+
             DatePickerSelectDate(DateTime.Now);
         }
 
