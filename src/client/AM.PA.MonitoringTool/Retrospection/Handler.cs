@@ -120,7 +120,7 @@ namespace Retrospection
                 // open again if it lost focus, is minimized or was in the background
                 else
                 {
-                    _retrospection.RefreshWindow();
+                    _retrospection.ForceRefreshWindow();
                     _retrospection.WindowState = (OpenRetrospectionInFullScreen) ? WindowState.Maximized : WindowState.Normal;
                     _retrospection.Activate();
                     _retrospection.Topmost = true;

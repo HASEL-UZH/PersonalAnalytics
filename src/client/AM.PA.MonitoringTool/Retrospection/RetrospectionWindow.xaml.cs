@@ -217,9 +217,10 @@ namespace Retrospection
 
         #region Other Options
 
-        public void RefreshWindow()
+        public void ForceRefreshWindow()
         {
-            WebBrowserNavigateTo(_currentPage, true);
+            //WebBrowserNavigateTo(_currentPage, true);
+            DatePickerSelectDate(DateTime.Now);
         }
 
         private void Feedback_Clicked(object sender, EventArgs e)
@@ -243,10 +244,5 @@ namespace Retrospection
         }
 
         #endregion
-
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-
-        }
     }
 }
