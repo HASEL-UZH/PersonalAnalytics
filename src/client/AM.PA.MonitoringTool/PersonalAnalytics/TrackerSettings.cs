@@ -10,7 +10,8 @@ using System.Linq;
 namespace Shared.Data
 {
     /// <summary>
-    /// TODO: comment
+    /// Global settings option (to open settings window and handle settings)
+    /// TODO: de-couple
     /// </summary>
      public class TrackerSettings
     {

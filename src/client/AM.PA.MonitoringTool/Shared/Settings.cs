@@ -11,8 +11,9 @@ namespace Shared
 {
     public static class Settings
     {
-        public const bool IsFeedbackEnabled = true;
-        public const bool IsUploadEnabled = false;
+        public const bool IsFeedbackEnabled = false;
+        public const bool IsUploadEnabled = true;
+        public const bool IsUploadReminderEnabled = true;
 
         public const bool AnonymizeSensitiveData = false;
         public const bool PrintQueriesToConsole = false;
@@ -27,10 +28,10 @@ namespace Shared
         public const string EmailsTable = "emails"; // used for the retrospection
         public const string MeetingsTable = "meetings";  // used for the retrospection
 
-        public static TimeSpan CheckForToolUpdatesInterval = TimeSpan.FromHours(3); // every 3 hours
-        public static TimeSpan TooltipIconUpdateInterval = TimeSpan.FromSeconds(10); // every 10 seconds
-        public static TimeSpan RemindToResumeToolInterval = TimeSpan.FromMinutes(30); // every 30 minutes
-        public static TimeSpan CheckTimeZoneInterval = TimeSpan.FromSeconds(20); // TimeSpan.FromMinutes(10); // every 10 minutes, temporary
+        public static TimeSpan CheckForStudyDataSharedReminderInterval = TimeSpan.FromHours(4); // every 4 hours, check if we should remind the user to share study data
+        public static TimeSpan CheckForToolUpdatesInterval = TimeSpan.FromHours(6); // every 6 hours, check if there is an update available
+        public static TimeSpan TooltipIconUpdateInterval = TimeSpan.FromSeconds(20); // every 20 seconds, update the tasktray icon tool tip
+        public static TimeSpan RemindToResumeToolInterval = TimeSpan.FromMinutes(30); // every 30 minutes, check if the tool is still paused, if yes: remind the user
 
         public static string ExportFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PersonalAnalytics");
         //public static string RemoteFolderName = "remote\\";

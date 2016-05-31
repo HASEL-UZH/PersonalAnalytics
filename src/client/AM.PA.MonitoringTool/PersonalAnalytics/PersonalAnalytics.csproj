@@ -137,6 +137,8 @@
     </Reference>
     <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -152,6 +154,13 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Upload\Uploader.cs" />
+    <Compile Include="Upload\UploadReminder.xaml.cs">
+      <DependentUpon>UploadReminder.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Upload\UploadWizard.xaml.cs">
+      <DependentUpon>UploadWizard.xaml</DependentUpon>
+    </Compile>
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -171,6 +180,14 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="TrackerSettings.cs" />
+    <Page Include="Upload\UploadReminder.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Upload\UploadWizard.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

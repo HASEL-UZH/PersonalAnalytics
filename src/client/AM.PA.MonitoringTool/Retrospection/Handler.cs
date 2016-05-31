@@ -156,22 +156,6 @@ namespace Retrospection
             FeedbackHelper.SendFeedback(subject, body, _publishedAppVersion);
         }
 
-        public void OpenUploadWizard()
-        {
-            Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(
-            () =>
-            {
-                var uploaderWindow = new Upload.UploadWizard();
-                Database.GetInstance().LogInfo("The participant opened the upload wizard.");
-                uploaderWindow.ShowDialog();
-
-                //if (_settingsWindow.ShowDialog() == true)
-                //{
-                //    updatedSettings = _settingsWindow.UpdatedSettingsDto;
-                //}
-            }));
-        }
-
         public SettingsDto OpenSettings(SettingsDto currentSettings)
         {
             var updatedSettings = new SettingsDto();

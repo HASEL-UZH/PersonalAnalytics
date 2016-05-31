@@ -13,11 +13,11 @@ using System.IO.Compression;
 using System.Security.AccessControl;
 using System.Windows;
 
-namespace Retrospection.Upload
+namespace PersonalAnalytics.Upload
 {
     public class Uploader
     {
-        private string _uploadDestinationFolder = @"<Add URL of Shared Server here>";
+        private string _uploadDestinationFolder = @"<Add URL of Shared Windows Server Folder here>";
         private const string _errorTitle = "Upload Wizard: An error occurred";
         private string _participantId;
         private const string _additionalInfoFilePath = "additional_info.txt";
@@ -233,7 +233,7 @@ namespace Retrospection.Upload
 
             // ask user to send info
             var res = MessageBox.Show("We are sorry, but there was an error " + methodDescription + ". Please try again.\n\nDo you want to notify us via email to quickly resolve this issue?", _errorTitle, MessageBoxButton.YesNo);
-            if (res == MessageBoxResult.Yes) Handler.GetInstance().SendFeedback(_errorTitle + " (" + methodName + ")", "Error:\n\n" + e.Message + "\n\n" + e.StackTrace);
+            if (res == MessageBoxResult.Yes) Retrospection.Handler.GetInstance().SendFeedback(_errorTitle + " (" + methodName + ")", "Error:\n\n" + e.Message + "\n\n" + e.StackTrace);
         }
 
         private string GetUploadFilePath()

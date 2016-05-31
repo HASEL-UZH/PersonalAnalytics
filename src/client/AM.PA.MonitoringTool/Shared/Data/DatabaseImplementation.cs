@@ -440,6 +440,23 @@ namespace Shared.Data
             }
         }
 
+        public DateTimeOffset GetSettingsDate(string key, DateTimeOffset byDefault)
+        {
+            try
+            {
+                var query = "SELECT value FROM " + Settings.SettingsDbTable + " WHERE key=" + Database.GetInstance().Q(key) + ";";
+                var ret = Database.GetInstance().ExecuteScalar2(query);
+                if (ret == null) return byDefault;
+
+                var retDt = DateTimeOffset.Parse((string)ret);
+                return retDt;
+            }
+            catch
+            {
+                return byDefault;
+            }
+        }
+
         /// <summary>
         /// Gets the stored setting value for a given key
         /// </summary>

@@ -7,14 +7,11 @@ using Shared.Data;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 
-namespace Retrospection.Upload
+namespace PersonalAnalytics.Upload
 {
     /// <summary>
     /// Interaction logic for UploadWizard.xaml
@@ -293,7 +290,7 @@ namespace Retrospection.Upload
 
         private void Feedback_Clicked(object sender, EventArgs e)
         {
-            Handler.GetInstance().SendFeedback("Feedback Upload", "participant ID: " + _participantId);
+            Retrospection.Handler.GetInstance().SendFeedback("Feedback Upload", "participant ID: " + _participantId);
         }
 
         private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)

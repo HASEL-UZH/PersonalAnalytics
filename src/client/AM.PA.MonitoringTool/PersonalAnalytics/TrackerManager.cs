@@ -26,6 +26,7 @@ namespace PersonalAnalytics
 
         private DispatcherTimer _taskbarIconTimer;
         private DispatcherTimer _remindToContinueTrackerTimer;
+        private DispatcherTimer _remindToShareStudyDataTimer;
         private DispatcherTimer _checkForUpdatesTimer;
 
         private System.Windows.Controls.MenuItem _pauseContinueMenuItem;
@@ -107,6 +108,15 @@ namespace PersonalAnalytics
             _checkForUpdatesTimer.Interval = Settings.CheckForToolUpdatesInterval;
             _checkForUpdatesTimer.Tick += UpdateApplicationIfNecessary;
             _checkForUpdatesTimer.Start();
+
+            // Initialize & start the timer to remind to share study data
+            if (Settings.IsUploadEnabled && Settings.IsUploadReminderEnabled)
+            {
+                _remindToShareStudyDataTimer = new DispatcherTimer();
+                _remindToShareStudyDataTimer.Interval = Settings.CheckForStudyDataSharedReminderInterval;
+                _remindToShareStudyDataTimer.Tick += CheckForStudyDataSharedReminder;
+                _remindToShareStudyDataTimer.Start();
+            }
 
             // track time zone changes
             Database.GetInstance().CreateTimeZoneTable();
@@ -377,9 +387,25 @@ namespace PersonalAnalytics
         /// <summary>
         /// Starts the upload wizard
         /// </summary>
-        private static void UploadTrackedData()
+        private static void UploadTrackedData(bool isManually = true)
         {
-            Retrospection.Handler.GetInstance().OpenUploadWizard();
+            // log
+            if (isManually)
+            {
+                Database.GetInstance().LogInfo("The participant manually opened the upload wizard.");
+            }
+            else
+            {
+                Database.GetInstance().LogInfo("The participant opened the upload wizard after the upload reminder prompt.");
+            }
+
+            // show pop-up
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(
+            () =>
+            {
+                var uploaderWindow = new Upload.UploadWizard();
+                uploaderWindow.ShowDialog();
+            }));
         }
 
         /// <summary>
@@ -448,6 +474,48 @@ namespace PersonalAnalytics
         #endregion
 
         #region Helpers
+
+        /// <summary>
+        /// On the first workday of the week, remind the user ONCE to share
+        /// the collected study data with us.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CheckForStudyDataSharedReminder(object sender, EventArgs e)
+        {
+            // only show reminder if the upload is enabled (i.e. during a study)
+            if (! Settings.IsUploadEnabled || ! Settings.IsUploadReminderEnabled) return;
+
+            var lastTimeShown = Database.GetInstance().GetSettingsDate("LastTimeUploadReminderShown", DateTimeOffset.MinValue);
+            var today = DateTime.Now.Date;
+
+            // check if the reminder should be shown
+            if ((today.DayOfWeek == DayOfWeek.Saturday || today.DayOfWeek == DayOfWeek.Sunday) || // do not show on weekends
+                 (today - lastTimeShown).Days < 7) // only show once a week
+                return;
+
+            // log when reminder was shown
+            Database.GetInstance().LogInfo("Shown the user the study data upload reminder.");
+            Database.GetInstance().SetSettings("LastTimeUploadReminderShown", today.Date.ToShortDateString());
+
+            // show the reminder
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(
+            () =>
+            {
+                var reminderWindow = new Upload.UploadReminder();
+                if (reminderWindow.ShowDialog() == true) // show pop-up, handle response
+                {
+                    if (reminderWindow.UserSelectedShareData)
+                    {
+                        UploadTrackedData(false);
+                    }
+                    else
+                    {
+                        Database.GetInstance().LogInfo("The participant didn't want to share the study data when the upload reminder prompt was shown.");
+                    }
+                }
+            }));
+        }
 
         /// <summary>
         /// Called in a regular interval to try and update the tool.
