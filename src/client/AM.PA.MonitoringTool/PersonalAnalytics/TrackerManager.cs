@@ -487,10 +487,12 @@ namespace PersonalAnalytics
             if (! Settings.IsUploadEnabled || ! Settings.IsUploadReminderEnabled) return;
 
             var lastTimeShown = Database.GetInstance().GetSettingsDate("LastTimeUploadReminderShown", DateTimeOffset.MinValue);
+            var databaseSince = Database.GetInstance().GetSettingsDate("SettingsTableCreatedDate", DateTimeOffset.MinValue);
             var today = DateTime.Now.Date;
 
             // check if the reminder should be shown
             if ((today.DayOfWeek == DayOfWeek.Saturday || today.DayOfWeek == DayOfWeek.Sunday) || // do not show on weekends
+                 (today - databaseSince).Days < 10 || //  only if there is at least 10 days since the tool was installed
                  (today - lastTimeShown).Days < 7) // only show once a week
                 return;
 

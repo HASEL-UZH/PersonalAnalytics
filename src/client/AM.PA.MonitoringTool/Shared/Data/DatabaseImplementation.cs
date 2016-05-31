@@ -560,7 +560,7 @@ namespace Shared.Data
         {
             try 
             {
-                const string query = "CREATE TABLE IF NOT EXISTS " + Settings.LogDbTable + " (id INTEGER PRIMARY KEY, created INTEGER, message TEXT, type TEXT)";
+                const string query = "CREATE TABLE IF NOT EXISTS " + Settings.LogDbTable + " (id INTEGER PRIMARY KEY, created INTEGER, message TEXT, type TEXT);";
                 ExecuteDefaultQuery(query);
             } 
             catch (Exception e) 
@@ -576,8 +576,14 @@ namespace Shared.Data
         {
             try
             {
-                const string query = "CREATE TABLE IF NOT EXISTS " + Settings.SettingsDbTable + " (id INTEGER PRIMARY KEY, key TEXT, value TEXT)";
-                ExecuteDefaultQuery(query);
+                const string query = "CREATE TABLE IF NOT EXISTS " + Settings.SettingsDbTable + " (id INTEGER PRIMARY KEY, key TEXT, value TEXT);";
+                var ans = ExecuteDefaultQuery(query);
+
+                // creating the settings table means the database file was newly created => log this
+                if (ans == 0)
+                {
+                    Database.GetInstance().SetSettings("SettingsTableCreatedDate", DateTime.Now.Date.ToShortDateString());
+                }
             }
             catch (Exception e)
             {
