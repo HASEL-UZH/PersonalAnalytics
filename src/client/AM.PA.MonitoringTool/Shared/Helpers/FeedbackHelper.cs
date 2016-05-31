@@ -31,7 +31,9 @@ namespace Shared.Helpers
             if (!string.IsNullOrEmpty(publishedAppVersion)) subject = subject + string.Format(CultureInfo.InvariantCulture, " ({0})", publishedAppVersion);
             var encodedSubject = Uri.EscapeDataString(subject);
 
-            var email = string.Format(CultureInfo.InvariantCulture, "mailto:{0}?CC={1}&subject={2}", Settings.EmailAddress1, Settings.EmailAddress2, encodedSubject);
+            var email = (string.IsNullOrWhiteSpace(Settings.EmailAddress2))
+                ? string.Format(CultureInfo.InvariantCulture, "mailto:{0}?subject={1}", Settings.EmailAddress1, encodedSubject)
+                : string.Format(CultureInfo.InvariantCulture, "mailto:{0}?CC={1}&subject={2}", Settings.EmailAddress1, Settings.EmailAddress2, encodedSubject);
 
             if (!string.IsNullOrEmpty(body))
             {
