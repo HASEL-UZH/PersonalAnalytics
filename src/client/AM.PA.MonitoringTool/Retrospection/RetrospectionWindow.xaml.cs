@@ -219,13 +219,10 @@ namespace Retrospection
 
         public void ForceRefreshWindow()
         {
-            if (DatePicker.SelectedDate.HasValue && DatePicker.SelectedDate.Value.Date == DateTime.Now.Date)
-            {
-                // to force refresh
-                //DatePickerSelectDate(DateTime.MinValue);
-                _currentPage = Handler.GetInstance().GetDashboardNavigateUriForType(DateTime.MinValue, _currentVisType);
-            }
+            //TODO: only force refresh today if the data is more than 5 minutes old
 
+            //if (DatePicker.SelectedDate.HasValue && DatePicker.SelectedDate.Value.Date == DateTime.Now.Date)
+            _currentPage = Handler.GetInstance().GetDashboardNavigateUriForType(DateTime.MinValue, _currentVisType); // to force refresh
             DatePickerSelectDate(DateTime.Now);
         }
 
