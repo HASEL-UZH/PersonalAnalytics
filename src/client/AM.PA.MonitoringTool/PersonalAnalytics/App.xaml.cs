@@ -104,17 +104,17 @@ namespace PersonalAnalytics
 
 
             //////////////////////////////////////////////////////
-            // initialize task bar icon & context menu
-            //////////////////////////////////////////////////////
-            TrackerManager.GetInstance().InitializeTaskBarIcon();
-
-
-            //////////////////////////////////////////////////////
             // Start Tracker Manager (i.e. the monitoring tool)
             //////////////////////////////////////////////////////
             var trackers = TrackerManager.GetInstance().RegisterTrackers();
             TrackerManager.GetInstance().Start();
             TrackerManager.GetInstance().SetAppVersion(GetPublishedAppVersion());
+
+
+            //////////////////////////////////////////////////////
+            // initialize task bar icon & context menu
+            //////////////////////////////////////////////////////
+            TrackerManager.GetInstance().InitializeTaskBarIcon();
 
 
             //////////////////////////////////////////////////////
