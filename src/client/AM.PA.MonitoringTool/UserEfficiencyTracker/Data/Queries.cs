@@ -71,7 +71,8 @@ namespace UserEfficiencyTracker.Data
         /// <returns>previous survey entry or null, if there isn't any</returns>
         internal static SurveyEntry GetPreviousIntervalSurveyEntry()
         {
-            var res = Database.GetInstance().ExecuteReadQuery("SELECT surveyNotifyTime, surveyStartTime, surveyEndTime, userProductivity FROM " + Settings.DbTableIntervalPopup + "' ORDER BY time DESC;");
+            var query = "SELECT surveyNotifyTime, surveyStartTime, surveyEndTime, userProductivity FROM '" + Settings.DbTableIntervalPopup + "' ORDER BY time DESC;";
+            var res = Database.GetInstance().ExecuteReadQuery(query);
             if (res == null || res.Rows.Count == 0) return null;
 
             var entry = new SurveyEntry();

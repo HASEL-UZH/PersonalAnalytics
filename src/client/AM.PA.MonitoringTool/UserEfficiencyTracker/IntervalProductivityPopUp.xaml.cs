@@ -3,6 +3,7 @@
 // 
 // Licensed under the MIT License.
 using System;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
@@ -40,9 +41,10 @@ namespace UserEfficiencyTracker
             if (_previousSurveyEntry != null && _previousSurveyEntry.TimeStampFinished  != null && // if available
                 _previousSurveyEntry.TimeStampFinished.Day == DateTime.Now.Day) // only if it was answered today
             {
-                LastTimeFilledOut.Text = "Last entry was: "
-                    + _previousSurveyEntry.TimeStampFinished.ToShortDateString() + " " 
-                    + _previousSurveyEntry.TimeStampFinished.ToShortTimeString();
+                LastTimeFilledOut.Text = string.Format(CultureInfo.InvariantCulture, "Last entry was: {0} {1}, you answered: {2}",
+                    _previousSurveyEntry.TimeStampFinished.ToShortDateString(),
+                    _previousSurveyEntry.TimeStampFinished.ToShortTimeString(),
+                    _previousSurveyEntry.Productivity);
             }
 
             // start timer to close if not responded within a few hours
