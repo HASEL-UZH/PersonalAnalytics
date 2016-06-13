@@ -7,10 +7,12 @@ Personal Developer Analytics project by André Meyer from the SEAL Lab at the Un
 - April, 2016: Merged the branch (from Microsoft Research) with the original version, following the open sourcing of the code.
 - Mai, 2016: Started working on a communication dashboard (including more insights into interactions with others) with ABB Research (on a separate branch)
 
-# Core Contributor & Contact
-André Meyer (ameyer@ifi.uzh.ch)
 
 # Collaborations
 - Prof. Dr. Thomas Fritz (Supervision, University of Zurich)
 - Dr. Tom Zimmermann (Microsoft Research)
 - Paige Rodeghero and Dave Shepherd (ABB Research)
+
+
+# Core Contributor & Contact
+André Meyer (ameyer@ifi.uzh.ch)
