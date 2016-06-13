@@ -11,6 +11,6 @@ Personal Developer Analytics project by André Meyer from the SEAL Lab at the Un
 André Meyer (ameyer@ifi.uzh.ch)
 
 # Collaborations
-Prof. Dr. Thomas Fritz (Supervision, University of Zurich)
-Dr. Tom Zimmermann (Microsoft Research)
-Paige Rodeghero and Dave Shepherd (ABB Research)
+- Prof. Dr. Thomas Fritz (Supervision, University of Zurich)
+- Dr. Tom Zimmermann (Microsoft Research)
+- Paige Rodeghero and Dave Shepherd (ABB Research)
