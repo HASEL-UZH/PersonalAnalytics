@@ -54,6 +54,7 @@ namespace UserInputTracker.Visualizations
             /////////////////////
             html += "<style type='text/css'>";
             html += ".c3-line { stroke-width: 2px; }";
+            html += ".c3-grid text, c3.grid line { fill: gray; }";
             html += "</style>";
 
 
@@ -74,7 +75,7 @@ namespace UserInputTracker.Visualizations
             var avgUserInput = chartQueryResultsLocal.Average(i => i.Value);
 
             const string colors = "'User_Input_Level' : '#007acb'";
-            var data = "x: 'timeAxis', columns: [['timeAxis', " + timeAxis + "], ['User_Input_Level', " + userInputFormattedData + " ] ], type: 'line', colors: { " + colors + " }, axis: { 'PerceivedProductivity': 'y' }";
+            var data = "x: 'timeAxis', columns: [['timeAxis', " + timeAxis + "], ['User_Input_Level', " + userInputFormattedData + " ] ], type: 'area', colors: { " + colors + " }, axis: { 'PerceivedProductivity': 'y' }";
             var grid = "y: { lines: [ { value: 0, text: 'not active' }, { value: "+ avgUserInput + ", text: 'average activity today' }, { value: "+ maxUserInput + ", text: 'max activity today' } ] } ";
             var axis = "x: { localtime: true, type: 'timeseries', tick: { values: [ " + ticks + "], format: function(x) { return formatDate(x.getHours()); }}  }, y: { show: false, min: 0 }";
             var parameters = " bindto: '#" + VisHelper.CreateChartHtmlTitle(Title) + "', data: { " + data + " }, padding: { left: 0, right: 0, bottom: -10, top: 0}, legend: { show: false }, axis: { " + axis + " }, grid: { " + grid + " }, tooltip: { show: false }, point: { show: false }";

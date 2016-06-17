@@ -49,6 +49,7 @@ namespace UserEfficiencyTracker.Visualizations
             /////////////////////
             html += "<style type='text/css'>";
             html += ".c3-line { stroke-width: 2px; }";
+            html += ".c3-grid text, c3.grid line { fill: gray; }";
             html += "</style>";
 
 
