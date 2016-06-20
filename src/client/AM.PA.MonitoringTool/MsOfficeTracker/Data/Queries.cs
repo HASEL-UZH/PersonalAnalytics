@@ -210,11 +210,12 @@ namespace MsOfficeTracker.Data
                 if (table != null && table.Rows.Count == 1)
                 {
                     var row = table.Rows[0];
-                    var inbox = Convert.ToInt64(row["inbox"], CultureInfo.InvariantCulture);
-                    var inboxUnread = Convert.ToInt64(row["inboxUnread"], CultureInfo.InvariantCulture);
-                    var sent = Convert.ToInt32(row["sent"], CultureInfo.InvariantCulture);
-                    var received = Convert.ToInt32(row["received"], CultureInfo.InvariantCulture);
-                    var receivedUnread = Convert.ToInt32(row["receivedUnread"], CultureInfo.InvariantCulture);
+ 
+                    var inbox = row.IsNull("inbox") ? -1 : Convert.ToInt64(row["inbox"], CultureInfo.InvariantCulture);
+                    var inboxUnread = row.IsNull("inboxUnread") ? -1 : Convert.ToInt64(row["inboxUnread"], CultureInfo.InvariantCulture);
+                    var sent = row.IsNull("sent") ? -1 : Convert.ToInt32(row["sent"], CultureInfo.InvariantCulture);
+                    var received = row.IsNull("received") ? -1 : Convert.ToInt32(row["received"], CultureInfo.InvariantCulture);
+                    var receivedUnread = row.IsNull("receivedUnread") ? -1 : Convert.ToInt32(row["receivedUnread"], CultureInfo.InvariantCulture);
                     var timestamp = DateTime.Parse((string)row["time"], CultureInfo.InvariantCulture);
 
                     table.Dispose();
