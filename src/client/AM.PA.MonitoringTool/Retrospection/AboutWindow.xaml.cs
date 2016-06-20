@@ -19,10 +19,10 @@ namespace Retrospection
     /// </summary>
     public partial class AboutWindow : Window
     {
-        public AboutWindow(string version)
+        public AboutWindow(string toolVersion, int dbVersion)
         {
             InitializeComponent();
-            TbVersion.Text = "Version: " + version;
+            TbVersion.Text = "Tool-Version: " + toolVersion + ", Database-Version: " + dbVersion;
         }
 
         private void Feedback_Clicked(object sender, RoutedEventArgs e)

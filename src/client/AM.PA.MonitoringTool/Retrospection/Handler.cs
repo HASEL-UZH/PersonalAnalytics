@@ -181,7 +181,7 @@ namespace Retrospection
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(
             () =>
             {
-                var window = new AboutWindow(_publishedAppVersion);
+                var window = new AboutWindow(_publishedAppVersion, Database.GetInstance().GetDbPragmaVersion());
                 window.Show();
             }));
         }
