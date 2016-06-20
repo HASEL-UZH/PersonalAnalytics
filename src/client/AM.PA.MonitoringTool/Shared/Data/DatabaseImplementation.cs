@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Globalization;
+using System.IO;
 
 namespace Shared.Data
 {
@@ -537,9 +538,14 @@ namespace Shared.Data
         /// </summary>
         public void Connect()
         {
+            var dbJustCreated = (File.Exists(CurrentDatabaseDumpFile)) ? false : true;
+
             // Open the Database connection
             _connection = new SQLiteConnection("Data Source=" + CurrentDatabaseDumpFile);
             _connection.Open();
+
+            // Update database version if db was newly created
+            if (dbJustCreated) Database.GetInstance().UpdateDbPragmaVersion(Settings.DatabaseVersion);
 
             // Create log table if it doesn't exist
             CreateLogTable();

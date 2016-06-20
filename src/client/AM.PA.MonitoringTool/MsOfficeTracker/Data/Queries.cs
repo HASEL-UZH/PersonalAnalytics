@@ -13,14 +13,12 @@ namespace MsOfficeTracker.Data
 {
     public class Queries
     {
-        private static int unreadInboxSize;
-
         internal static void CreateMsTrackerTables()
         {
             try
             {
                 Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.MeetingsTable + " (id INTEGER PRIMARY KEY, timestamp TEXT, time TEXT, subject TEXT, durationInMins INTEGER);");
-                Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.EmailsTable + "2 (id INTEGER PRIMARY KEY, timestamp TEXT, time TEXT, inbox INTEGER, inboxUnread INTEGER, sent INTEGER, received INTEGER, receivedUnread INTEGER, isFromTimer INTEGER);");
+                Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.EmailsTable + " (id INTEGER PRIMARY KEY, timestamp TEXT, time TEXT, inbox INTEGER, inboxUnread INTEGER, sent INTEGER, received INTEGER, receivedUnread INTEGER, isFromTimer INTEGER);");
             }
             catch (Exception e)
             {
@@ -107,7 +105,7 @@ namespace MsOfficeTracker.Data
         internal static void SaveEmailsSnapshot(DateTime date, long inbox, long unreadInbox, int sent, int received, int unreadReceived, bool isFromTimer)
         {
             Database.GetInstance().ExecuteDefaultQuery("INSERT INTO " + Settings.EmailsTable + " (timestamp, time, inbox, inboxUnread, sent, received, receivedUnread, isFromTimer) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " +
-                Database.GetInstance().QTime(date) + ", " + Database.GetInstance().Q(inbox) + ", " + Database.GetInstance().Q(unreadInboxSize) + ", " + Database.GetInstance().Q(sent) + ", "  +
+                Database.GetInstance().QTime(date) + ", " + Database.GetInstance().Q(inbox) + ", " + Database.GetInstance().Q(unreadInbox) + ", " + Database.GetInstance().Q(sent) + ", "  +
                 Database.GetInstance().Q(received) + ", " + Database.GetInstance().Q(unreadReceived) + ", " + Database.GetInstance().Q(isFromTimer) + ");");
         }
 
