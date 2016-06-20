@@ -13,6 +13,8 @@ namespace MsOfficeTracker.Data
 {
     public class Queries
     {
+        private static int unreadInboxSize;
+
         internal static void CreateMsTrackerTables()
         {
             try
@@ -44,97 +46,56 @@ namespace MsOfficeTracker.Data
         }
 
         /// <summary>
-        /// Returns the total time a user spent in Outlook
-        /// </summary>
-        /// <param name="date"></param>
-        /// <returns>time in minutes</returns>
-        internal static double TimeSpentInOutlook(DateTimeOffset date)
-        {
-            try
-            {
-                var query = "SELECT SUM(difference) as difference "
-                            + "FROM ("
-                            + "SELECT (strftime('%s', t2.time) - strftime('%s', t1.time)) as 'difference' " //t1.id, t1.time as 'from', t2.time as 'to'
-                            + "FROM " + Shared.Settings.WindowsActivityTable + " t1 LEFT JOIN " + Shared.Settings.WindowsActivityTable + " t2 on t1.id + 1 = t2.id "
-                            + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "t1.time") + " and " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "t2.time") + " "
-                            + "AND lower(t1.process) = 'outlook' "
-                            + "GROUP BY t1.id, t1.time "
-                            + "ORDER BY difference DESC "
-                            + ");";
-
-                var table = Database.GetInstance().ExecuteReadQuery(query);
-
-                if (table != null && table.Rows.Count == 1)
-                {
-                    try
-                    {
-                        var row = table.Rows[0];
-                        var difference = Convert.ToInt32(row["difference"], CultureInfo.InvariantCulture);
-                        return difference / 60.0;
-                    }
-                    catch // (InvalidCastException e)
-                    {
-                        // don't do anything
-                        return -1;
-                    }
-                    finally
-                    {
-                        table.Dispose();
-                    }
-                }
-                else
-                {
-                    table.Dispose();
-                    return -1;
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.WriteToLogFile(e);
-                return -1;
-            }
-        }
-
-        /// <summary>
         /// Class calls the API to determine the inbox size, number of emails sent and received.
         /// (inbox size: is only collected for date = DateTime.Now)
         /// </summary>
         /// <param name="date"></param>
         /// <param name="isFromTimer"></param>
-        internal static Tuple<int, int> CreateEmailsSnapshot(DateTime date, bool isFromTimer)
+        internal static Tuple<long, long, int, int, int> CreateEmailsSnapshot(DateTime date, bool isFromTimer)
         {
             try
             {
                 // get inbox size (can only be done today)
-                var inboxSize = -1;
+                var unreadInbox = -1;
+                var inbox = -1;
                 if (date.Date == DateTime.Now.Date)
                 {
-                    date = DateTime.Now; // add time to save full time stamp
-                    var inboxSizeResponse = Office365Api.GetInstance().GetNumberOfUnreadEmailsInInbox();
+                    // unread inbox size
+                    var unreadInboxSizeResponse = Office365Api.GetInstance().GetNumberOfUnreadEmailsInInbox();
+                    unreadInboxSizeResponse.Wait();
+                    unreadInbox = (int)unreadInboxSizeResponse.Result;
+
+                    // total inbox size
+                    var inboxSizeResponse = Office365Api.GetInstance().GetTotalNumberOfEmailsInInbox();
                     inboxSizeResponse.Wait();
-                    inboxSize = (int)inboxSizeResponse.Result;
+                    inbox = (int)inboxSizeResponse.Result;
                 }
 
                 // get emails sent count
-                var emailsSentResult = Office365Api.GetInstance().GetNumberOfEmailsSent(date.Date);
-                emailsSentResult.Wait();
-                var emailsSent = emailsSentResult.Result;
+                var sentResult = Office365Api.GetInstance().GetNumberOfEmailsSent(date.Date);
+                sentResult.Wait();
+                var sent = sentResult.Result;
 
-                // get emails received count
-                var emailsReceivedResult = Office365Api.GetInstance().GetTotalNumberOfEmailsReceived(date.Date);
-                emailsReceivedResult.Wait();
-                var emailsReceived = emailsReceivedResult.Result;
+                // get total emails received count
+                var receivedResult = Office365Api.GetInstance().GetTotalNumberOfEmailsReceived(date.Date);
+                receivedResult.Wait();
+                var received = receivedResult.Result;
+
+                // get unread emails received count
+                var unreadReceivedResult = Office365Api.GetInstance().GetNumberOfUnreadEmailsReceived(date.Date);
+                unreadReceivedResult.Wait();
+                var unreadReceived = unreadReceivedResult.Result;
 
                 // save into the database
-                SaveEmailsSnapshot(date, inboxSize, emailsSent, emailsReceived, isFromTimer);
+                SaveEmailsSnapshot(date, inbox, unreadInbox, sent, received, unreadReceived, isFromTimer);
 
                 // return for immediate use
-                return new Tuple<int, int>(emailsSent, emailsReceived);
+                return new Tuple<long, long, int, int, int>(inbox, unreadInbox, sent, received, unreadReceived);
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return new Tuple<int, int>(-1, -1);
+                return new Tuple<long, long, int, int, int>(-1, -1, -1, -1, -1);
             }
         }
 
@@ -143,10 +104,11 @@ namespace MsOfficeTracker.Data
         /// </summary>
         /// <param name="window"></param>
         /// <param name="process"></param>
-        internal static void SaveEmailsSnapshot(DateTime date, long inbox, int sent, int received, bool isFromTimer)
+        internal static void SaveEmailsSnapshot(DateTime date, long inbox, long unreadInbox, int sent, int received, int unreadReceived, bool isFromTimer)
         {
-            Database.GetInstance().ExecuteDefaultQuery("INSERT INTO " + Settings.EmailsTable + " (timestamp, time, inbox, sent, received, isFromTimer) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " +
-                Database.GetInstance().QTime(date) + ", " + Database.GetInstance().Q(inbox) + ", " + Database.GetInstance().Q(sent) + ", " + Database.GetInstance().Q(received) + ", " + Database.GetInstance().Q(isFromTimer) + ");");
+            Database.GetInstance().ExecuteDefaultQuery("INSERT INTO " + Settings.EmailsTable + " (timestamp, time, inbox, inboxUnread, sent, received, receivedUnread, isFromTimer) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " +
+                Database.GetInstance().QTime(date) + ", " + Database.GetInstance().Q(inbox) + ", " + Database.GetInstance().Q(unreadInboxSize) + ", " + Database.GetInstance().Q(sent) + ", "  +
+                Database.GetInstance().Q(received) + ", " + Database.GetInstance().Q(unreadReceived) + ", " + Database.GetInstance().Q(isFromTimer) + ");");
         }
 
         /// <summary>
@@ -232,15 +194,15 @@ namespace MsOfficeTracker.Data
         }
 
         /// <summary>
-        /// The emails sent
+        /// The emails sent, received, and inbox values (last item stored for given date)
         /// </summary>
         /// <param name="date"></param>
         /// <returns>Tuple item1: sent, item2: received</returns>
-        internal static Tuple<DateTime, int> GetSentEmails(DateTimeOffset date)
+        internal static Tuple<DateTime, long, long, int, int, int> GetEmailsSnapshot(DateTimeOffset date)
         {
             try
             {
-                var query = "SELECT time, sent FROM " + Settings.EmailsTable + " "
+                var query = "SELECT time, inbox, inboxUnread, sent, received, receivedUnread FROM " + Settings.EmailsTable + " "
                             + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date) + " "
                             + "ORDER BY time DESC "
                             + "LIMIT 1;";
@@ -250,22 +212,26 @@ namespace MsOfficeTracker.Data
                 if (table != null && table.Rows.Count == 1)
                 {
                     var row = table.Rows[0];
+                    var inbox = Convert.ToInt64(row["inbox"], CultureInfo.InvariantCulture);
+                    var inboxUnread = Convert.ToInt64(row["inboxUnread"], CultureInfo.InvariantCulture);
                     var sent = Convert.ToInt32(row["sent"], CultureInfo.InvariantCulture);
+                    var received = Convert.ToInt32(row["received"], CultureInfo.InvariantCulture);
+                    var receivedUnread = Convert.ToInt32(row["receivedUnread"], CultureInfo.InvariantCulture);
                     var timestamp = DateTime.Parse((string)row["time"], CultureInfo.InvariantCulture);
 
                     table.Dispose();
-                    return new Tuple<DateTime, int>(timestamp, sent);
+                    return new Tuple<DateTime, long, long, int, int, int>(timestamp, inbox, inboxUnread, sent, received, receivedUnread);
                 }
                 else
                 {
                     table.Dispose();
-                    return new Tuple<DateTime, int>(DateTime.MinValue, -1);
+                    return new Tuple<DateTime, long, long, int, int, int>(DateTime.MinValue, -1, -1, -1, -1, -1);
                 }
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return new Tuple<DateTime, int>(DateTime.MinValue, -1);
+                return new Tuple<DateTime, long, long, int, int, int>(DateTime.MinValue, -1, -1, -1, -1, -1);
             }
         }
 

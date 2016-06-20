@@ -510,7 +510,6 @@ namespace Shared.Data
         public int GetDbPragmaVersion()
         {
             var result = ExecuteScalar("PRAGMA user_version;");
-            //var result = _connection.Scalar<int>("PRAGMA user_version");
             return result;
         }
 
@@ -523,26 +522,6 @@ namespace Shared.Data
         {
             ExecuteDefaultQuery("PRAGMA user_version = " + version);
         }
-
-        ///// <summary>
-        ///// Get the expected database version
-        ///// (to find out if the database should be updated/modified)
-        ///// </summary>
-        ///// <returns></returns>
-        //public int GetDbSettingsVersion()
-        //{
-        //    var result = GetSettingsInt("DatabaseVersion", -1);
-        //    return result;
-        //}
-
-        ///// <summary>
-        ///// When the database was updated/modified, update the expected
-        ///// database version to the actual one from the database
-        ///// </summary>
-        //public void UpdateDbSettingsVersion()
-        //{
-        //    SetSettings("DatabaseVersion", GetDbPragmaVersion().ToString());
-        //}
 
         #endregion
 

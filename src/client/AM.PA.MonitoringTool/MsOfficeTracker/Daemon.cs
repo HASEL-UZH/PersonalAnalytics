@@ -111,10 +111,11 @@ namespace MsOfficeTracker
 
         public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
         {
-            var vis1 = new DayEmailsSent(date);
+            //var vis1 = new DayEmailsSent(date);
             //var vis2 = new DayEmailsReceived(date);
-            var vis3 = new DayEmailsAvgUnreadInbox(date);
-            return new List<IVisualization> { vis1, vis3 };
+            //var vis3 = new DayEmailsAvgUnreadInbox(date);
+            var vis = new DayEmailsTable(date);
+            return new List<IVisualization> { vis };
         }
 
         public override bool IsEnabled()
@@ -163,7 +164,7 @@ namespace MsOfficeTracker
 
         #endregion
 
-        #region Deamon
+        #region Daemon
 
         private void TimerTick(object state)
         {
