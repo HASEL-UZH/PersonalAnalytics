@@ -92,6 +92,9 @@ namespace PersonalAnalytics
                 tracker.Start();
             }
 
+            // run database updates for trackers
+            PerformDatabaseUpdatesIfNecessary();
+
             // Communication
             var trackersString = string.Join(", ", _trackers.Where(t => t.IsRunning).ToList().ConvertAll(t => t.Name).ToArray());
             Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "TrackerManager (V{0}) started with {1} trackers ({2})", _publishedAppVersion, _trackers.Where(t => t.IsRunning).ToList().Count, trackersString));
@@ -122,6 +125,30 @@ namespace PersonalAnalytics
             Database.GetInstance().CreateTimeZoneTable();
             SaveCurrentTimeZone(null, null);
             SystemEvents.TimeChanged += SaveCurrentTimeZone;
+        }
+
+        /// <summary>
+        /// In case the current database version != the targeted database version,
+        /// perform an incremental udpate to the database (for each tracker)
+        /// </summary>
+        private void PerformDatabaseUpdatesIfNecessary()
+        {
+            var currentVersion = Database.GetInstance().GetDbPragmaVersion();
+            var targetVersion = Settings.DatabaseVersion;
+            if (currentVersion != targetVersion)
+            {
+                // run update commands for each version separately
+                while (currentVersion < targetVersion)
+                {
+                    currentVersion++; // increment database version
+                    foreach (var tracker in _trackers)
+                    {
+                        tracker.UpdateDatabaseTables(currentVersion);
+                    }
+                }
+                // update database version
+                Database.GetInstance().UpdateDbPragmaVersion(targetVersion);
+            }
         }
 
         /// <summary>

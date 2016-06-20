@@ -17,12 +17,29 @@ namespace MsOfficeTracker.Data
         {
             try
             {
-                Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.EmailsTable + " (id INTEGER PRIMARY KEY, timestamp TEXT, time TEXT, inbox INTEGER, sent INTEGER, received INTEGER, isFromTimer INTEGER)");
-                Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.MeetingsTable + " (id INTEGER PRIMARY KEY, timestamp TEXT, time TEXT, subject TEXT, durationInMins INTEGER)");
+                Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.MeetingsTable + " (id INTEGER PRIMARY KEY, timestamp TEXT, time TEXT, subject TEXT, durationInMins INTEGER);");
+                Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.EmailsTable + "2 (id INTEGER PRIMARY KEY, timestamp TEXT, time TEXT, inbox INTEGER, inboxUnread INTEGER, sent INTEGER, received INTEGER, receivedUnread INTEGER, isFromTimer INTEGER);");
             }
             catch (Exception e)
             {
-                Shared.Logger.WriteToLogFile(e);
+                Logger.WriteToLogFile(e);
+            }
+        }
+
+        internal static void UpdateDatabaseTables(int version)
+        {
+            try
+            {
+                // database update 20.06.2016 (added two columns to 'emails' table)
+                if (version == 2)
+                {
+                    Database.GetInstance().ExecuteDefaultQuery("ALTER TABLE " + Settings.EmailsTable + " ADD COLUMN inboxUnread INTEGER;");
+                    Database.GetInstance().ExecuteDefaultQuery("ALTER TABLE " + Settings.EmailsTable + " ADD COLUMN receivedUnread INTEGER;");
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
             }
         }
 
@@ -93,7 +110,7 @@ namespace MsOfficeTracker.Data
                 if (date.Date == DateTime.Now.Date)
                 {
                     date = DateTime.Now; // add time to save full time stamp
-                    var inboxSizeResponse = Office365Api.GetInstance().GetNumberOfEmailsInInbox();
+                    var inboxSizeResponse = Office365Api.GetInstance().GetNumberOfUnreadEmailsInInbox();
                     inboxSizeResponse.Wait();
                     inboxSize = (int)inboxSizeResponse.Result;
                 }
@@ -104,7 +121,7 @@ namespace MsOfficeTracker.Data
                 var emailsSent = emailsSentResult.Result;
 
                 // get emails received count
-                var emailsReceivedResult = Office365Api.GetInstance().GetNumberOfEmailsReceived(date.Date);
+                var emailsReceivedResult = Office365Api.GetInstance().GetTotalNumberOfEmailsReceived(date.Date);
                 emailsReceivedResult.Wait();
                 var emailsReceived = emailsReceivedResult.Result;
 

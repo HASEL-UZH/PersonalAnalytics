@@ -124,7 +124,6 @@ namespace Shared.Data
 
         /// <summary>
         /// Executes a query (given as a parameter).
-        /// Also logs the query.
         /// </summary>
         /// <param name="query"></param>
         /// <returns>the first table as a result or null if there was no result</returns>
@@ -153,7 +152,6 @@ namespace Shared.Data
 
         /// <summary>
         /// Inserts the message (given as a parameter) into the log-database-table (flag: Error).
-        /// Also logs the query.
         /// </summary>
         /// <param name="message"></param>
         public void LogError(string message)
@@ -500,6 +498,51 @@ namespace Shared.Data
                 return false;
             }
         }
+
+        #endregion
+
+        #region Database Versioning
+
+        /// <summary>
+        /// Get the actual database version
+        /// </summary>
+        /// <returns></returns>
+        public int GetDbPragmaVersion()
+        {
+            var result = ExecuteScalar("PRAGMA user_version;");
+            //var result = _connection.Scalar<int>("PRAGMA user_version");
+            return result;
+        }
+
+        /// <summary>
+        /// Update the database version when an existing
+        /// table changes
+        /// </summary>
+        /// <param name="version"></param>
+        public void UpdateDbPragmaVersion(int version)
+        {
+            ExecuteDefaultQuery("PRAGMA user_version = " + version);
+        }
+
+        ///// <summary>
+        ///// Get the expected database version
+        ///// (to find out if the database should be updated/modified)
+        ///// </summary>
+        ///// <returns></returns>
+        //public int GetDbSettingsVersion()
+        //{
+        //    var result = GetSettingsInt("DatabaseVersion", -1);
+        //    return result;
+        //}
+
+        ///// <summary>
+        ///// When the database was updated/modified, update the expected
+        ///// database version to the actual one from the database
+        ///// </summary>
+        //public void UpdateDbSettingsVersion()
+        //{
+        //    SetSettings("DatabaseVersion", GetDbPragmaVersion().ToString());
+        //}
 
         #endregion
 

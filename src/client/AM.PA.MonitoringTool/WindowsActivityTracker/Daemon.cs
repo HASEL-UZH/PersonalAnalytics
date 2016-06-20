@@ -121,6 +121,11 @@ namespace WindowsActivityTracker
             Queries.CreateWindowsActivityTable();
         }
 
+        public override void UpdateDatabaseTables(int version)
+        {
+            // no database updates necessary yet
+        }
+
         public override bool IsEnabled()
         {
             return Settings.IsEnabled;

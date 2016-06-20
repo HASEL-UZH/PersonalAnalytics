@@ -87,6 +87,11 @@ namespace UserEfficiencyTracker
             Queries.CreateUserEfficiencyTables();
         }
 
+        public override void UpdateDatabaseTables(int version)
+        {
+            // no database updates necessary yet
+        }
+
         public override string GetStatus()
         {
             var nextSurveyTs = DateTime.Now.Add(_timeRemainingUntilNextSurvey);

@@ -138,6 +138,11 @@ namespace UserInputTracker
             Queries.CreateUserInputTables();
         }
 
+        public override void UpdateDatabaseTables(int version)
+        {
+            // no database updates necessary yet
+        }
+
         public override bool IsEnabled()
         {
             return UserInputTrackerEnabled;

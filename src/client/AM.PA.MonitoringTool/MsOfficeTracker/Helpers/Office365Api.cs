@@ -352,27 +352,61 @@ namespace MsOfficeTracker.Helpers
         /// Returns the number of unread emails currently in the inbox
         /// </summary>
         /// <returns>number of items, -1 in case of an error</returns>
-        public async Task<long> GetNumberOfEmailsInInbox()
+        public async Task<long> GetNumberOfUnreadEmailsInInbox()
         {
             if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return -1;
 
             try
             {
-                var inboxSize = 0;
-
                 var groups = await _client.Me.MailFolders.GetById("Inbox").Messages
                     .Where(m => m.IsRead == false) // only unread emails
                     .Take(20)
                     .Select(m => new { m.From }) // only get single info (can get more if needed)
                     .ExecuteAsync();
 
+                var inboxSize = 0;
+
                 do
                 {
                     var mailResults = groups.CurrentPage.ToList();
                     inboxSize += mailResults.Count;
-                    groups = await groups.GetNextPageAsync();
+                    groups = await groups.GetNextPageAsync(); // next page
                 }
-                while (groups != null && groups.MorePagesAvailable);
+                while (groups != null); // && groups.MorePagesAvailable);
+
+                return inboxSize;
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// Returns the total number of emails currently in the inbox (read and unread)
+        /// </summary>
+        /// <returns>number of items, -1 in case of an error</returns>
+        public async Task<long> GetTotalNumberOfEmailsInInbox()
+        {
+            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return -1;
+
+            try
+            {
+                var groups = await _client.Me.MailFolders.GetById("Inbox").Messages
+                    .Take(20)
+                    .Select(m => new { m.From }) // only get single info (can get more if needed)
+                    .ExecuteAsync();
+
+                var inboxSize = 0;
+
+                do
+                {
+                    var mailResults = groups.CurrentPage.ToList();
+                    inboxSize += mailResults.Count;
+                    groups = await groups.GetNextPageAsync(); // next page
+                }
+                while (groups != null); // && groups.MorePagesAvailable);
 
                 return inboxSize;
             }
@@ -385,7 +419,6 @@ namespace MsOfficeTracker.Helpers
 
         /// <summary>
         /// Returns a list of emails which were sent on a given date
-        /// Caches the result 
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
@@ -424,11 +457,53 @@ namespace MsOfficeTracker.Helpers
 
         /// <summary>
         /// Returns a list of emails which were received on a given date
+        /// AND are unread
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public async Task<int> GetNumberOfUnreadEmailsReceived(DateTimeOffset date)
+        {
+            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return -1;
+
+            try
+            {
+                var dtStart = date.Date.ToUniversalTime();
+                var dtEnd = date.Date.AddDays(1).ToUniversalTime();
+
+                var groups = await _client.Me.Messages
+                    .OrderByDescending(m => m.ReceivedDateTime)
+                    .Where(m => m.ReceivedDateTime.Value >= dtStart && m.ReceivedDateTime.Value <= dtEnd)
+                    .Where(m => m.IsRead == false) // only unread emails
+                    //todo: filter if not in Junk Email and Deleted Folder (maybe with ParentFolderId)
+                    .Take(20)
+                    .Select(m => new { m.From }) // new DisplayEmail(m))
+                    .ExecuteAsync();
+
+                var numberOfEmailsReceived = 0;
+                do
+                {
+                    var mailResults = groups.CurrentPage.ToList();
+                    numberOfEmailsReceived += mailResults.Count;
+                    groups = await groups.GetNextPageAsync();
+                }
+                while (groups != null); //&& groups.MorePagesAvailable);
+
+                return numberOfEmailsReceived;
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// Returns a list of emails which were received on a given date
         /// Caches the result 
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public async Task<int> GetNumberOfEmailsReceived(DateTimeOffset date)
+        public async Task<int> GetTotalNumberOfEmailsReceived(DateTimeOffset date)
         {
             if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return -1;
 

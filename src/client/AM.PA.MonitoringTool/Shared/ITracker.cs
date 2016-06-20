@@ -18,6 +18,7 @@ namespace Shared
         void Start();
         void Stop();
         void CreateDatabaseTablesIfNotExist();
+        void UpdateDatabaseTables(int version);
         string GetStatus();
         bool IsEnabled();
         List<IVisualization> GetVisualizationsDay(DateTimeOffset date);
@@ -32,7 +33,7 @@ namespace Shared
         public abstract void Start();
         public abstract void Stop();
         public abstract void CreateDatabaseTablesIfNotExist();
-
+        public abstract void UpdateDatabaseTables(int version);
         public virtual string GetStatus()
         {
             return IsRunning ? Name + " is running." : Name + " is NOT running.";
@@ -99,6 +100,11 @@ namespace Shared
         }
 
         public virtual void CreateDatabaseTablesIfNotExist()
+        {
+            // nothing to do here
+        }
+
+        public virtual void UpdateDatabaseTables(int version)
         {
             // nothing to do here
         }

@@ -95,6 +95,11 @@ namespace MsOfficeTracker
             Queries.CreateMsTrackerTables();
         }
 
+        public override void UpdateDatabaseTables(int version)
+        {
+            Queries.UpdateDatabaseTables(version);
+        }
+
         /// <summary>
         /// Checks if the office API is used for the first time
         /// </summary>
