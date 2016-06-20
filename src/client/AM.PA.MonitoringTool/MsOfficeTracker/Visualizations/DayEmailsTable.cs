@@ -20,7 +20,7 @@ namespace MsOfficeTracker.Visualizations
 
             Title = "Email Stats";
             IsEnabled = true; //todo: handle by user
-            Order = 21; //todo: handle by user
+            Order = 6; //todo: handle by user
             Size = VisSize.Square;
             Type = VisType.Day;
         }
@@ -73,15 +73,16 @@ namespace MsOfficeTracker.Visualizations
             /////////////////////
 
             //var emailInboxString = (inboxSize == -1) ? "?" : inboxSize.ToString(CultureInfo.InvariantCulture);
-            //html += "<p style='text-align: center; margin-top:-0.7em;'><strong style='font-size:3.5em;'>" + emailInboxString + "</strong></p>";
+            //html += "<p style='text-align: center; margin-top:-0.7em;'><strong style='font-size:2.5em;'>" + emailInboxString + "</strong></p>";
 
-
-            if (sent > -1) html += "<strong style='font-size:2em; color:#007acc;'>" + sent + "</strong> emails sent today<br />";
-            if (received > -1 && receivedUnread > -1) html += "<strong style='font-size:2em; color:#007acc;'>" + (received - receivedUnread) + "</strong> emails received and read today<br />";
-            if (receivedUnread > -1) html += "<strong style='font-size:2em; color:#007acc;'>" + receivedUnread + "</strong> emails received today and currently unread<br />";
-            if (inbox > -1) html += "<strong style='font-size:2em; color:#007acc;'>" + inbox + "</strong> emails in your inbox<br />";
-            if (inboxUnread > -1) html += "<strong style='font-size:2em; color:#007acc;'>" + inboxUnread + "</strong> unread emails in your inbox<br />";
-
+            html += "<table>";
+            if (sent > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + sent + "</strong></td><td>emails sent today</td></tr>";
+            if (received > -1 && receivedUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + (received - receivedUnread) + "</strong></td><td>emails received and read today</td></tr>";
+            if (receivedUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + receivedUnread + "</strong></td><td>emails received today and currently unread</td></tr>";
+            if (inbox > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + inbox + "</strong></td><td>emails in your inbox</td></tr>";
+            if (inboxUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + inboxUnread + "</strong></td><td>unread emails in your inbox</td></tr>";
+            html += "</table>";
+        
             //if (timeSpentInOutlook > 1)
             //{
             //    html += "<p style='text-align: center; margin-top:-0.7em;'>time spent in Outlook: " + Math.Round(timeSpentInOutlook, 0) + "min</p>";
