@@ -41,10 +41,14 @@ namespace UserEfficiencyTracker
             if (_previousSurveyEntry != null && _previousSurveyEntry.TimeStampFinished  != null && // if available
                 _previousSurveyEntry.TimeStampFinished.Day == DateTime.Now.Day) // only if it was answered today
             {
-                LastTimeFilledOut.Text = string.Format(CultureInfo.InvariantCulture, "Last entry was: {0} {1}, you answered: {2}",
+                var hint = string.Format(CultureInfo.InvariantCulture, "Last entry was: {0} {1}",
                     _previousSurveyEntry.TimeStampFinished.ToShortDateString(),
-                    _previousSurveyEntry.TimeStampFinished.ToShortTimeString(),
-                    _previousSurveyEntry.Productivity);
+                    _previousSurveyEntry.TimeStampFinished.ToShortTimeString());
+
+                if (_previousSurveyEntry.Productivity > 0 && _previousSurveyEntry.Productivity < 7)
+                    hint += ", you answered: " + _previousSurveyEntry.Productivity;
+
+                LastTimeFilledOut.Text = hint;
             }
 
             // start timer to close if not responded within a few hours
