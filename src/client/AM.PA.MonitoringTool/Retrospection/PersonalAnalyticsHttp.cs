@@ -53,7 +53,7 @@ namespace Retrospection
         {
             if (_server != null)
             {
-                _server.Start(Settings.Port, false);
+                _server.Start(Settings.Port, true); // true -> IPAddress.Loopback (loopback address (localhost / 127.0.0.1)) 
             }
         }
 

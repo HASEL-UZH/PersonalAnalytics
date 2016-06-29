@@ -2,6 +2,7 @@
 // Created: 2015-10-20
 // 
 // Licensed under the MIT License.
+using Shared.Data;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -38,12 +39,19 @@ namespace Retrospection
                 Stop();
             try
             {
+                // only allow localhost address to access it (otherwise, privacy issues!)  
+                //var ipAddress = Dns.GetHostEntry("localhost").AddressList[0];  
+
                 _listener = loopback
                     ? new TcpListener(IPAddress.Loopback, port)
                     : new TcpListener(IPAddress.Any, port);
                 _listener.Start();
             }
-            catch (Exception) { return false; }
+            catch (Exception ex)
+            {
+                Database.GetInstance().LogError(ex.Message);
+                return false;
+            }
             _exitThread = false;
             new Thread(ListenerThread).Start();
             return true;
