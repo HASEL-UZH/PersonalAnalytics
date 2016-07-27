@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.Windows.Threading;
 using Shared.Helpers;
 using System.Globalization;
+using System.Threading;
 
 namespace Retrospection
 {
@@ -21,6 +22,7 @@ namespace Retrospection
     /// </summary>
     public sealed class Handler
     {
+        public bool IsRunning;
         private static Handler _handler;
         private PersonalAnalyticsHttp _http;
         private RetrospectionWindow _retrospection;
@@ -41,13 +43,25 @@ namespace Retrospection
 
         public Handler()
         {
-            Start();
+            StartHttpServer();
         }
 
         /// <summary>
         /// start HTTP Localhost
         /// </summary>
-        public void Start()
+        public void Start(List<ITracker> trackers, string appVersion)
+        {
+            // start http server (if not already started)
+            StartHttpServer();
+
+            // set needed variables
+            SetTrackers(trackers);
+            _publishedAppVersion = appVersion;
+
+            IsRunning = true;
+        }
+
+        private void StartHttpServer()
         {
             if (_http != null) return;
             _http = new PersonalAnalyticsHttp();
@@ -59,10 +73,28 @@ namespace Retrospection
         /// </summary>
         public void Stop()
         {
-            if (_http != null) return;
+            if (_http == null) return;
+
+            // method to wait for still running events before shutdown
+            //new Thread(new ThreadStart(delegate ()
+            //{
+            //    // Wait a few seconds and if threads are not terminated, kill the process
+            //    for (int i = 0; i < 20; i++)
+            //    {
+            //        Thread.Sleep(100);
+            //        if (_http == null)
+            //            return;
+            //    }
+            //    Process.GetCurrentProcess().Kill();
+            //})).Start();
+
+
             _http.Stop();
             _http = null;
+
+            IsRunning = false;
         }
+
         #endregion
 
         /// <summary>
@@ -70,20 +102,10 @@ namespace Retrospection
         /// needs them for the visualization
         /// </summary>
         /// <param name="trackers"></param>
-        public void SetTrackers(List<ITracker> trackers)
+        private void SetTrackers(List<ITracker> trackers)
         {
             _trackers = trackers;
             _http.SetTrackers(_trackers);
-        }
-
-        /// <summary>
-        /// Sets the current published app version 
-        /// (used for feedback) 
-        /// </summary>
-        /// <param name="v"></param>
-        public void SetAppVersion(string v)
-        {
-            _publishedAppVersion = v;
         }
 
         #region Open/Close & Navigate Retrospection

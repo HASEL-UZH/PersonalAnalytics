@@ -353,14 +353,10 @@ namespace PersonalAnalytics
             TaskbarIcon.ContextMenu.Items.Add(m3);
             _pauseContinueMenuItem = m3;
 
-#if DEBUG
-            // hint: test really carefully before enabling it for everyone (occasionally causes some problems,
-            // which don't correctly shutdown the httpserver with the result that the next time the tool is used/started, 
-            // there is a corrupt server, and therefore the retrospection not showing any visualizations
             var m7 = new System.Windows.Controls.MenuItem { Header = "Shutdown Tracker" };
             m7.Click += (o, i) => Stop(true);
             TaskbarIcon.ContextMenu.Items.Add(m7);
-#endif
+
 
             // Styling
             //var converter = new System.Windows.Media.BrushConverter();

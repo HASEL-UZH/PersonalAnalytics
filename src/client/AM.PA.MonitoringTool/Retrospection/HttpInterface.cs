@@ -59,7 +59,18 @@ namespace Retrospection
         public void Stop()
         {
             _exitThread = true;
+
+            if (_listener.Server != null)
+            {
+                if (_listener.Server.Connected)
+                {
+                    _listener.Server.Shutdown(SocketShutdown.Both);
+                    _listener.Server.Disconnect(true);
+                }
+                _listener.Server.Close();
+            }
             _listener.Stop();
+            
             while (_listener != null)
                 Thread.Sleep(100);
         }

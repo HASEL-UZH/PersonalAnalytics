@@ -56,6 +56,7 @@ namespace Shared.Helpers
             else if (process == "lync") return "Skype for Business";
             else if (process == "mstsc") return "Remote Desktop";
             else if (process == "taskmgr") return "Task Manager";
+            else if (process == "ssms") return "SQL Server Management Studio";
 
             return process;
             // todo: create or use program mapper

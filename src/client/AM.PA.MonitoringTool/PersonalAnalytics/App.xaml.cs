@@ -120,8 +120,7 @@ namespace PersonalAnalytics
             //////////////////////////////////////////////////////
             // Start the Retrospection
             //////////////////////////////////////////////////////
-            Retrospection.Handler.GetInstance().SetTrackers(trackers); // register the same trackers from the monitoring tool for the retrospection
-            Retrospection.Handler.GetInstance().SetAppVersion(GetPublishedAppVersion());
+            Retrospection.Handler.GetInstance().Start(trackers, GetPublishedAppVersion()); // register the same trackers from the monitoring tool for the retrospection
         }
 
         /// <summary>
