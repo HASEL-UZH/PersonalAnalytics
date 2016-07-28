@@ -478,6 +478,28 @@ namespace Shared.Data
         }
 
         /// <summary>
+        /// gets the stored setting value for a given key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name=""></param>
+        /// <returns></returns>
+        public string GetSettingsString(string key, string byDefault)
+        {
+            try
+            {
+                var query = "SELECT value FROM " + Settings.SettingsDbTable + " WHERE key=" + Database.GetInstance().Q(key) + ";";
+                var ret = Database.GetInstance().ExecuteScalar2(query);
+
+                if (ret != null) return ret.ToString();
+                else return byDefault;
+            }
+            catch
+            {
+                return byDefault;
+            }
+        }
+
+        /// <summary>
         /// Checks if a settings for a given key is stored.
         /// 
         /// returns false in case of an error
