@@ -24,6 +24,6 @@ namespace UserEfficiencyTracker
         public static TimeSpan IntervalPostponeShortInterval = TimeSpan.FromMinutes(IntervalPostponeShortInMinutes);
         public static TimeSpan SurveyCheckerInterval = TimeSpan.FromMinutes(SurveyCheckerMinutes);
         public static TimeSpan IntervalCloseIfNotAnsweredInterval = TimeSpan.FromHours(IntervalCloseIfNotAnsweredAfterHours);
-        public static TimeSpan DailyPopUpEarliestMoment = new TimeSpan(4, 0, 0); // 4 am in the morning
+        public static TimeSpan DailyPopUpEarliestMoment = new TimeSpan(5, 0, 0); // 5 am in the morning
     }
 }

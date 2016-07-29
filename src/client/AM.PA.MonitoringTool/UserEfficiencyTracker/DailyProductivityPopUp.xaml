@@ -43,7 +43,7 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Content="I didn't work" Background="LightGray" Height="20" Margin="0 0 5 0" Click="Postpone0Clicked"  />
+                    <Button Grid.Column="0" Content="Skip response" Background="LightGray" Height="20" Margin="0 0 5 0" Click="Postpone0Clicked"  />
                     <!--<Button Grid.Column="1" Content="Postpone for 5mins" Background="LightGray" Height="20" Margin="0 0 5 0" Click="Postpone1Clicked" />
                     <Button Grid.Column="2" Content="Postpone for 1hr" Background="LightGray" Height="20" Margin="0 0 5 0" Click="Postpone2Clicked" />
                     <Button Grid.Column="3" Content="Postpone for 6hrs" Background="LightGray" Height="20" Click="Postpone3Clicked"  />-->

@@ -183,9 +183,10 @@ namespace UserEfficiencyTracker
         private void TimerTick(object sender, EventArgs args)
         {
             // daily survey
-            if (DateTime.Now.Date != _lastDailyPopUpResponse.Date &&  // no pop-up today yet
-                DateTime.Now.TimeOfDay >= Settings.DailyPopUpEarliestMoment && // not before 04.00 am
-                Queries.GetPreviousDailyPopUpResponse() != DateTime.Now.Date) // only if there is a previous work day
+            if (DateTime.Now.TimeOfDay >= Settings.DailyPopUpEarliestMoment && // not before 05.00 am
+                DateTime.Now.Date != _lastDailyPopUpResponse.Date &&  // no pop-up today yet
+                DateTime.Now.Date != Queries.GetPreviousDailyPopUpResponse() && // no pop-up today yet
+                (DateTime.Now.Date - Queries.GetPreviousActiveWorkDay()).TotalDays < 3) // only if previous work day was max 3 days ago
             {
                 RunSurvey(SurveyMode.DailyPopUp);
                 return; // don't immediately show interval survey

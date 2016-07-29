@@ -164,7 +164,7 @@ namespace UserEfficiencyTracker.Data
                         + "WHERE process <> 'IDLE' AND date(time) <> " + Database.GetInstance().QDate(DateTime.Now) + " "
                         + "GROUP BY date(time) "
                         + "ORDER BY date(time) DESC "
-                        + ") WHERE sumInSec > 600 "
+                        + ") WHERE sumInSec > 600 " // worked for min 10 minutes
                         + "LIMIT 1;";
 
             var table = Database.GetInstance().ExecuteReadQuery(query);
