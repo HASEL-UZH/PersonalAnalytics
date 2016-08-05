@@ -120,10 +120,10 @@ namespace UserEfficiencyTracker.Data
         /// returns the previous daily survey entry if available
         /// </summary>
         /// <returns>previous survey entry or null, if there isn't any</returns>
-        internal static DateTime GetPreviousDailyPopUpResponse()
+        internal static DateTime GetPreviousDailyPopUpResponseDate()
         {
             var date = DateTime.MinValue;
-            var query = "SELECT date(time) as 'date' FROM " + Settings.DbTableDailyPopUp + " ORDER BY time DESC LIMIT 1;";
+            var query = "SELECT date(workDay) as 'date' FROM " + Settings.DbTableDailyPopUp + " ORDER BY time DESC LIMIT 1;";
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
             try
@@ -150,8 +150,34 @@ namespace UserEfficiencyTracker.Data
             return date;
         }
 
+        internal static bool NotYetRatedProductivityForDate(DateTime date)
+        {
+            var query = "SELECT 1 FROM " + Settings.DbTableDailyPopUp + " WHERE date(workDay) = date('" + date.Date.ToString("u") + "') LIMIT 1;";
+            var table = Database.GetInstance().ExecuteReadQuery(query);
+            var hasRated = false; 
+
+            try
+            {
+                if (table != null && table.Rows.Count == 1) hasRated = true;
+                else hasRated = false;
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+                hasRated = true; // default: has rated (!)
+            }
+            finally
+            {
+                table.Dispose();
+            }
+
+            return ! hasRated;
+        }
+
         /// <summary>
         /// Get Previous Work Day
+        /// (that's the date we will ask the participant to rate his productivity on in the
+        /// daily pop-up)
         /// </summary>
         /// <returns></returns>
         internal static DateTime GetPreviousActiveWorkDay()
@@ -161,7 +187,7 @@ namespace UserEfficiencyTracker.Data
             var query = "SELECT date FROM ( "
                         + "SELECT date(time) as 'date', count(*) as 'sumInSec' "
                         + "FROM windows_activity "
-                        + "WHERE process <> 'IDLE' AND date(time) <> " + Database.GetInstance().QDate(DateTime.Now) + " "
+                        + "WHERE process <> 'IDLE' AND date(time) <> " + Database.GetInstance().QDate(DateTime.Now) + " " // not today
                         + "GROUP BY date(time) "
                         + "ORDER BY date(time) DESC "
                         + ") WHERE sumInSec > 600 " // worked for min 10 minutes

@@ -182,11 +182,10 @@ namespace UserEfficiencyTracker
         /// </summary>
         private void TimerTick(object sender, EventArgs args)
         {
-            // daily survey
             if (DateTime.Now.TimeOfDay >= Settings.DailyPopUpEarliestMoment && // not before 05.00 am
-                DateTime.Now.Date != _lastDailyPopUpResponse.Date &&  // no pop-up today yet
-                DateTime.Now.Date != Queries.GetPreviousDailyPopUpResponse() && // no pop-up today yet
-                (DateTime.Now.Date - Queries.GetPreviousActiveWorkDay()).TotalDays < 3) // only if previous work day was max 3 days ago
+                DateTime.Now.Date != _lastDailyPopUpResponse.Date &&  // no pop-up today yet (perf to save on more expensive queries)
+                (DateTime.Now.Date - Queries.GetPreviousActiveWorkDay()).TotalDays < 3 && // only if previous work day was max 3 days ago
+                Queries.NotYetRatedProductivityForDate(Queries.GetPreviousActiveWorkDay())) // not yet rated previous work day
             {
                 RunSurvey(SurveyMode.DailyPopUp);
                 return; // don't immediately show interval survey
@@ -217,11 +216,6 @@ namespace UserEfficiencyTracker
                 {
                     var previousActiveWorkday = Queries.GetPreviousActiveWorkDay();
 
-                    // set previous entry to show previous entry time in popup
-                    var popup = (mode == SurveyMode.IntervalPopUp)
-                        ? (Window)new IntervalProductivityPopUp(Queries.GetPreviousIntervalSurveyEntry())
-                        : (Window)new DailyProductivityPopUp(previousActiveWorkday);
-
                     // if it's the first time the notification is shown
                     if (_currentSurveyEntry == null)
                     {
@@ -232,7 +226,12 @@ namespace UserEfficiencyTracker
 
                     // (re-)set the timestamp of filling out the survey
                     _currentSurveyEntry.TimeStampStarted = DateTime.Now;
-                
+
+                    // set previous entry to show previous entry time in popup
+                    var popup = (mode == SurveyMode.IntervalPopUp)
+                        ? (Window)new IntervalProductivityPopUp(Queries.GetPreviousIntervalSurveyEntry())
+                        : (Window)new DailyProductivityPopUp(previousActiveWorkday);
+
                     // show popup & handle response
                     if (mode == SurveyMode.DailyPopUp 
                         && ((DailyProductivityPopUp)popup).ShowDialog() == true)
