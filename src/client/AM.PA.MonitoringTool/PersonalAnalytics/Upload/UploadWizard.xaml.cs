@@ -38,11 +38,35 @@ namespace PersonalAnalytics.Upload
         private void StartStep1()
         {
             Step1.Visibility = Visibility.Visible;
+
+            var _quickUploadUserSettings = _uploader.GetQuickUploadData();
+            // TODO: verify participant ID beforehand
+            if (_quickUploadUserSettings != null)
+            {
+                // enable quick upload
+                QuickUploadEnabled.Visibility = Visibility.Visible;
+
+                // populate user infos
+                PrepopulateUserUploadSettings(_quickUploadUserSettings);
+            }
+        }
+
+        private void PrepopulateUserUploadSettings(string quickUploadUserSettings)
+        {
+            // TODO: implement (set each textbox + checkbox)
         }
 
         private void InsertInfosNext_Clicked(object sender, EventArgs e)
         {
             StartStep2();
+        }
+
+        private void QuickUploadNext_Clicked(object sender, EventArgs e)
+        {
+            var res = _uploader.RunQuickUpload();
+            res.Wait();
+            if (res.Result) StartStep7();
+            else CloseWindow();
         }
 
         #endregion
@@ -60,6 +84,7 @@ namespace PersonalAnalytics.Upload
         {
             if (!VerifyParticipantId()) return;
             SaveParticipantInfoToFile();
+            SaveUploadUserDetailsToDb();
             StartStep3();
         }
 
@@ -109,6 +134,11 @@ namespace PersonalAnalytics.Upload
                 w.WriteLine("-------------------------------");
                 w.WriteLine(toolInfo);
             }
+        }
+
+        private void SaveUploadUserDetailsToDb()
+        {
+
         }
 
         private string GetToolInstallationDetails()

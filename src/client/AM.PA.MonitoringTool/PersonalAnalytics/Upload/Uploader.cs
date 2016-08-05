@@ -11,6 +11,7 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Security.AccessControl;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace PersonalAnalytics.Upload
@@ -244,6 +245,36 @@ namespace PersonalAnalytics.Upload
         internal string GetAdditionalInfoFilePath()
         {
             return Path.Combine(Settings.ExportFilePath, _additionalInfoFilePath);
+        }
+
+        internal string GetQuickUploadData()
+        {
+            return string.Empty; // TODO
+        }
+
+        internal async Task<bool> RunQuickUpload()
+        {
+            try
+            {
+                var obfuscateMeetingTitles = true; // TODO: from settings
+                var obfuscateWindowTitles = true; // TODO: from settings
+
+                var anonymizedDbFilePath = await Task.Run(() => AnonymizeCollectedData(obfuscateMeetingTitles, obfuscateWindowTitles));
+                if (string.IsNullOrEmpty(anonymizedDbFilePath)) throw new Exception("An error occured when anonymizing the collected data.");
+
+                var _localZipFilePath = await Task.Run(() => CreateUploadZip(anonymizedDbFilePath));
+                if (string.IsNullOrEmpty(_localZipFilePath)) throw new Exception("An error occured when preparing the data (zip-file) for the upload.");
+
+                var _uploadZipFileName = await Task.Run(() => UploadZip(_localZipFilePath));
+                if (string.IsNullOrEmpty(_uploadZipFileName)) throw new Exception("An error occured when uploading the data (zip-file).");
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                AskToSendErrorMessage(e, "RunQuickUpload", e.Message);
+                return false;
+            }
         }
     }
 }

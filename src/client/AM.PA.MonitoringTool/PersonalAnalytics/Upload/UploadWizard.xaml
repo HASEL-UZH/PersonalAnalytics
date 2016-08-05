@@ -56,7 +56,10 @@
                 </TextBlock>
             </StackPanel>
 
-            <Button Content="Next" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="InsertInfosNext_Clicked" Margin="20" Width="100" Height="30" />
+            <StackPanel Orientation="Horizontal" Margin="20" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                <Button x:Name="QuickUploadEnabled" Visibility="Collapsed" Content="Quick Upload with previous settings" Click="QuickUploadNext_Clicked" Width="250" Background="Gray" Height="30" />
+                <Button Content="Next" Margin="20 0 0 0" Click="InsertInfosNext_Clicked" Width="100" Height="30" />
+            </StackPanel>
         </Grid>
 
         <!-- Step 2: Details -->
