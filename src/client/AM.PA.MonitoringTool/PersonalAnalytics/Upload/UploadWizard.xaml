@@ -31,7 +31,7 @@
         </Grid.RowDefinitions>
 
         <!-- Step 1: Info -->
-        <Grid x:Name="Step1" Margin="0" Visibility="Collapsed" Grid.Row="0">
+        <Grid x:Name="Step1" Margin="0" Visibility="Visible" Grid.Row="0">
             <Grid VerticalAlignment="Top" Height="40" Background="{StaticResource RetrospectionColor}">
                 <TextBlock Text="Please consider sharing the collected data with us (step 1/5)" FontSize="16" VerticalAlignment="Center" Margin="10 0 0 0" Foreground="White" />
             </Grid>
@@ -56,10 +56,21 @@
                 </TextBlock>
             </StackPanel>
 
-            <StackPanel Orientation="Horizontal" Margin="20" HorizontalAlignment="Right" VerticalAlignment="Bottom">
-                <Button x:Name="QuickUploadEnabled" Visibility="Collapsed" Content="Quick Upload with previous settings" Click="QuickUploadNext_Clicked" Width="250" Background="Gray" Height="30" />
-                <Button Content="Next" Margin="20 0 0 0" Click="InsertInfosNext_Clicked" Width="100" Height="30" />
-            </StackPanel>
+            
+            <Grid Margin="20" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                
+                <Button Grid.Row="0" Grid.Column="0" x:Name="QuickUploadEnabled" IsEnabled="false" Content="Quick Upload with previous settings" Click="QuickUploadNext_Clicked" Width="250" Background="Gray" Height="30" />
+                <Button Grid.Row="0" Grid.Column="1" Content="Next" Margin="20 0 0 0" Click="InsertInfosNext_Clicked" Width="100" Height="30" />
+                <TextBlock Grid.Row="1" Grid.ColumnSpan="2" x:Name="tbOneClickUploadSettingsTxt" Margin="0" Foreground="Gray" />
+            </Grid>
         </Grid>
 
         <!-- Step 2: Details -->
