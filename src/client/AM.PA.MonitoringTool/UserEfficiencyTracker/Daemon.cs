@@ -245,8 +245,11 @@ namespace UserEfficiencyTracker
                     }
                     else
                     {
-                        //when do we get here?
+                        // we get here when DialogResult is set to false (which never happens)
                         Database.GetInstance().LogErrorUnknown(Name);
+
+                        // to ensure it still shows some pop-ups later
+                        _timeRemainingUntilNextSurvey = PopUpIntervalInMins;
                     }
                 }));
             }
@@ -266,8 +269,6 @@ namespace UserEfficiencyTracker
             if ((popup.UserSelectedProductivity >= 1 && popup.UserSelectedProductivity <= 7) || popup.UserSelectedProductivity == -1)
             {
                 SaveIntervalSurvey(popup);
-                //Database.GetInstance().LogInfo("The participant completed the interval-survey.");
-                //Database.GetInstance().LogInfo("The participant didn't work when the interval-survey was shown.");
             }
             // user postponed the survey
             else if (popup.PostPoneSurvey != PostPoneSurvey.None)
@@ -347,8 +348,6 @@ namespace UserEfficiencyTracker
             if ((popup.UserSelectedProductivity >= 1 && popup.UserSelectedProductivity <= 7) || popup.UserSelectedProductivity == -1)
             {
                 SaveDailySurvey(popup);
-                //Database.GetInstance().LogInfo("The participant completed the daily-survey.");
-                //Database.GetInstance().LogInfo("The participant didn't work when the daily-survey was shown.");
             }
             // something strange happened
             else
