@@ -173,15 +173,22 @@ namespace UserEfficiencyTracker
         private void UserFinishedSurvey(int selectedProductivityValue)
         {
             // reset timer
-            _closeIfNotAnsweredAfterHoursTimer.Stop();
-            _closeIfNotAnsweredAfterHoursTimer = null;
+            if (_closeIfNotAnsweredAfterHoursTimer != null)
+            {
+                _closeIfNotAnsweredAfterHoursTimer.Stop();
+                _closeIfNotAnsweredAfterHoursTimer = null;
+            }
 
             // set responses
             UserSelectedProductivity = selectedProductivityValue;
             PostPoneSurvey = PostPoneSurvey.None;
 
             // close window
-            DialogResult = true;
+            try
+            {
+                DialogResult = true;
+            }
+            catch { } // sometimes crashes unexpectedly
             this.Close(); // todo: enable
         }
 
