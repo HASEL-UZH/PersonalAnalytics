@@ -24,18 +24,21 @@ namespace UserInputTracker
 
         private bool _disposed = false;
         private IKeyboardMouseEvents _mEvents;
-        private Timer _mouseSnapshotTimer;
+        //private Timer _mouseSnapshotTimer;
         private Timer _saveToDatabaseTimer;
 
-        // buffers for user input, they are emptied every 60s (Settings.IntervalSaveToDatabaseInSeconds)
+        // Timestamp of when the aggregate starts
+        private DateTime _tsStart;
+
+        // buffers for user input, they are emptied every x seconds (see Settings.UserInputAggregationInterval)
         private static readonly ConcurrentQueue<KeystrokeEvent> KeystrokeBuffer = new ConcurrentQueue<KeystrokeEvent>();
         private static readonly ConcurrentQueue<MouseClickEvent> MouseClickBuffer = new ConcurrentQueue<MouseClickEvent>();
         private static readonly ConcurrentQueue<MouseMovementSnapshot> MouseMoveBuffer = new ConcurrentQueue<MouseMovementSnapshot>();
         private static readonly ConcurrentQueue<MouseScrollSnapshot> MouseScrollBuffer = new ConcurrentQueue<MouseScrollSnapshot>();
 
-        // temporary buffers for moves and scrolls, they are emptied every second after adding up (Settings.MouseSnapshotInterval)
-        private static readonly ConcurrentQueue<MouseMovementSnapshot> TempMouseMoveBuffer = new ConcurrentQueue<MouseMovementSnapshot>();
-        private static readonly ConcurrentQueue<MouseScrollSnapshot> TempMouseScrollBuffer = new ConcurrentQueue<MouseScrollSnapshot>();
+        // temporary buffers to count up moves and scrolls, they are emptied every second after adding up (Settings.MouseSnapshotInterval)
+        //private static readonly ConcurrentQueue<MouseMovementSnapshot> TempMouseMoveBuffer = new ConcurrentQueue<MouseMovementSnapshot>();
+        //private static readonly ConcurrentQueue<MouseScrollSnapshot> TempMouseScrollBuffer = new ConcurrentQueue<MouseScrollSnapshot>();
 
         #endregion
 
@@ -55,7 +58,7 @@ namespace UserInputTracker
                 if (disposing)
                 {
                     _saveToDatabaseTimer.Dispose();
-                    _mouseSnapshotTimer.Dispose();
+                    //_mouseSnapshotTimer.Dispose();
                     _mEvents.Dispose();
                 }
 
@@ -74,17 +77,17 @@ namespace UserInputTracker
             if (_saveToDatabaseTimer != null)
                 Stop();
             _saveToDatabaseTimer = new Timer();
-            _saveToDatabaseTimer.Interval = Settings.SaveToDatabaseInterval.TotalMilliseconds;
+            _saveToDatabaseTimer.Interval = Settings.UserInputAggregationInterval.TotalMilliseconds;
             _saveToDatabaseTimer.Elapsed += SaveToDatabaseTick;
             _saveToDatabaseTimer.Start();
 
-            // Register Mouse Movement Timer
-            if (_mouseSnapshotTimer != null)
-                Stop();
-            _mouseSnapshotTimer = new Timer();
-            _mouseSnapshotTimer.Interval = Settings.MouseSnapshotInterval.TotalMilliseconds;
-            _mouseSnapshotTimer.Elapsed += MouseSnapshotTick;
-            _mouseSnapshotTimer.Start();
+            // Register Mouse Movement/Scroll Timer
+            //if (_mouseSnapshotTimer != null)
+            //    Stop();
+            //_mouseSnapshotTimer = new Timer();
+            //_mouseSnapshotTimer.Interval = Settings.MouseSnapshotInterval.TotalMilliseconds;
+            //_mouseSnapshotTimer.Elapsed += MouseSnapshotTick;
+            //_mouseSnapshotTimer.Start();
 
             // Register Hooks for Mouse & Keyboard
             _mEvents = Hook.GlobalEvents();
@@ -92,6 +95,9 @@ namespace UserInputTracker
             _mEvents.MouseClick += MouseListener_MouseClick;
             _mEvents.MouseMoveExt += MouseListener_MouseMoveExt;
             _mEvents.KeyDown += KeyboardListener_KeyDown;
+
+            // Set start timestamp for tracking
+            _tsStart = DateTime.Now;
 
             IsRunning = true;
         }
@@ -105,12 +111,12 @@ namespace UserInputTracker
                 _saveToDatabaseTimer = null;
             }
 
-            if (_mouseSnapshotTimer != null)
-            {
-                _mouseSnapshotTimer.Stop();
-                _mouseSnapshotTimer.Dispose();
-                _mouseSnapshotTimer = null;
-            }
+            //if (_mouseSnapshotTimer != null)
+            //{
+            //    _mouseSnapshotTimer.Stop();
+            //    _mouseSnapshotTimer.Dispose();
+            //    _mouseSnapshotTimer = null;
+            //}
 
             // unregister mouse & keyboard events
             if (_mEvents != null)
@@ -205,7 +211,7 @@ namespace UserInputTracker
         /// <param name="e"></param>
         private static async void MouseListener_MouseScrolling(object sender, MouseEventArgs e)
         {
-            await Task.Run(() => TempMouseScrollBuffer.Enqueue(new MouseScrollSnapshot(e)));
+            await Task.Run(() => MouseScrollBuffer.Enqueue(new MouseScrollSnapshot(e)));
         }
 
         /// <summary>
@@ -216,7 +222,7 @@ namespace UserInputTracker
         /// <param name="e"></param>
         private static async void MouseListener_MouseMoveExt(object sender, MouseEventExtArgs e)
         {
-            await Task.Run(() => TempMouseMoveBuffer.Enqueue(new MouseMovementSnapshot(e)));
+            await Task.Run(() => MouseMoveBuffer.Enqueue(new MouseMovementSnapshot(e)));
         }
 
         /// <summary>
@@ -224,66 +230,66 @@ namespace UserInputTracker
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private static async void MouseSnapshotTick(object sender, EventArgs e)
-        {
-            //run new threads to dequeue temporary mouse buffers, and enqueue the calculated values into the more longterm buffers
-            await Task.Run(() => AddMouseScrollsToInputBuffer());
-            await Task.Run(() => AddMouseMovementToInputBuffer());
-        }
+        //private static async void MouseSnapshotTick(object sender, EventArgs e)
+        //{
+        //    //run new threads to dequeue temporary mouse buffers, and enqueue the calculated values into the more longterm buffers
+        //    await Task.Run(() => AddMouseScrollsToInputBuffer());
+        //    await Task.Run(() => AddMouseMovementToInputBuffer());
+        //}
 
         /// <summary>
         /// Calculates the distance scrolled for the last interval and adds it to the inputbuffer (to be stored
         /// in the database) if there was some scrolling.
         /// </summary>
-        private static void AddMouseScrollsToInputBuffer()
-        {
-            if (TempMouseScrollBuffer == null || TempMouseScrollBuffer.Count == 0) return;
+        //private static void AddMouseScrollsToInputBuffer() {
+        //{
+        //    if (TempMouseScrollBuffer == null || TempMouseScrollBuffer.Count == 0) return;
 
-            try
-            {
-                //dequeue thread-safely from temp buffer
-                int count = TempMouseScrollBuffer.Count;
-                MouseScrollSnapshot[] lastIntervalMouseScrolls = new MouseScrollSnapshot[count];
-                for (int i = 0; i < count; i++)
-                {
-                    TempMouseScrollBuffer.TryDequeue(out lastIntervalMouseScrolls[i]);
-                }
+        //    try
+        //    {
+        //        //dequeue thread-safely from temp buffer
+        //        int count = TempMouseScrollBuffer.Count;
+        //        MouseScrollSnapshot[] lastIntervalMouseScrolls = new MouseScrollSnapshot[count];
+        //        for (int i = 0; i < count; i++)
+        //        {
+        //            TempMouseScrollBuffer.TryDequeue(out lastIntervalMouseScrolls[i]);
+        //        }
 
-                //calculate scroll distance and enqueue to the long term buffer
-                var scrollDistance = lastIntervalMouseScrolls.Sum(scroll => scroll.ScrollDelta);
-                var lastSnapshot = lastIntervalMouseScrolls[count - 1]; //last element in queue is the newest
-                lastSnapshot.ScrollDelta += Math.Abs(scrollDistance);
-                MouseScrollBuffer.Enqueue(lastSnapshot);
-            }
-            catch { }
-        }
+        //        //calculate scroll distance and enqueue to the long term buffer
+        //        var scrollDistance = lastIntervalMouseScrolls.Sum(scroll => scroll.ScrollDelta);
+        //        var lastSnapshot = lastIntervalMouseScrolls[count - 1]; //last element in queue is the newest
+        //        lastSnapshot.ScrollDelta += Math.Abs(scrollDistance);
+        //        MouseScrollBuffer.Enqueue(lastSnapshot);
+        //    }
+        //    catch { }
+        //}
 
         /// <summary>
         /// Calculates the distance moved for the last interval and adds it to the inputbuffer (to be stored
         /// in the database) if there was some mouse movement.
         /// </summary>
-        private static void AddMouseMovementToInputBuffer()
-        {
-            if (TempMouseMoveBuffer == null || TempMouseMoveBuffer.Count == 0) return;
+        //private static void AddMouseMovementToInputBuffer()
+        //{
+        //    if (TempMouseMoveBuffer == null || TempMouseMoveBuffer.Count == 0) return;
 
-            try
-            {
-                //dequeue thread-safely from temp buffer
-                var count = TempMouseMoveBuffer.Count;
-                var lastIntervalMouseMovements = new MouseMovementSnapshot[count];
-                for (int i = 0; i < count; i++)
-                {
-                    TempMouseMoveBuffer.TryDequeue(out lastIntervalMouseMovements[i]);
-                }
+        //    try
+        //    {
+        //        //dequeue thread-safely from temp buffer
+        //        var count = TempMouseMoveBuffer.Count;
+        //        var lastIntervalMouseMovements = new MouseMovementSnapshot[count];
+        //        for (int i = 0; i < count; i++)
+        //        {
+        //            TempMouseMoveBuffer.TryDequeue(out lastIntervalMouseMovements[i]);
+        //        }
 
-                //calculate scroll distance and enqueue to the long term buffer
-                var lastSnapshot = lastIntervalMouseMovements[count - 1];
-                var movementDistance = CalculateMouseMovementDistance(lastIntervalMouseMovements);
-                lastSnapshot.MovedDistance = (int)movementDistance;
-                MouseMoveBuffer.Enqueue(lastSnapshot);
-            }
-            catch { }
-        }
+        //        //calculate scroll distance and enqueue to the long term buffer
+        //        var lastSnapshot = lastIntervalMouseMovements[count - 1];
+        //        var movementDistance = CalculateMouseMovementDistance(lastIntervalMouseMovements);
+        //        lastSnapshot.MovedDistance = (int)movementDistance;
+        //        MouseMoveBuffer.Enqueue(lastSnapshot);
+        //    }
+        //    catch { }
+        //}
 
         /// <summary>
         /// Calculates the distance of the mouse movement in pixels.
@@ -335,7 +341,7 @@ namespace UserInputTracker
         /// <summary>
         /// Saves the buffer to the database and clears it afterwards.
         /// </summary>
-        private static async void SaveToDatabaseTick(object sender, EventArgs e)
+        private async void SaveToDatabaseTick(object sender, EventArgs e)
         {
             // throw and save
             await Task.Run(() => SaveInputBufferToDatabase());
@@ -346,50 +352,133 @@ namespace UserInputTracker
         /// (it can happen that more elements are added to the end of the queue while this happens,
         /// those elements will be safed to the database in the next run of this method)
         /// </summary>
-        private static void SaveInputBufferToDatabase()
+        private void SaveInputBufferToDatabase()
         {
             try
             {
+                var aggregate = new UserInputAggregate();
+
+                // Keystrokes
                 if (KeystrokeBuffer.Count > 0)
                 {
+                    // dequeue buffer
                     var keystrokes = new KeystrokeEvent[KeystrokeBuffer.Count];
                     for (var i = 0; i < KeystrokeBuffer.Count; i++)
                     {
                         KeystrokeBuffer.TryDequeue(out keystrokes[i]);
                     }
-                    //KeystrokeBuffer.TryPopRange(keystrokes);
-                    Queries.SaveKeystrokesToDatabase(keystrokes);
+
+                    // sum up
+                    for (var j = 0; j < keystrokes.Count(); j++)
+                    {
+                        var item = (KeystrokeEvent)keystrokes[j];
+                        if (item == null) continue;
+
+                        aggregate.KeyTotal += 1;
+
+                        switch (item.KeystrokeType)
+                        {
+                            case KeystrokeType.Backspace:
+                                aggregate.KeyBackspace += 1;
+                                break;
+                            case KeystrokeType.Navigate:
+                                aggregate.KeyNavigate += 1;
+                                break;
+                            case KeystrokeType.Key:
+                                aggregate.KeyOther += 1;
+                                break;
+                        }
+                    }
+
+                    keystrokes = null;
                 }
 
+                // Mouse Clicks
                 if (MouseClickBuffer.Count > 0)
                 {
+                    // dequeue buffer
                     var mouseClicks = new MouseClickEvent[MouseClickBuffer.Count];
                     for (int i = 0; i < MouseClickBuffer.Count; i++)
                     {
                         MouseClickBuffer.TryDequeue(out mouseClicks[i]);
                     }
-                    Queries.SaveMouseClicksToDatabase(mouseClicks);
+
+                    // sum up 
+                    for (var j = 0; j < mouseClicks.Count(); j++)
+                    {
+                        var item = (MouseClickEvent)mouseClicks[j];
+                        if (item == null) continue;
+
+                        aggregate.ClickTotal += 1;
+
+                        switch (item.Button)
+                        {
+                            case MouseButtons.Left:
+                                aggregate.ClickLeft += 1;
+                                break;
+                            case MouseButtons.Right:
+                                aggregate.ClickRight += 1;
+                                break;
+                            default:
+                                aggregate.ClickOther += 1;
+                                break;
+                        }
+                    }
+
+                    mouseClicks = null;
                 }
 
+                // Mouse Scrolls
                 if (MouseScrollBuffer.Count > 0)
                 {
+                    // dequeue buffer
                     var mouseScrolls = new MouseScrollSnapshot[MouseScrollBuffer.Count];
                     for (int i = 0; i < MouseScrollBuffer.Count; i++)
                     {
                         MouseScrollBuffer.TryDequeue(out mouseScrolls[i]);
                     }
-                    Queries.SaveMouseScrollsToDatabase(mouseScrolls);
+
+                    // sum up
+                    for (var j = 0; j < mouseScrolls.Count(); j++)
+                    {
+                        var item = (MouseScrollSnapshot)mouseScrolls[j];
+                        if (item == null) continue;
+                        aggregate.ScrollDelta += Math.Abs(item.ScrollDelta);
+                    }
+
+                    mouseScrolls = null;
                 }
 
+                // Mouse Movements
                 if (MouseMoveBuffer.Count > 0)
                 {
+                    // dequeue buffer
                     var mouseMovements = new MouseMovementSnapshot[MouseMoveBuffer.Count];
                     for (int i = 0; i < MouseMoveBuffer.Count; i++)
                     {
                         MouseMoveBuffer.TryDequeue(out mouseMovements[i]);
                     }
-                    Queries.SaveMouseMovementsToDatabase(mouseMovements);
+
+                    // sum up
+                    aggregate.MovedDistance = (int)CalculateMouseMovementDistance(mouseMovements);
+                    //for (var j = 0; j < mouseMovements.Count(); j++)
+                    //{
+                    //    var item = (MouseMovementSnapshot)mouseMovements[j];
+                    //    if (item == null) continue;
+                    //    aggregate.MovedDistance += Math.Abs(item.MovedDistance);
+                    //}
+
+                    mouseMovements = null;
                 }
+
+                // todo: add timestamps
+                var _tsEnd = DateTime.Now;
+                aggregate.TsStart = _tsStart;
+                aggregate.TsEnd = _tsEnd;
+                _tsStart = _tsEnd;
+
+                // save aggregate to database
+                Queries.SaveUserInputSnapshotToDatabase(aggregate);
             }
             catch (Exception e)
             {

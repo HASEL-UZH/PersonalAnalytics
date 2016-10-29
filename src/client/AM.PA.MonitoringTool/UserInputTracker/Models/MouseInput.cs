@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace UserInputTracker.Models
 {
-    public abstract class MouseInput : IUserInput
+    internal abstract class MouseInput : IUserInput
     {
         public DateTime Timestamp { get; private set; }
         public int X { get; private set; }
@@ -25,7 +25,7 @@ namespace UserInputTracker.Models
     /// <summary>
     /// Class for the mouse click event
     /// </summary>
-    public class MouseClickEvent : MouseInput
+    internal class MouseClickEvent : MouseInput
     {
         public MouseButtons Button { get; protected set; }
 
@@ -36,14 +36,14 @@ namespace UserInputTracker.Models
 
         public override string ToString()
         {
-            return String.Format(CultureInfo.InvariantCulture, "MouseClickEvent: {0}\t{1}\t{2}\t{3}", X, Y, Button, Timestamp);
+            return string.Format(CultureInfo.InvariantCulture, "MouseClickEvent: {0}\t{1}\t{2}\t{3}", X, Y, Button, Timestamp);
         }
     }
 
     /// <summary>
     /// Class for the mouse scroll event.
     /// </summary>
-    public class MouseScrollSnapshot : MouseInput
+    internal class MouseScrollSnapshot : MouseInput
     {
         public int ScrollDelta { get; set; }
 
@@ -54,14 +54,14 @@ namespace UserInputTracker.Models
 
         public override string ToString()
         {
-            return String.Format(CultureInfo.InvariantCulture, "MouseScrollSnapshot: {0}\t{1}\t{2}\t{3}", X, Y, ScrollDelta, Timestamp);
+            return string.Format(CultureInfo.InvariantCulture, "MouseScrollSnapshot: {0}\t{1}\t{2}\t{3}", X, Y, ScrollDelta, Timestamp);
         }
     }
 
     /// <summary>
     /// Class for the mouse input
     /// </summary>
-    public class MouseMovementSnapshot : MouseInput
+    internal class MouseMovementSnapshot : MouseInput
     {
         public int MovedDistance { get; set; }
 
@@ -72,7 +72,7 @@ namespace UserInputTracker.Models
 
         public override string ToString()
         {
-            return String.Format(CultureInfo.InvariantCulture, "MouseMovementSnapshot: {0}\t{1}\t{2}\t{3}", X, Y, MovedDistance, Timestamp);
+            return string.Format(CultureInfo.InvariantCulture, "MouseMovementSnapshot: {0}\t{1}\t{2}\t{3}", X, Y, MovedDistance, Timestamp);
         }
     }
 }

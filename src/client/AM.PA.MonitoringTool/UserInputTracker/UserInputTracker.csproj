@@ -79,6 +79,7 @@
     <Compile Include="Models\IUserInput.cs" />
     <Compile Include="Models\KeyboardInput.cs" />
     <Compile Include="Models\MouseInput.cs" />
+    <Compile Include="Models\UserInputAggregate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
   </ItemGroup>
