@@ -15,8 +15,8 @@ namespace UserInputTracker
         private const int MouseSnapshotIntervalInSeconds = 1;
         public static TimeSpan MouseSnapshotInterval = TimeSpan.FromSeconds(MouseSnapshotIntervalInSeconds);
 
-        public const int UserInputAggregationIntervalInSeconds = 60; // save one entry every 60 seconds into the database
-        public static TimeSpan UserInputAggregationInterval = TimeSpan.FromSeconds(UserInputAggregationIntervalInSeconds);
+        internal const int UserInputAggregationIntervalInSeconds = 60; // save one entry every 60 seconds into the database => if changed, make sure to change tsStart and tsEnd in SaveToDatabaseTick
+        internal static TimeSpan UserInputAggregationInterval = TimeSpan.FromSeconds(UserInputAggregationIntervalInSeconds);
 
         public const string DbTableUserInput = "user_input";
         public const string DbTableKeyboard = "user_input_keyboard";

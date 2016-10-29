@@ -36,6 +36,12 @@ namespace UserInputTracker
         private static readonly ConcurrentQueue<MouseMovementSnapshot> MouseMoveBuffer = new ConcurrentQueue<MouseMovementSnapshot>();
         private static readonly ConcurrentQueue<MouseScrollSnapshot> MouseScrollBuffer = new ConcurrentQueue<MouseScrollSnapshot>();
 
+        // ---- TODO. update comment
+        private static readonly List<KeystrokeEvent> KeystrokeListToSave = new List<KeystrokeEvent>();
+        private static readonly List<MouseClickEvent> MouseClickListToSave = new List<MouseClickEvent>();
+        private static readonly List<MouseMovementSnapshot> MouseMoveListToSave = new List<MouseMovementSnapshot>();
+        private static readonly List<MouseScrollSnapshot> MouseScrollListToSave = new List<MouseScrollSnapshot>();
+
         // temporary buffers to count up moves and scrolls, they are emptied every second after adding up (Settings.MouseSnapshotInterval)
         //private static readonly ConcurrentQueue<MouseMovementSnapshot> TempMouseMoveBuffer = new ConcurrentQueue<MouseMovementSnapshot>();
         //private static readonly ConcurrentQueue<MouseScrollSnapshot> TempMouseScrollBuffer = new ConcurrentQueue<MouseScrollSnapshot>();
@@ -244,7 +250,6 @@ namespace UserInputTracker
         /// </summary>
         private async void SaveToDatabaseTick(object sender, EventArgs e)
         {
-            // throw and save
             await Task.Run(() => SaveInputBufferToDatabase());
         }
 
@@ -258,16 +263,18 @@ namespace UserInputTracker
             try
             {
                 var aggregate = new UserInputAggregate();
-                AddKeystrokesToAggregate(aggregate);
-                AddMouseClicksToAggregate(aggregate);
-                AddMouseScrollsToAggregate(aggregate);
-                AddMouseMovementsToAggregate(aggregate);
 
-                // Time Stamps
-                var _tsEnd = DateTime.Now;
-                aggregate.TsStart = _tsStart;
-                aggregate.TsEnd = _tsEnd;
-                _tsStart = _tsEnd;
+                // time interval to save
+                var now = DateTime.Now;
+                var tsEnd = now.AddSeconds(-now.Second).AddSeconds(-Settings.UserInputAggregationIntervalInSeconds);
+                var tsStart = tsEnd.AddSeconds(-Settings.UserInputAggregationIntervalInSeconds);
+                aggregate.TsStart = tsStart;
+                aggregate.TsEnd = tsEnd;
+
+                AddKeystrokesToAggregate(aggregate, tsStart, tsEnd);
+                //AddMouseClicksToAggregate(aggregate, tsStart, tsEnd);
+                //AddMouseScrollsToAggregate(aggregate, tsStart, tsEnd);
+                //AddMouseMovementsToAggregate(aggregate, tsStart, tsEnd);
 
                 // save aggregate to database
                 Queries.SaveUserInputSnapshotToDatabase(aggregate);
@@ -278,107 +285,84 @@ namespace UserInputTracker
             }
         }
 
-        private void AddKeystrokesToAggregate(UserInputAggregate aggregate)
+        private void AddKeystrokesToAggregate(UserInputAggregate aggregate, DateTime tsStart, DateTime tsEnd)
         {
-            if (KeystrokeBuffer.Count <= 0) return;
-
-            // dequeue buffer
-            var keystrokes = new KeystrokeEvent[KeystrokeBuffer.Count];
-            for (var i = 0; i < KeystrokeBuffer.Count; i++)
+            // dequeue Keystroke Buffer
+            KeystrokeEvent e;
+            while (!KeystrokeBuffer.IsEmpty)
             {
-                KeystrokeBuffer.TryDequeue(out keystrokes[i]);
+                KeystrokeBuffer.TryDequeue(out e);
+                KeystrokeListToSave.Add(e);
             }
 
-            // sum up
-            for (var j = 0; j < keystrokes.Count(); j++)
-            {
-                var item = (KeystrokeEvent)keystrokes[j];
-                if (item == null) continue;
+            // save all items between tsStart - tsEnd
+            if (KeystrokeListToSave == null || KeystrokeListToSave.Count == 0) return;
+            
+            var thisIntervalKeystrokes = KeystrokeListToSave.Where(i => i.Timestamp >= tsStart && i.Timestamp < tsEnd);
+            aggregate.KeyNavigate = thisIntervalKeystrokes.Count(i => i.KeystrokeType == KeystrokeType.Navigate);
+            aggregate.KeyBackspace = thisIntervalKeystrokes.Count(i => i.KeystrokeType == KeystrokeType.Backspace);
+            aggregate.KeyOther = thisIntervalKeystrokes.Count(i => i.KeystrokeType == KeystrokeType.Key);
+            aggregate.KeyTotal = aggregate.KeyNavigate + aggregate.KeyBackspace + aggregate.KeyOther;
 
-                aggregate.KeyTotal += 1;
-
-                switch (item.KeystrokeType)
-                {
-                    case KeystrokeType.Backspace:
-                        aggregate.KeyBackspace += 1;
-                        break;
-                    case KeystrokeType.Navigate:
-                        aggregate.KeyNavigate += 1;
-                        break;
-                    case KeystrokeType.Key:
-                        aggregate.KeyOther += 1;
-                        break;
-                }
-            }
+            // delete all items older than tsEnd
+            KeystrokeListToSave.RemoveAll(i => i.Timestamp < tsEnd);
         }
 
-        private void AddMouseClicksToAggregate(UserInputAggregate aggregate)
+        private void AddMouseClicksToAggregate(UserInputAggregate aggregate, DateTime tsStart, DateTime tsEnd)
         {
             if (MouseClickBuffer.Count <= 0) return;
+            var buffer = MouseClickBuffer.Where(i => i.Timestamp >= tsStart && i.Timestamp < tsEnd);
+            if (buffer == null || buffer.Count() == 0) return;
 
-            // dequeue buffer
-            var mouseClicks = new MouseClickEvent[MouseClickBuffer.Count];
-            for (int i = 0; i < MouseClickBuffer.Count; i++)
+            aggregate.ClickLeft = buffer.Count(i => i.Button == MouseButtons.Left);
+            aggregate.ClickRight = buffer.Count(i => i.Button == MouseButtons.Right);
+            aggregate.ClickOther = buffer.Count(i => (i.Button != MouseButtons.Left && i.Button != MouseButtons.Right));
+            aggregate.ClickTotal = aggregate.ClickLeft + aggregate.ClickRight + aggregate.ClickOther;
+
+            // delete (everything until tsEnd)
+            var bufferToDelete = MouseClickBuffer.Where(i => i.Timestamp < tsEnd);
+            var deleting = MouseClickBuffer.Count - bufferToDelete.Count();
+            MouseClickEvent deletedItem;
+            for (int i = 0; i <= deleting; i++)
             {
-                MouseClickBuffer.TryDequeue(out mouseClicks[i]);
-            }
-
-            // sum up 
-            for (var j = 0; j < mouseClicks.Count(); j++)
-            {
-                var item = (MouseClickEvent)mouseClicks[j];
-                if (item == null) continue;
-
-                aggregate.ClickTotal += 1;
-
-                switch (item.Button)
-                {
-                    case MouseButtons.Left:
-                        aggregate.ClickLeft += 1;
-                        break;
-                    case MouseButtons.Right:
-                        aggregate.ClickRight += 1;
-                        break;
-                    default:
-                        aggregate.ClickOther += 1;
-                        break;
-                }
+                MouseClickBuffer.TryDequeue(out deletedItem);
             }
         }
 
-        private void AddMouseScrollsToAggregate(UserInputAggregate aggregate)
+        private void AddMouseScrollsToAggregate(UserInputAggregate aggregate, DateTime tsStart, DateTime tsEnd)
         {
             if (MouseScrollBuffer.Count <= 0) return;
+            var buffer = MouseScrollBuffer.Where(i => i.Timestamp >= tsStart && i.Timestamp < tsEnd);
+            if (buffer == null || buffer.Count() == 0) return;
 
-            // dequeue buffer
-            var mouseScrolls = new MouseScrollSnapshot[MouseScrollBuffer.Count];
-            for (int i = 0; i < MouseScrollBuffer.Count; i++)
-            {
-                MouseScrollBuffer.TryDequeue(out mouseScrolls[i]);
-            }
+            aggregate.ScrollDelta = buffer.Sum(i => Math.Abs(i.ScrollDelta));
 
-            // sum up
-            for (var j = 0; j < mouseScrolls.Count(); j++)
+            // delete (everything until tsEnd)
+            var bufferToDelete = MouseScrollBuffer.Where(i => i.Timestamp < tsEnd);
+            var deleting = MouseScrollBuffer.Count - bufferToDelete.Count();
+            MouseScrollSnapshot deletedItem;
+            for (int i = 0; i <= deleting; i++)
             {
-                var item = (MouseScrollSnapshot)mouseScrolls[j];
-                if (item == null) continue;
-                aggregate.ScrollDelta += Math.Abs(item.ScrollDelta);
+                MouseScrollBuffer.TryDequeue(out deletedItem);
             }
         }
 
-        private void AddMouseMovementsToAggregate(UserInputAggregate aggregate)
+        private void AddMouseMovementsToAggregate(UserInputAggregate aggregate, DateTime tsStart, DateTime tsEnd)
         {
             if (MouseMoveBuffer.Count <= 0) return;
+            var buffer = MouseMoveBuffer.Where(i => i.Timestamp >= tsStart && i.Timestamp < tsEnd);
+            if (buffer == null || buffer.Count() == 0) return;
 
-            // dequeue buffer
-            var mouseMovements = new MouseMovementSnapshot[MouseMoveBuffer.Count];
-            for (int i = 0; i < MouseMoveBuffer.Count; i++)
+            aggregate.MovedDistance = (int)CalculateMouseMovementDistance(buffer);
+
+            // delete (everything until tsEnd)
+            var bufferToDelete = MouseMoveBuffer.Where(i => i.Timestamp < tsEnd);
+            var deleting = MouseMoveBuffer.Count - bufferToDelete.Count();
+            MouseMovementSnapshot deletedItem;
+            for (int i = 0; i <= deleting; i++)
             {
-                MouseMoveBuffer.TryDequeue(out mouseMovements[i]);
+                MouseMoveBuffer.TryDequeue(out deletedItem);
             }
-
-            // sum up
-            aggregate.MovedDistance = (int)CalculateMouseMovementDistance(mouseMovements);
         }
 
         /// <summary>
@@ -386,17 +370,17 @@ namespace UserInputTracker
         /// Could also be converted to centimeters or inches.
         /// </summary>
         /// <returns></returns>
-        private static double CalculateMouseMovementDistance(IReadOnlyList<MouseMovementSnapshot> lastIntervalMouseMovements)
+        private static double CalculateMouseMovementDistance(IEnumerable<MouseMovementSnapshot> lastIntervalMouseMovements)
         {
             var distance = 0.0;
             if (lastIntervalMouseMovements == null) return distance;
 
             try
             {
-                for (var i = 1; i < lastIntervalMouseMovements.Count; i++)
+                for (var i = 1; i < lastIntervalMouseMovements.Count(); i++)
                 {
-                    var previous = lastIntervalMouseMovements[i - 1];
-                    var current = lastIntervalMouseMovements[i];
+                    var previous = lastIntervalMouseMovements.ElementAt(i - 1);
+                    var current = lastIntervalMouseMovements.ElementAt(i);
 
                     var x1 = previous.X;
                     var x2 = current.X;
