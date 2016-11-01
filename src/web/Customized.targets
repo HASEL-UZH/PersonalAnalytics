@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<PropertyGroup>
+		<PublishFilePath>$(PublishPath)</PublishFilePath>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Tokens Include="PublisherName">
+		  <ReplacementValue>$(PublisherName)</ReplacementValue>
+		  <Visible>false</Visible>
+		</Tokens>
+		<Tokens Include="ProductName">
+		  <ReplacementValue>$(ProductName)</ReplacementValue>
+		  <Visible>false</Visible>
+		</Tokens>
+		<Tokens Include="ApplicationVersion">
+		  <ReplacementValue>$(ApplicationVersion)</ReplacementValue>
+		  <Visible>true</Visible>
+		</Tokens>
+		<Tokens Include="Prerequisites">
+		  <ReplacementValue>@(BootstrapperPackage->'&lt;li&gt;%(ProductName)&lt;/li&gt;','%0D%0A')</ReplacementValue>
+		  <Visible>false</Visible>
+		</Tokens>
+		<Tokens Include="Username">
+		  <ReplacementValue>$(Username)</ReplacementValue>
+		  <Visible>false</Visible>
+		</Tokens>
+	</ItemGroup> 
+
+	<Target Name="AfterPublish">
+		<Time Format="dd.MM.yyyy HH:mm">
+			<Output TaskParameter="FormattedTime" PropertyName="PublishTime" />
+		</Time>
+		<TemplateFile Template="../../../web/publish.template.html" Tokens="@(Tokens)" OutputFilename="$(PublishFilePath)" />
+		<FileUpdate Files="$(PublishFilePath)" Regex="\${PublishTime}" ReplacementText="$(PublishTime)" />
+		<Message Text="BeforePublish ApplicationVersion = $(ApplicationVersion)" />
+		<Message Text="BeforePublish Revision = $(BUILD_VERSION)" />
+	</Target>
+
+</Project>
