@@ -4,8 +4,12 @@
 	<PropertyGroup>
 		<PublishFilePath>$(PublishPath)</PublishFilePath>
 	</PropertyGroup>
-
+	
 	<ItemGroup>
+		<Tokens Include="Build_Number">
+			<ReplacementValue>$(Build_Number)</ReplacementValue>
+			<Visible>false</Visible>
+		</Tokens>
 		<Tokens Include="PublisherName">
 		  <ReplacementValue>$(PublisherName)</ReplacementValue>
 		  <Visible>false</Visible>
@@ -34,8 +38,9 @@
 		</Time>
 		<TemplateFile Template="../../../web/publish.template.html" Tokens="@(Tokens)" OutputFilename="$(PublishFilePath)" />
 		<FileUpdate Files="$(PublishFilePath)" Regex="\${PublishTime}" ReplacementText="$(PublishTime)" />
-		<Message Text="BeforePublish ApplicationVersion = $(ApplicationVersion)" />
-		<Message Text="BeforePublish Revision = $(BUILD_VERSION)" />
+		<FileUpdate Files="$(PublishFilePath)" Regex="(\d+)\.(\d+)\.(\d+)\.\*" ReplacementText="$1.$2.$3.$(Build_Number)" />
+		<FileUpdate Files="$(PublishFilePath)" Regex=".li..NET Framework 3\.5 SP1.*" ReplacementText=" " />
+		<Message Text="Building $(Build_Number)"/>
 	</Target>
 
 </Project>
