@@ -51,7 +51,7 @@ namespace PersonalAnalytics
         /// </summary>
         public List<ITracker> RegisterTrackers()
         {
-            #if PilotStudy1
+            #if TestPilot1
                 Register(new WindowsActivityTracker.Daemon());
                 Register(new TimeSpentVisualizer.Visualizers.TimeSpentVisualizer());
                 Register(new UserEfficiencyTracker.Daemon());
