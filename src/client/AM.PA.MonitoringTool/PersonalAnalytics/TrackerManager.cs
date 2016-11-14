@@ -51,15 +51,21 @@ namespace PersonalAnalytics
         /// </summary>
         public List<ITracker> RegisterTrackers()
         {
-            Register(new WindowsActivityTracker.Daemon());
-            Register(new TimeSpentVisualizer.Visualizers.TimeSpentVisualizer());
-            //Register(new PeopleVisualizer.PeopleVisualizer()); // disabled, as it's not finished and pretty slow
-            Register(new UserEfficiencyTracker.Daemon());
-            Register(new UserInputTracker.Daemon());
-            Register(new MsOfficeTracker.Daemon());
-            //Register(new TaskSwitchTracker.Daemon();); // implementation not finished
-            //Register(new WindowsContextTracker.Daemon();); // implementation not finished
-
+            #if TestPilot1
+                Register(new WindowsActivityTracker.Daemon());
+                Register(new TimeSpentVisualizer.Visualizers.TimeSpentVisualizer());
+                Register(new UserEfficiencyTracker.Daemon());
+                Register(new UserInputTracker.Daemon());
+            #else
+                Register(new WindowsActivityTracker.Daemon());
+                Register(new TimeSpentVisualizer.Visualizers.TimeSpentVisualizer());
+                //Register(new PeopleVisualizer.PeopleVisualizer()); // disabled, as it's not finished and pretty slow
+                Register(new UserEfficiencyTracker.Daemon());
+                Register(new UserInputTracker.Daemon());
+                Register(new MsOfficeTracker.Daemon());
+                //Register(new TaskSwitchTracker.Daemon();); // implementation not finished
+                //Register(new WindowsContextTracker.Daemon();); // implementation not finished
+            #endif
             return _trackers; // return trackers for retrospection
         }
 
@@ -699,7 +705,7 @@ namespace PersonalAnalytics
                return true;
            }
 
-           #endregion */
+#endregion */
 
         #endregion
     }

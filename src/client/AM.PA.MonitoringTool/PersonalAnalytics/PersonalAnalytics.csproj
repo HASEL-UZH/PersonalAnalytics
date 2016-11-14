@@ -24,7 +24,7 @@
     <IsWebBootstrapper>true</IsWebBootstrapper>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <PublishUrl>ftp://www.andre-meyer.ch/public_html/DATA/PA/ONLINE/</PublishUrl>
+    <PublishUrl>http://pluto.ifi.uzh.ch/master/</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Web</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
@@ -34,18 +34,17 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>true</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <InstallUrl>http://www.andre-meyer.ch/DATA/PA/ONLINE/</InstallUrl>
-    <SupportUrl>http://www.andre-meyer.ch/DATA/PA/ONLINE/publish.html</SupportUrl>
-    <ErrorReportUrl>http://www.andre-meyer.ch/DATA/PA/ONLINE/publish.html</ErrorReportUrl>
+    <InstallUrl>http://pluto.ifi.uzh.ch/master/</InstallUrl>
+    <SupportUrl>http://pluto.ifi.uzh.ch/master/index.html</SupportUrl>
+    <ErrorReportUrl>http://pluto.ifi.uzh.ch/master/index.html</ErrorReportUrl>
     <TargetCulture>en</TargetCulture>
     <ProductName>Personal Analytics</ProductName>
     <PublisherName>Personal Analytics</PublisherName>
     <SuiteName>Personal Analytics</SuiteName>
     <MinimumRequiredVersion>0.9.5.5</MinimumRequiredVersion>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
-    <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>47</ApplicationRevision>
-    <ApplicationVersion>0.9.5.%2a</ApplicationVersion>
+    <WebPage>index.html</WebPage>
+    <ApplicationVersion>0.9.5.*</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -332,4 +331,6 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+<Import Project="../../../web/Customized.targets" />
+<Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
 </Project>

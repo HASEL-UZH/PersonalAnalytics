@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<PropertyGroup>
+		<PublishFilePath>$(PublishDir)$(PublishFile)</PublishFilePath>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<Tokens Include="Build_Number">
+			<ReplacementValue>$(Build_Number)</ReplacementValue>
+			<Visible>false</Visible>
+		</Tokens>
+		<Tokens Include="PublisherName">
+		  <ReplacementValue>$(PublisherName)</ReplacementValue>
+		  <Visible>false</Visible>
+		</Tokens>
+		<Tokens Include="ProductName">
+		  <ReplacementValue>$(Job_Name)</ReplacementValue>
+		  <Visible>false</Visible>
+		</Tokens>
+		<Tokens Include="ApplicationVersion">
+		  <ReplacementValue>$(ApplicationVersion)</ReplacementValue>
+		  <Visible>true</Visible>
+		</Tokens>
+		<Tokens Include="Prerequisites">
+		  <ReplacementValue>@(BootstrapperPackage->'&lt;li&gt;%(ProductName)&lt;/li&gt;','%0D%0A')</ReplacementValue>
+		  <Visible>false</Visible>
+		</Tokens>
+		<Tokens Include="Username">
+		  <ReplacementValue>$(Username)</ReplacementValue>
+		  <Visible>false</Visible>
+		</Tokens>
+	</ItemGroup> 
+
+	<Target Name="AfterPublish">
+		<Time Format="dd.MM.yyyy HH:mm">
+			<Output TaskParameter="FormattedTime" PropertyName="PublishTime" />
+		</Time>
+		<TemplateFile Template="../../../web/publish.template.html" Tokens="@(Tokens)" OutputFilename="$(PublishFilePath)" />
+		<FileUpdate Files="$(PublishFilePath)" Regex="\${PublishTime}" ReplacementText="$(PublishTime)" />
+		<FileUpdate Files="$(PublishFilePath)" Regex="(\d+)\.(\d+)\.(\d+)\.\*" ReplacementText="$1.$2.$3.$(Build_Number)" />
+		<FileUpdate Files="$(PublishFilePath)" Regex=".li..NET Framework 3\.5 SP1.*" ReplacementText=" " />
+		<Message Text="Building $(Build_Number)"/>
+	</Target>
+
+</Project>

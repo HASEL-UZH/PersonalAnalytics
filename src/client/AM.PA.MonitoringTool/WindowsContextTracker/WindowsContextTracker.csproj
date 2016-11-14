@@ -85,4 +85,6 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+<Import Project="../../../web/Customized.targets" />
+<Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
 </Project>
