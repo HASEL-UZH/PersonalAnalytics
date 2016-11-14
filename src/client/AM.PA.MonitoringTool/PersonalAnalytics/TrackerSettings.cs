@@ -59,7 +59,7 @@ namespace Shared.Data
                 if (updatedSettings.Office365ApiEnabled.HasValue)
                 {
                     if (GetMSOfficeTracker() != null) GetMSOfficeTracker().MsOfficeTrackerEnabled = updatedSettings.Office365ApiEnabled.Value;
-                    if (GetPeopleVisualizer() != null) GetPeopleVisualizer().PeopleVisualizerEnabled = updatedSettings.Office365ApiEnabled.Value;
+                    //if (GetPeopleVisualizer() != null) GetPeopleVisualizer().PeopleVisualizerEnabled = updatedSettings.Office365ApiEnabled.Value;
                 }
             }
             catch (Exception e)
@@ -90,31 +90,32 @@ namespace Shared.Data
 
                 dto.OpenRetrospectionInFullScreen = Retrospection.Handler.GetInstance().OpenRetrospectionInFullScreen;
 
-                var peopleVisualizer = GetPeopleVisualizer();
+                //var peopleVisualizer = GetPeopleVisualizer();
                 var msOfficeTracker = GetMSOfficeTracker();
-                if (peopleVisualizer != null && msOfficeTracker != null) dto.Office365ApiEnabled = (peopleVisualizer.PeopleVisualizerEnabled || msOfficeTracker.MsOfficeTrackerEnabled);
-                else if (peopleVisualizer == null && msOfficeTracker != null) dto.Office365ApiEnabled = msOfficeTracker.MsOfficeTrackerEnabled;
-                else if (peopleVisualizer != null && msOfficeTracker == null) dto.Office365ApiEnabled = peopleVisualizer.PeopleVisualizerEnabled;
-                else dto.Office365ApiEnabled = false;
+                dto.Office365ApiEnabled = msOfficeTracker.MsOfficeTrackerEnabled;
+                //if (peopleVisualizer != null && msOfficeTracker != null) dto.Office365ApiEnabled = (peopleVisualizer.PeopleVisualizerEnabled || msOfficeTracker.MsOfficeTrackerEnabled);
+                //else if (peopleVisualizer == null && msOfficeTracker != null) dto.Office365ApiEnabled = msOfficeTracker.MsOfficeTrackerEnabled;
+                //else if (peopleVisualizer != null && msOfficeTracker == null) dto.Office365ApiEnabled = peopleVisualizer.PeopleVisualizerEnabled;
+                //else dto.Office365ApiEnabled = false;
             } 
             catch { }
 
             return dto;
         }
 
-        private PeopleVisualizer.PeopleVisualizer GetPeopleVisualizer()
-        {
-            try
-            {
-                var tracker =
-                    _trackers.Where(t => t.GetType() == typeof(PeopleVisualizer.PeopleVisualizer))
-                        .Cast<PeopleVisualizer.PeopleVisualizer>()
-                        .FirstOrDefault();
+        //private PeopleVisualizer.PeopleVisualizer GetPeopleVisualizer()
+        //{
+        //    try
+        //    {
+        //        var tracker =
+        //            _trackers.Where(t => t.GetType() == typeof(PeopleVisualizer.PeopleVisualizer))
+        //                .Cast<PeopleVisualizer.PeopleVisualizer>()
+        //                .FirstOrDefault();
 
-                return tracker;
-            }
-            catch { return null; }
-        }
+        //        return tracker;
+        //    }
+        //    catch { return null; }
+        //}
 
         private TimeSpentVisualizer.Visualizers.TimeSpentVisualizer GetTimeSpentVisualizerVisualizer()
         {

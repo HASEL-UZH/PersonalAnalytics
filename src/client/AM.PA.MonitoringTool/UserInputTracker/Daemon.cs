@@ -310,6 +310,8 @@ namespace UserInputTracker
 
         private void AddMouseClicksToAggregate(UserInputAggregate aggregate, DateTime tsStart, DateTime tsEnd)
         {
+            // TODO: do the same like keystroke (+ test keystroke again)
+
             if (MouseClickBuffer.Count <= 0) return;
             var buffer = MouseClickBuffer.Where(i => i.Timestamp >= tsStart && i.Timestamp < tsEnd);
             if (buffer == null || buffer.Count() == 0) return;

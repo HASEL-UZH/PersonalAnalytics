@@ -1,8 +1,0 @@
-﻿<Window x:Class="TaskSwitchTracker.UserTaskSwitchesWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        MouseDown="TaskSwitchClicked" Name="UserTaskwitchesWindow"
-        Background="Transparent" AllowsTransparency="True" Width="30" Height="30" WindowStyle="None">
-
-    <Image VerticalAlignment="Center" HorizontalAlignment="Center" Source="Assets/taskSwitch.png" Width="15" Height="15" /> 
-</Window>

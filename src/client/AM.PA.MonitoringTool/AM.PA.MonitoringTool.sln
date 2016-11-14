@@ -21,13 +21,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimeSpentVisualizerTests", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsOfficeTracker", "MsOfficeTracker\MsOfficeTracker.csproj", "{82ED616D-1508-41C5-A72A-B6A4F7C9B7E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeopleVisualizer", "PeopleVisualizer\PeopleVisualizer.csproj", "{E1767D02-A50F-4447-9C9C-EBEB91D4D581}"
-EndProject
+#Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeopleVisualizer", "PeopleVisualizer\PeopleVisualizer.csproj", "{E1767D02-A50F-4447-9C9C-EBEB91D4D581}"
+#EndProject
 #Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsContextTracker", "WindowsContextTracker\WindowsContextTracker.csproj", "{E91DC4E4-21D4-4C99-BA73-13F33E3D111D}"
 #EndProject
 #Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OcrLibrary", "OcrLibrary\OcrLibrary.csproj", "{608A5AD4-9B04-4025-A5F5-1C118C692E96}"
-#EndProject
-#Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskSwitchTracker", "TaskSwitchTracker\TaskSwitchTracker.csproj", "{6505E53E-9890-4CD6-88DD-C72710A7F7AB}"
 #EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

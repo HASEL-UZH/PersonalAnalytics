@@ -44,7 +44,8 @@
     <MinimumRequiredVersion>0.9.5.5</MinimumRequiredVersion>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>index.html</WebPage>
-    <ApplicationVersion>0.9.5.*</ApplicationVersion>
+    <ApplicationRevision>175</ApplicationRevision>
+    <ApplicationVersion>0.9.5.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -249,10 +250,6 @@
       <Project>{82ed616d-1508-41c5-a72a-b6a4f7c9b7e6}</Project>
       <Name>MsOfficeTracker</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PeopleVisualizer\PeopleVisualizer.csproj">
-      <Project>{e1767d02-a50f-4447-9c9c-ebeb91d4d581}</Project>
-      <Name>PeopleVisualizer</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Retrospection\Retrospection.csproj">
       <Project>{ebd795e6-e7ad-49e4-a812-d2de29186c49}</Project>
       <Name>Retrospection</Name>
@@ -331,6 +328,6 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-<Import Project="../../../web/Customized.targets" />
-<Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />
+  <Import Project="../../../web/Customized.targets" />
+  <!--<Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />-->
 </Project>
