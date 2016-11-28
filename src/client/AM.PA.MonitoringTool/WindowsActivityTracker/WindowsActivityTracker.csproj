@@ -94,6 +94,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-<Import Project="../../../web/Customized.targets" />
-<!--<Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />-->
+<PropertyGroup>
+<BuildEnvironment>DEV</BuildEnvironment>
+</PropertyGroup>
+<Import Project="../../../web/Customized.targets" Condition=" '$(BuildEnvironment)' == 'DEPLOY' "/>
 </Project>
