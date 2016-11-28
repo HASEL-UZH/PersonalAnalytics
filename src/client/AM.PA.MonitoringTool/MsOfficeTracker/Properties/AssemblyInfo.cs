@@ -23,14 +23,12 @@ using System.Runtime.InteropServices;
 [assembly: Guid("82ed616d-1508-41c5-a72a-b6a4f7c9b7e6")]
 
 // Version information for an assembly consists of the following four values:
-//
+// see details: http://stackoverflow.com/questions/356543/can-i-automatically-increment-the-file-build-version-when-using-visual-studio
+// 
 //      Major Version
 //      Minor Version 
 //      Build Number
 //      Revision
 //
-// You can specify all the values or you can default the Build and Revision Numbers 
-// by using the '*' as shown below:
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.0.*")]
+//[assembly: AssemblyFileVersion("1.0.0.0")]

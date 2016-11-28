@@ -1,5 +1,6 @@
 ﻿// Created by André Meyer (ameyer@ifi.uzh.ch) from the University of Zurich
-// Created: 2015-10-20
+// V1.0 Created: 2015-10-20
+// V2.0 Created: 2016-11-28
 // 
 // Licensed under the MIT License.
 using System;
@@ -29,13 +30,13 @@ namespace UserInputTracker
         // Timestamp of when the aggregate starts
         private DateTime _tsStart;
 
-        // buffers for user input, they are emptied every x seconds (see Settings.UserInputAggregationInterval)
+        // Buffers for user input, they are emptied every x seconds (see Settings.UserInputAggregationInterval)
         private static readonly ConcurrentQueue<KeystrokeEvent> KeystrokeBuffer = new ConcurrentQueue<KeystrokeEvent>();
         private static readonly ConcurrentQueue<MouseClickEvent> MouseClickBuffer = new ConcurrentQueue<MouseClickEvent>();
         private static readonly ConcurrentQueue<MouseMovementSnapshot> MouseMovementBuffer = new ConcurrentQueue<MouseMovementSnapshot>();
         private static readonly ConcurrentQueue<MouseScrollSnapshot> MouseScrollsBuffer = new ConcurrentQueue<MouseScrollSnapshot>();
 
-        // ---- TODO. update comment
+        // Lists which temporarily store all user input data until they are saved as an aggregate in the database
         private static readonly List<KeystrokeEvent> KeystrokeListToSave = new List<KeystrokeEvent>();
         private static readonly List<MouseClickEvent> MouseClickListToSave = new List<MouseClickEvent>();
         private static readonly List<MouseMovementSnapshot> MouseMovementListToSave = new List<MouseMovementSnapshot>();
@@ -280,10 +281,18 @@ namespace UserInputTracker
             }
             catch (Exception e)
             {
-                Logger.WriteToLogFile(e);
+                Logger.WriteToLogFile(e); //TODO: remove for deployment
             }
         }
 
+        /// <summary>
+        /// For: Keystrokes Data
+        /// Dequeues the respective buffer, adds it to a list (which prepares the data for saving)
+        /// and updates the UserInputaggregate. Finally, it deletes the used items from the list.
+        /// </summary>
+        /// <param name="aggregate"></param>
+        /// <param name="tsStart"></param>
+        /// <param name="tsEnd"></param>
         private void AddKeystrokesToAggregate(UserInputAggregate aggregate, DateTime tsStart, DateTime tsEnd)
         {
             // dequeue buffer
@@ -307,6 +316,14 @@ namespace UserInputTracker
             KeystrokeListToSave.RemoveAll(i => i.Timestamp < tsEnd);
         }
 
+        /// <summary>
+        /// For: Mouse Clicks Data
+        /// Dequeues the respective buffer, adds it to a list (which prepares the data for saving)
+        /// and updates the UserInputaggregate. Finally, it deletes the used items from the list.
+        /// </summary>
+        /// <param name="aggregate"></param>
+        /// <param name="tsStart"></param>
+        /// <param name="tsEnd"></param>
         private void AddMouseClicksToAggregate(UserInputAggregate aggregate, DateTime tsStart, DateTime tsEnd)
         {
             // dequeue buffer
@@ -326,11 +343,18 @@ namespace UserInputTracker
             aggregate.ClickOther = thisIntervalMouseClicks.Count(i => (i.Button != MouseButtons.Left && i.Button != MouseButtons.Right));
             aggregate.ClickTotal = aggregate.ClickLeft + aggregate.ClickRight + aggregate.ClickOther;
 
-
             // delete all items older than tsEnd
             MouseClickListToSave.RemoveAll(i => i.Timestamp < tsEnd);
         }
 
+        /// <summary>
+        /// For: Mouse Scrolls Data
+        /// Dequeues the respective buffer, adds it to a list (which prepares the data for saving)
+        /// and updates the UserInputaggregate. Finally, it deletes the used items from the list.
+        /// </summary>
+        /// <param name="aggregate"></param>
+        /// <param name="tsStart"></param>
+        /// <param name="tsEnd"></param>
         private void AddMouseScrollsToAggregate(UserInputAggregate aggregate, DateTime tsStart, DateTime tsEnd)
         {
             // dequeue buffer
@@ -351,6 +375,14 @@ namespace UserInputTracker
             MouseScrollsListToSave.RemoveAll(i => i.Timestamp < tsEnd);
         }
 
+        /// <summary>
+        /// For: Mouse Movement Data
+        /// Dequeues the respective buffer, adds it to a list (which prepares the data for saving)
+        /// and updates the UserInputaggregate. Finally, it deletes the used items from the list.
+        /// </summary>
+        /// <param name="aggregate"></param>
+        /// <param name="tsStart"></param>
+        /// <param name="tsEnd"></param>
         private void AddMouseMovementsToAggregate(UserInputAggregate aggregate, DateTime tsStart, DateTime tsEnd)
         {
             // dequeue buffer

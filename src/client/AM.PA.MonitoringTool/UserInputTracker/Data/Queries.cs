@@ -19,7 +19,7 @@ namespace UserInputTracker.Data {
         {
             try 
             {
-                Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableUserInput + " (id INTEGER PRIMARY KEY, time TEXT, tsStart TEXT, tsEnd TEXT, keyTotal INTEGER, keyOther INTEGER, keyBackspace INTEGER, keyNavigate INTEGER, clickTotal INTEGER, clickOther INTEGER, clickLeft INTEGER, clickRight INTEGER, scrollDelta INTEGER, movedDistance INTEGER)");
+                Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableUserInput_v2 + " (id INTEGER PRIMARY KEY, time TEXT, tsStart TEXT, tsEnd TEXT, keyTotal INTEGER, keyOther INTEGER, keyBackspace INTEGER, keyNavigate INTEGER, clickTotal INTEGER, clickOther INTEGER, clickLeft INTEGER, clickRight INTEGER, scrollDelta INTEGER, movedDistance INTEGER)");
                 //Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableKeyboard + " (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, keystrokeType TEXT)");
                 //Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableMouseClick + " (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, button TEXT)");
                 //Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableMouseScrolling + " (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, scrollDelta INTEGER)");
@@ -35,7 +35,7 @@ namespace UserInputTracker.Data {
         {
             var sb = new StringBuilder();
             sb.Append("INSERT INTO '");
-            sb.Append(Settings.DbTableUserInput);
+            sb.Append(Settings.DbTableUserInput_v2);
             sb.Append("' (time, tsStart, tsEnd, keyTotal, keyOther, keyBackspace, keyNavigate, clickTotal, clickOther, clickLeft, clickRight, scrollDelta, movedDistance) VALUES (");
 
             sb.Append("strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), ");
@@ -278,7 +278,7 @@ namespace UserInputTracker.Data {
                 // 2. fill keyboard data
                 try
                 {
-                    var queryKeystrokes = "SELECT timestamp FROM " + Settings.DbTableKeyboard + " WHERE STRFTIME('%s', DATE(time))==STRFTIME('%s', DATE('" + date.Date.ToString("u", CultureInfo.InvariantCulture) + "'));";
+                    var queryKeystrokes = "SELECT timestamp FROM " + Settings.DbTableKeyboard_v1 + " WHERE STRFTIME('%s', DATE(time))==STRFTIME('%s', DATE('" + date.Date.ToString("u", CultureInfo.InvariantCulture) + "'));";
                     var tableKeystrokes = Database.GetInstance().ExecuteReadQuery(queryKeystrokes);
 
                     foreach (DataRow row in tableKeystrokes.Rows)
@@ -302,7 +302,7 @@ namespace UserInputTracker.Data {
                 // 3. fill mouse click data
                 try
                 {
-                    var queryMouseClicks = "SELECT timestamp FROM " + Settings.DbTableMouseClick + " WHERE STRFTIME('%s', DATE(time))==STRFTIME('%s', DATE('" + date.Date.ToString("u", CultureInfo.InvariantCulture) + "'));";
+                    var queryMouseClicks = "SELECT timestamp FROM " + Settings.DbTableMouseClick_v1 + " WHERE STRFTIME('%s', DATE(time))==STRFTIME('%s', DATE('" + date.Date.ToString("u", CultureInfo.InvariantCulture) + "'));";
                     var tableMouseClicks = Database.GetInstance().ExecuteReadQuery(queryMouseClicks);
                     foreach (DataRow row in tableMouseClicks.Rows)
                     {
@@ -325,7 +325,7 @@ namespace UserInputTracker.Data {
                 // 4. fill mouse scrolling data
                 try
                 {
-                    var queryMouseScrolls = "SELECT timestamp, scrollDelta FROM " + Settings.DbTableMouseScrolling + " WHERE STRFTIME('%s', DATE(time))==STRFTIME('%s', DATE('" + date.Date.ToString("u", CultureInfo.InvariantCulture) + "')) AND scrollDelta > 0;";
+                    var queryMouseScrolls = "SELECT timestamp, scrollDelta FROM " + Settings.DbTableMouseScrolling_v1 + " WHERE STRFTIME('%s', DATE(time))==STRFTIME('%s', DATE('" + date.Date.ToString("u", CultureInfo.InvariantCulture) + "')) AND scrollDelta > 0;";
                     var tableMouseScrolls = Database.GetInstance().ExecuteReadQuery(queryMouseScrolls);
                     foreach (DataRow row in tableMouseScrolls.Rows)
                     {
@@ -349,7 +349,7 @@ namespace UserInputTracker.Data {
                 // 5. fill mouse move data
                 try
                 {
-                    var queryMouseMovements = "SELECT timestamp, movedDistance FROM " + Settings.DbTableMouseMovement + " WHERE STRFTIME('%s', DATE(time))==STRFTIME('%s', DATE('" + date.Date.ToString("u", CultureInfo.InvariantCulture) + "')) AND movedDistance > 0;";
+                    var queryMouseMovements = "SELECT timestamp, movedDistance FROM " + Settings.DbTableMouseMovement_v1 + " WHERE STRFTIME('%s', DATE(time))==STRFTIME('%s', DATE('" + date.Date.ToString("u", CultureInfo.InvariantCulture) + "')) AND movedDistance > 0;";
                     var tableMouseMovements = Database.GetInstance().ExecuteReadQuery(queryMouseMovements);
                     foreach (DataRow row in tableMouseMovements.Rows)
                     {
