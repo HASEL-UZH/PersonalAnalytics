@@ -243,7 +243,7 @@ namespace PersonalAnalytics
                 _remindToContinueTrackerTimer.Tick += ((s, e) =>
                 {
                     // show the popup (already registered for the click event)
-                    TaskbarIcon.ShowBalloonTip("Reminder", "The Personal Analytics Tool is still paused. Click here to resume it.", BalloonIcon.Warning);
+                    TaskbarIcon.ShowBalloonTip("Reminder", "The Personal Analytics Tool is still paused. Click here to resume it.", BalloonIcon.Warning); //TODO: bug #91: it doesn't show up on Windows 10
                 });
             }
             _remindToContinueTrackerTimer.IsEnabled = true;
