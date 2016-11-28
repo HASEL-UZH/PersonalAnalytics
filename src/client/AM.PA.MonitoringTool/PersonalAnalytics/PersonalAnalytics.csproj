@@ -42,7 +42,7 @@
     <SuiteName>Personal Analytics</SuiteName>
     <MinimumRequiredVersion>0.9.5.5</MinimumRequiredVersion>
     <WebPage>index.html</WebPage>
-    <ApplicationRevision>176</ApplicationRevision>
+    <ApplicationRevision>177</ApplicationRevision>
     <ApplicationVersion>0.9.5.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -318,7 +318,6 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.100.0\build\net45\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.100.0\build\net45\System.Data.SQLite.Core.targets'))" />
-    <Error Condition="!Exists('..\packages\MSBuildTasks.1.5.0.214\build\MSBuildTasks.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MSBuildTasks.1.5.0.214\build\MSBuildTasks.targets'))" />
   </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -327,6 +326,11 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <PropertyGroup>
+    <BuildEnvironment>DEV</BuildEnvironment>
+  </PropertyGroup>
+  <Import Project="../../../web/Customized.targets" Condition=" '$(BuildEnvironment)' == 'DEPLOY' " />
+  <Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" Condition=" '$(BuildEnvironment)' == 'DEPLOY' " />
   <!-- <Import Project="../../../web/Customized.targets" /> -->
   <!-- <Import Project="..\packages\MSBuildTasks.1.5.0.214\build\MSBuildTasks.targets" Condition="Exists('..\packages\MSBuildTasks.1.5.0.214\build\MSBuildTasks.targets')" /> -->
   <!--<Import Project="$(MSBuildExtensionsPath)\MSBuildCommunityTasks\MSBuild.Community.Tasks.Targets" />-->

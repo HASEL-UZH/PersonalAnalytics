@@ -76,9 +76,9 @@ namespace MsOfficeTracker.Visualizations
             //html += "<p style='text-align: center; margin-top:-0.7em;'><strong style='font-size:2.5em;'>" + emailInboxString + "</strong></p>";
 
             html += "<table>";
-            if (sent > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + sent + "</strong></td><td>emails sent today</td></tr>";
-            if (received > -1 && receivedUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + (received - receivedUnread) + "</strong></td><td>emails received and read today</td></tr>";
-            if (receivedUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + receivedUnread + "</strong></td><td>emails received today and currently unread</td></tr>";
+            if (sent > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + sent + "</strong></td><td>emails sent</td></tr>";
+            if (received > -1 && receivedUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + (received - receivedUnread) + "</strong></td><td>emails received and read</td></tr>";
+            if (receivedUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + receivedUnread + "</strong></td><td>emails received and currently unread</td></tr>";
             if (inbox > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + inbox + "</strong></td><td>emails in your inbox</td></tr>";
             if (inboxUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + inboxUnread + "</strong></td><td>unread emails in your inbox</td></tr>";
             html += "</table>";

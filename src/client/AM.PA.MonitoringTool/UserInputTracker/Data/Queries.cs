@@ -19,7 +19,10 @@ namespace UserInputTracker.Data {
         {
             try 
             {
+                // V2.0: only one table needed as we store an aggregate
                 Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableUserInput_v2 + " (id INTEGER PRIMARY KEY, time TEXT, tsStart TEXT, tsEnd TEXT, keyTotal INTEGER, keyOther INTEGER, keyBackspace INTEGER, keyNavigate INTEGER, clickTotal INTEGER, clickOther INTEGER, clickLeft INTEGER, clickRight INTEGER, scrollDelta INTEGER, movedDistance INTEGER)");
+                
+                // V1.0: old tables
                 //Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableKeyboard + " (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, keystrokeType TEXT)");
                 //Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableMouseClick + " (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, button TEXT)");
                 //Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableMouseScrolling + " (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, scrollDelta INTEGER)");
@@ -31,6 +34,11 @@ namespace UserInputTracker.Data {
             }
         }
 
+        /// <summary>
+        /// Saves UserInputAggregate to the database
+        /// (V2.0, in the old version (V1.0) each entry was stored in a corresponding table)
+        /// </summary>
+        /// <param name="ma"></param>
         internal static void SaveUserInputSnapshotToDatabase(UserInputAggregate ma)
         {
             var sb = new StringBuilder();
@@ -61,6 +69,8 @@ namespace UserInputTracker.Data {
             var query = sb.ToString();
             Database.GetInstance().ExecuteDefaultQuery(query);
         }
+
+        #region V1.0 (old) Save User Input to Database
 
         /// <summary>
         /// Save the keystroke type (not exact keystroke) to the database. If there are more than 500 entries, 
@@ -259,6 +269,70 @@ namespace UserInputTracker.Data {
         //    }
         //}
 
+        #endregion
+
+
+        /// <summary>
+        /// 
+        /// TODO: update
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        internal static Dictionary<DateTime, int> GetUserInputTimelineData_v2(DateTimeOffset date)
+        {
+            var dto = new Dictionary<DateTime, int>();
+
+            // prepare Dictionary
+            VisHelper.PrepareTimeAxis(date, dto, Settings.UserInputVisMinutesInterval);
+
+            // get user input data (aggregate)
+            try
+            {
+                var query = "SELECT tsStart, tsEnd, keyTotal, clickTotal, scrollDelta, movedDistance FROM " + Settings.DbTableUserInput_v2 + " WHERE STRFTIME('%s', DATE(time))==STRFTIME('%s', DATE('" + date.Date.ToString("u", CultureInfo.InvariantCulture) + "'));";
+                var table = Database.GetInstance().ExecuteReadQuery(query);
+
+                foreach (DataRow row in table.Rows)
+                {
+                    try
+                    {
+                        var time = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
+                        time = time.AddSeconds(-time.Second); // nice seconds
+
+                        // find 10 minutes interval
+                        time = DateTimeHelper.RoundUp(time, TimeSpan.FromMinutes(Settings.UserInputVisMinutesInterval));
+
+                        // add values
+                        if (dto.ContainsKey(time))
+                        {
+                            var userInputLevel = 0L;
+
+                            // add keystrokes
+                            userInputLevel += (long)row["keyTotal"];
+
+                            // add mouse click (with weighting)
+                            userInputLevel += (long)row["clickTotal"] * Settings.MouseClickKeyboardRatio;
+
+                            // add mouse scrolling (with weighting)
+                            userInputLevel += (int)Math.Round((long)row["scrollDelta"] * Settings.MouseScrollingKeyboardRatio, 0);
+
+                            // add mouse movement (with weighting)
+                            userInputLevel += (int)Math.Round((long)row["movedDistance"] * Settings.MouseMovementKeyboardRatio, 0);
+
+                            dto[time] += (int)userInputLevel;
+                        }
+                    }
+                    catch { }
+                }
+                table.Dispose();
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+
+            return dto;
+        }
+
         /// <summary>
         /// Returns a dictionary with an input-level like data set for each interval (Settings.UserInputVisMinutesInterval)
         /// 
@@ -266,7 +340,7 @@ namespace UserInputTracker.Data {
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        internal static Dictionary<DateTime, int> GetUserInputTimelineData(DateTimeOffset date)
+        internal static Dictionary<DateTime, int> GetUserInputTimelineData_v1(DateTimeOffset date)
         {
             var dto = new Dictionary<DateTime, int>();
 
@@ -286,7 +360,7 @@ namespace UserInputTracker.Data {
                         var time = DateTime.Parse((string)row["timestamp"], CultureInfo.InvariantCulture);
                         time = time.AddSeconds(-time.Second); // nice seconds
 
-                        // find 15 minutes interval
+                        // find 10 minutes interval
                         time = Shared.Helpers.DateTimeHelper.RoundUp(time, TimeSpan.FromMinutes(Settings.UserInputVisMinutesInterval));
 
                         // add keystroke
