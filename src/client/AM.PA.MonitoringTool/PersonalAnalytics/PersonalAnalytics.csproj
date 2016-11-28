@@ -203,14 +203,14 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="bin\Release\tessdata\eng.DangAmbigs" />
+<!--     <None Include="bin\Release\tessdata\eng.DangAmbigs" />
     <None Include="bin\Release\tessdata\eng.freq-dawg" />
     <None Include="bin\Release\tessdata\eng.inttemp" />
     <None Include="bin\Release\tessdata\eng.normproto" />
     <None Include="bin\Release\tessdata\eng.pffmtable" />
     <None Include="bin\Release\tessdata\eng.unicharset" />
     <None Include="bin\Release\tessdata\eng.user-words" />
-    <None Include="bin\Release\tessdata\eng.word-dawg" />
+    <None Include="bin\Release\tessdata\eng.word-dawg" /> -->
     <None Include="packages.config" />
     <None Include="PersonalAnalytics_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
@@ -326,8 +326,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-<PropertyGroup>
-<BuildEnvironment>DEV</BuildEnvironment>
-</PropertyGroup>
-<Import Project="../../../web/Customized.targets" Condition=" '$(BuildEnvironment)' == 'DEPLOY' "/>
+  <PropertyGroup>
+    <BuildEnvironment>DEV</BuildEnvironment>
+  </PropertyGroup>
+  <Import Project="../../../web/Customized.targets" Condition=" '$(BuildEnvironment)' == 'DEPLOY' "/>
 </Project>
