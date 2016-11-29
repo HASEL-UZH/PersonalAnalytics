@@ -38,8 +38,8 @@
     <ErrorReportUrl>http://pluto.ifi.uzh.ch/master/index.html</ErrorReportUrl>
     <TargetCulture>en</TargetCulture>
     <ProductName>Personal Analytics</ProductName>
-    <PublisherName>PersonalAnalytics</PublisherName>
-    <SuiteName>PersonalAnalytics</SuiteName>
+    <PublisherName>Personal Analytics</PublisherName>
+    <SuiteName>Personal Analytics</SuiteName>
     <MinimumRequiredVersion>0.9.5.5</MinimumRequiredVersion>
     <WebPage>index.html</WebPage>
     <ApplicationRevision>177</ApplicationRevision>
