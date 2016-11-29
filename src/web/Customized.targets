@@ -43,6 +43,15 @@
 		<FileUpdate Files="$(PublishFilePath)" Regex="(\d+)\.(\d+)\.(\d+)\.\*" ReplacementText="$1.$2.$3.$(Build_Number)" />
 		<FileUpdate Files="$(PublishFilePath)" Regex=".li..NET Framework 3\.5 SP1.*" ReplacementText=" " />
 		<Message Text="Building $(Build_Number)"/>
+		
+		<Exec Command="&quot;C:\cert\signtool.exe&quot; sign /a /f &quot;C:\cert\certificate.pfx&quot; /p 65eCCC4sXrq3KqQVWCF3 /v &quot;C:\deploy\master\$(TargetFileName)&quot;" />
+
+		<Exec Command="C:\cert\mage.exe -Sign &quot;C:\deploy\master\Application Files\PersonalAnalytics_0_9_5_$(Build_Number)\PersonalAnalytics.exe.manifest&quot; -CertFile &quot;C:\cert\certificate.pfx&quot; -Password 65eCCC4sXrq3KqQVWCF3" />
+		
+		<Exec Command="C:\cert\mage.exe -update &quot;C:\deploy\master\PersonalAnalytics.application&quot; -appmanifest &quot;C:\deploy\master\Application Files\PersonalAnalytics_0_9_5_$(Build_Number)\PersonalAnalytics.exe.manifest&quot; -CertFile &quot;C:\cert\certificate.pfx&quot; -Password 65eCCC4sXrq3KqQVWCF3" />
+		
+		<Exec Command="C:\cert\mage.exe -Sign &quot;C:\deploy\master\PersonalAnalytics.application&quot; -CertFile &quot;C:\cert\certificate.pfx&quot; -Password 65eCCC4sXrq3KqQVWCF3" />
+		
 	</Target>
 
 </Project>
