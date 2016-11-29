@@ -21,13 +21,13 @@
     </SccAuxPath>
     <SccProvider>
     </SccProvider>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <PublishUrl>C:\Users\André\Desktop\t\</PublishUrl>
+    <PublishUrl>http://pluto.ifi.uzh.ch/master/</PublishUrl>
     <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
     <UpdateMode>Foreground</UpdateMode>
     <UpdateInterval>1</UpdateInterval>
     <UpdateIntervalUnits>Hours</UpdateIntervalUnits>
@@ -38,8 +38,8 @@
     <ErrorReportUrl>http://pluto.ifi.uzh.ch/master/index.html</ErrorReportUrl>
     <TargetCulture>en</TargetCulture>
     <ProductName>Personal Analytics</ProductName>
-    <PublisherName>Personal Analytics</PublisherName>
-    <SuiteName>Personal Analytics</SuiteName>
+    <PublisherName>PersonalAnalytics</PublisherName>
+    <SuiteName>PersonalAnalytics</SuiteName>
     <MinimumRequiredVersion>0.9.5.5</MinimumRequiredVersion>
     <WebPage>index.html</WebPage>
     <ApplicationRevision>177</ApplicationRevision>
@@ -47,6 +47,8 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+	<InstallUrl>http://pluto.ifi.uzh.ch/master/</InstallUrl>
+	<CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <!-- <PublisherName>Andre Meyer %28MSR%29</PublisherName> -->
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
