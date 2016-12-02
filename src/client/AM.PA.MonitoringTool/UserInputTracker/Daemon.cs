@@ -42,6 +42,9 @@ namespace UserInputTracker
         private static readonly List<MouseMovementSnapshot> MouseMovementListToSave = new List<MouseMovementSnapshot>();
         private static readonly List<MouseScrollSnapshot> MouseScrollsListToSave = new List<MouseScrollSnapshot>();
 
+        // Property to also fill a special set of buffers for the FlowTracker-Algorithm (which needs a longer time window)
+        public static bool _flowTrackerBuffersEnabled = false;
+
         // temporary buffers to count up moves and scrolls, they are emptied every second after adding up (Settings.MouseSnapshotInterval)
         //private static readonly ConcurrentQueue<MouseMovementSnapshot> TempMouseMoveBuffer = new ConcurrentQueue<MouseMovementSnapshot>();
         //private static readonly ConcurrentQueue<MouseScrollSnapshot> TempMouseScrollBuffer = new ConcurrentQueue<MouseScrollSnapshot>();
@@ -206,7 +209,11 @@ namespace UserInputTracker
         /// <param name="e"></param>
         private static async void MouseListener_MouseClick(object sender, MouseEventArgs e)
         {
-            await Task.Run(() => MouseClickBuffer.Enqueue(new MouseClickEvent(e)));
+            await Task.Run(() =>
+            {
+                MouseClickBuffer.Enqueue(new MouseClickEvent(e));
+                if (_flowTrackerBuffersEnabled) FlowTracker_MouseClickBuffer.Enqueue(new MouseClickEvent(e));
+            });
         }
 
         /// <summary>
@@ -217,7 +224,11 @@ namespace UserInputTracker
         /// <param name="e"></param>
         private static async void MouseListener_MouseScrolling(object sender, MouseEventArgs e)
         {
-            await Task.Run(() => MouseScrollsBuffer.Enqueue(new MouseScrollSnapshot(e)));
+            await Task.Run(() =>
+            {
+                MouseScrollsBuffer.Enqueue(new MouseScrollSnapshot(e));
+                if (_flowTrackerBuffersEnabled) FlowTracker_MouseScrollsBuffer.Enqueue(new MouseScrollSnapshot(e));
+            });
         }
 
         /// <summary>
@@ -228,7 +239,11 @@ namespace UserInputTracker
         /// <param name="e"></param>
         private static async void MouseListener_MouseMoveExt(object sender, MouseEventExtArgs e)
         {
-            await Task.Run(() => MouseMovementBuffer.Enqueue(new MouseMovementSnapshot(e)));
+            await Task.Run(() =>
+            {
+                MouseMovementBuffer.Enqueue(new MouseMovementSnapshot(e));
+                if (_flowTrackerBuffersEnabled) FlowTracker_MouseMovementBuffer.Enqueue(new MouseMovementSnapshot(e));
+            });
         }
 
         /// <summary>
@@ -238,7 +253,11 @@ namespace UserInputTracker
         /// <param name="e"></param>
         private static async void KeyboardListener_KeyDown(object sender, KeyEventArgs e)
         {
-            await Task.Run(() => KeystrokeBuffer.Enqueue(new KeystrokeEvent(e)));
+            await Task.Run(() =>
+            {
+                KeystrokeBuffer.Enqueue(new KeystrokeEvent(e));
+                if (_flowTrackerBuffersEnabled) FlowTracker_KeystrokeBuffer.Enqueue(new KeystrokeEvent(e));
+            });
         }
 
         #endregion
@@ -434,6 +453,33 @@ namespace UserInputTracker
             catch { }
 
             return distance;
+        }
+
+        #endregion
+
+        #region Special Implementation for FlowTrackerAlgorithm
+
+        // Extra Buffers for user input (for FlowTracker)
+        private static readonly ConcurrentQueue<KeystrokeEvent> FlowTracker_KeystrokeBuffer = new ConcurrentQueue<KeystrokeEvent>();
+        private static readonly ConcurrentQueue<MouseClickEvent> FlowTracker_MouseClickBuffer = new ConcurrentQueue<MouseClickEvent>();
+        private static readonly ConcurrentQueue<MouseMovementSnapshot> FlowTracker_MouseMovementBuffer = new ConcurrentQueue<MouseMovementSnapshot>();
+        private static readonly ConcurrentQueue<MouseScrollSnapshot> FlowTracker_MouseScrollsBuffer = new ConcurrentQueue<MouseScrollSnapshot>();
+
+        public static void Special_EnableFlowTrackerBuffers()
+        {
+            _flowTrackerBuffersEnabled = true;
+            // handle timewindow ?
+        }
+
+        public static UserInputAggregate Special_GetUserInputAggregate(DateTime startTime, DateTime endTime)
+        {
+            // TODO: implement
+            return null;
+        }
+
+        public static void Special_SaveUnusedDataFromBuffer(DateTime startTime, DateTime endTime)
+        {
+            // TODO: where implemented? https://github.com/sealuzh/PersonalAnalytics/blob/849145194c3e9dd08fc57041d0e60eda3964f1fe/src/client/AM.PA.MonitoringTool/UserInputTracker/Daemon.cs
         }
 
         #endregion

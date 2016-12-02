@@ -273,8 +273,8 @@ namespace UserInputTracker.Data {
 
 
         /// <summary>
-        /// 
-        /// TODO: update
+        /// Returns a dictionary with an input-level like data set for each interval (Settings.UserInputVisMinutesInterval)
+        /// (new version, 2.0)
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
@@ -304,21 +304,12 @@ namespace UserInputTracker.Data {
                         // add values
                         if (dto.ContainsKey(time))
                         {
-                            var userInputLevel = 0L;
+                            var keystrokes = (long)row["keyTotal"];
+                            var mouseClicks = (long)row["clickTotal"];
+                            var mouseScrollDistance = (long)row["scrollDelta"];
+                            var mouseMoves = (long)row["movedDistance"];
 
-                            // add keystrokes
-                            userInputLevel += (long)row["keyTotal"];
-
-                            // add mouse click (with weighting)
-                            userInputLevel += (long)row["clickTotal"] * Settings.MouseClickKeyboardRatio;
-
-                            // add mouse scrolling (with weighting)
-                            userInputLevel += (int)Math.Round((long)row["scrollDelta"] * Settings.MouseScrollingKeyboardRatio, 0);
-
-                            // add mouse movement (with weighting)
-                            userInputLevel += (int)Math.Round((long)row["movedDistance"] * Settings.MouseMovementKeyboardRatio, 0);
-
-                            dto[time] += (int)userInputLevel;
+                            dto[time] += CalculateUserInputLevel(keystrokes, mouseClicks, mouseScrollDistance, mouseMoves);
                         }
                     }
                     catch { }
@@ -333,10 +324,17 @@ namespace UserInputTracker.Data {
             return dto;
         }
 
+        public static int CalculateUserInputLevel(long keystrokes, long mouseClicks, double mouseMoves, double mouseScrollDistance)
+        {
+            return (int)keystrokes +
+                   (int)(Settings.MouseClickKeyboardRatio * mouseClicks) +
+                   (int)Math.Round((Settings.MouseMovementKeyboardRatio * mouseMoves)) +
+                   (int)Math.Round((Settings.MouseScrollingKeyboardRatio * mouseScrollDistance));
+        }
+
         /// <summary>
         /// Returns a dictionary with an input-level like data set for each interval (Settings.UserInputVisMinutesInterval)
-        /// 
-        /// TODO: update
+        /// (old version, 1.0)
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>

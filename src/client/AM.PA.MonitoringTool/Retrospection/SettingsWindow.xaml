@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Retrospection"
         mc:Ignorable="d"
-        Title="Personal Analytics: Settings" Height="600" Width="650" ResizeMode="NoResize">
+        Title="PersonalAnalytics: Settings" Height="600" Width="650" ResizeMode="NoResize">
 
     <Window.Resources>
         <SolidColorBrush x:Key="RetrospectionColor" Color="#007acc" />

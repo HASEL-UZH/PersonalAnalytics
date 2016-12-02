@@ -37,12 +37,11 @@ namespace Shared
         public static string ExportFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PersonalAnalytics");
         //public static string RemoteFolderName = "remote\\";
 
-        public const string RegAppName = "PersonalDeveloperAnalytics"; // set manually
+        public const string RegAppName = "PersonalAnalytics"; // set manually
         public const int Port = 57827; // needed for the retrospection (local web server)
 
         // path (Regedit): Computer\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run
-        public const string RegAppPath = @"\Personal Analytics\Personal Analytics\Personal Analytics.appref-ms"; // change also publisher name in .csproj
-        // was: public const string RegAppPath = @"\Andre Meyer (S.E.A.L., University of Zurich)\Personal Analytics\Personal Analytics.appref-ms";
+        public const string RegAppPath = @"\PersonalAnalytics\PersonalAnalytics\PersonalAnalytics.appref-ms"; // change also publisher name in .csproj
 
         ////////////////////////////////////////////////////////////
         // retrospection constants

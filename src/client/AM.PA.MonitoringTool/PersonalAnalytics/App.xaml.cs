@@ -149,27 +149,27 @@ namespace PersonalAnalytics
         /// <summary>
         /// Ads a firewall exception
         /// </summary>
-        private static void AddFirewallException()
-        {
-            try
-            {
-                var type = Type.GetTypeFromCLSID(new Guid("{304CE942-6E39-40D8-943A-B913C40C9CD4}"));
-                var firewallManager = (INetFwMgr)Activator.CreateInstance(type);
-                type = Type.GetTypeFromProgID("HNetCfg.FwAuthorizedApplication");
-                var authapp = (INetFwAuthorizedApplication)Activator.CreateInstance(type);
-                authapp.Name = "Personal Analytics";
-                authapp.ProcessImageFileName = Assembly.GetExecutingAssembly().Location; // location of application
-                authapp.Scope = NET_FW_SCOPE_.NET_FW_SCOPE_ALL;
-                authapp.IpVersion = NET_FW_IP_VERSION_.NET_FW_IP_VERSION_ANY;
-                authapp.Enabled = true;
-                firewallManager.LocalPolicy.CurrentProfile.AuthorizedApplications.Add(authapp);
-            }
-            catch (Exception e)
-            {
-                // Known exception if user doesn't run the application as an admin
-                Logger.WriteToLogFile(e);
-            }
-        }
+        //private static void AddFirewallException()
+        //{
+        //    try
+        //    {
+        //        var type = Type.GetTypeFromCLSID(new Guid("{304CE942-6E39-40D8-943A-B913C40C9CD4}"));
+        //        var firewallManager = (INetFwMgr)Activator.CreateInstance(type);
+        //        type = Type.GetTypeFromProgID("HNetCfg.FwAuthorizedApplication");
+        //        var authapp = (INetFwAuthorizedApplication)Activator.CreateInstance(type);
+        //        authapp.Name = "PersonalAnalytics";
+        //        authapp.ProcessImageFileName = Assembly.GetExecutingAssembly().Location; // location of application
+        //        authapp.Scope = NET_FW_SCOPE_.NET_FW_SCOPE_ALL;
+        //        authapp.IpVersion = NET_FW_IP_VERSION_.NET_FW_IP_VERSION_ANY;
+        //        authapp.Enabled = true;
+        //        firewallManager.LocalPolicy.CurrentProfile.AuthorizedApplications.Add(authapp);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        // Known exception if user doesn't run the application as an admin
+        //        Logger.WriteToLogFile(e);
+        //    }
+        //}
 
         /// <summary>
         /// Application is closed

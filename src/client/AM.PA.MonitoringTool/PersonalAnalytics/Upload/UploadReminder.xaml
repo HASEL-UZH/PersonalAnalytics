@@ -19,7 +19,7 @@
         <Border BorderThickness="1" Background="#007acc" BorderBrush="Black">
             <StackPanel Margin="10">
                 <TextBlock Text="We would like to ask you to share the collected data to help us perform" Foreground="White" FontWeight="Bold" FontSize="15" />
-                <TextBlock Text="additional research and to improve the Personal Analytics tool." Foreground="White" FontWeight="Bold" FontSize="15" />
+                <TextBlock Text="additional research and to improve PersonalAnalytics." Foreground="White" FontWeight="Bold" FontSize="15" />
 
                 <Grid Margin="0 50 0 50">
                     <Grid.ColumnDefinitions>

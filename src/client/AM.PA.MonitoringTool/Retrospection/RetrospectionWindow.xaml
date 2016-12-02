@@ -7,7 +7,7 @@
         xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="Personal Analytics: Retrospection &amp; Insights" 
+        Title="PersonalAnalytics: Retrospection &amp; Insights" 
         Loaded="WindowLoaded" Closing="WindowClosing"
         Height="1200" Width="1310" MinHeight="500" MinWidth="890"> <!-- width was: 1310 -->
 
