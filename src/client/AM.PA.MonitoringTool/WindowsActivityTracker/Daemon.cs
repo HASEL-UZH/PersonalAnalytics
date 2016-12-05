@@ -96,6 +96,9 @@ namespace WindowsActivityTracker
         {
             try
             {
+                // insert idle event (as last entry
+                Queries.InsertSnapshot("Tracker stopped", Dict.Idle);
+
                 // unregister for window events
                 NativeMethods.UnhookWinEvent(_hWinEventHookForWindowSwitch);
                 NativeMethods.UnhookWinEvent(_hWinEventHookForWindowTitleChange);

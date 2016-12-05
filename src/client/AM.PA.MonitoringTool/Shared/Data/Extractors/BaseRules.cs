@@ -55,7 +55,7 @@ namespace Shared.Data.Extractors
             new ProgramInfo("sublime", _possibleEditorExtensions, new List<string> { @"\- Sublime Text(.*)$", @"\(r_scripts\)", "•" }),
 
             // Photo programs
-            new ProgramInfo("photos", @"[\?]?\- Photos"), // hint: win10 app has process applicationframehost, which is a special case
+            new ProgramInfo("photos", @"[\?]?\- Photos"),
         };
 
 
@@ -68,8 +68,9 @@ namespace Shared.Data.Extractors
         public static List<ProgramInfo> WebsiteRules = new List<ProgramInfo>
         {
             new ProgramInfo("iexplore", new List<string> { @"\- Internet Explorer", removeStuffInBrackets1, removeStuffInBrackets2 }),
-            new ProgramInfo("microsoft edge", new List<string> { @"[\?]?\- Microsoft Edge", removeStuffInBrackets1, removeStuffInBrackets2 }), // hint: win10 app has process applicationframehost, which is a special case
-            new ProgramInfo("microsoftedge", new List<string> { @"[\?]?\- Microsoft Edge", removeStuffInBrackets1, removeStuffInBrackets2 }), // hint: win10 app has process applicationframehost, which is a special case
+            new ProgramInfo("microsoft edge", new List<string> { @"[\?]?\- Microsoft Edge", removeStuffInBrackets1, removeStuffInBrackets2 }),
+            new ProgramInfo("microsoftedge", new List<string> { @"[\?]?\- Microsoft Edge", removeStuffInBrackets1, removeStuffInBrackets2 }),
+            new ProgramInfo("applicationframehost", new List<string> { @"[\?]?\- Microsoft Edge", removeStuffInBrackets1, removeStuffInBrackets2 }),  // TODO: remove at some point, as WindowsActivityTracker handles it
             new ProgramInfo("firefox",  new List<string> { @"\- Mozilla Firefox", removeStuffInBrackets1, removeStuffInBrackets2 }),
             new ProgramInfo("chrome", new List<string> { @"\- Google Chrome", removeStuffInBrackets1, removeStuffInBrackets2 }),
             new ProgramInfo("opera", new List<string> { @"\- Opera", removeStuffInBrackets1, removeStuffInBrackets2 }),
