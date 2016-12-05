@@ -15,6 +15,7 @@ using WindowsActivityTracker.Visualizations;
 using WindowsActivityTracker.Data;
 using System.Globalization;
 using System.Threading.Tasks;
+using Microsoft.Win32;
 
 namespace WindowsActivityTracker
 {
@@ -68,6 +69,9 @@ namespace WindowsActivityTracker
                 _hWinEventHookForWindowSwitch = NativeMethods.SetWinEventHook(NativeMethods.EVENT_SYSTEM_FOREGROUND, NativeMethods.EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, _dele, 0, 0, NativeMethods.WINEVENT_OUTOFCONTEXT);
                 _hWinEventHookForWindowTitleChange = NativeMethods.SetWinEventHook(NativeMethods.EVENT_OBJECT_NAMECHANGE, NativeMethods.EVENT_OBJECT_NAMECHANGE, IntPtr.Zero, _dele, 0, 0, NativeMethods.WINEVENT_OUTOFCONTEXT);
 
+                // Register for logout/shutdown event
+                SystemEvents.SessionEnding += SessionEnding;
+
                 // Register to check if idle or not
                 if (Settings.RecordIdle)
                 {
@@ -98,13 +102,16 @@ namespace WindowsActivityTracker
             try
             {
                 // insert idle event (as last entry
-                Queries.InsertSnapshot("Tracker stopped", Dict.Idle);
+                SetAndStoreProcessAndWindowTitle("Tracker stopped", Dict.Idle);
 
-                // unregister for window events
+                // Unregister for window events
                 NativeMethods.UnhookWinEvent(_hWinEventHookForWindowSwitch);
                 NativeMethods.UnhookWinEvent(_hWinEventHookForWindowTitleChange);
 
-                // unregister idle time checker
+                // Unregister for logout/shutdown event
+                SystemEvents.SessionEnding -= SessionEnding;
+
+                // Unregister idle time checker
                 if (_idleCheckTimer != null)
                 {
                     _idleCheckTimer.Stop();
@@ -281,6 +288,27 @@ namespace WindowsActivityTracker
                 Queries.InsertSnapshot(currentWindowTitle, currentProcess);
                 //Console.WriteLine(DateTime.Now.ToString("t") + " " + DateTime.Now.Millisecond + "\t" + currentProcess + "\t" + currentWindowTitle);
             }
+        }
+
+        private void SessionEnding(object sender, SessionEndingEventArgs e)
+        {
+            if (e.Reason == SessionEndReasons.Logoff)
+            {
+                SetAndStoreProcessAndWindowTitle("Logoff", Dict.Idle);
+            }
+            else if (e.Reason == SessionEndReasons.SystemShutdown)
+            {
+                SetAndStoreProcessAndWindowTitle("SystemShutdown", Dict.Idle);
+            }
+        }
+
+        private void SetAndStoreProcessAndWindowTitle(string windowTitle, string process)
+        {
+            _previousWindowTitleEntry = windowTitle;
+            _previousProcess = process;
+            _lastEntryWasIdle = (process == Dict.Idle);
+
+            Queries.InsertSnapshot(windowTitle, process);
         }
 
         /// <summary>
