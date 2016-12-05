@@ -45,7 +45,7 @@ namespace Shared.Helpers
             process = process.ToLower();
 
             // some nice program name hacks
-            if (process == "applicationframehost") return "Microsoft Edge";
+            if (process == "applicationframehost") return "Microsoft Edge"; // TODO: remove at some point (should be fixed now)
             else if (process == "devenv") return "Visual Studio";
             else if (process == "winword") return "Word";
             else if (process == "powerpnt") return "Power Point";

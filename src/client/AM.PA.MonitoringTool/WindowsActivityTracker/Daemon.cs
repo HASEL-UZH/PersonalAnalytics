@@ -240,13 +240,27 @@ namespace WindowsActivityTracker
             // get current process name
             var currentProcess = GetProcessName(handle);
 
-            // special cases: lockscreen, shutdown, restart
+            // [special case] lockscreen, shutdown, restart
             if (!string.IsNullOrEmpty(currentProcess) && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture).Contains("lockapp"))
             {
                 currentWindowTitle = "LockScreen";
                 currentProcess = Dict.Idle;
             }
-            //TODO: add more special cases
+            // [special case]
+            else if (currentProcess.ToLower().Equals("applicationframehost"))
+            {
+                var lastDash = currentWindowTitle.LastIndexOf("- ");
+                if (lastDash > 0)
+                {
+                    var processName = currentWindowTitle.Substring(lastDash).Replace("- ", "").Trim();
+                    if (!string.IsNullOrEmpty(processName)) currentProcess = processName;
+                }
+                else
+                {
+                    currentProcess = currentWindowTitle;
+                }
+            }
+            //add more special cases if necessary
             
             // save if process or window title changed and user was not IDLE in past interval
             var differentProcessNotIdle = !string.IsNullOrEmpty(currentProcess) && _previousProcess != currentProcess && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture) != "idle";

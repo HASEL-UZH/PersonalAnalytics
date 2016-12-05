@@ -103,17 +103,16 @@ namespace Shared.Data.Extractors
 
         /// <summary>
         /// To get the file name and extension, we do the following;
-        /// 1. change the process name if it is just applicationhost (Windows 10 apps)
-        /// 2. remove unnecessary stuff like [Administrator] from the window title
-        /// 3. remove program name from window title
-        /// 4. get the file extension based on the window name and program
+        /// 1. remove unnecessary stuff like [Administrator] from the window title
+        /// 2. remove program name from window title
+        /// 3. get the file extension based on the window name and program
         /// </summary>
         /// <param name="process"></param>
         /// <param name="windowTitle"></param>
         /// <returns>File with an extension</returns>
         public static string GetArtifactDetails(string process, string windowTitle)
         {
-            process = BaseRules.RunApplicationHostTitleCleaning(process, windowTitle);
+            //process = BaseRules.RunApplicationHostTitleCleaning(process, windowTitle);
             var fileName = CleanWindowTitle(process, windowTitle);
             if (fileName.Length == 0) return string.Empty; // could not get filename
             var fileNameWithExtension = ValidateOrAddExtension(fileName, process);
