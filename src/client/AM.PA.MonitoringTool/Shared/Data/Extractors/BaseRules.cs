@@ -70,7 +70,7 @@ namespace Shared.Data.Extractors
             new ProgramInfo("iexplore", new List<string> { @"\- Internet Explorer", removeStuffInBrackets1, removeStuffInBrackets2 }),
             new ProgramInfo("microsoft edge", new List<string> { @"[\?]?\- Microsoft Edge", removeStuffInBrackets1, removeStuffInBrackets2 }),
             new ProgramInfo("microsoftedge", new List<string> { @"[\?]?\- Microsoft Edge", removeStuffInBrackets1, removeStuffInBrackets2 }),
-            new ProgramInfo("applicationframehost", new List<string> { @"[\?]?\- Microsoft Edge", removeStuffInBrackets1, removeStuffInBrackets2 }),  // TODO: remove at some point, as WindowsActivityTracker handles it
+            //new ProgramInfo("applicationframehost", new List<string> { @"[\?]?\- Microsoft Edge", removeStuffInBrackets1, removeStuffInBrackets2 }),  // TODO: remove at some point, as WindowsActivityTracker handles it
             new ProgramInfo("firefox",  new List<string> { @"\- Mozilla Firefox", removeStuffInBrackets1, removeStuffInBrackets2 }),
             new ProgramInfo("chrome", new List<string> { @"\- Google Chrome", removeStuffInBrackets1, removeStuffInBrackets2 }),
             new ProgramInfo("opera", new List<string> { @"\- Opera", removeStuffInBrackets1, removeStuffInBrackets2 }),

@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using WindowsActivityTracker.Visualizations;
 using WindowsActivityTracker.Data;
 using System.Globalization;
+using System.Threading.Tasks;
 
 namespace WindowsActivityTracker
 {
@@ -215,7 +216,7 @@ namespace WindowsActivityTracker
         /// <param name="idChild"></param>
         /// <param name="dwEventThread"></param>
         /// <param name="dwmsEventTime"></param>
-        public void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
+        public async void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
             try
             {
@@ -225,7 +226,8 @@ namespace WindowsActivityTracker
                     return;
                 }
 
-                StoreProcess();
+                // run on separate thread (to avoid lags)
+                await Task.Run(() => StoreProcess());
             }
             catch (Exception e)
             {
