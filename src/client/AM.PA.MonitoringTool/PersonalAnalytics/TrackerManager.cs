@@ -51,25 +51,22 @@ namespace PersonalAnalytics
         /// </summary>
         public List<ITracker> RegisterTrackers()
         {
-            #if TestPilot1
+            Register(new WindowsActivityTracker.Daemon());
+            Register(new TimeSpentVisualizer.Visualizers.TimeSpentVisualizer());
+            Register(new UserEfficiencyTracker.Daemon());
+            Register(new UserInputTracker.Daemon());
+            Register(new MsOfficeTracker.Daemon());
 
-                Register(new WindowsActivityTracker.Daemon());
-                Register(new TimeSpentVisualizer.Visualizers.TimeSpentVisualizer());
-                Register(new UserEfficiencyTracker.Daemon());
-                Register(new UserInputTracker.Daemon());
-                //dto.Office365ApiEnabled = msOfficeTracker.MsOfficeTrackerEnabled
+#if TestPilot1
+            //Register(new FocusLightTracker.Daemon());
+            //Register(new PeopleVisualizer.PeopleVisualizer()); // disabled, as it's not finished and pretty slow
+            //Register(new WindowsContextTracker.Daemon();); // implementation not finished
 
-            #else // standard deployment
+#else
 
-                Register(new WindowsActivityTracker.Daemon());
-                Register(new TimeSpentVisualizer.Visualizers.TimeSpentVisualizer());
-                //Register(new PeopleVisualizer.PeopleVisualizer()); // disabled, as it's not finished and pretty slow
-                Register(new UserEfficiencyTracker.Daemon());
-                Register(new UserInputTracker.Daemon());
-                Register(new MsOfficeTracker.Daemon());
-                //Register(new WindowsContextTracker.Daemon();); // implementation not finished
+            // if something is only required in the standard deployment
 
-            #endif
+#endif
 
             return _trackers; // return trackers for retrospection
         }
