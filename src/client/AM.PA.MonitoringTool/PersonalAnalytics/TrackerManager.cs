@@ -57,12 +57,12 @@ namespace PersonalAnalytics
             Register(new UserInputTracker.Daemon());
             Register(new MsOfficeTracker.Daemon());
 
-#if TestPilot1
-            //Register(new FocusLightTracker.Daemon());
+#if Dev
+            Register(new FocusLightTracker.Daemon());
             //Register(new PeopleVisualizer.PeopleVisualizer()); // disabled, as it's not finished and pretty slow
             //Register(new WindowsContextTracker.Daemon();); // implementation not finished
 
-#else
+#elif TestPilot1
 
             // if something is only required in the standard deployment
 
