@@ -21,13 +21,13 @@
     </SccAuxPath>
     <SccProvider>
     </SccProvider>
-    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <PublishUrl>http://pluto.ifi.uzh.ch/master/</PublishUrl>
+    <PublishUrl>C:\Users\André\Desktop\t\</PublishUrl>
     <Install>true</Install>
-    <InstallFrom>Web</InstallFrom>
-    <UpdateEnabled>true</UpdateEnabled>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
     <UpdateMode>Foreground</UpdateMode>
     <UpdateInterval>1</UpdateInterval>
     <UpdateIntervalUnits>Hours</UpdateIntervalUnits>
@@ -37,18 +37,16 @@
     <SupportUrl>http://pluto.ifi.uzh.ch/master/index.html</SupportUrl>
     <ErrorReportUrl>http://pluto.ifi.uzh.ch/master/index.html</ErrorReportUrl>
     <TargetCulture>en</TargetCulture>
-    <ProductName>Personal Analytics</ProductName>
-    <PublisherName>Personal Analytics</PublisherName>
-    <SuiteName>Personal Analytics</SuiteName>
+    <ProductName>PersonalAnalytics</ProductName>
+    <PublisherName>PersonalAnalytics</PublisherName>
+    <SuiteName>PersonalAnalytics</SuiteName>
     <MinimumRequiredVersion>0.9.5.5</MinimumRequiredVersion>
     <WebPage>index.html</WebPage>
-    <ApplicationRevision>177</ApplicationRevision>
+    <ApplicationRevision>178</ApplicationRevision>
     <ApplicationVersion>0.9.5.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-	<InstallUrl>http://pluto.ifi.uzh.ch/master/</InstallUrl>
-	<CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <!-- <PublisherName>Andre Meyer %28MSR%29</PublisherName> -->
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -205,7 +203,7 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-<!--     <None Include="bin\Release\tessdata\eng.DangAmbigs" />
+    <!--     <None Include="bin\Release\tessdata\eng.DangAmbigs" />
     <None Include="bin\Release\tessdata\eng.freq-dawg" />
     <None Include="bin\Release\tessdata\eng.inttemp" />
     <None Include="bin\Release\tessdata\eng.normproto" />
@@ -331,5 +329,5 @@
   <PropertyGroup>
     <BuildEnvironment>DEV</BuildEnvironment>
   </PropertyGroup>
-  <Import Project="../../../web/Customized.targets" Condition=" '$(BuildEnvironment)' == 'DEPLOY' "/>
+  <Import Project="../../../web/Customized.targets" Condition=" '$(BuildEnvironment)' == 'DEPLOY' " />
 </Project>

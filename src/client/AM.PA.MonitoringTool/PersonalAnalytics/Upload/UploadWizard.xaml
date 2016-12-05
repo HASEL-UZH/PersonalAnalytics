@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PersonalAnalytics.Upload"
         mc:Ignorable="d"
-        Title="Personal Analytics: Upload Wizard" 
+        Title="PersonalAnalytics: Upload Wizard" 
         Height="660" Width="950" ResizeMode="NoResize">
 
     <Window.Resources>
@@ -38,7 +38,7 @@
 
             <StackPanel Margin="0 50 0 50">
                 <TextBlock TextWrapping="Wrap">
-                    We want to thank you again for participating in our study! Your feedback about the Personal Analytics tool and your findings help us to improve it in the future. As a next step, we would like to ask you to share the collected data to help us perform additional research. By analyzing our study participants' data, we pursue the following goals:
+                    We want to thank you again for participating in our study! Your feedback about PersonalAnalytics and your findings help us to improve it in the future. As a next step, we would like to ask you to share the collected data to help us perform additional research. By analyzing our study participants' data, we pursue the following goals:
                     <LineBreak  /><LineBreak  />
                     1. From a <Span FontWeight="Bold">research perspective</Span>, we could get access to a big data set and run various kinds of analysis with the data. For example, we could learn more about how developers spend their work days, what makes them feel particularly productive or unproductive, what activities they perform during their work, and we could build personalized productivity models. We hope to find some groups (i.e. clusters) of developers who perceive productivity similarly, to better optimize the retrospection for each of these target groups.
                     <LineBreak /><LineBreak />
@@ -100,7 +100,7 @@
                 </StackPanel>
 
 
-                <TextBlock Margin="10 20 10 0" FontWeight="Bold" Foreground="{StaticResource RetrospectionColor}" Text="In case you installed the personal analytics tool on multiple machines, please answer the following questions:" />
+                <TextBlock Margin="10 20 10 0" FontWeight="Bold" Foreground="{StaticResource RetrospectionColor}" Text="In case you installed PersonalAnalytics on multiple machines, please answer the following questions:" />
                 <TextBlock Margin="10 0 10 0" Text="Please also perform the upload from the other machines you installed the tool (virtual and physical machines)."  Foreground="Gray" />
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="On how many machines did you install the tracker in total?" />

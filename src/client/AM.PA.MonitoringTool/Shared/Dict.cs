@@ -6,7 +6,7 @@ namespace Shared
 {
     public class Dict
     {
-        public const string ToolName = "Personal Analytics"; // hint: not yet used everywhere
+        public static readonly string ToolName = "PersonalAnalytics";
         //public static readonly string RetrospectionPageTitle = "Your retrospection";
         public static readonly string NotEnoughData = "We do not have enough data to create a visualization.";
         public static readonly string Other = "OTHER";

@@ -12,7 +12,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PersonalAnalytics"
         mc:Ignorable="d"
-        Title="Personal Analytics: First Start" Height="450" Width="650" ResizeMode="NoResize">
+        Title="PersonalAnalytics: First Start" Height="450" Width="650" ResizeMode="NoResize">
     <Window.Resources>
         <SolidColorBrush x:Key="RetrospectionColor" Color="#007acc" />
         <SolidColorBrush x:Key="GrayColor" Color="#E8E8E8" />
@@ -27,12 +27,12 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Background="{StaticResource RetrospectionColor}">
-            <TextBlock Grid.Row="0" FontSize="16" VerticalAlignment="Center" Margin="10 0 0 0" Text="Thank you for using the Personal Analytics tool!" Foreground="White" />
+            <TextBlock Grid.Row="0" FontSize="16" VerticalAlignment="Center" Margin="10 0 0 0" Text="Thank you for using PersonalAnalytics!" Foreground="White" />
         </Grid>
 
         <StackPanel Margin="10" Grid.Row="1">
             <TextBlock TextWrapping="Wrap">
-                Thank you for installing the Personal Analytics tool and participating in our study. A few hints before you start:
+                Thank you for installing PersonalAnalytics and participating in our study. A few hints before you start:
                 <LineBreak  /><LineBreak  />
                 <Span Foreground="White" Background="{StaticResource RetrospectionColor}" FontWeight="Bold">Goal:</Span> Our goal is to make you more productive and happier, by increasing your awareness about your work (habits) and productivity.
                 <LineBreak /><LineBreak />
@@ -40,7 +40,7 @@
                 <LineBreak /><LineBreak />
                 <Span Foreground="White" Background="{StaticResource RetrospectionColor}" FontWeight="Bold">Retrospection:</Span> This is the heart of the tool. It visualized the collected data in a daily and weekly retrospection. If you use it regularly, you can learn more about your work patterns and get valuable insights into your productivity.
                 <LineBreak /><LineBreak />
-                <Span Foreground="White" Background="{StaticResource RetrospectionColor}" FontWeight="Bold">The Icon:</Span> In your task bar on the bottom right, you will find the Personal Analytics icon (<Image Source="Assets/icon.ico" Width="15" Height="15" />), whenever the tool is running. Right click on the icon to access all features, such as opening the Retrospection, pausing/continuing the monitoring component, or looking at the collected data.
+                <Span Foreground="White" Background="{StaticResource RetrospectionColor}" FontWeight="Bold">The Icon:</Span> In your task bar on the bottom right, you will find the PersonalAnalytics icon (<Image Source="Assets/icon.ico" Width="15" Height="15" />), whenever the tool is running. Right click on the icon to access all features, such as opening the Retrospection, pausing/continuing the monitoring component, or looking at the collected data.
             </TextBlock>
         </StackPanel>
 
