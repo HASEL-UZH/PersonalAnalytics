@@ -17,7 +17,7 @@
 		  <Visible>false</Visible>
 		</Tokens>
 		<Tokens Include="ProductName">
-		  <ReplacementValue>$(Job_Name)</ReplacementValue>
+		  <ReplacementValue>$(ProjectName)</ReplacementValue>
 		  <Visible>false</Visible>
 		</Tokens>
 		<Tokens Include="ApplicationVersion">
