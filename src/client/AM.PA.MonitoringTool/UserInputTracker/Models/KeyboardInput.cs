@@ -63,7 +63,7 @@ namespace UserInputTracker.Models
 
         public override string ToString()
         {
-            return String.Format(CultureInfo.InvariantCulture, "Keystroke: {0}\t {1}", KeystrokeType, Timestamp);
+            return String.Format(CultureInfo.InvariantCulture, "Keystroke: {0}, {1}", KeystrokeType, Timestamp);
         }
     }
 }

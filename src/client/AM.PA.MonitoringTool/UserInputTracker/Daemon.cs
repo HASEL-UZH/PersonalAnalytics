@@ -42,13 +42,6 @@ namespace UserInputTracker
         private static readonly List<MouseMovementSnapshot> MouseMovementListToSave = new List<MouseMovementSnapshot>();
         private static readonly List<MouseScrollSnapshot> MouseScrollsListToSave = new List<MouseScrollSnapshot>();
 
-        // Property to also fill a special set of buffers for the FlowTracker-Algorithm (which needs a longer time window)
-        public static bool _flowTrackerBuffersEnabled = false;
-
-        // temporary buffers to count up moves and scrolls, they are emptied every second after adding up (Settings.MouseSnapshotInterval)
-        //private static readonly ConcurrentQueue<MouseMovementSnapshot> TempMouseMoveBuffer = new ConcurrentQueue<MouseMovementSnapshot>();
-        //private static readonly ConcurrentQueue<MouseScrollSnapshot> TempMouseScrollBuffer = new ConcurrentQueue<MouseScrollSnapshot>();
-
         #endregion
 
         #region METHODS
@@ -89,14 +82,6 @@ namespace UserInputTracker
             _saveToDatabaseTimer.Interval = Settings.UserInputAggregationInterval.TotalMilliseconds;
             _saveToDatabaseTimer.Elapsed += SaveToDatabaseTick;
             _saveToDatabaseTimer.Start();
-
-            // Register Mouse Movement/Scroll Timer
-            //if (_mouseSnapshotTimer != null)
-            //    Stop();
-            //_mouseSnapshotTimer = new Timer();
-            //_mouseSnapshotTimer.Interval = Settings.MouseSnapshotInterval.TotalMilliseconds;
-            //_mouseSnapshotTimer.Elapsed += MouseSnapshotTick;
-            //_mouseSnapshotTimer.Start();
 
             // Register Hooks for Mouse & Keyboard
             _mEvents = Hook.GlobalEvents();
@@ -200,6 +185,22 @@ namespace UserInputTracker
 
         #region Daemon Tracker: Events & manual Clicks (save to buffer)
 
+        #region Provide Public Events
+
+        public delegate void MouseClickEventHandler(MouseClickEvent m);
+        public static event MouseClickEventHandler MouseClick;
+
+        public delegate void MouseScrollingEventHandler(MouseScrollSnapshot m);
+        public static event MouseScrollingEventHandler MouseScrolling;
+
+        public delegate void MouseMovementEventHandler(MouseMovementSnapshot m);
+        public static event MouseMovementEventHandler MouseMovement;
+
+        public delegate void KeystrokeEventHandler(KeystrokeEvent m);
+        public static event KeystrokeEventHandler Keystroke;
+
+        #endregion
+
         #region Prepare Buffers for saving in database (User Input Events)
 
         /// <summary>
@@ -212,7 +213,7 @@ namespace UserInputTracker
             await Task.Run(() =>
             {
                 MouseClickBuffer.Enqueue(new MouseClickEvent(e));
-                if (_flowTrackerBuffersEnabled) FlowTracker_MouseClickBuffer.Enqueue(new MouseClickEvent(e));
+                MouseClick?.Invoke(new MouseClickEvent(e));
             });
         }
 
@@ -227,7 +228,7 @@ namespace UserInputTracker
             await Task.Run(() =>
             {
                 MouseScrollsBuffer.Enqueue(new MouseScrollSnapshot(e));
-                if (_flowTrackerBuffersEnabled) FlowTracker_MouseScrollsBuffer.Enqueue(new MouseScrollSnapshot(e));
+                MouseScrolling?.Invoke(new MouseScrollSnapshot(e));
             });
         }
 
@@ -242,7 +243,7 @@ namespace UserInputTracker
             await Task.Run(() =>
             {
                 MouseMovementBuffer.Enqueue(new MouseMovementSnapshot(e));
-                if (_flowTrackerBuffersEnabled) FlowTracker_MouseMovementBuffer.Enqueue(new MouseMovementSnapshot(e));
+                MouseMovement?.Invoke(new MouseMovementSnapshot(e));
             });
         }
 
@@ -256,7 +257,7 @@ namespace UserInputTracker
             await Task.Run(() =>
             {
                 KeystrokeBuffer.Enqueue(new KeystrokeEvent(e));
-                if (_flowTrackerBuffersEnabled) FlowTracker_KeystrokeBuffer.Enqueue(new KeystrokeEvent(e));
+                Keystroke?.Invoke(new KeystrokeEvent(e));
             });
         }
 
@@ -300,7 +301,7 @@ namespace UserInputTracker
             }
             catch (Exception e)
             {
-                Logger.WriteToLogFile(e); //TODO: remove for deployment
+                //Logger.WriteToLogFile(e);
             }
         }
 
@@ -427,7 +428,7 @@ namespace UserInputTracker
         /// Could also be converted to centimeters or inches.
         /// </summary>
         /// <returns></returns>
-        private static double CalculateMouseMovementDistance(IEnumerable<MouseMovementSnapshot> lastIntervalMouseMovements)
+        public static double CalculateMouseMovementDistance(IEnumerable<MouseMovementSnapshot> lastIntervalMouseMovements)
         {
             var distance = 0.0;
             if (lastIntervalMouseMovements == null) return distance;
@@ -453,33 +454,6 @@ namespace UserInputTracker
             catch { }
 
             return distance;
-        }
-
-        #endregion
-
-        #region Special Implementation for FlowTrackerAlgorithm
-
-        // Extra Buffers for user input (for FlowTracker)
-        private static readonly ConcurrentQueue<KeystrokeEvent> FlowTracker_KeystrokeBuffer = new ConcurrentQueue<KeystrokeEvent>();
-        private static readonly ConcurrentQueue<MouseClickEvent> FlowTracker_MouseClickBuffer = new ConcurrentQueue<MouseClickEvent>();
-        private static readonly ConcurrentQueue<MouseMovementSnapshot> FlowTracker_MouseMovementBuffer = new ConcurrentQueue<MouseMovementSnapshot>();
-        private static readonly ConcurrentQueue<MouseScrollSnapshot> FlowTracker_MouseScrollsBuffer = new ConcurrentQueue<MouseScrollSnapshot>();
-
-        public static void Special_EnableFlowTrackerBuffers()
-        {
-            _flowTrackerBuffersEnabled = true;
-            // handle timewindow ?
-        }
-
-        public static UserInputAggregate Special_GetUserInputAggregate(DateTime startTime, DateTime endTime)
-        {
-            // TODO: implement
-            return null;
-        }
-
-        public static void Special_SaveUnusedDataFromBuffer(DateTime startTime, DateTime endTime)
-        {
-            // TODO: where implemented? https://github.com/sealuzh/PersonalAnalytics/blob/849145194c3e9dd08fc57041d0e60eda3964f1fe/src/client/AM.PA.MonitoringTool/UserInputTracker/Daemon.cs
         }
 
         #endregion

@@ -28,9 +28,9 @@ namespace UserInputTracker
         // user input level weighting
         /////////////////////////////
         // Keystroke Ratio = 1 (base unit)
-        public const int MouseClickKeyboardRatio = 3; // todo: more accurate?
-        public const double MouseMovementKeyboardRatio = 0.0028; // todo: more accurate?
-        public const double MouseScrollingKeyboardRatio = 1.55; // todo: more accurate?
+        public const int MouseClickKeyboardRatio = 3;
+        public const double MouseMovementKeyboardRatio = 0.0028;
+        public const double MouseScrollingKeyboardRatio = 1.55;
         //public const double MouseScrollingKeyboardRatio = 0.016;
     }
 }
