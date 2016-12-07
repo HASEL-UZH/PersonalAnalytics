@@ -6,6 +6,9 @@
 using BluetoothLowEnergy;
 using BiometricsTracker.Data;
 using Shared;
+using System.Collections.Generic;
+using BiometricsTracker.Visualizations;
+using System;
 
 namespace BiometricsTracker
 {
@@ -28,26 +31,32 @@ namespace BiometricsTracker
 
         public override void Start()
         {
-            Connector c = new Connector();
-            c.Start();
-            c.ValueChangeCompleted += C_ValueChangeCompleted;
+            Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
+            Connector.Instance.Start();
+            IsRunning = true;
         }
 
-        private void C_ValueChangeCompleted(HeartRateMeasurement heartRateMeasurementValue)
+        private void OnNewHeartrateMeasurement(HeartRateMeasurement heartRateMeasurementValue)
         {
-            Logger.WriteToConsole("New value received: " + heartRateMeasurementValue.ToString());
             DatabaseConnector.AddHeartrateToDatabase(heartRateMeasurementValue.Timestamp, heartRateMeasurementValue.HeartRateValue);
         }
 
         public override void Stop()
         {
-            //TODO
+            Connector.Instance.ValueChangeCompleted -= OnNewHeartrateMeasurement;
+            Connector.Instance.Stop();
+            IsRunning = false;
         }
 
         public override void UpdateDatabaseTables(int version)
         {
             // no database updates necessary yet
         }
-        
+
+        public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
+        {
+            return new List<IVisualization> { new BiometricVisualizationForDay(date) };
+        }
+
     }
 }

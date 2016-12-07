@@ -41,9 +41,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\Database.cs" />
+    <Compile Include="Data\DatabaseConnector.cs" />
     <Compile Include="Deamon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Visualizations\BiometricVisualizationForDay.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BluetoothLowEnergyConnector\BluetoothLowEnergyConnector.csproj">
