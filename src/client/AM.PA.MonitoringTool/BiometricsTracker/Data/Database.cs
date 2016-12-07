@@ -11,8 +11,13 @@ namespace BiometricsTracker.Data
 {
     public class DatabaseConnector
     {
+        private static readonly string ID = "id";
+        private static readonly string TIME = "time";
+        private static readonly string HEARTRATE = "heartrate";
+
         private static readonly string TABLE_NAME = "biometrics";
-        private static readonly string CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (id INTEGER PRIMARY KEEY, time TEXT, heartrate INTEGER)";
+        private static readonly string CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TIME + " TEXT, " + HEARTRATE + " INTEGER)";
+        private static readonly string INSERT_QUERY = "INSERT INTO " + TABLE_NAME + "(" + TIME + ", " + HEARTRATE + ") VALUES ('{0}', {1})";
 
         internal static void CreateBiometricTables()
         {
@@ -26,5 +31,18 @@ namespace BiometricsTracker.Data
             }
         }
 
+        internal static void AddHeartrateToDatabase(DateTimeOffset timestamp, int heartrate)
+        {
+            try
+            {
+                string query = String.Format(INSERT_QUERY, timestamp, heartrate);
+                Logger.WriteToConsole(query);
+                Database.GetInstance().ExecuteDefaultQuery(query);
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+        }
     }
 }

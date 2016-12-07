@@ -5,7 +5,7 @@
 
 using System;
 
-namespace BluetoothLowEnergyConnector
+namespace BluetoothLowEnergy
 {
     class Logger
     {

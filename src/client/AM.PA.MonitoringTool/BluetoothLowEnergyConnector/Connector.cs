@@ -7,10 +7,16 @@ using System;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 
-namespace BluetoothLowEnergyConnector
+namespace BluetoothLowEnergy
 {
+
+    public delegate void NewHeartrateValueEvent(HeartRateMeasurement heartRateMeasurementValue);
+
     public class Connector
     {
+        
+        public event NewHeartrateValueEvent ValueChangeCompleted;
+
         public async void Start()
         {
             Logger.WriteToConsole("Start");
@@ -30,9 +36,7 @@ namespace BluetoothLowEnergyConnector
 
         private void Instance_ValueChangeCompleted(HeartRateMeasurement heartRateMeasurementValue)
         {
-
-            Logger.WriteToConsole(heartRateMeasurementValue);
-
+            ValueChangeCompleted?.Invoke(heartRateMeasurementValue);
         }
 
         private void OnDeviceConnectionUpdated(bool isConnected)

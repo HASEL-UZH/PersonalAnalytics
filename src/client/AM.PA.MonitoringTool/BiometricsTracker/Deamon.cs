@@ -3,10 +3,9 @@
 // 
 // Licensed under the MIT License.
 
+using BluetoothLowEnergy;
 using BiometricsTracker.Data;
 using Shared;
-using System;
-using System.Collections.Generic;
 
 namespace BiometricsTracker
 {
@@ -29,12 +28,20 @@ namespace BiometricsTracker
 
         public override void Start()
         {
-            throw new NotImplementedException();
+            Connector c = new Connector();
+            c.Start();
+            c.ValueChangeCompleted += C_ValueChangeCompleted;
+        }
+
+        private void C_ValueChangeCompleted(HeartRateMeasurement heartRateMeasurementValue)
+        {
+            Logger.WriteToConsole("New value received: " + heartRateMeasurementValue.ToString());
+            DatabaseConnector.AddHeartrateToDatabase(heartRateMeasurementValue.Timestamp, heartRateMeasurementValue.HeartRateValue);
         }
 
         public override void Stop()
         {
-            throw new NotImplementedException();
+            //TODO
         }
 
         public override void UpdateDatabaseTables(int version)
