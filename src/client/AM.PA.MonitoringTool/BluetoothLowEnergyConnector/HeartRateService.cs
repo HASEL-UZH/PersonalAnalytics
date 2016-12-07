@@ -12,7 +12,7 @@ using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Enumeration.Pnp;
 
-namespace BluetoothGattHeartRate
+namespace BluetoothLowEnergyConnector
 {
     public delegate void ValueChangeCompletedHandler(HeartRateMeasurement heartRateMeasurementValue);
 

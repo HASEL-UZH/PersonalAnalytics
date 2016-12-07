@@ -1,12 +1,8 @@
-﻿using BluetoothGattHeartRate;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 
-namespace ClassLibrary2
+namespace BluetoothLowEnergyConnector
 {
     public class Connector
     {

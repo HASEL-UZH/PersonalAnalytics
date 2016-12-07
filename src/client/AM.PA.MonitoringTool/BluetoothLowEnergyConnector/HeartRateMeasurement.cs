@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BluetoothGattHeartRate
+namespace BluetoothLowEnergyConnector
 {
     public class HeartRateMeasurement
     {
