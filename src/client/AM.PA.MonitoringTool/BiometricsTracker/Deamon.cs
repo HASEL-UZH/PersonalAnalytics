@@ -1,18 +1,30 @@
-﻿using Shared;
+﻿// Created by Sebastian Mueller (smueller@ifi.uzh.ch) from the University of Zurich
+// Created: 2016-12-07
+// 
+// Licensed under the MIT License.
+
+using BiometricsTracker.Data;
+using Shared;
 using System;
+using System.Collections.Generic;
 
 namespace BiometricsTracker
 {
-    public class Deamon : BaseTracker, ITracker
+    public sealed class Deamon : BaseTracker, ITracker
     {
+        public Deamon()
+        {
+            Name = "Biometrics Tracker";
+        }
+
         public override void CreateDatabaseTablesIfNotExist()
         {
-            throw new NotImplementedException();
+            DatabaseConnector.CreateBiometricTables();
         }
 
         public override bool IsEnabled()
         {
-            throw new NotImplementedException();
+            return true;
         }
 
         public override void Start()
@@ -27,7 +39,8 @@ namespace BiometricsTracker
 
         public override void UpdateDatabaseTables(int version)
         {
-            throw new NotImplementedException();
+            // no database updates necessary yet
         }
+        
     }
 }

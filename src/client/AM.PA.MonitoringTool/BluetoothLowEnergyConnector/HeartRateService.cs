@@ -1,13 +1,14 @@
-﻿/**
- * 
- *Adapted from: https://code.msdn.microsoft.com/windowsapps/Bluetooth-Generic-5a99ef95/view/SourceCode#content
- * 
- * **/
+﻿// Created by Sebastian Mueller (smueller@ifi.uzh.ch) from the University of Zurich
+// Created: 2016-12-07
+// 
+// Licensed under the MIT License.
+//
+// Adapted from: https://code.msdn.microsoft.com/windowsapps/Bluetooth-Generic-5a99ef95/view/SourceCode#content
+//
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
-
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Enumeration.Pnp;
@@ -24,7 +25,6 @@ namespace BluetoothLowEnergyConnector
         private const GattClientCharacteristicConfigurationDescriptorValue CHARACTERISTIC_NOTIFICATION_TYPE = GattClientCharacteristicConfigurationDescriptorValue.Notify;
         private const string ConnectedProperty = "System.Devices.Connected";
         private const string ContainerIDProperty = "System.Devices.ContainerId";
-
         private static HeartRateService instance = new HeartRateService();
 
         private Guid CHARACTERISTIC_UUID = GattCharacteristicUuids.HeartRateMeasurement;
@@ -81,12 +81,12 @@ namespace BluetoothLowEnergyConnector
                 }
                 else
                 {
-                   System.Diagnostics.Debug.WriteLine("Access to the device is denied, because the application was not granted access, or the device is currently in use by another application.");
+                   Logger.WriteToConsole("Access to the device is denied, because the application was not granted access, or the device is currently in use by another application.");
                 }
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine("ERROR: Accessing your device failed." + Environment.NewLine + e.Message);
+                Logger.WriteToConsole("ERROR: Accessing your device failed." + Environment.NewLine + e.Message);
             }
         }
 
@@ -111,13 +111,13 @@ namespace BluetoothLowEnergyConnector
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.WriteLine("ERROR: Accessing your device failed." + Environment.NewLine + e.Message);
+                Logger.WriteToConsole("ERROR: Accessing your device failed." + Environment.NewLine + e.Message);
             }
         }
 
         private void StartDeviceConnectionWatcher()
         {
-            watcher = PnpObject.CreateWatcher(PnpObjectType.DeviceContainer, new string[] { "System.Devices.Connected" }, String.Empty);
+            watcher = PnpObject.CreateWatcher(PnpObjectType.DeviceContainer, new string[] { ConnectedProperty }, String.Empty);
             watcher.Updated += DeviceConnection_Updated;
             watcher.Start();
         }

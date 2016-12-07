@@ -1,4 +1,9 @@
-﻿using System;
+﻿// Created by Sebastian Mueller (smueller@ifi.uzh.ch) from the University of Zurich
+// Created: 2016-12-07
+// 
+// Licensed under the MIT License.
+
+using System;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 
@@ -8,7 +13,7 @@ namespace BluetoothLowEnergyConnector
     {
         public async void Start()
         {
-            System.Diagnostics.Debug.WriteLine("Start");
+            Logger.WriteToConsole("Start");
 
             HeartRateService.Instance.ValueChangeCompleted += Instance_ValueChangeCompleted;
 
@@ -16,7 +21,7 @@ namespace BluetoothLowEnergyConnector
 
             foreach (var d in devices)
             {
-                System.Diagnostics.Debug.WriteLine(d.Name);
+                Logger.WriteToConsole(d.Name);
             }
 
             HeartRateService.Instance.DeviceConnectionUpdated += OnDeviceConnectionUpdated;
@@ -26,7 +31,7 @@ namespace BluetoothLowEnergyConnector
         private void Instance_ValueChangeCompleted(HeartRateMeasurement heartRateMeasurementValue)
         {
 
-            System.Diagnostics.Debug.WriteLine(heartRateMeasurementValue);
+            Logger.WriteToConsole(heartRateMeasurementValue);
 
         }
 
@@ -35,11 +40,11 @@ namespace BluetoothLowEnergyConnector
 
             if (isConnected)
             {
-                System.Diagnostics.Debug.WriteLine("Waiting for device to send data...");
+                Logger.WriteToConsole("Waiting for device to send data...");
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("Waiting for device to connect...");
+               Logger.WriteToConsole("Waiting for device to connect...");
             }
 
         }

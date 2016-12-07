@@ -1,4 +1,9 @@
-﻿using System;
+﻿// Created by Sebastian Mueller (smueller@ifi.uzh.ch) from the University of Zurich
+// Created: 2016-12-07
+// 
+// Licensed under the MIT License.
+
+using System;
 
 namespace BluetoothLowEnergyConnector
 {
