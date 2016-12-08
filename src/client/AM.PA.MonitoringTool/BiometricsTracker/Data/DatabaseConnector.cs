@@ -17,7 +17,7 @@ namespace BiometricsTracker.Data
         private static readonly string HEARTRATE = "heartrate";
 
         private static readonly string TABLE_NAME = "biometrics";
-        private static readonly string CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TIME + " TEXT, " + HEARTRATE + " INTEGER)";
+        private static readonly string CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" + ID + " INTEGER PRIMARY KEY, " + TIME + " TEXT, " + HEARTRATE + " INTEGER)";
         private static readonly string INSERT_QUERY = "INSERT INTO " + TABLE_NAME + "(" + TIME + ", " + HEARTRATE + ") VALUES (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), {1})";
         
         internal static void CreateBiometricTables()
