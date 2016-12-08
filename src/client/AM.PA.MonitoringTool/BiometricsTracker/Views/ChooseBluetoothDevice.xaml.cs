@@ -24,12 +24,12 @@ namespace BiometricsTracker.Views
 
         private async void FindDevices(object sender, RoutedEventArgs e)
         {
-            Shared.Logger.WriteToConsole("Start looking for Bluetooth devices");
+            Logger.WriteToConsole("Start looking for Bluetooth devices");
             FindButton.IsEnabled = false;
 
             List<PortableBluetoothDeviceInformation> devices = await Connector.Instance.GetDevices();
 
-            Shared.Logger.WriteToConsole("Finsihed looking for Bluetooth devices. Found " + devices.Count + " devices.");
+            Logger.WriteToConsole("Finsihed looking for Bluetooth devices. Found " + devices.Count + " devices.");
 
             Devices.Items.Clear();
             foreach (PortableBluetoothDeviceInformation device in devices)

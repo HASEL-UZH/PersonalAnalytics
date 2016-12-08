@@ -15,7 +15,7 @@ using Windows.Devices.Enumeration.Pnp;
 
 namespace BluetoothLowEnergy
 {
-    public delegate void ValueChangeCompletedHandler(HeartRateMeasurement heartRateMeasurementValue);
+    public delegate void ValueChangeCompletedHandler(List<HeartRateMeasurement> heartRateMeasurementValue);
 
     public delegate void DeviceConnectionUpdatedHandler(bool isConnected);
 
@@ -86,7 +86,7 @@ namespace BluetoothLowEnergy
             }
             catch (Exception e)
             {
-                LoggerWrapper.Instance.WriteToConsole("ERROR: Accessing your device failed." + Environment.NewLine + e.Message);
+                LoggerWrapper.Instance.WriteToLogFile(e);
             }
         }
 
@@ -111,7 +111,7 @@ namespace BluetoothLowEnergy
             }
             catch (Exception e)
             {
-                LoggerWrapper.Instance.WriteToConsole("ERROR: Accessing your device failed." + Environment.NewLine + e.Message);
+                LoggerWrapper.Instance.WriteToLogFile(e);
             }
         }
 
@@ -146,44 +146,71 @@ namespace BluetoothLowEnergy
 
             DataReader.FromBuffer(args.CharacteristicValue).ReadBytes(data);
 
-            var value = ProcessRawData(data);
-            value.Timestamp = args.Timestamp;
-
+            List<HeartRateMeasurement> values = ProcessRawData(data);
+           
             lock (datapoints)
             {
-                datapoints.Add(value);
+                foreach (HeartRateMeasurement value in values)
+                {
+                    datapoints.Add(value);
+                }
             }
 
-            ValueChangeCompleted?.Invoke(value);
+            ValueChangeCompleted?.Invoke(values);
         }
 
-        private HeartRateMeasurement ProcessRawData(byte[] data)
+        private List<HeartRateMeasurement> ProcessRawData(byte[] heartRateRecord)
         {
-            const byte HEART_RATE_VALUE_FORMAT = 0x01;
-         
-            byte currentOffset = 0;
-            byte flags = data[currentOffset];
-            bool isHeartRateValueSizeLong = ((flags & HEART_RATE_VALUE_FORMAT) != 0);
-         
-            currentOffset++;
+            //Parse the raw byte stream and extract the HR/EE/HRV values. For reference see: https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.characteristic.heart_rate_measurement.xml&u=org.bluetooth.characteristic.heart_rate_measurement.xml
 
-            ushort heartRateMeasurementValue = 0;
-
-            if (isHeartRateValueSizeLong)
-            {
-                heartRateMeasurementValue = (ushort)((data[currentOffset + 1] << 8) + data[currentOffset]);
-                currentOffset += 2;
-            }
-            else
-            {
-                heartRateMeasurementValue = data[currentOffset];
-                currentOffset++;
-            }
+            List<HeartRateMeasurement> measurements = new List<HeartRateMeasurement>();
+            HeartRateMeasurement measurement = new HeartRateMeasurement();
             
-            return new HeartRateMeasurement
+            byte flags = heartRateRecord[0];
+            ushort offset = 1;
+
+            //Heart rate
+            bool longHeartRate = (flags & 1) == 1;
+            if (longHeartRate) //uint16
             {
-                HeartRateValue = heartRateMeasurementValue
-            };
+                short heartrate = BitConverter.ToInt16(heartRateRecord, offset);
+                measurement.HeartRateValue = heartrate;
+                offset += 2;
+            }
+            else //uint8
+            {
+                byte heartrate = heartRateRecord[offset];
+                measurement.HeartRateValue = heartrate;
+                offset += 1;
+            }
+
+            //Energy Expended
+            bool hasEEValue = (flags & (1 << 3)) != 0;
+            if (hasEEValue)
+            {
+                //The Polar 7 does not support EE values, so we don't store the value and just increase the offset by 2
+                byte energyValue = heartRateRecord[offset];
+                offset += 2;
+            }
+
+            //RR interval
+            bool hasRRValue = (flags & (1 << 4)) != 0;
+            if (hasRRValue)
+            {
+                int count = (heartRateRecord.Length - offset) / 2;
+                //there can be more than one RR Interval in a single message;
+                for (int i = 0; i < count; i++)
+                {
+                    ushort value = BitConverter.ToUInt16(heartRateRecord, offset);
+                    double intervalLengthInSeconds = value / 1024.0;
+                    measurement.RRInterval = intervalLengthInSeconds;
+                    measurement.Timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    measurements.Add(measurement);
+                    offset += 2;
+                    measurement = new HeartRateMeasurement();
+                }
+            }
+            return measurements;
         }
     }
 }

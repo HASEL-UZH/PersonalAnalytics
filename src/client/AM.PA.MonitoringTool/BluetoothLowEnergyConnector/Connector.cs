@@ -13,8 +13,8 @@ using Windows.Devices.Enumeration;
 namespace BluetoothLowEnergy
 {
     
-    public delegate void OnNewHeartrateValueEvent(HeartRateMeasurement heartRateMeasurementValue);
-
+    public delegate void OnNewHeartrateValueEvent(List<HeartRateMeasurement> heartRateMeasurementValue);
+    
     public class Connector
     {
         private const string CONTAINER_ID_PROPERTY = "System.Devices.ContainerId";
@@ -92,7 +92,7 @@ namespace BluetoothLowEnergy
             HeartRateService.Instance.ValueChangeCompleted -= Instance_ValueChangeCompleted;
         }
 
-        private void Instance_ValueChangeCompleted(HeartRateMeasurement heartRateMeasurementValue)
+        private void Instance_ValueChangeCompleted(List<HeartRateMeasurement> heartRateMeasurementValue)
         {
             ValueChangeCompleted?.Invoke(heartRateMeasurementValue);
         }

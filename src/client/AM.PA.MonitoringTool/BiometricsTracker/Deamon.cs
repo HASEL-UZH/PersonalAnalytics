@@ -18,14 +18,17 @@ namespace BiometricsTracker
 {
     public sealed class Deamon : BaseTracker, ITracker
     {
+        private const string TrackerEnabledSetting = "BiometricsTrackerEnabled";
+        private const string HeartrateTrackerIDSetting = "HeartrateTrackerID";
+
         private Window window;
 
         public Deamon()
         {
             Name = "Biometrics Tracker";
 
-            BluetoothLowEnergy.LoggerWrapper.Instance.NewConsoleMessage += OnNewConsoleMessage;
-            BluetoothLowEnergy.LoggerWrapper.Instance.NewLogFileMessage += OnNewLogFileMessage;
+            LoggerWrapper.Instance.NewConsoleMessage += OnNewConsoleMessage;
+            LoggerWrapper.Instance.NewLogFileMessage += OnNewLogFileMessage;
 
             ChooseBluetoothDevice chooser = new ChooseBluetoothDevice();
             chooser.AddListener(this);
@@ -40,12 +43,12 @@ namespace BiometricsTracker
 
         private void OnNewLogFileMessage(Exception error)
         {
-            Shared.Logger.WriteToLogFile(error);
+            Logger.WriteToLogFile(error);
         }
 
         private void OnNewConsoleMessage(string message)
         {
-            Shared.Logger.WriteToConsole(message);
+            Logger.WriteToConsole(message);
         }
 
         public override void CreateDatabaseTablesIfNotExist()
@@ -55,15 +58,15 @@ namespace BiometricsTracker
 
         public override bool IsEnabled()
         {
-            return true;
+            return Database.GetInstance().GetSettingsBool(TrackerEnabledSetting, true);
         }
 
         public override async void Start()
         {
-            bool trackerEnabled = Database.GetInstance().GetSettingsBool("BiometricsTrackerEnabled", true);
+            bool trackerEnabled = Database.GetInstance().GetSettingsBool(TrackerEnabledSetting, true);
             if (trackerEnabled)
             {
-                string storedDeviceID = Database.GetInstance().GetSettingsString("HeartrateTrackerID", String.Empty);
+                string storedDeviceID = Database.GetInstance().GetSettingsString(HeartrateTrackerIDSetting, String.Empty);
                 if (storedDeviceID.Equals(String.Empty))
                 {
                     window.ShowDialog();
@@ -72,8 +75,9 @@ namespace BiometricsTracker
                 {
                     PortableBluetoothDeviceInformation deviceInformation = await Connector.Instance.FindDeviceByID(storedDeviceID);
                     await Connector.Instance.Connect(deviceInformation);
+
                     Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
-                    Shared.Logger.WriteToConsole("Connection established");
+                    Logger.WriteToConsole("Connection established");
                     IsRunning = true;
                 }
             }
@@ -82,14 +86,18 @@ namespace BiometricsTracker
         public void OnConnectionEstablished(string deviceID)
         {
             window.Close();
+            Database.GetInstance().SetSettings(HeartrateTrackerIDSetting, deviceID);
+
             Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
-            Database.GetInstance().SetSettings("HeartrateTrackerID", deviceID);
             IsRunning = true;
         }
 
-        private void OnNewHeartrateMeasurement(HeartRateMeasurement heartRateMeasurementValue)
+        private void OnNewHeartrateMeasurement(List<HeartRateMeasurement> heartRateMeasurementValue)
         {
-            DatabaseConnector.AddHeartrateToDatabase(heartRateMeasurementValue.Timestamp, heartRateMeasurementValue.HeartRateValue);
+            foreach (HeartRateMeasurement measurement in heartRateMeasurementValue)
+            {
+                DatabaseConnector.AddHeartrateToDatabase(measurement.Timestamp, measurement.HeartRateValue, measurement.RRInterval);
+            }
         }
 
         public override void Stop()
@@ -103,7 +111,7 @@ namespace BiometricsTracker
         {
             window.Close();
             IsRunning = false;
-            Database.GetInstance().SetSettings("BiometricsTrackerEnabled", false);
+            Database.GetInstance().SetSettings(TrackerEnabledSetting, false);
         }
 
         public override void UpdateDatabaseTables(int version)

@@ -9,12 +9,13 @@ namespace BluetoothLowEnergy
 {
     public class HeartRateMeasurement
     {
-        public ushort HeartRateValue { get; set; }
-        public DateTimeOffset Timestamp { get; set; }
+        public short HeartRateValue { get; set; }
+        public string Timestamp { get; set; }
+        public double RRInterval { get; set;  }
 
         public override string ToString()
         {
-            return HeartRateValue.ToString() + " bpm @ " + Timestamp.ToString();
+            return HeartRateValue.ToString() + " bpm / " + RRInterval.ToString() + " ms @ " + Timestamp;
         }
     }
 }

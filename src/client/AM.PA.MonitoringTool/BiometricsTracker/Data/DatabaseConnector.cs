@@ -15,10 +15,11 @@ namespace BiometricsTracker.Data
         private static readonly string ID = "id";
         private static readonly string TIME = "time";
         private static readonly string HEARTRATE = "heartrate";
+        private static readonly String RRINTERVAL = "rr";
 
         private static readonly string TABLE_NAME = "biometrics";
-        private static readonly string CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" + ID + " INTEGER PRIMARY KEY, " + TIME + " TEXT, " + HEARTRATE + " INTEGER)";
-        private static readonly string INSERT_QUERY = "INSERT INTO " + TABLE_NAME + "(" + TIME + ", " + HEARTRATE + ") VALUES (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), {1})";
+        private static readonly string CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" + ID + " INTEGER PRIMARY KEY, " + TIME + " TEXT, " + HEARTRATE + " INTEGER, " + RRINTERVAL + " DOUBLE)";
+        private static readonly string INSERT_QUERY = "INSERT INTO " + TABLE_NAME + "(" + TIME + ", " + HEARTRATE + ", " + RRINTERVAL + ") VALUES ('{0}', {1}, {2})";
         
         internal static void CreateBiometricTables()
         {
@@ -32,11 +33,11 @@ namespace BiometricsTracker.Data
             }
         }
 
-        internal static void AddHeartrateToDatabase(DateTimeOffset timestamp, int heartrate)
+        internal static void AddHeartrateToDatabase(String timestamp, int heartrate, double rrInterval)
         {
             try
             {
-                string query = String.Format(INSERT_QUERY, timestamp, heartrate);
+                string query = String.Format(INSERT_QUERY, timestamp, heartrate, rrInterval);
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }
             catch (Exception e)
@@ -47,7 +48,7 @@ namespace BiometricsTracker.Data
 
         internal static double GetAverageHeartrate(DateTimeOffset date, VisType type)
         {
-            var query = "SELECT ROUND(AVG(" + HEARTRATE + "), 2) FROM " + TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(type, date, TIME);
+            var query = "SELECT ROUND(AVG(" + HEARTRATE + "), 2) FROM " + TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(type, date, TIME) + " AND " + HEARTRATE + "!=0";
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
             if (table.Rows.Count == 1)
