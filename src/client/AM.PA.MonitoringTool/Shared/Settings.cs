@@ -13,8 +13,15 @@ namespace Shared
     {
         public const int DatabaseVersion = 2; // !!! update when exisitng database table changes (have a look at PerformDatabaseUpdatesIfNecessary() for details)
         public const bool IsFeedbackEnabled = false;
+
+// only enable the current uploader in the MSR-deployment (default: disabled)
+#if ! PilotMSR
+        public const bool IsUploadEnabled = false;
+        public const bool IsUploadReminderEnabled = false;
+#else
         public const bool IsUploadEnabled = true;
         public const bool IsUploadReminderEnabled = true;
+#endif
 
         public const bool AnonymizeSensitiveData = false;
         public const bool PrintQueriesToConsole = false;
