@@ -24,6 +24,9 @@ namespace BiometricsTracker
         {
             Name = "Biometrics Tracker";
 
+            BluetoothLowEnergy.LoggerWrapper.Instance.NewConsoleMessage += OnNewConsoleMessage;
+            BluetoothLowEnergy.LoggerWrapper.Instance.NewLogFileMessage += OnNewLogFileMessage;
+
             ChooseBluetoothDevice chooser = new ChooseBluetoothDevice();
             chooser.AddListener(this);
             window = new Window
@@ -33,6 +36,16 @@ namespace BiometricsTracker
                 Height = chooser.Height,
                 Width = chooser.Width
             };
+        }
+
+        private void OnNewLogFileMessage(Exception error)
+        {
+            Shared.Logger.WriteToLogFile(error);
+        }
+
+        private void OnNewConsoleMessage(string message)
+        {
+            Shared.Logger.WriteToConsole(message);
         }
 
         public override void CreateDatabaseTablesIfNotExist()
@@ -60,7 +73,7 @@ namespace BiometricsTracker
                     PortableBluetoothDeviceInformation deviceInformation = await Connector.Instance.FindDeviceByID(storedDeviceID);
                     await Connector.Instance.Connect(deviceInformation);
                     Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
-                    Logger.WriteToConsole("Connection established");
+                    Shared.Logger.WriteToConsole("Connection established");
                     IsRunning = true;
                 }
             }

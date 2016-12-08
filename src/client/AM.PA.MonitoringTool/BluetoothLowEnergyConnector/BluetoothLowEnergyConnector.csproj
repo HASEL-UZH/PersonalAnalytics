@@ -37,7 +37,7 @@
     <Compile Include="Connector.cs" />
     <Compile Include="HeartRateMeasurement.cs" />
     <Compile Include="HeartRateService.cs" />
-    <Compile Include="Logger.cs" />
+    <Compile Include="LoggerWrapper.cs" />
     <Compile Include="PortableBluetoothDeviceInformation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -12,7 +12,7 @@ using Windows.Devices.Enumeration;
 
 namespace BluetoothLowEnergy
 {
-
+    
     public delegate void OnNewHeartrateValueEvent(HeartRateMeasurement heartRateMeasurementValue);
 
     public class Connector
@@ -30,7 +30,7 @@ namespace BluetoothLowEnergy
             var devices = await GetAllDevices();
             foreach (var device in devices)
             {
-                Logger.WriteToConsole(device.Name);
+                LoggerWrapper.Instance.WriteToConsole(device.Name);
                 result.Add(new PortableBluetoothDeviceInformation
                 {
                     Id = device.Id,
@@ -102,11 +102,11 @@ namespace BluetoothLowEnergy
 
             if (isConnected)
             {
-                Logger.WriteToConsole("Waiting for device to send data...");
+                LoggerWrapper.Instance.WriteToConsole("Waiting for device to send data...");
             }
             else
             {
-               Logger.WriteToConsole("Waiting for device to connect...");
+               LoggerWrapper.Instance.WriteToConsole("Waiting for device to connect...");
             }
 
         }

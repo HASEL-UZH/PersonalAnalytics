@@ -81,12 +81,12 @@ namespace BluetoothLowEnergy
                 }
                 else
                 {
-                   Logger.WriteToConsole("Access to the device is denied, because the application was not granted access, or the device is currently in use by another application.");
+                   LoggerWrapper.Instance.WriteToConsole("Access to the device is denied, because the application was not granted access, or the device is currently in use by another application.");
                 }
             }
             catch (Exception e)
             {
-                Logger.WriteToConsole("ERROR: Accessing your device failed." + Environment.NewLine + e.Message);
+                LoggerWrapper.Instance.WriteToConsole("ERROR: Accessing your device failed." + Environment.NewLine + e.Message);
             }
         }
 
@@ -111,7 +111,7 @@ namespace BluetoothLowEnergy
             }
             catch (Exception e)
             {
-                Logger.WriteToConsole("ERROR: Accessing your device failed." + Environment.NewLine + e.Message);
+                LoggerWrapper.Instance.WriteToConsole("ERROR: Accessing your device failed." + Environment.NewLine + e.Message);
             }
         }
 
