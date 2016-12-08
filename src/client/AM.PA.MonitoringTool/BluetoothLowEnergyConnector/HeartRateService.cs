@@ -4,7 +4,7 @@
 // Licensed under the MIT License.
 //
 // Adapted from: https://code.msdn.microsoft.com/windowsapps/Bluetooth-Generic-5a99ef95/view/SourceCode#content
-//
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

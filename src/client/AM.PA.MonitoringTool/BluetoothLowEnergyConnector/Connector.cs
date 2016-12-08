@@ -3,7 +3,10 @@
 // 
 // Licensed under the MIT License.
 
+using BluetoothLowEnergyConnector;
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 
@@ -20,6 +23,56 @@ namespace BluetoothLowEnergy
 
         private Connector() { }
 
+        public async Task<List<PortableBluetoothDeviceInformation>> GetDevices()
+        {
+            List<PortableBluetoothDeviceInformation> result = new List<PortableBluetoothDeviceInformation>();
+
+            var devices = await GetAllDevices();
+            foreach (var device in devices)
+            {
+                Logger.WriteToConsole(device.Name);
+                result.Add(new PortableBluetoothDeviceInformation
+                {
+                    Id = device.Id,
+                    Name = device.Name,
+                    Device = device
+                }
+                );
+            }
+
+            return result;
+        }
+
+        private async Task<DeviceInformationCollection> GetAllDevices()
+        {
+            return await DeviceInformation.FindAllAsync(GattDeviceService.GetDeviceSelectorFromUuid(GattServiceUuids.HeartRate), new string[] { CONTAINER_ID_PROPERTY });
+        }
+
+        public async Task<PortableBluetoothDeviceInformation> FindDeviceByID(string id)
+        {
+            var devices = await GetAllDevices();
+            foreach (var device in devices)
+            {
+                if (device.Id.Equals(id))
+                {
+                    return new PortableBluetoothDeviceInformation
+                    {
+                        Id = device.Id,
+                        Name = device.Name,
+                        Device = device
+                    };
+                }
+            }
+            return null;
+        }
+
+        public async Task Connect(PortableBluetoothDeviceInformation device)
+        {
+            HeartRateService.Instance.ValueChangeCompleted += Instance_ValueChangeCompleted;
+            HeartRateService.Instance.DeviceConnectionUpdated += OnDeviceConnectionUpdated;
+            await HeartRateService.Instance.InitializeServiceAsync(device.Device as DeviceInformation);
+        }
+
         public static Connector Instance
         {
             get
@@ -34,16 +87,7 @@ namespace BluetoothLowEnergy
 
         public event OnNewHeartrateValueEvent ValueChangeCompleted;
 
-        public async void Start()
-        {
-            HeartRateService.Instance.ValueChangeCompleted += Instance_ValueChangeCompleted;
-
-            var devices = await DeviceInformation.FindAllAsync(GattDeviceService.GetDeviceSelectorFromUuid(GattServiceUuids.HeartRate), new string[] { CONTAINER_ID_PROPERTY });
-            HeartRateService.Instance.DeviceConnectionUpdated += OnDeviceConnectionUpdated;
-            await HeartRateService.Instance.InitializeServiceAsync(devices[0]);
-        }
-
-        public async void Stop()
+        public void Stop()
         {
             HeartRateService.Instance.ValueChangeCompleted -= Instance_ValueChangeCompleted;
         }

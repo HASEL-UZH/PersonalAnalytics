@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="BiometricsTracker.Views.ChooseBluetoothDevice"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:BiometricsTracker.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="250" d:DesignWidth="400"
+             Height="250" Width="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="20"></RowDefinition>
+        </Grid.RowDefinitions>
+        <TextBlock TextWrapping="Wrap" Grid.Row="0" FontSize="16">
+              Turn on Bluetooth and pair your Bluetooth Gatt Heart Rate device. Then use the button below to find your device and select the heart rate device from the list.
+        </TextBlock>
+        <Button x:Name="FindButton" Grid.Row="1" Click="FindDevices">
+            Find Devices
+        </Button>
+        <StackPanel Grid.Row="2" Margin="0,10,0,0">
+            <TextBlock>Found Devices</TextBlock>
+            <ListBox x:Name="Devices" SelectionChanged="OnDeviceSelectionChanged"></ListBox>
+        </StackPanel>
+        <Button Grid.Row="3" Click="DisableTracker">Disable BiometricTracker</Button>
+    </Grid>
+</UserControl>

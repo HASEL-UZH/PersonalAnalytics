@@ -9,14 +9,30 @@ using Shared;
 using System.Collections.Generic;
 using BiometricsTracker.Visualizations;
 using System;
+using BiometricsTracker.Views;
+using System.Windows;
+using Shared.Data;
+using BluetoothLowEnergyConnector;
 
 namespace BiometricsTracker
 {
     public sealed class Deamon : BaseTracker, ITracker
     {
+        private Window window;
+
         public Deamon()
         {
             Name = "Biometrics Tracker";
+
+            ChooseBluetoothDevice chooser = new ChooseBluetoothDevice();
+            chooser.AddListener(this);
+            window = new Window
+            {
+                Title = "Choose a Bluetooth Device to connect",
+                Content = chooser,
+                Height = chooser.Height,
+                Width = chooser.Width
+            };
         }
 
         public override void CreateDatabaseTablesIfNotExist()
@@ -29,10 +45,32 @@ namespace BiometricsTracker
             return true;
         }
 
-        public override void Start()
+        public override async void Start()
         {
+            bool trackerEnabled = Database.GetInstance().GetSettingsBool("BiometricsTrackerEnabled", true);
+            if (trackerEnabled)
+            {
+                string storedDeviceID = Database.GetInstance().GetSettingsString("HeartrateTrackerID", String.Empty);
+                if (storedDeviceID.Equals(String.Empty))
+                {
+                    window.ShowDialog();
+                }
+                else
+                {
+                    PortableBluetoothDeviceInformation deviceInformation = await Connector.Instance.FindDeviceByID(storedDeviceID);
+                    await Connector.Instance.Connect(deviceInformation);
+                    Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
+                    Logger.WriteToConsole("Connection established");
+                    IsRunning = true;
+                }
+            }
+        }
+
+        public void OnConnectionEstablished(string deviceID)
+        {
+            window.Close();
             Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
-            Connector.Instance.Start();
+            Database.GetInstance().SetSettings("HeartrateTrackerID", deviceID);
             IsRunning = true;
         }
 
@@ -46,6 +84,13 @@ namespace BiometricsTracker
             Connector.Instance.ValueChangeCompleted -= OnNewHeartrateMeasurement;
             Connector.Instance.Stop();
             IsRunning = false;
+        }
+
+        internal void OnTrackerDisabled()
+        {
+            window.Close();
+            IsRunning = false;
+            Database.GetInstance().SetSettings("BiometricsTrackerEnabled", false);
         }
 
         public override void UpdateDatabaseTables(int version)
