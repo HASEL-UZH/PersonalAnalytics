@@ -16,6 +16,7 @@ using UserInputTracker.Models;
 using Timer = System.Timers.Timer;
 using UserInputTracker.Visualizations;
 using Shared.Data;
+using System.Reflection;
 
 namespace UserInputTracker
 {
@@ -146,6 +147,12 @@ namespace UserInputTracker
         public override bool IsEnabled()
         {
             return UserInputTrackerEnabled;
+        }
+
+        public override string GetVersion()
+        {
+            var v = new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version;
+            return Shared.Helpers.VersionHelper.GetFormattedVersion(v);
         }
 
         private bool _userInputTrackerEnabled;

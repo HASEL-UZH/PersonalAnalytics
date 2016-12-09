@@ -16,6 +16,7 @@ using WindowsActivityTracker.Data;
 using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.Win32;
+using System.Reflection;
 
 namespace WindowsActivityTracker
 {
@@ -140,6 +141,12 @@ namespace WindowsActivityTracker
         public override bool IsEnabled()
         {
             return Settings.IsEnabled;
+        }
+
+        public override string GetVersion()
+        {
+            var v = new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version;
+            return Shared.Helpers.VersionHelper.GetFormattedVersion(v);
         }
 
         public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)

@@ -27,7 +27,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <RunCodeAnalysis>true</RunCodeAnalysis>
@@ -124,6 +124,7 @@
     <Compile Include="Helpers\FeedbackThumbs.cs" />
     <Compile Include="Helpers\FormatStringHelper.cs" />
     <Compile Include="Helpers\ProcessNameHelper.cs" />
+    <Compile Include="Helpers\VersionHelper.cs" />
     <Compile Include="Helpers\VisHelper.cs" />
     <Compile Include="ITracker.cs" />
     <Compile Include="IVisualization.cs" />
@@ -158,8 +159,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-<PropertyGroup>
-<BuildEnvironment>DEV</BuildEnvironment>
-</PropertyGroup>
-<Import Project="../../../web/Customized.targets" Condition=" '$(BuildEnvironment)' == 'DEPLOY' "/>
+  <PropertyGroup>
+    <BuildEnvironment>DEV</BuildEnvironment>
+  </PropertyGroup>
+  <Import Project="../../../web/Customized.targets" Condition=" '$(BuildEnvironment)' == 'DEPLOY' " />
 </Project>

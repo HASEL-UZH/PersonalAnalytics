@@ -8,11 +8,11 @@ using Shared;
 using System.Collections.Generic;
 using Shared.Helpers;
 using System.Linq;
-using Shared.Data.Extractors;
 using ArtifactVisualizer.Helpers;
 using ArtifactVisualizer.Models;
 using System.Globalization;
 using Shared.Data;
+using System.Reflection;
 
 namespace TimeSpentVisualizer.Visualizers
 {
@@ -28,6 +28,12 @@ namespace TimeSpentVisualizer.Visualizers
         public override bool IsEnabled()
         {
             return _isEnabled;
+        }
+
+        public override string GetVersion()
+        {
+            var v = new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version;
+            return VersionHelper.GetFormattedVersion(v);
         }
 
         public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)

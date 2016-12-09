@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Shared
 {
@@ -20,9 +21,9 @@ namespace Shared
         void CreateDatabaseTablesIfNotExist();
         void UpdateDatabaseTables(int version);
         string GetStatus();
+        string GetVersion();
         bool IsEnabled();
         List<IVisualization> GetVisualizationsDay(DateTimeOffset date);
-
         List<IVisualization> GetVisualizationsWeek(DateTimeOffset date);
     }
 
@@ -34,6 +35,8 @@ namespace Shared
         public abstract void Stop();
         public abstract void CreateDatabaseTablesIfNotExist();
         public abstract void UpdateDatabaseTables(int version);
+        public abstract string GetVersion();
+
         public virtual string GetStatus()
         {
             return IsRunning ? Name + " is running." : Name + " is NOT running.";
@@ -108,6 +111,8 @@ namespace Shared
         {
             // nothing to do here
         }
+
+        public abstract string GetVersion();
 
         public virtual string GetStatus()
         {

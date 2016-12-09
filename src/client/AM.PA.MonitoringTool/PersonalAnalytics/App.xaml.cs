@@ -15,6 +15,7 @@ using System.Globalization;
 using PersonalAnalytics.Helpers;
 using System.Collections.Generic;
 using System.Deployment.Application;
+using Shared.Helpers;
 
 namespace PersonalAnalytics
 {
@@ -213,9 +214,12 @@ namespace PersonalAnalytics
         /// <returns></returns>
         private static string GetPublishedAppVersion()
         {
-            if (!ApplicationDeployment.IsNetworkDeployed) return "?.?.?.?";
-            var cd = ApplicationDeployment.CurrentDeployment;
-            return string.Format(CultureInfo.InvariantCulture, "{0}.{1}.{2}.{3}", cd.CurrentVersion.Major, cd.CurrentVersion.Minor, cd.CurrentVersion.Build, cd.CurrentVersion.Revision);
+            Version v = null;
+            if (ApplicationDeployment.IsNetworkDeployed)
+            {
+                v = ApplicationDeployment.CurrentDeployment.CurrentVersion;
+            }
+            return VersionHelper.GetFormattedVersion(v);
         }
     }
 }

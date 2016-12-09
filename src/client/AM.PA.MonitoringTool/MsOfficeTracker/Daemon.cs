@@ -13,6 +13,7 @@ using Shared.Data;
 using System.Globalization;
 using System.Threading;
 using MsOfficeTracker.Helpers;
+using System.Reflection;
 
 namespace MsOfficeTracker
 {
@@ -121,6 +122,12 @@ namespace MsOfficeTracker
         public override bool IsEnabled()
         {
             return MsOfficeTrackerEnabled;
+        }
+
+        public override string GetVersion()
+        {
+            var v = new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version;
+            return Shared.Helpers.VersionHelper.GetFormattedVersion(v);
         }
 
         private bool _msOfficeTrackerEnabled;
