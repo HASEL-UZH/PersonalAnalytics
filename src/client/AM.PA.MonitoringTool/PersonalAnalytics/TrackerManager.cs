@@ -86,12 +86,6 @@ namespace PersonalAnalytics
                 Database.GetInstance().SetSettings("FirstStartWindowShown", true);
             }
 
-            // Check if the user accepted the consent form, if not: shut down the application
-            /*  if (!TrackerManager.GetInstance().UserConsentsToUseApplication())
-                {
-                    // todo: shut down
-                } */
-
             // Start all registered trackers
             foreach (var tracker in _trackers)
             {
@@ -105,7 +99,7 @@ namespace PersonalAnalytics
 
             // Communication
             var trackersString = string.Join(", ", _trackers.Where(t => t.IsRunning).ToList().ConvertAll(t => t.Name + " (" + t.GetVersion() + ")").ToArray());
-            Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "TrackerManager (V{0}) started with {1} trackers ({2}).", _publishedAppVersion, _trackers.Where(t => t.IsRunning).ToList().Count, trackersString));
+            Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "TrackerManager (V{0}) started with {1} trackers: {2}.", _publishedAppVersion, _trackers.Where(t => t.IsRunning).ToList().Count, trackersString));
             SetTaskbarIconTooltip("Tracker started");
 
             // Initialize & start the timer to update the taskbaricon toolitp

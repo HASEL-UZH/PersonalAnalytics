@@ -108,8 +108,8 @@ namespace PersonalAnalytics
             // Start Tracker Manager (i.e. the monitoring tool)
             //////////////////////////////////////////////////////
             var trackers = TrackerManager.GetInstance().RegisterTrackers();
-            TrackerManager.GetInstance().Start();
             TrackerManager.GetInstance().SetAppVersion(GetPublishedAppVersion());
+            TrackerManager.GetInstance().Start();
 
 
             //////////////////////////////////////////////////////
