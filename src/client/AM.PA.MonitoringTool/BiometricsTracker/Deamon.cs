@@ -15,6 +15,7 @@ using Shared.Data;
 using BluetoothLowEnergyConnector;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Threading.Tasks;
 
 namespace BiometricsTracker
 {
@@ -77,11 +78,28 @@ namespace BiometricsTracker
                 else
                 {
                     PortableBluetoothDeviceInformation deviceInformation = await Connector.Instance.FindDeviceByName(storedDeviceName);
-                    await Connector.Instance.Connect(deviceInformation);
-                    Connector.Instance.ConnectionLost += OnConnectionToDeviceLost;
-                    Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
-                    Logger.WriteToConsole("Connection established");
-                    IsRunning = true;
+
+                    if (deviceInformation == null)
+                    {
+                        window.ShowDialog();
+                    }
+                    else
+                    {
+                        bool connected = await Connector.Instance.Connect(deviceInformation);
+
+                        if (connected)
+                        {
+                            Connector.Instance.ConnectionLost += OnConnectionToDeviceLost;
+                            Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
+                            Logger.WriteToConsole("Connection established");
+                            IsRunning = true;
+                        }
+                        else
+                        {
+                            Logger.WriteToConsole("Couldn't establish a connection! Tracker is not running.");
+                            IsRunning = false;
+                        }
+                    }
                 }
             }
         }

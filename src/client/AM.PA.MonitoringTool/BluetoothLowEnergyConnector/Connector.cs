@@ -71,13 +71,22 @@ namespace BluetoothLowEnergy
             return null;
         }
 
-        public async Task Connect(PortableBluetoothDeviceInformation device)
+        public async Task<bool> Connect(PortableBluetoothDeviceInformation device)
         {
-            HeartRateService.Instance.ValueChangeCompleted += Instance_ValueChangeCompleted;
-            HeartRateService.Instance.DeviceConnectionUpdated += OnDeviceConnectionUpdated;
-            await HeartRateService.Instance.InitializeServiceAsync(device.Device as DeviceInformation);
-            connectedDevice = device.Device as DeviceInformation;
-            StartWatching();
+            if (device == null)
+            {
+                return false;
+            }
+            else
+            { 
+                HeartRateService.Instance.ValueChangeCompleted += Instance_ValueChangeCompleted;
+                HeartRateService.Instance.DeviceConnectionUpdated += OnDeviceConnectionUpdated;
+
+                await HeartRateService.Instance.InitializeServiceAsync(device.Device as DeviceInformation);
+                connectedDevice = device.Device as DeviceInformation;
+                StartWatching();
+                return true;
+            }
         }
 
         private void StartWatching()
