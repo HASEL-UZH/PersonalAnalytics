@@ -93,9 +93,7 @@ namespace BluetoothLowEnergy
                     {
                         token.Cancel();
                     }
-#pragma warning disable CS0168 // Variable is declared but never used
                     catch (OperationCanceledException e)
-#pragma warning restore CS0168 // Variable is declared but never used
                     {
                         //This is expected!
                         perdiodicTask = null;
