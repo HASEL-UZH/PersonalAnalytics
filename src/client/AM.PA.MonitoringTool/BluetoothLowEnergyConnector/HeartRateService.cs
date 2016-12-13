@@ -73,7 +73,19 @@ namespace BluetoothLowEnergy
             {
                 deviceContainerId = "{" + device.Properties[ContainerIDProperty] + "}";
                 
-                service = await GattDeviceService.FromIdAsync(device.Id);
+                try
+                {
+                    service = await GattDeviceService.FromIdAsync(device.Id);
+                }
+                catch (Exception e)
+                {
+                    if (e.Message.Contains("Bluetooth radio is required and it must be enabled"))
+                    {
+                        LoggerWrapper.Instance.WriteToConsole("Bluetooth not enabled!");
+                        return false;
+                    }
+                }
+
                 if (service != null)
                 {
                     IsServiceInitialized = true;
