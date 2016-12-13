@@ -67,26 +67,28 @@ namespace BluetoothLowEnergy
             datapoints = new List<HeartRateMeasurement>();
         }
         
-        public async Task InitializeServiceAsync(DeviceInformation device)
+        public async Task<bool> InitializeServiceAsync(DeviceInformation device)
         {
             try
             {
                 deviceContainerId = "{" + device.Properties[ContainerIDProperty] + "}";
-
+                
                 service = await GattDeviceService.FromIdAsync(device.Id);
                 if (service != null)
                 {
                     IsServiceInitialized = true;
                     await ConfigureServiceForNotificationsAsync();
+                    return true;
                 }
                 else
                 {
                    LoggerWrapper.Instance.WriteToConsole("Access to the device is denied, because the application was not granted access, or the device is currently in use by another application.");
+                    return false;
                 }
             }
             catch (Exception e)
             {
-                LoggerWrapper.Instance.WriteToLogFile(e);
+                return false;
             }
         }
 
@@ -137,6 +139,27 @@ namespace BluetoothLowEnergy
                     watcher = null;
                 }
                 DeviceConnectionUpdated?.Invoke(isConnected);
+            }
+        }
+
+        internal void Stop()
+        {
+            IsServiceInitialized = false;
+            datapoints.Clear();
+            if (service != null)
+            {
+                service.Dispose();
+            }
+
+            if (characteristic != null)
+            {
+                characteristic = null;
+            }
+
+            if (watcher != null)
+            {
+                watcher.Stop();
+                watcher = null;
             }
         }
 

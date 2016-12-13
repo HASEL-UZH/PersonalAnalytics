@@ -23,7 +23,7 @@ namespace BluetoothLowEnergy
         private const string CONTAINER_ID_PROPERTY = "System.Devices.ContainerId";
 
         private static Connector instance;
-        private DateTime timeOFLastDataPoint = DateTime.Now;
+        private DateTime timeOFLastDataPoint = DateTime.MaxValue;
         private DeviceInformation connectedDevice;
 
         private Connector() { }
@@ -78,26 +78,55 @@ namespace BluetoothLowEnergy
                 return false;
             }
             else
-            { 
-                HeartRateService.Instance.ValueChangeCompleted += Instance_ValueChangeCompleted;
-                HeartRateService.Instance.DeviceConnectionUpdated += OnDeviceConnectionUpdated;
-
-                await HeartRateService.Instance.InitializeServiceAsync(device.Device as DeviceInformation);
-                connectedDevice = device.Device as DeviceInformation;
-                StartWatching();
-                return true;
+            {
+                return await Connect(device.Device as DeviceInformation);
             }
         }
 
-        private void StartWatching()
+        private async Task<bool> Connect(DeviceInformation device)
         {
-            CancellationTokenSource token = new CancellationTokenSource();
-            Task perdiodicTask = PeriodicTaskFactory.Start(() =>
+            if (device == null)
             {
-                if (timeOFLastDataPoint != null && timeOFLastDataPoint.AddSeconds(10).CompareTo(DateTime.Now) == -1)
+                return false;
+            }
+            else
+            {
+                HeartRateService.Instance.DeviceConnectionUpdated += OnDeviceConnectionUpdated;
+
+                bool connected = await HeartRateService.Instance.InitializeServiceAsync(device);
+                if (connected)
+                { 
+                    connectedDevice = device;
+                    HeartRateService.Instance.ValueChangeCompleted += Instance_ValueChangeCompleted;
+                    StartWatching();
+                }
+                else
                 {
-                    LoggerWrapper.Instance.WriteToConsole("Received no data since more than 10 seconds");
-                    ConnectionLost?.Invoke(connectedDevice.Name);
+                    HeartRateService.Instance.DeviceConnectionUpdated -= OnDeviceConnectionUpdated;
+                }
+                return connected;
+            }
+        }
+
+        public void TryReconnectTodevice(DeviceInformation device)
+        {
+            LoggerWrapper.Instance.WriteToConsole("Should try to reestablish connection to: " + device.Name);
+
+            CancellationTokenSource token = new CancellationTokenSource();
+            Task perdiodicTask = PeriodicTaskFactory.Start(async () =>
+            {
+                LoggerWrapper.Instance.WriteToConsole("Try restablishing connection to " + device.Name);
+                bool connected = false;
+
+                if (device != null)
+                {
+                    //connected = true;
+                    connected = await Connect(device);
+                }
+
+                if (connected)
+                {
+                    LoggerWrapper.Instance.WriteToConsole("Connection restablished!");
                     try
                     {
                         token.Cancel();
@@ -107,6 +136,33 @@ namespace BluetoothLowEnergy
                         //This is expected!
                         perdiodicTask = null;
                     }
+                }
+            }, intervalInMilliseconds: 10000, cancelToken: token.Token);
+        }
+
+        private void StartWatching()
+        {
+            CancellationTokenSource token = new CancellationTokenSource();
+            Task perdiodicTask = PeriodicTaskFactory.Start(() =>
+            {
+                if (timeOFLastDataPoint != DateTime.MaxValue && timeOFLastDataPoint.AddSeconds(15).CompareTo(DateTime.Now) == -1)
+                {
+                    try
+                    {
+                        token.Cancel();
+                    }
+                    catch (OperationCanceledException e)
+                    {
+                        //This is expected!
+                        perdiodicTask = null;
+                    }
+                    HeartRateService.Instance.ValueChangeCompleted -= Instance_ValueChangeCompleted;
+                    HeartRateService.Instance.DeviceConnectionUpdated -= OnDeviceConnectionUpdated;
+                    timeOFLastDataPoint = DateTime.MaxValue;
+                    HeartRateService.Instance.Stop();
+                    LoggerWrapper.Instance.WriteToConsole("Received no data since more than 15 seconds");
+                    ConnectionLost?.Invoke(connectedDevice.Name);
+                    TryReconnectTodevice(connectedDevice);
                 }
 
             }, intervalInMilliseconds: 5000, cancelToken: token.Token);
