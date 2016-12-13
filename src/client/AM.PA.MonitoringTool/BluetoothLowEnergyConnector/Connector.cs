@@ -6,7 +6,9 @@
 using BluetoothLowEnergyConnector;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 
@@ -14,12 +16,15 @@ namespace BluetoothLowEnergy
 {
     
     public delegate void OnNewHeartrateValueEvent(List<HeartRateMeasurement> heartRateMeasurementValue);
+    public delegate void OnConnectionToDeviceLost(String deviceName);
     
     public class Connector
     {
         private const string CONTAINER_ID_PROPERTY = "System.Devices.ContainerId";
 
         private static Connector instance;
+        private DateTime timeOFLastDataPoint = DateTime.Now;
+        private DeviceInformation connectedDevice;
 
         private Connector() { }
 
@@ -48,12 +53,12 @@ namespace BluetoothLowEnergy
             return await DeviceInformation.FindAllAsync(GattDeviceService.GetDeviceSelectorFromUuid(GattServiceUuids.HeartRate), new string[] { CONTAINER_ID_PROPERTY });
         }
 
-        public async Task<PortableBluetoothDeviceInformation> FindDeviceByID(string id)
+        public async Task<PortableBluetoothDeviceInformation> FindDeviceByName(string name)
         {
             var devices = await GetAllDevices();
             foreach (var device in devices)
             {
-                if (device.Id.Equals(id))
+                if (device.Name.Equals(name))
                 {
                     return new PortableBluetoothDeviceInformation
                     {
@@ -71,6 +76,34 @@ namespace BluetoothLowEnergy
             HeartRateService.Instance.ValueChangeCompleted += Instance_ValueChangeCompleted;
             HeartRateService.Instance.DeviceConnectionUpdated += OnDeviceConnectionUpdated;
             await HeartRateService.Instance.InitializeServiceAsync(device.Device as DeviceInformation);
+            connectedDevice = device.Device as DeviceInformation;
+            StartWatching();
+        }
+
+        private void StartWatching()
+        {
+            CancellationTokenSource token = new CancellationTokenSource();
+            Task perdiodicTask = PeriodicTaskFactory.Start(() =>
+            {
+                if (timeOFLastDataPoint != null && timeOFLastDataPoint.AddSeconds(10).CompareTo(DateTime.Now) == -1)
+                {
+                    LoggerWrapper.Instance.WriteToConsole("Received no data since more than 10 seconds");
+                    ConnectionLost?.Invoke(connectedDevice.Name);
+                    try
+                    {
+                        token.Cancel();
+                    }
+#pragma warning disable CS0168 // Variable is declared but never used
+                    catch (OperationCanceledException e)
+#pragma warning restore CS0168 // Variable is declared but never used
+                    {
+                        //This is expected!
+                        perdiodicTask = null;
+                    }
+                }
+
+            }, intervalInMilliseconds: 5000, cancelToken: token.Token);
+
         }
 
         public static Connector Instance
@@ -85,6 +118,8 @@ namespace BluetoothLowEnergy
             }
         }
 
+        public event OnConnectionToDeviceLost ConnectionLost;
+
         public event OnNewHeartrateValueEvent ValueChangeCompleted;
 
         public void Stop()
@@ -94,6 +129,7 @@ namespace BluetoothLowEnergy
 
         private void Instance_ValueChangeCompleted(List<HeartRateMeasurement> heartRateMeasurementValue)
         {
+            timeOFLastDataPoint = DateTime.Now;
             ValueChangeCompleted?.Invoke(heartRateMeasurementValue);
         }
 

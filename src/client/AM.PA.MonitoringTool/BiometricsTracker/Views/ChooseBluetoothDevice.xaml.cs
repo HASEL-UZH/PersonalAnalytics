@@ -63,7 +63,7 @@ namespace BiometricsTracker.Views
             
             foreach (var listener in listeners)
             {
-                listener.OnConnectionEstablished(device.Id);
+                listener.OnConnectionEstablished(device.Name);
             }
         }
 

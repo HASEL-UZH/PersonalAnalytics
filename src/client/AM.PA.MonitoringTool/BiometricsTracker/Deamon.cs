@@ -13,6 +13,8 @@ using BiometricsTracker.Views;
 using System.Windows;
 using Shared.Data;
 using BluetoothLowEnergyConnector;
+using System.Windows.Forms;
+using System.Drawing;
 
 namespace BiometricsTracker
 {
@@ -22,6 +24,7 @@ namespace BiometricsTracker
         private const string HeartrateTrackerIDSetting = "HeartrateTrackerID";
 
         private Window window;
+        private bool showNotification = true;
 
         public Deamon()
         {
@@ -66,16 +69,16 @@ namespace BiometricsTracker
             bool trackerEnabled = Database.GetInstance().GetSettingsBool(TrackerEnabledSetting, true);
             if (trackerEnabled)
             {
-                string storedDeviceID = Database.GetInstance().GetSettingsString(HeartrateTrackerIDSetting, String.Empty);
-                if (storedDeviceID.Equals(String.Empty))
+                string storedDeviceName = Database.GetInstance().GetSettingsString(HeartrateTrackerIDSetting, String.Empty);
+                if (storedDeviceName.Equals(String.Empty))
                 {
                     window.ShowDialog();
                 }
                 else
                 {
-                    PortableBluetoothDeviceInformation deviceInformation = await Connector.Instance.FindDeviceByID(storedDeviceID);
+                    PortableBluetoothDeviceInformation deviceInformation = await Connector.Instance.FindDeviceByName(storedDeviceName);
                     await Connector.Instance.Connect(deviceInformation);
-
+                    Connector.Instance.ConnectionLost += OnConnectionToDeviceLost;
                     Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
                     Logger.WriteToConsole("Connection established");
                     IsRunning = true;
@@ -87,15 +90,30 @@ namespace BiometricsTracker
         {
             window.Close();
             Database.GetInstance().SetSettings(HeartrateTrackerIDSetting, deviceID);
-
+            Connector.Instance.ConnectionLost += OnConnectionToDeviceLost;
             Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
             IsRunning = true;
+        }
+
+        private void OnConnectionToDeviceLost(string deviceName)
+        {
+            if (showNotification)
+            {
+                NotifyIcon notification = new NotifyIcon();
+                notification.Visible = true;
+                notification.BalloonTipTitle = "PersonalAnalytics: Connection lost!";
+                notification.BalloonTipText = "PersonalAnalytics has lost the connection to: " + deviceName;
+                notification.Icon = SystemIcons.Exclamation;
+                notification.ShowBalloonTip(60 * 1000);
+            }
+            showNotification = false;
         }
 
         private void OnNewHeartrateMeasurement(List<HeartRateMeasurement> heartRateMeasurementValue)
         {
             foreach (HeartRateMeasurement measurement in heartRateMeasurementValue)
             {
+                Logger.WriteToConsole(measurement.ToString());
                 DatabaseConnector.AddHeartrateToDatabase(measurement.Timestamp, measurement.HeartRateValue, measurement.RRInterval);
             }
         }
@@ -103,6 +121,7 @@ namespace BiometricsTracker
         public override void Stop()
         {
             Connector.Instance.ValueChangeCompleted -= OnNewHeartrateMeasurement;
+            Connector.Instance.ConnectionLost -= OnConnectionToDeviceLost;
             Connector.Instance.Stop();
             IsRunning = false;
         }
@@ -123,6 +142,6 @@ namespace BiometricsTracker
         {
             return new List<IVisualization> { new BiometricVisualizationForDay(date) };
         }
-
+        
     }
 }

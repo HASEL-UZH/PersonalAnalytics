@@ -38,6 +38,7 @@
     <Compile Include="HeartRateMeasurement.cs" />
     <Compile Include="HeartRateService.cs" />
     <Compile Include="LoggerWrapper.cs" />
+    <Compile Include="PeriodicTaskFactory.cs" />
     <Compile Include="PortableBluetoothDeviceInformation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -47,6 +48,9 @@
     </Reference>
     <Reference Include="Windows">
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Windows Kits\8.1\References\CommonConfiguration\Neutral\Annotated\Windows.winmd</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\WindowsBase.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
