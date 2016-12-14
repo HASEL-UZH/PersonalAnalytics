@@ -14,6 +14,9 @@ using Shared.Data;
 using System.Windows;
 using System.Globalization;
 using Microsoft.Win32;
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
 
 namespace PersonalAnalytics
 {
@@ -77,6 +80,8 @@ namespace PersonalAnalytics
         /// </summary>
         public void Start()
         {
+            //GetDllVersions();
+
             // User First Start: Welcome
             if (!Database.GetInstance().HasSetting("FirstStartWindowShown"))
             {
@@ -160,6 +165,24 @@ namespace PersonalAnalytics
         public void SetAppVersion(string v)
         {
             _publishedAppVersion = v;
+        }
+
+        /// <summary>
+        /// Method to get the dll versions of the dlls which are used
+        /// in external projects.
+        /// </summary>
+        private void GetDllVersions()
+        {
+            var path = @"C:\DATA\DEV\UZH\PA\Tool_Git\PersonalAnalytics\documentation\dlls";
+            var dllsToCheckVersion = new List<string> { "Shared.dll", "UserInputTracker.dll", "WindowsActivityTracker.dll", "FocusLightTracker.dll" };
+
+            foreach (var dll in dllsToCheckVersion)
+            {
+                var dllPath = Path.Combine(path, dll);
+                var dllAssembly = Assembly.LoadFrom(dllPath);
+                Version dllVersion = dllAssembly.GetName().Version;
+                Console.WriteLine("{0}\t{1}", dll, dllVersion);
+            }
         }
 
         /// <summary>
