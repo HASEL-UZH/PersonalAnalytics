@@ -51,7 +51,41 @@ namespace BiometricsTracker.Data
 
         internal static double GetAverageHeartrate(DateTimeOffset date, VisType type)
         {
-            var query = "SELECT ROUND(AVG(" + HEARTRATE + "), 2) FROM " + TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(type, date, TIME) + " AND " + HEARTRATE + "!=0";
+            return GetAverageBiometricValuePerDay(date, type, HEARTRATE);
+        }
+
+        internal static double GetAverageHeartrateVariability(DateTimeOffset date, VisType type)
+        {
+            return GetAverageBiometricValuePerDay(date, type, RRINTERVAL);
+        }
+
+        internal static List<Tuple<DateTime, double, double>> GetBiometricValuesForDay(DateTimeOffset date)
+        {
+            List<Tuple<DateTime, double, double>> result = new List<Tuple<DateTime, double, double>>();
+
+            var query = "SELECT " + TIME + ", " + HEARTRATE + ", " + RRINTERVAL + " FROM " + TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, TIME);
+            var table = Database.GetInstance().ExecuteReadQuery(query);
+
+            foreach (DataRow row in table.Rows)
+            {
+                var timestamp = (String)row[0];
+                
+                double hr = Double.NaN;
+                double.TryParse(row[1].ToString(), out hr);
+
+                double rr = Double.NaN;
+                double.TryParse(row[2].ToString(), out rr);
+                result.Add(new Tuple<DateTime, double, double>(DateTime.ParseExact(timestamp, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture), hr, rr));
+            }
+            table.Dispose();
+
+            return result;
+        }
+
+
+        private static double GetAverageBiometricValuePerDay(DateTimeOffset date, VisType type, String column)
+        {
+            var query = "SELECT ROUND(AVG(" + column + "), 2) FROM " + TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(type, date, TIME) + " AND " + column + "!=0";
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
             if (table.Rows.Count == 1)
@@ -71,7 +105,6 @@ namespace BiometricsTracker.Data
             {
                 return Double.NaN;
             }
-
         }
 
         internal static List<Tuple<DateTime, double>> GetHRVValuesForWeek(DateTimeOffset date)
