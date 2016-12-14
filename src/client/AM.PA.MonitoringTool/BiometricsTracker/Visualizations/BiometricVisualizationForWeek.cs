@@ -99,30 +99,30 @@ namespace BiometricsTracker
             html += GetDataAsJSString(hrvValues, "hrvdata");
             
             html += "var heatmapChart = function(data) {";
-            html += "var colorScale = d3.scale.quantile().domain([d3.min(data, function(d) { return d.value; }), buckets - 1, d3.max(data, function(d) { return d.value; })]).range(colors);";
+            html += "var colorScale = d3.scale.quantize().domain([d3.min(data, function(d) { return d.value; }), buckets - 1, d3.max(data, function(d) { return d.value; })]).range(colors);";
 
             html += "var cards = svg.selectAll('.hour').data(data, function(d) { return d.day + ':' + d.hour; });";
             html += "cards.append('title');";
-            html += " cards.enter().append('rect').attr('x', function(d) { return (d.hour - 1) * gridSize; }).attr('y', function(d) { return (d.day - 1) * gridSize; }).attr('rx', 4).attr('ry', 4).attr('class', 'hour bordered').attr('width', gridSize).attr('height', gridSize).style('fill', colors[0]);";
+            html += "cards.enter().append('rect').attr('x', function(d) { return (d.hour - 1) * gridSize; }).attr('y', function(d) { return (d.day - 1) * gridSize; }).attr('rx', 4).attr('ry', 4).attr('class', 'hour bordered').attr('width', gridSize).attr('height', gridSize).style('fill', colors[0]);";
             html += "cards.transition().duration(1000).style('fill', function(d) { return colorScale(d.value); });";
             html += "cards.select('title').text(function(d) { return d.value; });";
             html += "cards.exit().remove();";
 
-            html += "var legend = svg.selectAll('.legend').data([0].concat(colorScale.quantiles()), function(d) { return d; });";
+            html += "svg.selectAll('.legend').remove();";
+            html += "var legend = svg.selectAll('.legend').data(colorScale.range(), function(d) { return d; });";
             html += "legend.enter().append('g').attr('class', 'legend');";
             html += "legend.append('rect').attr('x', function(d, i) { return legendElementWidth * i; }).attr('y', height + 20).attr('width', legendElementWidth).attr('height', gridSize / 2).style('fill', function(d, i) { return colors[i]; });";
-            html += "legend.append('text').attr('class', 'mono').text(function(d) { return '≥ ' + Math.round(d); }).attr('x', function(d, i) { return legendElementWidth * i; }).attr('y', height + 20 + gridSize);";
+            html += "legend.append('text').attr('class', 'mono').text(function(d) { var r = colorScale.invertExtent(d); return '≥ ' + d3.format('.2f')(r[0]); }).attr('x', function(d, i) { return legendElementWidth * i; }).attr('y', height + 20 + gridSize);";
             html += "legend.exit().remove();";
             html += "};";
                 
-            html += "heatmapChart(hrdata);";
+            html += "heatmapChart(hrvdata);";
 
             html += "d3.select('#dataset-picker').append('input').attr('type', 'button').attr('value', 'HR').attr('class', 'dataset-button').on('click', function() {heatmapChart(hrdata);});";
             html += "d3.select('#dataset-picker').append('input').attr('type', 'button').attr('value', 'HRV').attr('class', 'dataset-button').on('click', function() {heatmapChart(hrvdata);});";
 
             html += "</script>";
-            return html;
-          
+            return html;     
         }
 
         private static string GetDataAsJSString(List<Tuple<DateTime, double>> values, string datasetName)
