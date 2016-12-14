@@ -7,6 +7,8 @@ using System;
 using Shared;
 using Shared.Data;
 using System.Data;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace BiometricsTracker.Data
 {
@@ -15,10 +17,11 @@ namespace BiometricsTracker.Data
         private static readonly string ID = "id";
         private static readonly string TIME = "time";
         private static readonly string HEARTRATE = "heartrate";
-        private static readonly String RRINTERVAL = "rr";
+        private static readonly string RRINTERVAL = "rr";
 
         private static readonly string TABLE_NAME = "biometrics";
         private static readonly string CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" + ID + " INTEGER PRIMARY KEY, " + TIME + " TEXT, " + HEARTRATE + " INTEGER, " + RRINTERVAL + " DOUBLE)";
+        
         private static readonly string INSERT_QUERY = "INSERT INTO " + TABLE_NAME + "(" + TIME + ", " + HEARTRATE + ", " + RRINTERVAL + ") VALUES ('{0}', {1}, {2})";
         
         internal static void CreateBiometricTables()
@@ -69,6 +72,35 @@ namespace BiometricsTracker.Data
                 return Double.NaN;
             }
 
+        }
+
+        internal static List<Tuple<DateTime, double>> GetHRVValuesForWeek(DateTimeOffset date)
+        {
+            return GetBiometricValues(date, RRINTERVAL);
+        }
+
+        internal static List<Tuple<DateTime, double>> GetHRValuesForWeek(DateTimeOffset date)
+        {
+            return GetBiometricValues(date, HEARTRATE);
+        }
+
+        private static List<Tuple<DateTime, double>> GetBiometricValues(DateTimeOffset date, String column)
+        {
+            var result = new List<Tuple<DateTime, double>>();
+
+            var query = "SELECT strftime('%Y-%m-%d %H'," + TIME + "), avg(" + column + ") FROM " + TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Week, date, TIME) + " GROUP BY strftime('%Y-%m-%d %H',time);";
+            var table = Database.GetInstance().ExecuteReadQuery(query);
+
+            foreach (DataRow row in table.Rows)
+            {
+                var timestamp = (String)row[0];
+                double rr = Double.NaN;
+                double.TryParse(row[1].ToString(), out rr);
+                result.Add(new Tuple<DateTime, double>(DateTime.ParseExact(timestamp, "yyyy-MM-dd H", CultureInfo.InvariantCulture), rr));
+            }
+            table.Dispose();
+
+            return result;
         }
     }
 }

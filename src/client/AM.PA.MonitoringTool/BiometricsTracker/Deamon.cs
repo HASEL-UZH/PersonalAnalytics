@@ -161,5 +161,9 @@ namespace BiometricsTracker
             return new List<IVisualization> { new BiometricVisualizationForDay(date) };
         }
         
+        public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)
+        {
+            return new List<IVisualization> { new BiometricVisualizationForWeek(date) };
+        }
     }
 }
