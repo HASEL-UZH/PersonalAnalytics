@@ -1,14 +1,26 @@
-﻿using System;
+﻿// Created by Sebastian Mueller (smueller@ifi.uzh.ch) from the University of Zurich
+// Created: 2016-12-13
+// 
+// Licensed under the MIT License.
+//
+// Adapted from bl.ocks.org/tjdecke/5558084
+//
+using System;
 using Shared;
 using BiometricsTracker.Data;
 using Shared.Helpers;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace BiometricsTracker
 {
     internal class BiometricVisualizationForWeek : BaseVisualization, IVisualization
     {
         private DateTimeOffset date;
+
+        private static readonly int NUMBER_OF_BUCKETS = 5;
+        private static readonly Color START_COLOR = Color.Blue;
+        private static readonly Color END_COLOR = Color.Red;
 
         public BiometricVisualizationForWeek(DateTimeOffset date)
         {
@@ -29,20 +41,12 @@ namespace BiometricsTracker
             List<Tuple<DateTime, double>> hrValues = DatabaseConnector.GetHRValuesForWeek(date);
             List<Tuple<DateTime, double>> hrvValues = DatabaseConnector.GetHRVValuesForWeek(date);
             
-            foreach (Tuple<DateTime, double> t in hrValues)
-            {
-                Logger.WriteToConsole(t.Item1 + ": " + t.Item2);
-            }
-
-            string q = GetDataAsJSString(hrValues, "hrdata");
-            Logger.WriteToConsole(q);
-            
             if (hrValues.Count == 0 && hrvValues.Count == 0)
             {
                 html += VisHelper.NotEnoughData("It is not possible to give you insights because there is not enough biometric data available.");
                 return html;
             }
-            
+
             //CSS
             html += "<style type='text/css'>";
             html += ".c3-line { stroke-width: 2px; }";
@@ -64,8 +68,8 @@ namespace BiometricsTracker
             html += "height = 360 - margin.top - margin.bottom,";
 
             html += "gridSize = Math.floor(width / 24), legendElementWidth = gridSize * 2,";
-            html += "buckets = 9,";
-            html += "colors = ['#ffffd9', '#edf8b1', '#c7e9b4', '#7fcdbb', '#41b6c4', '#1d91c0', '#225ea8', '#253494', '#081d58'],";
+            html += "buckets = " + NUMBER_OF_BUCKETS + ",";
+            html += GetColorRangeAsJSString(NUMBER_OF_BUCKETS, START_COLOR, END_COLOR);
             html += "days = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],";
             html += "times = ['01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '24:00'];";
        
@@ -116,15 +120,35 @@ namespace BiometricsTracker
             html += "legend.exit().remove();";
             html += "};";
                 
-            html += "heatmapChart(hrvdata);";
+            html += "heatmapChart(hrdata);";
 
             html += "d3.select('#dataset-picker').append('input').attr('type', 'button').attr('value', 'HR').attr('class', 'dataset-button').on('click', function() {heatmapChart(hrdata);});";
             html += "d3.select('#dataset-picker').append('input').attr('type', 'button').attr('value', 'HRV').attr('class', 'dataset-button').on('click', function() {heatmapChart(hrvdata);});";
 
             html += "</script>";
-            return html;     
+            return html;
         }
 
+        private static string GetColorRangeAsJSString(int numberOfBuckets, Color startColor, Color endColor)
+        {
+            var html = string.Empty;
+
+            html += "colors = [";
+
+            for (double i = 1; i <= numberOfBuckets; i++)
+            {
+                double red = startColor.R + (i / numberOfBuckets) * (endColor.R - startColor.R);
+                double green = startColor.G + (i / numberOfBuckets) * (endColor.G - startColor.G);
+                double blue = startColor.B + (i / numberOfBuckets) * (endColor.B - startColor.B);
+                
+                html += "'" + ColorTranslator.ToHtml(Color.FromArgb((int) red, (int) green, (int) blue)) + "'" + ",";
+            }
+
+            html = html.Remove(html.Length - 1);
+            html += "],";
+            return html;
+        }
+        
         private static string GetDataAsJSString(List<Tuple<DateTime, double>> values, string datasetName)
         {
             var html = string.Empty;
