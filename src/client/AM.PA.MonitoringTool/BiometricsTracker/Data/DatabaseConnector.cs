@@ -37,11 +37,20 @@ namespace BiometricsTracker.Data
             }
         }
 
-        internal static void AddHeartMeasurementToDatabase(String timestamp, int heartrate, double rrInterval)
+        internal static void AddHeartMeasurementToDatabase(String timestamp, double heartrate, double rrInterval)
         {
             try
             {
-                string query = String.Format(INSERT_QUERY, timestamp, heartrate, rrInterval);
+                string query = string.Empty;
+                if (Double.IsNaN(heartrate))
+                {
+                    query += String.Format(INSERT_QUERY, timestamp, "null", rrInterval);
+                }
+                else
+                {
+                    query += String.Format(INSERT_QUERY, timestamp, heartrate, rrInterval);
+                }
+                
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }
             catch (Exception e)

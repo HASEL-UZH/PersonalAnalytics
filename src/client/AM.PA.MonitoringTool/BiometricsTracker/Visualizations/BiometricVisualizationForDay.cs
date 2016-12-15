@@ -104,34 +104,35 @@ namespace BiometricsTracker.Visualizations
 
             while (startTime != endTime)
             {
-                List<Tuple<DateTime, double, double>> tuplesForThisSecond = values.FindAll(t => t.Item1.CompareTo(startTime) == 0);
+                List<Tuple<DateTime, double, double>> tuplesForThisMinute = values.FindAll(t => t.Item1.CompareTo(startTime) == 0);
 
-                if (tuplesForThisSecond.Count == 0)
+                if (tuplesForThisMinute.Count == 0)
                 {
                     html += "{'ts': parseDate('" + startTime.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': null" + ", 'hrv': null" + "},";
                 }
                 else
                 {
-                    for (int i = 0; i < tuplesForThisSecond.Count; i++)
+                    for (int i = 0; i < tuplesForThisMinute.Count; i++)
                     {
-                        if (tuplesForThisSecond[i].Item2 == 0)
+
+                        if (tuplesForThisMinute[i].Item2 == 0 || Double.IsNaN(tuplesForThisMinute[i].Item2))
                         {
                             if (i == 0)
                             {
-                                html += "{'ts': parseDate('" + tuplesForThisSecond[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisSecond[i+1].Item2 + ", 'hrv': " + tuplesForThisSecond[i].Item3 + "},";
+                                html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisMinute[i+1].Item2 + ", 'hrv': " + tuplesForThisMinute[i].Item3 + "},";
                             }
-                            else if (i + 1 == tuplesForThisSecond.Count)
+                            else if (i + 1 == tuplesForThisMinute.Count)
                             {
-                                html += "{'ts': parseDate('" + tuplesForThisSecond[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisSecond[i-1].Item2 + ", 'hrv': " + tuplesForThisSecond[i].Item3 + "},";
+                                html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisMinute[i-1].Item2 + ", 'hrv': " + tuplesForThisMinute[i].Item3 + "},";
                             }
                             else
                             {
-                                html += "{'ts': parseDate('" + tuplesForThisSecond[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + ( (tuplesForThisSecond[i - 1].Item2 + tuplesForThisSecond[i - 1].Item2) / 2 ) + ", 'hrv': " + tuplesForThisSecond[i].Item3 + "},";
+                                html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + ( (tuplesForThisMinute[i - 1].Item2 + tuplesForThisMinute[i - 1].Item2) / 2 ) + ", 'hrv': " + tuplesForThisMinute[i].Item3 + "},";
                             }
                         }
                         else
                         {
-                            html += "{'ts': parseDate('" + tuplesForThisSecond[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisSecond[i].Item2 + ", 'hrv': " + tuplesForThisSecond[i].Item3 + "},";
+                            html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisMinute[i].Item2 + ", 'hrv': " + tuplesForThisMinute[i].Item3 + "},";
                         }
                     }
 

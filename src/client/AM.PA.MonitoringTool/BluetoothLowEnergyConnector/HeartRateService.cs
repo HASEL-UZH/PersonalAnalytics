@@ -208,14 +208,14 @@ namespace BluetoothLowEnergy
             bool longHeartRate = (flags & 1) == 1;
             if (longHeartRate) //uint16
             {
-                short heartrate = BitConverter.ToInt16(heartRateRecord, offset);
+                double heartrate = BitConverter.ToDouble(heartRateRecord, offset);
                 measurement.HeartRateValue = heartrate;
                 offset += 2;
             }
             else //uint8
             {
                 byte heartrate = heartRateRecord[offset];
-                measurement.HeartRateValue = heartrate;
+                measurement.HeartRateValue = (double) heartrate;
                 offset += 1;
             }
 
