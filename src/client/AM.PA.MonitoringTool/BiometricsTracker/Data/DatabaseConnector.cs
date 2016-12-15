@@ -19,11 +19,12 @@ namespace BiometricsTracker.Data
         private static readonly string TIME = "time";
         private static readonly string HEARTRATE = "heartrate";
         private static readonly string RRINTERVAL = "rr";
+        private static readonly string DIFFERENCE_RRINTERVAL = "rrdifference";
 
         private static readonly string TABLE_NAME = "biometrics";
-        private static readonly string CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" + ID + " INTEGER PRIMARY KEY, " + TIME + " TEXT, " + HEARTRATE + " INTEGER, " + RRINTERVAL + " DOUBLE)";
+        private static readonly string CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" + ID + " INTEGER PRIMARY KEY, " + TIME + " TEXT, " + HEARTRATE + " INTEGER, " + RRINTERVAL + " DOUBLE, " + DIFFERENCE_RRINTERVAL + "DOUBLE )";
 
-        private static readonly string INSERT_QUERY = "INSERT INTO " + TABLE_NAME + "(" + TIME + ", " + HEARTRATE + ", " + RRINTERVAL + ") VALUES ('{0}', {1}, {2})";
+        private static readonly string INSERT_QUERY = "INSERT INTO " + TABLE_NAME + "(" + TIME + ", " + HEARTRATE + ", " + RRINTERVAL + ", " + DIFFERENCE_RRINTERVAL + ") VALUES ('{0}', {1}, {2}, {3})";
 
         internal static void CreateBiometricTables()
         {
@@ -39,23 +40,58 @@ namespace BiometricsTracker.Data
 
         internal static void AddHeartMeasurementToDatabase(String timestamp, double heartrate, double rrInterval)
         {
+
+            double previousRRInterval = GetLastRRInterval();
+
             try
             {
                 string query = string.Empty;
                 if (Double.IsNaN(heartrate))
                 {
-                    query += String.Format(INSERT_QUERY, timestamp, "null", rrInterval);
+                    if (Double.IsNaN(previousRRInterval))
+                    {
+                        query += String.Format(INSERT_QUERY, timestamp, "null", rrInterval, "null");
+                    }
+                    else
+                    {
+                        query += String.Format(INSERT_QUERY, timestamp, "null", rrInterval, Math.Abs(rrInterval - previousRRInterval));
+                    }
                 }
                 else
                 {
-                    query += String.Format(INSERT_QUERY, timestamp, heartrate, rrInterval);
+                    if (Double.IsNaN(previousRRInterval))
+                    {
+                        query += String.Format(INSERT_QUERY, timestamp, heartrate, rrInterval, "null");
+                    }
+                    else
+                    {
+                        query += String.Format(INSERT_QUERY, timestamp, heartrate, rrInterval, Math.Abs(rrInterval - previousRRInterval));
+                    }
                 }
-                
+
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
+            }
+        }
+
+        private static double GetLastRRInterval()
+        {
+            var query = "Select " + RRINTERVAL + " From " + TABLE_NAME + " ORDER BY ID DESC LIMIT 1;";
+            var table = Database.GetInstance().ExecuteReadQuery(query);
+            if (table.Rows.Count != 1)
+            {
+                table.Dispose();
+                return Double.NaN;
+            }
+            else
+            {
+                double value = Double.NaN;
+                double.TryParse(table.Rows[0][0].ToString(), out value);
+                table.Dispose();
+                return value;
             }
         }
 
@@ -92,7 +128,9 @@ namespace BiometricsTracker.Data
             List<Tuple<DateTime, double, double>> result = new List<Tuple<DateTime, double, double>>();
 
             var query = "SELECT " + "STRFTIME('%Y-%m-%d %H:%M', " + TIME + ")" + ", AVG(" + HEARTRATE + "), AVG(" + RRINTERVAL + ") FROM " + TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, TIME) + "GROUP BY strftime('%H:%M', " + TIME + ");";
-            
+
+            Logger.WriteToConsole(query);
+
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
             foreach (DataRow row in table.Rows)
