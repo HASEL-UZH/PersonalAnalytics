@@ -63,7 +63,8 @@ namespace BiometricsTracker.Data
         {
             List<Tuple<DateTime, double, double>> result = new List<Tuple<DateTime, double, double>>();
 
-            var query = "SELECT " + TIME + ", " + HEARTRATE + ", " + RRINTERVAL + " FROM " + TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, TIME);
+            var query = "SELECT " + "STRFTIME('%Y-%m-%d %H:%M', " + TIME + ")" + ", AVG(" + HEARTRATE + "), AVG(" + RRINTERVAL + ") FROM " + TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, TIME) + "GROUP BY strftime('%H:%M', " + TIME + ");";
+            
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
             foreach (DataRow row in table.Rows)
@@ -75,14 +76,13 @@ namespace BiometricsTracker.Data
 
                 double rr = Double.NaN;
                 double.TryParse(row[2].ToString(), out rr);
-                result.Add(new Tuple<DateTime, double, double>(DateTime.ParseExact(timestamp, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture), hr, rr));
+                result.Add(new Tuple<DateTime, double, double>(DateTime.ParseExact(timestamp, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture), hr, rr));
             }
             table.Dispose();
 
             return result;
         }
-
-
+        
         private static double GetAverageBiometricValuePerDay(DateTimeOffset date, VisType type, String column)
         {
             var query = "SELECT ROUND(AVG(" + column + "), 2) FROM " + TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(type, date, TIME) + " AND " + column + "!=0";
