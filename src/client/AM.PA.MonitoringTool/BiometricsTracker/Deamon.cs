@@ -132,7 +132,7 @@ namespace BiometricsTracker
             foreach (HeartRateMeasurement measurement in heartRateMeasurementValue)
             {
                 Logger.WriteToConsole(measurement.ToString());
-                DatabaseConnector.AddHeartrateToDatabase(measurement.Timestamp, measurement.HeartRateValue, measurement.RRInterval);
+                DatabaseConnector.AddHeartMeasurementToDatabase(measurement.Timestamp, measurement.HeartRateValue, measurement.RRInterval);
             }
         }
 

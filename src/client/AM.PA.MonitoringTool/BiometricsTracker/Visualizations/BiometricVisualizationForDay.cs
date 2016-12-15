@@ -46,9 +46,12 @@ namespace BiometricsTracker.Visualizations
             html += ".axis path, .axis line {fill: none; stroke: grey; stroke-width: 1; shape-rendering: crispEdges;}";
             html += "</style>";
 
+            //HTML
+            html += "<div id='chart'></div>";
+
             //JS
             html += "<script>";
-            html += "var margin = {top: 60, right: 40, bottom: 30, left: 60}, width = 1230 - margin.left - margin.right, height = 460 - margin.top - margin.bottom;";
+            html += "var margin = {top: 10, right: 30, bottom: 20, left: 30}, width = 1190 - margin.left - margin.right, height = 400 - margin.top - margin.bottom;";
             html += "var parseDate = d3.time.format('%Y-%m-%d %H:%M').parse;";
 
             html += GetDataAsJSString(values);
@@ -63,22 +66,28 @@ namespace BiometricsTracker.Visualizations
             html += "var valueLine1 = d3.svg.line().defined(function(d) {return d.hr != null; }).x(function(d) {return x(d.ts); }).y(function(d) { return y0(d.hr); });";
             html += "var valueLine2 = d3.svg.line().defined(function(d) {return d.hrv != null; }).x(function(d) {return x(d.ts); }).y(function(d) { return y1(d.hrv); });";
 
-            html += "var svg = d3.select('body').append('svg').attr('width', width + margin.left + margin.righ).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');";
+            html += "var svg = d3.select('#chart').append('svg').attr('width', width + margin.left + margin.righ).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');";
             
             html += "x.domain(d3.extent(data, function(d) { return d.ts}));";
-            html += "y0.domain([d3.min(data, function(d) {return Math.min(d.hr);}), d3.max(data, function(d) {return Math.max(d.hr);})]);";
-            html += "y1.domain([d3.min(data, function(d) {return Math.min(d.hrv);}), d3.max(data, function(d) {return Math.max(d.hrv);})]);";
+            html += "var hrValues = data.map(function(o){return o.hr;}).filter(function(val) {return val !== null});";
+            html += "var hrvValues = data.map(function(o){return o.hrv;}).filter(function(val) {return val !== null});";
+
+            html += "y0.domain([d3.min(hrValues) * 0.95, d3.max(data, function(d) {return Math.max(d.hr);}) * 1.01]);";
+            html += "y1.domain([d3.min(hrvValues) * 0.95, d3.max(data, function(d) {return Math.max(d.hrv);}) * 1.01]);";
 
             html += "svg.append('path').style('stroke', 'blue').attr('d', valueLine1(data)).attr('fill', 'none');";
             html += "svg.append('path').style('stroke', 'red').attr('d', valueLine2(data)).attr('fill', 'none');";
 
-            html += "svg.append('svg:line').style('stroke', 'black').attr('x1', 0).attr('x2', width).attr('y1', y0(" + DatabaseConnector.GetAverageHeartrate(date, VisType.Day) + ")).attr('y2', y0(" + DatabaseConnector.GetAverageHeartrate(date, VisType.Day) + ")).style('stroke-dasharray', ('3, 3'));";
-            html += "svg.append('svg:line').style('stroke', 'black').attr('x1', 0).attr('x2', width).attr('y1', y1(" + DatabaseConnector.GetAverageHeartrateVariability(date, VisType.Day) + ")).attr('y2', y1(" + DatabaseConnector.GetAverageHeartrateVariability(date, VisType.Day) + ")).style('stroke-dasharray', ('3, 3'));";
+            html += "svg.append('svg:line').style('stroke', 'blue').attr('x1', 0).attr('x2', width).attr('y1', y0(" + DatabaseConnector.GetAverageHeartrateForDay(date) + ")).attr('y2', y0(" + DatabaseConnector.GetAverageHeartrateForDay(date) + ")).style('stroke-dasharray', ('12, 9')).style('opacity', 0.4);";
+            html += "svg.append('svg:line').style('stroke', 'red').attr('x1', 0).attr('x2', width).attr('y1', y1(" + DatabaseConnector.GetAverageHeartrateVariabilityForDay(date) + ")).attr('y2', y1(" + DatabaseConnector.GetAverageHeartrateVariabilityForDay(date) + ")).style('stroke-dasharray', ('12, 9')).style('opacity', 0.4);";
 
             html += "svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + height + ')').call(xAxis);";
             html += "svg.append('g').attr('class', 'y axis').style('fill', 'blue').call(yAxisLeft);";
             html += "svg.append('g').attr('class', 'y axis').attr('transform', 'translate(' + width + ' ,0)').style('fill', 'red').call(yAxisRight);";
-            
+
+            html += "svg.append('text').attr('x', 0).attr('y', -10).style('text-anchor', 'middle').text('HR');";
+            html += "svg.append('text').attr('x', width).attr('y', -10).style('text-anchor', 'middle').text('HRV');";
+
             html += "</script>";
             
             return html;

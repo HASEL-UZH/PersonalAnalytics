@@ -9,6 +9,7 @@ using Shared.Data;
 using System.Data;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 namespace BiometricsTracker.Data
 {
@@ -21,9 +22,9 @@ namespace BiometricsTracker.Data
 
         private static readonly string TABLE_NAME = "biometrics";
         private static readonly string CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" + ID + " INTEGER PRIMARY KEY, " + TIME + " TEXT, " + HEARTRATE + " INTEGER, " + RRINTERVAL + " DOUBLE)";
-        
+
         private static readonly string INSERT_QUERY = "INSERT INTO " + TABLE_NAME + "(" + TIME + ", " + HEARTRATE + ", " + RRINTERVAL + ") VALUES ('{0}', {1}, {2})";
-        
+
         internal static void CreateBiometricTables()
         {
             try
@@ -36,7 +37,7 @@ namespace BiometricsTracker.Data
             }
         }
 
-        internal static void AddHeartrateToDatabase(String timestamp, int heartrate, double rrInterval)
+        internal static void AddHeartMeasurementToDatabase(String timestamp, int heartrate, double rrInterval)
         {
             try
             {
@@ -49,14 +50,32 @@ namespace BiometricsTracker.Data
             }
         }
 
-        internal static double GetAverageHeartrate(DateTimeOffset date, VisType type)
+        #region day
+
+        internal static double GetAverageHeartrateForDay(DateTimeOffset date)
         {
-            return GetAverageBiometricValuePerDay(date, type, HEARTRATE);
+            return GetSpecificBiometricValueForDay(date, HEARTRATE).Average();
         }
 
-        internal static double GetAverageHeartrateVariability(DateTimeOffset date, VisType type)
+        internal static double GetAverageHeartrateVariabilityForDay(DateTimeOffset date)
         {
-            return GetAverageBiometricValuePerDay(date, type, RRINTERVAL);
+            return GetSpecificBiometricValueForDay(date, RRINTERVAL).Average();
+        }
+
+        private static List<double> GetSpecificBiometricValueForDay(DateTimeOffset date, string column)
+        {
+            List<double> values = new List<double>();
+            var query = "SELECT AVG(" + column + ") FROM " + TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, TIME) + "GROUP BY strftime('%H:%M', " + TIME + ");";
+            var table = Database.GetInstance().ExecuteReadQuery(query);
+            foreach (DataRow row in table.Rows)
+            {
+                double value = Double.NaN;
+                double.TryParse(row[0].ToString(), out value);
+
+                values.Add(value);
+            }
+            table.Dispose();
+            return values;
         }
 
         internal static List<Tuple<DateTime, double, double>> GetBiometricValuesForDay(DateTimeOffset date)
@@ -82,42 +101,22 @@ namespace BiometricsTracker.Data
 
             return result;
         }
-        
-        private static double GetAverageBiometricValuePerDay(DateTimeOffset date, VisType type, String column)
-        {
-            var query = "SELECT ROUND(AVG(" + column + "), 2) FROM " + TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(type, date, TIME) + " AND " + column + "!=0";
-            var table = Database.GetInstance().ExecuteReadQuery(query);
 
-            if (table.Rows.Count == 1)
-            {
-                DataRow row = table.Rows[0];
+        #endregion
 
-                if (row.IsNull(0))
-                {
-                    return Double.NaN;
-                }
-                else
-                {
-                    return Convert.ToDouble(row.ItemArray.GetValue(0));
-                }
-            }
-            else
-            {
-                return Double.NaN;
-            }
-        }
+        #region week
 
         internal static List<Tuple<DateTime, double>> GetHRVValuesForWeek(DateTimeOffset date)
         {
-            return GetBiometricValues(date, RRINTERVAL);
+            return GetBiometricValuesForWeek(date, RRINTERVAL);
         }
 
         internal static List<Tuple<DateTime, double>> GetHRValuesForWeek(DateTimeOffset date)
         {
-            return GetBiometricValues(date, HEARTRATE);
+            return GetBiometricValuesForWeek(date, HEARTRATE);
         }
 
-        private static List<Tuple<DateTime, double>> GetBiometricValues(DateTimeOffset date, String column)
+        private static List<Tuple<DateTime, double>> GetBiometricValuesForWeek(DateTimeOffset date, String column)
         {
             var result = new List<Tuple<DateTime, double>>();
 
@@ -135,5 +134,7 @@ namespace BiometricsTracker.Data
 
             return result;
         }
+
+        #endregion
     }
 }
