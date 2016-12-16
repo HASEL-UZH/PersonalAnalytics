@@ -61,7 +61,20 @@ namespace BiometricsTracker.Visualizations
             html += "var x = d3.time.scale().range([0, width]);";
             html += "var y0 = d3.scale.linear().range([height, 0]);";
             html += "var y1 = d3.scale.linear().range([height, 0]);";
-            html += "var xAxis = d3.svg.axis().scale(x).orient('bottom').ticks(d3.time.hours, 1).tickFormat(d3.time.format('%H:%M'));";
+
+            if (GetDurationInHours(values) >= 12)
+            {
+                html += "var xAxis = d3.svg.axis().scale(x).orient('bottom').ticks(d3.time.hours, 2).tickFormat(d3.time.format('%H:%M'));";
+            }
+            else if (GetDurationInHours(values) > 3)
+            {
+                html += "var xAxis = d3.svg.axis().scale(x).orient('bottom').ticks(d3.time.hours, 1).tickFormat(d3.time.format('%H:%M'));";
+            }
+            else
+            {
+                html += "var xAxis = d3.svg.axis().scale(x).orient('bottom').ticks(d3.time.minutes, 15).tickFormat(d3.time.format('%H:%M'));";
+            }
+            
             html += "var yAxisLeft = d3.svg.axis().scale(y0).orient('left').ticks(5);";
             html += "var yAxisRight = d3.svg.axis().scale(y1).orient('right').ticks(5);";
 
@@ -100,6 +113,18 @@ namespace BiometricsTracker.Visualizations
             html += "</script>";
             
             return html;
+        }
+
+        private int GetDurationInHours(List<Tuple<DateTime, double, double>> values)
+        {
+            if (values.Count < 2)
+            {
+                return 0;
+            }
+            else
+            {
+               return values[values.Count - 1].Item1.Hour - values[0].Item1.Hour;
+            }
         }
 
         private bool HasAtLeastOneValidHRValue(List<Tuple<DateTime, double, double>> values)
