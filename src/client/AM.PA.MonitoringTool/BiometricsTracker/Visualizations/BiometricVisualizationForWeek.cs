@@ -175,15 +175,20 @@ namespace BiometricsTracker
 
             html += "var " + datasetName + " = [";
 
+            bool hasAtLeastOneValidValue = false;
             foreach (Tuple<DateTime, double> t in values)
             {
                 if (!Double.IsNaN(t.Item2))
                 {
                     html += "{ day: " + GetNumericDayOfWeek(t.Item1.DayOfWeek) + ", hour: " + (t.Item1.Hour + 1) + ", value: " + Math.Round(t.Item2, 2, MidpointRounding.ToEven) + "},";
+                    hasAtLeastOneValidValue = true;
                 }
             }
 
-            html = html.Remove(html.Length - 1);
+            if (hasAtLeastOneValidValue)
+            {
+                html = html.Remove(html.Length - 1);
+            }
             html += "];";
         
             return html;

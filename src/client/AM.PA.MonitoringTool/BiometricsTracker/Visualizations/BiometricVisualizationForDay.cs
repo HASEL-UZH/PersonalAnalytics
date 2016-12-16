@@ -80,8 +80,15 @@ namespace BiometricsTracker.Visualizations
             html += "svg.append('path').style('stroke', 'blue').attr('d', valueLine1(data)).attr('fill', 'none');";
             html += "svg.append('path').style('stroke', 'red').attr('d', valueLine2(data)).attr('fill', 'none');";
 
-            html += "svg.append('svg:line').style('stroke', 'blue').attr('x1', 0).attr('x2', width).attr('y1', y0(" + GetAverageHeartrate(values) + ")).attr('y2', y0(" + GetAverageHeartrate(values) + ")).style('stroke-dasharray', ('12, 9')).style('opacity', 0.4);";
-            html += "svg.append('svg:line').style('stroke', 'red').attr('x1', 0).attr('x2', width).attr('y1', y1(" + GetAverageRMSSD(values) + ")).attr('y2', y1(" + GetAverageRMSSD(values) + ")).style('stroke-dasharray', ('12, 9')).style('opacity', 0.4);";
+            if (HasAtLeastOneValidHRValue(values))
+            {
+                html += "svg.append('svg:line').style('stroke', 'blue').attr('x1', 0).attr('x2', width).attr('y1', y0(" + GetAverageHeartrate(values) + ")).attr('y2', y0(" + GetAverageHeartrate(values) + ")).style('stroke-dasharray', ('12, 9')).style('opacity', 0.4);";
+            }
+            
+            if (HasAtLeastOneValidRMSSDValue(values))
+            {
+                html += "svg.append('svg:line').style('stroke', 'red').attr('x1', 0).attr('x2', width).attr('y1', y1(" + GetAverageRMSSD(values) + ")).attr('y2', y1(" + GetAverageRMSSD(values) + ")).style('stroke-dasharray', ('12, 9')).style('opacity', 0.4);";
+            }
 
             html += "svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + height + ')').call(xAxis);";
             html += "svg.append('g').attr('class', 'y axis').style('fill', 'blue').call(yAxisLeft);";
@@ -93,6 +100,30 @@ namespace BiometricsTracker.Visualizations
             html += "</script>";
             
             return html;
+        }
+
+        private bool HasAtLeastOneValidHRValue(List<Tuple<DateTime, double, double>> values)
+        {
+            foreach (Tuple<DateTime, double, double> t in values)
+            {
+                if (!Double.IsNaN(t.Item2))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool HasAtLeastOneValidRMSSDValue(List<Tuple<DateTime, double, double>> values)
+        {
+            foreach (Tuple<DateTime, double, double> t in values)
+            {
+                if (!Double.IsNaN(t.Item3))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private double GetAverageHeartrate(List<Tuple<DateTime, double, double>> values)
