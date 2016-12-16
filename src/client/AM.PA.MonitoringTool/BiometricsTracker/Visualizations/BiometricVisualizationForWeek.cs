@@ -26,7 +26,7 @@ namespace BiometricsTracker
         {
             this.date = date;
 
-            Title = "HR and HRV overview";
+            Title = "HR and RMSSD overview";
             IsEnabled = true;
             Order = 1;
             Size = VisSize.Wide;
@@ -39,9 +39,9 @@ namespace BiometricsTracker
 
             //Get Data
             List<Tuple<DateTime, double>> hrValues = DatabaseConnector.GetHRValuesForWeek(date);
-            List<Tuple<DateTime, double>> hrvValues = DatabaseConnector.GetHRVValuesForWeek(date);
+            List<Tuple<DateTime, double>> rmssdValues = DatabaseConnector.GetRMSSDValuesForWeek(date);
             
-            if (hrValues.Count == 0 && hrvValues.Count == 0)
+            if (hrValues.Count == 0 && rmssdValues.Count == 0)
             {
                 html += VisHelper.NotEnoughData("It is not possible to give you insights because there is not enough biometric data available.");
                 return html;
@@ -64,8 +64,8 @@ namespace BiometricsTracker
             //JS
             html += "<script type='text/javascript'>";
             html += "var margin = { top: 0, right: 0, bottom: 0, left: 20 },";
-            html += "width = 1230 - margin.left - margin.right,";
-            html += "height = 360 - margin.top - margin.bottom,";
+            html += "width = 830 - margin.left - margin.right,";
+            html += "height = 240 - margin.top - margin.bottom,";
 
             html += "gridSize = Math.floor(width / 24), legendElementWidth = gridSize * 2,";
             html += "buckets = " + NUMBER_OF_BUCKETS + ",";
@@ -100,7 +100,7 @@ namespace BiometricsTracker
             html += ".attr('class', function(d, i) { return ((i >= 7 && i <= 16) ? 'timeLabel mono axis axis-worktime' : 'timeLabel mono axis'); });";
 
             html += GetDataAsJSString(hrValues, "hrdata");
-            html += GetDataAsJSString(hrvValues, "hrvdata");
+            html += GetDataAsJSString(rmssdValues, "rmssddata");
             
             html += "var heatmapChart = function(data) {";
             html += "var colorScale = d3.scale.quantize().domain([d3.min(data, function(d) { return d.value; }), buckets - 1, d3.max(data, function(d) { return d.value; })]).range(colors);";
@@ -115,15 +115,15 @@ namespace BiometricsTracker
             html += "svg.selectAll('.legend').remove();";
             html += "var legend = svg.selectAll('.legend').data(colorScale.range(), function(d) { return d; });";
             html += "legend.enter().append('g').attr('class', 'legend');";
-            html += "legend.append('rect').attr('x', function(d, i) { return legendElementWidth * i; }).attr('y', height + 20).attr('width', legendElementWidth).attr('height', gridSize / 2).style('fill', function(d, i) { return colors[i]; });";
-            html += "legend.append('text').attr('class', 'mono').text(function(d) { var r = colorScale.invertExtent(d); return '≥ ' + d3.format('.2f')(r[0]); }).attr('x', function(d, i) { return legendElementWidth * i; }).attr('y', height + 20 + gridSize);";
+            html += "legend.append('rect').attr('x', function(d, i) { return legendElementWidth * i; }).attr('y', height).attr('width', legendElementWidth).attr('height', gridSize / 2).style('fill', function(d, i) { return colors[i]; });";
+            html += "legend.append('text').attr('class', 'mono').text(function(d) { var r = colorScale.invertExtent(d); return '≥ ' + d3.format('.2f')(r[0]); }).attr('x', function(d, i) { return legendElementWidth * i; }).attr('y', height + gridSize);";
             html += "legend.exit().remove();";
             html += "};";
                 
             html += "heatmapChart(hrdata);";
 
             html += "d3.select('#dataset-picker').append('input').attr('type', 'button').attr('value', 'HR').attr('class', 'dataset-button').on('click', function() {heatmapChart(hrdata);});";
-            html += "d3.select('#dataset-picker').append('input').attr('type', 'button').attr('value', 'HRV').attr('class', 'dataset-button').on('click', function() {heatmapChart(hrvdata);});";
+            html += "d3.select('#dataset-picker').append('input').attr('type', 'button').attr('value', 'RMSSD').attr('class', 'dataset-button').on('click', function() {heatmapChart(rmssddata);});";
 
             html += "</script>";
             return html;
@@ -157,7 +157,10 @@ namespace BiometricsTracker
 
             foreach (Tuple<DateTime, double> t in values)
             {
-                html += "{ day: " + GetNumericDayOfWeek(t.Item1.DayOfWeek) + ", hour: " + (t.Item1.Hour + 1) + ", value: " + Math.Round(t.Item2, 2, MidpointRounding.ToEven) + "},"; 
+                if (!Double.IsNaN(t.Item2))
+                {
+                    html += "{ day: " + GetNumericDayOfWeek(t.Item1.DayOfWeek) + ", hour: " + (t.Item1.Hour + 1) + ", value: " + Math.Round(t.Item2, 2, MidpointRounding.ToEven) + "},";
+                }
             }
 
             html = html.Remove(html.Length - 1);

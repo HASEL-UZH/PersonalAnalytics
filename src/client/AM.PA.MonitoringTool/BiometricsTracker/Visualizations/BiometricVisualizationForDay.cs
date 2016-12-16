@@ -48,15 +48,15 @@ namespace BiometricsTracker.Visualizations
             html += "</style>";
 
             //HTML
-            html += "<div id='chart'></div>";
+            html += "<div id='chart' style='align: center'></div>";
 
             //JS
             html += "<script>";
-            html += "var margin = {top: 10, right: 30, bottom: 20, left: 30}, width = 1190 - margin.left - margin.right, height = 400 - margin.top - margin.bottom;";
+            html += "var margin = {top: 10, right: 30, bottom: 20, left: 30}, width = 800 - margin.left - margin.right, height = 270 - margin.top - margin.bottom;";
             html += "var parseDate = d3.time.format('%Y-%m-%d %H:%M').parse;";
 
             html += GetDataAsJSString(values);
-
+            
             html += "var x = d3.time.scale().range([0, width]);";
             html += "var y0 = d3.scale.linear().range([height, 0]);";
             html += "var y1 = d3.scale.linear().range([height, 0]);";

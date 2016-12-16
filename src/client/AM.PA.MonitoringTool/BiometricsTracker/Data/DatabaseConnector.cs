@@ -26,6 +26,7 @@ namespace BiometricsTracker.Data
 
         private static readonly string INSERT_QUERY = "INSERT INTO " + TABLE_NAME + "(" + TIME + ", " + HEARTRATE + ", " + RRINTERVAL + ", " + DIFFERENCE_RRINTERVAL + ") VALUES ('{0}', {1}, {2}, {3})";
 
+        #region create
         internal static void CreateBiometricTables()
         {
             try
@@ -37,7 +38,9 @@ namespace BiometricsTracker.Data
                 Logger.WriteToLogFile(e);
             }
         }
+        #endregion
 
+        #region insert
         internal static void AddHeartMeasurementToDatabase(String timestamp, double heartrate, double rrInterval)
         {
             double previousRRInterval = GetLastRRInterval();
@@ -87,12 +90,17 @@ namespace BiometricsTracker.Data
             }
             else
             {
+                if (table.Rows[0][0] == DBNull.Value)
+                {
+                    return Double.NaN;
+                }
                 double value = Double.NaN;
                 double.TryParse(table.Rows[0][0].ToString(), out value);
                 table.Dispose();
                 return value;
             }
         }
+        #endregion
 
         #region day
         internal static List<Tuple<DateTime, double, double>> GetBiometricValuesForDay(DateTimeOffset date)
@@ -100,7 +108,6 @@ namespace BiometricsTracker.Data
             List<Tuple<DateTime, double, double>> result = new List<Tuple<DateTime, double, double>>();
 
             var query = "SELECT " + "STRFTIME('%Y-%m-%d %H:%M', " + TIME + ")" + ", AVG(" + HEARTRATE + "), AVG(" + DIFFERENCE_RRINTERVAL + "*" + DIFFERENCE_RRINTERVAL + ") FROM " + TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, TIME) + "GROUP BY strftime('%H:%M', " + TIME + ");";
-            
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
             foreach (DataRow row in table.Rows)
@@ -125,11 +132,9 @@ namespace BiometricsTracker.Data
 
             return result;
         }
-
         #endregion
 
         #region week
-
         internal static List<Tuple<DateTime, double>> GetHRVValuesForWeek(DateTimeOffset date)
         {
             return GetBiometricValuesForWeek(date, RRINTERVAL);
@@ -138,6 +143,63 @@ namespace BiometricsTracker.Data
         internal static List<Tuple<DateTime, double>> GetHRValuesForWeek(DateTimeOffset date)
         {
             return GetBiometricValuesForWeek(date, HEARTRATE);
+        }
+
+        internal static List<Tuple<DateTime, double>> GetRMSSDValuesForWeek(DateTimeOffset date)
+        {
+            var result = new List<Tuple<DateTime, double>>();
+            
+            //Go back to Monday
+            while (date.DayOfWeek != DayOfWeek.Monday)
+            {
+                date = date.AddDays(-1);
+            }
+
+            //Iterate over whole week
+            while (date.DayOfWeek != DayOfWeek.Sunday)
+            {
+                result.AddRange(CalculateHourAverage(GetBiometricValuesForDay(date)));
+                date = date.AddDays(1);
+            }
+
+            //Iterate Sunday
+            result.AddRange(CalculateHourAverage(GetBiometricValuesForDay(date)));
+            
+            return result;
+        }
+
+        private static List<Tuple<DateTime, double>> CalculateHourAverage(List<Tuple<DateTime, double, double>> values)
+        {
+            var result = new List<Tuple<DateTime, double>>();
+            
+            if (values.Count > 0)
+            {
+                DateTime firstHour = values[0].Item1;
+                DateTime lastHour = values[values.Count - 1].Item1;
+                
+                while (firstHour.Hour.CompareTo(lastHour.Hour + 1) != 0)
+                {
+                    List<Tuple<DateTime, double, double>> tuplesForThisHour = values.FindAll(t => t.Item1.Hour.CompareTo(firstHour.Hour) == 0);
+                    
+                    double sum = 0;
+                    double count = 0;
+
+                    foreach (Tuple<DateTime, double, double> t in tuplesForThisHour)
+                    {
+                        if (!Double.IsNaN(t.Item3))
+                        {
+                            sum += t.Item3;
+                            count++;
+                        }
+                    }
+
+                    Tuple<DateTime, double> createTuple = new Tuple<DateTime, double>(firstHour, sum / count);
+                    result.Add(createTuple);
+
+                    firstHour = firstHour.AddHours(1);
+                }
+            }
+            return result;
         }
 
         private static List<Tuple<DateTime, double>> GetBiometricValuesForWeek(DateTimeOffset date, String column)
@@ -151,14 +213,16 @@ namespace BiometricsTracker.Data
             {
                 var timestamp = (String)row[0];
                 double rr = Double.NaN;
-                double.TryParse(row[1].ToString(), out rr);
+                if (row[1] != DBNull.Value)
+                {
+                    double.TryParse(row[1].ToString(), out rr);
+                }
                 result.Add(new Tuple<DateTime, double>(DateTime.ParseExact(timestamp, "yyyy-MM-dd H", CultureInfo.InvariantCulture), rr));
             }
             table.Dispose();
 
             return result;
         }
-
         #endregion
     }
 }
