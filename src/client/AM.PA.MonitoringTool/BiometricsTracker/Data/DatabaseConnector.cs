@@ -124,6 +124,7 @@ namespace BiometricsTracker.Data
                     if (!Double.IsNaN(rmssd))
                     {
                         rmssd = Math.Sqrt(rmssd);
+                        rmssd *= 1000;
                     }
                 }
                 result.Add(new Tuple<DateTime, double, double>(DateTime.ParseExact(timestamp, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture), hr, rmssd));
