@@ -1,13 +1,17 @@
-﻿using System;
+﻿// Created by Sebastian Mueller (smueller@ifi.uzh.ch) from the University of Zurich
+// Created: 2016-12-09
+// 
+// Adapted from: http://stackoverflow.com/questions/4890915/is-there-a-task-based-replacement-for-system-threading-timer
+//
+// Licensed under the MIT License.
+
+using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace BluetoothLowEnergyConnector
 {
-
-    // Adapted from: http://stackoverflow.com/questions/4890915/is-there-a-task-based-replacement-for-system-threading-timer
-    
     public static class PeriodicTaskFactory
     {
         public static Task Start(Action action, int intervalInMilliseconds = Timeout.Infinite, int duration = Timeout.Infinite, int maxIterations = -1, bool synchronous = false, CancellationToken cancelToken = new CancellationToken(), TaskCreationOptions periodicTaskCreationOptions = TaskCreationOptions.None)
@@ -37,16 +41,8 @@ namespace BluetoothLowEnergyConnector
 
             int iteration = 0;
 
-            ////////////////////////////////////////////////////////////////////////////
-            // using a ManualResetEventSlim as it is more efficient in small intervals.
-            // In the case where longer intervals are used, it will automatically use 
-            // a standard WaitHandle....
-            // see http://msdn.microsoft.com/en-us/library/vstudio/5hbefs30(v=vs.100).aspx
             using (ManualResetEventSlim periodResetEvent = new ManualResetEventSlim(false))
             {
-                ////////////////////////////////////////////////////////////
-                // Main periodic logic. Basically loop through this block
-                // executing the action
                 while (true)
                 {
                     CheckIfCancelled(cancelToken);
@@ -60,12 +56,10 @@ namespace BluetoothLowEnergyConnector
                         {
                             subTask.Wait(cancelToken);
                         }
-                        catch { /* do not let an errant subtask to kill the periodic task...*/
-}
-stopWatch.Stop();
+                        catch { /* do not let an errant subtask to kill the periodic task...*/}
+                        stopWatch.Stop();
                     }
 
-                    // use the same Timeout setting as the System.Threading.Timer, infinite timeout will execute only one iteration.
                     if (intervalInMilliseconds == Timeout.Infinite) { break; }
 
                     iteration++;
@@ -90,10 +84,6 @@ stopWatch.Stop();
             }
         }
 
-        /// <summary>
-        /// Checks if cancelled.
-        /// </summary>
-        /// <param name="cancelToken">The cancel token.</param>
         private static void CheckIfCancelled(CancellationToken cancellationToken)
         {
             if (cancellationToken == null)

@@ -8,13 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Threading;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 
 namespace BluetoothLowEnergy
 {
-    
+
     public delegate void OnNewHeartrateValueEvent(List<HeartRateMeasurement> heartRateMeasurementValue);
     public delegate void OnConnectionToDeviceLost(String deviceName);
     
@@ -137,7 +136,7 @@ namespace BluetoothLowEnergy
                         perdiodicTask = null;
                     }
                 }
-            }, intervalInMilliseconds: 10000, cancelToken: token.Token);
+            }, intervalInMilliseconds: Settings.WAIT_TIME_BETWEEN_RECONNECT_TRIES, cancelToken: token.Token);
         }
 
         private void StartWatching()
@@ -145,7 +144,7 @@ namespace BluetoothLowEnergy
             CancellationTokenSource token = new CancellationTokenSource();
             Task perdiodicTask = PeriodicTaskFactory.Start(() =>
             {
-                if (timeOFLastDataPoint != DateTime.MaxValue && timeOFLastDataPoint.AddSeconds(15).CompareTo(DateTime.Now) == -1)
+                if (timeOFLastDataPoint != DateTime.MaxValue && timeOFLastDataPoint.AddSeconds(Settings.TIME_SINCE_NO_DATA_RECEIVED).CompareTo(DateTime.Now) == -1)
                 {
                     try
                     {
@@ -160,12 +159,12 @@ namespace BluetoothLowEnergy
                     HeartRateService.Instance.DeviceConnectionUpdated -= OnDeviceConnectionUpdated;
                     timeOFLastDataPoint = DateTime.MaxValue;
                     HeartRateService.Instance.Stop();
-                    LoggerWrapper.Instance.WriteToConsole("Received no data since more than 15 seconds");
+                    LoggerWrapper.Instance.WriteToConsole("Received no data since more than " + Settings.TIME_SINCE_NO_DATA_RECEIVED + " seconds");
                     ConnectionLost?.Invoke(connectedDevice.Name);
                     TryReconnectTodevice(connectedDevice);
                 }
 
-            }, intervalInMilliseconds: 5000, cancelToken: token.Token);
+            }, intervalInMilliseconds: Settings.WAIT_TIME_BETWEEN_WATCHING_THREADS, cancelToken: token.Token);
 
         }
 
@@ -207,7 +206,6 @@ namespace BluetoothLowEnergy
             {
                LoggerWrapper.Instance.WriteToConsole("Waiting for device to connect...");
             }
-
         }
     }
 }

@@ -9,7 +9,6 @@ using Shared.Data;
 using System.Data;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 
 namespace BiometricsTracker.Data
 {
@@ -20,11 +19,9 @@ namespace BiometricsTracker.Data
         private static readonly string HEARTRATE = "heartrate";
         private static readonly string RRINTERVAL = "rr";
         private static readonly string DIFFERENCE_RRINTERVAL = "rrdifference";
-
-        private static readonly string TABLE_NAME = "biometrics";
-        private static readonly string CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (" + ID + " INTEGER PRIMARY KEY, " + TIME + " TEXT, " + HEARTRATE + " INTEGER, " + RRINTERVAL + " DOUBLE, " + DIFFERENCE_RRINTERVAL + "DOUBLE )";
-
-        private static readonly string INSERT_QUERY = "INSERT INTO " + TABLE_NAME + "(" + TIME + ", " + HEARTRATE + ", " + RRINTERVAL + ", " + DIFFERENCE_RRINTERVAL + ") VALUES ('{0}', {1}, {2}, {3})";
+        
+        private static readonly string CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.TABLE_NAME + " (" + ID + " INTEGER PRIMARY KEY, " + TIME + " TEXT, " + HEARTRATE + " INTEGER, " + RRINTERVAL + " DOUBLE, " + DIFFERENCE_RRINTERVAL + "DOUBLE )";
+        private static readonly string INSERT_QUERY = "INSERT INTO " + Settings.TABLE_NAME + "(" + TIME + ", " + HEARTRATE + ", " + RRINTERVAL + ", " + DIFFERENCE_RRINTERVAL + ") VALUES ('{0}', {1}, {2}, {3})";
 
         #region create
         internal static void CreateBiometricTables()
@@ -81,7 +78,7 @@ namespace BiometricsTracker.Data
 
         private static double GetLastRRInterval()
         {
-            var query = "Select " + RRINTERVAL + " From " + TABLE_NAME + " ORDER BY ID DESC LIMIT 1;";
+            var query = "Select " + RRINTERVAL + " From " + Settings.TABLE_NAME + " ORDER BY ID DESC LIMIT 1;";
             var table = Database.GetInstance().ExecuteReadQuery(query);
             if (table.Rows.Count != 1)
             {
@@ -107,7 +104,7 @@ namespace BiometricsTracker.Data
         {
             List<Tuple<DateTime, double, double>> result = new List<Tuple<DateTime, double, double>>();
 
-            var query = "SELECT " + "STRFTIME('%Y-%m-%d %H:%M', " + TIME + ")" + ", AVG(" + HEARTRATE + "), AVG(" + DIFFERENCE_RRINTERVAL + "*" + DIFFERENCE_RRINTERVAL + ") FROM " + TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, TIME) + "GROUP BY strftime('%H:%M', " + TIME + ");";
+            var query = "SELECT " + "STRFTIME('%Y-%m-%d %H:%M', " + TIME + ")" + ", AVG(" + HEARTRATE + "), AVG(" + DIFFERENCE_RRINTERVAL + "*" + DIFFERENCE_RRINTERVAL + ") FROM " + Settings.TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, TIME) + "GROUP BY strftime('%H:%M', " + TIME + ");";
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
             foreach (DataRow row in table.Rows)
@@ -207,7 +204,7 @@ namespace BiometricsTracker.Data
         {
             var result = new List<Tuple<DateTime, double>>();
 
-            var query = "SELECT strftime('%Y-%m-%d %H'," + TIME + "), avg(" + column + ") FROM " + TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Week, date, TIME) + " GROUP BY strftime('%Y-%m-%d %H',time);";
+            var query = "SELECT strftime('%Y-%m-%d %H'," + TIME + "), avg(" + column + ") FROM " + Settings.TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Week, date, TIME) + " GROUP BY strftime('%Y-%m-%d %H',time);";
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
             foreach (DataRow row in table.Rows)

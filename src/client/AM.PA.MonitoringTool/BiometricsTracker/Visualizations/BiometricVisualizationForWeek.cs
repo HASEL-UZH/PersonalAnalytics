@@ -16,11 +16,8 @@ namespace BiometricsTracker
 {
     internal class BiometricVisualizationForWeek : BaseVisualization, IVisualization
     {
-        private DateTimeOffset date;
 
-        private static readonly int NUMBER_OF_BUCKETS = 5;
-        private static readonly Color START_COLOR = Color.Blue;
-        private static readonly Color END_COLOR = Color.Red;
+        private DateTimeOffset date;
 
         public BiometricVisualizationForWeek(DateTimeOffset date)
         {
@@ -70,8 +67,8 @@ namespace BiometricsTracker
             html += "height = 240 - margin.top - margin.bottom,";
 
             html += "gridSize = Math.floor(width / 24), legendElementWidth = gridSize * 2,";
-            html += "buckets = " + NUMBER_OF_BUCKETS + ",";
-            html += GetColorRangeAsJSString(NUMBER_OF_BUCKETS, START_COLOR, END_COLOR);
+            html += "buckets = " + Settings.NUMBER_OF_BUCKETS + ",";
+            html += GetColorRangeAsJSString(Settings.NUMBER_OF_BUCKETS, Settings.START_COLOR, Settings.END_COLOR);
             html += "days = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],";
             html += "times = ['01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '24:00'];";
        

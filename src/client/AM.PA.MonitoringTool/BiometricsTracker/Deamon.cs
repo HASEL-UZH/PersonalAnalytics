@@ -15,21 +15,18 @@ using Shared.Data;
 using BluetoothLowEnergyConnector;
 using System.Windows.Forms;
 using System.Drawing;
-using System.Threading.Tasks;
 
 namespace BiometricsTracker
 {
     public sealed class Deamon : BaseTracker, ITracker
     {
-        private const string TrackerEnabledSetting = "BiometricsTrackerEnabled";
-        private const string HeartrateTrackerIDSetting = "HeartrateTrackerID";
 
         private Window window;
         private bool showNotification = true;
 
         public Deamon()
         {
-            Name = "Biometrics Tracker";
+            Name = Settings.TRACKER_NAME;
 
             LoggerWrapper.Instance.NewConsoleMessage += OnNewConsoleMessage;
             LoggerWrapper.Instance.NewLogFileMessage += OnNewLogFileMessage;
@@ -62,15 +59,15 @@ namespace BiometricsTracker
 
         public override bool IsEnabled()
         {
-            return Database.GetInstance().GetSettingsBool(TrackerEnabledSetting, true);
+            return Database.GetInstance().GetSettingsBool(Settings.TRACKER_ENEABLED_SETTING, true);
         }
 
         public override async void Start()
         {
-            bool trackerEnabled = Database.GetInstance().GetSettingsBool(TrackerEnabledSetting, true);
+            bool trackerEnabled = Database.GetInstance().GetSettingsBool(Settings.TRACKER_ENEABLED_SETTING, true);
             if (trackerEnabled)
             {
-                string storedDeviceName = Database.GetInstance().GetSettingsString(HeartrateTrackerIDSetting, String.Empty);
+                string storedDeviceName = Database.GetInstance().GetSettingsString(Settings.HEARTRATE_TRACKER_ID_SETTING, String.Empty);
                 if (storedDeviceName.Equals(String.Empty))
                 {
                     window.ShowDialog();
@@ -107,7 +104,7 @@ namespace BiometricsTracker
         public void OnConnectionEstablished(string deviceID)
         {
             window.Close();
-            Database.GetInstance().SetSettings(HeartrateTrackerIDSetting, deviceID);
+            Database.GetInstance().SetSettings(Settings.HEARTRATE_TRACKER_ID_SETTING, deviceID);
             Connector.Instance.ConnectionLost += OnConnectionToDeviceLost;
             Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
             IsRunning = true;
@@ -148,7 +145,7 @@ namespace BiometricsTracker
         {
             window.Close();
             IsRunning = false;
-            Database.GetInstance().SetSettings(TrackerEnabledSetting, false);
+            Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, false);
         }
 
         public override void UpdateDatabaseTables(int version)
