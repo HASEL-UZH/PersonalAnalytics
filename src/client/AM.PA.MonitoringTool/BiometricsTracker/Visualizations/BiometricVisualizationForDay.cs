@@ -8,6 +8,7 @@ using Shared;
 using Shared.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BiometricsTracker.Visualizations
 {
@@ -19,7 +20,7 @@ namespace BiometricsTracker.Visualizations
         {
             this.date = date;
 
-            Title = "HR and HRV over the Day";
+            Title = "HR and RMSSD over the Day";
             IsEnabled = true;
             Order = 0;
             Size = VisSize.Wide;
@@ -64,33 +65,65 @@ namespace BiometricsTracker.Visualizations
             html += "var yAxisRight = d3.svg.axis().scale(y1).orient('right').ticks(5);";
 
             html += "var valueLine1 = d3.svg.line().defined(function(d) {return d.hr != null; }).x(function(d) {return x(d.ts); }).y(function(d) { return y0(d.hr); });";
-            html += "var valueLine2 = d3.svg.line().defined(function(d) {return d.hrv != null; }).x(function(d) {return x(d.ts); }).y(function(d) { return y1(d.hrv); });";
+            html += "var valueLine2 = d3.svg.line().defined(function(d) {return d.rmssd != null; }).x(function(d) {return x(d.ts); }).y(function(d) { return y1(d.rmssd); });";
 
             html += "var svg = d3.select('#chart').append('svg').attr('width', width + margin.left + margin.righ).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');";
             
             html += "x.domain(d3.extent(data, function(d) { return d.ts}));";
             html += "var hrValues = data.map(function(o){return o.hr;}).filter(function(val) {return val !== null});";
-            html += "var hrvValues = data.map(function(o){return o.hrv;}).filter(function(val) {return val !== null});";
+            html += "var rmssdValues = data.map(function(o){return o.rmssd;}).filter(function(val) {return val !== null});";
 
             html += "y0.domain([d3.min(hrValues) * 0.95, d3.max(data, function(d) {return Math.max(d.hr);}) * 1.01]);";
-            html += "y1.domain([d3.min(hrvValues) * 0.95, d3.max(data, function(d) {return Math.max(d.hrv);}) * 1.01]);";
+            html += "y1.domain([d3.min(rmssdValues) * 0.95, d3.max(data, function(d) {return Math.max(d.rmssd);}) * 1.01]);";
 
             html += "svg.append('path').style('stroke', 'blue').attr('d', valueLine1(data)).attr('fill', 'none');";
             html += "svg.append('path').style('stroke', 'red').attr('d', valueLine2(data)).attr('fill', 'none');";
 
-            html += "svg.append('svg:line').style('stroke', 'blue').attr('x1', 0).attr('x2', width).attr('y1', y0(" + DatabaseConnector.GetAverageHeartrateForDay(date) + ")).attr('y2', y0(" + DatabaseConnector.GetAverageHeartrateForDay(date) + ")).style('stroke-dasharray', ('12, 9')).style('opacity', 0.4);";
-            html += "svg.append('svg:line').style('stroke', 'red').attr('x1', 0).attr('x2', width).attr('y1', y1(" + DatabaseConnector.GetAverageHeartrateVariabilityForDay(date) + ")).attr('y2', y1(" + DatabaseConnector.GetAverageHeartrateVariabilityForDay(date) + ")).style('stroke-dasharray', ('12, 9')).style('opacity', 0.4);";
+            html += "svg.append('svg:line').style('stroke', 'blue').attr('x1', 0).attr('x2', width).attr('y1', y0(" + GetAverageHeartrate(values) + ")).attr('y2', y0(" + GetAverageHeartrate(values) + ")).style('stroke-dasharray', ('12, 9')).style('opacity', 0.4);";
+            html += "svg.append('svg:line').style('stroke', 'red').attr('x1', 0).attr('x2', width).attr('y1', y1(" + GetAverageRMSSD(values) + ")).attr('y2', y1(" + GetAverageRMSSD(values) + ")).style('stroke-dasharray', ('12, 9')).style('opacity', 0.4);";
 
             html += "svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + height + ')').call(xAxis);";
             html += "svg.append('g').attr('class', 'y axis').style('fill', 'blue').call(yAxisLeft);";
             html += "svg.append('g').attr('class', 'y axis').attr('transform', 'translate(' + width + ' ,0)').style('fill', 'red').call(yAxisRight);";
 
             html += "svg.append('text').attr('x', 0).attr('y', -10).style('text-anchor', 'middle').text('HR');";
-            html += "svg.append('text').attr('x', width).attr('y', -10).style('text-anchor', 'middle').text('HRV');";
+            html += "svg.append('text').attr('x', width).attr('y', -10).style('text-anchor', 'middle').text('RMSSD');";
 
             html += "</script>";
             
             return html;
+        }
+
+        private double GetAverageHeartrate(List<Tuple<DateTime, double, double>> values)
+        {
+            double sum = 0;
+            double count = 0;
+            foreach (Tuple<DateTime, double, double> t in values)
+            {
+                if (!Double.IsNaN(t.Item2))
+                {
+                    count++;
+                    sum += t.Item2;
+                }
+            }
+            double average = sum / count;
+            return average;
+        }
+
+        private double GetAverageRMSSD(List<Tuple<DateTime, double, double>> values)
+        {
+            double sum = 0;
+            double count = 0;
+            foreach (Tuple<DateTime, double, double> t in values)
+            {
+                if (!Double.IsNaN(t.Item3))
+                {
+                    count++;
+                    sum += t.Item3;
+                }
+            }
+            double average = sum / count;
+            return average;
         }
 
         private static string GetDataAsJSString(List<Tuple<DateTime, double, double>> values)
@@ -108,31 +141,58 @@ namespace BiometricsTracker.Visualizations
 
                 if (tuplesForThisMinute.Count == 0)
                 {
-                    html += "{'ts': parseDate('" + startTime.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': null" + ", 'hrv': null" + "},";
+                    html += "{'ts': parseDate('" + startTime.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': null" + ", 'rmssd': null" + "},";
                 }
                 else
                 {
                     for (int i = 0; i < tuplesForThisMinute.Count; i++)
                     {
-
                         if (tuplesForThisMinute[i].Item2 == 0 || Double.IsNaN(tuplesForThisMinute[i].Item2))
                         {
                             if (i == 0)
                             {
-                                html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisMinute[i+1].Item2 + ", 'hrv': " + tuplesForThisMinute[i].Item3 + "},";
+                                if (Double.IsNaN(tuplesForThisMinute[i].Item3))
+                                {
+                                    html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisMinute[i + 1].Item2 + ", 'rmssd': " + "null" + "},";
+                                }
+                                else
+                                {
+                                    html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisMinute[i + 1].Item2 + ", 'rmssd': " + tuplesForThisMinute[i].Item3 + "},";
+                                }
                             }
                             else if (i + 1 == tuplesForThisMinute.Count)
                             {
-                                html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisMinute[i-1].Item2 + ", 'hrv': " + tuplesForThisMinute[i].Item3 + "},";
+                                if (Double.IsNaN(tuplesForThisMinute[i].Item3))
+                                { 
+                                    html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisMinute[i - 1].Item2 + ", 'rmssd': " + "null" + "},";
+                                }
+                                else
+                                {
+                                    html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisMinute[i - 1].Item2 + ", 'rmssd': " + tuplesForThisMinute[i].Item3 + "},";
+                                }
                             }
                             else
                             {
-                                html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + ( (tuplesForThisMinute[i - 1].Item2 + tuplesForThisMinute[i - 1].Item2) / 2 ) + ", 'hrv': " + tuplesForThisMinute[i].Item3 + "},";
+                                if (Double.IsNaN(tuplesForThisMinute[i].Item3))
+                                {
+                                    html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + ((tuplesForThisMinute[i - 1].Item2 + tuplesForThisMinute[i - 1].Item2) / 2) + ", 'rmssd': " + "null" + "},";
+                                }
+                                else
+                                {
+                                    html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + ((tuplesForThisMinute[i - 1].Item2 + tuplesForThisMinute[i - 1].Item2) / 2) + ", 'rmssd': " + tuplesForThisMinute[i].Item3 + "},";
+                                }
                             }
                         }
                         else
                         {
-                            html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisMinute[i].Item2 + ", 'hrv': " + tuplesForThisMinute[i].Item3 + "},";
+                            if (Double.IsNaN(tuplesForThisMinute[i].Item3))
+                            {
+                                html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisMinute[i].Item2 + ", 'rmssd': " + "null" + "},";
+                            }
+                            else
+                            {
+                                html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisMinute[i].Item2 + ", 'rmssd': " + tuplesForThisMinute[i].Item3 + "},";
+                            }
                         }
                     }
 

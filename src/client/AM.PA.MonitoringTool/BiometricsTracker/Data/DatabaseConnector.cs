@@ -40,7 +40,6 @@ namespace BiometricsTracker.Data
 
         internal static void AddHeartMeasurementToDatabase(String timestamp, double heartrate, double rrInterval)
         {
-
             double previousRRInterval = GetLastRRInterval();
 
             try
@@ -96,41 +95,12 @@ namespace BiometricsTracker.Data
         }
 
         #region day
-
-        internal static double GetAverageHeartrateForDay(DateTimeOffset date)
-        {
-            return GetSpecificBiometricValueForDay(date, HEARTRATE).Average();
-        }
-
-        internal static double GetAverageHeartrateVariabilityForDay(DateTimeOffset date)
-        {
-            return GetSpecificBiometricValueForDay(date, RRINTERVAL).Average();
-        }
-
-        private static List<double> GetSpecificBiometricValueForDay(DateTimeOffset date, string column)
-        {
-            List<double> values = new List<double>();
-            var query = "SELECT AVG(" + column + ") FROM " + TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, TIME) + "GROUP BY strftime('%H:%M', " + TIME + ");";
-            var table = Database.GetInstance().ExecuteReadQuery(query);
-            foreach (DataRow row in table.Rows)
-            {
-                double value = Double.NaN;
-                double.TryParse(row[0].ToString(), out value);
-
-                values.Add(value);
-            }
-            table.Dispose();
-            return values;
-        }
-
         internal static List<Tuple<DateTime, double, double>> GetBiometricValuesForDay(DateTimeOffset date)
         {
             List<Tuple<DateTime, double, double>> result = new List<Tuple<DateTime, double, double>>();
 
-            var query = "SELECT " + "STRFTIME('%Y-%m-%d %H:%M', " + TIME + ")" + ", AVG(" + HEARTRATE + "), AVG(" + RRINTERVAL + ") FROM " + TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, TIME) + "GROUP BY strftime('%H:%M', " + TIME + ");";
-
-            Logger.WriteToConsole(query);
-
+            var query = "SELECT " + "STRFTIME('%Y-%m-%d %H:%M', " + TIME + ")" + ", AVG(" + HEARTRATE + "), AVG(" + DIFFERENCE_RRINTERVAL + "*" + DIFFERENCE_RRINTERVAL + ") FROM " + TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, TIME) + "GROUP BY strftime('%H:%M', " + TIME + ");";
+            
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
             foreach (DataRow row in table.Rows)
@@ -140,9 +110,16 @@ namespace BiometricsTracker.Data
                 double hr = Double.NaN;
                 double.TryParse(row[1].ToString(), out hr);
 
-                double rr = Double.NaN;
-                double.TryParse(row[2].ToString(), out rr);
-                result.Add(new Tuple<DateTime, double, double>(DateTime.ParseExact(timestamp, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture), hr, rr));
+                double rmssd = Double.NaN;
+                if (row[2] != DBNull.Value)
+                {
+                    double.TryParse(row[2].ToString(), out rmssd);
+                    if (!Double.IsNaN(rmssd))
+                    {
+                        rmssd = Math.Sqrt(rmssd);
+                    }
+                }
+                result.Add(new Tuple<DateTime, double, double>(DateTime.ParseExact(timestamp, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture), hr, rmssd));
             }
             table.Dispose();
 
