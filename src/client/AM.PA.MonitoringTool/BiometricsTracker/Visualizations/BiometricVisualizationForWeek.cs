@@ -55,12 +55,14 @@ namespace BiometricsTracker
             html += "text.mono { font-size: 7.5pt; font-family: Consolas, courier; fill: #aaa; }";
             html += "text.axis-workweek { fill: #000; }";
             html += "text.axis-worktime { fill: #000; }";
+            html += ".tooltip {background-color: white; box-shadow: 4px 4px 4px #888888; -webkit-box-shadow:2px 3px 4px #888888;padding:2px;position:absolute;top:0px;left:0px;visibility:hidden;border: solid 1px black;border-radius:5px;}";
             html += "</style>";
             
             //HTML
             html += "<div id='chart'></div>";
             html += "<div id='dataset-picker' style='float: right;'></div>";
-                
+            html += "<div id='dataDiv' class='tooltip'></div>";
+
             //JS
             html += "<script type='text/javascript'>";
             html += "var margin = { top: 0, right: 0, bottom: 0, left: 20 },";
@@ -105,11 +107,10 @@ namespace BiometricsTracker
             html += "var heatmapChart = function(data) {";
             html += "var colorScale = d3.scale.quantize().domain([d3.min(data, function(d) { return d.value; }), buckets - 1, d3.max(data, function(d) { return d.value; })]).range(colors);";
 
+            html += "svg.selectAll('.hour').remove();";
             html += "var cards = svg.selectAll('.hour').data(data, function(d) { return d.day + ':' + d.hour; });";
-            html += "cards.append('title');";
-            html += "cards.enter().append('rect').attr('x', function(d) { return (d.hour - 1) * gridSize; }).attr('y', function(d) { return (d.day - 1) * gridSize; }).attr('rx', 4).attr('ry', 4).attr('class', 'hour bordered').attr('width', gridSize).attr('height', gridSize).style('fill', colors[0]);";
+            html += "cards.enter().append('rect').attr('x', function(d) { return (d.hour - 1) * gridSize; }).attr('y', function(d) { return (d.day - 1) * gridSize; }).attr('rx', 4).attr('ry', 4).attr('class', 'hour bordered').attr('width', gridSize).attr('height', gridSize).style('fill', colors[0]).attr('data', function(d) { return d.value}).attr('onmouseover', 'showData(evt)').attr('onmouseout', 'hideData(evt)');";
             html += "cards.transition().duration(1000).style('fill', function(d) { return colorScale(d.value); });";
-            html += "cards.select('title').text(function(d) { return d.value; });";
             html += "cards.exit().remove();";
 
             html += "svg.selectAll('.legend').remove();";
@@ -124,6 +125,25 @@ namespace BiometricsTracker
 
             html += "d3.select('#dataset-picker').append('input').attr('type', 'button').attr('value', 'HR').attr('class', 'dataset-button').on('click', function() {heatmapChart(hrdata);});";
             html += "d3.select('#dataset-picker').append('input').attr('type', 'button').attr('value', 'RMSSD').attr('class', 'dataset-button').on('click', function() {heatmapChart(rmssddata);});";
+
+            html += "function showData(evt) { var target = evt.target;  target.setAttribute('opacity', '.8');";
+            html += "var x = evt.clientX;";
+            html += "var y = evt.clientY;";
+            html += "var offsetX = window.pageXOffset;";
+            html += "var offsetY = window.pageYOffset;";
+            html += "dataDiv.style.left = 10 + x + offsetX + 'px';";
+            html += "dataDiv.style.top = 20 + y + offsetY + 'px';";
+            html += "var data = target.getAttribute('data');";
+            html += " var html = data;";
+            html += "dataDiv.innerHTML = html;";
+            html += "dataDiv.style.visibility = 'visible';";
+            html += "}";
+
+            html += "function hideData(evt) {";
+            html += "dataDiv.style.visibility = 'hidden';";
+            html += "var target = evt.target;";
+            html += "target.removeAttribute('opacity');";
+            html += "}";
 
             html += "</script>";
             return html;

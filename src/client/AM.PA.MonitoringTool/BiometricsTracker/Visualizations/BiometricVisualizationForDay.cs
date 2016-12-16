@@ -14,6 +14,7 @@ namespace BiometricsTracker.Visualizations
 {
     internal class BiometricVisualizationForDay : BaseVisualization, IVisualization
     {
+        private const string TIME_FORMAT = "yyyy-MM-dd HH:mm";
         private DateTimeOffset date;
 
         public BiometricVisualizationForDay(DateTimeOffset date)
@@ -141,7 +142,7 @@ namespace BiometricsTracker.Visualizations
 
                 if (tuplesForThisMinute.Count == 0)
                 {
-                    html += "{'ts': parseDate('" + startTime.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': null" + ", 'rmssd': null" + "},";
+                    html += "{'ts': parseDate('" + startTime.ToString(TIME_FORMAT) + "'), 'hr': null" + ", 'rmssd': null" + "},";
                 }
                 else
                 {
@@ -153,33 +154,33 @@ namespace BiometricsTracker.Visualizations
                             {
                                 if (Double.IsNaN(tuplesForThisMinute[i].Item3))
                                 {
-                                    html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisMinute[i + 1].Item2 + ", 'rmssd': " + "null" + "},";
+                                    html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString(TIME_FORMAT) + "'), 'hr': " + tuplesForThisMinute[i + 1].Item2 + ", 'rmssd': " + "null" + "},";
                                 }
                                 else
                                 {
-                                    html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisMinute[i + 1].Item2 + ", 'rmssd': " + tuplesForThisMinute[i].Item3 + "},";
+                                    html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString(TIME_FORMAT) + "'), 'hr': " + tuplesForThisMinute[i + 1].Item2 + ", 'rmssd': " + tuplesForThisMinute[i].Item3 + "},";
                                 }
                             }
                             else if (i + 1 == tuplesForThisMinute.Count)
                             {
                                 if (Double.IsNaN(tuplesForThisMinute[i].Item3))
                                 { 
-                                    html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisMinute[i - 1].Item2 + ", 'rmssd': " + "null" + "},";
+                                    html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString(TIME_FORMAT) + "'), 'hr': " + tuplesForThisMinute[i - 1].Item2 + ", 'rmssd': " + "null" + "},";
                                 }
                                 else
                                 {
-                                    html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisMinute[i - 1].Item2 + ", 'rmssd': " + tuplesForThisMinute[i].Item3 + "},";
+                                    html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString(TIME_FORMAT) + "'), 'hr': " + tuplesForThisMinute[i - 1].Item2 + ", 'rmssd': " + tuplesForThisMinute[i].Item3 + "},";
                                 }
                             }
                             else
                             {
                                 if (Double.IsNaN(tuplesForThisMinute[i].Item3))
                                 {
-                                    html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + ((tuplesForThisMinute[i - 1].Item2 + tuplesForThisMinute[i - 1].Item2) / 2) + ", 'rmssd': " + "null" + "},";
+                                    html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString(TIME_FORMAT) + "'), 'hr': " + ((tuplesForThisMinute[i - 1].Item2 + tuplesForThisMinute[i - 1].Item2) / 2) + ", 'rmssd': " + "null" + "},";
                                 }
                                 else
                                 {
-                                    html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + ((tuplesForThisMinute[i - 1].Item2 + tuplesForThisMinute[i - 1].Item2) / 2) + ", 'rmssd': " + tuplesForThisMinute[i].Item3 + "},";
+                                    html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString(TIME_FORMAT) + "'), 'hr': " + ((tuplesForThisMinute[i - 1].Item2 + tuplesForThisMinute[i - 1].Item2) / 2) + ", 'rmssd': " + tuplesForThisMinute[i].Item3 + "},";
                                 }
                             }
                         }
@@ -187,11 +188,11 @@ namespace BiometricsTracker.Visualizations
                         {
                             if (Double.IsNaN(tuplesForThisMinute[i].Item3))
                             {
-                                html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisMinute[i].Item2 + ", 'rmssd': " + "null" + "},";
+                                html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString(TIME_FORMAT) + "'), 'hr': " + tuplesForThisMinute[i].Item2 + ", 'rmssd': " + "null" + "},";
                             }
                             else
                             {
-                                html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString("yyyy-MM-dd HH:mm") + "'), 'hr': " + tuplesForThisMinute[i].Item2 + ", 'rmssd': " + tuplesForThisMinute[i].Item3 + "},";
+                                html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString(TIME_FORMAT) + "'), 'hr': " + tuplesForThisMinute[i].Item2 + ", 'rmssd': " + tuplesForThisMinute[i].Item3 + "},";
                             }
                         }
                     }
