@@ -19,6 +19,8 @@ namespace BluetoothLowEnergy
 
     public delegate void DeviceConnectionUpdatedHandler(bool isConnected);
 
+    public delegate void BluetoothNotEnabledHandler();
+
     public class HeartRateService
     {
         private const int CHARACTERISTIC_INDEX = 0;
@@ -36,6 +38,7 @@ namespace BluetoothLowEnergy
 
         public event ValueChangeCompletedHandler ValueChangeCompleted;
         public event DeviceConnectionUpdatedHandler DeviceConnectionUpdated;
+        public event BluetoothNotEnabledHandler BluetoothNotEnabled;
 
         public static HeartRateService Instance
         {
@@ -81,7 +84,7 @@ namespace BluetoothLowEnergy
                 {
                     if (e.Message.Contains("Bluetooth radio is required and it must be enabled"))
                     {
-                        LoggerWrapper.Instance.WriteToConsole("Bluetooth not enabled!");
+                        BluetoothNotEnabled?.Invoke();
                         return false;
                     }
                 }
@@ -95,7 +98,7 @@ namespace BluetoothLowEnergy
                 else
                 {
                    LoggerWrapper.Instance.WriteToConsole("Access to the device is denied, because the application was not granted access, or the device is currently in use by another application.");
-                    return false;
+                   return false;
                 }
             }
             catch (Exception e)

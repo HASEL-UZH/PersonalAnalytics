@@ -18,7 +18,8 @@ namespace BluetoothLowEnergy
     public delegate void OnNewHeartrateValueEvent(List<HeartRateMeasurement> heartRateMeasurementValue);
     public delegate void OnConnectionToDeviceLost(String deviceName);
     public delegate void OnConnectionReestablished();
-    
+    public delegate void OnBluetoothNotEnabled();
+
     public class Connector
     {
         private const string CONTAINER_ID_PROPERTY = "System.Devices.ContainerId";
@@ -27,7 +28,14 @@ namespace BluetoothLowEnergy
         private DateTime timeOFLastDataPoint = DateTime.MaxValue;
         private DeviceInformation connectedDevice;
 
-        private Connector() { }
+        private Connector() {
+            HeartRateService.Instance.BluetoothNotEnabled += OnBluetoothNotEnabled;
+        }
+
+        private void OnBluetoothNotEnabled()
+        {
+            BluetoothNotEnabled?.Invoke();
+        }
 
         public async Task<List<PortableBluetoothDeviceInformation>> GetDevices()
         {
@@ -230,6 +238,8 @@ namespace BluetoothLowEnergy
         public event OnConnectionToDeviceLost ConnectionLost;
 
         public event OnNewHeartrateValueEvent ValueChangeCompleted;
+
+        public event OnBluetoothNotEnabled BluetoothNotEnabled;
 
         public void Stop()
         {

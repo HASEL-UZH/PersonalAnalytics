@@ -29,6 +29,7 @@ namespace BiometricsTracker
         private NotifyIcon notification;
         private Window window;
         private bool showNotification = true;
+        private bool showBluetoothNotification = true;
         private double previousRR = Double.NaN;
 
         public Deamon()
@@ -96,6 +97,7 @@ namespace BiometricsTracker
                             Connector.Instance.ConnectionLost += OnConnectionToDeviceLost;
                             Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
                             Connector.Instance.ConnectionReestablished += OnConnectionReestablished;
+                            Connector.Instance.BluetoothNotEnabled += OnBluetoothNotEnabled;
                             Logger.WriteToConsole("Connection established");
                             FindSensorLocation();
                             StartDatabaseTimer();
@@ -111,6 +113,23 @@ namespace BiometricsTracker
             }
         }
 
+        private void OnBluetoothNotEnabled()
+        {
+            Logger.WriteToConsole("Bluetooth not enabled!");
+            if (showBluetoothNotification)
+            {
+                notification = new NotifyIcon();
+                notification.Visible = true;
+                notification.BalloonTipTitle = "PersonalAnalytics: Bluetooth not enabled!";
+                notification.BalloonTipText = "PersonalAnalytics: Bluetooth is not enabled. To use the biometrics tracker, please enabled bluetooth.";
+                notification.Icon = SystemIcons.Exclamation;
+                notification.Text = "PersonalAnalytics: Bluetooth not enabled!";
+                notification.ShowBalloonTip(60 * 1000);
+
+            }
+            showBluetoothNotification = false;
+        }
+
         public void OnConnectionEstablished(string deviceID)
         {
             window.Close();
@@ -118,6 +137,7 @@ namespace BiometricsTracker
             Connector.Instance.ConnectionLost += OnConnectionToDeviceLost;
             Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
             Connector.Instance.ConnectionReestablished += OnConnectionReestablished;
+            Connector.Instance.BluetoothNotEnabled += OnBluetoothNotEnabled;
             FindSensorLocation();
             StartDatabaseTimer();
             IsRunning = true;
