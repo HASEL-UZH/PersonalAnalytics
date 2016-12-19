@@ -24,8 +24,9 @@ namespace BiometricsTracker
     public sealed class Deamon : BaseTracker, ITracker
     {
         private static readonly ConcurrentQueue<HeartRateMeasurement> hrQueue = new ConcurrentQueue<HeartRateMeasurement>();
-        private System.Timers.Timer saveToDatabaseTimer = new System.Timers.Timer(); 
+        private System.Timers.Timer saveToDatabaseTimer = new System.Timers.Timer();
 
+        private NotifyIcon notification;
         private Window window;
         private bool showNotification = true;
         private double previousRR = Double.NaN;
@@ -94,6 +95,7 @@ namespace BiometricsTracker
                         {
                             Connector.Instance.ConnectionLost += OnConnectionToDeviceLost;
                             Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
+                            Connector.Instance.ConnectionReestablished += OnConnectionReestablished;
                             Logger.WriteToConsole("Connection established");
                             FindSensorLocation();
                             StartDatabaseTimer();
@@ -115,9 +117,19 @@ namespace BiometricsTracker
             Database.GetInstance().SetSettings(Settings.HEARTRATE_TRACKER_ID_SETTING, deviceID);
             Connector.Instance.ConnectionLost += OnConnectionToDeviceLost;
             Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
+            Connector.Instance.ConnectionReestablished += OnConnectionReestablished;
             FindSensorLocation();
             StartDatabaseTimer();
             IsRunning = true;
+        }
+
+        private void OnConnectionReestablished()
+        {
+            Logger.WriteToConsole("Connection restablished!");
+            if (notification != null)
+            {
+                notification.Dispose();
+            }
         }
 
         private void StartDatabaseTimer()
@@ -184,13 +196,14 @@ namespace BiometricsTracker
         {
             if (showNotification)
             {
-                NotifyIcon notification = new NotifyIcon();
+                notification = new NotifyIcon();
                 notification.Visible = true;
                 notification.BalloonTipTitle = "PersonalAnalytics: Connection lost!";
                 notification.BalloonTipText = "PersonalAnalytics has lost the connection to: " + deviceName;
                 notification.Icon = SystemIcons.Exclamation;
+                notification.Text = "PersonalAnalytics: Connection to bluetooth device lost!";
                 notification.ShowBalloonTip(60 * 1000);
-                //TODO: Add tooltip for menu
+                
             }
             showNotification = false;
         }
@@ -207,6 +220,7 @@ namespace BiometricsTracker
         {
             Connector.Instance.ValueChangeCompleted -= OnNewHeartrateMeasurement;
             Connector.Instance.ConnectionLost -= OnConnectionToDeviceLost;
+            Connector.Instance.ConnectionReestablished -= OnConnectionReestablished;
             Connector.Instance.Stop();
             saveToDatabaseTimer.Dispose();
             await Task.Run(() =>

@@ -17,6 +17,7 @@ namespace BluetoothLowEnergy
 
     public delegate void OnNewHeartrateValueEvent(List<HeartRateMeasurement> heartRateMeasurementValue);
     public delegate void OnConnectionToDeviceLost(String deviceName);
+    public delegate void OnConnectionReestablished();
     
     public class Connector
     {
@@ -89,7 +90,6 @@ namespace BluetoothLowEnergy
             }
             return null;
         }
-
 
         private async Task<DeviceInformationCollection> GetAllDevices()
         {
@@ -169,7 +169,8 @@ namespace BluetoothLowEnergy
 
                 if (connected)
                 {
-                    LoggerWrapper.Instance.WriteToConsole("Connection restablished!");
+                    ConnectionReestablished?.Invoke();
+
                     try
                     {
                         token.Cancel();
@@ -223,6 +224,8 @@ namespace BluetoothLowEnergy
                 return instance;
             }
         }
+
+        public event OnConnectionReestablished ConnectionReestablished;
 
         public event OnConnectionToDeviceLost ConnectionLost;
 
