@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
+using Windows.Storage.Streams;
 
 namespace BluetoothLowEnergy
 {
@@ -46,6 +47,49 @@ namespace BluetoothLowEnergy
 
             return result;
         }
+
+        public async Task<string> GetBodySensorLocation()
+        {
+            try
+            {
+                var bodySensorLocationCharacteristics = HeartRateService.Instance.Service.GetCharacteristics(GattCharacteristicUuids.BodySensorLocation);
+
+                if (bodySensorLocationCharacteristics.Count > 0)
+                {
+                    GattReadResult readResult = await bodySensorLocationCharacteristics[0].ReadValueAsync();
+                    if (readResult.Status == GattCommunicationStatus.Success)
+                    {
+                        byte[] bodySensorLocationData = new byte[readResult.Value.Length];
+
+                        DataReader.FromBuffer(readResult.Value).ReadBytes(bodySensorLocationData);
+
+                        string bodySensorLocation = HeartRateService.Instance.ProcessBodySensorLocationData(bodySensorLocationData);
+                        if (bodySensorLocation != "")
+                        {
+                           return bodySensorLocation;
+                        }
+                        else
+                        {
+                            LoggerWrapper.Instance.WriteToConsole("The Body Sensor Location is not recognized");
+                        }
+                    }
+                    else
+                    {
+                        LoggerWrapper.Instance.WriteToConsole("Device is unreachable, most likely the device is out of range, or is running low on battery");
+                    }
+                }
+                else
+                {
+                    LoggerWrapper.Instance.WriteToConsole("Device does not support the Body Sensor Location characteristic.");
+                }
+            }
+            catch (Exception e)
+            {
+                LoggerWrapper.Instance.WriteToLogFile(e);
+            }
+            return null;
+        }
+
 
         private async Task<DeviceInformationCollection> GetAllDevices()
         {

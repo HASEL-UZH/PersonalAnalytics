@@ -247,5 +247,41 @@ namespace BluetoothLowEnergy
             }
             return measurements;
         }
+
+        public string ProcessBodySensorLocationData(byte[] bodySensorLocationData)
+        {
+            byte bodySensorLocationValue = bodySensorLocationData[0];
+            string value = string.Empty;
+
+            switch (bodySensorLocationValue)
+            {
+                case 0:
+                    value += "Other";
+                    break;
+                case 1:
+                    value += "Chest";
+                    break;
+                case 2:
+                    value += "Wrist";
+                    break;
+                case 3:
+                    value += "Finger";
+                    break;
+                case 4:
+                    value += "Hand";
+                    break;
+                case 5:
+                    value += "Ear Lobe";
+                    break;
+                case 6:
+                    value += "Foot";
+                    break;
+                default:
+                    value = "";
+                    break;
+            }
+            return value;
+        }
+
     }
 }

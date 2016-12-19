@@ -89,6 +89,7 @@ namespace BiometricsTracker
                             Connector.Instance.ConnectionLost += OnConnectionToDeviceLost;
                             Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
                             Logger.WriteToConsole("Connection established");
+                            FindSensorLocation();
                             IsRunning = true;
                         }
                         else
@@ -107,7 +108,23 @@ namespace BiometricsTracker
             Database.GetInstance().SetSettings(Settings.HEARTRATE_TRACKER_ID_SETTING, deviceID);
             Connector.Instance.ConnectionLost += OnConnectionToDeviceLost;
             Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
+            FindSensorLocation();
             IsRunning = true;
+        }
+
+        private void FindSensorLocation()
+        {
+            string sensorLocation = Connector.Instance.GetBodySensorLocation().Result.ToString();
+            if (sensorLocation != null)
+            {
+                Database.GetInstance().SetSettings(Settings.HEARTRATE_TRACKER_LOCATION_SETTING, sensorLocation);
+                Logger.WriteToConsole("Body sensor location: " + sensorLocation);
+            }
+            else
+            {
+                Database.GetInstance().SetSettings(Settings.HEARTRATE_TRACKER_LOCATION_SETTING, Settings.HEARTRATE_TRACKER_LOCATION_UNKNOWN);
+                Logger.WriteToConsole("Body sensor location unknown");
+            }
         }
 
         private void OnConnectionToDeviceLost(string deviceName)

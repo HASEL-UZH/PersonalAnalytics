@@ -13,6 +13,8 @@ namespace BiometricsTracker
         internal const string TRACKER_NAME = "Biometrics Tracker";
         internal const string TRACKER_ENEABLED_SETTING = "BiometricsTrackerEnabled";
         internal const string HEARTRATE_TRACKER_ID_SETTING = "HeartrateTrackerID";
+        internal const string HEARTRATE_TRACKER_LOCATION_SETTING = "HeartrateTrackerLocation";
+        internal const string HEARTRATE_TRACKER_LOCATION_UNKNOWN = "unknown";
 
         //Database
         internal static readonly string TABLE_NAME = "biometrics";
