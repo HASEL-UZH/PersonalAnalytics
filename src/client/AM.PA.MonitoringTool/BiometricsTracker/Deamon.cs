@@ -15,19 +15,25 @@ using Shared.Data;
 using BluetoothLowEnergyConnector;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Collections.Concurrent;
+using System.Timers;
+using System.Threading.Tasks;
 
 namespace BiometricsTracker
 {
     public sealed class Deamon : BaseTracker, ITracker
     {
+        private static readonly ConcurrentQueue<HeartRateMeasurement> hrQueue = new ConcurrentQueue<HeartRateMeasurement>();
+        private System.Timers.Timer saveToDatabaseTimer = new System.Timers.Timer(); 
 
         private Window window;
         private bool showNotification = true;
+        private double previousRR = Double.NaN;
 
         public Deamon()
         {
             Name = Settings.TRACKER_NAME;
-
+            
             LoggerWrapper.Instance.NewConsoleMessage += OnNewConsoleMessage;
             LoggerWrapper.Instance.NewLogFileMessage += OnNewLogFileMessage;
 
@@ -90,6 +96,7 @@ namespace BiometricsTracker
                             Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
                             Logger.WriteToConsole("Connection established");
                             FindSensorLocation();
+                            StartDatabaseTimer();
                             IsRunning = true;
                         }
                         else
@@ -109,7 +116,53 @@ namespace BiometricsTracker
             Connector.Instance.ConnectionLost += OnConnectionToDeviceLost;
             Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
             FindSensorLocation();
+            StartDatabaseTimer();
             IsRunning = true;
+        }
+
+        private void StartDatabaseTimer()
+        {
+            if (saveToDatabaseTimer != null)
+            {
+                saveToDatabaseTimer.Interval = Settings.SAVE_TO_DATABASE_INTERVAL;
+                saveToDatabaseTimer.Elapsed += OnSaveToDatabase;
+                saveToDatabaseTimer.Start();
+            }
+        }
+
+        private async void OnSaveToDatabase(object sender, ElapsedEventArgs e)
+        {
+            await Task.Run(() =>
+                SaveToDatabase()
+            );
+        }
+
+        private void SaveToDatabase()
+        {
+            if (hrQueue.Count > 0)
+            {
+                List<HeartRateMeasurement> measurements = new List<HeartRateMeasurement>();
+
+                HeartRateMeasurement measurement = null;
+                while (!hrQueue.IsEmpty)
+                {
+                    hrQueue.TryDequeue(out measurement);
+                    if (measurement != null)
+                    {
+                        if (!Double.IsNaN(previousRR))
+                        {
+                            measurement.RRDifference = Math.Abs(measurement.RRInterval - previousRR);
+                        }
+                        previousRR = measurement.RRInterval;
+                        measurements.Add(measurement);
+                    }
+                }
+                DatabaseConnector.AddHeartMeasurementsToDatabase(measurements);
+            }
+            else
+            {
+                Logger.WriteToConsole("Noting to save...");
+            }
         }
 
         private void FindSensorLocation()
@@ -137,24 +190,28 @@ namespace BiometricsTracker
                 notification.BalloonTipText = "PersonalAnalytics has lost the connection to: " + deviceName;
                 notification.Icon = SystemIcons.Exclamation;
                 notification.ShowBalloonTip(60 * 1000);
+                //TODO: Add tooltip for menu
             }
             showNotification = false;
         }
 
-        private void OnNewHeartrateMeasurement(List<HeartRateMeasurement> heartRateMeasurementValue)
+        private async void OnNewHeartrateMeasurement(List<HeartRateMeasurement> heartRateMeasurementValue)
         {
             foreach (HeartRateMeasurement measurement in heartRateMeasurementValue)
             {
-                Logger.WriteToConsole(measurement.ToString());
-                DatabaseConnector.AddHeartMeasurementToDatabase(measurement.Timestamp, measurement.HeartRateValue, measurement.RRInterval);
+                await Task.Run(() => hrQueue.Enqueue(measurement));
             }
         }
 
-        public override void Stop()
+        public override async void Stop()
         {
             Connector.Instance.ValueChangeCompleted -= OnNewHeartrateMeasurement;
             Connector.Instance.ConnectionLost -= OnConnectionToDeviceLost;
             Connector.Instance.Stop();
+            saveToDatabaseTimer.Dispose();
+            await Task.Run(() =>
+                SaveToDatabase()
+            );
             IsRunning = false;
         }
 

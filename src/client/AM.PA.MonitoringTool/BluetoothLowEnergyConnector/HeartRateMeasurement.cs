@@ -10,10 +10,12 @@ namespace BluetoothLowEnergy
     public class HeartRateMeasurement
     {
         private double hr = Double.NaN;
+        private double rrDifference = Double.NaN;
 
         public double HeartRateValue { get { return hr; } set { hr = value; } }
         public string Timestamp { get; set; }
         public double RRInterval { get; set;  }
+        public double RRDifference { get { return rrDifference; } set { rrDifference = value; }  }
 
         public override string ToString()
         {

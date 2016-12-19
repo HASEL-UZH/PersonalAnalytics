@@ -9,6 +9,7 @@ using Shared.Data;
 using System.Data;
 using System.Collections.Generic;
 using System.Globalization;
+using BluetoothLowEnergy;
 
 namespace BiometricsTracker.Data
 {
@@ -22,6 +23,7 @@ namespace BiometricsTracker.Data
         
         private static readonly string CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.TABLE_NAME + " (" + ID + " INTEGER PRIMARY KEY, " + TIME + " TEXT, " + HEARTRATE + " INTEGER, " + RRINTERVAL + " DOUBLE, " + DIFFERENCE_RRINTERVAL + "DOUBLE )";
         private static readonly string INSERT_QUERY = "INSERT INTO " + Settings.TABLE_NAME + "(" + TIME + ", " + HEARTRATE + ", " + RRINTERVAL + ", " + DIFFERENCE_RRINTERVAL + ") VALUES ('{0}', {1}, {2}, {3})";
+        private static readonly string INSERT_QUERY_MULTIPLE_VALUES = "INSERT INTO " + Settings.TABLE_NAME + " SELECT null AS " + ID + ", " + "'{0}' AS " + TIME + ", {1} AS " + HEARTRATE + ", {2} AS " + RRINTERVAL + ", {3} AS " + DIFFERENCE_RRINTERVAL;
 
         #region create
         internal static void CreateBiometricTables()
@@ -38,36 +40,13 @@ namespace BiometricsTracker.Data
         #endregion
 
         #region insert
-        internal static void AddHeartMeasurementToDatabase(String timestamp, double heartrate, double rrInterval)
+        internal static void AddHeartMeasurementToDatabase(String timestamp, double heartrate, double rrInterval, double rrDifference)
         {
-            double previousRRInterval = GetLastRRInterval();
-
+            Console.WriteLine(rrDifference.ToString());
             try
             {
                 string query = string.Empty;
-                if (Double.IsNaN(heartrate))
-                {
-                    if (Double.IsNaN(previousRRInterval))
-                    {
-                        query += String.Format(INSERT_QUERY, timestamp, "null", rrInterval, "null");
-                    }
-                    else
-                    {
-                        query += String.Format(INSERT_QUERY, timestamp, "null", rrInterval, Math.Abs(rrInterval - previousRRInterval));
-                    }
-                }
-                else
-                {
-                    if (Double.IsNaN(previousRRInterval))
-                    {
-                        query += String.Format(INSERT_QUERY, timestamp, heartrate, rrInterval, "null");
-                    }
-                    else
-                    {
-                        query += String.Format(INSERT_QUERY, timestamp, heartrate, rrInterval, Math.Abs(rrInterval - previousRRInterval));
-                    }
-                }
-
+                query += String.Format(INSERT_QUERY, timestamp, Double.IsNaN(heartrate) ? "null" : heartrate.ToString(), rrInterval, Double.IsNaN(rrDifference) ? "null" : rrDifference.ToString());
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }
             catch (Exception e)
@@ -75,26 +54,39 @@ namespace BiometricsTracker.Data
                 Logger.WriteToLogFile(e);
             }
         }
-
-        private static double GetLastRRInterval()
+        
+        internal static void AddHeartMeasurementsToDatabase(List<HeartRateMeasurement> measurements)
         {
-            var query = "Select " + RRINTERVAL + " From " + Settings.TABLE_NAME + " ORDER BY ID DESC LIMIT 1;";
-            var table = Database.GetInstance().ExecuteReadQuery(query);
-            if (table.Rows.Count != 1)
+            try
             {
-                table.Dispose();
-                return Double.NaN;
-            }
-            else
-            {
-                if (table.Rows[0][0] == DBNull.Value)
+                if (measurements.Count == 0)
                 {
-                    return Double.NaN;
+                    return;
                 }
-                double value = Double.NaN;
-                double.TryParse(table.Rows[0][0].ToString(), out value);
-                table.Dispose();
-                return value;
+                else if (measurements.Count == 1)
+                {
+                    string query = string.Empty;
+                    query += String.Format(INSERT_QUERY, measurements[0].Timestamp, Double.IsNaN(measurements[0].HeartRateValue) ? "null" : measurements[0].HeartRateValue.ToString(), measurements[0].RRInterval, Double.IsNaN(measurements[0].RRDifference) ? "null" : measurements[0].RRDifference.ToString());
+                    Database.GetInstance().ExecuteDefaultQuery(query);
+                }
+                else
+                {
+                    string query = string.Empty;
+                    query += String.Format(INSERT_QUERY_MULTIPLE_VALUES, measurements[0].Timestamp, Double.IsNaN(measurements[0].HeartRateValue) ? "null" : measurements[0].HeartRateValue.ToString(), measurements[0].RRInterval, Double.IsNaN(measurements[0].RRDifference) ? "null" : measurements[0].RRDifference.ToString());
+
+                    for (int i = 1; i < measurements.Count; i++)
+                    {
+                        query += String.Format(" UNION ALL SELECT null, '{0}', {1}, {2}, {3}", measurements[i].Timestamp, Double.IsNaN(measurements[i].HeartRateValue) ? "null" : measurements[i].HeartRateValue.ToString(), measurements[i].RRInterval, Double.IsNaN(measurements[i].RRDifference) ? "null" : measurements[i].RRDifference.ToString());
+                    }
+
+                    Logger.WriteToConsole(query);
+
+                    Database.GetInstance().ExecuteDefaultQuery(query);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
             }
         }
         #endregion
