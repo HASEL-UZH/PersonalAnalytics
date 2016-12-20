@@ -27,10 +27,12 @@ namespace BiometricsTracker
         private System.Timers.Timer saveToDatabaseTimer = new System.Timers.Timer();
 
         private NotifyIcon notification;
+        private NotifyIcon btNotification;
         private Window window;
         private bool showNotification = true;
         private bool showBluetoothNotification = true;
         private double previousRR = Double.NaN;
+        private bool isConnectedToBluetoothDevice = false;
 
         public Deamon()
         {
@@ -63,6 +65,11 @@ namespace BiometricsTracker
         public override void CreateDatabaseTablesIfNotExist()
         {
             DatabaseConnector.CreateBiometricTables();
+        }
+
+        public override string GetStatus()
+        {
+            return IsRunning ? (Name + " is running. A bluetooth device is " + (isConnectedToBluetoothDevice ? " connected." : "NOT connected")) : (Name + " is NOT running");
         }
 
         public override bool IsEnabled()
@@ -102,6 +109,7 @@ namespace BiometricsTracker
                             FindSensorLocation();
                             StartDatabaseTimer();
                             IsRunning = true;
+                            isConnectedToBluetoothDevice = true;
                         }
                         else
                         {
@@ -118,13 +126,13 @@ namespace BiometricsTracker
             Logger.WriteToConsole("Bluetooth not enabled!");
             if (showBluetoothNotification)
             {
-                notification = new NotifyIcon();
-                notification.Visible = true;
-                notification.BalloonTipTitle = "PersonalAnalytics: Bluetooth not enabled!";
-                notification.BalloonTipText = "PersonalAnalytics: Bluetooth is not enabled. To use the biometrics tracker, please enabled bluetooth.";
-                notification.Icon = SystemIcons.Exclamation;
-                notification.Text = "PersonalAnalytics: Bluetooth not enabled!";
-                notification.ShowBalloonTip(60 * 1000);
+                btNotification = new NotifyIcon();
+                btNotification.Visible = true;
+                btNotification.BalloonTipTitle = "PersonalAnalytics: Bluetooth not enabled!";
+                btNotification.BalloonTipText = "PersonalAnalytics: Bluetooth is not enabled. To use the biometrics tracker, please enabled bluetooth.";
+                btNotification.Icon = SystemIcons.Exclamation;
+                btNotification.Text = "PersonalAnalytics: Bluetooth not enabled!";
+                btNotification.ShowBalloonTip(60 * 1000);
 
             }
             showBluetoothNotification = false;
@@ -141,6 +149,7 @@ namespace BiometricsTracker
             FindSensorLocation();
             StartDatabaseTimer();
             IsRunning = true;
+            isConnectedToBluetoothDevice = true;
         }
 
         private void OnConnectionReestablished()
@@ -150,6 +159,12 @@ namespace BiometricsTracker
             {
                 notification.Dispose();
             }
+            if (btNotification != null)
+            {
+                btNotification.Dispose();
+            }
+
+            isConnectedToBluetoothDevice = true;
         }
 
         private void StartDatabaseTimer()
@@ -226,6 +241,7 @@ namespace BiometricsTracker
                 
             }
             showNotification = false;
+            isConnectedToBluetoothDevice = false;
         }
 
         private async void OnNewHeartrateMeasurement(List<HeartRateMeasurement> heartRateMeasurementValue)
@@ -247,12 +263,14 @@ namespace BiometricsTracker
                 SaveToDatabase()
             );
             IsRunning = false;
+            isConnectedToBluetoothDevice = false;
         }
 
         internal void OnTrackerDisabled()
         {
             window.Close();
             IsRunning = false;
+            isConnectedToBluetoothDevice = false;
             Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, false);
         }
 
