@@ -24,5 +24,8 @@ namespace BiometricsTracker
         internal static readonly int NUMBER_OF_BUCKETS = 5;
         internal static readonly Color START_COLOR = Color.Blue;
         internal static readonly Color END_COLOR = Color.Red;
+        internal const double HEARTRATE_THRESHOLD = 200;
+        internal const double RR_INTERVAL_THRESHOLD = 1 / 200;
+        internal const double RR_DIFFERENCE_THRESHOLD = 2;
     }
 }

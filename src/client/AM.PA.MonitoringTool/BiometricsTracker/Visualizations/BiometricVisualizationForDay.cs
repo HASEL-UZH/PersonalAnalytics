@@ -203,7 +203,11 @@ namespace BiometricsTracker.Visualizations
                 {
                     for (int i = 0; i < tuplesForThisMinute.Count; i++)
                     {
-                        if (tuplesForThisMinute[i].Item2 == 0 || Double.IsNaN(tuplesForThisMinute[i].Item2))
+                        if (Double.IsNaN(tuplesForThisMinute[i].Item2) && Double.IsNaN(tuplesForThisMinute[i].Item3))
+                        {
+                            //do nothing, discard this datapoint
+                        }
+                        else if (tuplesForThisMinute[i].Item2 == 0 || Double.IsNaN(tuplesForThisMinute[i].Item2))
                         {
                             if (i == 0)
                             {

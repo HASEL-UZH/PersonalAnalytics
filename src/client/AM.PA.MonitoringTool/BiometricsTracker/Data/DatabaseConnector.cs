@@ -15,11 +15,11 @@ namespace BiometricsTracker.Data
 {
     public class DatabaseConnector
     {
-        private static readonly string ID = "id";
-        private static readonly string TIME = "time";
-        private static readonly string HEARTRATE = "heartrate";
-        private static readonly string RRINTERVAL = "rr";
-        private static readonly string DIFFERENCE_RRINTERVAL = "rrdifference";
+        private const string ID = "id";
+        private const string TIME = "time";
+        private const string HEARTRATE = "heartrate";
+        private const string RRINTERVAL = "rr";
+        private const string DIFFERENCE_RRINTERVAL = "rrdifference";
         
         private static readonly string CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.TABLE_NAME + " (" + ID + " INTEGER PRIMARY KEY, " + TIME + " TEXT, " + HEARTRATE + " INTEGER, " + RRINTERVAL + " DOUBLE, " + DIFFERENCE_RRINTERVAL + "DOUBLE )";
         private static readonly string INSERT_QUERY = "INSERT INTO " + Settings.TABLE_NAME + "(" + TIME + ", " + HEARTRATE + ", " + RRINTERVAL + ", " + DIFFERENCE_RRINTERVAL + ") VALUES ('{0}', {1}, {2}, {3})";
@@ -105,11 +105,19 @@ namespace BiometricsTracker.Data
                 
                 double hr = Double.NaN;
                 double.TryParse(row[1].ToString(), out hr);
+                if (IsAboveThresholdValue(hr, HEARTRATE))
+                {
+                    hr = Double.NaN;
+                }
 
                 double rmssd = Double.NaN;
                 if (row[2] != DBNull.Value)
                 {
                     double.TryParse(row[2].ToString(), out rmssd);
+                    if (IsAboveThresholdValue(rmssd, DIFFERENCE_RRINTERVAL))
+                    {
+                        rmssd = Double.NaN;
+                    }
                     if (!Double.IsNaN(rmssd))
                     {
                         rmssd = Math.Sqrt(rmssd);
@@ -196,23 +204,56 @@ namespace BiometricsTracker.Data
         {
             var result = new List<Tuple<DateTime, double>>();
 
-            var query = "SELECT strftime('%Y-%m-%d %H'," + TIME + "), avg(" + column + ") FROM " + Settings.TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Week, date, TIME) + " GROUP BY strftime('%Y-%m-%d %H',time);";
+            var query = "SELECT strftime('%Y-%m-%d %H'," + TIME + "), avg(" + column + ") FROM " + Settings.TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Week, date, TIME) + "AND " + column + " <= " + GetThresholdValue(column) + " GROUP BY strftime('%Y-%m-%d %H',time);";
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
             foreach (DataRow row in table.Rows)
             {
                 var timestamp = (String)row[0];
-                double rr = Double.NaN;
+                double value = Double.NaN;
                 if (row[1] != DBNull.Value)
                 {
-                    double.TryParse(row[1].ToString(), out rr);
+                   double.TryParse(row[1].ToString(), out value);
                 }
-                result.Add(new Tuple<DateTime, double>(DateTime.ParseExact(timestamp, "yyyy-MM-dd H", CultureInfo.InvariantCulture), rr));
+                result.Add(new Tuple<DateTime, double>(DateTime.ParseExact(timestamp, "yyyy-MM-dd H", CultureInfo.InvariantCulture), value));
             }
             table.Dispose();
 
             return result;
         }
+
+        private static double GetThresholdValue(string column)
+        {
+            switch(column)
+            {
+                case HEARTRATE:
+                    return Settings.HEARTRATE_THRESHOLD;
+
+                case RRINTERVAL:
+                    return Settings.RR_INTERVAL_THRESHOLD;
+
+                case DIFFERENCE_RRINTERVAL:
+                    return Settings.RR_DIFFERENCE_THRESHOLD;
+            }
+            return Double.MaxValue;
+        }
+
+        private static bool IsAboveThresholdValue(double value, string column)
+        {
+            switch (column)
+            {
+                case HEARTRATE:
+                    return value > Settings.HEARTRATE_THRESHOLD;
+
+                case RRINTERVAL:
+                    return value > Settings.RR_INTERVAL_THRESHOLD;
+
+                case DIFFERENCE_RRINTERVAL:
+                    return value > Settings.RR_DIFFERENCE_THRESHOLD;
+            }
+            return false;
+        }
+
         #endregion
     }
 }

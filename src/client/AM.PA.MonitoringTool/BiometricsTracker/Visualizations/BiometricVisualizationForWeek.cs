@@ -131,7 +131,7 @@ namespace BiometricsTracker
             html += "dataDiv.style.left = 10 + x + offsetX + 'px';";
             html += "dataDiv.style.top = 20 + y + offsetY + 'px';";
             html += "var data = target.getAttribute('data');";
-            html += " var html = data;";
+            html += "var html = data;";
             html += "dataDiv.innerHTML = html;";
             html += "dataDiv.style.visibility = 'visible';";
             html += "}";
