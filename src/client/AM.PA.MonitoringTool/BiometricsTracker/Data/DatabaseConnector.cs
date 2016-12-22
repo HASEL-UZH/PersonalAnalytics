@@ -114,10 +114,12 @@ namespace BiometricsTracker.Data
                 if (row[2] != DBNull.Value)
                 {
                     double.TryParse(row[2].ToString(), out rmssd);
-                    if (IsAboveThresholdValue(rmssd, DIFFERENCE_RRINTERVAL))
+                    
+                    if (rmssd > 1)
                     {
                         rmssd = Double.NaN;
                     }
+
                     if (!Double.IsNaN(rmssd))
                     {
                         rmssd = Math.Sqrt(rmssd);
@@ -162,10 +164,9 @@ namespace BiometricsTracker.Data
 
             //Iterate Sunday
             result.AddRange(CalculateHourAverage(GetBiometricValuesForDay(date)));
-            
             return result;
         }
-
+        
         private static List<Tuple<DateTime, double>> CalculateHourAverage(List<Tuple<DateTime, double, double>> values)
         {
             var result = new List<Tuple<DateTime, double>>();
@@ -228,10 +229,7 @@ namespace BiometricsTracker.Data
             {
                 case HEARTRATE:
                     return Settings.HEARTRATE_THRESHOLD;
-
-                case RRINTERVAL:
-                    return Settings.RR_INTERVAL_THRESHOLD;
-
+                    
                 case DIFFERENCE_RRINTERVAL:
                     return Settings.RR_DIFFERENCE_THRESHOLD;
             }
@@ -244,9 +242,6 @@ namespace BiometricsTracker.Data
             {
                 case HEARTRATE:
                     return value > Settings.HEARTRATE_THRESHOLD;
-
-                case RRINTERVAL:
-                    return value > Settings.RR_INTERVAL_THRESHOLD;
 
                 case DIFFERENCE_RRINTERVAL:
                     return value > Settings.RR_DIFFERENCE_THRESHOLD;
