@@ -76,8 +76,8 @@
       <HintPath>..\packages\Microsoft.OData.ProxyExtensions.1.0.35\lib\portable-net45+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10\Microsoft.OData.ProxyExtensions.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.Office365.OutlookServices.Portable, Version=2.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Office365.OutlookServices-V2.0.2.0.1.0\lib\portable-net45+win+wpa81+wp80\Microsoft.Office365.OutlookServices.Portable.dll</HintPath>
+    <Reference Include="Microsoft.Office365.OutlookServices.Portable, Version=2.0.1.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Office365.OutlookServices-V2.0.2.0.1.2\lib\portable-net45+win+wpa81+wp80\Microsoft.Office365.OutlookServices.Portable.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Spatial, Version=6.15.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -128,8 +128,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-<PropertyGroup>
-<BuildEnvironment>DEV</BuildEnvironment>
-</PropertyGroup>
-<Import Project="../../../web/Customized.targets" Condition=" '$(BuildEnvironment)' == 'DEPLOY' "/>
+  <PropertyGroup>
+    <BuildEnvironment>DEV</BuildEnvironment>
+  </PropertyGroup>
+  <Import Project="../../../web/Customized.targets" Condition=" '$(BuildEnvironment)' == 'DEPLOY' " />
 </Project>
