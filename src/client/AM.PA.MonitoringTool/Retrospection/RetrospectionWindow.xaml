@@ -31,7 +31,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- Title -->
-            <TextBlock Grid.Column="0" x:Name="RetrospectionTitle" Text="Retrospection and insights" VerticalAlignment="Center" Foreground="White" FontSize="16" Margin="10 0 0 0" />
+            <TextBlock Grid.Column="0" x:Name="RetrospectionTitle" Text="Retrospection and Insights" VerticalAlignment="Center" Foreground="White" FontSize="16" Margin="10 0 0 0" />
 
             <!-- Day/Week View -->
             <StackPanel x:Name="DayControl" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">

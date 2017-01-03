@@ -143,9 +143,9 @@ namespace Retrospection
             switch (visType)
             {
                 case VisType.Day:
-                    return "Your retrospection for the " + date.Date.ToShortDateString();
+                    return "Your Retrospection for the " + date.Date.ToShortDateString();
                 case VisType.Week:
-                    return string.Format(CultureInfo.InvariantCulture, "Your retrospection for Week {0} ({1} - {2})",
+                    return string.Format(CultureInfo.InvariantCulture, "Your Retrospection for Week {0} ({1} - {2})",
                         DateTimeHelper.GetWeekOfYear_Iso8601(date.Date),
                         DateTimeHelper.GetFirstDayOfWeek_Iso8801(date.Date).Date.ToShortDateString(),
                         DateTimeHelper.GetLastDayOfWeek_Iso8801(date.Date).Date.ToShortDateString());

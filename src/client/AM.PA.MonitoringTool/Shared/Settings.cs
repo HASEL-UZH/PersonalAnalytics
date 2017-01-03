@@ -12,9 +12,15 @@ namespace Shared
     public static class Settings
     {
         public const int DatabaseVersion = 2; // !!! update when exisitng database table changes (have a look at PerformDatabaseUpdatesIfNecessary() for details)
-        public const bool IsFeedbackEnabled = false;
+        public const bool IsFeedbackEnabled = true;
+
+#if PilotMSR
         public const bool IsUploadEnabled = true;
         public const bool IsUploadReminderEnabled = true;
+#else
+        public const bool IsUploadEnabled = false;
+        public const bool IsUploadReminderEnabled = false;
+#endif
 
         public static bool AnonymizeSensitiveData = false;
         public const bool PrintQueriesToConsole = false;
@@ -58,8 +64,13 @@ namespace Shared
         ////////////////////////////////////////////////////////////
         // contact emails
 
-        public const string EmailAddress1 = "ameyer@ifi.uzh.ch"; // main email address
-        public const string EmailAddress2 = "tzimmer@microsoft.com";
 
+#if PilotMSR
+        public const string EmailAddress1 = "tzimmer@microsoft.com"; // main email address
+        public const string EmailAddress2 = "ameyer@ifi.uzh.ch";
+#else
+        public const string EmailAddress1 = "ameyer@ifi.uzh.ch"; // main email address
+        public static string EmailAddress2 = string.Empty;
+#endif
     }
 }

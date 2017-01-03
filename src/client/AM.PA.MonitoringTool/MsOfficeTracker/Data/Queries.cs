@@ -7,7 +7,10 @@ using MsOfficeTracker.Helpers;
 using Shared;
 using Shared.Data;
 using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
+using System.Linq;
 
 namespace MsOfficeTracker.Data
 {
@@ -193,11 +196,10 @@ namespace MsOfficeTracker.Data
         }
 
         /// <summary>
-        /// The emails sent, received, and inbox values (last item stored for given date)
+        /// email metrics
         /// </summary>
         /// <param name="date"></param>
-        /// <returns>Tuple item1: sent, item2: received</returns>
-        internal static Tuple<DateTime, long, long, int, int, int> GetEmailsSnapshot(DateTimeOffset date)
+        internal static Tuple<DateTime, long, long, long, long, long> GetEmailsSnapshot(DateTimeOffset date)
         {
             try
             {
@@ -211,27 +213,77 @@ namespace MsOfficeTracker.Data
                 if (table != null && table.Rows.Count == 1)
                 {
                     var row = table.Rows[0];
- 
+
                     var inbox = row.IsNull("inbox") ? -1 : Convert.ToInt64(row["inbox"], CultureInfo.InvariantCulture);
                     var inboxUnread = row.IsNull("inboxUnread") ? -1 : Convert.ToInt64(row["inboxUnread"], CultureInfo.InvariantCulture);
-                    var sent = row.IsNull("sent") ? -1 : Convert.ToInt32(row["sent"], CultureInfo.InvariantCulture);
-                    var received = row.IsNull("received") ? -1 : Convert.ToInt32(row["received"], CultureInfo.InvariantCulture);
-                    var receivedUnread = row.IsNull("receivedUnread") ? -1 : Convert.ToInt32(row["receivedUnread"], CultureInfo.InvariantCulture);
+                    var sent = row.IsNull("sent") ? -1 : Convert.ToInt64(row["sent"], CultureInfo.InvariantCulture);
+                    var received = row.IsNull("received") ? -1 : Convert.ToInt64(row["received"], CultureInfo.InvariantCulture);
+                    var receivedUnread = row.IsNull("receivedUnread") ? -1 : Convert.ToInt64(row["receivedUnread"], CultureInfo.InvariantCulture);
                     var timestamp = DateTime.Parse((string)row["time"], CultureInfo.InvariantCulture);
 
                     table.Dispose();
-                    return new Tuple<DateTime, long, long, int, int, int>(timestamp, inbox, inboxUnread, sent, received, receivedUnread);
+                    return new Tuple<DateTime, long, long, long, long, long>(timestamp, inbox, inboxUnread, sent, received, receivedUnread);
                 }
                 else
                 {
                     table.Dispose();
-                    return new Tuple<DateTime, long, long, int, int, int>(DateTime.MinValue, -1, -1, -1, -1, -1);
+                    return new Tuple<DateTime, long, long, long, long, long>(DateTime.MinValue, -1, -1, -1, -1, -1);
                 }
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return new Tuple<DateTime, long, long, int, int, int>(DateTime.MinValue, -1, -1, -1, -1, -1);
+                return new Tuple<DateTime, long, long, long, long, long>(DateTime.MinValue, -1, -1, -1, -1, -1);
+            }
+        }
+
+        /// <summary>
+        /// Averages over 'numberOfDays' for the email metrics
+        /// </summary>
+        /// <param name="numberOfDays">how many days back for average</param>
+        internal static Tuple<double, double, double, double, double> GetEmailsSnapshotAverages(int numberOfDays)
+        {
+            try
+            {
+                var query =   @"SELECT DATE(e.time), e.inbox, e.inboxUnread, e.sent, e.received, e.receivedUnread
+                                  FROM " + Settings.EmailsTable + @"  as e
+                                  JOIN (SELECT MAX(ee.time) 'maxtimestamp'
+                                         FROM emails ee
+                                     GROUP BY date(ee.time)) as m ON m.maxtimestamp = e.time
+                                ORDER BY time DESC
+                                LIMIT " + numberOfDays + ";";
+
+                var table = Database.GetInstance().ExecuteReadQuery(query);
+
+
+                var inboxItems = new List<long>();
+                var inboxUnreadItems = new List<long>();
+                var sentItems = new List<long>();
+                var receivedItems = new List<long>();
+                var receivedUnreadItems = new List<long>();
+
+                foreach (DataRow row in table.Rows)
+                {
+                    inboxItems.Add(row.IsNull("inbox") ? -1 : Convert.ToInt64(row["inbox"], CultureInfo.InvariantCulture));
+                    inboxUnreadItems.Add(row.IsNull("inboxUnread") ? -1 : Convert.ToInt64(row["inboxUnread"], CultureInfo.InvariantCulture));
+                    sentItems.Add(row.IsNull("sent") ? -1 : Convert.ToInt64(row["sent"], CultureInfo.InvariantCulture));
+                    receivedItems.Add(row.IsNull("received") ? -1 : Convert.ToInt64(row["received"], CultureInfo.InvariantCulture));
+                    receivedUnreadItems.Add(row.IsNull("receivedUnread") ? -1 : Convert.ToInt64(row["receivedUnread"], CultureInfo.InvariantCulture));
+                }
+                table.Dispose();
+
+                var inboxAvg = inboxItems.Where(e => e > -1).DefaultIfEmpty().Average(e => e);
+                var inboxUnreadAvg = inboxUnreadItems.Where(e => e > -1).DefaultIfEmpty().Average(e => e);
+                var sentAvg = sentItems.Where(e => e > -1).DefaultIfEmpty().Average(e => e);
+                var receivedAvg = receivedItems.Where(e => e > -1).DefaultIfEmpty().Average(e => e);
+                var receivedUnreadAvg = receivedUnreadItems.Where(e => e > -1).DefaultIfEmpty().Average(e => e);
+
+                return new Tuple<double, double, double, double, double>(inboxAvg, inboxUnreadAvg, sentAvg, receivedAvg, receivedUnreadAvg);
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+                return new Tuple<double, double, double, double, double>(-1, -1, -1, -1, -1);
             }
         }
 
@@ -240,39 +292,39 @@ namespace MsOfficeTracker.Data
         /// </summary>
         /// <param name="date"></param>
         /// <returns>Tuple item1: sent, item2: received</returns>
-        internal static Tuple<DateTime, int> GetAverageInboxSize(DateTimeOffset date)
-        {
-            try
-            {
-                var query = "SELECT time, avg(inbox) as avg FROM " + Settings.EmailsTable + " "
-                            + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date) + " "
-                            + "AND inbox != -1 "
-                            + "ORDER BY timestamp DESC "
-                            + "LIMIT 1;";
+        //internal static Tuple<DateTime, int> GetAverageInboxSize(DateTimeOffset date)
+        //{
+        //    try
+        //    {
+        //        var query = "SELECT time, avg(inbox) as avg FROM " + Settings.EmailsTable + " "
+        //                    + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date) + " "
+        //                    + "AND inbox != -1 "
+        //                    + "ORDER BY timestamp DESC "
+        //                    + "LIMIT 1;";
 
-                var table = Database.GetInstance().ExecuteReadQuery(query);
+        //        var table = Database.GetInstance().ExecuteReadQuery(query);
 
-                if (table != null && table.Rows.Count == 1)
-                {
-                    var row = table.Rows[0];
-                    var inbox = Convert.ToDouble(row["avg"], CultureInfo.InvariantCulture);
-                    var inboxRounded = (int)Math.Round(inbox, 0);
-                    var timestamp = DateTime.Parse((string)row["time"], CultureInfo.InvariantCulture);
+        //        if (table != null && table.Rows.Count == 1)
+        //        {
+        //            var row = table.Rows[0];
+        //            var inbox = Convert.ToDouble(row["avg"], CultureInfo.InvariantCulture);
+        //            var inboxRounded = (int)Math.Round(inbox, 0);
+        //            var timestamp = DateTime.Parse((string)row["time"], CultureInfo.InvariantCulture);
 
-                    table.Dispose();
-                    return new Tuple<DateTime, int>(timestamp, inboxRounded);
-                }
-                else
-                {
-                    table.Dispose();
-                    return new Tuple<DateTime, int>(DateTime.MinValue, -1);
-                }
-            }
-            catch (Exception e)
-            {
-                //Logger.WriteToLogFile(e);
-                return new Tuple<DateTime, int>(DateTime.MinValue, -1);
-            }
-        }
+        //            table.Dispose();
+        //            return new Tuple<DateTime, int>(timestamp, inboxRounded);
+        //        }
+        //        else
+        //        {
+        //            table.Dispose();
+        //            return new Tuple<DateTime, int>(DateTime.MinValue, -1);
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        //Logger.WriteToLogFile(e);
+        //        return new Tuple<DateTime, int>(DateTime.MinValue, -1);
+        //    }
+        //}
     }
 }

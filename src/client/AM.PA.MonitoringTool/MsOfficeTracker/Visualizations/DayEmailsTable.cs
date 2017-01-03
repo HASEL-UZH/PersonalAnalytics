@@ -18,7 +18,7 @@ namespace MsOfficeTracker.Visualizations
         {
             this._date = date;
 
-            Title = "Email Stats";
+            Title = "Email Stats (with Averages)";
             IsEnabled = true; //todo: handle by user
             Order = 6; //todo: handle by user
             Size = VisSize.Square;
@@ -34,7 +34,7 @@ namespace MsOfficeTracker.Visualizations
             /////////////////////
 
             // get the latest stored email entry
-            var emailsSnapshotResult = Queries.GetEmailsSnapshot(_date);
+            var emailsSnapshotResult = Queries.GetEmailsSnapshot(_date.Date);
             var inbox = emailsSnapshotResult.Item2;
             var inboxUnread = emailsSnapshotResult.Item3;
             var sent = emailsSnapshotResult.Item4;
@@ -63,31 +63,38 @@ namespace MsOfficeTracker.Visualizations
                 return VisHelper.NotEnoughData(Dict.NotEnoughData);
             }
 
-            // as a goodie get this too :)
-            //var timeSpentInOutlook = Queries.TimeSpentInOutlook(_date);
+            // get averages over last 2 months
+            var averagesSnapshot = Queries.GetEmailsSnapshotAverages(60);
 
 
             /////////////////////
             // HTML
             /////////////////////
 
-            //var emailInboxString = (inboxSize == -1) ? "?" : inboxSize.ToString(CultureInfo.InvariantCulture);
-            //html += "<p style='text-align: center; margin-top:-0.7em;'><strong style='font-size:2.5em;'>" + emailInboxString + "</strong></p>";
-
             html += "<table>";
-            if (sent > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + sent + "</strong></td><td>emails sent</td></tr>";
-            if (received > -1 && receivedUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + (received - receivedUnread) + "</strong></td><td>emails received that are read</td></tr>";
-            if (received > -1 && receivedUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + receivedUnread + "</strong></td><td>emails received that are unread</td></tr>";
-            if (inbox > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + inbox + "</strong></td><td>emails in your inbox</td></tr>";
-            if (inboxUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + inboxUnread + "</strong></td><td>unread emails in your inbox</td></tr>";
+            if (sent > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + sent + "</strong></td><td>emails sent" + FormatAverage(sent, averagesSnapshot.Item3) + "</td></tr>";
+            if (received > -1 && receivedUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + (received - receivedUnread) + "</strong></td><td>emails received that are read" + FormatAverage((received - receivedUnread), averagesSnapshot.Item4 - averagesSnapshot.Item5) + "</td></tr>";
+            if (received > -1 && receivedUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + receivedUnread + "</strong></td><td>emails received that are unread" + FormatAverage(receivedUnread, averagesSnapshot.Item5) + "</td></tr>";
+            if (inbox > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + inbox + "</strong></td><td>emails in your inbox" + FormatAverage(inbox, averagesSnapshot.Item1) + "</td></tr>";
+            if (inboxUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + inboxUnread + "</strong></td><td>unread emails in your inbox" + FormatAverage(inboxUnread, averagesSnapshot.Item2) + "</td></tr>";
             html += "</table>";
-        
-            //if (timeSpentInOutlook > 1)
-            //{
-            //    html += "<p style='text-align: center; margin-top:-0.7em;'>time spent in Outlook: " + Math.Round(timeSpentInOutlook, 0) + "min</p>";
-            //}
 
             return html;
+        }
+
+        private string FormatAverage(long currentValue, double average)
+        {
+            string averageCorr = "  (≈) ";
+            var diff = (currentValue - average);
+            if (diff >= 1) // more than average
+            {
+                averageCorr = "  (▲+" + Math.Abs(Math.Round(diff, 0)) + ")";
+            }
+            else if (diff <= -1) // less than average
+            {
+                averageCorr = "  (▼-" + Math.Abs(Math.Round(diff, 0)) + ")";
+            }
+            return averageCorr;
         }
     }
 }

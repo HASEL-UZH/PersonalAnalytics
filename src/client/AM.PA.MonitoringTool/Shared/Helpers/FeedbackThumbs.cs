@@ -79,7 +79,6 @@ namespace Shared.Helpers
                     + "<input class=\"thumb\" type=\"image\"  src=\"thumbDownGray.png\" onmouseover=\"this.src='thumbDownBlue.png'\" onmouseout=\"this.src='thumbDownGray.png'\" onclick =\"window.external.JS_ThumbsVote('down', '{0}', '{1}', '{2}')\" />"
                     + "</div>";
 
-
             return string.Format(CultureInfo.InvariantCulture, html, VisHelper.CreateChartHtmlTitle(vis.Title), vis.Type, date);
         }
     }
