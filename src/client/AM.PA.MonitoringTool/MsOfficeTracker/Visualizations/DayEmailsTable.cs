@@ -46,8 +46,7 @@ namespace MsOfficeTracker.Visualizations
 
             // if database entry is outdated or not there, create a live API call and override entries
             if (emailsSnapshotResult.Item1 == DateTime.MinValue || // no emails stored yet
-                (isToday && lastUpdatedMinsAgo > Settings.SaveEmailCountsIntervalInMinutes) || // request is for today and saved results are too old
-                (sent == -1) || (received == -1) || (receivedUnread == -1)) // could not fetch sent emails
+                (isToday && lastUpdatedMinsAgo > Settings.SaveEmailCountsIntervalInMinutes)) // request is for today and saved results are too old // could not fetch sent emails
             {
                 // create and save a new email snapshot (inbox, sent, received)
                 var res = Queries.CreateEmailsSnapshot(_date.Date, false);
@@ -77,8 +76,8 @@ namespace MsOfficeTracker.Visualizations
 
             html += "<table>";
             if (sent > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + sent + "</strong></td><td>emails sent</td></tr>";
-            if (received > -1 && receivedUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + (received - receivedUnread) + "</strong></td><td>emails received and read</td></tr>";
-            if (receivedUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + receivedUnread + "</strong></td><td>emails received and currently unread</td></tr>";
+            if (received > -1 && receivedUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + (received - receivedUnread) + "</strong></td><td>emails received that are read</td></tr>";
+            if (receivedUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + receivedUnread + "</strong></td><td>emails received that are unread</td></tr>";
             if (inbox > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + inbox + "</strong></td><td>emails in your inbox</td></tr>";
             if (inboxUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + inboxUnread + "</strong></td><td>unread emails in your inbox</td></tr>";
             html += "</table>";

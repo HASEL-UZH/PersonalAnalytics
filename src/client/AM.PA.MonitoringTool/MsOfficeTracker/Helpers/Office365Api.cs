@@ -572,7 +572,7 @@ namespace MsOfficeTracker.Helpers
                     .Where(m => m.ReceivedDateTime.Value >= dtStart && m.ReceivedDateTime.Value <= dtEnd)
                     //todo: filter if not in Junk Email and Deleted Folder (maybe with ParentFolderId)
                     .Take(20)
-                    .Select(m => new { m.From, m.ParentFolderId }) // new DisplayEmail(m))
+                    .Select(m => new { m.ParentFolderId }) // new DisplayEmail(m)) // m.From
                     .ExecuteAsync();
 
                 var deleteFolders = await GetDeleteAndJunkFolderIds();
