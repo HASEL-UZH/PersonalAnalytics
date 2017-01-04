@@ -67,9 +67,12 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\ProcessToActivityMapper.cs" />
+    <Compile Include="Models\ActivityCategory.cs" />
+    <Compile Include="Models\WindowsActivityEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Visualizations\DayMostFocusedProgram.cs" />
-    <Compile Include="Visualizations\DayActivityTimeline.cs" />
+    <Compile Include="Visualizations\DayFragmentationTimeline.cs" />
     <Compile Include="Visualizations\DayProgramsUsedPieChart.cs" />
     <Compile Include="Daemon.cs" />
     <Compile Include="Data\Queries.cs" />

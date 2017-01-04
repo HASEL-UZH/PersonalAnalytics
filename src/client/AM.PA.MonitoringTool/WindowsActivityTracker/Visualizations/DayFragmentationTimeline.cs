@@ -13,19 +13,18 @@ using System.Globalization;
 
 namespace WindowsActivityTracker.Visualizations
 {
-    internal class DayActivityTimeLine : BaseVisualization, IVisualization
+    internal class DayFragmentationTimeline : BaseVisualization, IVisualization
     {
         private readonly DateTimeOffset _date;
-        //private const int _maxNumberOfPrograms = 10;
 
-        public DayActivityTimeLine(DateTimeOffset date)
+        public DayFragmentationTimeline(DateTimeOffset date)
         {
             this._date = date;
 
             Title = "Activities over the Day"; //hint; overwritten below
             IsEnabled = true; //todo: handle by user
-            Order = 1; //todo: handle by user
-            Size = VisSize.Square;
+            Order = 2; //todo: handle by user
+            Size = VisSize.Wide;
             Type = VisType.Day;
         }
 
@@ -36,24 +35,24 @@ namespace WindowsActivityTracker.Visualizations
             /////////////////////
             // fetch data sets
             /////////////////////
-            
+            var orderedTimelineList = Queries.GetDayTimelineData(_date, true);
 
             /////////////////////
             // data cleaning
             /////////////////////
-            
+
 
 
             /////////////////////
             // HTML
             /////////////////////
-            
+
 
 
             /////////////////////
             // JS
             /////////////////////
-            
+
 
             return html;
         }
