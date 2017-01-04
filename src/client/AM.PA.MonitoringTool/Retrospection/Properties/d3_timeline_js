@@ -22,11 +22,11 @@
         display = "rect",
         beginning = 0,
         ending = 0,
-        margin = {left: 30, right:30, top: 30, bottom:30},
+        margin = {left: 0, right:0, top: 0, bottom:0}, // orig: {left: 30, right:30, top: 30, bottom:30},
         stacked = false,
         rotateTicks = false,
         timeIsRelative = false,
-        itemHeight = 20,
+        itemHeight = 30, // orig: 20
         itemMargin = 5,
         showTodayLine = false,
         showTodayFormat = {marginTop: 25, marginBottom: 0, width: 1, color: colorCycle},

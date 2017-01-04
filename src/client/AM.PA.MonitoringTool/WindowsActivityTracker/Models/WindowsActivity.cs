@@ -7,7 +7,7 @@ using System;
 
 namespace WindowsActivityTracker.Models
 {
-    public class WindowsActivityEntry
+    public class WindowsActivity
     {
         public int Id { get; set; }
         public string Participant { get; set; }

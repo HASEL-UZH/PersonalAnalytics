@@ -99,9 +99,9 @@ namespace WindowsActivityTracker.Data
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        internal static List<WindowsActivityEntry> GetDayTimelineData(DateTimeOffset date, bool mapToActivity)
+        internal static List<WindowsActivity> GetDayTimelineData(DateTimeOffset date, bool mapToActivity)
         {
-            var orderedActivityList = new List<WindowsActivityEntry>();
+            var orderedActivityList = new List<WindowsActivity>();
 
             try
             {
@@ -112,12 +112,12 @@ namespace WindowsActivityTracker.Data
 
                 var table = Database.GetInstance().ExecuteReadQuery(query);
 
-                WindowsActivityEntry _previousWindowsActivityEntry = null;
+                WindowsActivity _previousWindowsActivityEntry = null;
 
                 foreach (DataRow row in table.Rows)
                 {
                     // fetch items from database
-                    var e = new WindowsActivityEntry();
+                    var e = new WindowsActivity();
                     e.StartTime = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
                     e.EndTime = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
                     e.DurationInSeconds = row.IsNull("durInSec") ? 0 : Convert.ToInt32(row["durInSec"], CultureInfo.InvariantCulture);

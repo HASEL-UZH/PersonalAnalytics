@@ -65,7 +65,7 @@ namespace WindowsActivityTracker.Helpers
         /// Map a single WindowsActivityEntry-item
         /// </summary>
         /// <param name="item"></param>
-        public static void Map(WindowsActivityEntry item)
+        public static void Map(WindowsActivity item)
         {
             item.ActivityCategory = GetCategory(item.ProcessName, item.WindowTitle);
         }
@@ -161,7 +161,7 @@ namespace WindowsActivityTracker.Helpers
                         return ActivityCategory.DevCode;
 
                     // map remaining (manually)
-                    return ActivityCategory.WorkRelatedBrowsing; // should be manually coded, we assume it's work related by default
+                    return ActivityCategory.WorkRelatedBrowsing; // should be manually coded, default: work related
                 }
                 // check with file explorer (navigation) keywords
                 if (IsCategory(ActivityCategory.FileNavigationInExplorer, processName, windowName))
