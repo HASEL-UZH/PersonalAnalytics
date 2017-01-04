@@ -18,7 +18,7 @@ namespace WindowsActivityTracker.Visualizations
     {
         private readonly DateTimeOffset _date;
         private bool _isStacked = false; //TODO: test with stack
-        private const int _visWidth = 800; //1200;
+        private int _visWidth = 800;
         private const bool _mapToActivity = true;
 
         public DayFragmentationTimeline(DateTimeOffset date)
@@ -56,15 +56,10 @@ namespace WindowsActivityTracker.Visualizations
             }
 
             /////////////////////
-            // HTML
+            // Create HTML
             /////////////////////
 
             html += GetActivityVisualizationContent(orderedTimelineList);
-
-            /////////////////////
-            // JS
-            /////////////////////
-
 
             return html;
         }
@@ -72,21 +67,40 @@ namespace WindowsActivityTracker.Visualizations
         private string GetActivityVisualizationContent(List<WindowsActivity> activityList)
         {
             var categories = activityList.Select(a => a.ActivityCategory).Distinct().OrderBy(a => a).ToList();
-
-            // TODO: remove these
             string activityTimeline = "activityTimeline";
-            string onLoad = "onLoad";
 
             var html = string.Empty;
+
+            /////////////////////
+            // CSS
+            /////////////////////
+
+            html += @"<style type='text/css'>
+                    .axis path,
+                    .axis line {
+                      fill: none;
+                      stroke: black;
+                      shape-rendering: crispEdges;
+                    }
+                    .axis text {
+                      font-size: .71em;
+                    }
+                    .timeline-label {
+                      font-size: .71em;
+                    }
+                    /*.coloredDiv {
+                      height:20px; width:20px; float:left; margin-right:5px;
+                    }
+                    </style>";
 
             /////////////////////
             // Javascript
             /////////////////////
 
             html += @"<script type='text/javascript'>
-                                var " + onLoad + @" = window.onload;
-                                window.onload = function() { 
-                                if (typeof " + onLoad + @" == 'function') { " + onLoad + "(); } ";
+                    var onLoad = window.onload;
+                    window.onload = function() { 
+                    if (typeof onLoad == 'function') { onLoad(); } ";
 
             // create formatted javascript data list
             html += "var data = [" + CreateJavascriptActivityDataList(activityList) + "]; ";
@@ -97,8 +111,8 @@ namespace WindowsActivityTracker.Visualizations
             // define configuration
             html += (_isStacked)
                     ? "var " + activityTimeline + " = d3.timeline().width(" + _visWidth + ").stack().colors(colorScale).colorProperty('activity');"
-                    : "var " + activityTimeline + " = d3.timeline().colors(colorScale).colorProperty('activity');";
-            html += "var svg = d3.select('#" + activityTimeline + "').append('svg').attr('width', " + _visWidth + ").datum(data).call(" + activityTimeline + "); ";
+                    : "var " + activityTimeline + " = d3.timeline().width(" + _visWidth + ").colors(colorScale).colorProperty('activity');";
+            html += "var svg = d3.select('#" + activityTimeline + "').append('svg').attr('width', " + _visWidth + ").datum(data).call(" + activityTimeline + "); "; //\"51em\"
 
             html += "}; "; // end #1
             html += "</script>";
@@ -106,9 +120,12 @@ namespace WindowsActivityTracker.Visualizations
             /////////////////////
             // HTML
             /////////////////////
+
+            // add timeline
             html += "<div id='" + activityTimeline + "' align='center'></div>";
 
-            html += GetLegendForCategories(_visWidth, categories);
+            // add legend (if not stacked; there we have a legend)
+            if (!_isStacked) html += GetLegendForCategories(_visWidth, categories);
 
             return html;
         }
@@ -142,6 +159,8 @@ namespace WindowsActivityTracker.Visualizations
             return html;
         }
 
+        #region Helpers for legend and colors
+
         /// <summary>
         /// Creates a colored square for each category (legend)
         /// </summary>
@@ -151,36 +170,15 @@ namespace WindowsActivityTracker.Visualizations
         private string GetLegendForCategories(int visWidth, List<ActivityCategory> categoryList)
         {
             var html = string.Empty;
-            html += "<style type='text/css'>";
-            html += "#legend li { display:inline-block; padding-right: 20px; list-style-type: square; }";
-            html += "li:before { content: '■ '} ";
-            html += "li span { font: 10px sans-serif; color: black; } ";
-            html += "</style>";
+            html += @"<style type='text/css'>
+                    #legend li { display: inline-block; padding-right: 1em; list-style-type: square; }
+                    li:before { content: '■ '} 
+                    li span { font-size: .71em; color: black;} 
+                    </style>";
 
-            html += categoryList.Aggregate(string.Empty, (current, cat) => current + ("<li style='color:" + GetHtmlColorForContextCategory(cat) + "'><span>" + GetDescriptionForContextCategory(cat) + "</span></li>"));
-
-            // order activity list alphabetically, for a better legend!
-            //activityList.Sort((actOne, actTwo) => GetDescriptionForContextCategory(actOne).CompareTo(GetDescriptionForContextCategory(actTwo)));
-
-            // first (if existent) put development related, then reading/editing, then meetings, then browsing, then all others in new line!
-            //var devActivities = activityList.Where(activity => IsDev(activity));
-            //var edActivities = activityList.Where(activity => IsEditing(activity));
-            //var commActivities = activityList.Where(activity => IsCommunication(activity));
-            //var browsActivities = activityList.Where(activity => IsBrowsing(activity));
-            //var otherActivities = activityList.Where(activity => !IsDev(activity) && !IsEditing(activity) && !IsCommunication(activity) && !IsBrowsing(activity));
-
-            //html += activityList.Aggregate(string.Empty, (current, item) => current + ("<li style='color:" + GetHtmlColorForContextCategory(item) + "'><span>" + GetDescriptionForContextCategory(item) + "</span></li>"));
-
-            //html += "<style>tab1 {padding-left:6.4em} tab2 {padding-left:5.4em} tab3 {padding-left:0.9em} tab4 {padding-left:8.2em} tab5 {padding-left:9.6em} tab6 {padding-left:4em}</style>"
-            //        + "<div style='width:" + visWidth + "px; alignment:center;'><ul id='legend' align='left' list-style-type:none>"
-            //        //order colors so that darker one comes first then aggregate all activities
-            //        + ((devActivities != null && devActivities.Count() > 0) ? "<ul id='legend' >Development: <tab1>" + devActivities.OrderBy(activity => GetHtmlColorForContextCategory(activity)).Aggregate(string.Empty, (current, item) => current + (GetLegendEntryForActivity(item))) + "</tab1></ul><ul id='legend'>" : String.Empty)
-            //        + ((edActivities != null && edActivities.Count() > 0) ? "Editing/Reading: <tab2>  " + edActivities.Aggregate(string.Empty, (current, item) => current + (GetLegendEntryForActivity(item))) + "</tab2></ul><ul id='legend' align='center'>" : String.Empty)
-            //        + ((commActivities != null && commActivities.Count() > 0) ? "Meetings/Comm./Planning: <tab3>" + commActivities.OrderBy(activity => GetHtmlColorForContextCategory(activity)).Aggregate(string.Empty, (current, item) => current + (GetLegendEntryForActivity(item))) + "</tab3></ul><ul id='legend' align='center'>" : String.Empty)
-            //        + "Meetings (Outlook): <tab6>" + GetLegendEntryForActivity("PlannedMeeting") + "</tab6></ul><ul id='legend' align='center'>"
-            //        + ((browsActivities != null && browsActivities.Count() > 0) ? "Browsing:  <tab4>   " + browsActivities.OrderBy(activity => GetHtmlColorForContextCategory(activity)).Aggregate(string.Empty, (current, item) => current + (GetLegendEntryForActivity(item))) + "</tab4></ul><ul id='legend' align='center'>" : String.Empty)
-            //        + ((otherActivities != null && otherActivities.Count() > 0) ? "Other: <tab5>  " + otherActivities.Aggregate(string.Empty, (current, item) => current + (GetLegendEntryForActivity(item))) + "</tab5></ul><ul id='legend' align='center'>" : String.Empty)
-            //        + "</ul></div>";
+            html += "<div style='width:" + visWidth + "px'><ul id='legend' align='center'>"
+                   +  categoryList.Where(c => c != ActivityCategory.Idle).Aggregate(string.Empty, (current, cat) => current + ("<li style='color:" + GetHtmlColorForContextCategory(cat) + "'><span>" + GetDescriptionForContextCategory(cat) + "</span></li>"))
+                   +  "</ul></div>";
 
             return html;
         }
@@ -191,7 +189,7 @@ namespace WindowsActivityTracker.Visualizations
         }
 
         /// <summary>
-        /// TODO: document
+        /// Creates a colorscheme for each activity category
         /// </summary>
         /// <param name="activityList"></param>
         /// <returns></returns>
@@ -267,30 +265,30 @@ namespace WindowsActivityTracker.Visualizations
             switch (category)
             {
                 case ActivityCategory.DevCode:
-                    return "Development (Coding)";
+                    return "Development";
                 case ActivityCategory.DevDebug:
                     return "Debugging";
                 case ActivityCategory.DevVc:
                     return "Version Control";
                 case ActivityCategory.DevReview:
-                    return "Reviewing";
+                    return "Code Reviewing";
                 case ActivityCategory.ReadWriteDocument:
-                    return "Reading/Editing documents";
+                    return "Reading/Editing Documents";
                 case ActivityCategory.InformalMeeting:
                 case ActivityCategory.InstantMessaging:
-                    return "Ad-hoc meetings / IM";
+                    return "Ad-hoc meetings/IM";
                 case ActivityCategory.PlannedMeeting:
-                    return "Scheduled meetings/calls";
+                    return "Scheduled meetings";
                 case ActivityCategory.Planning:
-                    return "Planning tasks/work items";
+                    return "Planning";
                 case ActivityCategory.Email:
-                    return "Reading/writing emails";
+                    return "Emails";
                 //case ActivityCategory.WebBrowsing:
                 //    return "Browsing (uncategorized)";
                 case ActivityCategory.WorkRelatedBrowsing:
-                    return "Browsing (categorized as work related)";// "Work related browsing";
+                    return "Browsing work-related";// "Work related browsing";
                 case ActivityCategory.WorkUnrelatedBrowsing:
-                    return "Browsing (categorized as less work related)";// "Work un-related browsing";
+                    return "Browsing work-unrelated";// "Work un-related browsing";
                 case ActivityCategory.FileNavigationInExplorer:
                     return "Navigation in File Explorer";
                 case ActivityCategory.Other:
@@ -298,7 +296,7 @@ namespace WindowsActivityTracker.Visualizations
                 //case ActivityCategory.OtherMusic:
                 //    return "OtherMusic";
                 case ActivityCategory.Unknown:
-                    return "Uncategorized activities";
+                    return "Uncategorized";
                 case ActivityCategory.OtherRdp:
                     return "RDP (uncategorized)";
                 case ActivityCategory.Idle:
@@ -307,7 +305,8 @@ namespace WindowsActivityTracker.Visualizations
 
             return "??"; // default color
         }
-  
+
+        #endregion
 
         #region Helpers
 

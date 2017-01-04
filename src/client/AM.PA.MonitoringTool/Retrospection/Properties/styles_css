@@ -26,27 +26,3 @@ img { border: 0; }
 /*#menu { padding-top: 30px; padding-bottom: 5px; }*/
 /*#menu a { padding-left: 15px; }*/
 /*#footer { margin-top: 20px; margin-bottom: 10px; text-align: center; color: #666; }*/
-
-
-   
-   
-/* =============================
-   GANT TIMELINE
-   ============================= */
-/*.axis path,
-.axis line {
-  fill: none;
-  stroke: black;
-  shape-rendering: crispEdges;
-}
-.axis text {
-  font-family: sans-serif;
-  font-size: 10px;
-}
-.timeline-label {
-  font-family: sans-serif;
-  font-size: 11px;
-}
-.coloredDiv {
-  height:20px; width:20px; float:left; margin-right:5px;
-}*/
