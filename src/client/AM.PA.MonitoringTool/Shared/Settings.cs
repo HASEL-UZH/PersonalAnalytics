@@ -16,7 +16,7 @@ namespace Shared
          * version 2 - update emails table in MsOfficeTracker (2016-06-20)
          * version 3 - update focus_state table in FlowTracker (2017-01-12)
          */
-        public const int DatabaseVersion = 2; // !!! update when existing database table changes (have a look at PerformDatabaseUpdatesIfNecessary() for details)
+        public const int DatabaseVersion = 3; // !!! update when existing database table changes (have a look at PerformDatabaseUpdatesIfNecessary() for details)
         public const bool IsFeedbackEnabled = true;
 
 #if PilotMSR
