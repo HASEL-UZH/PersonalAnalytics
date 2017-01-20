@@ -5,20 +5,20 @@
 
 using System.Drawing;
 
-namespace BiometricsTracker
+namespace PolarTracker
 {
     internal class Settings
     {
         //Deamon
-        internal const string TRACKER_NAME = "Biometrics Tracker";
-        internal const string TRACKER_ENEABLED_SETTING = "BiometricsTrackerEnabled";
+        internal const string TRACKER_NAME = "Polar Tracker";
+        internal const string TRACKER_ENEABLED_SETTING = "PolarTrackerEnabled";
         internal const string HEARTRATE_TRACKER_ID_SETTING = "HeartrateTrackerID";
         internal const string HEARTRATE_TRACKER_LOCATION_SETTING = "HeartrateTrackerLocation";
         internal const string HEARTRATE_TRACKER_LOCATION_UNKNOWN = "unknown";
         internal const int SAVE_TO_DATABASE_INTERVAL = 60 * 1000;
 
         //Database
-        internal static readonly string TABLE_NAME = "biometrics";
+        internal static readonly string TABLE_NAME = "polar";
 
         //Visualization for week
         internal static readonly int NUMBER_OF_BUCKETS = 5;

@@ -48,14 +48,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Settings.cs" />
-    <Compile Include="Visualizations\BiometricVisualizationForWeek.cs" />
+    <Compile Include="Visualizations\PolarVisualizationForWeek.cs" />
     <Compile Include="Data\DatabaseConnector.cs" />
     <Compile Include="Deamon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Views\ChooseBluetoothDevice.xaml.cs">
       <DependentUpon>ChooseBluetoothDevice.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Visualizations\BiometricVisualizationForDay.cs" />
+    <Compile Include="Visualizations\PolarVisualizationForDay.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BluetoothLowEnergyConnector\BluetoothLowEnergyConnector.csproj">

@@ -3,20 +3,20 @@
 // 
 // Licensed under the MIT License.
 
-using BiometricsTracker.Data;
+using PolarTracker.Data;
 using Shared;
 using Shared.Helpers;
 using System;
 using System.Collections.Generic;
 
-namespace BiometricsTracker.Visualizations
+namespace PolarTracker.Visualizations
 {
-    internal class BiometricVisualizationForDay : BaseVisualization, IVisualization
+    internal class PolarVisualizationForDay : BaseVisualization, IVisualization
     {
         private const string TIME_FORMAT = "yyyy-MM-dd HH:mm";
         private DateTimeOffset date;
 
-        public BiometricVisualizationForDay(DateTimeOffset date)
+        public PolarVisualizationForDay(DateTimeOffset date)
         {
             this.date = date;
 
@@ -32,7 +32,7 @@ namespace BiometricsTracker.Visualizations
             var html = string.Empty;
 
             //Get Data
-            List<Tuple<DateTime, double, double>> values = DatabaseConnector.GetBiometricValuesForDay(date);
+            List<Tuple<DateTime, double, double>> values = DatabaseConnector.GetPolarValuesForDay(date);
             
             if (values.Count <= 1)
             {

@@ -56,7 +56,7 @@ namespace PersonalAnalytics
             Register(new UserEfficiencyTracker.Daemon());
             Register(new UserInputTracker.Daemon());
             Register(new MsOfficeTracker.Daemon());
-            Register(new BiometricsTracker.Deamon());
+            Register(new PolarTracker.Deamon());
           
 #if TestPilot1
             //Register(new FocusLightTracker.Daemon());

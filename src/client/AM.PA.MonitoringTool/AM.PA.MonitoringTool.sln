@@ -23,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsOfficeTracker", "MsOffice
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluetoothLowEnergyConnector", "BluetoothLowEnergyConnector\BluetoothLowEnergyConnector.csproj", "{6FF21D77-0B66-409D-B57C-E5338C50849B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BiometricsTracker", "BiometricsTracker\BiometricsTracker.csproj", "{C42CC860-6372-469F-A52B-5D675F2650D6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PolarTracker", "PolarTracker\PolarTracker.csproj", "{C42CC860-6372-469F-A52B-5D675F2650D6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

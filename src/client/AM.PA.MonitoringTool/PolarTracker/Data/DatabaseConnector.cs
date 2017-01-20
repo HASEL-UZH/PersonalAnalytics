@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using BluetoothLowEnergy;
 
-namespace BiometricsTracker.Data
+namespace PolarTracker.Data
 {
     public class DatabaseConnector
     {
@@ -26,7 +26,7 @@ namespace BiometricsTracker.Data
         private static readonly string INSERT_QUERY_MULTIPLE_VALUES = "INSERT INTO " + Settings.TABLE_NAME + " SELECT null AS " + ID + ", " + "'{0}' AS " + TIME + ", {1} AS " + HEARTRATE + ", {2} AS " + RRINTERVAL + ", {3} AS " + DIFFERENCE_RRINTERVAL;
 
         #region create
-        internal static void CreateBiometricTables()
+        internal static void CreatePolarTables()
         {
             try
             {
@@ -92,7 +92,7 @@ namespace BiometricsTracker.Data
         #endregion
 
         #region day
-        internal static List<Tuple<DateTime, double, double>> GetBiometricValuesForDay(DateTimeOffset date)
+        internal static List<Tuple<DateTime, double, double>> GetPolarValuesForDay(DateTimeOffset date)
         {
             List<Tuple<DateTime, double, double>> result = new List<Tuple<DateTime, double, double>>();
 
@@ -137,12 +137,12 @@ namespace BiometricsTracker.Data
         #region week
         internal static List<Tuple<DateTime, double>> GetHRVValuesForWeek(DateTimeOffset date)
         {
-            return GetBiometricValuesForWeek(date, RRINTERVAL);
+            return GetPolarValuesForWeek(date, RRINTERVAL);
         }
 
         internal static List<Tuple<DateTime, double>> GetHRValuesForWeek(DateTimeOffset date)
         {
-            return GetBiometricValuesForWeek(date, HEARTRATE);
+            return GetPolarValuesForWeek(date, HEARTRATE);
         }
 
         internal static List<Tuple<DateTime, double>> GetRMSSDValuesForWeek(DateTimeOffset date)
@@ -158,12 +158,12 @@ namespace BiometricsTracker.Data
             //Iterate over whole week
             while (date.DayOfWeek != DayOfWeek.Sunday)
             {
-                result.AddRange(CalculateHourAverage(GetBiometricValuesForDay(date)));
+                result.AddRange(CalculateHourAverage(GetPolarValuesForDay(date)));
                 date = date.AddDays(1);
             }
 
             //Iterate Sunday
-            result.AddRange(CalculateHourAverage(GetBiometricValuesForDay(date)));
+            result.AddRange(CalculateHourAverage(GetPolarValuesForDay(date)));
             return result;
         }
         
@@ -201,7 +201,7 @@ namespace BiometricsTracker.Data
             return result;
         }
 
-        private static List<Tuple<DateTime, double>> GetBiometricValuesForWeek(DateTimeOffset date, String column)
+        private static List<Tuple<DateTime, double>> GetPolarValuesForWeek(DateTimeOffset date, String column)
         {
             var result = new List<Tuple<DateTime, double>>();
 

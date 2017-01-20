@@ -10,7 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Shared;
 
-namespace BiometricsTracker.Views
+namespace PolarTracker.Views
 {
     /// <summary>
     /// Interaction logic for ChooseBluetoothDevice.xaml

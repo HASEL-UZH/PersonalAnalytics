@@ -7,19 +7,19 @@
 //
 using System;
 using Shared;
-using BiometricsTracker.Data;
+using PolarTracker.Data;
 using Shared.Helpers;
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace BiometricsTracker
+namespace PolarTracker
 {
-    internal class BiometricVisualizationForWeek : BaseVisualization, IVisualization
+    internal class PolarVisualizationForWeek : BaseVisualization, IVisualization
     {
 
         private DateTimeOffset date;
 
-        public BiometricVisualizationForWeek(DateTimeOffset date)
+        public PolarVisualizationForWeek(DateTimeOffset date)
         {
             this.date = date;
 

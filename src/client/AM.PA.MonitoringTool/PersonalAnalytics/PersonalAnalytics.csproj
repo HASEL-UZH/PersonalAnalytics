@@ -240,9 +240,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BiometricsTracker\BiometricsTracker.csproj">
+    <ProjectReference Include="..\PolarTracker\PolarTracker.csproj">
       <Project>{c42cc860-6372-469f-a52b-5d675f2650d6}</Project>
-      <Name>BiometricsTracker</Name>
+      <Name>PolarTracker</Name>
     </ProjectReference>
     <ProjectReference Include="..\TimeSpentVisualizer\TimeSpentVisualizer.csproj">
       <Project>{8eba3b95-be0e-4498-9eac-20d417176a00}</Project>

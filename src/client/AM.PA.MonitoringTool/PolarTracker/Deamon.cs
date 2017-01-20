@@ -4,12 +4,12 @@
 // Licensed under the MIT License.
 
 using BluetoothLowEnergy;
-using BiometricsTracker.Data;
+using PolarTracker.Data;
 using Shared;
 using System.Collections.Generic;
-using BiometricsTracker.Visualizations;
+using PolarTracker.Visualizations;
 using System;
-using BiometricsTracker.Views;
+using PolarTracker.Views;
 using System.Windows;
 using Shared.Data;
 using BluetoothLowEnergyConnector;
@@ -19,7 +19,7 @@ using System.Collections.Concurrent;
 using System.Timers;
 using System.Threading.Tasks;
 
-namespace BiometricsTracker
+namespace PolarTracker
 {
     public sealed class Deamon : BaseTracker, ITracker
     {
@@ -64,7 +64,7 @@ namespace BiometricsTracker
 
         public override void CreateDatabaseTablesIfNotExist()
         {
-            DatabaseConnector.CreateBiometricTables();
+            DatabaseConnector.CreatePolarTables();
         }
 
         public override string GetStatus()
@@ -281,12 +281,12 @@ namespace BiometricsTracker
 
         public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
         {
-            return new List<IVisualization> { new BiometricVisualizationForDay(date) };
+            return new List<IVisualization> { new PolarVisualizationForDay(date) };
         }
         
         public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)
         {
-            return new List<IVisualization> { new BiometricVisualizationForWeek(date) };
+            return new List<IVisualization> { new PolarVisualizationForWeek(date) };
         }
     }
 }
