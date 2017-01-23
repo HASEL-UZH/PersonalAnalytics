@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 
 namespace BluetoothLowEnergyConnector
 {
+
+    //Provides a factor to execute tasks periodically
     public static class PeriodicTaskFactory
     {
         public static Task Start(Action action, int intervalInMilliseconds = Timeout.Infinite, int duration = Timeout.Infinite, int maxIterations = -1, bool synchronous = false, CancellationToken cancelToken = new CancellationToken(), TaskCreationOptions periodicTaskCreationOptions = TaskCreationOptions.None)
@@ -91,5 +93,6 @@ namespace BluetoothLowEnergyConnector
 
             cancellationToken.ThrowIfCancellationRequested();
         }
+
     }
 }

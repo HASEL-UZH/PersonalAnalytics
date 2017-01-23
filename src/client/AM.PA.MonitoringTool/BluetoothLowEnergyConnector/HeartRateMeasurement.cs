@@ -7,6 +7,8 @@ using System;
 
 namespace BluetoothLowEnergy
 {
+
+    //Data class for storing measurement data from a BLE device.
     public class HeartRateMeasurement
     {
         private double hr = Double.NaN;
@@ -21,5 +23,6 @@ namespace BluetoothLowEnergy
         {
             return HeartRateValue.ToString() + " bpm / " + RRInterval.ToString() + " ms @ " + Timestamp;
         }
+
     }
 }

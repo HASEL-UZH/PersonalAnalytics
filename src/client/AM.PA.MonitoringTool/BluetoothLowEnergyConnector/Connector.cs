@@ -15,11 +15,20 @@ using Windows.Storage.Streams;
 namespace BluetoothLowEnergy
 {
 
+    //Called when a new heart rate measurement is received from the BLE device
     public delegate void OnNewHeartrateValueEvent(List<HeartRateMeasurement> heartRateMeasurementValue);
+
+    //Caled when the connection to a BLE device is lost. The device's name is passed in the parameter
     public delegate void OnConnectionToDeviceLost(String deviceName);
+
+    //Called when a connection to a BLE device is reastablished after it was lost.
     public delegate void OnConnectionReestablished();
+
+    //Called when the bluetooth functionality is not enabled.
     public delegate void OnBluetoothNotEnabled();
 
+
+    //This class provides the interface between the BLE functionality and the PolarTracker. The PolarTracker communicates with this class to get data from a BLE device. This class is implemented as a Singleton.
     public class Connector
     {
         private const string CONTAINER_ID_PROPERTY = "System.Devices.ContainerId";
@@ -37,6 +46,7 @@ namespace BluetoothLowEnergy
             BluetoothNotEnabled?.Invoke();
         }
 
+        //Returns a list of paired BLE devices that are in within reach.
         public async Task<List<PortableBluetoothDeviceInformation>> GetDevices()
         {
             List<PortableBluetoothDeviceInformation> result = new List<PortableBluetoothDeviceInformation>();
@@ -50,13 +60,13 @@ namespace BluetoothLowEnergy
                     Id = device.Id,
                     Name = device.Name,
                     Device = device
-                }
-                );
+                });
             }
 
             return result;
         }
 
+        //Returns the sensor's location on the body. Possibly locations are: Chest, Wirst, Finger, Hand, Ear Lobe, Foot and Other. It it also possible that the connected device can't provide a body location.
         public async Task<string> GetBodySensorLocation()
         {
             try
@@ -104,6 +114,7 @@ namespace BluetoothLowEnergy
             return await DeviceInformation.FindAllAsync(GattDeviceService.GetDeviceSelectorFromUuid(GattServiceUuids.HeartRate), new string[] { CONTAINER_ID_PROPERTY });
         }
 
+        //Checks whether the device passed in the parameter is paired and within reach. If it is, an object representating this device is returned. Otherwise, null is returned.
         public async Task<PortableBluetoothDeviceInformation> FindDeviceByName(string name)
         {
             var devices = await GetAllDevices();
@@ -122,6 +133,7 @@ namespace BluetoothLowEnergy
             return null;
         }
 
+        //Establishes a connection to the device passed as parameter. Returns true if the connection was established and false otherwise.
         public async Task<bool> Connect(PortableBluetoothDeviceInformation device)
         {
             if (device == null)
@@ -159,6 +171,7 @@ namespace BluetoothLowEnergy
             }
         }
 
+        //Tries to reconnect to the device passed in the parameter.
         public void TryReconnectTodevice(DeviceInformation device)
         {
             LoggerWrapper.Instance.WriteToConsole("Should try to reestablish connection to: " + device.Name);
@@ -221,6 +234,7 @@ namespace BluetoothLowEnergy
 
         }
 
+        //Returns an instance of this class.
         public static Connector Instance
         {
             get
@@ -241,6 +255,7 @@ namespace BluetoothLowEnergy
 
         public event OnBluetoothNotEnabled BluetoothNotEnabled;
 
+        //Stops receiving data from the connected BLE device
         public void Stop()
         {
             HeartRateService.Instance.ValueChangeCompleted -= Instance_ValueChangeCompleted;
@@ -254,7 +269,6 @@ namespace BluetoothLowEnergy
 
         private void OnDeviceConnectionUpdated(bool isConnected)
         {
-
             if (isConnected)
             {
                 LoggerWrapper.Instance.WriteToConsole("Waiting for device to send data...");
@@ -264,5 +278,6 @@ namespace BluetoothLowEnergy
                LoggerWrapper.Instance.WriteToConsole("Waiting for device to connect...");
             }
         }
+        
     }
 }

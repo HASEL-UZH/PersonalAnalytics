@@ -15,12 +15,17 @@ using Windows.Devices.Enumeration.Pnp;
 
 namespace BluetoothLowEnergy
 {
+    //Called when a new measurement is received
     public delegate void ValueChangeCompletedHandler(List<HeartRateMeasurement> heartRateMeasurementValue);
 
+    //Called when the connection status to the device changes
     public delegate void DeviceConnectionUpdatedHandler(bool isConnected);
 
+    //Called when bluetooth is not enabled
     public delegate void BluetoothNotEnabledHandler();
 
+
+    //This class is responsible for receiveing and parsing data from the BLE device and passing it then to the Connector. Implemented as a Singleton.
     public class HeartRateService
     {
         private const int CHARACTERISTIC_INDEX = 0;
@@ -40,18 +45,22 @@ namespace BluetoothLowEnergy
         public event DeviceConnectionUpdatedHandler DeviceConnectionUpdated;
         public event BluetoothNotEnabledHandler BluetoothNotEnabled;
 
+        //Returns the instance of this class.
         public static HeartRateService Instance
         {
             get { return instance; }
         }
 
+        //Returns a bool indicating whether this service is running or not
         public bool IsServiceInitialized { get; set; }
 
+        //Returns a reference to the Gatt service
         public GattDeviceService Service
         {
             get { return service; }
         }
 
+        //Returns a list of datapoints received from the BLE device
         public HeartRateMeasurement[] DataPoints
         {
             get
@@ -70,6 +79,7 @@ namespace BluetoothLowEnergy
             datapoints = new List<HeartRateMeasurement>();
         }
         
+        //Starts the service. Returns true if started sucessfully and false otherwise.
         public async Task<bool> InitializeServiceAsync(DeviceInformation device)
         {
             try
@@ -157,6 +167,7 @@ namespace BluetoothLowEnergy
             }
         }
 
+        //Stops the service
         internal void Stop()
         {
             IsServiceInitialized = false;
@@ -251,6 +262,7 @@ namespace BluetoothLowEnergy
             return measurements;
         }
 
+        //Returns the sensor's location on the body
         public string ProcessBodySensorLocationData(byte[] bodySensorLocationData)
         {
             byte bodySensorLocationValue = bodySensorLocationData[0];
