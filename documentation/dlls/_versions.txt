@@ -24,4 +24,5 @@ UserInputTracker.dll
 WindowsActivityTracker.dll
 **************************
 
+2017-01-24	V2.0.6233.19305
 2016-12-14	V2.0.6187.20492
