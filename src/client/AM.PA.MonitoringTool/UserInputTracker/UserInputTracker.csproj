@@ -75,7 +75,7 @@
   <ItemGroup>
     <Compile Include="Daemon.cs" />
     <Compile Include="Data\Queries.cs" />
-    <Compile Include="DayUserInputLineChart.cs" />
+    <Compile Include="Visualizations\DayUserInputLineChart.cs" />
     <Compile Include="Models\IUserInput.cs" />
     <Compile Include="Models\KeyboardInput.cs" />
     <Compile Include="Models\MouseInput.cs" />
@@ -101,8 +101,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-<PropertyGroup>
-<BuildEnvironment>DEV</BuildEnvironment>
-</PropertyGroup>
-<Import Project="../../../web/Customized.targets" Condition=" '$(BuildEnvironment)' == 'DEPLOY' "/>
+  <PropertyGroup>
+    <BuildEnvironment>DEV</BuildEnvironment>
+  </PropertyGroup>
+  <Import Project="../../../web/Customized.targets" Condition=" '$(BuildEnvironment)' == 'DEPLOY' " />
 </Project>

@@ -211,7 +211,8 @@ namespace UserInputTracker
         #region Prepare Buffers for saving in database (User Input Events)
 
         /// <summary>
-        /// Mouse Click event. Create a new event and add it to the buffer.
+        /// Catch the mouse click event, save it in the buffer and forward the event in 
+        /// case a client registered for it.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -225,8 +226,8 @@ namespace UserInputTracker
         }
 
         /// <summary>
-        /// Mouse scrolling event. Save it to a temp list to only save it ever x seconds to the database 
-        /// (see Settings.MouseSnapshotInterval) to reduce the data load.
+        /// Catch the mouse scrolling event, save it in the buffer and forward the event in 
+        /// case a client registered for it.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -240,8 +241,8 @@ namespace UserInputTracker
         }
 
         /// <summary>
-        /// Mouse Movement event. Save it to a temp list to only save it ever x seconds to the database 
-        /// (see Settings.MouseSnapshotInterval) to reduce the data load.
+        /// Catch the mouse movement event, save it in the buffer and forward the event in 
+        /// case a client registered for it.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -255,7 +256,8 @@ namespace UserInputTracker
         }
 
         /// <summary>
-        /// Keyboard Click event. Create a new event and add it to the buffer.
+        /// Catch the keystroke event, save it in the buffer and forward the event in 
+        /// case a client registered for it.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
