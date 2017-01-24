@@ -52,6 +52,7 @@ namespace UserInputTracker
         public Daemon()
         {
             Name = "User Input Tracker";
+            if (Settings.IsDetailedCollectionEnabled) Name += " (detailed)";
         }
 
         protected override  void Dispose(bool disposing)
@@ -145,11 +146,6 @@ namespace UserInputTracker
         {
             var v = new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version;
             return Shared.Helpers.VersionHelper.GetFormattedVersion(v);
-        }
-
-        public override string GetStatus()
-        {
-            return Settings.IsDetailedCollectionEnabled ? Name + " is running (detailed)." : Name + " is running.";
         }
 
         private bool _userInputTrackerEnabled;
@@ -368,6 +364,9 @@ namespace UserInputTracker
             aggregate.ClickOther = thisIntervalMouseClicks.Count(i => (i.Button != MouseButtons.Left && i.Button != MouseButtons.Right));
             aggregate.ClickTotal = aggregate.ClickLeft + aggregate.ClickRight + aggregate.ClickOther;
 
+            // if detailed user input logging for studies is enabled, save mouse clicks separately
+            if (Settings.IsDetailedCollectionEnabled) DatabaseConnector.SaveMouseClicksToDatabase(thisIntervalMouseClicks.ToList());
+
             // delete all items older than tsEnd
             MouseClickListToSave.RemoveAll(i => i.Timestamp < tsEnd);
         }
@@ -396,6 +395,10 @@ namespace UserInputTracker
             var thisIntervalMouseScrolls = MouseScrollsListToSave.Where(i => i.Timestamp >= tsStart && i.Timestamp < tsEnd);
             aggregate.ScrollDelta = thisIntervalMouseScrolls.Sum(i => Math.Abs(i.ScrollDelta));
 
+            // if detailed user input logging for studies is enabled, save mouse scrolls separately
+            //if (Settings.IsDetailedCollectionEnabled) DatabaseConnector.SaveMouseScrollsToDatabase(thisIntervalMouseScrolls.ToList());
+            // TODO: calculate aggregate (see before) and store the data
+
             // delete all items older than tsEnd
             MouseScrollsListToSave.RemoveAll(i => i.Timestamp < tsEnd);
         }
@@ -423,6 +426,10 @@ namespace UserInputTracker
 
             var thisIntervalMouseMovements = MouseMovementListToSave.Where(i => i.Timestamp >= tsStart && i.Timestamp < tsEnd);
             aggregate.MovedDistance = (int)CalculateMouseMovementDistance(thisIntervalMouseMovements);
+
+            // if detailed user input logging for studies is enabled, save mouse clicks separately
+            //if (Settings.IsDetailedCollectionEnabled) DatabaseConnector.SaveMouseMovementsToDatabase(thisIntervalMouseMovements.ToList());
+            // TODO: calculate aggregate (see before) and store the data
 
             // delete all items older than tsEnd
             MouseMovementListToSave.RemoveAll(i => i.Timestamp < tsEnd);

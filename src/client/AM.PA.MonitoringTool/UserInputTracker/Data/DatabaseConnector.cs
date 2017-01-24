@@ -102,7 +102,7 @@ namespace UserInputTracker.Data {
 
                     query += "SELECT strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
                                 Database.GetInstance().QTime(item.Timestamp) + ", " +
-                                Database.GetInstance().Q((item).KeystrokeType.ToString()) + " "; // keystroke-type not keystroke
+                                Database.GetInstance().Q((item).KeystrokeType.ToString()) + " "; // keystroke-type not keystroke, avoid key-logging!
 
                     //executing remaining lines
                     if (i != 0 && i % 499 == 0) {
@@ -128,150 +128,168 @@ namespace UserInputTracker.Data {
         /// it is saved with multiple queries. This may regularly happen here
         /// </summary>
         /// <param name="mouseScrolls"></param>
-        //internal static void SaveMouseScrollsToDatabase(IReadOnlyList<IUserInput> mouseScrolls) 
-        //{
-        //    try 
-        //    {
-        //        if (mouseScrolls == null || mouseScrolls.Count == 0) return;
+        internal static void SaveMouseScrollsToDatabase(List<MouseScrollSnapshot> mouseScrolls)
+        {
+            try
+            {
+                if (mouseScrolls == null || mouseScrolls.Count == 0) return;
 
-        //        var newQuery = true;
-        //        var query = "";
-        //        int i;
-        //        for (i = 0; i < mouseScrolls.Count; i++) {
-        //            var item = (MouseScrollSnapshot)mouseScrolls[i];
-        //            if (item == null || item.ScrollDelta == 0) continue;
+                var newQuery = true;
+                var query = "";
+                int i;
+                for (i = 0; i < mouseScrolls.Count; i++)
+                {
+                    var item = mouseScrolls[i];
+                    if (item == null || item.ScrollDelta == 0) continue;
 
-        //            if (newQuery) {
-        //                query = "INSERT INTO '" + Settings.DbTableMouseScrolling + "' (time, timestamp, x, y, scrollDelta) ";
-        //                newQuery = false;
-        //            } else {
-        //                query += "UNION ALL ";
-        //            }
+                    if (newQuery)
+                    {
+                        query = "INSERT INTO '" + Settings.DbTableMouseScrolling_v1 + "' (time, timestamp, x, y, scrollDelta) ";
+                        newQuery = false;
+                    }
+                    else
+                    {
+                        query += "UNION ALL ";
+                    }
 
-        //            query += "SELECT strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
-        //                        Database.GetInstance().QTime(item.Timestamp) + ", " +
-        //                               Database.GetInstance().Q(item.X.ToString(CultureInfo.InvariantCulture)) + ", " +
-        //                               Database.GetInstance().Q(item.Y.ToString(CultureInfo.InvariantCulture)) + ", " +
-        //                               Database.GetInstance().Q(item.ScrollDelta.ToString(CultureInfo.InvariantCulture)) + " ";
+                    query += "SELECT strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
+                                Database.GetInstance().QTime(item.Timestamp) + ", " +
+                                       Database.GetInstance().Q(item.X) + ", " +
+                                       Database.GetInstance().Q(item.Y) + ", " +
+                                       Database.GetInstance().Q(Math.Abs(item.ScrollDelta)) + " ";
 
-        //            //executing remaining lines
-        //            if (i != 0 && i % 499 == 0) {
-        //                Database.GetInstance().ExecuteDefaultQuery(query);
-        //                newQuery = true;
-        //                query = string.Empty;
-        //            }
-        //        }
+                    //executing remaining lines
+                    if (i != 0 && i % 499 == 0)
+                    {
+                        Database.GetInstance().ExecuteDefaultQuery(query);
+                        newQuery = true;
+                        query = string.Empty;
+                    }
+                }
 
-        //        //executing remaining lines
-        //        if (i % 499 != 0) {
-        //            Database.GetInstance().ExecuteDefaultQuery(query);
-        //        }
-        //    } 
-        //    catch (Exception e) 
-        //    {
-        //        Shared.Logger.WriteToLogFile(e);
-        //    }
-        //}
+                //executing remaining lines
+                if (i % 499 != 0)
+                {
+                    Database.GetInstance().ExecuteDefaultQuery(query);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+        }
 
         /// <summary>
         /// Save the mouse clicks to the database. If there are more than 500 entries, 
         /// it is saved with multiple queries.
         /// </summary>
         /// <param name="mouseClicks"></param>
-        //internal static void SaveMouseClicksToDatabase(IReadOnlyList<IUserInput> mouseClicks) 
-        //{
-        //    try 
-        //    {
-        //        if (mouseClicks == null || mouseClicks.Count == 0) return;
+        internal static void SaveMouseClicksToDatabase(List<MouseClickEvent> mouseClicks)
+        {
+            try
+            {
+                if (mouseClicks == null || mouseClicks.Count == 0) return;
 
-        //        var newQuery = true;
-        //        var query = "";
-        //        int i;
-        //        for (i = 0; i < mouseClicks.Count; i++) {
-        //            var item = (MouseClickEvent)mouseClicks[i];
-        //            if (item == null) continue;
+                var newQuery = true;
+                var query = "";
+                int i;
+                for (i = 0; i < mouseClicks.Count; i++)
+                {
+                    var item = mouseClicks[i];
+                    if (item == null) continue;
 
-        //            if (newQuery) {
-        //                query = "INSERT INTO '" + Settings.DbTableMouseClick + "' (time, timestamp, x, y, button) ";
-        //                newQuery = false;
-        //            } else {
-        //                query += "UNION ALL ";
-        //            }
+                    if (newQuery)
+                    {
+                        query = "INSERT INTO '" + Settings.DbTableMouseClick_v1 + "' (time, timestamp, x, y, button) ";
+                        newQuery = false;
+                    }
+                    else
+                    {
+                        query += "UNION ALL ";
+                    }
 
-        //            query += "SELECT strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
-        //                        Database.GetInstance().QTime(item.Timestamp) + ", " +
-        //                        Database.GetInstance().Q(item.X.ToString(CultureInfo.InvariantCulture)) + ", " +
-        //                        Database.GetInstance().Q(item.Y.ToString(CultureInfo.InvariantCulture)) + ", " +
-        //                        Database.GetInstance().Q(item.Button.ToString()) + " ";
+                    query += "SELECT strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
+                                Database.GetInstance().QTime(item.Timestamp) + ", " +
+                                Database.GetInstance().Q(item.X) + ", " +
+                                Database.GetInstance().Q(item.Y) + ", " +
+                                Database.GetInstance().Q(item.Button.ToString()) + " ";
 
-        //            //executing remaining lines
-        //            if (i != 0 && i % 499 == 0) {
-        //                Database.GetInstance().ExecuteDefaultQuery(query);
-        //                newQuery = true;
-        //                query = string.Empty;
-        //            }
-        //        }
+                    //executing remaining lines
+                    if (i != 0 && i % 499 == 0)
+                    {
+                        Database.GetInstance().ExecuteDefaultQuery(query);
+                        newQuery = true;
+                        query = string.Empty;
+                    }
+                }
 
-        //        //executing remaining lines
-        //        if (i % 499 != 0) {
-        //            Database.GetInstance().ExecuteDefaultQuery(query);
-        //        }
-        //    } 
-        //    catch (Exception e) 
-        //    {
-        //        Shared.Logger.WriteToLogFile(e);
-        //    }
-        //}
+                //executing remaining lines
+                if (i % 499 != 0)
+                {
+                   Database.GetInstance().ExecuteDefaultQuery(query);
+                }
+            }
+            catch (Exception e)
+            {
+                Shared.Logger.WriteToLogFile(e);
+            }
+        }
 
         /// <summary>
         /// Save the mouse movements to the database. If there are more than 500 entries, 
         /// it is saved with multiple queries.
         /// </summary>
         /// <param name="mouseMovements"></param>
-        //internal static void SaveMouseMovementsToDatabase(IReadOnlyList<IUserInput> mouseMovements) 
-        //{
-        //    try 
-        //    {
-        //        if (mouseMovements == null || mouseMovements.Count == 0) return;
+        internal static void SaveMouseMovementsToDatabase(List<MouseMovementSnapshot> mouseMovements)
+        {
+            try
+            {
+                if (mouseMovements == null || mouseMovements.Count == 0) return;
 
-        //        var newQuery = true;
-        //        var query = "";
-        //        int i;
-        //        for (i = 0; i < mouseMovements.Count; i++) {
-        //            var item = (MouseMovementSnapshot)mouseMovements[i];
-        //            if (item == null || item.MovedDistance == 0) continue;
+                var newQuery = true;
+                var query = "";
+                int i;
+                for (i = 0; i < mouseMovements.Count; i++)
+                {
+                    var item = mouseMovements[i];
+                    if (item == null || item.MovedDistance == 0) continue;
 
-        //            if (newQuery) {
-        //                query = "INSERT INTO '" + Settings.DbTableMouseMovement + "' (time, timestamp, x, y, movedDistance) ";
-        //                newQuery = false;
-        //            } else {
-        //                query += "UNION ALL ";
-        //            }
+                    if (newQuery)
+                    {
+                        query = "INSERT INTO '" + Settings.DbTableMouseMovement_v1 + "' (time, timestamp, x, y, movedDistance) ";
+                        newQuery = false;
+                    }
+                    else
+                    {
+                        query += "UNION ALL ";
+                    }
 
-        //            query += "SELECT strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
-        //                        Database.GetInstance().QTime(item.Timestamp) + ", " +
-        //                        Database.GetInstance().Q(item.X.ToString(CultureInfo.InvariantCulture)) + ", " +
-        //                        Database.GetInstance().Q(item.Y.ToString(CultureInfo.InvariantCulture)) + ", " +
-        //                        Database.GetInstance().Q(item.MovedDistance.ToString(CultureInfo.InvariantCulture)) + " ";
+                    query += "SELECT strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
+                                Database.GetInstance().QTime(item.Timestamp) + ", " +
+                                Database.GetInstance().Q(item.X) + ", " +
+                                Database.GetInstance().Q(item.Y) + ", " +
+                                Database.GetInstance().Q(item.MovedDistance) + " ";
 
-        //            //executing remaining lines
-        //            if (i != 0 && i % 499 == 0) {
-        //                Database.GetInstance().ExecuteDefaultQuery(query);
-        //                newQuery = true;
-        //                query = string.Empty;
-        //            }
-        //        }
+                    //executing remaining lines
+                    if (i != 0 && i % 499 == 0)
+                    {
+                        Database.GetInstance().ExecuteDefaultQuery(query);
+                        newQuery = true;
+                        query = string.Empty;
+                    }
+                }
 
-        //        //executing remaining lines
-        //        if (i % 499 != 0) {
-        //            Database.GetInstance().ExecuteDefaultQuery(query);
-        //        }
-        //    } 
-        //    catch (Exception e) 
-        //    {
-        //        Shared.Logger.WriteToLogFile(e);
-        //    }
-        //}
+                //executing remaining lines
+                if (i % 499 != 0)
+                {
+                    Database.GetInstance().ExecuteDefaultQuery(query);
+                }
+            }
+            catch (Exception e)
+            {
+                Shared.Logger.WriteToLogFile(e);
+            }
+        }
 
         #endregion
 
