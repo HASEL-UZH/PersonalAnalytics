@@ -46,6 +46,7 @@ namespace Shared.Data.Extractors
 
             // PDF Readers
             new ProgramInfo("acrord32", ".pdf", @"\- Adobe(.*)Reader(.*)$"), // also removes Adobe Acrobat Reader DC
+            new ProgramInfo("acrobat", ".pdf", @"\- Adobe Acrobat Pro(.*)$"), // also removes Adobe Acrobat Pro DC
             new ProgramInfo("foxitreader", ".pdf", @"\- Foxit Reader"),
 
             // Editors
@@ -54,8 +55,15 @@ namespace Shared.Data.Extractors
             new ProgramInfo("notepad++", _possibleEditorExtensions, @"\- Notepad\+\+"),
             new ProgramInfo("sublime", _possibleEditorExtensions, new List<string> { @"\- Sublime Text(.*)$", @"\(r_scripts\)", "•" }),
 
+            // SQL (MySQLWorkbench doesn't have window titles)
+            new ProgramInfo("sqlitebrowser", ".dat", @"DB Browser for SQLite \-"),
+
             // Photo programs
             new ProgramInfo("photos", @"[\?]?\- Photos"),
+
+            // Latex programs
+            new ProgramInfo("texstudio", ".tex", @"\- TeXstudio"),
+            new ProgramInfo("texmaker", ".tex", @"Document : "),
         };
 
 

@@ -104,7 +104,7 @@ namespace TimeSpentVisualizer.Visualizers
 
             Title = "Time Spent"; // (on websites, in meetings, in programs, in files, in Visual Studio projects and on code reviews)";
             IsEnabled = true; //todo: handle by user
-            Order = 20; //todo: handle by user
+            Order = 23; //todo: handle by user
             Size = VisSize.Wide;
             Type = VisType.Day;
         }

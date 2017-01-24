@@ -47,7 +47,7 @@ namespace ArtifactVisualizer.Helpers
         /// <returns></returns>
         internal static List<TimeSpentItem> GetCleanedFilesWorkedOn(DateTimeOffset date)
         {
-            var maxFiles = 15;
+            var maxFiles = 20;
             var files = WindowTitleArtifactExtractor.GetFilesWorkedOn(date);
             var filesFiltered = files.Where(w => w.DurationInMins > MinDurationInMins).Take(maxFiles).ToList();
 

@@ -52,11 +52,13 @@ namespace Shared.Helpers
             else if (process == "onenote") return "One Note";
             else if (process == "iexplore") return "Internet Explorer";
             else if (process == "acrord32") return "Adobe Reader";
+            else if (process == "acrobat") return "Adobe Acrobat";
             else if (process == "ps") return "Product Studio";
             else if (process == "lync") return "Skype for Business";
             else if (process == "mstsc") return "Remote Desktop";
             else if (process == "taskmgr") return "Task Manager";
             else if (process == "ssms") return "SQL Server Management Studio";
+            else if (process == "mendeleydesktop") return "Mendeley";
 
             return process;
             // todo: create or use program mapper
