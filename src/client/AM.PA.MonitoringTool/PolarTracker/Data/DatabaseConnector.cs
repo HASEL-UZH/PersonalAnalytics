@@ -42,7 +42,6 @@ namespace PolarTracker.Data
         #region insert
         internal static void AddHeartMeasurementToDatabase(String timestamp, double heartrate, double rrInterval, double rrDifference)
         {
-            Console.WriteLine(rrDifference.ToString());
             try
             {
                 string query = string.Empty;
