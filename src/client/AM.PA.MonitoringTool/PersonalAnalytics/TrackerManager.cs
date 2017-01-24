@@ -17,6 +17,7 @@ using Microsoft.Win32;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace PersonalAnalytics
 {
@@ -577,6 +578,13 @@ namespace PersonalAnalytics
         {
             UpdateCheckInfo info = null;
 
+            // if not connected to the internet (could also ping to our deployment server)
+            if (!IsConnectedToTheInternet())
+            {
+                Database.GetInstance().LogWarning("Cannot check for updates, no internet connection available.");
+                return;
+            }
+
             // can only update if it is network deployed
             if (!ApplicationDeployment.IsNetworkDeployed)
             {
@@ -594,7 +602,6 @@ namespace PersonalAnalytics
             catch (DeploymentDownloadException dde)
             {
                 // may rarely happen
-                Logger.WriteToLogFile(dde);
                 Database.GetInstance().LogError(string.Format(CultureInfo.InvariantCulture, "Failed to install the newest version of the application. This might be a network issue (error: DeploymentDownloadException, details: {0}).", dde.Message));
                 return;
             }
@@ -677,6 +684,19 @@ namespace PersonalAnalytics
                 }
             }
         }
+
+        #region Check for Internet Connection
+
+        [DllImport("wininet.dll")]
+        private extern static bool InternetGetConnectedState(out int description, int reservedValue);
+
+        public static bool IsConnectedToTheInternet()
+        {
+            int description;
+            return InternetGetConnectedState(out description, 0);
+        }
+
+        #endregion
 
         /// <summary>
         /// Shutdown the application only if the state is saved, database disconnected, etc.

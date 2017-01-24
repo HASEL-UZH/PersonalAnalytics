@@ -101,7 +101,7 @@ namespace PersonalAnalytics
             RegisterAppForPcStartup();
 
             // add a firewall exception
-            //AddFirewallException(); // TODO: problems if not system admin
+            //AddFirewallException(); // disabled because it causes problems if not system admin
 
 
             //////////////////////////////////////////////////////

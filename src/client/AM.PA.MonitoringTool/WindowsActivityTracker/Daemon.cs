@@ -17,6 +17,7 @@ using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 using System.Reflection;
+using System.Linq;
 
 namespace WindowsActivityTracker
 {
@@ -34,6 +35,7 @@ namespace WindowsActivityTracker
 
         private string _previousWindowTitleEntry = string.Empty;
         private string _previousProcess = string.Empty;
+        private IntPtr _previousHandle = IntPtr.Zero;
         private bool _lastEntryWasIdle = false;
 
         #region ITracker Stuff
@@ -260,13 +262,13 @@ namespace WindowsActivityTracker
             // get current process name
             var currentProcess = GetProcessName(handle);
 
-            // [special case] lockscreen, shutdown, restart
+            // [special case] lockscreen (shutdown and logout events are handled separately)
             if (!string.IsNullOrEmpty(currentProcess) && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture).Contains("lockapp"))
             {
                 currentWindowTitle = "LockScreen";
                 currentProcess = Dict.Idle;
             }
-            // [special case]
+            // [special case] Windows 10 apps (e.g. Edge, Photos, Mail)
             else if (currentProcess.ToLower().Equals("applicationframehost"))
             {
                 var lastDash = currentWindowTitle.LastIndexOf("- ");
@@ -281,7 +283,7 @@ namespace WindowsActivityTracker
                 }
             }
             //add more special cases if necessary
-            
+
             // save if process or window title changed and user was not IDLE in past interval
             var differentProcessNotIdle = !string.IsNullOrEmpty(currentProcess) && _previousProcess != currentProcess && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture) != "idle";
             var differentWindowTitle = !string.IsNullOrEmpty(currentWindowTitle) && _previousWindowTitleEntry != currentWindowTitle;
@@ -291,13 +293,18 @@ namespace WindowsActivityTracker
             {
                 _previousWindowTitleEntry = currentWindowTitle;
                 _previousProcess = currentProcess;
+                _previousHandle = handle;
                 _lastEntryWasIdle = false;
 
                 Queries.InsertSnapshot(currentWindowTitle, currentProcess);
-                //Console.WriteLine(DateTime.Now.ToString("t") + " " + DateTime.Now.Millisecond + "\t" + currentProcess + "\t" + currentWindowTitle);
             }
         }
 
+        /// <summary>
+        /// Catch logout/Shutdown event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SessionEnding(object sender, SessionEndingEventArgs e)
         {
             if (e.Reason == SessionEndReasons.Logoff)
@@ -324,13 +331,21 @@ namespace WindowsActivityTracker
         /// </summary>
         /// <param name="handle"></param>
         /// <returns></returns>
-        private static string GetProcessName(IntPtr handle)
+        private string GetProcessName(IntPtr handle)
         {
             try
             {
+                // performance: if same handle than previously, just return the process-name
+                if (_previousHandle == handle) return _previousProcess;
+
+                // else: get the process name from the list of processes
                 uint processId;
                 NativeMethods.GetWindowThreadProcessId(handle, out processId);
-                return Process.GetProcessById((int)processId).ProcessName;
+                var processlist = Process.GetProcesses();
+                return processlist.FirstOrDefault(pr => pr.Id == processId).ProcessName;
+
+                // 2017-01-24 usually slower:
+                //var pN = Process.GetProcessById((int)processId).ProcessName;
             }
             catch {}
             return string.Empty;
