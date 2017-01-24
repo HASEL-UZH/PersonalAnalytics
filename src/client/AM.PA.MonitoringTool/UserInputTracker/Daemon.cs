@@ -61,7 +61,6 @@ namespace UserInputTracker
                 if (disposing)
                 {
                     _saveToDatabaseTimer.Dispose();
-                    //_mouseSnapshotTimer.Dispose();
                     _mEvents.Dispose();
                 }
 
@@ -106,13 +105,6 @@ namespace UserInputTracker
                 _saveToDatabaseTimer = null;
             }
 
-            //if (_mouseSnapshotTimer != null)
-            //{
-            //    _mouseSnapshotTimer.Stop();
-            //    _mouseSnapshotTimer.Dispose();
-            //    _mouseSnapshotTimer = null;
-            //}
-
             // unregister mouse & keyboard events
             if (_mEvents != null)
             {
@@ -136,7 +128,7 @@ namespace UserInputTracker
 
         public override void CreateDatabaseTablesIfNotExist()
         {
-            Queries.CreateUserInputTables();
+            DatabaseConnector.CreateUserInputTables();
         }
 
         public override void UpdateDatabaseTables(int version)
@@ -153,6 +145,11 @@ namespace UserInputTracker
         {
             var v = new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version;
             return Shared.Helpers.VersionHelper.GetFormattedVersion(v);
+        }
+
+        public override string GetStatus()
+        {
+            return Settings.IsDetailedCollectionEnabled ? Name + " is running (detailed)." : Name + " is running.";
         }
 
         private bool _userInputTrackerEnabled;
@@ -189,8 +186,6 @@ namespace UserInputTracker
         }
 
         #endregion
-
-        #region Daemon Tracker: Events & manual Clicks (save to buffer)
 
         #region Provide Public Events
 
@@ -300,18 +295,16 @@ namespace UserInputTracker
                 aggregate.TsStart = tsStart;
                 aggregate.TsEnd = tsEnd;
 
+                // sum up user input types in aggregate
                 AddKeystrokesToAggregate(aggregate, tsStart, tsEnd);
                 AddMouseClicksToAggregate(aggregate, tsStart, tsEnd);
                 AddMouseScrollsToAggregate(aggregate, tsStart, tsEnd);
                 AddMouseMovementsToAggregate(aggregate, tsStart, tsEnd);
 
                 // save aggregate to database
-                Queries.SaveUserInputSnapshotToDatabase(aggregate);
+                DatabaseConnector.SaveUserInputSnapshotToDatabase(aggregate);
             }
-            catch (Exception e)
-            {
-                //Logger.WriteToLogFile(e);
-            }
+            catch { }
         }
 
         /// <summary>
@@ -340,6 +333,9 @@ namespace UserInputTracker
             aggregate.KeyBackspace = thisIntervalKeystrokes.Count(i => i.KeystrokeType == KeystrokeType.Backspace);
             aggregate.KeyOther = thisIntervalKeystrokes.Count(i => i.KeystrokeType == KeystrokeType.Key);
             aggregate.KeyTotal = aggregate.KeyNavigate + aggregate.KeyBackspace + aggregate.KeyOther;
+
+            // if detailed user input logging for studies is enabled, save keystrokes separately
+            if (Settings.IsDetailedCollectionEnabled) DatabaseConnector.SaveKeystrokesToDatabase(thisIntervalKeystrokes.ToList());
 
             // delete all items older than tsEnd
             KeystrokeListToSave.RemoveAll(i => i.Timestamp < tsEnd);
@@ -464,8 +460,6 @@ namespace UserInputTracker
 
             return distance;
         }
-
-        #endregion
 
         #endregion
 

@@ -9,11 +9,12 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using UserInputTracker.Models;
 
 namespace UserInputTracker.Data {
-    public class Queries 
+    public class DatabaseConnector 
     {
         internal static void CreateUserInputTables() 
         {
@@ -23,10 +24,13 @@ namespace UserInputTracker.Data {
                 Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableUserInput_v2 + " (id INTEGER PRIMARY KEY, time TEXT, tsStart TEXT, tsEnd TEXT, keyTotal INTEGER, keyOther INTEGER, keyBackspace INTEGER, keyNavigate INTEGER, clickTotal INTEGER, clickOther INTEGER, clickLeft INTEGER, clickRight INTEGER, scrollDelta INTEGER, movedDistance INTEGER)");
                 
                 // V1.0: old tables
-                //Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableKeyboard + " (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, keystrokeType TEXT)");
-                //Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableMouseClick + " (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, button TEXT)");
-                //Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableMouseScrolling + " (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, scrollDelta INTEGER)");
-                //Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableMouseMovement + " (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, movedDistance INTEGER)");
+                if (Settings.IsDetailedCollectionEnabled)
+                {
+                    Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableKeyboard_v1 + " (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, keystrokeType TEXT)");
+                    Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableMouseClick_v1 + " (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, button TEXT)");
+                    Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableMouseScrolling_v1 + " (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, scrollDelta INTEGER)");
+                    Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableMouseMovement_v1 + " (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, movedDistance INTEGER)");
+                }
             } 
             catch (Exception e) 
             {
@@ -77,47 +81,47 @@ namespace UserInputTracker.Data {
         /// it is saved with multiple queries.
         /// </summary>
         /// <param name="keystrokes"></param>
-        //internal static void SaveKeystrokesToDatabase(IReadOnlyList<IUserInput> keystrokes) 
-        //{
-        //    try {
-        //        if (keystrokes == null || keystrokes.Count == 0) return;
+        internal static void SaveKeystrokesToDatabase(List<KeystrokeEvent> keystrokes)
+        {
+            try {
+                if (keystrokes == null || keystrokes.Count == 0) return;
 
-        //        var newQuery = true;
-        //        var query = "";
-        //        int i;
-        //        for (i = 0; i < keystrokes.Count; i++) {
-        //            var item = (KeystrokeEvent)keystrokes[i];
-        //            if (item == null) continue;
+                var newQuery = true;
+                var query = "";
+                int i;
+                for (i = 0; i<keystrokes.Count; i++) {
+                    var item = keystrokes[i];
+                    if (item == null) continue;
 
-        //            if (newQuery) {
-        //                query = "INSERT INTO '" + Settings.DbTableKeyboard + "' (time, timestamp, keystrokeType) ";
-        //                newQuery = false;
-        //            } else {
-        //                query += "UNION ALL ";
-        //            }
+                    if (newQuery) {
+                        query = "INSERT INTO '" + Settings.DbTableKeyboard_v1 + "' (time, timestamp, keystrokeType) ";
+                        newQuery = false;
+                    } else {
+                        query += "UNION ALL ";
+                    }
 
-        //            query += "SELECT strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
-        //                        Database.GetInstance().QTime(item.Timestamp) + ", " +
-        //                        Database.GetInstance().Q((item).KeystrokeType.ToString()) + " "; // keystroke-type not keystroke
+                    query += "SELECT strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
+                                Database.GetInstance().QTime(item.Timestamp) + ", " +
+                                Database.GetInstance().Q((item).KeystrokeType.ToString()) + " "; // keystroke-type not keystroke
 
-        //            //executing remaining lines
-        //            if (i != 0 && i % 499 == 0) {
-        //                Database.GetInstance().ExecuteDefaultQuery(query);
-        //                newQuery = true;
-        //                query = string.Empty;
-        //            }
-        //        }
+                    //executing remaining lines
+                    if (i != 0 && i % 499 == 0) {
+                        Database.GetInstance().ExecuteDefaultQuery(query);
+                        newQuery = true;
+                        query = string.Empty;
+                    }
+                }
 
-        //        //executing remaining lines
-        //        if (i % 499 != 0) {
-        //            Database.GetInstance().ExecuteDefaultQuery(query);
-        //        }
-        //    } 
-        //    catch (Exception e) 
-        //    {
-        //        Shared.Logger.WriteToLogFile(e);
-        //    }
-        //}
+                //executing remaining lines
+                if (i % 499 != 0) {
+                    Database.GetInstance().ExecuteDefaultQuery(query);
+                }
+            } 
+            catch (Exception e) 
+            {
+                Logger.WriteToLogFile(e);
+            }
+        }
 
         /// <summary>
         /// Save the mouse scrolls to the database. If there are more than 500 entries, 
@@ -271,7 +275,6 @@ namespace UserInputTracker.Data {
 
         #endregion
 
-
         /// <summary>
         /// Returns a dictionary with an input-level like data set for each interval (Settings.UserInputVisMinutesInterval)
         /// (new version, 2.0)
@@ -335,6 +338,8 @@ namespace UserInputTracker.Data {
         /// <summary>
         /// Returns a dictionary with an input-level like data set for each interval (Settings.UserInputVisMinutesInterval)
         /// (old version, 1.0)
+        /// 
+        /// TODO: delete/deprecate at some point
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
