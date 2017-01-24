@@ -240,6 +240,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FitbitTracker\FitbitTracker.csproj">
+      <Project>{d7752ed4-6dd5-4953-8b5f-bbce24136d1c}</Project>
+      <Name>FitbitTracker</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PolarTracker\PolarTracker.csproj">
       <Project>{c42cc860-6372-469f-a52b-5d675f2650d6}</Project>
       <Name>PolarTracker</Name>

@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluetoothLowEnergyConnector
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PolarTracker", "PolarTracker\PolarTracker.csproj", "{C42CC860-6372-469F-A52B-5D675F2650D6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitbitTracker", "FitbitTracker\FitbitTracker.csproj", "{D7752ED4-6DD5-4953-8B5F-BBCE24136D1C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -121,6 +123,14 @@ Global
 		{C42CC860-6372-469F-A52B-5D675F2650D6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C42CC860-6372-469F-A52B-5D675F2650D6}.Release|x86.ActiveCfg = Release|Any CPU
 		{C42CC860-6372-469F-A52B-5D675F2650D6}.Release|x86.Build.0 = Release|Any CPU
+		{D7752ED4-6DD5-4953-8B5F-BBCE24136D1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7752ED4-6DD5-4953-8B5F-BBCE24136D1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7752ED4-6DD5-4953-8B5F-BBCE24136D1C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D7752ED4-6DD5-4953-8B5F-BBCE24136D1C}.Debug|x86.Build.0 = Debug|Any CPU
+		{D7752ED4-6DD5-4953-8B5F-BBCE24136D1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7752ED4-6DD5-4953-8B5F-BBCE24136D1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7752ED4-6DD5-4953-8B5F-BBCE24136D1C}.Release|x86.ActiveCfg = Release|Any CPU
+		{D7752ED4-6DD5-4953-8B5F-BBCE24136D1C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
