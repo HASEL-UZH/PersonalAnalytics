@@ -45,13 +45,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Daemon.cs" />
-    <Compile Include="Data\AccessRefreshResponse.cs" />
+    <Compile Include="Data\FitbitModel\AccessRefreshResponse.cs" />
     <Compile Include="Data\DatabaseConnector.cs" />
     <Compile Include="Data\FitbitConnector.cs" />
     <Compile Include="Data\FitbitModel\Device.cs" />
+    <Compile Include="Data\FitbitModel\HeartActivities.cs" />
+    <Compile Include="Data\FitbitModel\HeartData.cs" />
+    <Compile Include="Data\FitbitModel\HeartrateValue.cs" />
+    <Compile Include="Data\FitbitModel\HeartRateZone.cs" />
     <Compile Include="Data\FitbitModel\SleepData.cs" />
     <Compile Include="Data\FitbitModel\SleepLog.cs" />
     <Compile Include="Data\FitbitModel\SleepSummary.cs" />
+    <Compile Include="Data\HeartRateDayData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
   </ItemGroup>

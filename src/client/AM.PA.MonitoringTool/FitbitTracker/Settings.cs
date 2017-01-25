@@ -16,15 +16,19 @@ namespace FitbitTracker
         internal static readonly string SLEEP_TABLE_NAME = "fitbit_sleep";
         internal static readonly string SLEEP_SUMMARY_TABLE_NAME = "fitbit_sleep_summary";
         internal static readonly string DOWNLOAD_TABLE_NAME = "fitbit_downloads";
+        internal static readonly string HEARTRATE_DAY_TABLE_NAME = "fitbit_heartrate_summary";
 
         //Database field names
         internal static readonly string DOWNLOAD_START_DATE = "FitbitDownloadStartDate";
         internal static readonly string ACCESS_TOKEN = "FitbitAccessToken";
         internal static readonly string REFRESH_TOKEN = "FitbitRefreshToken";
+        internal static readonly string CLIENT_ID = "FitbitClientID";
+        internal static readonly string CLIENT_SECRET = "FitbitClientSecret";
 
         //OTHER
         internal static readonly string FORMAT_DAY = "dd-MM-yyyy";
         internal static readonly string FORMAT_DAY_AND_TIME = "HH:mm:ss dd-MM-yyyy";
+        internal static readonly string FITBIT_FORMAT_DAY = "yyyy-MM-dd";
     }
 
 }

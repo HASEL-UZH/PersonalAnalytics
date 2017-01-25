@@ -10,6 +10,7 @@ using System.Timers;
 using FitbitTracker.Data;
 using FitbitTracker.Model;
 using System.Collections.Generic;
+using FitbitTracker.Data.FitbitModel;
 
 namespace FitbitTracker
 {
@@ -60,6 +61,38 @@ namespace FitbitTracker
             Console.WriteLine("Get data from fitbit");
 
             DateTimeOffset latestSync = FitbitConnector.GetLatestSyncDate();
+            if (latestSync == DateTimeOffset.MinValue)
+            {
+                Console.WriteLine("Can't sync now.");
+            }
+            else
+            {
+                latestSync.AddDays(-1);
+
+                GetHRData(latestSync);
+                GetSleepData(latestSync);
+            }
+        }
+
+        private static void GetHRData(DateTimeOffset latestSync)
+        {
+            List<DateTimeOffset> days = DatabaseConnector.GetDaysToSynchronize(DataType.HR);
+
+            foreach (DateTimeOffset day in days)
+            {
+                Console.WriteLine("Sync: " + day);
+                List<HeartRateDayData> hrData = FitbitConnector.GetHeartrateForDay(day);
+                DatabaseConnector.SaveHRData(hrData);
+                if (day < latestSync)
+                {
+                    Console.WriteLine("Finished syncing day: " + day);
+                    DatabaseConnector.SetSynchronizedDay(day, DataType.HR);
+                }
+            }
+        }
+
+        private static void GetSleepData(DateTimeOffset latestSync)
+        {
             List<DateTimeOffset> days = DatabaseConnector.GetDaysToSynchronize(DataType.SLEEP);
 
             foreach (DateTimeOffset day in days)
@@ -67,13 +100,12 @@ namespace FitbitTracker
                 Console.WriteLine("Sync: " + day);
                 SleepData sleepData = FitbitConnector.GetSleepDataForDay(day);
                 DatabaseConnector.SaveSleepData(sleepData);
-                if (day < latestSync.AddDays(-1))
+                if (day < latestSync)
                 {
                     Console.WriteLine("Finished syncing day: " + day);
                     DatabaseConnector.SetSynchronizedDay(day, DataType.SLEEP);
                 }
             }
-            
         }
 
         public override void Stop()

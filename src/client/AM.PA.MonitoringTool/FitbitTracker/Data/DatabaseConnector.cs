@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Globalization;
+using FitbitTracker.Data.FitbitModel;
 
 namespace FitbitTracker.Data
 {
@@ -41,6 +42,27 @@ namespace FitbitTracker.Data
         private const string SLEEP_SUMMARY_ID = "sleepSummaryID";
         private const string DATA = "data";
         private const string DAY = "day";
+        private const string DATE_OF_HR = "dateOfHR";
+        private const string RESTING_HEARTRATE = "restingHeartrate";
+        private const string CALORIES_OUT = "caloriesOut";
+        private const string MAX = "max";
+        private const string MIN = "min";
+        private const string MINUTES_SPENT = "minutesSpent";
+        private const string NAME = "name";
+
+        private static readonly string CREATE_INDEX_FOR_HEARTRATE_DAY_TABLE = "CREATE UNIQUE INDEX idx ON " + Settings.HEARTRATE_DAY_TABLE_NAME + "(" + DATE_OF_HR + ", " + NAME + ")";
+
+        private static readonly string CREATE_HEARTRATE_DAY_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.HEARTRATE_DAY_TABLE_NAME + " ("
+                                                                        + ID + " INTEGER PRIMARY KEY,"
+                                                                        + SAVE_TIME + " TEXT, "
+                                                                        + DATE_OF_HR + " TEXT, "
+                                                                        + RESTING_HEARTRATE + " INTEGER, "
+                                                                        + CALORIES_OUT + " REAL, "
+                                                                        + MAX + " INTEGER, "
+                                                                        + MIN + "  INTEGER, "
+                                                                        + MINUTES_SPENT + " INTEGER, "
+                                                                        + NAME + " TEXT, "
+                                                                        + "UNIQUE(" + DATE_OF_HR + ", " + NAME + ") ON CONFLICT REPLACE);";
 
         private static readonly string CREATE_SLEEP_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.SLEEP_TABLE_NAME + " ("
                                                                 + ID + " INTEGER PRIMARY KEY,"
@@ -61,7 +83,7 @@ namespace FitbitTracker.Data
                                                                 + RESTLESS_DURATION + " INTEGER, "
                                                                 + START_TIME + " TEXT, "
                                                                 + TIME_IN_BED + " INTEGER)";
-
+        
         private static readonly string CREATE_SLEEP_SUMMARY_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.SLEEP_SUMMARY_TABLE_NAME + " ("
                                                                 + ID + " INTEGER PRIMARY KEY, "
                                                                 + SAVE_TIME + " TEXT, "
@@ -80,15 +102,7 @@ namespace FitbitTracker.Data
                                                                 + "(" + SAVE_TIME + ", "
                                                                 + DAY + ", "
                                                                 + DATA + ") VALUES ({0}, {1}, {2})";
-
-        private static readonly string INSERT_SLEEP_SUMMARY_QUERY = "INSERT INTO " + Settings.SLEEP_SUMMARY_TABLE_NAME
-                                                                + "(" + SAVE_TIME + ", "
-                                                                + DATE_OF_SLEEP + ", "
-                                                                + TOTAL_MINUTES_ASLEEP + ", "
-                                                                + TOTAL_SLEEP_RECORDS + ", "
-                                                                + TOTAL_TIME_IN_BED
-                                                                + ") VALUES ({0}, {1}, {2}, {3}, {4})";
-
+        
         private static readonly string INSERT_OR_IGNORE_SLEEP_SUMMARY_QUERY = "INSERT OR IGNORE INTO " + Settings.SLEEP_SUMMARY_TABLE_NAME
                                                                 + "(" + SAVE_TIME + ", "
                                                                 + DATE_OF_SLEEP + ", "
@@ -124,6 +138,28 @@ namespace FitbitTracker.Data
                                                                 + START_TIME + ", "
                                                                 + TIME_IN_BED
                                                                 + ") VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9}, {10}, {11}, {12}, {13}, {14}, {15}, {16})";
+        
+        private static readonly string INSERT_OR_IGNORE_HR_SUMMARY = "INSERT OR IGNORE INTO " + Settings.HEARTRATE_DAY_TABLE_NAME
+                                                    + "(" + SAVE_TIME + ", "
+                                                    + DATE_OF_HR + ", "
+                                                    + RESTING_HEARTRATE + ", "
+                                                    + CALORIES_OUT + ", "
+                                                    + MAX + ", "
+                                                    + MIN + ", "
+                                                    + MINUTES_SPENT + ", "
+                                                    + NAME
+                                                    + ") VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7})";
+
+        private static readonly string UPDATE_HR_SUMMARY = "UPDATE " + Settings.HEARTRATE_DAY_TABLE_NAME
+                                                        + " SET " + SAVE_TIME + " = {0}, "
+                                                        + DATE_OF_HR + " = {1}, "
+                                                        + RESTING_HEARTRATE + " = {2}, "
+                                                        + CALORIES_OUT + " = {3}, "
+                                                        + MAX + " = {4}, "
+                                                        + MIN + " = {5}, "
+                                                        + MINUTES_SPENT + " = {6}, "
+                                                        + NAME + " = {7} "
+                                                        + "WHERE " + DATE_OF_HR + " = {1} AND " + NAME + " = {7};";
 
         #region create
         internal static void CreateFitbitTables()
@@ -133,6 +169,8 @@ namespace FitbitTracker.Data
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_SLEEP_TABLE_QUERY);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_SLEEP_SUMMARY_TABLE_QUERY);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_DOWNLOAD_TABLE_QUERY);
+                Database.GetInstance().ExecuteDefaultQuery(CREATE_HEARTRATE_DAY_TABLE_QUERY);
+                Database.GetInstance().ExecuteDefaultQuery(CREATE_INDEX_FOR_HEARTRATE_DAY_TABLE);
             }
             catch (Exception e)
             {
@@ -142,6 +180,21 @@ namespace FitbitTracker.Data
         #endregion
 
         #region insert
+        internal static void SaveHRData(List<HeartRateDayData> hrData)
+        {
+            DateTime insert = DateTime.Now;
+            foreach (HeartRateDayData data in hrData)
+            {
+                string query = string.Empty;
+                query += String.Format(UPDATE_HR_SUMMARY, "'" + insert.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + data.Date.ToString(Settings.FORMAT_DAY) + "'", data.RestingHeartrate, data.CaloriesOut, data.Max, data.Min, data.MinutesSpent, "'" + data.Name + "'");
+                Database.GetInstance().ExecuteDefaultQuery(query);
+
+                query = string.Empty;
+                query += String.Format(INSERT_OR_IGNORE_HR_SUMMARY, "'" + insert.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + data.Date.ToString(Settings.FORMAT_DAY) + "'", data.RestingHeartrate, data.CaloriesOut, data.Max, data.Min, data.MinutesSpent, "'" + data.Name + "'");
+                Database.GetInstance().ExecuteDefaultQuery(query);
+            }
+        }
+
         internal static void SaveSleepData(SleepData sleepData)
         {
             if (sleepData.Sleep.Count > 0)
