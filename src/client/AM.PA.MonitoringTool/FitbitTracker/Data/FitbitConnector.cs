@@ -30,36 +30,36 @@ namespace FitbitTracker.Data
         private const string SLEEP_URL = "https://api.fitbit.com/1/user/-/sleep/date/{0}.json";
         private const string REFRESH_URL = "https://api.fitbit.com/oauth2/token";
         private const string DEVICE_URL = "https://api.fitbit.com/1/user/-/devices.json";
-
-        internal static DateTimeOffset GetLatestSyncDate()
-        {
-            List<Device> devices = GetDeviceData();
-            List<DateTimeOffset> syncTimes = new List<DateTimeOffset>();
-            foreach (Device device in devices)
-            {
-                if (device.Type.Equals("TRACKER"))
-                {
-                    syncTimes.Add(device.LastSyncTime);
-                }
-            }
-            return syncTimes.Min();
-        }
         
+        internal static SleepData GetSleepDataForDay(DateTimeOffset day)
+        {
+            Tuple<SleepData, bool> result = GetDataFromFitbit<SleepData>(String.Format(SLEEP_URL, day.Year + "-" + day.Month + "-" + day.Day));
+            SleepData sleepData = result.Item1;
+            bool retry = result.Item2;
+
+            if (sleepData == null && retry)
+            {
+                sleepData = GetDataFromFitbit<SleepData>(String.Format(SLEEP_URL, day.Year + "-" + day.Month + "-" + day.Day)).Item1;
+            }
+
+            return sleepData;
+        }
+
         internal static List<Device> GetDeviceData()
         {
-            WebClient client = new WebClient();
-            client.Headers.Add("Authorization", "Bearer " + Database.GetInstance().GetSettingsString(Settings.ACCESS_TOKEN, null));
+            Tuple<List<Device>, bool> result = GetDataFromFitbit<List<Device>>(DEVICE_URL);
+            List<Device> devices = result.Item1;
+            bool retry = result.Item2;
 
-            Stream data = client.OpenRead(DEVICE_URL);
-            StreamReader reader = new StreamReader(data);
-            string response = reader.ReadToEnd();
-            response = response.Replace(@"\", "");
-            
-            List<Device> device = JsonConvert.DeserializeObject<List<Device>>(response);
-            return device;
+            if (devices == null && retry)
+            {
+                devices = GetDataFromFitbit<List<Device>>(DEVICE_URL).Item1;
+            }
+
+            return devices;
         }
 
-        private static T GetDataFromFitbit<T>(Type clazz, string url)
+        private static Tuple<T, bool> GetDataFromFitbit<T>(string url)
         {
             WebClient client = null;
             Stream data = null;
@@ -76,25 +76,25 @@ namespace FitbitTracker.Data
                 string response = reader.ReadToEnd();
 
                 T dataObject = JsonConvert.DeserializeObject<T>(response);
-                return dataObject;
+                return Tuple.Create<T, bool>(dataObject, false);
             }
             catch (WebException e)
             {
                 if ((e.Response is HttpWebResponse) && (e.Response as HttpWebResponse).StatusCode == HttpStatusCode.Unauthorized)
                 {
                     RefreshAccessToken();
-                    return default(T);
+                    return Tuple.Create<T, bool>(default(T), true);
                 }
                 else
                 {
                     Console.WriteLine((e.Response as HttpWebResponse).StatusCode);
-                    return default(T);
+                    return Tuple.Create<T, bool>(default(T), false);
                 }
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return default(T);
+                return Tuple.Create<T, bool>(default(T), false);
             }
             finally
             {
@@ -113,54 +113,18 @@ namespace FitbitTracker.Data
             }
         }
 
-        internal static SleepData GetSleepDataForDay(DateTimeOffset day)
+        internal static DateTimeOffset GetLatestSyncDate()
         {
-            WebClient client = null;
-            Stream data = null;
-            StreamReader reader = null;
-
-            try
+            List<Device> devices = GetDeviceData();
+            List<DateTimeOffset> syncTimes = new List<DateTimeOffset>();
+            foreach (Device device in devices)
             {
-                client = new WebClient();
-                client.Headers.Add("Authorization", "Bearer " + Database.GetInstance().GetSettingsString(Settings.ACCESS_TOKEN, null));
-
-                data = client.OpenRead(String.Format(SLEEP_URL, day.Year + "-" + day.Month + "-" + day.Day));
-
-                reader = new StreamReader(data);
-                string response = reader.ReadToEnd();
-
-                SleepData dataObject = JsonConvert.DeserializeObject<SleepData>(response);
-                return dataObject; 
-            }
-            catch (Exception e)
-            {
-                //TODO: Only if status code = 401
-                if (e is WebException)
+                if (device.Type.Equals("TRACKER"))
                 {
-                    RefreshAccessToken();
-                    return GetSleepDataForDay(day);
-                }
-                else
-                {
-                    Logger.WriteToLogFile(e);
-                    return null;
+                    syncTimes.Add(device.LastSyncTime);
                 }
             }
-            finally
-            {
-                if (data != null)
-                {
-                    data.Close();
-                }
-                if (reader != null)
-                {
-                    reader.Close();
-                }
-                if (client != null)
-                {
-                    client.Dispose();
-                }
-            }
+            return syncTimes.Min();
         }
 
         internal static void RefreshAccessToken()
