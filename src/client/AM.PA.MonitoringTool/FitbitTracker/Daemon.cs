@@ -8,6 +8,8 @@ using Shared.Data;
 using System;
 using System.Timers;
 using FitbitTracker.Data;
+using FitbitTracker.Model;
+using System.Collections.Generic;
 
 namespace FitbitTracker
 {
@@ -56,7 +58,22 @@ namespace FitbitTracker
         private void OnPullFromFitbit(object sender, ElapsedEventArgs e)
         {
             Console.WriteLine("Get data from fitbit");
-            FitbitConnector.GetSleepDataForDay(new DateTime());
+
+            DateTimeOffset latestSync = FitbitConnector.GetLatestSyncDate();
+            List<DateTimeOffset> days = DatabaseConnector.GetDaysToSynchronize(DataType.SLEEP);
+
+            foreach (DateTimeOffset day in days)
+            {
+                Console.WriteLine("Sync: " + day);
+                SleepData sleepData = FitbitConnector.GetSleepDataForDay(day);
+                DatabaseConnector.SaveSleepData(sleepData);
+                if (day < latestSync.AddDays(-1))
+                {
+                    Console.WriteLine("Finished syncing day: " + day);
+                    DatabaseConnector.SetSynchronizedDay(day, DataType.SLEEP);
+                }
+            }
+            
         }
 
         public override void Stop()

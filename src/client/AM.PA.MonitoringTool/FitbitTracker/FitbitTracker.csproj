@@ -45,8 +45,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Daemon.cs" />
+    <Compile Include="Data\AccessRefreshResponse.cs" />
     <Compile Include="Data\DatabaseConnector.cs" />
     <Compile Include="Data\FitbitConnector.cs" />
+    <Compile Include="Data\FitbitModel\Device.cs" />
     <Compile Include="Data\FitbitModel\SleepData.cs" />
     <Compile Include="Data\FitbitModel\SleepLog.cs" />
     <Compile Include="Data\FitbitModel\SleepSummary.cs" />
