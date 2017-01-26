@@ -396,11 +396,47 @@ namespace UserInputTracker
             aggregate.ScrollDelta = thisIntervalMouseScrolls.Sum(i => Math.Abs(i.ScrollDelta));
 
             // if detailed user input logging for studies is enabled, save mouse scrolls separately
-            //if (Settings.IsDetailedCollectionEnabled) DatabaseConnector.SaveMouseScrollsToDatabase(thisIntervalMouseScrolls.ToList());
-            // TODO: calculate aggregate (see before) and store the data
+            if (Settings.IsDetailedCollectionEnabled) SaveDetailedMouseScrolls(tsStart, tsEnd, thisIntervalMouseScrolls);
 
             // delete all items older than tsEnd
             MouseScrollsListToSave.RemoveAll(i => i.Timestamp < tsEnd);
+        }
+
+        /// <summary>
+        /// Save the mouse scrolls per second
+        /// (calculates the scrolled distance per second and saves it)
+        /// </summary>
+        /// <param name="tsStart"></param>
+        /// <param name="tsEnd"></param>
+        /// <param name="thisIntervalMouseMovements"></param>
+        private void SaveDetailedMouseScrolls(DateTime tsStart, DateTime tsEnd, IEnumerable<MouseScrollSnapshot> thisIntervalMouseMovements)
+        {
+            var thisIntervalMouseScrollsPerSecond = new List<MouseScrollSnapshot>();
+
+            var tsCurrent = tsStart;
+            while (tsCurrent <= tsEnd)
+            {
+                // calculate moved pixels for this second
+                var tsCurrentNext = tsCurrent.AddSeconds(1);
+                var mouseScrollsForSecond = thisIntervalMouseMovements.Where(i => i.Timestamp >= tsCurrent && i.Timestamp < tsCurrentNext);
+
+                if (mouseScrollsForSecond.Count() > 0)
+                {
+                    var scrolledPixels = mouseScrollsForSecond.Sum(i => Math.Abs(i.ScrollDelta));
+
+                    // store if there are any
+                    if (scrolledPixels > 0)
+                    {
+                        mouseScrollsForSecond.Last().ScrollDelta = (int)scrolledPixels;
+                        thisIntervalMouseScrollsPerSecond.Add(mouseScrollsForSecond.Last());
+                    }
+                }
+
+                tsCurrent = tsCurrentNext; // for next iteration
+            }
+
+            // save mouse moved per second to database
+            DatabaseConnector.SaveMouseScrollsToDatabase(thisIntervalMouseScrollsPerSecond);
         }
 
         /// <summary>
@@ -427,12 +463,48 @@ namespace UserInputTracker
             var thisIntervalMouseMovements = MouseMovementListToSave.Where(i => i.Timestamp >= tsStart && i.Timestamp < tsEnd);
             aggregate.MovedDistance = (int)CalculateMouseMovementDistance(thisIntervalMouseMovements);
 
-            // if detailed user input logging for studies is enabled, save mouse clicks separately
-            //if (Settings.IsDetailedCollectionEnabled) DatabaseConnector.SaveMouseMovementsToDatabase(thisIntervalMouseMovements.ToList());
-            // TODO: calculate aggregate (see before) and store the data
+            // if detailed user input logging for studies is enabled, save mouse movements separately
+            if (Settings.IsDetailedCollectionEnabled) SaveDetailedMouseMovements(tsStart, tsEnd, thisIntervalMouseMovements);
 
             // delete all items older than tsEnd
             MouseMovementListToSave.RemoveAll(i => i.Timestamp < tsEnd);
+        }
+
+        /// <summary>
+        /// Save the mouse movements per second
+        /// (calculates the moved distance per second and saves it)
+        /// </summary>
+        /// <param name="tsStart"></param>
+        /// <param name="tsEnd"></param>
+        /// <param name="thisIntervalMouseMovements"></param>
+        private void SaveDetailedMouseMovements(DateTime tsStart, DateTime tsEnd, IEnumerable<MouseMovementSnapshot> thisIntervalMouseMovements)
+        {
+            var thisIntervalMouseMovementsPerSecond = new List<MouseMovementSnapshot>();
+
+            var tsCurrent = tsStart;
+            while (tsCurrent <= tsEnd)
+            {
+                // calculate moved pixels for this second
+                var tsCurrentNext = tsCurrent.AddSeconds(1);
+                var mouseMovementsForSecond = thisIntervalMouseMovements.Where(i => i.Timestamp >= tsCurrent && i.Timestamp < tsCurrentNext);
+
+                if (mouseMovementsForSecond.Count() > 0)
+                {
+                    var movedPixels = CalculateMouseMovementDistance(mouseMovementsForSecond);
+
+                    // store if there are any
+                    if (movedPixels > 0)
+                    {
+                        mouseMovementsForSecond.Last().MovedDistance = (int)movedPixels;
+                        thisIntervalMouseMovementsPerSecond.Add(mouseMovementsForSecond.Last());
+                    }
+                }
+
+                tsCurrent = tsCurrentNext; // for next iteration
+            }
+
+            // save mouse moved per second to database
+            DatabaseConnector.SaveMouseMovementsToDatabase(thisIntervalMouseMovementsPerSecond);
         }
 
         /// <summary>

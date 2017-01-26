@@ -287,7 +287,7 @@ namespace UserInputTracker.Data {
             }
             catch (Exception e)
             {
-                Shared.Logger.WriteToLogFile(e);
+                Logger.WriteToLogFile(e);
             }
         }
 
