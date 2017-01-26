@@ -17,7 +17,6 @@ using FitbitTracker.Data.FitbitModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Globalization;
-using System.Net.Http;
 
 namespace FitbitTracker.Data
 {
@@ -201,6 +200,7 @@ namespace FitbitTracker.Data
             string refreshToken = Database.GetInstance().GetSettingsString(Settings.REFRESH_TOKEN, null);
             Console.WriteLine(refreshToken);
             values["refresh_token"] = refreshToken;
+            values["expires_in"] = "" + Settings.TOKEN_LIFETIME;
 
             var response = client.UploadValues(REFRESH_URL, values);
             var responseString = Encoding.Default.GetString(response);

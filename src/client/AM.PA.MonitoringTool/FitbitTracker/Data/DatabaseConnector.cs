@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Globalization;
-using FitbitTracker.Data.FitbitModel;
 
 namespace FitbitTracker.Data
 {

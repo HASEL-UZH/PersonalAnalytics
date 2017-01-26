@@ -29,6 +29,7 @@ namespace FitbitTracker
         internal static readonly string FORMAT_DAY = "dd-MM-yyyy";
         internal static readonly string FORMAT_DAY_AND_TIME = "HH:mm:ss dd-MM-yyyy";
         internal static readonly string FITBIT_FORMAT_DAY = "yyyy-MM-dd";
+        internal static readonly int TOKEN_LIFETIME = 60 * 60 * 24 * 1; //1 day
     }
 
 }
