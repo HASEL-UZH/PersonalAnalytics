@@ -17,6 +17,7 @@ namespace FitbitTracker
         internal static readonly string SLEEP_SUMMARY_TABLE_NAME = "fitbit_sleep_summary";
         internal static readonly string DOWNLOAD_TABLE_NAME = "fitbit_downloads";
         internal static readonly string HEARTRATE_DAY_TABLE_NAME = "fitbit_heartrate_summary";
+        internal static readonly string HEARTRATE_INTRA_DAY_TABLE_NAME = "fitbit_heartrate_intraday";
 
         //Database field names
         internal static readonly string DOWNLOAD_START_DATE = "FitbitDownloadStartDate";

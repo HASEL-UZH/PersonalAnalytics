@@ -208,7 +208,7 @@ namespace PolarTracker
             }
             else
             {
-                Logger.WriteToConsole("Noting to save...");
+                Logger.WriteToConsole("Nothing to save...");
             }
         }
 

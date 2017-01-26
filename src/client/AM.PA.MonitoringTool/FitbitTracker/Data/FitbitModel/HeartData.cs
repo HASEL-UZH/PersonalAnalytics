@@ -15,6 +15,9 @@ namespace FitbitTracker.Data.FitbitModel
         [JsonProperty("activities-heart")]
         public List<HeartActivities> Activities { get; set; }
 
+        [JsonProperty("activities-heart-intraday")]
+        public HeartActivitiesIntraday IntradayActivities { get; set; }
+
     }
 
 }

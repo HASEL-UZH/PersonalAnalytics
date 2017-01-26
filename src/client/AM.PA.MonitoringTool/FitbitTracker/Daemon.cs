@@ -67,7 +67,7 @@ namespace FitbitTracker
             }
             else
             {
-                latestSync.AddDays(-1);
+                latestSync = latestSync.AddDays(-1);
 
                 GetHRData(latestSync);
                 GetSleepData(latestSync);
@@ -81,8 +81,9 @@ namespace FitbitTracker
             foreach (DateTimeOffset day in days)
             {
                 Console.WriteLine("Sync: " + day);
-                List<HeartRateDayData> hrData = FitbitConnector.GetHeartrateForDay(day);
-                DatabaseConnector.SaveHRData(hrData);
+                Tuple<List<HeartRateDayData>, List<HeartrateIntraDayData>> hrData = FitbitConnector.GetHeartrateForDay(day);
+                DatabaseConnector.SaveHRData(hrData.Item1);
+                DatabaseConnector.SaveHRIntradayData(hrData.Item2);
                 if (day < latestSync)
                 {
                     Console.WriteLine("Finished syncing day: " + day);

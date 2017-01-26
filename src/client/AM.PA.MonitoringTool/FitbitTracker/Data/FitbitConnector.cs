@@ -31,9 +31,9 @@ namespace FitbitTracker.Data
         private const string SLEEP_URL = "https://api.fitbit.com/1/user/-/sleep/date/{0}.json";
         private const string REFRESH_URL = "https://api.fitbit.com/oauth2/token";
         private const string DEVICE_URL = "https://api.fitbit.com/1/user/-/devices.json";
-        private const string HEARTRATE_URL = "https://api.fitbit.com/1/user/-/activities/heart/date/{0}/1d.json";
-
-        internal static List<HeartRateDayData> GetHeartrateForDay(DateTimeOffset day)
+        private const string HEARTRATE_URL = "https://api.fitbit.com/1/user/-/activities/heart/date/{0}/1d/1sec.json";
+        
+        internal static Tuple<List<HeartRateDayData>, List<HeartrateIntraDayData>> GetHeartrateForDay(DateTimeOffset day)
         {
             Tuple<HeartData, bool> result = GetDataFromFitbit<HeartData>(String.Format(HEARTRATE_URL, day.ToString(Settings.FITBIT_FORMAT_DAY)));
             HeartData heartrateData = result.Item1;
@@ -77,7 +77,19 @@ namespace FitbitTracker.Data
                 }
             }
 
-            return data;
+            List<HeartrateIntraDayData> intradayData = new List<HeartrateIntraDayData>();
+
+            foreach (HeartrateIntradayData d in result.Item1.IntradayActivities.HeartrateIntradayData)
+            {
+                intradayData.Add(new HeartrateIntraDayData
+                {
+                    Day = new DateTime(day.Year, day.Month, day.Day),
+                    Time = d.Time,
+                    Value = d.Value
+                });
+            }
+
+            return Tuple.Create<List<HeartRateDayData>, List<HeartrateIntraDayData>>(data, intradayData);
         }
 
         internal static SleepData GetSleepDataForDay(DateTimeOffset day)

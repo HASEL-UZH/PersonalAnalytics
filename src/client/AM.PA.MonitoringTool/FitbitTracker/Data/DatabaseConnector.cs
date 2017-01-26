@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Globalization;
+using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace FitbitTracker.Data
 {
@@ -48,8 +50,15 @@ namespace FitbitTracker.Data
         private const string MIN = "min";
         private const string MINUTES_SPENT = "minutesSpent";
         private const string NAME = "name";
+        private const string VALUE = "value";
 
-        private static readonly string CREATE_INDEX_FOR_HEARTRATE_DAY_TABLE = "CREATE UNIQUE INDEX idx ON " + Settings.HEARTRATE_DAY_TABLE_NAME + "(" + DATE_OF_HR + ", " + NAME + ")";
+        private static readonly string CREATE_INDEX_FOR_HEARTRATE_DAY_TABLE = "CREATE UNIQUE INDEX IF NOT EXISTS idx ON " + Settings.HEARTRATE_DAY_TABLE_NAME + "(" + DATE_OF_HR + ", " + NAME + ")";
+
+        private static readonly string CREATE_HEARTRATE_INTRA_DAY_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.HEARTRATE_INTRA_DAY_TABLE_NAME + " ("
+                                                                            + ID + " INTEGER PRIMARY KEY, "
+                                                                            + SAVE_TIME + " TEXT, "
+                                                                            + DATE_OF_HR + " TEXT UNIQUE, "
+                                                                            + VALUE + " INTEGER)";
 
         private static readonly string CREATE_HEARTRATE_DAY_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.HEARTRATE_DAY_TABLE_NAME + " ("
                                                                         + ID + " INTEGER PRIMARY KEY,"
@@ -62,7 +71,7 @@ namespace FitbitTracker.Data
                                                                         + MINUTES_SPENT + " INTEGER, "
                                                                         + NAME + " TEXT, "
                                                                         + "UNIQUE(" + DATE_OF_HR + ", " + NAME + ") ON CONFLICT REPLACE);";
-
+        
         private static readonly string CREATE_SLEEP_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.SLEEP_TABLE_NAME + " ("
                                                                 + ID + " INTEGER PRIMARY KEY,"
                                                                 + SLEEP_SUMMARY_ID + " INTEGER, "
@@ -160,6 +169,12 @@ namespace FitbitTracker.Data
                                                         + NAME + " = {7} "
                                                         + "WHERE " + DATE_OF_HR + " = {1} AND " + NAME + " = {7};";
 
+        private static readonly string INSERT_OR_IGNORE_HR_INTRADAY = "INSERT OR IGNORE INTO " + Settings.HEARTRATE_INTRA_DAY_TABLE_NAME
+                                                                    + "(" + SAVE_TIME + ", "
+                                                                    + DATE_OF_HR + ", "
+                                                                    + VALUE
+                                                                    + ") VALUES ({0}, {1}, {2})";
+
         #region create
         internal static void CreateFitbitTables()
         {
@@ -170,6 +185,7 @@ namespace FitbitTracker.Data
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_DOWNLOAD_TABLE_QUERY);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_HEARTRATE_DAY_TABLE_QUERY);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_INDEX_FOR_HEARTRATE_DAY_TABLE);
+                Database.GetInstance().ExecuteDefaultQuery(CREATE_HEARTRATE_INTRA_DAY_TABLE_QUERY);
             }
             catch (Exception e)
             {
@@ -179,6 +195,40 @@ namespace FitbitTracker.Data
         #endregion
 
         #region insert
+        private static void InsertHRData(object sender, DoWorkEventArgs e)
+        {
+            object[] parameters = e.Argument as object[];
+            List<HeartrateIntraDayData> hrData = (List < HeartrateIntraDayData > ) parameters[0];
+            Console.WriteLine("Start importing " + hrData.Count + " HR values.");
+
+            //TODO: Bulk Insert
+            foreach (HeartrateIntraDayData data in hrData)
+            {
+                string query = string.Empty;
+                query += String.Format(INSERT_OR_IGNORE_HR_INTRADAY, "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + new DateTime(data.Day.Year, data.Day.Month, data.Day.Day, data.Time.Hour, data.Time.Minute, data.Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'", data.Value);
+                Database.GetInstance().ExecuteDefaultQuery(query);
+            }
+
+            e.Result = hrData.Count;
+        }
+
+        internal static void SaveHRIntradayData(List<HeartrateIntraDayData> hrData)
+        {
+            BackgroundWorker worker = new BackgroundWorker();
+            worker.DoWork += new DoWorkEventHandler(InsertHRData);
+            worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(runWorkerCompleted);
+
+            object paramObj = hrData;
+            object[] parameters = new object[] { paramObj };
+
+            worker.RunWorkerAsync(parameters);
+        }
+
+        private static void runWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            Console.WriteLine((int)e.Result + " data points imported.");
+        }
+
         internal static void SaveHRData(List<HeartRateDayData> hrData)
         {
             DateTime insert = DateTime.Now;
