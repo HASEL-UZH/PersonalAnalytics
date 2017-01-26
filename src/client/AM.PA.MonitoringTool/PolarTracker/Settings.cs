@@ -15,7 +15,7 @@ namespace PolarTracker
         internal const string HEARTRATE_TRACKER_ID_SETTING = "HeartrateTrackerID";
         internal const string HEARTRATE_TRACKER_LOCATION_SETTING = "HeartrateTrackerLocation";
         internal const string HEARTRATE_TRACKER_LOCATION_UNKNOWN = "unknown";
-        internal const int SAVE_TO_DATABASE_INTERVAL = 60 * 1000;
+        internal const int SAVE_TO_DATABASE_INTERVAL = 30 * 1000;
 
         //Database
         internal static readonly string TABLE_NAME = "polar";

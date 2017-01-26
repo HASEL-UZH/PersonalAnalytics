@@ -69,7 +69,7 @@ namespace PolarTracker
 
         public override string GetStatus()
         {
-            return IsRunning ? (Name + " is running. A bluetooth device is " + (isConnectedToBluetoothDevice ? "connected." : "NOT connected")) : (Name + " is NOT running");
+            return IsRunning ? (Name + " is running. A bluetooth device is " + (isConnectedToBluetoothDevice ? "connected." : "NOT connected.")) : (Name + " is NOT running.");
         }
 
         public override bool IsEnabled()
@@ -105,11 +105,9 @@ namespace PolarTracker
                             Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
                             Connector.Instance.ConnectionReestablished += OnConnectionReestablished;
                             Connector.Instance.BluetoothNotEnabled += OnBluetoothNotEnabled;
-                            Logger.WriteToConsole("Connection established");
                             FindSensorLocation();
                             StartDatabaseTimer();
                             IsRunning = true;
-                            isConnectedToBluetoothDevice = true;
                         }
                         else
                         {
@@ -129,7 +127,7 @@ namespace PolarTracker
                 btNotification = new NotifyIcon();
                 btNotification.Visible = true;
                 btNotification.BalloonTipTitle = "PersonalAnalytics: Bluetooth not enabled!";
-                btNotification.BalloonTipText = "PersonalAnalytics: Bluetooth is not enabled. To use the biometrics tracker, please enabled bluetooth.";
+                btNotification.BalloonTipText = "PersonalAnalytics: Bluetooth is not enabled. To use the biometrics tracker, please enable bluetooth.";
                 btNotification.Icon = SystemIcons.Exclamation;
                 btNotification.Text = "PersonalAnalytics: Bluetooth not enabled!";
                 btNotification.ShowBalloonTip(60 * 1000);
@@ -188,6 +186,7 @@ namespace PolarTracker
         {
             if (hrQueue.Count > 0)
             {
+                isConnectedToBluetoothDevice = true;
                 List<HeartRateMeasurement> measurements = new List<HeartRateMeasurement>();
 
                 HeartRateMeasurement measurement = null;
