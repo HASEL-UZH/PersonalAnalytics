@@ -69,7 +69,7 @@ namespace PolarTracker
 
         public override string GetStatus()
         {
-            return IsRunning ? (Name + " is running. A bluetooth device is " + (isConnectedToBluetoothDevice ? " connected." : "NOT connected")) : (Name + " is NOT running");
+            return IsRunning ? (Name + " is running. A bluetooth device is " + (isConnectedToBluetoothDevice ? "connected." : "NOT connected")) : (Name + " is NOT running");
         }
 
         public override bool IsEnabled()
