@@ -242,6 +242,12 @@ namespace FitbitTracker.Data
                                                                 + VERY_ACTIVE_MINUTES + " = {9} "
                                                                 + "WHERE " + DATE_OF_ACTIVITY + " = {0};";
 
+        private static readonly string INSERT_OR_IGNORE_MULTIPLE_HEART_RATE_INTRA_DAY_VALUES = "INSERT OR IGNORE INTO " + Settings.HEARTRATE_INTRA_DAY_TABLE_NAME
+                                                                                             + " SELECT null as " + ID + ", "
+                                                                                             + "{0} AS " + SAVE_TIME + ", "
+                                                                                             + "{1} AS " + DATE_OF_HR + ", "
+                                                                                             + "{2} AS " + VALUE;
+
         #region create
         internal static void CreateFitbitTables()
         {
@@ -293,17 +299,30 @@ namespace FitbitTracker.Data
         private static void InsertHRData(object sender, DoWorkEventArgs e)
         {
             object[] parameters = e.Argument as object[];
-            List<HeartrateIntraDayData> hrData = (List < HeartrateIntraDayData > ) parameters[0];
+            List<HeartrateIntraDayData> hrData = (List<HeartrateIntraDayData>)parameters[0];
             Console.WriteLine("Start importing " + hrData.Count + " HR values.");
+            
+            int start = 0;
+            int end = hrData.Count;
 
-            //TODO: Bulk Insert
-            foreach (HeartrateIntraDayData data in hrData)
+            while (start < end)
             {
                 string query = string.Empty;
-                query += String.Format(INSERT_OR_IGNORE_HR_INTRADAY, "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + new DateTime(data.Day.Year, data.Day.Month, data.Day.Day, data.Time.Hour, data.Time.Minute, data.Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'", data.Value);
-                Database.GetInstance().ExecuteDefaultQuery(query);
-            }
+                if (hrData.Count > 0)
+                {
+                    HeartrateIntraDayData data = hrData[start];
+                    query += String.Format(INSERT_OR_IGNORE_MULTIPLE_HEART_RATE_INTRA_DAY_VALUES, "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + new DateTime(data.Day.Year, data.Day.Month, data.Day.Day, data.Time.Hour, data.Time.Minute, data.Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'", data.Value);
 
+                    int count = 0;
+                    for (int i = start; i < hrData.Count && count < 499; i++)
+                    {
+                        query += String.Format(" UNION ALL SELECT null, {0}, {1}, {2}", "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + new DateTime(hrData[i].Day.Year, hrData[i].Day.Month, hrData[i].Day.Day, hrData[i].Time.Hour, hrData[i].Time.Minute, hrData[i].Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'", hrData[i].Value);
+                        count++;
+                    }
+                    Database.GetInstance().ExecuteDefaultQuery(query);
+                    start += count;
+                }
+            }
             e.Result = hrData.Count;
         }
 
