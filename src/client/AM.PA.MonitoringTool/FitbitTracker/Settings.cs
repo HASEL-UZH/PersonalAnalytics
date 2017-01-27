@@ -10,7 +10,8 @@ namespace FitbitTracker
         //Deamon
         internal const string TRACKER_NAME = "Fitbit Tracker";
         internal const string TRACKER_ENEABLED_SETTING = "FitbitTrackerEnabled";
-        internal const int SYNCHRONIZE_INTERVALL = 20 * 60 * 1000;
+        internal const int SYNCHRONIZE_INTERVALL_FIRST = 2 * 60 * 1000;
+        internal const int SYNCHRONIZE_INTERVALL_SECOND = 20 * 60 * 1000;
 
         //Database table names
         internal static readonly string SLEEP_TABLE_NAME = "fitbit_sleep";
@@ -25,14 +26,17 @@ namespace FitbitTracker
         internal static readonly string DOWNLOAD_START_DATE = "FitbitDownloadStartDate";
         internal static readonly string ACCESS_TOKEN = "FitbitAccessToken";
         internal static readonly string REFRESH_TOKEN = "FitbitRefreshToken";
-        internal static readonly string CLIENT_ID = "FitbitClientID";
-        internal static readonly string CLIENT_SECRET = "FitbitClientSecret";
-
+        
         //OTHER
         internal static readonly string FORMAT_DAY = "dd-MM-yyyy";
         internal static readonly string FORMAT_DAY_AND_TIME = "HH:mm:ss dd-MM-yyyy";
         internal static readonly string FITBIT_FORMAT_DAY = "yyyy-MM-dd";
         internal static readonly int TOKEN_LIFETIME = 60 * 60 * 24 * 1; //1 day
+        internal static readonly string REGISTRATION_URL = "https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=2283KD&redirect_uri=https%3A%2F%2Fgithub.com%2Fsealuzh%2FPersonalAnalytics&scope=activity%20heartrate%20location%20nutrition%20profile%20settings%20sleep%20social%20weight&expires_in=604800";
+        internal static readonly string FIRST_AUTHORIZATION_CODE = "MjI4M0tEOjU3NjUxNzFjNWJmMWU5MTExNTY4Mzg0YTI3ZjMzYTg3";
+        internal static readonly string CLIENT_ID = "2283KD";
+        internal static readonly string CLIENT_SECRET = "5765171c5bf1e9111568384a27f33a87";
+        internal static readonly string REDIRECT_URI = "https://github.com/sealuzh/PersonalAnalytics";
     }
 
 }

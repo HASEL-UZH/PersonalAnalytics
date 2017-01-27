@@ -35,6 +35,9 @@ namespace FitbitTracker.Data
         private const string ACTIVITY_URL = "https://api.fitbit.com/1/user/-/activities/date/{0}.json";
         private const string STEP_URL = "https://api.fitbit.com/1/user/-/activities/steps/date/{0}/1d/1min.json";
 
+        public delegate void OnRefreshTokenFail();
+        public static event OnRefreshTokenFail RefreshTokenFail;
+
         internal static StepData GetStepDataForDay(DateTimeOffset day)
         {
             Tuple<StepData, bool> result = GetDataFromFitbit<StepData>(String.Format(STEP_URL, day.ToString(Settings.FITBIT_FORMAT_DAY)));
@@ -178,12 +181,12 @@ namespace FitbitTracker.Data
                 }
                 else if ((e.Response is HttpWebResponse) && (e.Response as HttpWebResponse).StatusCode.ToString().Equals("429"))
                 {
-                    Console.WriteLine("Too many requests");
+                    Logger.WriteToConsole("Too many requests");
                     return Tuple.Create<T, bool>(default(T), false);
                 }
                 else
                 {
-                    Console.WriteLine((e.Response as HttpWebResponse).StatusCode);
+                    Logger.WriteToLogFile(e);
                     return Tuple.Create<T, bool>(default(T), false);
                 }
             }
@@ -212,10 +215,11 @@ namespace FitbitTracker.Data
         internal static DateTimeOffset GetLatestSyncDate()
         {
             List<Device> devices = GetDeviceData();
-            if (devices == null)
+            if (devices == null || devices.Count == 0)
             {
                 return DateTimeOffset.MinValue;
             }
+
             List<DateTimeOffset> syncTimes = new List<DateTimeOffset>();
             foreach (Device device in devices)
             {
@@ -227,33 +231,81 @@ namespace FitbitTracker.Data
             return syncTimes.Min();
         }
 
-        internal static void RefreshAccessToken()
+        internal static void GetFirstAccessToken(string registrationToken)
         {
-            Console.WriteLine("Access token not valid anymore. Try to refresh access token.");
+            Logger.WriteToConsole("Try to get first access token");
 
             WebClient client = new WebClient();
-            string accessToken = Database.GetInstance().GetSettingsString(Settings.CLIENT_ID, null) + ":" + Database.GetInstance().GetSettingsString(Settings.CLIENT_SECRET, null);
-            accessToken = Base64Encode(accessToken);
-            client.Headers.Add("Authorization", "Basic " + accessToken);
-            Console.WriteLine(accessToken);
+            client.Headers.Add("Authorization", "Basic " + Settings.FIRST_AUTHORIZATION_CODE);
 
             var values = new NameValueCollection();
-            values["grant_type"] = "refresh_token";
-            string refreshToken = Database.GetInstance().GetSettingsString(Settings.REFRESH_TOKEN, null);
-            Console.WriteLine(refreshToken);
-            values["refresh_token"] = refreshToken;
-            values["expires_in"] = "" + Settings.TOKEN_LIFETIME;
+            values["clientId"] = Settings.CLIENT_ID;
+            values["grant_type"] = "authorization_code";
+            values["redirect_uri"] = Settings.REDIRECT_URI;
+            values["code"] = registrationToken;
 
             var response = client.UploadValues(REFRESH_URL, values);
             var responseString = Encoding.Default.GetString(response);
             AccessRefreshResponse accessResponse = JsonConvert.DeserializeObject<AccessRefreshResponse>(responseString);
-            Console.WriteLine("Refreshing token returned the following response: " + responseString);
-            Console.WriteLine("Writing access and refresh token to database.");
 
             Database.GetInstance().LogInfo("Retreived new access and refresh token: " + accessResponse.access_token + " / " + accessResponse.refresh_token);
             Database.GetInstance().SetSettings(Settings.ACCESS_TOKEN, accessResponse.access_token);
             Database.GetInstance().SetSettings(Settings.REFRESH_TOKEN, accessResponse.refresh_token);
+
             client.Dispose();
+        }
+
+        internal static void RefreshAccessToken()
+        {
+            Logger.WriteToConsole(("Access token not valid anymore. Try to refresh access token.");
+
+            WebClient client = new WebClient();
+            string accessToken = Settings.CLIENT_ID + ":" + Settings.CLIENT_SECRET;
+            accessToken = Base64Encode(accessToken);
+            client.Headers.Add("Authorization", "Basic " + accessToken);
+            
+            var values = new NameValueCollection();
+            values["grant_type"] = "refresh_token";
+            string refreshToken = Database.GetInstance().GetSettingsString(Settings.REFRESH_TOKEN, null);
+            values["refresh_token"] = refreshToken;
+            values["expires_in"] = "" + Settings.TOKEN_LIFETIME;
+
+            try
+            {
+                var response = client.UploadValues(REFRESH_URL, values);
+                var responseString = Encoding.Default.GetString(response);
+                AccessRefreshResponse accessResponse = JsonConvert.DeserializeObject<AccessRefreshResponse>(responseString);
+                Logger.WriteToConsole("Refreshing token returned the following response: " + responseString);
+                Logger.WriteToConsole("Writing access and refresh token to database.");
+
+                Database.GetInstance().LogInfo("Retreived new access and refresh token: " + accessResponse.access_token + " / " + accessResponse.refresh_token);
+                Database.GetInstance().SetSettings(Settings.ACCESS_TOKEN, accessResponse.access_token);
+                Database.GetInstance().SetSettings(Settings.REFRESH_TOKEN, accessResponse.refresh_token);
+            }
+            catch (WebException e)
+            {
+                if ((e.Response is HttpWebResponse) && ( (e.Response as HttpWebResponse).StatusCode == HttpStatusCode.Unauthorized || (e.Response as HttpWebResponse).StatusCode == HttpStatusCode.BadRequest))
+                {
+                    RefreshTokenFail?.Invoke();
+                }
+                else if ((e.Response is HttpWebResponse) && (e.Response as HttpWebResponse).StatusCode.ToString().Equals("429"))
+                {
+                    Logger.WriteToConsole("Too many requests");
+                }
+                else
+                {
+                    Logger.WriteToLogFile(e);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+                Logger.WriteToConsole(e.ToString());
+            }
+            finally
+            {
+                client.Dispose();
+            }
         }
 
         internal static string Base64Encode(string plainText)

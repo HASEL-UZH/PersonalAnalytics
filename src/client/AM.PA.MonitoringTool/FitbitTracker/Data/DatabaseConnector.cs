@@ -300,7 +300,6 @@ namespace FitbitTracker.Data
         {
             object[] parameters = e.Argument as object[];
             List<HeartrateIntraDayData> hrData = (List<HeartrateIntraDayData>)parameters[0];
-            Console.WriteLine("Start importing " + hrData.Count + " HR values.");
             
             int start = 0;
             int end = hrData.Count;
@@ -340,7 +339,7 @@ namespace FitbitTracker.Data
 
         private static void runWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            Console.WriteLine((int)e.Result + " data points imported.");
+            Logger.WriteToConsole((int)e.Result + " HR data points imported.");
         }
 
         internal static void SaveHRData(List<HeartRateDayData> hrData)
