@@ -22,7 +22,7 @@ namespace FitbitTracker.Data
 {
     public enum DataType
     {
-        SLEEP, ACTIVITIES, HR
+        SLEEP, ACTIVITIES, HR, STEPS
     };
 
     public class FitbitConnector
@@ -32,7 +32,37 @@ namespace FitbitTracker.Data
         private const string REFRESH_URL = "https://api.fitbit.com/oauth2/token";
         private const string DEVICE_URL = "https://api.fitbit.com/1/user/-/devices.json";
         private const string HEARTRATE_URL = "https://api.fitbit.com/1/user/-/activities/heart/date/{0}/1d/1sec.json";
-        
+        private const string ACTIVITY_URL = "https://api.fitbit.com/1/user/-/activities/date/{0}.json";
+        private const string STEP_URL = "https://api.fitbit.com/1/user/-/activities/steps/date/{0}/1d/1min.json";
+
+        internal static StepData GetStepDataForDay(DateTimeOffset day)
+        {
+            Tuple<StepData, bool> result = GetDataFromFitbit<StepData>(String.Format(STEP_URL, day.ToString(Settings.FITBIT_FORMAT_DAY)));
+            StepData stepData = result.Item1;
+            bool retry = result.Item2;
+
+            if (stepData == null && retry)
+            {
+                stepData = GetDataFromFitbit<StepData>(String.Format(STEP_URL, day.ToString(Settings.FITBIT_FORMAT_DAY))).Item1;
+            }
+
+            return stepData;
+        }
+
+        internal static ActivityData GetActivityDataForDay(DateTimeOffset day)
+        {
+            Tuple<ActivityData, bool> result = GetDataFromFitbit< ActivityData>(String.Format(ACTIVITY_URL, day.ToString(Settings.FITBIT_FORMAT_DAY)));
+            ActivityData activityData = result.Item1;
+            bool retry = result.Item2;
+
+            if (activityData == null && retry)
+            {
+                activityData = GetDataFromFitbit<ActivityData>(String.Format(ACTIVITY_URL, day.ToString(Settings.FITBIT_FORMAT_DAY))).Item1;
+            }
+
+            return activityData;
+        }
+
         internal static Tuple<List<HeartRateDayData>, List<HeartrateIntraDayData>> GetHeartrateForDay(DateTimeOffset day)
         {
             Tuple<HeartData, bool> result = GetDataFromFitbit<HeartData>(String.Format(HEARTRATE_URL, day.ToString(Settings.FITBIT_FORMAT_DAY)));
@@ -91,7 +121,7 @@ namespace FitbitTracker.Data
 
             return Tuple.Create<List<HeartRateDayData>, List<HeartrateIntraDayData>>(data, intradayData);
         }
-
+        
         internal static SleepData GetSleepDataForDay(DateTimeOffset day)
         {
             Tuple<SleepData, bool> result = GetDataFromFitbit<SleepData>(String.Format(SLEEP_URL, day.Year + "-" + day.Month + "-" + day.Day));

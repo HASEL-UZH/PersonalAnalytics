@@ -67,10 +67,47 @@ namespace FitbitTracker
             }
             else
             {
+                Console.WriteLine("Latest sync date: " + latestSync.ToString(Settings.FORMAT_DAY_AND_TIME));
                 latestSync = latestSync.AddDays(-1);
 
+                GetStepData(latestSync);
+                GetActivityData(latestSync);
                 GetHRData(latestSync);
                 GetSleepData(latestSync);
+            }
+        }
+
+        private static void GetStepData(DateTimeOffset latestSync)
+        {
+            List<DateTimeOffset> days = DatabaseConnector.GetDaysToSynchronize(DataType.STEPS);
+
+            foreach (DateTimeOffset day in days)
+            {
+                Console.WriteLine("Sync Steps: " + day.ToString(Settings.FORMAT_DAY));
+                StepData stepData = FitbitConnector.GetStepDataForDay(day);
+                DatabaseConnector.SaveStepDataForDay(stepData, day);
+                if (day < latestSync)
+                {
+                    Console.WriteLine("Finished syncing Steps for day: " + day.ToString(Settings.FORMAT_DAY));
+                    DatabaseConnector.SetSynchronizedDay(day, DataType.STEPS);
+                }
+            }
+        }
+
+        private static void GetActivityData(DateTimeOffset latestSync)
+        {
+            List<DateTimeOffset> days = DatabaseConnector.GetDaysToSynchronize(DataType.ACTIVITIES);
+
+            foreach (DateTimeOffset day in days)
+            {
+                Console.WriteLine("Sync Activity: " + day.ToString(Settings.FORMAT_DAY));
+                ActivityData activityData = FitbitConnector.GetActivityDataForDay(day);
+                DatabaseConnector.SaveActivityData(activityData, day);
+                if (day < latestSync)
+                {
+                    Console.WriteLine("Finished syncing Activity for day: " + day.ToString(Settings.FORMAT_DAY));
+                    DatabaseConnector.SetSynchronizedDay(day, DataType.ACTIVITIES);
+                }
             }
         }
 
@@ -80,13 +117,13 @@ namespace FitbitTracker
 
             foreach (DateTimeOffset day in days)
             {
-                Console.WriteLine("Sync: " + day);
+                Console.WriteLine("Sync HR: " + day.ToString(Settings.FORMAT_DAY));
                 Tuple<List<HeartRateDayData>, List<HeartrateIntraDayData>> hrData = FitbitConnector.GetHeartrateForDay(day);
                 DatabaseConnector.SaveHRData(hrData.Item1);
                 DatabaseConnector.SaveHRIntradayData(hrData.Item2);
                 if (day < latestSync)
                 {
-                    Console.WriteLine("Finished syncing day: " + day);
+                    Console.WriteLine("Finished syncing HR for day: " + day.ToString(Settings.FORMAT_DAY));
                     DatabaseConnector.SetSynchronizedDay(day, DataType.HR);
                 }
             }
@@ -98,12 +135,12 @@ namespace FitbitTracker
 
             foreach (DateTimeOffset day in days)
             {
-                Console.WriteLine("Sync: " + day);
+                Console.WriteLine("Sync sleep: " + day);
                 SleepData sleepData = FitbitConnector.GetSleepDataForDay(day);
                 DatabaseConnector.SaveSleepData(sleepData);
                 if (day < latestSync)
                 {
-                    Console.WriteLine("Finished syncing day: " + day);
+                    Console.WriteLine("Finished syncing sleep for day: " + day);
                     DatabaseConnector.SetSynchronizedDay(day, DataType.SLEEP);
                 }
             }

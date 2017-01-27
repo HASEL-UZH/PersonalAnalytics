@@ -11,8 +11,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Globalization;
-using System.Threading.Tasks;
 using System.ComponentModel;
+using FitbitTracker.Data.FitbitModel;
 
 namespace FitbitTracker.Data
 {
@@ -51,15 +51,44 @@ namespace FitbitTracker.Data
         private const string MINUTES_SPENT = "minutesSpent";
         private const string NAME = "name";
         private const string VALUE = "value";
+        private const string DATE_OF_STEPS = "dateOfSteps";
+        private const string ACTIVE_SCORE = "activeScore";
+        private const string ELEVATION = "elevation";
+        private const string FAIRLY_ACTIVE_MINUTES = "fairlyActiveMinutes";
+        private const string FLOORS = "floors";
+        private const string LIGHTLY_ACTIVE_MINUTES = "lightlyActiveMinutes";
+        private const string SEDENTARY_MINUTES = "sendentaryMinutes";
+        private const string STEPS = "steps";
+        private const string VERY_ACTIVE_MINUTES = "veryActiveMinutes";
+        private const string DATE_OF_ACTIVITY = "dateOfActivity";
 
         private static readonly string CREATE_INDEX_FOR_HEARTRATE_DAY_TABLE = "CREATE UNIQUE INDEX IF NOT EXISTS idx ON " + Settings.HEARTRATE_DAY_TABLE_NAME + "(" + DATE_OF_HR + ", " + NAME + ")";
+
+        private static readonly string CREATE_ACTIVITY_SUMMARY_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.ACTIVITY_SUMMARY_TABLE_NAME + " ("
+                                                                            + ID + " INTEGER PRIMARY KEY, "
+                                                                            + DATE_OF_ACTIVITY + " TEXT UNIQUE, "
+                                                                            + SAVE_TIME + " TEXT, "
+                                                                            + ACTIVE_SCORE + " INTEGER, "
+                                                                            + ELEVATION + " REAL, "
+                                                                            + FAIRLY_ACTIVE_MINUTES + " INTEGER, "
+                                                                            + FLOORS + " INTEGER, "
+                                                                            + LIGHTLY_ACTIVE_MINUTES + " INTEGER, "
+                                                                            + SEDENTARY_MINUTES + " INTEGER, "
+                                                                            + STEPS + " INTEGER, "
+                                                                            + VERY_ACTIVE_MINUTES + " INTEGER)";
+
+        private static readonly string CREATE_STEPS_INTRA_DAY_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.STEPS_INTRA_DAY_TABLE_NAME + " ("
+                                                                            + ID + " INTEGER PRIMARY KEY, "
+                                                                            + SAVE_TIME + " TEXT, "
+                                                                            + DATE_OF_STEPS + " TEXT UNIQUE, "
+                                                                            + VALUE + " INTEGER)";
 
         private static readonly string CREATE_HEARTRATE_INTRA_DAY_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.HEARTRATE_INTRA_DAY_TABLE_NAME + " ("
                                                                             + ID + " INTEGER PRIMARY KEY, "
                                                                             + SAVE_TIME + " TEXT, "
                                                                             + DATE_OF_HR + " TEXT UNIQUE, "
                                                                             + VALUE + " INTEGER)";
-
+        
         private static readonly string CREATE_HEARTRATE_DAY_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.HEARTRATE_DAY_TABLE_NAME + " ("
                                                                         + ID + " INTEGER PRIMARY KEY,"
                                                                         + SAVE_TIME + " TEXT, "
@@ -175,6 +204,44 @@ namespace FitbitTracker.Data
                                                                     + VALUE
                                                                     + ") VALUES ({0}, {1}, {2})";
 
+        private static readonly string INSERT_OR_IGNORE_STEPS_INTRADAY = "INSERT OR IGNORE INTO " + Settings.STEPS_INTRA_DAY_TABLE_NAME
+                                                            + "(" + SAVE_TIME + ", "
+                                                            + DATE_OF_STEPS + ", "
+                                                            + VALUE
+                                                            + ") VALUES ({0}, {1}, {2})";
+
+        private static readonly string UPDATE_STEPS_INTRADAY = "UPDATE " + Settings.STEPS_INTRA_DAY_TABLE_NAME
+                                                            + " SET " + SAVE_TIME + " = {0}, "
+                                                            + DATE_OF_STEPS + " = {1}, "
+                                                            + VALUE + " = {2} "
+                                                            + "WHERE " + DATE_OF_STEPS + " = {1};";
+
+        private static readonly string INSERT_OR_IGNORE_ACTIVITY_SUMMARY = "INSERT OR IGNORE INTO " + Settings.ACTIVITY_SUMMARY_TABLE_NAME
+                                                                            + "(" + DATE_OF_ACTIVITY + ", " 
+                                                                            + SAVE_TIME + ", "
+                                                                            + ACTIVE_SCORE + ", "
+                                                                            + ELEVATION + ", "
+                                                                            + FAIRLY_ACTIVE_MINUTES + ", "
+                                                                            + FLOORS + ", "
+                                                                            + LIGHTLY_ACTIVE_MINUTES + ", "
+                                                                            + SEDENTARY_MINUTES + ", "
+                                                                            + STEPS + ", "
+                                                                            + VERY_ACTIVE_MINUTES
+                                                                            + ") VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8}, {9});";
+
+        private static readonly string UPDATE_ACTIVITY_SUMMARY = "UPDATE " + Settings.ACTIVITY_SUMMARY_TABLE_NAME
+                                                                + " SET " + DATE_OF_ACTIVITY + " = {0}, "
+                                                                + SAVE_TIME + " = {1}, "
+                                                                + ACTIVE_SCORE + " = {2}, "
+                                                                + ELEVATION + " = {3}, "
+                                                                + FAIRLY_ACTIVE_MINUTES + " = {4}, "
+                                                                + FLOORS + " = {5}, "
+                                                                + LIGHTLY_ACTIVE_MINUTES + " = {6}, "
+                                                                + SEDENTARY_MINUTES + " = {7}, "
+                                                                + STEPS + " = {8}, "
+                                                                + VERY_ACTIVE_MINUTES + " = {9} "
+                                                                + "WHERE " + DATE_OF_ACTIVITY + " = {0};";
+
         #region create
         internal static void CreateFitbitTables()
         {
@@ -186,6 +253,8 @@ namespace FitbitTracker.Data
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_HEARTRATE_DAY_TABLE_QUERY);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_INDEX_FOR_HEARTRATE_DAY_TABLE);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_HEARTRATE_INTRA_DAY_TABLE_QUERY);
+                Database.GetInstance().ExecuteDefaultQuery(CREATE_STEPS_INTRA_DAY_TABLE_QUERY);
+                Database.GetInstance().ExecuteDefaultQuery(CREATE_ACTIVITY_SUMMARY_TABLE_QUERY);
             }
             catch (Exception e)
             {
@@ -195,6 +264,32 @@ namespace FitbitTracker.Data
         #endregion
 
         #region insert
+        internal static void SaveStepDataForDay(StepData stepData, DateTimeOffset day)
+        {
+            //TODO: BULK INSERT
+            foreach (StepDataEntry dataEntry in stepData.IntraDay.Dataset)
+            {
+                string query = string.Empty;
+                query += String.Format(UPDATE_STEPS_INTRADAY, "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + new DateTime(day.Year, day.Month, day.Day, dataEntry.Time.Hour, dataEntry.Time.Minute, dataEntry.Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'", dataEntry.Value);
+                Database.GetInstance().ExecuteDefaultQuery(query);
+
+                query = string.Empty;
+                query += String.Format(INSERT_OR_IGNORE_STEPS_INTRADAY, "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + new DateTime(day.Year, day.Month, day.Day, dataEntry.Time.Hour, dataEntry.Time.Minute, dataEntry.Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'", dataEntry.Value);
+                Database.GetInstance().ExecuteDefaultQuery(query);
+            }
+        }
+
+        internal static void SaveActivityData(ActivityData activityData, DateTimeOffset day)
+        {
+            string query = string.Empty;
+            query += String.Format(UPDATE_ACTIVITY_SUMMARY, "'" + new DateTime(day.Year, day.Month, day.Day).ToString(Settings.FORMAT_DAY) + "'", "'" + DateTime.Now.ToString(Settings.FORMAT_DAY) + "'", activityData.Summary.ActiveScore, activityData.Summary.Elevation, activityData.Summary.FairlyActiveMinutes, activityData.Summary.Floors, activityData.Summary.LightlyActiveMinutes, activityData.Summary.SedentaryMinutes, activityData.Summary.Steps, activityData.Summary.Steps, activityData.Summary.VeryActiveMinutes);
+            Database.GetInstance().ExecuteDefaultQuery(query);
+
+            query = string.Empty;
+            query += String.Format(INSERT_OR_IGNORE_ACTIVITY_SUMMARY, "'" + new DateTime(day.Year, day.Month, day.Day).ToString(Settings.FORMAT_DAY) + "'", "'" + DateTime.Now.ToString(Settings.FORMAT_DAY) + "'", activityData.Summary.ActiveScore, activityData.Summary.Elevation, activityData.Summary.FairlyActiveMinutes, activityData.Summary.Floors, activityData.Summary.LightlyActiveMinutes, activityData.Summary.SedentaryMinutes, activityData.Summary.Steps, activityData.Summary.Steps, activityData.Summary.VeryActiveMinutes);
+            Database.GetInstance().ExecuteDefaultQuery(query);
+        }
+
         private static void InsertHRData(object sender, DoWorkEventArgs e)
         {
             object[] parameters = e.Argument as object[];

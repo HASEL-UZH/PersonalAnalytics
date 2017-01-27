@@ -48,6 +48,8 @@
     <Compile Include="Data\FitbitModel\AccessRefreshResponse.cs" />
     <Compile Include="Data\DatabaseConnector.cs" />
     <Compile Include="Data\FitbitConnector.cs" />
+    <Compile Include="Data\FitbitModel\ActivityData.cs" />
+    <Compile Include="Data\FitbitModel\ActivitySummary.cs" />
     <Compile Include="Data\FitbitModel\Device.cs" />
     <Compile Include="Data\FitbitModel\HeartActivities.cs" />
     <Compile Include="Data\FitbitModel\HeartActivitiesIntraday.cs" />
@@ -58,6 +60,9 @@
     <Compile Include="Data\FitbitModel\SleepData.cs" />
     <Compile Include="Data\FitbitModel\SleepLog.cs" />
     <Compile Include="Data\FitbitModel\SleepSummary.cs" />
+    <Compile Include="Data\FitbitModel\StepData.cs" />
+    <Compile Include="Data\FitbitModel\StepDataEntry.cs" />
+    <Compile Include="Data\FitbitModel\StepDataIntraday.cs" />
     <Compile Include="Data\HeartRateDayData.cs" />
     <Compile Include="Data\HeartRateIntraDayData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
