@@ -257,7 +257,7 @@ namespace FitbitTracker.Data
 
         internal static void RefreshAccessToken()
         {
-            Logger.WriteToConsole(("Access token not valid anymore. Try to refresh access token.");
+            Logger.WriteToConsole("Access token not valid anymore. Try to refresh access token.");
 
             WebClient client = new WebClient();
             string accessToken = Settings.CLIENT_ID + ":" + Settings.CLIENT_SECRET;
