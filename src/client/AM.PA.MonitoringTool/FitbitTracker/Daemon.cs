@@ -50,12 +50,14 @@ namespace FitbitTracker
             IsRunning = true;
         }
 
+        //Called whenever refreshing the access or refresh token failed with a not authorized or bad request message
         private void FitbitConnector_RefreshTokenFail()
         {
             Logger.WriteToConsole("Refresh access token failed. Let the user register to get new tokens");
             GetNewTokens();
         }
 
+        //Checks whether a token is stored. If not, new tokens are retrieved from fitbit
         private void CheckIfTokenIsAvailable()
         {
             if (Database.GetInstance().GetSettingsString(Settings.ACCESS_TOKEN, string.Empty).Equals(string.Empty) || Database.GetInstance().GetSettingsString(Settings.REFRESH_TOKEN, string.Empty).Equals(string.Empty))
@@ -68,6 +70,7 @@ namespace FitbitTracker
             }
         }
 
+        //Gets new tokens from fitbit
         internal void GetNewTokens()
         {
             Application.Current.Dispatcher.Invoke((Action)(() =>
@@ -87,6 +90,7 @@ namespace FitbitTracker
             }));
         }
 
+        //Called when getting new tokens from fitbit causes an error
         private void Browser_ErrorEvent()
         {
             Logger.WriteToConsole("Couldn't register Fibit. FitbitTracker will be disabled.");
@@ -94,11 +98,13 @@ namespace FitbitTracker
             Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, false);
         }
 
+        //Called when new tokens were received from fitbit
         private void Browser_RegistrationTokenEvent(string token)
         {
             FitbitConnector.GetFirstAccessToken(token);
         }
 
+        //Called when the browser window used to retrieve tokens from fitbit should be closed
         private void Browser_FinishEvent()
         {
             Application.Current.Dispatcher.Invoke((Action)(() =>
@@ -107,6 +113,7 @@ namespace FitbitTracker
             }));
         }
 
+        //Creates a timer that is used to periodically pull data from the fitbit API
         private void CreateFitbitPullTimer()
         {
             fitbitTimer = new Timer();
@@ -115,6 +122,7 @@ namespace FitbitTracker
             fitbitTimer.Enabled = true;
         }
 
+        //Called when new data should be pull from the fitbit API
         private void OnPullFromFitbit(object sender, ElapsedEventArgs eventArgs)
         {
             fitbitTimer.Interval = Settings.SYNCHRONIZE_INTERVALL_SECOND;
@@ -145,6 +153,7 @@ namespace FitbitTracker
             }
         }
 
+        //Retrieves the step data from fitbit
         private static void GetStepData(DateTimeOffset latestSync)
         {
             List<DateTimeOffset> days = DatabaseConnector.GetDaysToSynchronize(DataType.STEPS);
@@ -162,6 +171,7 @@ namespace FitbitTracker
             }
         }
 
+        //Retrieves activity data from fitbit
         private static void GetActivityData(DateTimeOffset latestSync)
         {
             List<DateTimeOffset> days = DatabaseConnector.GetDaysToSynchronize(DataType.ACTIVITIES);
@@ -179,6 +189,7 @@ namespace FitbitTracker
             }
         }
 
+        //Retrieves HR data from fitbit
         private static void GetHRData(DateTimeOffset latestSync)
         {
             List<DateTimeOffset> days = DatabaseConnector.GetDaysToSynchronize(DataType.HR);
@@ -197,6 +208,7 @@ namespace FitbitTracker
             }
         }
 
+        //Retrieves sleep data from fitbit
         private static void GetSleepData(DateTimeOffset latestSync)
         {
             List<DateTimeOffset> days = DatabaseConnector.GetDaysToSynchronize(DataType.SLEEP);
@@ -229,4 +241,5 @@ namespace FitbitTracker
         }
 
     }
+    
 }

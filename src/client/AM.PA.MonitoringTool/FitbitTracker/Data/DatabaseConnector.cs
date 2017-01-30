@@ -20,6 +20,7 @@ namespace FitbitTracker.Data
     public class DatabaseConnector
     {
 
+        //Database fields
         private const string ID = "id";
         private const string SAVE_TIME = "save_time";
         private const string AWAKE_COUNT = "awakeCount";
@@ -62,6 +63,7 @@ namespace FitbitTracker.Data
         private const string VERY_ACTIVE_MINUTES = "veryActiveMinutes";
         private const string DATE_OF_ACTIVITY = "dateOfActivity";
 
+        //Create queries
         private static readonly string CREATE_INDEX_FOR_HEARTRATE_DAY_TABLE = "CREATE UNIQUE INDEX IF NOT EXISTS idx ON " + Settings.HEARTRATE_DAY_TABLE_NAME + "(" + DATE_OF_HR + ", " + NAME + ")";
 
         private static readonly string CREATE_ACTIVITY_SUMMARY_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.ACTIVITY_SUMMARY_TABLE_NAME + " ("
@@ -135,6 +137,7 @@ namespace FitbitTracker.Data
                                                                 + DAY + " TEXT, "
                                                                 + DATA + " TEXT)";
 
+        //Update and insert queries
         private static readonly string INSERT_SYNCHRONIZED_DAY_QUERY = "INSERT INTO " + Settings.DOWNLOAD_TABLE_NAME
                                                                 + "(" + SAVE_TIME + ", "
                                                                 + DAY + ", "

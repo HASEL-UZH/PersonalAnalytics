@@ -28,6 +28,7 @@ namespace FitbitTracker.Data
     public class FitbitConnector
     {
 
+        //URls of the web API
         private const string SLEEP_URL = "https://api.fitbit.com/1/user/-/sleep/date/{0}.json";
         private const string REFRESH_URL = "https://api.fitbit.com/oauth2/token";
         private const string DEVICE_URL = "https://api.fitbit.com/1/user/-/devices.json";
@@ -35,6 +36,7 @@ namespace FitbitTracker.Data
         private const string ACTIVITY_URL = "https://api.fitbit.com/1/user/-/activities/date/{0}.json";
         private const string STEP_URL = "https://api.fitbit.com/1/user/-/activities/steps/date/{0}/1d/1min.json";
 
+        //Called when refreshing the access token fails
         public delegate void OnRefreshTokenFail();
         public static event OnRefreshTokenFail RefreshTokenFail;
 
@@ -153,6 +155,9 @@ namespace FitbitTracker.Data
             return devices;
         }
 
+        //Generic method that retrieves specific data from the fitbit. If an exception is thrown during this process, it checks whether the problem is an authorization problem. In this case, the tokens are refreshed.
+        //The method returns a tuple, consisting of two values. The first item in the tuple is the retrieved data set, or the default value in case an exception was thrown and the second item, indicates whether a caller
+        //of this method should retry to call this method in case of an exception.
         private static Tuple<T, bool> GetDataFromFitbit<T>(string url)
         {
             WebClient client = null;
@@ -212,6 +217,7 @@ namespace FitbitTracker.Data
             }
         }
 
+        //Returns the latest point in time a tracker was synchronized with fitbit
         internal static DateTimeOffset GetLatestSyncDate()
         {
             List<Device> devices = GetDeviceData();

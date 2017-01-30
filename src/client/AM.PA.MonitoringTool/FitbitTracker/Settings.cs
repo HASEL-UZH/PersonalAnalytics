@@ -10,8 +10,8 @@ namespace FitbitTracker
         //Deamon
         internal const string TRACKER_NAME = "Fitbit Tracker";
         internal const string TRACKER_ENEABLED_SETTING = "FitbitTrackerEnabled";
-        internal const int SYNCHRONIZE_INTERVALL_FIRST = 2 * 60 * 1000;
-        internal const int SYNCHRONIZE_INTERVALL_SECOND = 20 * 60 * 1000;
+        internal const int SYNCHRONIZE_INTERVALL_FIRST = 2 * 60 * 1000; //2 minutes
+        internal const int SYNCHRONIZE_INTERVALL_SECOND = 20 * 60 * 1000; //20 minutes
 
         //Database table names
         internal static readonly string SLEEP_TABLE_NAME = "fitbit_sleep";
