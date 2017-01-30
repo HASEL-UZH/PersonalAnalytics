@@ -447,6 +447,35 @@ namespace FitbitTracker.Data
         }
         #endregion
 
+        #region Select
+
+        public static double GetMinutesAsleep(DateTimeOffset start, DateTimeOffset end)
+        {
+            string query = string.Empty;
+            query += "Select SUM(" + TOTAL_MINUTES_ASLEEP + ") From " + Settings.SLEEP_SUMMARY_TABLE_NAME + " Where '" + start.ToString(Settings.FORMAT_DAY_AND_TIME) + "' <= " + DATE_OF_SLEEP + " AND '" + end.ToString(Settings.FORMAT_DAY_AND_TIME) + "' <= " + DATE_OF_SLEEP;
+            Console.WriteLine(query);
+
+            var table = Database.GetInstance().ExecuteReadQuery(query);
+
+            if (table.Rows.Count > 0 && table.Rows[0][0] != null)
+            {
+                try
+                {
+                    return (double)table.Rows[0][0];
+                }
+                catch (Exception e)
+                {
+                    return double.NaN;
+                }
+            }
+            else
+            {
+                return double.NaN;
+            }
+        }
+
+        #endregion
+
     }
 
 }

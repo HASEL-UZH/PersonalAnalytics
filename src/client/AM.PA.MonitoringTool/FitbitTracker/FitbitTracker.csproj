@@ -71,6 +71,8 @@
     <Compile Include="Data\FitbitModel\StepDataIntraday.cs" />
     <Compile Include="Data\HeartRateDayData.cs" />
     <Compile Include="Data\HeartRateIntraDayData.cs" />
+    <Compile Include="Visualizations\FitbitVisualizationForWeek.cs" />
+    <Compile Include="Visualizations\FitbitVisualizationForDay.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="View\EmbeddedBrowser.xaml.cs">

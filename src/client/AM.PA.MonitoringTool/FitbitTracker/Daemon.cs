@@ -85,7 +85,7 @@ namespace FitbitTracker
                     Title = "Register PersonalAnalytics to let it access Fitbit data",
                     Content = browser
                 };
-                
+
                 browserWindow.ShowDialog();
             }));
         }
@@ -240,6 +240,15 @@ namespace FitbitTracker
             //No updates needed so far!
         }
 
+        public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
+        {
+            return new List<IVisualization> { new FitbitVisualizationForDay(date) };
+        }
+
+        public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)
+        {
+            return new List<IVisualization> { new FitbitVisualizationForWeek(date) };
+        }
+
     }
-    
 }
