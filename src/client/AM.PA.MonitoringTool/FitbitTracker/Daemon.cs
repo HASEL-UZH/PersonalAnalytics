@@ -28,7 +28,7 @@ namespace FitbitTracker
 
         public override string GetStatus()
         {
-            return IsRunning ? (Name + " is running") : (Name + " is NOT running");
+            return IsRunning ? (Name + " is running.") : (Name + " is NOT running.");
         }
 
         public override void CreateDatabaseTablesIfNotExist()
