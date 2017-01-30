@@ -26,6 +26,7 @@ namespace Retrospection
         private bool defaultOpenRetrospectionInFullScreen;
         private bool defaultTimeSpentShowProgramsEnabled;
         private bool defaultTimeSpentShowEmailsEnabled;
+        private bool defaultFlowLightTrackerEnabled;
 
         private string minutesStr = " minutes";
         private List<ITracker> _trackers;
@@ -50,6 +51,7 @@ namespace Retrospection
             defaultOpenRetrospectionInFullScreen = dto.OpenRetrospectionInFullScreen.Value;
             defaultTimeSpentShowProgramsEnabled = dto.TimeSpentShowProgramsEnabled.Value;
             defaultTimeSpentShowEmailsEnabled = dto.TimeSpentShowEmailsEnabled.Value;
+            defaultFlowLightTrackerEnabled = dto.FlowLightTrackerEnabled.Value;
 
             // no changes yet, disable buttons by default
             SaveButtonsEnabled(false);
@@ -86,6 +88,10 @@ namespace Retrospection
                 CbPopUpInterval.IsEnabled = true;
             }
             CbPopUpInterval.SelectionChanged += CbPopUpInterval_SelectionChanged;
+
+            CbFlowLightTrackerEnabled.IsChecked = defaultFlowLightTrackerEnabled;
+            CbFlowLightTrackerEnabled.Checked += CbChecked_Update;
+            CbFlowLightTrackerEnabled.Unchecked += CbChecked_Update;
         }
 
         #region User Changed Values
@@ -116,7 +122,8 @@ namespace Retrospection
                  (defaultUserInputTrackerEnabled != CbUserInputTrackerEnabled.IsChecked.Value) ||
                  (defaultOpenRetrospectionInFullScreen != CbOpenRetrospectionInFullScreen.IsChecked.Value) ||
                  (defaultTimeSpentShowEmailsEnabled != CbTimeSpentShowEmailsEnabled.IsChecked.Value) ||
-                 (defaultTimeSpentShowProgramsEnabled != CbTimeSpentShowProgramsEnabled.IsChecked.Value)
+                 (defaultTimeSpentShowProgramsEnabled != CbTimeSpentShowProgramsEnabled.IsChecked.Value) ||
+                 (defaultFlowLightTrackerEnabled != CbFlowLightTrackerEnabled.IsChecked.Value)
                  )
                 {
                     SaveButtonsEnabled(true);
@@ -189,6 +196,12 @@ namespace Retrospection
                     dto.UserInputTrackerEnabled = CbUserInputTrackerEnabled.IsChecked.Value;
                 }
                 else { dto.UserInputTrackerEnabled = null; }
+
+                if (defaultFlowLightTrackerEnabled != CbFlowLightTrackerEnabled.IsChecked.Value)
+                {
+                    dto.FlowLightTrackerEnabled = CbFlowLightTrackerEnabled.IsChecked.Value;
+                }
+                else { dto.FlowLightTrackerEnabled = null; }
             }
             catch { }
 

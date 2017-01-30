@@ -60,9 +60,10 @@ namespace PersonalAnalytics
             Register(new UserEfficiencyTracker.Daemon());
             Register(new UserInputTracker.Daemon());
             Register(new MsOfficeTracker.Daemon());
-
+            FocusLightTracker.Daemon flowTracker = new FocusLightTracker.Daemon();
+            Register(flowTracker);
+            Register(new FlowLightTracker.Daemon(flowTracker));
 #if Dev
-            Register(new FocusLightTracker.Daemon());
             //Register(new PeopleVisualizer.PeopleVisualizer()); // disabled, as it's not finished and pretty slow
             //Register(new WindowsContextTracker.Daemon();); // implementation not finished
 

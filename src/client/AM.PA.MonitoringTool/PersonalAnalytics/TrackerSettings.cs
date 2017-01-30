@@ -61,6 +61,10 @@ namespace Shared.Data
                     if (GetMSOfficeTracker() != null) GetMSOfficeTracker().MsOfficeTrackerEnabled = updatedSettings.Office365ApiEnabled.Value;
                     //if (GetPeopleVisualizer() != null) GetPeopleVisualizer().PeopleVisualizerEnabled = updatedSettings.Office365ApiEnabled.Value;
                 }
+                if (updatedSettings.FlowLightTrackerEnabled.HasValue)
+                {
+                    if (GetFlowLightTracker() != null) GetFlowLightTracker().FlowLightTrackerEnabled = updatedSettings.FlowLightTrackerEnabled.Value;
+                }
             }
             catch (Exception e)
             {
@@ -97,6 +101,9 @@ namespace Shared.Data
                 //else if (peopleVisualizer == null && msOfficeTracker != null) dto.Office365ApiEnabled = msOfficeTracker.MsOfficeTrackerEnabled;
                 //else if (peopleVisualizer != null && msOfficeTracker == null) dto.Office365ApiEnabled = peopleVisualizer.PeopleVisualizerEnabled;
                 //else dto.Office365ApiEnabled = false;
+
+                var flowLightTracker = GetFlowLightTracker();
+                if (flowLightTracker != null) dto.FlowLightTrackerEnabled = flowLightTracker.FlowLightTrackerEnabled;
             } 
             catch { }
 
@@ -178,6 +185,20 @@ namespace Shared.Data
             var tracker = GetUserEfficiencyTracker();
             if (tracker != null) return tracker.PopUpEnabled;
             else return false;
+        }
+
+        private FlowLightTracker.Daemon GetFlowLightTracker()
+        {
+            try
+            {
+                var tracker =
+                    _trackers.Where(t => t.GetType() == typeof(FlowLightTracker.Daemon))
+                        .Cast<FlowLightTracker.Daemon>()
+                        .FirstOrDefault();
+
+                return tracker;
+            }
+            catch { return null; }
         }
     }
 }
