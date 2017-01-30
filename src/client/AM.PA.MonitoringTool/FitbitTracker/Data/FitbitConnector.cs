@@ -167,7 +167,7 @@ namespace FitbitTracker.Data
             try
             {
                 client = new WebClient();
-                client.Headers.Add("Authorization", "Bearer " + Database.GetInstance().GetSettingsString(Settings.ACCESS_TOKEN, null));
+                client.Headers.Add("Authorization", "Bearer " + SecretStorage.GetAccessToken());
 
                 data = client.OpenRead(url);
 
@@ -255,8 +255,8 @@ namespace FitbitTracker.Data
             AccessRefreshResponse accessResponse = JsonConvert.DeserializeObject<AccessRefreshResponse>(responseString);
 
             Database.GetInstance().LogInfo("Retreived new access and refresh token: " + accessResponse.access_token + " / " + accessResponse.refresh_token);
-            Database.GetInstance().SetSettings(Settings.ACCESS_TOKEN, accessResponse.access_token);
-            Database.GetInstance().SetSettings(Settings.REFRESH_TOKEN, accessResponse.refresh_token);
+            SecretStorage.SaveAccessToken(accessResponse.access_token);
+            SecretStorage.SaveRefreshToken(accessResponse.refresh_token);
 
             client.Dispose();
         }
@@ -272,7 +272,7 @@ namespace FitbitTracker.Data
             
             var values = new NameValueCollection();
             values["grant_type"] = "refresh_token";
-            string refreshToken = Database.GetInstance().GetSettingsString(Settings.REFRESH_TOKEN, null);
+            string refreshToken = SecretStorage.GetRefreshToken();
             values["refresh_token"] = refreshToken;
             values["expires_in"] = "" + Settings.TOKEN_LIFETIME;
 
@@ -285,8 +285,8 @@ namespace FitbitTracker.Data
                 Logger.WriteToConsole("Writing access and refresh token to database.");
 
                 Database.GetInstance().LogInfo("Retreived new access and refresh token: " + accessResponse.access_token + " / " + accessResponse.refresh_token);
-                Database.GetInstance().SetSettings(Settings.ACCESS_TOKEN, accessResponse.access_token);
-                Database.GetInstance().SetSettings(Settings.REFRESH_TOKEN, accessResponse.refresh_token);
+                SecretStorage.SaveAccessToken(accessResponse.access_token);
+                SecretStorage.SaveRefreshToken(accessResponse.refresh_token);
             }
             catch (WebException e)
             {

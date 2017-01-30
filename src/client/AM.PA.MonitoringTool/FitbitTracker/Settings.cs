@@ -24,8 +24,6 @@ namespace FitbitTracker
 
         //Database field names
         internal static readonly string DOWNLOAD_START_DATE = "FitbitDownloadStartDate";
-        internal static readonly string ACCESS_TOKEN = "FitbitAccessToken";
-        internal static readonly string REFRESH_TOKEN = "FitbitRefreshToken";
         
         //OTHER
         internal static readonly string FORMAT_DAY = "dd-MM-yyyy";

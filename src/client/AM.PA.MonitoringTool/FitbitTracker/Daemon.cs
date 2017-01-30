@@ -60,7 +60,7 @@ namespace FitbitTracker
         //Checks whether a token is stored. If not, new tokens are retrieved from fitbit
         private void CheckIfTokenIsAvailable()
         {
-            if (Database.GetInstance().GetSettingsString(Settings.ACCESS_TOKEN, string.Empty).Equals(string.Empty) || Database.GetInstance().GetSettingsString(Settings.REFRESH_TOKEN, string.Empty).Equals(string.Empty))
+            if (SecretStorage.GetAccessToken() == null || SecretStorage.GetRefreshToken() == null)
             {
                 GetNewTokens();
             }
