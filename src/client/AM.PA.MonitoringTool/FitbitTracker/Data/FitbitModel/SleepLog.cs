@@ -9,6 +9,8 @@ namespace FitbitTracker.Model
 {
     public class SleepLog
     {
+        private double minutesToFallAsleep = double.NaN;
+
         public int AwakeCount { get; set; }
         public int AwakeDuration { get; set; }
         public int AwekeningsCount { get; set; }
@@ -20,7 +22,7 @@ namespace FitbitTracker.Model
         public int MinutesAfterWakeup { get; set; }
         public int MinutesAsleep { get; set; }
         public int MinutesAwake { get; set; }
-        public int MinutesToFallAsleep { get; set; }
+        public double MinutesToFallAsleep { get { return minutesToFallAsleep; } set { minutesToFallAsleep = value; } }
         public int RestlessCount { get; set; }
         public int RestlessDuration { get; set; }
         public DateTime StartTime { get; set; }

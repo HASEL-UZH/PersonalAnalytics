@@ -13,7 +13,7 @@ namespace FitbitTracker.Data
 
         public DateTime Date { get; set; }
 
-        public int RestingHeartrate { get; set; }
+        public double RestingHeartrate { get; set; }
 
         public float CaloriesOut { get; set; }
 

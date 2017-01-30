@@ -10,8 +10,9 @@ namespace FitbitTracker.Data.FitbitModel
 
     public class HeartrateValue
     {
+        private double restingHeartrate = double.NaN;
 
-        public int RestingHeartrate { get; set; }
+        public double RestingHeartrate { get { return restingHeartrate; } set { restingHeartrate = value; } }
 
         public List<HeartRateZone> CustomHeartrateZones { get; set; }
 

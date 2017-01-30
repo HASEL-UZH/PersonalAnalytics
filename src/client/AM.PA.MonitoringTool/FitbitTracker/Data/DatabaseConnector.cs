@@ -351,11 +351,11 @@ namespace FitbitTracker.Data
             foreach (HeartRateDayData data in hrData)
             {
                 string query = string.Empty;
-                query += String.Format(UPDATE_HR_SUMMARY, "'" + insert.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + data.Date.ToString(Settings.FORMAT_DAY) + "'", data.RestingHeartrate, data.CaloriesOut, data.Max, data.Min, data.MinutesSpent, "'" + data.Name + "'");
+                query += String.Format(UPDATE_HR_SUMMARY, "'" + insert.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + data.Date.ToString(Settings.FORMAT_DAY) + "'", Double.IsNaN(data.RestingHeartrate) ? "null" : data.RestingHeartrate.ToString(), data.CaloriesOut, data.Max, data.Min, data.MinutesSpent, "'" + data.Name + "'");
                 Database.GetInstance().ExecuteDefaultQuery(query);
 
                 query = string.Empty;
-                query += String.Format(INSERT_OR_IGNORE_HR_SUMMARY, "'" + insert.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + data.Date.ToString(Settings.FORMAT_DAY) + "'", data.RestingHeartrate, data.CaloriesOut, data.Max, data.Min, data.MinutesSpent, "'" + data.Name + "'");
+                query += String.Format(INSERT_OR_IGNORE_HR_SUMMARY, "'" + insert.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + data.Date.ToString(Settings.FORMAT_DAY) + "'", Double.IsNaN(data.RestingHeartrate) ? "null" : data.RestingHeartrate.ToString(), data.CaloriesOut, data.Max, data.Min, data.MinutesSpent, "'" + data.Name + "'");
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }
         }
@@ -391,7 +391,7 @@ namespace FitbitTracker.Data
                     if (!DoesSleepLogAlreadyExists(log.LogID))
                     {
                         string sleepQuery = String.Empty;
-                        sleepQuery += String.Format(INSERT_SLEEP_QUERY, id, "'" + DateTime.Now + "'", log.AwakeCount, log.AwakeDuration, "'" + log.DateOfSleep.ToString(Settings.FORMAT_DAY) + "'", log.Duration, log.Efficiency, log.IsMainSleep ? 1 : 0, log.LogID, log.MinutesAfterWakeup, log.MinutesAsleep, log.MinutesAwake, log.MinutesToFallAsleep, log.RestlessCount, log.RestlessDuration, "'" + log.StartTime.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", log.TimeInBed);
+                        sleepQuery += String.Format(INSERT_SLEEP_QUERY, id, "'" + DateTime.Now + "'", log.AwakeCount, log.AwakeDuration, "'" + log.DateOfSleep.ToString(Settings.FORMAT_DAY) + "'", log.Duration, log.Efficiency, log.IsMainSleep ? 1 : 0, log.LogID, log.MinutesAfterWakeup, log.MinutesAsleep, log.MinutesAwake, Double.IsNaN(log.MinutesToFallAsleep) ? "null" : log.MinutesToFallAsleep.ToString(), log.RestlessCount, log.RestlessDuration, "'" + log.StartTime.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", log.TimeInBed);
                         Database.GetInstance().ExecuteDefaultQuery(sleepQuery);
                     }
                 }
