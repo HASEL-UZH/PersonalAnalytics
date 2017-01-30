@@ -186,7 +186,6 @@ namespace PolarTracker
         {
             if (hrQueue.Count > 0)
             {
-                isConnectedToBluetoothDevice = true;
                 List<HeartRateMeasurement> measurements = new List<HeartRateMeasurement>();
 
                 HeartRateMeasurement measurement = null;
