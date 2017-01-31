@@ -44,6 +44,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\HidLibrary.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Lync.Model, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\Microsoft.Lync.Model.dll</HintPath>
+    </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.4.1\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
@@ -76,6 +80,7 @@
     <Content Include="lib\FocuslightClients.dll" />
     <Content Include="lib\FocusLightTracker.dll" />
     <Content Include="lib\HidLibrary.dll" />
+    <Content Include="lib\Microsoft.Lync.Model.dll" />
     <Content Include="lib\ThingM.Blink1.dll" />
   </ItemGroup>
   <ItemGroup>

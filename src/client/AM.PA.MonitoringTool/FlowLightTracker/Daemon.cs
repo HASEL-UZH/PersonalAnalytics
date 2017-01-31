@@ -102,15 +102,14 @@ namespace FlowLightTracker
         private void _updateTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             FocusState newFlowStatus = _flowTracker.GetFocusState();
-
-            setStatus(newFlowStatus);            
+            setStatus(newFlowStatus);
         }
 
         private void setStatus(Status newStatus)
         {
             _currentSkypeStatus = newStatus;
             _lightClient.Status = newStatus;
-            //_skypeClient.Status = newStatus;
+            _skypeClient.Status = newStatus;
         }
 
         private void setStatus(FocusState newStatus)
