@@ -461,7 +461,16 @@ namespace FitbitTracker.Data
             {
                 try
                 {
-                    return (double)table.Rows[0][0];
+                    DataRow row = table.Rows[0];
+                    string col = row[0].ToString();
+                    if (col.Equals(string.Empty))
+                    {
+                        return double.NaN;
+                    }
+                    else
+                    {
+                        return Double.Parse(col);
+                    }
                 }
                 catch (Exception e)
                 {
