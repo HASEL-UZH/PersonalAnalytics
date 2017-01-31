@@ -1,4 +1,4 @@
-# PersonalAnalytics
+﻿# PersonalAnalytics
 Personal Developer Analytics project by André Meyer from the SEAL Lab at the University of Zurich (UZH). The current public release can be downloaded from: http://pluto.ifi.uzh.ch/PersonalAnalytics-master Comments, contributors and questions are welcome! 
 
 # Updates & Branches
@@ -33,4 +33,4 @@ We want to thank the following developers for providing us with the fantastic li
 - D3 Visualization https://github.com/mbostock/d3 BSD License
 - C3.js https://github.com/masayuki0812/c3 MIT License 
 - HTML FilterTable https://github.com/koalyptus/TableFilter MIT license
-
+- Newtonsoft Json http://www.newtonsoft.com/json MIT license
