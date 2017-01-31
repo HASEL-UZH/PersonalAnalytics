@@ -92,11 +92,16 @@ namespace BluetoothLowEnergy
                 }
                 catch (Exception e)
                 {
-                    if (e.Message.Contains("Bluetooth radio is required and it must be enabled"))
+                    if (e.Message.Contains("Bluetooth"))
                     {
                         BluetoothNotEnabled?.Invoke();
-                        return false;
                     }
+                    else
+                    {
+                        //TODO: error message
+                    }
+
+                    return false;
                 }
 
                 if (service != null)
