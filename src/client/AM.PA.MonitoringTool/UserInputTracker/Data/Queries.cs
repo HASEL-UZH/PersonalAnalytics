@@ -13,8 +13,9 @@ using System.Linq;
 using System.Text;
 using UserInputTracker.Models;
 
-namespace UserInputTracker.Data {
-    public class DatabaseConnector 
+namespace UserInputTracker.Data
+{
+    public class Queries 
     {
         internal static void CreateUserInputTables() 
         {
@@ -74,7 +75,7 @@ namespace UserInputTracker.Data {
             Database.GetInstance().ExecuteDefaultQuery(query);
         }
 
-        #region V1.0 (old) Save User Input to Database
+        #region Save detailed user input tracking into the database (V1.0, old)
 
         /// <summary>
         /// Save the keystroke type (not exact keystroke) to the database. If there are more than 500 entries, 

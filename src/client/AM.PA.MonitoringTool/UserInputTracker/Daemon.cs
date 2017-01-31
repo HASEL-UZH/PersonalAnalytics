@@ -129,7 +129,7 @@ namespace UserInputTracker
 
         public override void CreateDatabaseTablesIfNotExist()
         {
-            DatabaseConnector.CreateUserInputTables();
+            Queries.CreateUserInputTables();
         }
 
         public override void UpdateDatabaseTables(int version)
@@ -298,7 +298,7 @@ namespace UserInputTracker
                 AddMouseMovementsToAggregate(aggregate, tsStart, tsEnd);
 
                 // save aggregate to database
-                DatabaseConnector.SaveUserInputSnapshotToDatabase(aggregate);
+                Queries.SaveUserInputSnapshotToDatabase(aggregate);
             }
             catch { }
         }
@@ -331,7 +331,7 @@ namespace UserInputTracker
             aggregate.KeyTotal = aggregate.KeyNavigate + aggregate.KeyBackspace + aggregate.KeyOther;
 
             // if detailed user input logging for studies is enabled, save keystrokes separately
-            if (Settings.IsDetailedCollectionEnabled) DatabaseConnector.SaveKeystrokesToDatabase(thisIntervalKeystrokes.ToList());
+            if (Settings.IsDetailedCollectionEnabled) Queries.SaveKeystrokesToDatabase(thisIntervalKeystrokes.ToList());
 
             // delete all items older than tsEnd
             KeystrokeListToSave.RemoveAll(i => i.Timestamp < tsEnd);
@@ -365,7 +365,7 @@ namespace UserInputTracker
             aggregate.ClickTotal = aggregate.ClickLeft + aggregate.ClickRight + aggregate.ClickOther;
 
             // if detailed user input logging for studies is enabled, save mouse clicks separately
-            if (Settings.IsDetailedCollectionEnabled) DatabaseConnector.SaveMouseClicksToDatabase(thisIntervalMouseClicks.ToList());
+            if (Settings.IsDetailedCollectionEnabled) Queries.SaveMouseClicksToDatabase(thisIntervalMouseClicks.ToList());
 
             // delete all items older than tsEnd
             MouseClickListToSave.RemoveAll(i => i.Timestamp < tsEnd);
@@ -436,7 +436,7 @@ namespace UserInputTracker
             }
 
             // save mouse moved per second to database
-            DatabaseConnector.SaveMouseScrollsToDatabase(thisIntervalMouseScrollsPerSecond);
+            Queries.SaveMouseScrollsToDatabase(thisIntervalMouseScrollsPerSecond);
         }
 
         /// <summary>
@@ -504,7 +504,7 @@ namespace UserInputTracker
             }
 
             // save mouse moved per second to database
-            DatabaseConnector.SaveMouseMovementsToDatabase(thisIntervalMouseMovementsPerSecond);
+            Queries.SaveMouseMovementsToDatabase(thisIntervalMouseMovementsPerSecond);
         }
 
         /// <summary>

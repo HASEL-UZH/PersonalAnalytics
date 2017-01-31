@@ -267,7 +267,7 @@ namespace WindowsActivityTracker.Visualizations
                 case ActivityCategory.DevCode:
                     return "Development";
                 case ActivityCategory.DevDebug:
-                    return "Debugging";
+                    return "Debugger Use";
                 case ActivityCategory.DevVc:
                     return "Version Control";
                 case ActivityCategory.DevReview:
@@ -308,7 +308,7 @@ namespace WindowsActivityTracker.Visualizations
 
         #endregion
 
-        #region Helpers
+        #region Other Helpers
 
         private static long JavascriptTimestampFromDateTime(DateTime date)
         {

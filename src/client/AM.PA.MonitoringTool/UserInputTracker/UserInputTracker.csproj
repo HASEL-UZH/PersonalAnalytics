@@ -74,7 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Daemon.cs" />
-    <Compile Include="Data\DatabaseConnector.cs" />
+    <Compile Include="Data\Queries.cs" />
     <Compile Include="Visualizations\DayUserInputLineChart.cs" />
     <Compile Include="Models\IUserInput.cs" />
     <Compile Include="Models\KeyboardInput.cs" />
