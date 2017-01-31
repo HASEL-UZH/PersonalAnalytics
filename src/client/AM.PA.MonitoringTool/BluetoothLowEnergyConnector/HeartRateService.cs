@@ -98,7 +98,8 @@ namespace BluetoothLowEnergy
                     }
                     else
                     {
-                        //TODO: error message
+                        LoggerWrapper.Instance.WriteToLogFile(e);
+                        LoggerWrapper.Instance.WriteToConsole("Can't initialize bluetooth service: " + e.Message.ToString());
                     }
 
                     return false;
