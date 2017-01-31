@@ -24,8 +24,9 @@ namespace FitbitTracker
 
         //Database field names
         internal static readonly string DOWNLOAD_START_DATE = "FitbitDownloadStartDate";
-        
+
         //OTHER
+        internal static readonly string FORMAT_SQLITE_DAY = "yyyyMMdd";
         internal static readonly string FORMAT_DAY = "dd-MM-yyyy";
         internal static readonly string FORMAT_DAY_AND_TIME = "HH:mm:ss dd-MM-yyyy";
         internal static readonly string FITBIT_FORMAT_DAY = "yyyy-MM-dd";

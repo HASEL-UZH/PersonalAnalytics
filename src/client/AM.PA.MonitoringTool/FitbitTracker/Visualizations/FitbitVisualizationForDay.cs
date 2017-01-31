@@ -24,7 +24,7 @@ namespace FitbitTracker
 
         public override string GetHtml()
         {
-            return "<html>Hours asleep: " + DatabaseConnector.GetMinutesAsleep(DateTimeHelper.GetStartOfDay(date), DateTimeHelper.GetEndOfDay(date)) / 60.0  + "</html>";
+            return "<html>Hours asleep: " + DatabaseConnector.GetMinutesAsleep(DateTimeHelper.GetStartOfDay(date), DateTimeHelper.GetEndOfDay(date), VisType.Day) / 60.0  + "</html>";
         }
 
     }

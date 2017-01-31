@@ -449,10 +449,11 @@ namespace FitbitTracker.Data
 
         #region Select
 
-        public static double GetMinutesAsleep(DateTimeOffset start, DateTimeOffset end)
+        public static double GetMinutesAsleep(DateTimeOffset start, DateTimeOffset end, VisType type)
         {
             string query = string.Empty;
-            query += "Select SUM(" + TOTAL_MINUTES_ASLEEP + ") From " + Settings.SLEEP_SUMMARY_TABLE_NAME + " Where '" + start.ToString(Settings.FORMAT_DAY_AND_TIME) + "' <= " + DATE_OF_SLEEP + " AND '" + end.ToString(Settings.FORMAT_DAY_AND_TIME) + "' <= " + DATE_OF_SLEEP;
+
+            query += "Select SUM(" + TOTAL_MINUTES_ASLEEP + ") From " + Settings.SLEEP_SUMMARY_TABLE_NAME + " WHERE substr(" + DATE_OF_SLEEP + ", 7) || substr(" + DATE_OF_SLEEP + ", 4, 2) || substr(" + DATE_OF_SLEEP + ", 1, 2) between '" + start.ToString(Settings.FORMAT_SQLITE_DAY) + "' AND '" + end.ToString(Settings.FORMAT_SQLITE_DAY) + "'";
             Console.WriteLine(query);
 
             var table = Database.GetInstance().ExecuteReadQuery(query);
