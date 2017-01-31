@@ -38,10 +38,10 @@
     <Compile Include="HeartRateMeasurement.cs" />
     <Compile Include="HeartRateService.cs" />
     <Compile Include="LoggerWrapper.cs" />
-    <Compile Include="PeriodicTaskFactory.cs" />
     <Compile Include="PortableBluetoothDeviceInformation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="Timer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Runtime.WindowsRuntime">

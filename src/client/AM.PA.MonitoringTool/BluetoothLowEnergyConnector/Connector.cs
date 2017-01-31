@@ -6,7 +6,6 @@
 using BluetoothLowEnergyConnector;
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
@@ -36,6 +35,9 @@ namespace BluetoothLowEnergy
         private static Connector instance;
         private DateTime timeOFLastDataPoint = DateTime.MaxValue;
         private DeviceInformation connectedDevice;
+
+        private Timer watchTimer;
+        private Timer reconnectTimer;
 
         private Connector() {
             HeartRateService.Instance.BluetoothNotEnabled += OnBluetoothNotEnabled;
@@ -170,68 +172,59 @@ namespace BluetoothLowEnergy
                 return connected;
             }
         }
-
+        
         //Tries to reconnect to the device passed in the parameter.
-        public void TryReconnectTodevice(DeviceInformation device)
+        public void TryReconnectToDevice(DeviceInformation device)
         {
             LoggerWrapper.Instance.WriteToConsole("Should try to reestablish connection to: " + device.Name);
-
-            CancellationTokenSource token = new CancellationTokenSource();
-            Task perdiodicTask = PeriodicTaskFactory.Start(async () =>
-            {
-                LoggerWrapper.Instance.WriteToConsole("Try restablishing connection to " + device.Name);
-                bool connected = false;
-
-                if (device != null)
-                {
-                    //connected = true;
-                    connected = await Connect(device);
-                }
-
-                if (connected)
-                {
-                    ConnectionReestablished?.Invoke();
-
-                    try
-                    {
-                        token.Cancel();
-                    }
-                    catch (OperationCanceledException e)
-                    {
-                        //This is expected!
-                        perdiodicTask = null;
-                    }
-                }
-            }, intervalInMilliseconds: Settings.WAIT_TIME_BETWEEN_RECONNECT_TRIES, cancelToken: token.Token);
+            reconnectTimer = new Timer(OnReconnectTry, device, 0, Settings.WAIT_TIME_BETWEEN_RECONNECT_TRIES);
         }
 
+        private async void OnReconnectTry(object obj)
+        {
+            DeviceInformation device = obj as DeviceInformation;
+
+            LoggerWrapper.Instance.WriteToConsole("Try restablishing connection to " + device.Name);
+
+            bool connected = false;
+
+            if (device != null)
+            {
+                connected = await Connect(device);
+            }
+
+            if (connected)
+            {
+                if (reconnectTimer != null)
+                {
+                    reconnectTimer.Cancel();
+                }
+                ConnectionReestablished?.Invoke();
+            }
+        }
+        
         private void StartWatching()
         {
-            CancellationTokenSource token = new CancellationTokenSource();
-            Task perdiodicTask = PeriodicTaskFactory.Start(() =>
+            watchTimer = new Timer(OnWatchPeriodPassed, null, 0, Settings.WAIT_TIME_BETWEEN_WATCHING_THREADS);
+        }
+
+        private void OnWatchPeriodPassed(object state)
+        {
+            LoggerWrapper.Instance.WriteToConsole("Watching BLE device");
+            if (timeOFLastDataPoint != DateTime.MaxValue && timeOFLastDataPoint.AddSeconds(Settings.TIME_SINCE_NO_DATA_RECEIVED).CompareTo(DateTime.Now) == -1)
             {
-                if (timeOFLastDataPoint != DateTime.MaxValue && timeOFLastDataPoint.AddSeconds(Settings.TIME_SINCE_NO_DATA_RECEIVED).CompareTo(DateTime.Now) == -1)
+                if (watchTimer != null)
                 {
-                    try
-                    {
-                        token.Cancel();
-                    }
-                    catch (OperationCanceledException e)
-                    {
-                        //This is expected!
-                        perdiodicTask = null;
-                    }
-                    HeartRateService.Instance.ValueChangeCompleted -= Instance_ValueChangeCompleted;
-                    HeartRateService.Instance.DeviceConnectionUpdated -= OnDeviceConnectionUpdated;
-                    timeOFLastDataPoint = DateTime.MaxValue;
-                    HeartRateService.Instance.Stop();
-                    LoggerWrapper.Instance.WriteToConsole("Received no data since more than " + Settings.TIME_SINCE_NO_DATA_RECEIVED + " seconds");
-                    ConnectionLost?.Invoke(connectedDevice.Name);
-                    TryReconnectTodevice(connectedDevice);
+                    watchTimer.Cancel();
                 }
-
-            }, intervalInMilliseconds: Settings.WAIT_TIME_BETWEEN_WATCHING_THREADS, cancelToken: token.Token);
-
+                HeartRateService.Instance.ValueChangeCompleted -= Instance_ValueChangeCompleted;
+                HeartRateService.Instance.DeviceConnectionUpdated -= OnDeviceConnectionUpdated;
+                timeOFLastDataPoint = DateTime.MaxValue;
+                HeartRateService.Instance.Stop();
+                LoggerWrapper.Instance.WriteToConsole("Received no data since more than " + Settings.TIME_SINCE_NO_DATA_RECEIVED + " seconds");
+                ConnectionLost?.Invoke(connectedDevice.Name);
+                TryReconnectToDevice(connectedDevice);
+            }
         }
 
         //Returns an instance of this class.

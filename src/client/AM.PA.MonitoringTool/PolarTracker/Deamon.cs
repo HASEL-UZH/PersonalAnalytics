@@ -215,6 +215,7 @@ namespace PolarTracker
             string sensorLocation = Connector.Instance.GetBodySensorLocation().Result.ToString();
             if (sensorLocation != null)
             {
+                isConnectedToBluetoothDevice = true;
                 Database.GetInstance().SetSettings(Settings.HEARTRATE_TRACKER_LOCATION_SETTING, sensorLocation);
                 Logger.WriteToConsole("Body sensor location: " + sensorLocation);
             }
