@@ -81,6 +81,9 @@
     <Content Include="lib\FocusLightTracker.dll" />
     <Content Include="lib\HidLibrary.dll" />
     <Content Include="lib\Microsoft.Lync.Model.dll" />
+    <Content Include="lib\Microsoft.Office.Uc.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="lib\ThingM.Blink1.dll" />
   </ItemGroup>
   <ItemGroup>

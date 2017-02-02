@@ -1,5 +1,6 @@
 ﻿using ABB.FocuslightApp.Clients;
 using FocusLightTracker.Service;
+using Microsoft.Win32;
 using Shared;
 using Shared.Data;
 using System;
@@ -14,6 +15,8 @@ namespace FlowLightTracker
 {
     public class Daemon : BaseTracker, ITracker
     {
+        enum Originator {System, Skype, FlowTracker };
+
         #region FIELDS
         private bool _flowLightTrackerEnabled;
         private FocusLightTracker.Daemon _flowTracker;
@@ -83,50 +86,144 @@ namespace FlowLightTracker
             }
         }
 
-        public bool IsLocked { get; set; }
-        public bool IsEnforced { get; set; }
-
         public override void Start()
         {
-            //register update timer
+            //register and start update timer (for FlowTracker)
             if (_updateTimer != null)
                 Stop();
             _updateTimer = new Timer();
             _updateTimer.Interval = Settings.UpdateInterval * 1000;
-            _updateTimer.Elapsed += _updateTimer_Elapsed;
+            _updateTimer.Elapsed += UpdateTimer_Elapsed;
             _updateTimer.Start();
+
+            //register event handler for status changes in skype
+            _skypeClient.OnOutsideChange += SkypeClient_OnOutsideChange;
+
+            //register enforcing timer (for manual state changes)
+            _enforcingTimer = new Timer();
+            _enforcingTimer.Elapsed += EnforcingTimer_Elapsed;
+
+            //register event to track when work station is locked / unlocked
+            SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
 
             IsRunning = true;
         }
 
-        private void _updateTimer_Elapsed(object sender, ElapsedEventArgs e)
+        private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
         {
-            FocusState newFlowStatus = _flowTracker.GetFocusState();
-            setStatus(newFlowStatus);
+            if (e.Reason == SessionSwitchReason.SessionLock)
+            {                
+                setStatus(Originator.System, Status.Away);
+                _locked = true;
+            }
+            else if (e.Reason == SessionSwitchReason.SessionUnlock)
+            {
+                setStatus(Originator.System, Status.Free);
+                _locked = false;
+            }
         }
 
-        private void setStatus(Status newStatus)
+        private void EnforcingTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
+            StopEnforcing();
+        }
+
+        private void SkypeClient_OnOutsideChange(object sender, StatusEventArgs e)
+        {
+            Console.WriteLine("change from skype: " + e.CurrentStatus + ", " + e.Outside);
+
+            // Ignore all changes from Skype if the workstation is locked. 
+            // Reason: Sometimes Skype cannot reflect the correct status (Away) when the computer is locked.
+            if (!_locked)
+            {
+                if (_enforcing)
+                {
+                    // if the state has been enforced and changed again now, we cancel the enforcing
+                    StopEnforcing();
+                }
+
+                if (e.CurrentStatus == Status.Free)
+                {
+                    // if the status was set to free (manually or by the calendar),
+                    // we will respect that for 5 minutes and then start changing the state again by FlowTracker
+                    StartTimedEnforcing(5);
+                } 
+                else
+                {
+                    StartInfiniteEnforcing();
+                }
+
+                setStatus(Originator.Skype, e.CurrentStatus);           
+            }
+        }
+
+        private void StartTimedEnforcing(int minutes)
+        {
+            Console.WriteLine("Enforcing for " + minutes + ".");
+            _enforcing = true;
+            _enforcingTimer.Stop();
+            _enforcingTimer.Interval = minutes * 60 * 1000;
+            _enforcingTimer.Start();
+        }
+
+        private void StartInfiniteEnforcing()
+        {
+            Console.WriteLine("Enforcing forever.");
+            _enforcing = true;
+        }
+
+        private void StopEnforcing()
+        {
+            Console.WriteLine("Cancelling enforcing.");
+
+            _enforcingTimer.Stop();
+            _enforcing = false;
+        }
+
+        private void UpdateTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            Console.WriteLine("Updating ...");
+
+            // Don't do anything if the work station is locked or we are enforcing a state
+            if (!_locked && !_enforcing)
+            {
+                // set the status to the one determined by FlowTracker
+                FocusState newFlowStatus = _flowTracker.GetFocusState();
+                setStatusFromFlowTracker(newFlowStatus);
+
+                Console.WriteLine("Update: set status to " + newFlowStatus);
+            }
+        }
+
+        private void setStatus(Originator originator, Status newStatus)
+        {
+            if (originator != Originator.Skype)
+            {
+                // Skype should only be updated if it is origniated by FlowTracker, otherwise it is already updated
+                _skypeClient.Status = newStatus;      
+            }
+
             _currentSkypeStatus = newStatus;
             _lightClient.Status = newStatus;
-            _skypeClient.Status = newStatus;
         }
 
-        private void setStatus(FocusState newStatus)
+        private void setStatusFromFlowTracker(FocusState newStatus)
         {
             switch (newStatus)
             {
                 case FocusState.Low:
                 case FocusState.Medium:
-                    setStatus(Status.Free);
+                    setStatus(Originator.FlowTracker, Status.Free);
                     break;
                 case FocusState.High:
-                    setStatus(Status.Busy);
+                    setStatus(Originator.FlowTracker, Status.Busy);
                     break;
                 case FocusState.VeryHigh:
-                    setStatus(Status.DoNotDisturb);
+                    setStatus(Originator.FlowTracker, Status.DoNotDisturb);
                     break;
             }
+
+            _currentFlowState = newStatus;
         }
 
         public override void Stop()
@@ -137,6 +234,8 @@ namespace FlowLightTracker
                 _updateTimer.Dispose();
                 _updateTimer = null;
             }
+
+            _skypeClient.OnOutsideChange -= SkypeClient_OnOutsideChange;
 
             IsRunning = false;
         }
