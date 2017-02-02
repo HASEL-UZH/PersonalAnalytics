@@ -53,7 +53,7 @@ namespace PolarTracker.Data
                 Logger.WriteToLogFile(e);
             }
         }
-        
+
         internal static void AddHeartMeasurementsToDatabase(List<HeartRateMeasurement> measurements)
         {
             try
@@ -246,6 +246,25 @@ namespace PolarTracker.Data
                     return value > Settings.RR_DIFFERENCE_THRESHOLD;
             }
             return false;
+        }
+
+        #endregion
+
+        #region SELECT
+
+        internal static DateTime GetLastTimeSynced()
+        {
+            var query = "SELECT Time FROM polar Order By time DESC LIMIT 1";
+            var table = Database.GetInstance().ExecuteReadQuery(query);
+
+            if (table.Rows.Count == 0)
+            {
+                return DateTime.MinValue;
+            }
+
+            DataRow row = table.Rows[0];
+            var timestamp = (string)row[0];
+            return DateTime.Parse(timestamp);
         }
 
         #endregion
