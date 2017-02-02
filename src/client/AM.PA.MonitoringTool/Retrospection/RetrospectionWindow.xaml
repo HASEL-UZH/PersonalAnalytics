@@ -6,15 +6,11 @@
         xmlns:local="clr-namespace:Retrospection"
         xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:paColors="clr-namespace:Shared;assembly=Shared"
         mc:Ignorable="d"
         Title="PersonalAnalytics: Retrospection &amp; Insights" 
         Loaded="WindowLoaded" Closing="WindowClosing"
         Height="1200" Width="1310" MinHeight="500" MinWidth="890"> <!-- width was: 1310 -->
-
-    <Window.Resources>
-        <SolidColorBrush x:Key="RetrospectionColor" Color="#007acc" />
-        <SolidColorBrush x:Key="GrayColor" Color="#E8E8E8" />
-    </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -23,7 +19,7 @@
             <RowDefinition Height="20" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Background="{StaticResource RetrospectionColor}">
+        <Grid Grid.Row="0" Background="{x:Static paColors:Settings.RetrospectionColorBrush}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
@@ -38,7 +34,7 @@
                 <StackPanel.Resources>
                     <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
                         <Setter Property="Foreground" Value="White" />
-                        <Setter Property="Background" Value="{StaticResource RetrospectionColor}" />
+                        <Setter Property="Background" Value="{x:Static paColors:Settings.RetrospectionColorBrush}" />
                         <Setter Property="BorderBrush" Value="White" />
                         <Setter Property="Padding" Value="5 2 5 2" />
                     </Style>
@@ -51,7 +47,7 @@
                 
                 <Button x:Name="TodayButton" Content="Today" Click="Today_Clicked" VerticalAlignment="Center" Margin="0 0 10 0" />
                 <Button x:Name="MinusOneButton" Content="&lt;" Click="MinusOne_Clicked" VerticalAlignment="Center" Margin="0 0 4 0" />
-                <DatePicker Name="DatePicker" Foreground="{StaticResource RetrospectionColor}" BorderBrush="{StaticResource RetrospectionColor}" HorizontalAlignment="Right" VerticalAlignment="Center" SelectedDate="{x:Static sys:DateTime.Now}" SelectedDateChanged="DatePicker_SelectedDateChanged"/>
+                <DatePicker Name="DatePicker" Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" HorizontalAlignment="Right" VerticalAlignment="Center" SelectedDate="{x:Static sys:DateTime.Now}" SelectedDateChanged="DatePicker_SelectedDateChanged"/>
                 <Button x:Name="PlusOneButton" Content="&gt;" Click="PlusOne_Clicked" VerticalAlignment="Center" Margin="-1 0 10 0" />
             </StackPanel>
         </Grid>
@@ -62,19 +58,19 @@
             </WindowsFormsHost.Child>
         </WindowsFormsHost>
 
-        <Border x:Name="LoadingSign"  Background="{StaticResource GrayColor}" Grid.Row="1">
+        <Border x:Name="LoadingSign"  Background="{x:Static paColors:Settings.GrayColorBrush}" Grid.Row="1">
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock HorizontalAlignment="Center" Text="Preparing your Retrospection ..." Foreground="{StaticResource RetrospectionColor}" FontSize="30" />
+                <TextBlock HorizontalAlignment="Center" Text="Preparing your Retrospection ..." Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" FontSize="30" />
                 <TextBlock HorizontalAlignment="Center" Text="This might take a few moments. It will be worth the wait :)" Margin="0 5 0 0" />
             </StackPanel>
         </Border>
 
-        <Grid Background="#E8E8E8" Grid.Row="3">
+        <Grid Background="{x:Static paColors:Settings.GrayColorBrush}" Grid.Row="3">
             <Grid.Resources>
                 <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
                     <Setter Property="Foreground" Value="Gray" />
-                    <Setter Property="Background" Value="{StaticResource GrayColor}" />
-                    <Setter Property="BorderBrush" Value="{StaticResource GrayColor}" />
+                    <Setter Property="Background" Value="{x:Static paColors:Settings.GrayColorBrush}" />
+                    <Setter Property="BorderBrush" Value="{x:Static paColors:Settings.GrayColorBrush}" />
                     <Setter Property="Padding" Value="5 0 5 0" />
                 </Style>
             </Grid.Resources>

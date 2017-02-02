@@ -9,6 +9,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PersonalAnalytics.Upload"
+        xmlns:paColors="clr-namespace:Shared;assembly=Shared"
         mc:Ignorable="d"
         SizeToContent="Height" Height="215" Width="550" 
         WindowStyle="None" AllowsTransparency="True" Background="Transparent">
@@ -16,7 +17,7 @@
     <Grid RenderTransformOrigin="0,1" >
 
         <!-- Notification area -->
-        <Border BorderThickness="1" Background="#007acc" BorderBrush="Black">
+        <Border BorderThickness="1" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="Black">
             <StackPanel Margin="10">
                 <TextBlock Text="We would like to ask you to share the collected data to help us perform" Foreground="White" FontWeight="Bold" FontSize="15" />
                 <TextBlock Text="additional research and to improve PersonalAnalytics." Foreground="White" FontWeight="Bold" FontSize="15" />
@@ -26,8 +27,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Width="200" Content="Share the data" Background="LightGray" Height="20" Margin="0 0 5 0" Click="ShareData"  />
-                    <Button Grid.Column="1" Width="200" Content="Don't share the data" Background="LightGray" Height="20" Margin="0 0 5 0" Click="NotShareData" />
+                    <Button Grid.Column="0" Width="200" Content="Share the data" Background="{x:Static paColors:Settings.GrayColorBrush}" Height="20" Margin="0 0 5 0" Click="ShareData"  />
+                    <Button Grid.Column="1" Width="200" Content="Don't share the data" Background="{x:Static paColors:Settings.GrayColorBrush}" Height="20" Margin="0 0 5 0" Click="NotShareData" />
                 </Grid>
                 <TextBlock Margin="30 0 30 0" TextWrapping="Wrap" Foreground="White" Text="Hint: If you hit 'Share the data', you will be able to obfuscate and check the data before it's uploaded to a secured, internal server. This pop-up will be shown again in a week." />
             </StackPanel>
