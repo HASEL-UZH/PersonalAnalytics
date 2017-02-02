@@ -76,7 +76,7 @@ namespace UserInputTracker.Visualizations
             var maxUserInput = chartQueryResultsLocal.Max(i => i.Value);
             var avgUserInput = chartQueryResultsLocal.Average(i => i.Value);
 
-            const string colors = "'User_Input_Level' : '#007acb'";
+            const string colors = "'User_Input_Level' : '" + Shared.Settings.RetrospectionColorHex + "'";
             var data = "x: 'timeAxis', columns: [['timeAxis', " + timeAxis + "], ['User_Input_Level', " + userInputFormattedData + " ] ], type: 'area', colors: { " + colors + " }, axis: { 'PerceivedProductivity': 'y' }";
             var grid = "y: { lines: [ { value: 0, text: 'not active' }, { value: "+ avgUserInput + ", text: 'average activity today' }, { value: "+ maxUserInput + ", text: 'max activity today' } ] } ";
             var axis = "x: { localtime: true, type: 'timeseries', tick: { values: [ " + ticks + "], format: function(x) { return formatDate(x.getHours()); }}  }, y: { show: false, min: 0 }";

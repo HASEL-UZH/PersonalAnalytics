@@ -57,7 +57,7 @@ namespace UserEfficiencyTracker.Visualizations
 
             var data = "columns: [ ['Average Productivity', " + productivityFormattedData + "] ], type: 'bar' ";
             var bar = "width: { ratio: 0.5 }";
-            var colors = "'Average Productivity' : '#007acb'";
+            var colors = "'Average Productivity' : '" + Shared.Settings.RetrospectionColorHex + "'";
             var axis = "x: { type: 'category', categories: [ " + formattedXAxis + " ] }, y: { max: 7, min: 1, tick: { values: [ 1, 2, 3, 4, 5, 6, 7 ] } }";
             var parameters = " bindto: '#" + VisHelper.CreateChartHtmlTitle(Title) + "', data: { " + data + " }, bar: { " + bar + " }, colors: { " + colors + " }, axis: { " + axis + " }, padding: { left: 20, right: 0, bottom: 0, top: 0}, grid: { y: { show: true } }, legend: { show: false } ";
 

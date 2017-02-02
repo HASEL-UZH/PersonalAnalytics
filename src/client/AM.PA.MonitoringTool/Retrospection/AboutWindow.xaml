@@ -4,12 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Retrospection"
+        xmlns:paColors="clr-namespace:Shared;assembly=Shared"
         mc:Ignorable="d"
         Title="PersonalAnalytics: About" Height="380" Width="600" ResizeMode="NoResize">
-    <Window.Resources>
-        <SolidColorBrush x:Key="RetrospectionColor" Color="#007acc" />
-        <SolidColorBrush x:Key="GrayColor" Color="#E8E8E8" />
-    </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -18,7 +15,7 @@
             <RowDefinition Height="20" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Background="{StaticResource RetrospectionColor}">
+        <Grid Grid.Row="0" Background="{x:Static paColors:Settings.RetrospectionColorBrush}">
             <TextBlock Grid.Row="0" FontSize="16" VerticalAlignment="Center" Margin="10 0 0 0" Text="About the Application" Foreground="White" />
         </Grid>
 
@@ -45,12 +42,12 @@
             <Button Content="Check for updates" Click="CheckForUpdates_Clicked" Width="120" HorizontalAlignment="Left" Foreground="White" Background="{StaticResource RetrospectionColor}" BorderBrush="{StaticResource RetrospectionColor}" Padding="5 0 5 0"  />-->
         </StackPanel>
 
-        <Grid Background="#E8E8E8" Grid.Row="2">
+        <Grid Background="{x:Static paColors:Settings.GrayColorBrush}" Grid.Row="2">
             <Grid.Resources>
                 <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
                     <Setter Property="Foreground" Value="Gray" />
-                    <Setter Property="Background" Value="{StaticResource GrayColor}" />
-                    <Setter Property="BorderBrush" Value="{StaticResource GrayColor}" />
+                    <Setter Property="Background" Value="{x:Static paColors:Settings.GrayColorBrush}" />
+                    <Setter Property="BorderBrush" Value="{x:Static paColors:Settings.GrayColorBrush}" />
                     <Setter Property="Padding" Value="5 0 5 0" />
                 </Style>
             </Grid.Resources>

@@ -67,7 +67,7 @@ namespace UserEfficiencyTracker.Visualizations
             var timeAxis = chartQueryResultsLocal.Aggregate("", (current, a) => current + (DateTimeHelper.JavascriptTimestampFromDateTime(a.Item1) + ", ")).Trim().TrimEnd(',');
             var productivityFormattedData = chartQueryResultsLocal.Aggregate("", (current, p) => current + (p.Item2 + ", ")).Trim().TrimEnd(',');
 
-            const string colors = "'User_Input_Level' : '#007acb'";
+            const string colors = "'User_Input_Level' : '" + Shared.Settings.RetrospectionColorHex + "'";
             var data = "x: 'timeAxis', columns: [['timeAxis', " + timeAxis + "], ['Productivity', " + productivityFormattedData + " ] ], type: 'line', colors: { " + colors + " }, axis: { 'PerceivedProductivity': 'y' } "; // type options: spline, step, line
             var grid = "y: { lines: [ { value: 1, text: 'not at all productive' }, { value: 4, text: 'moderately productive' }, { value: 7, text: 'very productive' } ] } ";
             var axis = "x: { localtime: true, type: 'timeseries', tick: { values: [ " + ticks + "], format: function(x) { return formatDate(x.getHours()); }}  }, y: { min: 1, max: 7 }"; // show: false, 
