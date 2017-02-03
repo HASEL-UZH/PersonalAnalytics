@@ -257,7 +257,7 @@ namespace PolarTracker
             Connector.Instance.ConnectionLost -= OnConnectionToDeviceLost;
             Connector.Instance.ConnectionReestablished -= OnConnectionReestablished;
             Connector.Instance.Stop();
-            saveToDatabaseTimer.Dispose();
+            saveToDatabaseTimer.Stop();
             await Task.Run(() =>
                 SaveToDatabase()
             );
