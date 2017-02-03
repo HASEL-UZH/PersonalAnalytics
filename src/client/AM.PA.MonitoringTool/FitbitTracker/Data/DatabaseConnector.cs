@@ -251,6 +251,11 @@ namespace FitbitTracker.Data
                                                                                              + "{1} AS " + DATE_OF_HR + ", "
                                                                                              + "{2} AS " + VALUE;
 
+        private static readonly string INSERT_OR_INGORE_MULTIPLE_STEP_INTRA_DAY_VALUES = "INSERT OR IGNORE INTO " + Settings.STEPS_INTRA_DAY_TABLE_NAME
+                                                                                        + " SELECT null as " + ID + ", "
+                                                                                        + "{0} AS " + SAVE_TIME + ", "
+                                                                                        + "{1} AS " + DATE_OF_SLEEP + ", "
+                                                                                        + "{2} AS " + VALUE;
         #region create
         internal static void CreateFitbitTables()
         {
@@ -275,16 +280,35 @@ namespace FitbitTracker.Data
         #region insert
         internal static void SaveStepDataForDay(StepData stepData, DateTimeOffset day)
         {
-            //TODO: BULK INSERT
             foreach (StepDataEntry dataEntry in stepData.IntraDay.Dataset)
             {
                 string query = string.Empty;
                 query += String.Format(UPDATE_STEPS_INTRADAY, "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + new DateTime(day.Year, day.Month, day.Day, dataEntry.Time.Hour, dataEntry.Time.Minute, dataEntry.Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'", dataEntry.Value);
                 Database.GetInstance().ExecuteDefaultQuery(query);
+            }
 
-                query = string.Empty;
-                query += String.Format(INSERT_OR_IGNORE_STEPS_INTRADAY, "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + new DateTime(day.Year, day.Month, day.Day, dataEntry.Time.Hour, dataEntry.Time.Minute, dataEntry.Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'", dataEntry.Value);
-                Database.GetInstance().ExecuteDefaultQuery(query);
+            int start = 0;
+            int end = stepData.IntraDay.Dataset.Count;
+
+            while (start < end)
+            {
+                string query = string.Empty;
+                if (stepData.IntraDay.Dataset.Count > 0)
+                {
+                    StepDataEntry dataEntry = stepData.IntraDay.Dataset[start];
+                    string insertTime = "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'";
+                    string stepTime = "'" + new DateTime(day.Year, day.Month, day.Day, dataEntry.Time.Hour, dataEntry.Time.Minute, dataEntry.Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'";
+                    query += String.Format(INSERT_OR_INGORE_MULTIPLE_STEP_INTRA_DAY_VALUES, insertTime, stepTime, dataEntry.Value);
+
+                    int count = 0;
+                    for (int i = start; i < stepData.IntraDay.Dataset.Count && count < 499; i++)
+                    {
+                        query += String.Format(" UNION ALL SELECT null, {0}, {1}, {2}", "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + new DateTime(day.Year, day.Month, day.Day, stepData.IntraDay.Dataset[i].Time.Hour, stepData.IntraDay.Dataset[i].Time.Minute, stepData.IntraDay.Dataset[i].Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'", stepData.IntraDay.Dataset[i].Value);
+                        count++;
+                    }
+                    Database.GetInstance().ExecuteDefaultQuery(query);
+                    start += count;
+                }
             }
         }
 
@@ -406,7 +430,7 @@ namespace FitbitTracker.Data
         }
         #endregion
 
-        #region select
+        #region SELECT
         internal static bool DoesSleepLogAlreadyExists(string sleepLogId)
         {
             string query = "SELECT * FROM " + Settings.SLEEP_TABLE_NAME + " WHERE " + LOG_ID + " = '" + sleepLogId + "'";
@@ -445,9 +469,6 @@ namespace FitbitTracker.Data
 
             return days.Where(f => !daysInDatabase.Any(t => t.Day == f.Day && t.Year == f.Year && t.Month == f.Month)).ToList();  
         }
-        #endregion
-
-        #region Select
 
         public static double GetMinutesAsleep(DateTimeOffset start, DateTimeOffset end, VisType type)
         {
