@@ -147,7 +147,6 @@ namespace PolarTracker
             FindSensorLocation();
             StartDatabaseTimer();
             IsRunning = true;
-            isConnectedToBluetoothDevice = true;
         }
 
         private void OnConnectionReestablished()
@@ -186,6 +185,7 @@ namespace PolarTracker
         {
             if (hrQueue.Count > 0)
             {
+                isConnectedToBluetoothDevice = true;
                 List<HeartRateMeasurement> measurements = new List<HeartRateMeasurement>();
 
                 HeartRateMeasurement measurement = null;
@@ -206,6 +206,7 @@ namespace PolarTracker
             }
             else
             {
+                isConnectedToBluetoothDevice = false;
                 Logger.WriteToConsole("Nothing to save...");
             }
         }
