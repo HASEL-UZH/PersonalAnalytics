@@ -4,6 +4,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 
 namespace FitbitTracker.Model
 {
@@ -27,5 +28,6 @@ namespace FitbitTracker.Model
         public int RestlessDuration { get; set; }
         public DateTime StartTime { get; set; }
         public int TimeInBed { get; set; }
+        public List<SleepIntraData> MinuteData { get; set; }
     }
 }

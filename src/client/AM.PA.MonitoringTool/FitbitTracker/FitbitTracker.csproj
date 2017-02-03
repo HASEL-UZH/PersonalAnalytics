@@ -59,7 +59,7 @@
       <HintPath Condition="Exists('..\..\..\..\..\..\..\..\..\Program Files (x86)\Windows Kits\8.1\References\CommonConfiguration\Neutral\Annotated\')">..\..\..\..\..\..\..\..\..\Program Files (x86)\Windows Kits\8.1\References\CommonConfiguration\Neutral\Annotated\Windows.winmd</HintPath>
       <HintPath Condition="Exists('..\..\..\..\..\..\..\..\..\..\Program Files (x86)\Windows Kits\8.1\References\CommonConfiguration\Neutral\Annotated\')">..\..\..\..\..\..\..\..\..\..\Program Files (x86)\Windows Kits\8.1\References\CommonConfiguration\Neutral\Annotated\Windows.winmd</HintPath>
       <HintPath Condition="Exists('..\..\..\..\..\..\..\..\..\..\..\Program Files (x86)\Windows Kits\8.1\References\CommonConfiguration\Neutral\Annotated\')">..\..\..\..\..\..\..\..\..\..\..\Program Files (x86)\Windows Kits\8.1\References\CommonConfiguration\Neutral\Annotated\Windows.winmd</HintPath>
-      <HintPath Condition="Exists('..\..\..\..\..\..\..\..\..\..\..\..\Program Files (x86)\Windows Kits\8.1\References\CommonConfiguration\Neutral\Annotated\')">..\..\..\..\..\..\..\..\..\..\..\..\Program Files (x86)\Windows Kits\8.1\References\CommonConfiguration\Neutral\Annotated\Windows.winmd</HintPath>    
+      <HintPath Condition="Exists('..\..\..\..\..\..\..\..\..\..\..\..\Program Files (x86)\Windows Kits\8.1\References\CommonConfiguration\Neutral\Annotated\')">..\..\..\..\..\..\..\..\..\..\..\..\Program Files (x86)\Windows Kits\8.1\References\CommonConfiguration\Neutral\Annotated\Windows.winmd</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
   </ItemGroup>
@@ -78,6 +78,7 @@
     <Compile Include="Data\FitbitModel\HeartrateValue.cs" />
     <Compile Include="Data\FitbitModel\HeartRateZone.cs" />
     <Compile Include="Data\FitbitModel\SleepData.cs" />
+    <Compile Include="Data\FitbitModel\SleepIntraData.cs" />
     <Compile Include="Data\FitbitModel\SleepLog.cs" />
     <Compile Include="Data\FitbitModel\SleepSummary.cs" />
     <Compile Include="Data\FitbitModel\StepData.cs" />

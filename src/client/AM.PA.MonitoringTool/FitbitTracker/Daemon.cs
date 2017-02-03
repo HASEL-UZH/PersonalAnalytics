@@ -217,7 +217,7 @@ namespace FitbitTracker
             {
                 Logger.WriteToConsole("Sync sleep: " + day);
                 SleepData sleepData = FitbitConnector.GetSleepDataForDay(day);
-                DatabaseConnector.SaveSleepData(sleepData);
+                DatabaseConnector.SaveSleepData(sleepData, day);
                 if (day < latestSync)
                 {
                     Logger.WriteToConsole("Finished syncing sleep for day: " + day);

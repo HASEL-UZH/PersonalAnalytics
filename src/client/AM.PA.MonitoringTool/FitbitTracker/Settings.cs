@@ -14,6 +14,7 @@ namespace FitbitTracker
         internal const int SYNCHRONIZE_INTERVALL_SECOND = 20 * 60 * 1000; //20 minutes
 
         //Database table names
+        internal static readonly string SLEEP_INTRA_DAY_TABLE_NAME = "fitbit_sleep_intraday";
         internal static readonly string SLEEP_TABLE_NAME = "fitbit_sleep";
         internal static readonly string SLEEP_SUMMARY_TABLE_NAME = "fitbit_sleep_summary";
         internal static readonly string DOWNLOAD_TABLE_NAME = "fitbit_downloads";

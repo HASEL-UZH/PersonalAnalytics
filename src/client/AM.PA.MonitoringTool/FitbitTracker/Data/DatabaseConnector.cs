@@ -66,6 +66,12 @@ namespace FitbitTracker.Data
         //Create queries
         private static readonly string CREATE_INDEX_FOR_HEARTRATE_DAY_TABLE = "CREATE UNIQUE INDEX IF NOT EXISTS idx ON " + Settings.HEARTRATE_DAY_TABLE_NAME + "(" + DATE_OF_HR + ", " + NAME + ")";
 
+        private static readonly string CREATE_SLEEP_INTRA_DAY_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.SLEEP_INTRA_DAY_TABLE_NAME + " ("
+                                                                            + ID + " INTEGER PRIMARY KEY, "
+                                                                            + SAVE_TIME + " TEXT, "
+                                                                            + DATE_OF_SLEEP + " TEXT UNIQUE, "
+                                                                            + VALUE + " INTEGER)";
+
         private static readonly string CREATE_ACTIVITY_SUMMARY_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.ACTIVITY_SUMMARY_TABLE_NAME + " ("
                                                                             + ID + " INTEGER PRIMARY KEY, "
                                                                             + DATE_OF_ACTIVITY + " TEXT UNIQUE, "
@@ -219,6 +225,12 @@ namespace FitbitTracker.Data
                                                             + VALUE + " = {2} "
                                                             + "WHERE " + DATE_OF_STEPS + " = {1};";
 
+        private static readonly string UPDATE_SLEEP_INTRADAY = "UPDATE " + Settings.SLEEP_INTRA_DAY_TABLE_NAME
+                                                            + " SET " + SAVE_TIME + " = {0}, "
+                                                            + DATE_OF_SLEEP + " = {1}, "
+                                                            + VALUE + " = {2} "
+                                                            + "WHERE " + DATE_OF_SLEEP + " = {1};";
+
         private static readonly string INSERT_OR_IGNORE_ACTIVITY_SUMMARY = "INSERT OR IGNORE INTO " + Settings.ACTIVITY_SUMMARY_TABLE_NAME
                                                                             + "(" + DATE_OF_ACTIVITY + ", " 
                                                                             + SAVE_TIME + ", "
@@ -254,8 +266,15 @@ namespace FitbitTracker.Data
         private static readonly string INSERT_OR_INGORE_MULTIPLE_STEP_INTRA_DAY_VALUES = "INSERT OR IGNORE INTO " + Settings.STEPS_INTRA_DAY_TABLE_NAME
                                                                                         + " SELECT null as " + ID + ", "
                                                                                         + "{0} AS " + SAVE_TIME + ", "
+                                                                                        + "{1} AS " + DATE_OF_STEPS + ", "
+                                                                                        + "{2} AS " + VALUE;
+
+        private static readonly string INSERT_OR_IGNORE_MULTIPLE_SLEEP_INTRA_DAY_VALUES = "INSERT OR IGNORE INTO " + Settings.SLEEP_INTRA_DAY_TABLE_NAME
+                                                                                        + " SELECT null as " + ID + ", "
+                                                                                        + "{0} AS " + SAVE_TIME + ", "
                                                                                         + "{1} AS " + DATE_OF_SLEEP + ", "
                                                                                         + "{2} AS " + VALUE;
+
         #region create
         internal static void CreateFitbitTables()
         {
@@ -269,6 +288,7 @@ namespace FitbitTracker.Data
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_HEARTRATE_INTRA_DAY_TABLE_QUERY);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_STEPS_INTRA_DAY_TABLE_QUERY);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_ACTIVITY_SUMMARY_TABLE_QUERY);
+                Database.GetInstance().ExecuteDefaultQuery(CREATE_SLEEP_INTRA_DAY_TABLE_QUERY);
             }
             catch (Exception e)
             {
@@ -384,7 +404,7 @@ namespace FitbitTracker.Data
             }
         }
 
-        internal static void SaveSleepData(SleepData sleepData)
+        internal static void SaveSleepData(SleepData sleepData, DateTimeOffset day)
         {
             if (sleepData.Sleep.Count > 0)
             {
@@ -418,6 +438,42 @@ namespace FitbitTracker.Data
                         sleepQuery += String.Format(INSERT_SLEEP_QUERY, id, "'" + DateTime.Now + "'", log.AwakeCount, log.AwakeDuration, "'" + log.DateOfSleep.ToString(Settings.FORMAT_DAY) + "'", log.Duration, log.Efficiency, log.IsMainSleep ? 1 : 0, log.LogID, log.MinutesAfterWakeup, log.MinutesAsleep, log.MinutesAwake, Double.IsNaN(log.MinutesToFallAsleep) ? "null" : log.MinutesToFallAsleep.ToString(), log.RestlessCount, log.RestlessDuration, "'" + log.StartTime.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", log.TimeInBed);
                         Database.GetInstance().ExecuteDefaultQuery(sleepQuery);
                     }
+                    InsertSleepIntradayData(log, day);
+                }
+            }
+        }
+
+        private static void InsertSleepIntradayData(SleepLog log, DateTimeOffset day)
+        {
+            foreach (SleepIntraData data in log.MinuteData)
+            {
+                string query = string.Empty;
+                query += String.Format(UPDATE_SLEEP_INTRADAY, "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + new DateTime(day.Year, day.Month, day.Day, data.Time.Hour, data.Time.Minute, data.Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'", data.Value);
+                Database.GetInstance().ExecuteDefaultQuery(query);
+            }
+            
+            int start = 0;
+            int end = log.MinuteData.Count;
+
+            while (start < end)
+            {
+                string query = string.Empty;
+                if (log.MinuteData.Count > 0)
+                {
+                    SleepIntraData dataEntry = log.MinuteData[start];
+                    
+                    string insertTime = "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'";
+                    string stepTime = "'" + new DateTime(day.Year, day.Month, day.Day, dataEntry.Time.Hour, dataEntry.Time.Minute, dataEntry.Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'";
+                    query += String.Format(INSERT_OR_IGNORE_MULTIPLE_SLEEP_INTRA_DAY_VALUES, insertTime, stepTime, dataEntry.Value);
+
+                    int count = 0;
+                    for (int i = start; i < log.MinuteData.Count && count < 499; i++)
+                    {
+                        query += String.Format(" UNION ALL SELECT null, {0}, {1}, {2}", "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + new DateTime(day.Year, day.Month, day.Day, log.MinuteData[i].Time.Hour, log.MinuteData[i].Time.Minute, log.MinuteData[i].Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'", log.MinuteData[i].Value);
+                        count++;
+                    }
+                    Database.GetInstance().ExecuteDefaultQuery(query);
+                    start += count;
                 }
             }
         }
