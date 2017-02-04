@@ -44,7 +44,14 @@ namespace WindowsActivityTracker.Visualizations
             /////////////////////
             // data cleaning
             /////////////////////
-            
+
+            // show message if not enough data
+            if (orderedTimelineList.Count <= 3) // 3 is the minimum number of input-data-items
+            {
+                html += VisHelper.NotEnoughData(Dict.NotEnoughData);
+                return html;
+            }
+
             // remove first + last items if IDLE
             if (orderedTimelineList.First().ActivityCategory == ActivityCategory.Idle)
             {
