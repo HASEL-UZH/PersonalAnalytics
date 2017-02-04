@@ -550,7 +550,7 @@ namespace FitbitTracker.Data
         internal static SleepVisualizationEntry GetSleepDataForDay(DateTimeOffset start, DateTimeOffset end)
         {
             SleepVisualizationEntry result = null;
-            string query = "SELECT " + DURATION + ", " + AWAKE_COUNT + ", " + AWAKE_DURATION + ", " + RESTLESS_COUNT + ", " + RESTLESS_DURATION + ", " + DATE_OF_SLEEP + " FROM " + Settings.SLEEP_TABLE_NAME + " WHERE " + IS_MAIN_SLEEP + " == 1 AND " + DATE_OF_SLEEP + " BETWEEN '" + start.ToString(Settings.FORMAT_DAY) + "' AND '" + end.ToString(Settings.FORMAT_DAY) + "';";
+            string query = "SELECT " + MINUTES_ASLEEP + ", " + AWAKE_COUNT + ", " + MINUTES_AWAKE + ", " + RESTLESS_COUNT + ", " + RESTLESS_DURATION + ", " + START_TIME + ", " + MINUTES_AFTER_WAKEUP + ", " + EFFICIENCY + " FROM " + Settings.SLEEP_TABLE_NAME + " WHERE " + IS_MAIN_SLEEP + " == 1 AND " + DATE_OF_SLEEP + " BETWEEN '" + start.ToString(Settings.FORMAT_DAY) + "' AND '" + end.ToString(Settings.FORMAT_DAY) + "';";
             
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
@@ -562,30 +562,35 @@ namespace FitbitTracker.Data
                     AwakeCount = Int32.Parse(row[1].ToString()),
                     AwakeDuration = Int32.Parse(row[2].ToString()),
                     RestlessCount = Int32.Parse(row[3].ToString()),
-                    RestlessDuration = Int32.Parse(row[4].ToString())
-                    
+                    RestlessDuration = Int32.Parse(row[4].ToString()),
+                    StartTime = DateTime.ParseExact(row[5].ToString(), Settings.FORMAT_DAY_AND_TIME, CultureInfo.InvariantCulture),
+                    AwakeAfterWakeUp = Int32.Parse(row[6].ToString()),
+                    Efficiency = Int32.Parse(row[7].ToString())
                 };
             }
             return result;
         }
 
-        internal static SleepVisualizationForWeekEntry GetSleepDataForWeek(DateTimeOffset start, DateTimeOffset end)
+        internal static List<SleepVisualizationForWeekEntry> GetSleepDataForWeek(DateTimeOffset start, DateTimeOffset end)
         {
-            SleepVisualizationForWeekEntry result = null;
+            List<SleepVisualizationForWeekEntry> result = new List<SleepVisualizationForWeekEntry>();
 
-            string query = "SELECT " + DURATION + ", " + ", " + AWAKE_DURATION + ", " + RESTLESS_DURATION + ", " + DATE_OF_SLEEP + " FROM " + Settings.SLEEP_TABLE_NAME + " WHERE " + IS_MAIN_SLEEP + " == 1 AND " + DATE_OF_SLEEP + " BETWEEN '" + start.ToString(Settings.FORMAT_DAY) + "' AND '" + end.ToString(Settings.FORMAT_DAY) + "';";
+            SleepVisualizationForWeekEntry entry = null;
+
+            string query = "SELECT " + MINUTES_ASLEEP + ", " + AWAKE_DURATION + ", " + RESTLESS_DURATION + ", " + DATE_OF_SLEEP + " FROM " + Settings.SLEEP_TABLE_NAME + " WHERE " + IS_MAIN_SLEEP + " == 1 AND " + DATE_OF_SLEEP + " BETWEEN '" + start.ToString(Settings.FORMAT_DAY) + "' AND '" + end.ToString(Settings.FORMAT_DAY) + "';";
 
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
             foreach (DataRow row in table.Rows)
             {
-                result = new SleepVisualizationForWeekEntry
+                entry = new SleepVisualizationForWeekEntry
                 {
                     SleepDuration = Int32.Parse(row[0].ToString()),
                     AwakeDuration = Int32.Parse(row[1].ToString()),
                     RestlessDuration = Int32.Parse(row[2].ToString()),
                     Day = DateTime.ParseExact(row[3].ToString(), Settings.FORMAT_DAY, CultureInfo.InvariantCulture)
                 };
+                result.Add(entry);
             }
 
             return result;

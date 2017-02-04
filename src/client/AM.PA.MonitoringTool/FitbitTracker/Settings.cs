@@ -28,6 +28,7 @@ namespace FitbitTracker
         internal static readonly string LAST_SYNCED_DATE = "FitbitLastSynced";
 
         //OTHER
+        internal static readonly string FORMAT_TIME = "HH:mm";
         internal static readonly string FORMAT_DAY = "yyyy-MM-dd";
         internal static readonly string FORMAT_DAY_AND_TIME = "yyyy-MM-dd HH:mm:ss";
         internal static readonly string FITBIT_FORMAT_DAY = "yyyy-MM-dd";

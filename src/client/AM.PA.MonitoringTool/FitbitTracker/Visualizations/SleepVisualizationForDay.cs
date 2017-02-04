@@ -36,16 +36,30 @@ namespace FitbitTracker
             }
 
             //HTML
-            html += "<div id='chart' height=20em, width=50em, style='align: center'></div>";
-            html += "<p style='text-align: center; font-size: 0.66em;'>Hint: Visualizes your sleep stats for today. For more detailed information, visit: <a href='http://fitbit.com' target=_blank>fitbit.com</a>. (Last synced: " + DatabaseConnector.GetLastTimeSynced() + ").</p>";
+            html += "<div id='chart' style='align: center; font-size: 1.15em;'>";
+            html += "<p><b>Start:</b> " + value.StartTime.ToString(Settings.FORMAT_TIME) + "<span style='padding-left: 2em;'><b>End:</b> " + value.StartTime.AddMinutes(value.SleepDuration + value.AwakeDuration + value.RestlessDuration + value.AwakeAfterWakeUp).ToString(Settings.FORMAT_TIME) + "</span><span style='padding-left: 2em;'><b>Efficiency:</b> " + value.Efficiency + "%</span></p>";
+            html += "<p><b>Slept for:</b> " + DurationToTime(value.SleepDuration) + "</p>";
+            html += "<p><b>Time in bed after wakeup:</b> " + value.AwakeAfterWakeUp + " minutes</p>";
+            html += "<p><b>Woken up:</b> " + value.AwakeCount + " time(s). (Total duration: " + value.AwakeDuration + " minutes" + ")</p>";
+            html += "<p><b>Was restless:</b> " + value.RestlessCount + " time(s). (Total duration: " + value.RestlessDuration + " minutes" + ")</p>";
+            html += "</div>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>Hint: Visualizes your sleep stats for the chosen day. For more detailed information,</br>visit: <a href='http://fitbit.com' target=_blank>fitbit.com</a>. (Last synced: " + DatabaseConnector.GetLastTimeSynced() + ").</p>";
 
             return html;
+        }
+        
+        private string DurationToTime(int duration)
+        {
+            TimeSpan timeSpan = TimeSpan.FromMinutes(duration);
+            return timeSpan.Hours.ToString("D2") + " hours, " + timeSpan.Minutes.ToString("D2") + " minutes";
         }
 
     }
 
     public class SleepVisualizationEntry
     {
+        public DateTime StartTime { get; set; }
+
         public int SleepDuration { get; set; }
 
         public int AwakeCount { get; set; }
@@ -55,6 +69,10 @@ namespace FitbitTracker
         public int RestlessCount { get; set; }
 
         public int RestlessDuration { get; set; }
+
+        public int AwakeAfterWakeUp { get; set; }
+
+        public int Efficiency { get; set; }
     }
 
 }

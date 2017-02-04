@@ -248,7 +248,7 @@ namespace FitbitTracker
 
         public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)
         {
-            return new List<IVisualization> { new SleepVisualizationForDay(date), new StepVisualizationForWeek(date) };
+            return new List<IVisualization> { new SleepVisualizationForWeek(date), new StepVisualizationForWeek(date) };
         }
 
     }
