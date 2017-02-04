@@ -87,8 +87,10 @@
     <Compile Include="Data\HeartRateDayData.cs" />
     <Compile Include="Data\HeartRateIntraDayData.cs" />
     <Compile Include="SecretStorage.cs" />
-    <Compile Include="Visualizations\FitbitVisualizationForWeek.cs" />
-    <Compile Include="Visualizations\FitbitVisualizationForDay.cs" />
+    <Compile Include="Visualizations\SleepVisualizationForDay.cs" />
+    <Compile Include="Visualizations\SleepVisualizationForWeek.cs" />
+    <Compile Include="Visualizations\StepVisualizationForWeek.cs" />
+    <Compile Include="Visualizations\StepVisualizationForDay.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="View\EmbeddedBrowser.xaml.cs">

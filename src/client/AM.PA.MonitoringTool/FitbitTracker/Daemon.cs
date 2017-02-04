@@ -139,6 +139,7 @@ namespace FitbitTracker
                 else
                 {
                     Logger.WriteToConsole("Latest sync date: " + latestSync.ToString(Settings.FORMAT_DAY_AND_TIME));
+                    Database.GetInstance().SetSettings(Settings.LAST_SYNCED_DATE, latestSync.ToString(Settings.FORMAT_DAY_AND_TIME));
                     latestSync = latestSync.AddDays(-1);
 
                     GetStepData(latestSync);
@@ -242,12 +243,12 @@ namespace FitbitTracker
 
         public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
         {
-            return new List<IVisualization> { new FitbitVisualizationForDay(date) };
+            return new List<IVisualization> { new SleepVisualizationForDay(date), new StepVisualizationForDay(date) };
         }
 
         public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)
         {
-            return new List<IVisualization> { new FitbitVisualizationForWeek(date) };
+            return new List<IVisualization> { new SleepVisualizationForDay(date), new StepVisualizationForWeek(date) };
         }
 
     }

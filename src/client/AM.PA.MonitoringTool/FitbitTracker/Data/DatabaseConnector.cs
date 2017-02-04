@@ -526,39 +526,69 @@ namespace FitbitTracker.Data
             return days.Where(f => !daysInDatabase.Any(t => t.Day == f.Day && t.Year == f.Year && t.Month == f.Month)).ToList();  
         }
 
-        public static double GetMinutesAsleep(DateTimeOffset start, DateTimeOffset end, VisType type)
+        
+        public static List<Tuple<DateTime, int>> GetStepsPerTimeFraction(DateTimeOffset start, DateTimeOffset end, int minutes)
         {
-            string query = string.Empty;
-
-            query += "Select SUM(" + TOTAL_MINUTES_ASLEEP + ") From " + Settings.SLEEP_SUMMARY_TABLE_NAME + " WHERE substr(" + DATE_OF_SLEEP + ", 7) || substr(" + DATE_OF_SLEEP + ", 4, 2) || substr(" + DATE_OF_SLEEP + ", 1, 2) between '" + start.ToString(Settings.FORMAT_SQLITE_DAY) + "' AND '" + end.ToString(Settings.FORMAT_SQLITE_DAY) + "'";
-            Console.WriteLine(query);
+            List<Tuple<DateTime, int>> result = new List<Tuple<DateTime, int>>();
+            string query = "SELECT SUM(" + VALUE + "), DATETIME((STRFTIME('%s', DATETIME(" + DATE_OF_STEPS + ")) / " + (minutes * 60) + ") * " + (minutes * 60) + ", 'unixepoch') AS TIMESTAMP FROM " + Settings.STEPS_INTRA_DAY_TABLE_NAME + " WHERE " + DATE_OF_STEPS + " BETWEEN '" + start.ToString(Settings.FORMAT_DAY_AND_TIME) + "' AND '" + end.ToString(Settings.FORMAT_DAY_AND_TIME) + "' GROUP BY TIMESTAMP ORDER BY TIMESTAMP";
 
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
-            if (table.Rows.Count > 0 && table.Rows[0][0] != null)
+            foreach (DataRow row in table.Rows)
             {
-                try
-                {
-                    DataRow row = table.Rows[0];
-                    string col = row[0].ToString();
-                    if (col.Equals(string.Empty))
-                    {
-                        return double.NaN;
-                    }
-                    else
-                    {
-                        return Double.Parse(col);
-                    }
-                }
-                catch (Exception e)
-                {
-                    return double.NaN;
-                }
+                result.Add(Tuple.Create<DateTime, int>(DateTime.ParseExact(row[1].ToString(),Settings.FORMAT_DAY_AND_TIME, CultureInfo.InvariantCulture), Int32.Parse(row[0].ToString())));
             }
-            else
+
+            return result;
+        }
+
+        public static string GetLastTimeSynced()
+        {
+            return Database.GetInstance().GetSettingsString(Settings.LAST_SYNCED_DATE, "never");
+        }
+
+        internal static SleepVisualizationEntry GetSleepDataForDay(DateTimeOffset start, DateTimeOffset end)
+        {
+            SleepVisualizationEntry result = null;
+            string query = "SELECT " + DURATION + ", " + AWAKE_COUNT + ", " + AWAKE_DURATION + ", " + RESTLESS_COUNT + ", " + RESTLESS_DURATION + ", " + DATE_OF_SLEEP + " FROM " + Settings.SLEEP_TABLE_NAME + " WHERE " + IS_MAIN_SLEEP + " == 1 AND " + DATE_OF_SLEEP + " BETWEEN '" + start.ToString(Settings.FORMAT_DAY) + "' AND '" + end.ToString(Settings.FORMAT_DAY) + "';";
+            
+            var table = Database.GetInstance().ExecuteReadQuery(query);
+
+            foreach (DataRow row in table.Rows)
             {
-                return double.NaN;
+                result = new SleepVisualizationEntry
+                {
+                    SleepDuration = Int32.Parse(row[0].ToString()),
+                    AwakeCount = Int32.Parse(row[1].ToString()),
+                    AwakeDuration = Int32.Parse(row[2].ToString()),
+                    RestlessCount = Int32.Parse(row[3].ToString()),
+                    RestlessDuration = Int32.Parse(row[4].ToString())
+                    
+                };
             }
+            return result;
+        }
+
+        internal static SleepVisualizationForWeekEntry GetSleepDataForWeek(DateTimeOffset start, DateTimeOffset end)
+        {
+            SleepVisualizationForWeekEntry result = null;
+
+            string query = "SELECT " + DURATION + ", " + ", " + AWAKE_DURATION + ", " + RESTLESS_DURATION + ", " + DATE_OF_SLEEP + " FROM " + Settings.SLEEP_TABLE_NAME + " WHERE " + IS_MAIN_SLEEP + " == 1 AND " + DATE_OF_SLEEP + " BETWEEN '" + start.ToString(Settings.FORMAT_DAY) + "' AND '" + end.ToString(Settings.FORMAT_DAY) + "';";
+
+            var table = Database.GetInstance().ExecuteReadQuery(query);
+
+            foreach (DataRow row in table.Rows)
+            {
+                result = new SleepVisualizationForWeekEntry
+                {
+                    SleepDuration = Int32.Parse(row[0].ToString()),
+                    AwakeDuration = Int32.Parse(row[1].ToString()),
+                    RestlessDuration = Int32.Parse(row[2].ToString()),
+                    Day = DateTime.ParseExact(row[3].ToString(), Settings.FORMAT_DAY, CultureInfo.InvariantCulture)
+                };
+            }
+
+            return result;
         }
 
         #endregion
