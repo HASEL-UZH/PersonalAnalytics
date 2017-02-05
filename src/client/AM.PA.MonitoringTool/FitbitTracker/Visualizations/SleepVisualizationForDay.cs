@@ -43,7 +43,7 @@ namespace FitbitTracker
             html += "<p><b>Woken up:</b> " + value.AwakeCount + " time(s). (Total duration: " + value.AwakeDuration + " minutes" + ")</p>";
             html += "<p><b>Was restless:</b> " + value.RestlessCount + " time(s). (Total duration: " + value.RestlessDuration + " minutes" + ")</p>";
             html += "</div>";
-            html += "<p style='text-align: center; font-size: 0.66em;'>Hint: Visualizes your sleep stats for the chosen day. For more detailed information,</br>visit: <a href='http://fitbit.com' target=_blank>fitbit.com</a>. (Last synced: " + DatabaseConnector.GetLastTimeSynced() + ").</p>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>Hint: Visualizes your sleep stats for the chosen day. For more detailed information,<br>visit: <a href='http://fitbit.com' target=_blank>fitbit.com</a>. (Last synced: " + DatabaseConnector.GetLastTimeSynced() + ").</p>";
 
             return html;
         }

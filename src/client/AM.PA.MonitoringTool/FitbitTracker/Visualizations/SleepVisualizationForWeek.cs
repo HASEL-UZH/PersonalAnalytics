@@ -206,8 +206,6 @@ namespace FitbitTracker
                 }
                 else
                 {
-                    //totalData += "{day:'" + date.DayOfWeek.ToString() + "', T:0},\n";
-                   // textData += "{day:'" + date.DayOfWeek.ToString() + "', A:0},\n";
                     data += "{day:'" + date.DayOfWeek.ToString() + "', A:0, B:0, C:0},\n";
                 }
  
