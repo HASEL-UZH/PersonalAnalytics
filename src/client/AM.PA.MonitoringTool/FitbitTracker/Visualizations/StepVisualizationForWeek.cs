@@ -18,7 +18,7 @@ namespace FitbitTracker
         public StepVisualizationForWeek(DateTimeOffset date)
         {
             this.date = date;
-            Title = "Steps per day";
+            Title = "Steps per weekday";
             IsEnabled = true;
             Size = VisSize.Wide;
             Order = 0;

@@ -168,36 +168,49 @@ namespace PolarTracker.Data
         
         private static List<Tuple<DateTime, double>> CalculateHourAverage(List<Tuple<DateTime, double, double>> values)
         {
+            Console.WriteLine(values.Count);
+
             var result = new List<Tuple<DateTime, double>>();
             
             if (values.Count > 0)
             {
                 DateTime firstHour = values[0].Item1;
                 DateTime lastHour = values[values.Count - 1].Item1;
-                
-                while (firstHour.Hour.CompareTo(lastHour.Hour + 1) != 0)
+
+                if (firstHour.Hour == lastHour.Hour)
                 {
-                    List<Tuple<DateTime, double, double>> tuplesForThisHour = values.FindAll(t => t.Item1.Hour.CompareTo(firstHour.Hour) == 0);
-                    
-                    double sum = 0;
-                    double count = 0;
-
-                    foreach (Tuple<DateTime, double, double> t in tuplesForThisHour)
+                    SumUpValuesForOneHour(values, result, firstHour);
+                }
+                else
+                {
+                    while (firstHour.Hour.CompareTo(lastHour.Hour + 1) != 0)
                     {
-                        if (!Double.IsNaN(t.Item3))
-                        {
-                            sum += t.Item3;
-                            count++;
-                        }
+                        SumUpValuesForOneHour(values, result, firstHour);
+                        firstHour = firstHour.AddHours(1);
                     }
-
-                    Tuple<DateTime, double> createTuple = new Tuple<DateTime, double>(firstHour, sum / count);
-                    result.Add(createTuple);
-
-                    firstHour = firstHour.AddHours(1);
                 }
             }
             return result;
+        }
+
+        private static void SumUpValuesForOneHour(List<Tuple<DateTime, double, double>> values, List<Tuple<DateTime, double>> result, DateTime firstHour)
+        {
+            List<Tuple<DateTime, double, double>> tuplesForThisHour = values.FindAll(t => t.Item1.Hour.CompareTo(firstHour.Hour) == 0);
+
+            double sum = 0;
+            double count = 0;
+
+            foreach (Tuple<DateTime, double, double> t in tuplesForThisHour)
+            {
+                if (!Double.IsNaN(t.Item3))
+                {
+                    sum += t.Item3;
+                    count++;
+                }
+            }
+
+            Tuple<DateTime, double> createTuple = new Tuple<DateTime, double>(firstHour, sum / count);
+            result.Add(createTuple);
         }
 
         private static List<Tuple<DateTime, double>> GetPolarValuesForWeek(DateTimeOffset date, String column)

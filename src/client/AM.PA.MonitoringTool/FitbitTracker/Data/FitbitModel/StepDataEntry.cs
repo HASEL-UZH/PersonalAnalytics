@@ -12,9 +12,11 @@ namespace FitbitTracker.Data.FitbitModel
     public class StepDataEntry
     {
 
+        private double steps = double.NaN;
+
         public DateTime Time { get; set; }
 
-        public int Value { get; set; }
+        public double Value { get { return steps; } set { steps = value; } }
 
     }
 

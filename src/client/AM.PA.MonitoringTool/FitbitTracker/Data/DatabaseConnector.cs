@@ -82,14 +82,14 @@ namespace FitbitTracker.Data
                                                                             + FLOORS + " INTEGER, "
                                                                             + LIGHTLY_ACTIVE_MINUTES + " INTEGER, "
                                                                             + SEDENTARY_MINUTES + " INTEGER, "
-                                                                            + STEPS + " INTEGER, "
+                                                                            + STEPS + " REAL, "
                                                                             + VERY_ACTIVE_MINUTES + " INTEGER)";
 
         private static readonly string CREATE_STEPS_INTRA_DAY_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.STEPS_INTRA_DAY_TABLE_NAME + " ("
                                                                             + ID + " INTEGER PRIMARY KEY, "
                                                                             + SAVE_TIME + " TEXT, "
                                                                             + DATE_OF_STEPS + " TEXT UNIQUE, "
-                                                                            + VALUE + " INTEGER)";
+                                                                            + VALUE + " REAL)";
 
         private static readonly string CREATE_HEARTRATE_INTRA_DAY_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.HEARTRATE_INTRA_DAY_TABLE_NAME + " ("
                                                                             + ID + " INTEGER PRIMARY KEY, "
@@ -303,7 +303,7 @@ namespace FitbitTracker.Data
             foreach (StepDataEntry dataEntry in stepData.IntraDay.Dataset)
             {
                 string query = string.Empty;
-                query += String.Format(UPDATE_STEPS_INTRADAY, "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + new DateTime(day.Year, day.Month, day.Day, dataEntry.Time.Hour, dataEntry.Time.Minute, dataEntry.Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'", dataEntry.Value);
+                query += String.Format(UPDATE_STEPS_INTRADAY, "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + new DateTime(day.Year, day.Month, day.Day, dataEntry.Time.Hour, dataEntry.Time.Minute, dataEntry.Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'", ReplaceNaNValues(dataEntry.Value));
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }
 
@@ -318,12 +318,12 @@ namespace FitbitTracker.Data
                     StepDataEntry dataEntry = stepData.IntraDay.Dataset[start];
                     string insertTime = "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'";
                     string stepTime = "'" + new DateTime(day.Year, day.Month, day.Day, dataEntry.Time.Hour, dataEntry.Time.Minute, dataEntry.Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'";
-                    query += String.Format(INSERT_OR_INGORE_MULTIPLE_STEP_INTRA_DAY_VALUES, insertTime, stepTime, dataEntry.Value);
+                    query += String.Format(INSERT_OR_INGORE_MULTIPLE_STEP_INTRA_DAY_VALUES, insertTime, stepTime, ReplaceNaNValues(dataEntry.Value));
 
                     int count = 0;
                     for (int i = start; i < stepData.IntraDay.Dataset.Count && count < 499; i++)
                     {
-                        query += String.Format(" UNION ALL SELECT null, {0}, {1}, {2}", "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + new DateTime(day.Year, day.Month, day.Day, stepData.IntraDay.Dataset[i].Time.Hour, stepData.IntraDay.Dataset[i].Time.Minute, stepData.IntraDay.Dataset[i].Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'", stepData.IntraDay.Dataset[i].Value);
+                        query += String.Format(" UNION ALL SELECT null, {0}, {1}, {2}", "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + new DateTime(day.Year, day.Month, day.Day, stepData.IntraDay.Dataset[i].Time.Hour, stepData.IntraDay.Dataset[i].Time.Minute, stepData.IntraDay.Dataset[i].Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'", ReplaceNaNValues(stepData.IntraDay.Dataset[i].Value));
                         count++;
                     }
                     Database.GetInstance().ExecuteDefaultQuery(query);
@@ -335,11 +335,11 @@ namespace FitbitTracker.Data
         internal static void SaveActivityData(ActivityData activityData, DateTimeOffset day)
         {
             string query = string.Empty;
-            query += String.Format(UPDATE_ACTIVITY_SUMMARY, "'" + new DateTime(day.Year, day.Month, day.Day).ToString(Settings.FORMAT_DAY) + "'", "'" + DateTime.Now.ToString(Settings.FORMAT_DAY) + "'", activityData.Summary.ActiveScore, activityData.Summary.Elevation, activityData.Summary.FairlyActiveMinutes, activityData.Summary.Floors, activityData.Summary.LightlyActiveMinutes, activityData.Summary.SedentaryMinutes, activityData.Summary.Steps, activityData.Summary.Steps, activityData.Summary.VeryActiveMinutes);
+            query += String.Format(UPDATE_ACTIVITY_SUMMARY, "'" + new DateTime(day.Year, day.Month, day.Day).ToString(Settings.FORMAT_DAY) + "'", "'" + DateTime.Now.ToString(Settings.FORMAT_DAY) + "'", activityData.Summary.ActiveScore, activityData.Summary.Elevation, activityData.Summary.FairlyActiveMinutes, activityData.Summary.Floors, activityData.Summary.LightlyActiveMinutes, activityData.Summary.SedentaryMinutes, activityData.Summary.Steps, ReplaceNaNValues(activityData.Summary.Steps), activityData.Summary.VeryActiveMinutes);
             Database.GetInstance().ExecuteDefaultQuery(query);
 
             query = string.Empty;
-            query += String.Format(INSERT_OR_IGNORE_ACTIVITY_SUMMARY, "'" + new DateTime(day.Year, day.Month, day.Day).ToString(Settings.FORMAT_DAY) + "'", "'" + DateTime.Now.ToString(Settings.FORMAT_DAY) + "'", activityData.Summary.ActiveScore, activityData.Summary.Elevation, activityData.Summary.FairlyActiveMinutes, activityData.Summary.Floors, activityData.Summary.LightlyActiveMinutes, activityData.Summary.SedentaryMinutes, activityData.Summary.Steps, activityData.Summary.Steps, activityData.Summary.VeryActiveMinutes);
+            query += String.Format(INSERT_OR_IGNORE_ACTIVITY_SUMMARY, "'" + new DateTime(day.Year, day.Month, day.Day).ToString(Settings.FORMAT_DAY) + "'", "'" + DateTime.Now.ToString(Settings.FORMAT_DAY) + "'", activityData.Summary.ActiveScore, activityData.Summary.Elevation, activityData.Summary.FairlyActiveMinutes, activityData.Summary.Floors, activityData.Summary.LightlyActiveMinutes, activityData.Summary.SedentaryMinutes, ReplaceNaNValues(activityData.Summary.Steps), activityData.Summary.Steps, activityData.Summary.VeryActiveMinutes);
             Database.GetInstance().ExecuteDefaultQuery(query);
         }
 
@@ -395,11 +395,11 @@ namespace FitbitTracker.Data
             foreach (HeartRateDayData data in hrData)
             {
                 string query = string.Empty;
-                query += String.Format(UPDATE_HR_SUMMARY, "'" + insert.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + data.Date.ToString(Settings.FORMAT_DAY) + "'", Double.IsNaN(data.RestingHeartrate) ? "null" : data.RestingHeartrate.ToString(), data.CaloriesOut, data.Max, data.Min, data.MinutesSpent, "'" + data.Name + "'");
+                query += String.Format(UPDATE_HR_SUMMARY, "'" + insert.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + data.Date.ToString(Settings.FORMAT_DAY) + "'", ReplaceNaNValues(data.RestingHeartrate), data.CaloriesOut, data.Max, data.Min, data.MinutesSpent, "'" + data.Name + "'");
                 Database.GetInstance().ExecuteDefaultQuery(query);
 
                 query = string.Empty;
-                query += String.Format(INSERT_OR_IGNORE_HR_SUMMARY, "'" + insert.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + data.Date.ToString(Settings.FORMAT_DAY) + "'", Double.IsNaN(data.RestingHeartrate) ? "null" : data.RestingHeartrate.ToString(), data.CaloriesOut, data.Max, data.Min, data.MinutesSpent, "'" + data.Name + "'");
+                query += String.Format(INSERT_OR_IGNORE_HR_SUMMARY, "'" + insert.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + data.Date.ToString(Settings.FORMAT_DAY) + "'", ReplaceNaNValues(data.RestingHeartrate), data.CaloriesOut, data.Max, data.Min, data.MinutesSpent, "'" + data.Name + "'");
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }
         }
@@ -435,7 +435,7 @@ namespace FitbitTracker.Data
                     if (!DoesSleepLogAlreadyExists(log.LogID))
                     {
                         string sleepQuery = String.Empty;
-                        sleepQuery += String.Format(INSERT_SLEEP_QUERY, id, "'" + DateTime.Now + "'", log.AwakeCount, log.AwakeDuration, "'" + log.DateOfSleep.ToString(Settings.FORMAT_DAY) + "'", log.Duration, log.Efficiency, log.IsMainSleep ? 1 : 0, log.LogID, log.MinutesAfterWakeup, log.MinutesAsleep, log.MinutesAwake, Double.IsNaN(log.MinutesToFallAsleep) ? "null" : log.MinutesToFallAsleep.ToString(), log.RestlessCount, log.RestlessDuration, "'" + log.StartTime.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", log.TimeInBed);
+                        sleepQuery += String.Format(INSERT_SLEEP_QUERY, id, "'" + DateTime.Now + "'", log.AwakeCount, log.AwakeDuration, "'" + log.DateOfSleep.ToString(Settings.FORMAT_DAY) + "'", log.Duration, log.Efficiency, log.IsMainSleep ? 1 : 0, log.LogID, log.MinutesAfterWakeup, log.MinutesAsleep, log.MinutesAwake, ReplaceNaNValues(log.MinutesToFallAsleep), log.RestlessCount, log.RestlessDuration, "'" + log.StartTime.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", log.TimeInBed);
                         Database.GetInstance().ExecuteDefaultQuery(sleepQuery);
                     }
                     InsertSleepIntradayData(log, day);
@@ -594,6 +594,15 @@ namespace FitbitTracker.Data
             }
 
             return result;
+        }
+
+        #endregion
+
+        #region Helpers
+
+        private static string ReplaceNaNValues(double value)
+        {
+            return Double.IsNaN(value) ? "null" : value.ToString();
         }
 
         #endregion

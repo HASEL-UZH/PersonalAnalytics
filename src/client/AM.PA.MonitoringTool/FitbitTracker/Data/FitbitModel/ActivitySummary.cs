@@ -8,6 +8,8 @@ namespace FitbitTracker.Data.FitbitModel
     public class ActivitySummary
     {
 
+        private double steps = double.NaN;
+
         public int ActiveScore { get; set; }
 
         public float Elevation { get; set; }
@@ -20,7 +22,7 @@ namespace FitbitTracker.Data.FitbitModel
 
         public int SedentaryMinutes { get; set; }
 
-        public int Steps { get; set; }
+        public double Steps { get { return steps; } set { steps = value; } }
 
         public int VeryActiveMinutes { get; set; }
 

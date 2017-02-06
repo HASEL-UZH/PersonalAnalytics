@@ -169,9 +169,7 @@ namespace PolarTracker
 
             html = html.Remove(html.Length - 1);
             html += "],";
-
-            Console.WriteLine(html);
-
+            
             return html;
         }
         
