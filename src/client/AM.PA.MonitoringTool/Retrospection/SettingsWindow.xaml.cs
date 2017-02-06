@@ -26,6 +26,7 @@ namespace Retrospection
         private bool defaultOpenRetrospectionInFullScreen;
         private bool defaultTimeSpentShowProgramsEnabled;
         private bool defaultTimeSpentShowEmailsEnabled;
+        private bool defaultPolarTrackerEnabled;
 
         private string minutesStr = " minutes";
         private List<ITracker> _trackers;
@@ -50,6 +51,7 @@ namespace Retrospection
             defaultOpenRetrospectionInFullScreen = dto.OpenRetrospectionInFullScreen.Value;
             defaultTimeSpentShowProgramsEnabled = dto.TimeSpentShowProgramsEnabled.Value;
             defaultTimeSpentShowEmailsEnabled = dto.TimeSpentShowEmailsEnabled.Value;
+            defaultPolarTrackerEnabled = dto.PolarTrackerEnabled.Value;
 
             // no changes yet, disable buttons by default
             SaveButtonsEnabled(false);
@@ -86,8 +88,12 @@ namespace Retrospection
                 CbPopUpInterval.IsEnabled = true;
             }
             CbPopUpInterval.SelectionChanged += CbPopUpInterval_SelectionChanged;
-        }
 
+            PolarEnabled.IsChecked = defaultPolarTrackerEnabled;
+            PolarEnabled.Checked += CbChecked_Update;
+            PolarEnabled.Unchecked += CbChecked_Update;
+        }
+        
         #region User Changed Values
 
         private void CbPopUpsEnabled_Checked(object sender, RoutedEventArgs e)
@@ -116,7 +122,8 @@ namespace Retrospection
                  (defaultUserInputTrackerEnabled != CbUserInputTrackerEnabled.IsChecked.Value) ||
                  (defaultOpenRetrospectionInFullScreen != CbOpenRetrospectionInFullScreen.IsChecked.Value) ||
                  (defaultTimeSpentShowEmailsEnabled != CbTimeSpentShowEmailsEnabled.IsChecked.Value) ||
-                 (defaultTimeSpentShowProgramsEnabled != CbTimeSpentShowProgramsEnabled.IsChecked.Value)
+                 (defaultTimeSpentShowProgramsEnabled != CbTimeSpentShowProgramsEnabled.IsChecked.Value) ||
+                 (defaultPolarTrackerEnabled != PolarEnabled.IsChecked.Value)
                  )
                 {
                     SaveButtonsEnabled(true);
@@ -189,6 +196,12 @@ namespace Retrospection
                     dto.UserInputTrackerEnabled = CbUserInputTrackerEnabled.IsChecked.Value;
                 }
                 else { dto.UserInputTrackerEnabled = null; }
+
+                if (defaultPolarTrackerEnabled != PolarEnabled.IsChecked.Value)
+                {
+                    dto.PolarTrackerEnabled = PolarEnabled.IsChecked.Value;
+                }
+                else { dto.PolarTrackerEnabled = null; }
             }
             catch { }
 

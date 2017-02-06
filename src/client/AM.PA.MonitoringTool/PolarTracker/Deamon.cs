@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using PolarTracker.Visualizations;
 using System;
 using PolarTracker.Views;
-using System.Windows;
 using Shared.Data;
 using BluetoothLowEnergyConnector;
 using System.Windows.Forms;
@@ -28,11 +27,11 @@ namespace PolarTracker
 
         private NotifyIcon notification;
         private NotifyIcon btNotification;
-        private Window window;
         private bool showNotification = true;
         private bool showBluetoothNotification = true;
         private double previousRR = Double.NaN;
         private bool isConnectedToBluetoothDevice = false;
+        private ChooseBluetoothDevice chooser;
 
         public Deamon()
         {
@@ -41,15 +40,8 @@ namespace PolarTracker
             LoggerWrapper.Instance.NewConsoleMessage += OnNewConsoleMessage;
             LoggerWrapper.Instance.NewLogFileMessage += OnNewLogFileMessage;
 
-            ChooseBluetoothDevice chooser = new ChooseBluetoothDevice();
+            chooser = new ChooseBluetoothDevice();
             chooser.AddListener(this);
-            window = new Window
-            {
-                Title = "Choose a Bluetooth Device to connect",
-                Content = chooser,
-                Height = chooser.Height,
-                Width = chooser.Width
-            };
         }
 
         private void OnNewLogFileMessage(Exception error)
@@ -79,13 +71,13 @@ namespace PolarTracker
 
         public override async void Start()
         {
-            bool trackerEnabled = Database.GetInstance().GetSettingsBool(Settings.TRACKER_ENEABLED_SETTING, true);
+            bool trackerEnabled = Database.GetInstance().GetSettingsBool(Settings.TRACKER_ENEABLED_SETTING, false);
             if (trackerEnabled)
             {
                 string storedDeviceName = Database.GetInstance().GetSettingsString(Settings.HEARTRATE_TRACKER_ID_SETTING, String.Empty);
                 if (storedDeviceName.Equals(String.Empty))
                 {
-                    window.ShowDialog();
+                    chooser.ShowDialog();
                 }
                 else
                 {
@@ -93,7 +85,7 @@ namespace PolarTracker
 
                     if (deviceInformation == null)
                     {
-                        window.ShowDialog();
+                        chooser.ShowDialog();
                     }
                     else
                     {
@@ -117,6 +109,35 @@ namespace PolarTracker
                     }
                 }
             }
+            else
+            {
+                if (!Database.GetInstance().HasSetting(Settings.TRACKER_ENEABLED_SETTING))
+                {
+                    FirstStartWindow window = new FirstStartWindow();
+                    window.Show();
+                    window.Closed += FirstStartWindowClosed;
+                }
+            }
+        }
+
+        public void ChangeEnableState(bool? polarTrackerEnabled)
+        {
+            Console.WriteLine("PolarTracker is now " + (polarTrackerEnabled.Value ? "enabled" : "disabled"));
+            Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, polarTrackerEnabled.Value);
+            Database.GetInstance().LogInfo("The participant updated the setting '" + Settings.TRACKER_ENEABLED_SETTING + "' to " + polarTrackerEnabled.Value);
+
+            if (polarTrackerEnabled.Value)
+            {
+                Start();
+            } else
+            {
+                Stop();
+            }
+        }
+
+        private void FirstStartWindowClosed(object sender, EventArgs e)
+        {
+            Start();
         }
 
         private void OnBluetoothNotEnabled()
@@ -138,7 +159,7 @@ namespace PolarTracker
 
         public void OnConnectionEstablished(string deviceID)
         {
-            window.Close();
+            chooser.Close();
             Database.GetInstance().SetSettings(Settings.HEARTRATE_TRACKER_ID_SETTING, deviceID);
             Connector.Instance.ConnectionLost += OnConnectionToDeviceLost;
             Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
@@ -268,7 +289,7 @@ namespace PolarTracker
 
         internal void OnTrackerDisabled()
         {
-            window.Close();
+            chooser.Close();
             IsRunning = false;
             isConnectedToBluetoothDevice = false;
             Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, false);

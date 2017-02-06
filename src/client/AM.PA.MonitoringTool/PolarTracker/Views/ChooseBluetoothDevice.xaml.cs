@@ -15,7 +15,7 @@ namespace PolarTracker.Views
     /// <summary>
     /// Interaction logic for ChooseBluetoothDevice.xaml
     /// </summary>
-    public partial class ChooseBluetoothDevice : UserControl
+    public partial class ChooseBluetoothDevice : Window
     {
         public ChooseBluetoothDevice()
         {

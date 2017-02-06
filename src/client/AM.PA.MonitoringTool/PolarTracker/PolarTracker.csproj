@@ -48,6 +48,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Settings.cs" />
+    <Compile Include="Views\FirstStartWindow.xaml.cs">
+      <DependentUpon>FirstStartWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Visualizations\PolarVisualizationForWeek.cs" />
     <Compile Include="Data\DatabaseConnector.cs" />
     <Compile Include="Deamon.cs" />
@@ -69,6 +72,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="Views\ChooseBluetoothDevice.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FirstStartWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
