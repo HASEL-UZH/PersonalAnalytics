@@ -419,12 +419,52 @@ namespace PersonalAnalytics
             //_taskbarIcon.ContextMenu = (System.Windows.Controls.ContextMenu)style;
         }
 
+        /// <summary>
+        /// creates a sub-sub-MenuItem to enforce the FlowLight state for a certain amount of minutes
+        /// </summary>
+        /// <param name="status"></param>
+        /// <param name="minutes"></param>
+        /// <returns></returns>
         private System.Windows.Controls.MenuItem initFlowLightSubMenuItem(Status status, int minutes)
         {
             var menuItem = new System.Windows.Controls.MenuItem { Header = minutes + " min" };
             menuItem.Click += (sender, e) => flowLightTracker.EnforcingClicked(menuItem, new FlowLightTracker.Daemon.MenuEventArgs(status, minutes));
+            menuItem.Click += FlowLightEnforcingClicked;
 
             return menuItem;
+        }
+
+        /// <summary>
+        /// adds a Reset MenuItem if the FlowLight MenuItem to enforce the state has been clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void FlowLightEnforcingClicked(object sender, RoutedEventArgs e)
+        {
+            var menuItem = (System.Windows.Controls.MenuItem)sender;
+            var parentMenuItem = (System.Windows.Controls.MenuItem)menuItem.Parent;
+            var rootMenuItem = (System.Windows.Controls.MenuItem)parentMenuItem.Parent;
+
+            //only add the reset button if there is no one there yet!
+            if (rootMenuItem.Items.Count == 3)
+            {
+                var resetMenuItem = new System.Windows.Controls.MenuItem { Header = "Reset" };
+                resetMenuItem.Click += flowLightTracker.ResetEnforcingClicked;
+                resetMenuItem.Click += ResetMenuItem_Click;
+                rootMenuItem.Items.Add(resetMenuItem);
+            }
+        }
+
+        /// <summary>
+        /// Removes the reset button for the FlowLight enforcing, after it has been clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ResetMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var resetMenuItem = (System.Windows.Controls.MenuItem)sender;
+            var parentMenuItem = (System.Windows.Controls.MenuItem)resetMenuItem.Parent;
+            parentMenuItem.Items.Remove(resetMenuItem);
         }
 
         /// <summary>

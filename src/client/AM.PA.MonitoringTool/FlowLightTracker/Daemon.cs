@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Windows;
 
 namespace FlowLightTracker
 {
@@ -336,6 +337,16 @@ namespace FlowLightTracker
         {
             StartTimedEnforcing(e.Minutes);
             setStatus(Originator.User, e.Status);
+        }
+
+        /// <summary>
+        /// this is executed when the user resets the enforcing via the context menu.
+        /// this will stop the enforcing timer and set the status to free.
+        /// </summary>
+        public void ResetEnforcingClicked(object sender, RoutedEventArgs e)
+        {
+            StopEnforcing();
+            setStatus(Originator.User, Status.Free);
         }
 
         #endregion
