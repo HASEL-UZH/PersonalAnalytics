@@ -46,7 +46,7 @@
 		
 		<Exec Command="&quot;C:\cert\signtool.exe&quot; sign /a /f &quot;C:\cert\certificate.p12&quot; /tr &quot;http://tsa.quovadisglobal.com/TSS/HttpTspServer&quot; /p $(Password) /v &quot;C:\deploy\$(ProjectName)\$(TargetFileName)&quot;" />
 		<Exec Command="C:\cert\mage.exe -Sign &quot;C:\deploy\$(ProjectName)\Application Files\PersonalAnalytics_$(MajorVersion)_$(MinorVersion)_$(PilotVersion)_$(Build_Number)\PersonalAnalytics.exe.manifest&quot; -CertFile &quot;C:\cert\certificate.p12&quot; -Password $(Password)" />
-		<Exec Command="C:\cert\mage.exe -update &quot;C:\deploy\$(ProjectName)\PersonalAnalytics.application&quot; -appmanifest &quot;C:\deploy\$(ProjectName)\Application Files\PersonalAnalytics_$(MajorVersion)_$(MinorVersion)_$(PilotVersion)_$(Build_Number)\PersonalAnalytics.exe.manifest&quot; -CertFile &quot;C:\cert\certificate.p12&quot; -Password $(Password)" -ti &quot;http://tsa.quovadisglobal.com/TSS/HttpTspServer&quot;/>
+		<Exec Command="C:\cert\mage.exe -update &quot;C:\deploy\$(ProjectName)\PersonalAnalytics.application&quot; -appmanifest &quot;C:\deploy\$(ProjectName)\Application Files\PersonalAnalytics_$(MajorVersion)_$(MinorVersion)_$(PilotVersion)_$(Build_Number)\PersonalAnalytics.exe.manifest&quot; -CertFile &quot;C:\cert\certificate.p12&quot; -Password $(Password) -ti &quot;http://tsa.quovadisglobal.com/TSS/HttpTspServer&quot;"/>
 		<Exec Command="C:\cert\mage.exe -Sign &quot;C:\deploy\$(ProjectName)\PersonalAnalytics.application&quot; -CertFile &quot;C:\cert\certificate.p12&quot; -Password $(Password)" />
     	</Target>
 	
