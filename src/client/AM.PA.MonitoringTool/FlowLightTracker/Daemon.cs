@@ -15,9 +15,8 @@ namespace FlowLightTracker
 {
     public class Daemon : BaseTracker, ITracker
     {
-        enum Originator {System, Skype, FlowTracker };
+        enum Originator {System, Skype, FlowTracker, User };
 
-        #region FIELDS
         private bool _flowLightTrackerEnabled;
         private FocusLightTracker.Daemon _flowTracker;
         private Timer _updateTimer;
@@ -28,9 +27,10 @@ namespace FlowLightTracker
         private LyncStatus _skypeClient;
         private Status _currentSkypeStatus;
         private FocusState _currentFlowState;
-        #endregion
+        private bool _updating;
 
-        #region METHODS
+        #region ITracker Stuff
+
         public Daemon(FocusLightTracker.Daemon flowTracker)
         {
             Name = "FlowLight Tracker";
@@ -41,6 +41,11 @@ namespace FlowLightTracker
         public override void CreateDatabaseTablesIfNotExist()
         {
             //TODO: Add a table that logs the status changes and the source, also always log the current color of the light
+        }
+
+        public override void UpdateDatabaseTables(int version)
+        {
+            // not needed yet
         }
 
         public override string GetVersion()
@@ -109,32 +114,64 @@ namespace FlowLightTracker
             IsRunning = true;
         }
 
-        private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+
+        public override void Stop()
         {
-            if (e.Reason == SessionSwitchReason.SessionLock)
-            {                
-                setStatus(Originator.System, Status.Away);
-                _locked = true;
-            }
-            else if (e.Reason == SessionSwitchReason.SessionUnlock)
+            if (_updateTimer != null)
             {
-                setStatus(Originator.System, Status.Free);
-                _locked = false;
+                _updateTimer.Stop();
+                _updateTimer.Dispose();
+                _updateTimer = null;
+            }
+
+            _skypeClient.OnOutsideChange -= SkypeClient_OnOutsideChange;
+
+            IsRunning = false;
+        }
+
+        #endregion
+
+        #region Daemon
+
+        /// <summary>
+        /// is run when the update timer elapsed and sets the status according to 
+        /// Flowtracker, unless the computer is locked, or we are enforcing a certain state
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void UpdateTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            // Don't do anything if the work station is locked or we are enforcing a state
+            if (!_locked && !_enforcing)
+            {
+                // set the status to the one determined by FlowTracker
+                FocusState newFlowStatus = _flowTracker.GetFocusState();
+                setStatus(newFlowStatus);
+
+                Logger.WriteToConsole("FlowLight: Updating from FlowTracker to " + newFlowStatus);
             }
         }
 
-        private void EnforcingTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            StopEnforcing();
-        }
-
+        /// <summary>
+        /// This method is executed whenever the status was changed in Skype.
+        /// This could be caused by the user (manual change) or automatically by the calender,
+        /// if there is an event starting or ending.
+        /// 
+        /// These status changes override the status if it has been enforced before. If the
+        /// status is set to anything but Free, this will be respected and enforced infinitely.
+        /// 
+        /// if the status is set back to Free, this will now be enforced for 5 minutes until
+        /// FlowTracker can start to change the status again.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SkypeClient_OnOutsideChange(object sender, StatusEventArgs e)
         {
-            Console.WriteLine("change from skype: " + e.CurrentStatus + ", " + e.Outside);
+            Logger.WriteToConsole("FlowLight: Skype status change detected: " + e.CurrentStatus + ", outside: " + e.Outside);
 
             // Ignore all changes from Skype if the workstation is locked. 
             // Reason: Sometimes Skype cannot reflect the correct status (Away) when the computer is locked.
-            if (!_locked)
+            if (!_locked && !e.Outside)
             {
                 if (_enforcing)
                 {
@@ -147,67 +184,42 @@ namespace FlowLightTracker
                     // if the status was set to free (manually or by the calendar),
                     // we will respect that for 5 minutes and then start changing the state again by FlowTracker
                     StartTimedEnforcing(5);
-                } 
+                }
                 else
                 {
                     StartInfiniteEnforcing();
                 }
 
-                setStatus(Originator.Skype, e.CurrentStatus);           
+                setStatus(Originator.Skype, e.CurrentStatus);
             }
         }
 
-        private void StartTimedEnforcing(int minutes)
-        {
-            Console.WriteLine("Enforcing for " + minutes + ".");
-            _enforcing = true;
-            _enforcingTimer.Stop();
-            _enforcingTimer.Interval = minutes * 60 * 1000;
-            _enforcingTimer.Start();
-        }
-
-        private void StartInfiniteEnforcing()
-        {
-            Console.WriteLine("Enforcing forever.");
-            _enforcing = true;
-        }
-
-        private void StopEnforcing()
-        {
-            Console.WriteLine("Cancelling enforcing.");
-
-            _enforcingTimer.Stop();
-            _enforcing = false;
-        }
-
-        private void UpdateTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            Console.WriteLine("Updating ...");
-
-            // Don't do anything if the work station is locked or we are enforcing a state
-            if (!_locked && !_enforcing)
-            {
-                // set the status to the one determined by FlowTracker
-                FocusState newFlowStatus = _flowTracker.GetFocusState();
-                setStatusFromFlowTracker(newFlowStatus);
-
-                Console.WriteLine("Update: set status to " + newFlowStatus);
-            }
-        }
-
+        /// <summary>
+        /// sets the status of the light and skype
+        /// </summary>
+        /// <param name="originator"></param>
+        /// <param name="newStatus"></param>
         private void setStatus(Originator originator, Status newStatus)
         {
+            _updating = true;
+
             if (originator != Originator.Skype)
             {
                 // Skype should only be updated if it is origniated by FlowTracker, otherwise it is already updated
-                _skypeClient.Status = newStatus;      
+                _skypeClient.Status = newStatus;
             }
 
             _currentSkypeStatus = newStatus;
             _lightClient.Status = newStatus;
+
+            _updating = false;
         }
 
-        private void setStatusFromFlowTracker(FocusState newStatus)
+        /// <summary>
+        /// sets the status from FlowTracker (maps the FlowTracker status to FocusLightClients - Status)
+        /// </summary>
+        /// <param name="newStatus"></param>
+        private void setStatus(FocusState newStatus)
         {
             switch (newStatus)
             {
@@ -226,23 +238,106 @@ namespace FlowLightTracker
             _currentFlowState = newStatus;
         }
 
-        public override void Stop()
+        /// <summary>
+        /// starts a timer for the specified amount of minutes to enforce the status
+        /// (doesn't change the status)
+        /// </summary>
+        /// <param name="minutes"></param>
+        private void StartTimedEnforcing(int minutes)
         {
-            if (_updateTimer != null)
-            {
-                _updateTimer.Stop();
-                _updateTimer.Dispose();
-                _updateTimer = null;
-            }
-
-            _skypeClient.OnOutsideChange -= SkypeClient_OnOutsideChange;
-
-            IsRunning = false;
+            Logger.WriteToConsole("FlowLight: Enforcing for " + minutes + ".");
+            _enforcing = true;
+            _enforcingTimer.Stop();
+            _enforcingTimer.Interval = minutes * 60 * 1000;
+            _enforcingTimer.Start();
         }
 
-        public override void UpdateDatabaseTables(int version)
+        /// <summary>
+        /// starts enforcing the status infinitely
+        /// (until the enforcing is cancelled)
+        /// (doesn't change the status)
+        /// </summary>
+        private void StartInfiniteEnforcing()
         {
-            // not needed yet
+            Logger.WriteToConsole("FlowLight: Enforcing forever.");
+            _enforcing = true;
+        }
+
+        /// <summary>
+        /// stops the enforcing timer and sets enforcing to false
+        /// (doesn't change the status)
+        /// after this method has been called, FlowTracker can again change the state
+        /// </summary>
+        private void StopEnforcing()
+        {
+            Logger.WriteToConsole("FlowLight: Cancelling enforcing.");
+
+            _enforcingTimer.Stop();
+            _enforcing = false;
+        }
+
+        /// <summary>
+        /// This method is executed when the enforcing timer has elapsed.
+        /// It stops the enforcing (FlowTracker can change the status again)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void EnforcingTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            StopEnforcing();
+        }
+
+        /// <summary>
+        /// event arguments needed for the context menu of the application,
+        /// for the menu items where the user can set the light to a certain state
+        /// for e specified amount of minutes.
+        /// </summary>
+        public class MenuEventArgs : EventArgs
+        {
+            public Status Status { get; set; }
+            public int Minutes { get; set; }
+
+            public MenuEventArgs(Status status, int minutes)
+            {
+                Status = status;
+                Minutes = minutes;
+            }
+        }
+
+        /// <summary>
+        /// This method handles the event if the user clicked on a context menu item to
+        /// change the status for a certain amount of minutes.
+        /// 
+        /// This overrides any other state that is already set or any other enforcing timer.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void EnforcingClicked(object sender, MenuEventArgs e)
+        {
+            StartTimedEnforcing(e.Minutes);
+            setStatus(Originator.User, e.Status);
+        }
+
+        
+
+        /// <summary>
+        /// This method handles if the computer is locked or unlocked and sets the status to
+        /// Away if it has just been locked, and to Free if it has just been unlocked.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        {
+            if (e.Reason == SessionSwitchReason.SessionLock)
+            {
+                setStatus(Originator.System, Status.Away);
+                _locked = true;
+            }
+            else if (e.Reason == SessionSwitchReason.SessionUnlock)
+            {
+                setStatus(Originator.System, Status.Free);
+                _locked = false;
+            }
         }
 
         #endregion
