@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Retrospection"
         xmlns:paColors="clr-namespace:Shared;assembly=Shared"
         mc:Ignorable="d"
-        Title="PersonalAnalytics: Settings" Height="600" Width="650" ResizeMode="NoResize">
+        Title="PersonalAnalytics: Settings" Height="680" Width="650" ResizeMode="NoResize">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -50,6 +50,9 @@
 
             <CheckBox x:Name="PolarEnabled" Margin="0 20 0 0" Content="Polar Tracker enabled" />
             <TextBlock x:Name="PolarHint" Margin="20 0 0 0" Foreground="Gray" Text="Hint: If enabled, this tracker collects your heartrate measurement with a Polar chestband."></TextBlock>
+
+            <CheckBox x:Name="FitbitEnabled" Margin="0 20 0 0" Content="Fitbit Tracker enabled" />
+            <TextBlock x:Name="FitbitHint" Margin="20 0 0 0" Foreground="Gray" Text="Hint: If enabled, this tracker collects your heartrate, sleep, activity and step data from your Fitbit account."></TextBlock>
         </StackPanel>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="10">

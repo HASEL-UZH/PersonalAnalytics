@@ -127,7 +127,7 @@ namespace PolarTracker
 
         public void ChangeEnableState(bool? polarTrackerEnabled)
         {
-            Console.WriteLine("PolarTracker is now " + (polarTrackerEnabled.Value ? "enabled" : "disabled"));
+            Console.WriteLine(Settings.TRACKER_NAME + " is now " + (polarTrackerEnabled.Value ? "enabled" : "disabled"));
             Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, polarTrackerEnabled.Value);
             Database.GetInstance().LogInfo("The participant updated the setting '" + Settings.TRACKER_ENEABLED_SETTING + "' to " + polarTrackerEnabled.Value);
 

@@ -27,6 +27,7 @@ namespace Retrospection
         private bool defaultTimeSpentShowProgramsEnabled;
         private bool defaultTimeSpentShowEmailsEnabled;
         private bool defaultPolarTrackerEnabled;
+        private bool defaultFitbitTrackerEnabled;
 
         private string minutesStr = " minutes";
         private List<ITracker> _trackers;
@@ -52,6 +53,7 @@ namespace Retrospection
             defaultTimeSpentShowProgramsEnabled = dto.TimeSpentShowProgramsEnabled.Value;
             defaultTimeSpentShowEmailsEnabled = dto.TimeSpentShowEmailsEnabled.Value;
             defaultPolarTrackerEnabled = dto.PolarTrackerEnabled.Value;
+            defaultFitbitTrackerEnabled = dto.FitbitTrackerEnabled.Value;
 
             // no changes yet, disable buttons by default
             SaveButtonsEnabled(false);
@@ -92,6 +94,10 @@ namespace Retrospection
             PolarEnabled.IsChecked = defaultPolarTrackerEnabled;
             PolarEnabled.Checked += CbChecked_Update;
             PolarEnabled.Unchecked += CbChecked_Update;
+
+            FitbitEnabled.IsChecked = defaultFitbitTrackerEnabled;
+            FitbitEnabled.Checked += CbChecked_Update;
+            FitbitEnabled.Unchecked += CbChecked_Update;
         }
         
         #region User Changed Values
@@ -123,7 +129,8 @@ namespace Retrospection
                  (defaultOpenRetrospectionInFullScreen != CbOpenRetrospectionInFullScreen.IsChecked.Value) ||
                  (defaultTimeSpentShowEmailsEnabled != CbTimeSpentShowEmailsEnabled.IsChecked.Value) ||
                  (defaultTimeSpentShowProgramsEnabled != CbTimeSpentShowProgramsEnabled.IsChecked.Value) ||
-                 (defaultPolarTrackerEnabled != PolarEnabled.IsChecked.Value)
+                 (defaultPolarTrackerEnabled != PolarEnabled.IsChecked.Value) ||
+                 (defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value)
                  )
                 {
                     SaveButtonsEnabled(true);
@@ -202,6 +209,12 @@ namespace Retrospection
                     dto.PolarTrackerEnabled = PolarEnabled.IsChecked.Value;
                 }
                 else { dto.PolarTrackerEnabled = null; }
+
+                if (defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value)
+                {
+                    dto.FitbitTrackerEnabled = FitbitEnabled.IsChecked.Value;
+                }
+                else { dto.FitbitTrackerEnabled = null; }
             }
             catch { }
 

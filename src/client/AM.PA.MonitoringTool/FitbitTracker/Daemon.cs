@@ -43,9 +43,23 @@ namespace FitbitTracker
 
         public override void Start()
         {
-            Logger.WriteToConsole("Start Fitibit Tracker");
+            bool isFirstStart = !Database.GetInstance().HasSetting(Settings.TRACKER_ENEABLED_SETTING);
+
             FitbitConnector.RefreshTokenFail += FitbitConnector_RefreshTokenFail;
-            CheckIfTokenIsAvailable();
+
+            if (isFirstStart)
+            {
+                FirstStartWindow window = new FirstStartWindow();
+                window.ErrorEvent += Browser_ErrorEvent;
+                window.RegistrationTokenEvent += Browser_RegistrationTokenEvent;
+                window.ShowDialog();
+            }
+            else
+            {
+                CheckIfTokenIsAvailable();
+            }
+
+            Logger.WriteToConsole("Start Fitibit Tracker");
             CreateFitbitPullTimer();
             IsRunning = true;
         }
@@ -96,6 +110,22 @@ namespace FitbitTracker
             Logger.WriteToConsole("Couldn't register Fibit. FitbitTracker will be disabled.");
             IsRunning = false;
             Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, false);
+        }
+
+        public void ChangeEnabledState(bool? fibtitTrackerEnabled)
+        {
+            Console.WriteLine(Settings.TRACKER_NAME + " is now " + (fibtitTrackerEnabled.Value ? "enabled" : "disabled"));
+            Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, fibtitTrackerEnabled.Value);
+            Database.GetInstance().LogInfo("The participant updated the setting '" + Settings.TRACKER_ENEABLED_SETTING + "' to " + fibtitTrackerEnabled.Value);
+
+            if (fibtitTrackerEnabled.Value)
+            {
+                Start();
+            }
+            else
+            {
+                Stop();
+            }
         }
 
         //Called when new tokens were received from fitbit

@@ -66,6 +66,11 @@ namespace Shared.Data
                 {
                     if (GetPolarTracker() != null) GetPolarTracker().ChangeEnableState(updatedSettings.PolarTrackerEnabled);
                 }
+
+                if (updatedSettings.FitbitTrackerEnabled.HasValue)
+                {
+                    if (GetFitbitTracker() != null) GetFitbitTracker().ChangeEnabledState(updatedSettings.FitbitTrackerEnabled);
+                }
             }
             catch (Exception e)
             {
@@ -105,10 +110,27 @@ namespace Shared.Data
 
                 var polarTracker = GetPolarTracker();
                 dto.PolarTrackerEnabled = polarTracker.IsEnabled();
+
+                var fitbitTracker = GetFitbitTracker();
+                dto.FitbitTrackerEnabled = fitbitTracker.IsEnabled();
             } 
             catch { }
 
             return dto;
+        }
+
+        private FitbitTracker.Deamon GetFitbitTracker()
+        {
+            try
+            {
+                var tracker =
+                    _trackers.Where(t => t.GetType() == typeof(FitbitTracker.Deamon))
+                        .Cast<FitbitTracker.Deamon>()
+                        .FirstOrDefault();
+
+                return tracker;
+            }
+            catch { return null; }
         }
 
         private PolarTracker.Deamon GetPolarTracker()

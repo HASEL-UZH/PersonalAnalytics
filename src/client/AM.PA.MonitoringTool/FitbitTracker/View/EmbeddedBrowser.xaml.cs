@@ -15,6 +15,8 @@ namespace FitbitTracker.View
     //Browser view that is used to retrieve access tokens from fitbit
     public partial class EmbeddedBrowser : UserControl
     {
+        private bool embedded;
+
         //Called when process is finished
         public delegate void OnFinish();
         public event OnFinish FinishEvent;
@@ -27,11 +29,24 @@ namespace FitbitTracker.View
         public delegate void OnError();
         public event OnError ErrorEvent;
 
+        public EmbeddedBrowser()
+        {
+            embedded = true;
+            InitializeComponent();
+            PABrowser.Navigated += OnNavigation;
+        }
+
         public EmbeddedBrowser(string url)
         {
+            embedded = false;
             InitializeComponent();
             PABrowser.Navigate(url);
             PABrowser.Navigated += OnNavigation;
+        }
+
+        public void Navigate(string url)
+        {
+            PABrowser.Navigate(url);
         }
 
         //Called when navigation to a new URL is completed. Here we have to check the code parameter in the URL. It contains the first access token. If an error parameter is passed in the URL, we know that retrieving tokens failed.
@@ -44,12 +59,18 @@ namespace FitbitTracker.View
                     var queryDict = HttpUtility.ParseQueryString(e.Uri.Query);
                     string accessCode = queryDict.Get("code");
                     accessCode = accessCode.Replace("#_=_", "");
-                    ShowThanksScreen();
+                    if (!embedded)
+                    {
+                        ShowThanksScreen();
+                    }
                     RegistrationTokenEvent?.Invoke(accessCode);
                 }
                 else if (e.Uri.ToString().Contains("?error"))
                 {
-                    ShowErrorScreen();
+                    if (!embedded)
+                    {
+                        ShowErrorScreen();
+                    }
                     ErrorEvent?.Invoke();
                 }
             }

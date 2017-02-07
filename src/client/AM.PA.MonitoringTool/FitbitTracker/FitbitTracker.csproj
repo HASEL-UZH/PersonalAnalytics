@@ -87,6 +87,9 @@
     <Compile Include="Data\HeartRateDayData.cs" />
     <Compile Include="Data\HeartRateIntraDayData.cs" />
     <Compile Include="SecretStorage.cs" />
+    <Compile Include="View\FirstStartWindow.xaml.cs">
+      <DependentUpon>FirstStartWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Visualizations\SleepVisualizationForDay.cs" />
     <Compile Include="Visualizations\SleepVisualizationForWeek.cs" />
     <Compile Include="Visualizations\StepVisualizationForWeek.cs" />
@@ -108,6 +111,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="View\EmbeddedBrowser.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\FirstStartWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
