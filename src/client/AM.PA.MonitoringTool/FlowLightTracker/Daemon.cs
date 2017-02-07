@@ -25,8 +25,7 @@ namespace FlowLightTracker
         private Timer _enforcingTimer;
         private Blink1Client _lightClient;
         private LyncStatus _skypeClient;
-        private Status _currentSkypeStatus;
-        private FocusState _currentFlowState;
+        private Status _currentFlowLightStatus;
 
         #region ITracker Stuff
 
@@ -219,14 +218,21 @@ namespace FlowLightTracker
         /// <param name="newStatus"></param>
         private void setStatus(Originator originator, Status newStatus)
         {
-            if (originator != Originator.Skype)
+            //only do status changes if the new status is different from the old one
+            if (_currentFlowLightStatus != newStatus)
             {
                 // Skype should only be updated if it is origniated by someone else than Skype, otherwise it is already updated
-                _skypeClient.Status = newStatus;
-            }
+                if (originator != Originator.Skype)
+                {
+                    _skypeClient.Status = newStatus;
+                }
 
-            _currentSkypeStatus = newStatus;
-            _lightClient.Status = newStatus;
+                _currentFlowLightStatus = newStatus;
+                _lightClient.Status = newStatus;
+
+                Logger.WriteToConsole("FlowLight: The status was set by " + originator + " to " + newStatus + ".");
+                Database.GetInstance().LogInfo("FlowLight: The status was set by " + originator + " to " + newStatus + ".");
+            }
         }
 
         /// <summary>
@@ -248,8 +254,6 @@ namespace FlowLightTracker
                     setStatus(Originator.FlowTracker, Status.DoNotDisturb);
                     break;
             }
-
-            _currentFlowState = newStatus;
         }
 
         #region Enforcing state for a certain time or infinitely
