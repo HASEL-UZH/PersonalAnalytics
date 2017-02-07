@@ -8,6 +8,7 @@ using Shared;
 using FitbitTracker.Data;
 using Shared.Helpers;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FitbitTracker
 {
@@ -32,16 +33,16 @@ namespace FitbitTracker
             
             int first = (values.FindIndex(x => x.Item2 != 0));
             int last = (values.FindLastIndex(x => x.Item2 != 0));
-
+            
             double sum = 0;
             for (int i = 0; i < values.Count; i++)
             {
                 sum += values[i].Item2;
             }
 
-            double average = sum / (last - first);
+            double average = sum / ((last - first) + 1);
 
-            for (int i = first; i < last; i++)
+            for (int i = first; i <= last; i++)
             {
                 data += "{'x':'" + values[i].Item1.ToString(Settings.FORMAT_TIME) + "', 'y':" + values[i].Item2 + ", 'a':" + average + "},";
             }
@@ -192,12 +193,15 @@ namespace FitbitTracker
             int first = (values.FindIndex(x => x.Item2 != 0));
             int last = (values.FindLastIndex(x => x.Item2 != 0));
 
-            for (int i = first; i < last; i = i + 2)
+            for (int i = first; i <= last; i = i + 2)
             {
                 ticks += "'" + values[i].Item1.ToString(Settings.FORMAT_TIME) + "',";
             }
 
-            ticks = ticks.Substring(0, ticks.Length - 1);
+            if (!ticks.Equals(string.Empty))
+            {
+                ticks = ticks.Substring(0, ticks.Length - 1);
+            }
 
             return ticks;
         }
