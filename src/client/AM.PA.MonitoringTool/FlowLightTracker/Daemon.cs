@@ -27,7 +27,6 @@ namespace FlowLightTracker
         private LyncStatus _skypeClient;
         private Status _currentSkypeStatus;
         private FocusState _currentFlowState;
-        private bool _updating;
 
         #region ITracker Stuff
 
@@ -40,7 +39,7 @@ namespace FlowLightTracker
         }
         public override void CreateDatabaseTablesIfNotExist()
         {
-            //TODO: Add a table that logs the status changes and the source, also always log the current color of the light
+            // not needed
         }
 
         public override void UpdateDatabaseTables(int version)
@@ -114,7 +113,6 @@ namespace FlowLightTracker
             IsRunning = true;
         }
 
-
         public override void Stop()
         {
             if (_updateTimer != null)
@@ -132,6 +130,26 @@ namespace FlowLightTracker
         #endregion
 
         #region Daemon
+
+        /// <summary>
+        /// This method handles if the computer is locked or unlocked and sets the status to
+        /// Away if it has just been locked, and to Free if it has just been unlocked.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+        {
+            if (e.Reason == SessionSwitchReason.SessionLock)
+            {
+                setStatus(Originator.System, Status.Away);
+                _locked = true;
+            }
+            else if (e.Reason == SessionSwitchReason.SessionUnlock)
+            {
+                setStatus(Originator.System, Status.Free);
+                _locked = false;
+            }
+        }
 
         /// <summary>
         /// is run when the update timer elapsed and sets the status according to 
@@ -171,7 +189,7 @@ namespace FlowLightTracker
 
             // Ignore all changes from Skype if the workstation is locked. 
             // Reason: Sometimes Skype cannot reflect the correct status (Away) when the computer is locked.
-            if (!_locked && !e.Outside)
+            if (!_locked && e.Outside)
             {
                 if (_enforcing)
                 {
@@ -201,18 +219,14 @@ namespace FlowLightTracker
         /// <param name="newStatus"></param>
         private void setStatus(Originator originator, Status newStatus)
         {
-            _updating = true;
-
             if (originator != Originator.Skype)
             {
-                // Skype should only be updated if it is origniated by FlowTracker, otherwise it is already updated
+                // Skype should only be updated if it is origniated by someone else than Skype, otherwise it is already updated
                 _skypeClient.Status = newStatus;
             }
 
             _currentSkypeStatus = newStatus;
             _lightClient.Status = newStatus;
-
-            _updating = false;
         }
 
         /// <summary>
@@ -237,6 +251,8 @@ namespace FlowLightTracker
 
             _currentFlowState = newStatus;
         }
+
+        #region Enforcing state for a certain time or infinitely
 
         /// <summary>
         /// starts a timer for the specified amount of minutes to enforce the status
@@ -318,27 +334,7 @@ namespace FlowLightTracker
             setStatus(Originator.User, e.Status);
         }
 
-        
-
-        /// <summary>
-        /// This method handles if the computer is locked or unlocked and sets the status to
-        /// Away if it has just been locked, and to Free if it has just been unlocked.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
-        {
-            if (e.Reason == SessionSwitchReason.SessionLock)
-            {
-                setStatus(Originator.System, Status.Away);
-                _locked = true;
-            }
-            else if (e.Reason == SessionSwitchReason.SessionUnlock)
-            {
-                setStatus(Originator.System, Status.Free);
-                _locked = false;
-            }
-        }
+        #endregion
 
         #endregion
     }
