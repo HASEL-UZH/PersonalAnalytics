@@ -215,6 +215,7 @@ namespace PolarTracker.Visualizations
                         {
                             if (i == 0)
                             {
+                                if (tuplesForThisMinute.Count == 1) { continue; }
                                 html += "{'ts': parseDate('" + tuplesForThisMinute[i].Item1.ToString(TIME_FORMAT) + "'), 'hr': " + tuplesForThisMinute[i + 1].Item2 + ", 'rmssd': " + ( (Double.IsNaN(tuplesForThisMinute[i].Item3) || (tuplesForThisMinute[i].Item3 > Settings.RR_DIFFERENCE_THRESHOLD)) ? "null" : tuplesForThisMinute[i].Item3.ToString() ) + "},";
                             }
                             else if (i + 1 == tuplesForThisMinute.Count)

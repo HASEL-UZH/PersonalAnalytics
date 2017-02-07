@@ -19,6 +19,14 @@ namespace PolarTracker
 
         //Database
         internal static readonly string TABLE_NAME = "polar";
+        internal static readonly string TABLE_NAME_AGGREGATED = "polar_aggregated";
+
+        //Settings
+        #if PilotManu_March17
+            internal static readonly bool IsDetailedCollectionAvailable = true;
+        #else
+            internal static readonly bool IsDetailedCollectionAvailable = true;
+        #endif
 
         //Visualization for week
         internal static readonly int NUMBER_OF_BUCKETS = 5;

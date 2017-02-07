@@ -17,6 +17,7 @@ using System.Drawing;
 using System.Collections.Concurrent;
 using System.Timers;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace PolarTracker
 {
@@ -36,6 +37,10 @@ namespace PolarTracker
         public Deamon()
         {
             Name = Settings.TRACKER_NAME;
+            if (Settings.IsDetailedCollectionAvailable)
+            {
+                Name += " (detailed)";
+            }
             
             LoggerWrapper.Instance.NewConsoleMessage += OnNewConsoleMessage;
             LoggerWrapper.Instance.NewLogFileMessage += OnNewLogFileMessage;
@@ -223,7 +228,22 @@ namespace PolarTracker
                         measurements.Add(measurement);
                     }
                 }
-                DatabaseConnector.AddHeartMeasurementsToDatabase(measurements);
+                if (Settings.IsDetailedCollectionAvailable)
+                {
+                    DatabaseConnector.AddHeartMeasurementsToDatabase(measurements);
+                }
+                else
+                {
+                    //TODO: Average list first and then add to DB
+                    HeartRateMeasurement average = new HeartRateMeasurement()
+                    {
+                        HeartRateValue = measurements.Where(x => !Double.IsNaN(x.HeartRateValue)).Average(x => x.HeartRateValue),
+                        RRDifference = measurements.Where(x => !Double.IsNaN(x.RRDifference)).Average(x => x.RRDifference),
+                        RRInterval = measurements.Where(x => !Double.IsNaN(x.RRInterval)).Average(x => x.RRInterval),
+                        Timestamp = measurements[0].Timestamp
+                    };
+                    DatabaseConnector.AddHeartMeasurementsToDatabase(new List<HeartRateMeasurement>() { average });
+                }
             }
             else
             {
