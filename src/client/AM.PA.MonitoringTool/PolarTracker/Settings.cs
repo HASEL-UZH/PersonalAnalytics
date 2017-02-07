@@ -25,7 +25,7 @@ namespace PolarTracker
         #if PilotManu_March17
             internal static readonly bool IsDetailedCollectionAvailable = true;
         #else
-            internal static readonly bool IsDetailedCollectionAvailable = false;
+            internal static readonly bool IsDetailedCollectionAvailable = true;
         #endif
 
         //Visualization for week

@@ -228,22 +228,20 @@ namespace PolarTracker
                         measurements.Add(measurement);
                     }
                 }
+
                 if (Settings.IsDetailedCollectionAvailable)
                 {
                     DatabaseConnector.AddHeartMeasurementsToDatabase(measurements, false);
                 }
-                else
+               
+                HeartRateMeasurement average = new HeartRateMeasurement()
                 {
-                    //TODO: Average list first and then add to DB
-                    HeartRateMeasurement average = new HeartRateMeasurement()
-                    {
                         HeartRateValue = measurements.Where(x => !Double.IsNaN(x.HeartRateValue)).Average(x => x.HeartRateValue),
                         RRDifference = measurements.Where(x => !Double.IsNaN(x.RRDifference)).Average(x => x.RRDifference),
                         RRInterval = measurements.Where(x => !Double.IsNaN(x.RRInterval)).Average(x => x.RRInterval),
                         Timestamp = measurements[0].Timestamp
-                    };
-                    DatabaseConnector.AddHeartMeasurementsToDatabase(new List<HeartRateMeasurement>() { average }, true);
-                }
+                };
+                DatabaseConnector.AddHeartMeasurementsToDatabase(new List<HeartRateMeasurement>() { average }, true);
             }
             else
             {
