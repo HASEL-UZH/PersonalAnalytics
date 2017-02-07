@@ -27,7 +27,6 @@ namespace PersonalAnalytics
         private static TrackerManager _manager; // singleton instance
         private static TrackerSettings _settings;
         private readonly List<ITracker> _trackers = new List<ITracker>();
-        private FlowLightTracker.Daemon flowLightTracker;
         public TaskbarIcon TaskbarIcon;
 
         private DispatcherTimer _taskbarIconTimer;
@@ -62,10 +61,6 @@ namespace PersonalAnalytics
             Register(new UserEfficiencyTracker.Daemon());
             Register(new UserInputTracker.Daemon());
             Register(new MsOfficeTracker.Daemon());
-            FocusLightTracker.Daemon flowTracker = new FocusLightTracker.Daemon();
-            Register(flowTracker);
-            flowLightTracker = new FlowLightTracker.Daemon(flowTracker);
-            Register(flowLightTracker);
 #if Dev
             //Register(new PeopleVisualizer.PeopleVisualizer()); // disabled, as it's not finished and pretty slow
             //Register(new WindowsContextTracker.Daemon();); // implementation not finished
@@ -137,6 +132,9 @@ namespace PersonalAnalytics
             Database.GetInstance().CreateTimeZoneTable();
             SaveCurrentTimeZone(null, null);
             SystemEvents.TimeChanged += SaveCurrentTimeZone;
+
+            // start the FlowLight
+            FlowLight.Handler.GetInstance().Start();
         }
 
         /// <summary>
@@ -221,6 +219,9 @@ namespace PersonalAnalytics
             // shutdown the visualization server
             Retrospection.Handler.GetInstance().Stop();
 
+            // stop the FlowLight
+            FlowLight.Handler.GetInstance().Stop();
+
             // stop timers & unregister
             if (_taskbarIconTimer != null) _taskbarIconTimer.Stop();
             if (_remindToContinueTrackerTimer != null) _remindToContinueTrackerTimer.Stop();
@@ -254,6 +255,9 @@ namespace PersonalAnalytics
                 tracker.Stop();
             }
             _isPaused = true;
+
+            // pause the FlowLight
+            FlowLight.Handler.GetInstance().Stop();
 
             if (_remindToContinueTrackerTimer == null)
             {
@@ -290,6 +294,10 @@ namespace PersonalAnalytics
                 tracker.Start();
             }
             _isPaused = false;
+
+            // resume the FlowLight
+            FlowLight.Handler.GetInstance().Start();
+
             Database.GetInstance().LogInfo("The participant resumed the trackers.");
         }
 
@@ -377,26 +385,27 @@ namespace PersonalAnalytics
             m5.Click += (o, i) => Retrospection.Handler.GetInstance().OpenRetrospectionInBrowser();
             TaskbarIcon.ContextMenu.Items.Add(m5);
 #endif
-
-            // FlowLight menu items to keep the light in a certain state for the specified time
-            //TODO: check if tracker is enabled                if (_settings.IsUserEfficiencyTrackerEnabled()) TaskbarIcon.ContextMenu.Items.Add(m2);
-            var m9 = new System.Windows.Controls.MenuItem { Header = "Keep Light ..." };
-            var m9Free = new System.Windows.Controls.MenuItem { Header = "Free" };
-            m9Free.Items.Add(initFlowLightSubMenuItem(Status.Free, 1));
-            m9Free.Items.Add(initFlowLightSubMenuItem(Status.Free, 2));
-            m9Free.Items.Add(initFlowLightSubMenuItem(Status.Free, 3));
-            var m9Busy = new System.Windows.Controls.MenuItem { Header = "Busy" };
-            m9Busy.Items.Add(initFlowLightSubMenuItem(Status.Busy, 1));
-            m9Busy.Items.Add(initFlowLightSubMenuItem(Status.Busy, 2));
-            m9Busy.Items.Add(initFlowLightSubMenuItem(Status.Busy, 3));
-            var m9DnD = new System.Windows.Controls.MenuItem { Header = "Do not Disturb" };
-            m9DnD.Items.Add(initFlowLightSubMenuItem(Status.DoNotDisturb, 1));
-            m9DnD.Items.Add(initFlowLightSubMenuItem(Status.DoNotDisturb, 2));
-            m9DnD.Items.Add(initFlowLightSubMenuItem(Status.DoNotDisturb, 3));
-            m9.Items.Add(m9Free);
-            m9.Items.Add(m9Busy);
-            m9.Items.Add(m9DnD);
-            TaskbarIcon.ContextMenu.Items.Add(m9);
+            if (FlowLight.Handler.GetInstance().FlowLightEnabled)
+            {
+                // FlowLight menu items to keep the light in a certain state for the specified time
+                var m9 = new System.Windows.Controls.MenuItem { Header = "Keep Light ..." };
+                var m9Free = new System.Windows.Controls.MenuItem { Header = "Free" };
+                m9Free.Items.Add(initFlowLightSubMenuItem(Status.Free, 1));
+                m9Free.Items.Add(initFlowLightSubMenuItem(Status.Free, 2));
+                m9Free.Items.Add(initFlowLightSubMenuItem(Status.Free, 3));
+                var m9Busy = new System.Windows.Controls.MenuItem { Header = "Busy" };
+                m9Busy.Items.Add(initFlowLightSubMenuItem(Status.Busy, 1));
+                m9Busy.Items.Add(initFlowLightSubMenuItem(Status.Busy, 2));
+                m9Busy.Items.Add(initFlowLightSubMenuItem(Status.Busy, 3));
+                var m9DnD = new System.Windows.Controls.MenuItem { Header = "Do not Disturb" };
+                m9DnD.Items.Add(initFlowLightSubMenuItem(Status.DoNotDisturb, 1));
+                m9DnD.Items.Add(initFlowLightSubMenuItem(Status.DoNotDisturb, 2));
+                m9DnD.Items.Add(initFlowLightSubMenuItem(Status.DoNotDisturb, 3));
+                m9.Items.Add(m9Free);
+                m9.Items.Add(m9Busy);
+                m9.Items.Add(m9DnD);
+                TaskbarIcon.ContextMenu.Items.Add(m9);
+            }
 
             var m3 = new System.Windows.Controls.MenuItem { Header = "Pause Tracker" };
             m3.Click += (o, i) => PauseContinueTracker(m3);
@@ -428,7 +437,7 @@ namespace PersonalAnalytics
         private System.Windows.Controls.MenuItem initFlowLightSubMenuItem(Status status, int minutes)
         {
             var menuItem = new System.Windows.Controls.MenuItem { Header = minutes + " min" };
-            menuItem.Click += (sender, e) => flowLightTracker.EnforcingClicked(menuItem, new FlowLightTracker.Daemon.MenuEventArgs(status, minutes));
+            menuItem.Click += (sender, e) => FlowLight.Handler.GetInstance().EnforcingClicked(menuItem, new FlowLight.Handler.MenuEventArgs(status, minutes));
             menuItem.Click += FlowLightEnforcingClicked;
 
             return menuItem;
@@ -449,7 +458,7 @@ namespace PersonalAnalytics
             if (rootMenuItem.Items.Count == 3)
             {
                 var resetMenuItem = new System.Windows.Controls.MenuItem { Header = "Reset" };
-                resetMenuItem.Click += flowLightTracker.ResetEnforcingClicked;
+                resetMenuItem.Click += FlowLight.Handler.GetInstance().ResetEnforcingClicked;
                 resetMenuItem.Click += ResetMenuItem_Click;
                 rootMenuItem.Items.Add(resetMenuItem);
             }

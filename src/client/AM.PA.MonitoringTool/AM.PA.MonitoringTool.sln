@@ -21,7 +21,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimeSpentVisualizerTests", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MsOfficeTracker", "MsOfficeTracker\MsOfficeTracker.csproj", "{82ED616D-1508-41C5-A72A-B6A4F7C9B7E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowLightTracker", "FlowLightTracker\FlowLightTracker.csproj", "{CBCF1A82-62FA-4162-8036-62038CA00401}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowLight", "FlowLightTracker\FlowLight.csproj", "{CBCF1A82-62FA-4162-8036-62038CA00401}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

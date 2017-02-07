@@ -88,10 +88,10 @@
                        Text="Hint: If you enable it, you need to log-in with your Office 365 work account. This tracker will then regularly collect the meetings in your calendar, and the number of emails sent, received and your inbox size. The contents of the emails and meetings are NOT accessed."
                        TextWrapping="Wrap" />
 
-            <CheckBox x:Name="CbFlowLightTrackerEnabled"
+            <CheckBox x:Name="CbFlowLightEnabled"
                       Margin="0 20 0 0"
                       Content="FlowLight enabled" />
-            <TextBlock x:Name="TbFlowLightTrackerEnabledHint"
+            <TextBlock x:Name="TbFlowLightEnabledHint"
                        Margin="20,0,0,0"
                        Foreground="Gray"
                        Text="Hint: If you enable it, your Skype for Business status and your FlowLight will be updated automatically based on your activity on the computer and your calender events."

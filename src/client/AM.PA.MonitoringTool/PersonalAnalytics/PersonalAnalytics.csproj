@@ -248,9 +248,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FlowLightTracker\FlowLightTracker.csproj">
+    <ProjectReference Include="..\FlowLightTracker\FlowLight.csproj">
       <Project>{cbcf1a82-62fa-4162-8036-62038ca00401}</Project>
-      <Name>FlowLightTracker</Name>
+      <Name>FlowLight</Name>
     </ProjectReference>
     <ProjectReference Include="..\TimeSpentVisualizer\TimeSpentVisualizer.csproj">
       <Project>{8eba3b95-be0e-4498-9eac-20d417176a00}</Project>

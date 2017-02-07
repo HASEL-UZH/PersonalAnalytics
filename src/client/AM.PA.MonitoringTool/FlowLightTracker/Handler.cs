@@ -12,13 +12,15 @@ using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 
-namespace FlowLightTracker
+namespace FlowLight
 {
-    public class Daemon : BaseTracker, ITracker
+    public class Handler
     {
         enum Originator {System, Skype, FlowTracker, User };
 
-        private bool _flowLightTrackerEnabled;
+        public bool IsRunning;
+        private static Handler _handler;
+        private bool _flowLightEnabled;
         private FocusLightTracker.Daemon _flowTracker;
         private Timer _updateTimer;
         private bool _locked;
@@ -28,49 +30,33 @@ namespace FlowLightTracker
         private LyncStatus _skypeClient;
         private Status _currentFlowLightStatus;
 
-        #region ITracker Stuff
+        #region Start/Stop & Initialization of Singleton
 
-        public Daemon(FocusLightTracker.Daemon flowTracker)
+        public static Handler GetInstance()
         {
-            Name = "FlowLight Tracker";
-            _flowTracker = flowTracker;
+            return _handler ?? (_handler = new Handler());
+        }
+
+        public Handler()
+        {
+            _flowTracker = new FocusLightTracker.Daemon();
             _lightClient = new Blink1Client();
             _skypeClient = new LyncStatus();
         }
-        public override void CreateDatabaseTablesIfNotExist()
-        {
-            // not needed
-        }
 
-        public override void UpdateDatabaseTables(int version)
-        {
-            // not needed yet
-        }
-
-        public override string GetVersion()
-        {
-            var v = new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version;
-            return Shared.Helpers.VersionHelper.GetFormattedVersion(v);
-        }
-
-        public override bool IsEnabled()
-        {
-            return FlowLightTrackerEnabled;
-        }
-
-        public bool FlowLightTrackerEnabled
+        public bool FlowLightEnabled
         {
             get
             {
-                _flowLightTrackerEnabled = Database.GetInstance().GetSettingsBool("FlowLightTrackerEnabled", Settings.IsEnabledByDefault);
-                return _flowLightTrackerEnabled;
+                _flowLightEnabled = Database.GetInstance().GetSettingsBool("FlowLightTrackerEnabled", Settings.IsEnabledByDefault);
+                return _flowLightEnabled;
             }
             set
             {
                 var updatedIsEnabled = value;
 
                 // only update if settings changed
-                if (updatedIsEnabled == _flowLightTrackerEnabled) return;
+                if (updatedIsEnabled == _flowLightEnabled) return;
 
                 // update settings
                 Database.GetInstance().SetSettings("FlowLightTrackerEnabled", value);
@@ -90,8 +76,11 @@ namespace FlowLightTracker
             }
         }
 
-        public override void Start()
+        public void Start()
         {
+            //start the FlowTracker
+            _flowTracker.Start();
+
             //register and start update timer (for FlowTracker)
             if (_updateTimer != null)
                 Stop();
@@ -113,8 +102,10 @@ namespace FlowLightTracker
             IsRunning = true;
         }
 
-        public override void Stop()
+        public void Stop()
         {
+            _flowTracker.Stop();
+
             if (_updateTimer != null)
             {
                 _updateTimer.Stop();
@@ -129,7 +120,7 @@ namespace FlowLightTracker
 
         #endregion
 
-        #region Daemon
+        #region FlowLight
 
         /// <summary>
         /// This method handles if the computer is locked or unlocked and sets the status to

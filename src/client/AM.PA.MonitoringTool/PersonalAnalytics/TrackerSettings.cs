@@ -61,9 +61,9 @@ namespace Shared.Data
                     if (GetMSOfficeTracker() != null) GetMSOfficeTracker().MsOfficeTrackerEnabled = updatedSettings.Office365ApiEnabled.Value;
                     //if (GetPeopleVisualizer() != null) GetPeopleVisualizer().PeopleVisualizerEnabled = updatedSettings.Office365ApiEnabled.Value;
                 }
-                if (updatedSettings.FlowLightTrackerEnabled.HasValue)
+                if (updatedSettings.FlowLightEnabled.HasValue)
                 {
-                    if (GetFlowLightTracker() != null) GetFlowLightTracker().FlowLightTrackerEnabled = updatedSettings.FlowLightTrackerEnabled.Value;
+                    if (GetFlowLight() != null) GetFlowLight().FlowLightEnabled = updatedSettings.FlowLightEnabled.Value;
                 }
             }
             catch (Exception e)
@@ -102,8 +102,8 @@ namespace Shared.Data
                 //else if (peopleVisualizer != null && msOfficeTracker == null) dto.Office365ApiEnabled = peopleVisualizer.PeopleVisualizerEnabled;
                 //else dto.Office365ApiEnabled = false;
 
-                var flowLightTracker = GetFlowLightTracker();
-                if (flowLightTracker != null) dto.FlowLightTrackerEnabled = flowLightTracker.FlowLightTrackerEnabled;
+                var flowLightTracker = GetFlowLight();
+                if (flowLightTracker != null) dto.FlowLightEnabled = flowLightTracker.FlowLightEnabled;
             } 
             catch { }
 
@@ -187,13 +187,13 @@ namespace Shared.Data
             else return false;
         }
 
-        private FlowLightTracker.Daemon GetFlowLightTracker()
+        private FlowLight.Handler GetFlowLight()
         {
             try
             {
                 var tracker =
-                    _trackers.Where(t => t.GetType() == typeof(FlowLightTracker.Daemon))
-                        .Cast<FlowLightTracker.Daemon>()
+                    _trackers.Where(t => t.GetType() == typeof(FlowLight.Handler))
+                        .Cast<FlowLight.Handler>()
                         .FirstOrDefault();
 
                 return tracker;
