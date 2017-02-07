@@ -335,11 +335,11 @@ namespace FitbitTracker.Data
         internal static void SaveActivityData(ActivityData activityData, DateTimeOffset day)
         {
             string query = string.Empty;
-            query += String.Format(UPDATE_ACTIVITY_SUMMARY, "'" + new DateTime(day.Year, day.Month, day.Day).ToString(Settings.FORMAT_DAY) + "'", "'" + DateTime.Now.ToString(Settings.FORMAT_DAY) + "'", activityData.Summary.ActiveScore, activityData.Summary.Elevation, activityData.Summary.FairlyActiveMinutes, activityData.Summary.Floors, activityData.Summary.LightlyActiveMinutes, activityData.Summary.SedentaryMinutes, activityData.Summary.Steps, ReplaceNaNValues(activityData.Summary.Steps), activityData.Summary.VeryActiveMinutes);
+            query += String.Format(UPDATE_ACTIVITY_SUMMARY, "'" + new DateTime(day.Year, day.Month, day.Day).ToString(Settings.FORMAT_DAY) + "'", "'" + DateTime.Now.ToString(Settings.FORMAT_DAY) + "'", activityData.Summary.ActiveScore, activityData.Summary.Elevation, activityData.Summary.FairlyActiveMinutes, activityData.Summary.Floors, activityData.Summary.LightlyActiveMinutes, activityData.Summary.SedentaryMinutes, ReplaceNaNValues(activityData.Summary.Steps), activityData.Summary.VeryActiveMinutes);
             Database.GetInstance().ExecuteDefaultQuery(query);
 
             query = string.Empty;
-            query += String.Format(INSERT_OR_IGNORE_ACTIVITY_SUMMARY, "'" + new DateTime(day.Year, day.Month, day.Day).ToString(Settings.FORMAT_DAY) + "'", "'" + DateTime.Now.ToString(Settings.FORMAT_DAY) + "'", activityData.Summary.ActiveScore, activityData.Summary.Elevation, activityData.Summary.FairlyActiveMinutes, activityData.Summary.Floors, activityData.Summary.LightlyActiveMinutes, activityData.Summary.SedentaryMinutes, ReplaceNaNValues(activityData.Summary.Steps), activityData.Summary.Steps, activityData.Summary.VeryActiveMinutes);
+            query += String.Format(INSERT_OR_IGNORE_ACTIVITY_SUMMARY, "'" + new DateTime(day.Year, day.Month, day.Day).ToString(Settings.FORMAT_DAY) + "'", "'" + DateTime.Now.ToString(Settings.FORMAT_DAY) + "'", activityData.Summary.ActiveScore, activityData.Summary.Elevation, activityData.Summary.FairlyActiveMinutes, activityData.Summary.Floors, activityData.Summary.LightlyActiveMinutes, activityData.Summary.SedentaryMinutes, ReplaceNaNValues(activityData.Summary.Steps), activityData.Summary.VeryActiveMinutes);
             Database.GetInstance().ExecuteDefaultQuery(query);
         }
 
