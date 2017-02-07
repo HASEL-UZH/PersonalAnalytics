@@ -230,7 +230,7 @@ namespace PolarTracker
                 }
                 if (Settings.IsDetailedCollectionAvailable)
                 {
-                    DatabaseConnector.AddHeartMeasurementsToDatabase(measurements);
+                    DatabaseConnector.AddHeartMeasurementsToDatabase(measurements, false);
                 }
                 else
                 {
@@ -242,7 +242,7 @@ namespace PolarTracker
                         RRInterval = measurements.Where(x => !Double.IsNaN(x.RRInterval)).Average(x => x.RRInterval),
                         Timestamp = measurements[0].Timestamp
                     };
-                    DatabaseConnector.AddHeartMeasurementsToDatabase(new List<HeartRateMeasurement>() { average });
+                    DatabaseConnector.AddHeartMeasurementsToDatabase(new List<HeartRateMeasurement>() { average }, true);
                 }
             }
             else

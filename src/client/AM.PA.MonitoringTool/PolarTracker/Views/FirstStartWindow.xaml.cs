@@ -96,7 +96,7 @@ namespace PolarTracker.Views
             Database.GetInstance().LogInfo("The participant updated the setting '" + Settings.TRACKER_ENEABLED_SETTING + "' to True");
             Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, true);
             device = Devices.SelectedItem as PortableBluetoothDeviceInformation;
-            Database.GetInstance().SetSettings(Settings.HEARTRATE_TRACKER_ID_SETTING, device.Id);
+            Database.GetInstance().SetSettings(Settings.HEARTRATE_TRACKER_ID_SETTING, device.Name);
 
             Logger.WriteToConsole("The participant updated the setting '" + Settings.TRACKER_ENEABLED_SETTING + "' to True. Choosen device: " + device.Name);
             this.Close();

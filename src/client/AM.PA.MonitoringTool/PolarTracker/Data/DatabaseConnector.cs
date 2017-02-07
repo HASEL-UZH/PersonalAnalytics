@@ -22,8 +22,13 @@ namespace PolarTracker.Data
         private const string DIFFERENCE_RRINTERVAL = "rrdifference";
         
         private static readonly string CREATE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.TABLE_NAME + " (" + ID + " INTEGER PRIMARY KEY, " + TIME + " TEXT, " + HEARTRATE + " INTEGER, " + RRINTERVAL + " DOUBLE, " + DIFFERENCE_RRINTERVAL + " DOUBLE)";
+        private static readonly string CREATE_AGGREGATED_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.TABLE_NAME_AGGREGATED + " (" + ID + " INTEGER PRIMARY KEY, " + TIME + " TEXT, " + HEARTRATE + " INTEGER, " + RRINTERVAL + " DOUBLE, " + DIFFERENCE_RRINTERVAL + " DOUBLE)";
+
         private static readonly string INSERT_QUERY = "INSERT INTO " + Settings.TABLE_NAME + "(" + TIME + ", " + HEARTRATE + ", " + RRINTERVAL + ", " + DIFFERENCE_RRINTERVAL + ") VALUES ('{0}', {1}, {2}, {3})";
+        private static readonly string INSERT_QUERY_AGGREGATED = "INSERT INTO " + Settings.TABLE_NAME_AGGREGATED + "(" + TIME + ", " + HEARTRATE + ", " + RRINTERVAL + ", " + DIFFERENCE_RRINTERVAL + ") VALUES ('{0}', {1}, {2}, {3})";
+
         private static readonly string INSERT_QUERY_MULTIPLE_VALUES = "INSERT INTO " + Settings.TABLE_NAME + " SELECT null AS " + ID + ", " + "'{0}' AS " + TIME + ", {1} AS " + HEARTRATE + ", {2} AS " + RRINTERVAL + ", {3} AS " + DIFFERENCE_RRINTERVAL;
+        private static readonly string INSERT_QUERY_MULTIPLE_VALUES_AGGREGATED = "INSERT INTO " + Settings.TABLE_NAME_AGGREGATED + " SELECT null AS " + ID + ", " + "'{0}' AS " + TIME + ", {1} AS " + HEARTRATE + ", {2} AS " + RRINTERVAL + ", {3} AS " + DIFFERENCE_RRINTERVAL;
 
         #region create
         internal static void CreatePolarTables()
@@ -31,6 +36,7 @@ namespace PolarTracker.Data
             try
             {
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_QUERY);
+                Database.GetInstance().ExecuteDefaultQuery(CREATE_AGGREGATED_QUERY);
             }
             catch (Exception e)
             {
@@ -40,23 +46,10 @@ namespace PolarTracker.Data
         #endregion
 
         #region insert
-        internal static void AddHeartMeasurementToDatabase(String timestamp, double heartrate, double rrInterval, double rrDifference)
+        
+        internal static void AddHeartMeasurementsToDatabase(List<HeartRateMeasurement> measurements, bool aggregated)
         {
-            try
-            {
-                string query = string.Empty;
-                query += String.Format(INSERT_QUERY, timestamp, Double.IsNaN(heartrate) ? "null" : heartrate.ToString(), rrInterval, Double.IsNaN(rrDifference) ? "null" : rrDifference.ToString());
-                Database.GetInstance().ExecuteDefaultQuery(query);
-            }
-            catch (Exception e)
-            {
-                Logger.WriteToLogFile(e);
-            }
-        }
-
-        internal static void AddHeartMeasurementsToDatabase(List<HeartRateMeasurement> measurements)
-        {
-            try
+             try
             {
                 if (measurements.Count == 0)
                 {
@@ -65,13 +58,29 @@ namespace PolarTracker.Data
                 else if (measurements.Count == 1)
                 {
                     string query = string.Empty;
-                    query += String.Format(INSERT_QUERY, measurements[0].Timestamp, Double.IsNaN(measurements[0].HeartRateValue) ? "null" : measurements[0].HeartRateValue.ToString(), measurements[0].RRInterval, Double.IsNaN(measurements[0].RRDifference) ? "null" : measurements[0].RRDifference.ToString());
+
+                    if (!aggregated)
+                    {
+                        query += String.Format(INSERT_QUERY, measurements[0].Timestamp, Double.IsNaN(measurements[0].HeartRateValue) ? "null" : measurements[0].HeartRateValue.ToString(), measurements[0].RRInterval, Double.IsNaN(measurements[0].RRDifference) ? "null" : measurements[0].RRDifference.ToString());
+                    }
+                    else
+                    {
+                        query += String.Format(INSERT_QUERY_AGGREGATED, measurements[0].Timestamp, Double.IsNaN(measurements[0].HeartRateValue) ? "null" : measurements[0].HeartRateValue.ToString(), measurements[0].RRInterval, Double.IsNaN(measurements[0].RRDifference) ? "null" : measurements[0].RRDifference.ToString());
+                    }
                     Database.GetInstance().ExecuteDefaultQuery(query);
                 }
                 else
                 {
                     string query = string.Empty;
-                    query += String.Format(INSERT_QUERY_MULTIPLE_VALUES, measurements[0].Timestamp, Double.IsNaN(measurements[0].HeartRateValue) ? "null" : measurements[0].HeartRateValue.ToString(), measurements[0].RRInterval, Double.IsNaN(measurements[0].RRDifference) ? "null" : measurements[0].RRDifference.ToString());
+
+                    if (!aggregated)
+                    {
+                        query += String.Format(INSERT_QUERY_MULTIPLE_VALUES, measurements[0].Timestamp, Double.IsNaN(measurements[0].HeartRateValue) ? "null" : measurements[0].HeartRateValue.ToString(), measurements[0].RRInterval, Double.IsNaN(measurements[0].RRDifference) ? "null" : measurements[0].RRDifference.ToString());
+                    }
+                    else
+                    {
+                        query += String.Format(INSERT_QUERY_MULTIPLE_VALUES_AGGREGATED, measurements[0].Timestamp, Double.IsNaN(measurements[0].HeartRateValue) ? "null" : measurements[0].HeartRateValue.ToString(), measurements[0].RRInterval, Double.IsNaN(measurements[0].RRDifference) ? "null" : measurements[0].RRDifference.ToString());
+                    }
 
                     for (int i = 1; i < measurements.Count; i++)
                     {
@@ -95,7 +104,9 @@ namespace PolarTracker.Data
         {
             List<Tuple<DateTime, double, double>> result = new List<Tuple<DateTime, double, double>>();
 
-            var query = "SELECT " + "STRFTIME('%Y-%m-%d %H:%M', " + TIME + ")" + ", AVG(" + HEARTRATE + "), AVG(" + DIFFERENCE_RRINTERVAL + "*" + DIFFERENCE_RRINTERVAL + ") FROM " + Settings.TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, TIME) + "GROUP BY strftime('%H:%M', " + TIME + ");";
+            string tableName = Settings.IsDetailedCollectionAvailable ? Settings.TABLE_NAME : Settings.TABLE_NAME_AGGREGATED;
+
+            var query = "SELECT " + "STRFTIME('%Y-%m-%d %H:%M', " + TIME + ")" + ", AVG(" + HEARTRATE + "), AVG(" + DIFFERENCE_RRINTERVAL + "*" + DIFFERENCE_RRINTERVAL + ") FROM " + tableName + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, TIME) + "GROUP BY strftime('%H:%M', " + TIME + ");";
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
             foreach (DataRow row in table.Rows)
@@ -143,11 +154,37 @@ namespace PolarTracker.Data
         {
             return GetPolarValuesForWeek(date, HEARTRATE);
         }
+        
+        private static List<Tuple<DateTime, double>> GetPolarValuesForWeek(DateTimeOffset date, String column)
+        {
+            var result = new List<Tuple<DateTime, double>>();
+
+            string tableName = Settings.IsDetailedCollectionAvailable ? Settings.TABLE_NAME : Settings.TABLE_NAME_AGGREGATED;
+
+            var query = "SELECT strftime('%Y-%m-%d %H'," + TIME + "), avg(" + column + ") FROM " + tableName + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Week, date, TIME) + "AND " + column + " <= " + GetThresholdValue(column) + " GROUP BY strftime('%Y-%m-%d %H',time);";
+            var table = Database.GetInstance().ExecuteReadQuery(query);
+
+            foreach (DataRow row in table.Rows)
+            {
+                var timestamp = (String)row[0];
+                double value = Double.NaN;
+                if (row[1] != DBNull.Value)
+                {
+                   double.TryParse(row[1].ToString(), out value);
+                }
+                result.Add(new Tuple<DateTime, double>(DateTime.ParseExact(timestamp, "yyyy-MM-dd H", CultureInfo.InvariantCulture), value));
+            }
+            table.Dispose();
+
+            return result;
+        }
+
+        #region Helper
 
         internal static List<Tuple<DateTime, double>> GetRMSSDValuesForWeek(DateTimeOffset date)
         {
             var result = new List<Tuple<DateTime, double>>();
-            
+
             //Go back to Monday
             while (date.DayOfWeek != DayOfWeek.Monday)
             {
@@ -165,13 +202,13 @@ namespace PolarTracker.Data
             result.AddRange(CalculateHourAverage(GetPolarValuesForDay(date)));
             return result;
         }
-        
+
         private static List<Tuple<DateTime, double>> CalculateHourAverage(List<Tuple<DateTime, double, double>> values)
         {
             Console.WriteLine(values.Count);
 
             var result = new List<Tuple<DateTime, double>>();
-            
+
             if (values.Count > 0)
             {
                 DateTime firstHour = values[0].Item1;
@@ -213,28 +250,6 @@ namespace PolarTracker.Data
             result.Add(createTuple);
         }
 
-        private static List<Tuple<DateTime, double>> GetPolarValuesForWeek(DateTimeOffset date, String column)
-        {
-            var result = new List<Tuple<DateTime, double>>();
-
-            var query = "SELECT strftime('%Y-%m-%d %H'," + TIME + "), avg(" + column + ") FROM " + Settings.TABLE_NAME + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Week, date, TIME) + "AND " + column + " <= " + GetThresholdValue(column) + " GROUP BY strftime('%Y-%m-%d %H',time);";
-            var table = Database.GetInstance().ExecuteReadQuery(query);
-
-            foreach (DataRow row in table.Rows)
-            {
-                var timestamp = (String)row[0];
-                double value = Double.NaN;
-                if (row[1] != DBNull.Value)
-                {
-                   double.TryParse(row[1].ToString(), out value);
-                }
-                result.Add(new Tuple<DateTime, double>(DateTime.ParseExact(timestamp, "yyyy-MM-dd H", CultureInfo.InvariantCulture), value));
-            }
-            table.Dispose();
-
-            return result;
-        }
-
         private static double GetThresholdValue(string column)
         {
             switch(column)
@@ -260,6 +275,7 @@ namespace PolarTracker.Data
             }
             return false;
         }
+        #endregion
 
         #endregion
 
@@ -267,7 +283,8 @@ namespace PolarTracker.Data
 
         internal static DateTime GetLastTimeSynced()
         {
-            var query = "SELECT Time FROM polar Order By time DESC LIMIT 1";
+            string tableName = Settings.IsDetailedCollectionAvailable ? Settings.TABLE_NAME : Settings.TABLE_NAME_AGGREGATED;
+            var query = "SELECT " + TIME + " FROM " + tableName + " ORDER BY " + TIME + " DESC LIMIT 1";
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
             if (table.Rows.Count == 0)
