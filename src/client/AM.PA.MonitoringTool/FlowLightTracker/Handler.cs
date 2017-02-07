@@ -21,7 +21,6 @@ namespace FlowLight
         public bool IsRunning;
         private static Handler _handler;
         private bool _flowLightEnabled;
-        private FocusLightTracker.Daemon _flowTracker;
         private Timer _updateTimer;
         private bool _locked;
         private bool _enforcing;
@@ -39,7 +38,6 @@ namespace FlowLight
 
         public Handler()
         {
-            _flowTracker = new FocusLightTracker.Daemon();
             _lightClient = new Blink1Client();
             _skypeClient = new LyncStatus();
         }
@@ -78,9 +76,6 @@ namespace FlowLight
 
         public void Start()
         {
-            //start the FlowTracker
-            _flowTracker.Start();
-
             //register and start update timer (for FlowTracker)
             if (_updateTimer != null)
                 Stop();
@@ -104,8 +99,6 @@ namespace FlowLight
 
         public void Stop()
         {
-            _flowTracker.Stop();
-
             if (_updateTimer != null)
             {
                 _updateTimer.Stop();
@@ -154,12 +147,13 @@ namespace FlowLight
             if (!_locked && !_enforcing)
             {
                 // set the status to the one determined by FlowTracker
-                FocusState newFlowStatus = _flowTracker.GetFocusState();
+                FocusState newFlowStatus = FocusLightTracker.Data.Queries.GetCurrentSmoothedFocusState();
                 setStatus(newFlowStatus);
 
                 Logger.WriteToConsole("FlowLight: Updating from FlowTracker to " + newFlowStatus);
             }
         }
+
 
         /// <summary>
         /// This method is executed whenever the status was changed in Skype.
@@ -192,7 +186,8 @@ namespace FlowLight
                 {
                     // if the status was set to free (manually or by the calendar),
                     // we will respect that for 5 minutes and then start changing the state again by FlowTracker
-                    StartTimedEnforcing(5);
+
+                    //StartTimedEnforcing(5);
                 }
                 else
                 {

@@ -122,6 +122,14 @@ namespace PersonalAnalytics
             // Start the Retrospection
             //////////////////////////////////////////////////////
             Retrospection.Handler.GetInstance().Start(trackers, GetPublishedAppVersion()); // register the same trackers from the monitoring tool for the retrospection
+
+            //////////////////////////////////////////////////////
+            // Start the FlowLight
+            //////////////////////////////////////////////////////
+            if (FlowLight.Handler.GetInstance().FlowLightEnabled)
+            {
+                FlowLight.Handler.GetInstance().Start();
+            }
         }
 
         /// <summary>

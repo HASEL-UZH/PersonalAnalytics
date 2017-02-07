@@ -36,7 +36,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\FocuslightClients.dll</HintPath>
     </Reference>
-    <Reference Include="FocusLightTracker, Version=2.0.6233.24762, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="FocusLightTracker, Version=2.0.6247.30355, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\FocusLightTracker.dll</HintPath>
     </Reference>

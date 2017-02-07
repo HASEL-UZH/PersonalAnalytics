@@ -61,6 +61,7 @@ namespace PersonalAnalytics
             Register(new UserEfficiencyTracker.Daemon());
             Register(new UserInputTracker.Daemon());
             Register(new MsOfficeTracker.Daemon());
+            Register(new FocusLightTracker.Daemon());
 #if Dev
             //Register(new PeopleVisualizer.PeopleVisualizer()); // disabled, as it's not finished and pretty slow
             //Register(new WindowsContextTracker.Daemon();); // implementation not finished
@@ -132,9 +133,6 @@ namespace PersonalAnalytics
             Database.GetInstance().CreateTimeZoneTable();
             SaveCurrentTimeZone(null, null);
             SystemEvents.TimeChanged += SaveCurrentTimeZone;
-
-            // start the FlowLight
-            FlowLight.Handler.GetInstance().Start();
         }
 
         /// <summary>
@@ -256,9 +254,6 @@ namespace PersonalAnalytics
             }
             _isPaused = true;
 
-            // pause the FlowLight
-            FlowLight.Handler.GetInstance().Stop();
-
             if (_remindToContinueTrackerTimer == null)
             {
                 _remindToContinueTrackerTimer = new DispatcherTimer();
@@ -294,9 +289,6 @@ namespace PersonalAnalytics
                 tracker.Start();
             }
             _isPaused = false;
-
-            // resume the FlowLight
-            FlowLight.Handler.GetInstance().Start();
 
             Database.GetInstance().LogInfo("The participant resumed the trackers.");
         }
