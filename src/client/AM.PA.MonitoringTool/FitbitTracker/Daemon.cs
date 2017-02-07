@@ -162,8 +162,16 @@ namespace FitbitTracker
             foreach (DateTimeOffset day in days)
             {
                 Logger.WriteToConsole("Sync Steps: " + day.ToString(Settings.FORMAT_DAY));
-                StepData stepData = FitbitConnector.GetStepDataForDay(day);
-                DatabaseConnector.SaveStepDataForDay(stepData, day);
+
+                if (Settings.IsDetailedCollectionAvailable)
+                {
+                    StepData stepData = FitbitConnector.GetStepDataForDay(day);
+                    DatabaseConnector.SaveStepDataForDay(stepData, day, false);
+                }
+
+                StepData aggregatedData = FitbitConnector.GetStepDataAggregatedForDay(day);
+                DatabaseConnector.SaveStepDataForDay(aggregatedData, day, true);
+
                 if (day < latestSync)
                 {
                     Logger.WriteToConsole("Finished syncing Steps for day: " + day.ToString(Settings.FORMAT_DAY));
@@ -200,7 +208,12 @@ namespace FitbitTracker
                 Logger.WriteToConsole("Sync HR: " + day.ToString(Settings.FORMAT_DAY));
                 Tuple<List<HeartRateDayData>, List<HeartrateIntraDayData>> hrData = FitbitConnector.GetHeartrateForDay(day);
                 DatabaseConnector.SaveHRData(hrData.Item1);
-                DatabaseConnector.SaveHRIntradayData(hrData.Item2);
+
+                if (Settings.IsDetailedCollectionAvailable)
+                {
+                    DatabaseConnector.SaveHRIntradayData(hrData.Item2);
+                }
+
                 if (day < latestSync)
                 {
                     Logger.WriteToConsole("Finished syncing HR for day: " + day.ToString(Settings.FORMAT_DAY));

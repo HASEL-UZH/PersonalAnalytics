@@ -91,6 +91,12 @@ namespace FitbitTracker.Data
                                                                             + DATE_OF_STEPS + " TEXT UNIQUE, "
                                                                             + VALUE + " REAL)";
 
+        private static readonly string CREATE_STEPS_INTRA_DAY_AGGREGATED_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.STEPS_INTRA_DAY_AGGREGATED_TABLE_NAME + " ("
+                                                                            + ID + " INTEGER PRIMARY KEY, "
+                                                                            + SAVE_TIME + " TEXT, "
+                                                                            + DATE_OF_STEPS + " TEXT UNIQUE, "
+                                                                            + VALUE + " REAL)";
+
         private static readonly string CREATE_HEARTRATE_INTRA_DAY_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.HEARTRATE_INTRA_DAY_TABLE_NAME + " ("
                                                                             + ID + " INTEGER PRIMARY KEY, "
                                                                             + SAVE_TIME + " TEXT, "
@@ -225,6 +231,12 @@ namespace FitbitTracker.Data
                                                             + VALUE + " = {2} "
                                                             + "WHERE " + DATE_OF_STEPS + " = {1};";
 
+        private static readonly string UPDATE_STEPS_INTRADAY_AGGREGATED = "UPDATE " + Settings.STEPS_INTRA_DAY_AGGREGATED_TABLE_NAME
+                                                                        + " SET " + SAVE_TIME + " = {0}, "
+                                                                        + DATE_OF_STEPS + " = {1}, "
+                                                                        + VALUE + " = {2} "
+                                                                        + "WHERE " + DATE_OF_STEPS + " = {1};";
+
         private static readonly string UPDATE_SLEEP_INTRADAY = "UPDATE " + Settings.SLEEP_INTRA_DAY_TABLE_NAME
                                                             + " SET " + SAVE_TIME + " = {0}, "
                                                             + DATE_OF_SLEEP + " = {1}, "
@@ -269,6 +281,12 @@ namespace FitbitTracker.Data
                                                                                         + "{1} AS " + DATE_OF_STEPS + ", "
                                                                                         + "{2} AS " + VALUE;
 
+        private static readonly string INSERT_OR_INGORE_MULTIPLE_STEP_INTRA_DAY_AGGREGATED_VALUES = "INSERT OR IGNORE INTO " + Settings.STEPS_INTRA_DAY_AGGREGATED_TABLE_NAME
+                                                                                                + " SELECT null as " + ID + ", "
+                                                                                                + "{0} AS " + SAVE_TIME + ", "
+                                                                                                + "{1} AS " + DATE_OF_STEPS + ", "
+                                                                                                + "{2} AS " + VALUE;
+
         private static readonly string INSERT_OR_IGNORE_MULTIPLE_SLEEP_INTRA_DAY_VALUES = "INSERT OR IGNORE INTO " + Settings.SLEEP_INTRA_DAY_TABLE_NAME
                                                                                         + " SELECT null as " + ID + ", "
                                                                                         + "{0} AS " + SAVE_TIME + ", "
@@ -287,6 +305,7 @@ namespace FitbitTracker.Data
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_INDEX_FOR_HEARTRATE_DAY_TABLE);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_HEARTRATE_INTRA_DAY_TABLE_QUERY);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_STEPS_INTRA_DAY_TABLE_QUERY);
+                Database.GetInstance().ExecuteDefaultQuery(CREATE_STEPS_INTRA_DAY_AGGREGATED_TABLE_QUERY);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_ACTIVITY_SUMMARY_TABLE_QUERY);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_SLEEP_INTRA_DAY_TABLE_QUERY);
             }
@@ -298,12 +317,16 @@ namespace FitbitTracker.Data
         #endregion
 
         #region insert
-        internal static void SaveStepDataForDay(StepData stepData, DateTimeOffset day)
+
+        #region Steps
+        internal static void SaveStepDataForDay(StepData stepData, DateTimeOffset day, bool aggregated)
         {
             foreach (StepDataEntry dataEntry in stepData.IntraDay.Dataset)
             {
                 string query = string.Empty;
-                query += String.Format(UPDATE_STEPS_INTRADAY, "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + new DateTime(day.Year, day.Month, day.Day, dataEntry.Time.Hour, dataEntry.Time.Minute, dataEntry.Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'", ReplaceNaNValues(dataEntry.Value));
+                string updateQuery = aggregated ? UPDATE_STEPS_INTRADAY_AGGREGATED : UPDATE_STEPS_INTRADAY;
+                
+                query += String.Format(updateQuery, "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + new DateTime(day.Year, day.Month, day.Day, dataEntry.Time.Hour, dataEntry.Time.Minute, dataEntry.Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'", ReplaceNaNValues(dataEntry.Value));
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }
 
@@ -318,7 +341,9 @@ namespace FitbitTracker.Data
                     StepDataEntry dataEntry = stepData.IntraDay.Dataset[start];
                     string insertTime = "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'";
                     string stepTime = "'" + new DateTime(day.Year, day.Month, day.Day, dataEntry.Time.Hour, dataEntry.Time.Minute, dataEntry.Time.Second).ToString(Settings.FORMAT_DAY_AND_TIME) + "'";
-                    query += String.Format(INSERT_OR_INGORE_MULTIPLE_STEP_INTRA_DAY_VALUES, insertTime, stepTime, ReplaceNaNValues(dataEntry.Value));
+
+                    string insertOrIgnoreQuery = aggregated ? INSERT_OR_INGORE_MULTIPLE_STEP_INTRA_DAY_AGGREGATED_VALUES : INSERT_OR_INGORE_MULTIPLE_STEP_INTRA_DAY_VALUES;
+                    query += String.Format(insertOrIgnoreQuery, insertTime, stepTime, ReplaceNaNValues(dataEntry.Value));
 
                     int count = 0;
                     for (int i = start; i < stepData.IntraDay.Dataset.Count && count < 499; i++)
@@ -331,7 +356,9 @@ namespace FitbitTracker.Data
                 }
             }
         }
+        #endregion
 
+        #region Activity
         internal static void SaveActivityData(ActivityData activityData, DateTimeOffset day)
         {
             string query = string.Empty;
@@ -342,7 +369,9 @@ namespace FitbitTracker.Data
             query += String.Format(INSERT_OR_IGNORE_ACTIVITY_SUMMARY, "'" + new DateTime(day.Year, day.Month, day.Day).ToString(Settings.FORMAT_DAY) + "'", "'" + DateTime.Now.ToString(Settings.FORMAT_DAY) + "'", activityData.Summary.ActiveScore, activityData.Summary.Elevation, activityData.Summary.FairlyActiveMinutes, activityData.Summary.Floors, activityData.Summary.LightlyActiveMinutes, activityData.Summary.SedentaryMinutes, ReplaceNaNValues(activityData.Summary.Steps), activityData.Summary.VeryActiveMinutes);
             Database.GetInstance().ExecuteDefaultQuery(query);
         }
+        #endregion
 
+        #region HR
         private static void InsertHRData(object sender, DoWorkEventArgs e)
         {
             object[] parameters = e.Argument as object[];
@@ -403,7 +432,9 @@ namespace FitbitTracker.Data
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }
         }
+        #endregion
 
+        #region Sleep
         internal static void SaveSleepData(SleepData sleepData, DateTimeOffset day)
         {
             if (sleepData.Sleep.Count > 0)
@@ -438,7 +469,10 @@ namespace FitbitTracker.Data
                         sleepQuery += String.Format(INSERT_SLEEP_QUERY, id, "'" + DateTime.Now + "'", log.AwakeCount, log.AwakeDuration, "'" + log.DateOfSleep.ToString(Settings.FORMAT_DAY) + "'", log.Duration, log.Efficiency, log.IsMainSleep ? 1 : 0, log.LogID, log.MinutesAfterWakeup, log.MinutesAsleep, log.MinutesAwake, ReplaceNaNValues(log.MinutesToFallAsleep), log.RestlessCount, log.RestlessDuration, "'" + log.StartTime.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", log.TimeInBed);
                         Database.GetInstance().ExecuteDefaultQuery(sleepQuery);
                     }
-                    InsertSleepIntradayData(log, day);
+                    if (Settings.IsDetailedCollectionAvailable)
+                    {
+                        InsertSleepIntradayData(log, day);
+                    }
                 }
             }
         }
@@ -477,6 +511,7 @@ namespace FitbitTracker.Data
                 }
             }
         }
+        #endregion
 
         internal static void SetSynchronizedDay(DateTimeOffset day, DataType datType)
         {
@@ -527,16 +562,24 @@ namespace FitbitTracker.Data
         }
 
         
-        public static List<Tuple<DateTime, int>> GetStepsPerTimeFraction(DateTimeOffset start, DateTimeOffset end, int minutes)
+        public static List<Tuple<DateTime, int>> GetStepsPerTimeFraction(DateTimeOffset start, DateTimeOffset end, int minutes, bool aggregated)
         {
+            //When we collect the data in an aggregated form, we can't get data for time fractions below 15 minutes
+            if (aggregated && minutes < 15)
+            {
+                throw new ArgumentException("In aggregated mode the fraction has to be at least 15 mins");
+            }
+
             List<Tuple<DateTime, int>> result = new List<Tuple<DateTime, int>>();
-            string query = "SELECT SUM(" + VALUE + "), DATETIME((STRFTIME('%s', DATETIME(" + DATE_OF_STEPS + ")) / " + (minutes * 60) + ") * " + (minutes * 60) + ", 'unixepoch') AS TIMESTAMP FROM " + Settings.STEPS_INTRA_DAY_TABLE_NAME + " WHERE " + DATE_OF_STEPS + " BETWEEN '" + start.ToString(Settings.FORMAT_DAY_AND_TIME) + "' AND '" + end.ToString(Settings.FORMAT_DAY_AND_TIME) + "' GROUP BY TIMESTAMP ORDER BY TIMESTAMP";
+
+            string tableName = aggregated ? Settings.STEPS_INTRA_DAY_AGGREGATED_TABLE_NAME : Settings.STEPS_INTRA_DAY_TABLE_NAME;
+            string query = "SELECT SUM(" + VALUE + "), DATETIME((STRFTIME('%s', DATETIME(" + DATE_OF_STEPS + ")) / " + (minutes * 60) + ") * " + (minutes * 60) + ", 'unixepoch') AS TIMESTAMP FROM " + tableName + " WHERE " + DATE_OF_STEPS + " BETWEEN '" + start.ToString(Settings.FORMAT_DAY_AND_TIME) + "' AND '" + end.ToString(Settings.FORMAT_DAY_AND_TIME) + "' GROUP BY TIMESTAMP ORDER BY TIMESTAMP";
 
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
             foreach (DataRow row in table.Rows)
             {
-                result.Add(Tuple.Create<DateTime, int>(DateTime.ParseExact(row[1].ToString(),Settings.FORMAT_DAY_AND_TIME, CultureInfo.InvariantCulture), Int32.Parse(row[0].ToString())));
+                result.Add(Tuple.Create<DateTime, int>(DateTime.ParseExact(row[1].ToString(), Settings.FORMAT_DAY_AND_TIME, CultureInfo.InvariantCulture), Int32.Parse(row[0].ToString())));
             }
 
             return result;

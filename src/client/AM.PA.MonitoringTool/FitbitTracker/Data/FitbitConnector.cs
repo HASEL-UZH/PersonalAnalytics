@@ -35,10 +35,25 @@ namespace FitbitTracker.Data
         private const string HEARTRATE_URL = "https://api.fitbit.com/1/user/-/activities/heart/date/{0}/1d/1sec.json";
         private const string ACTIVITY_URL = "https://api.fitbit.com/1/user/-/activities/date/{0}.json";
         private const string STEP_URL = "https://api.fitbit.com/1/user/-/activities/steps/date/{0}/1d/1min.json";
+        private const string STEP_AGGREGATED_URL = "https://api.fitbit.com/1/user/-/activities/steps/date/{0}/1d/15min.json";
 
         //Called when refreshing the access token fails
         public delegate void OnRefreshTokenFail();
         public static event OnRefreshTokenFail RefreshTokenFail;
+
+        internal static StepData GetStepDataAggregatedForDay(DateTimeOffset day)
+        {
+            Tuple<StepData, bool> result = GetDataFromFitbit<StepData>(String.Format(STEP_AGGREGATED_URL, day.ToString(Settings.FITBIT_FORMAT_DAY)));
+            StepData stepData = result.Item1;
+            bool retry = result.Item2;
+
+            if (stepData == null && retry)
+            {
+                stepData = GetDataFromFitbit<StepData>(String.Format(STEP_AGGREGATED_URL, day.ToString(Settings.FITBIT_FORMAT_DAY))).Item1;
+            }
+
+            return stepData;
+        }
 
         internal static StepData GetStepDataForDay(DateTimeOffset day)
         {

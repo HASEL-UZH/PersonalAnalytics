@@ -13,6 +13,13 @@ namespace FitbitTracker
         internal const int SYNCHRONIZE_INTERVALL_FIRST = 2 * 60 * 1000; //2 minutes
         internal const int SYNCHRONIZE_INTERVALL_SECOND = 20 * 60 * 1000; //20 minutes
 
+        //Data Collection Settings
+        #if PilotManu_March17
+            internal static readonly bool IsDetailedCollectionAvailable = true;
+        #else
+            internal static readonly bool IsDetailedCollectionAvailable = false;
+        #endif
+
         //Database table names
         internal static readonly string SLEEP_INTRA_DAY_TABLE_NAME = "fitbit_sleep_intraday";
         internal static readonly string SLEEP_TABLE_NAME = "fitbit_sleep";
@@ -21,6 +28,7 @@ namespace FitbitTracker
         internal static readonly string HEARTRATE_DAY_TABLE_NAME = "fitbit_heartrate_summary";
         internal static readonly string HEARTRATE_INTRA_DAY_TABLE_NAME = "fitbit_heartrate_intraday";
         internal static readonly string STEPS_INTRA_DAY_TABLE_NAME = "fitbit_steps_intraday";
+        internal static readonly string STEPS_INTRA_DAY_AGGREGATED_TABLE_NAME = "fitbit_steps_aggregated";
         internal static readonly string ACTIVITY_SUMMARY_TABLE_NAME = "fitbit_activity_summary";
 
         //Database field names
