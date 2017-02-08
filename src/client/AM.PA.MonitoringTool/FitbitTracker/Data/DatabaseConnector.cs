@@ -593,7 +593,7 @@ namespace FitbitTracker.Data
         internal static SleepVisualizationEntry GetSleepDataForDay(DateTimeOffset start, DateTimeOffset end)
         {
             SleepVisualizationEntry result = null;
-            string query = "SELECT " + MINUTES_ASLEEP + ", " + AWAKE_COUNT + ", " + MINUTES_AWAKE + ", " + RESTLESS_COUNT + ", " + RESTLESS_DURATION + ", " + START_TIME + ", " + MINUTES_AFTER_WAKEUP + ", " + EFFICIENCY + " FROM " + Settings.SLEEP_TABLE_NAME + " WHERE " + IS_MAIN_SLEEP + " == 1 AND " + DATE_OF_SLEEP + " BETWEEN '" + start.ToString(Settings.FORMAT_DAY) + "' AND '" + end.ToString(Settings.FORMAT_DAY) + "';";
+            string query = "SELECT " + MINUTES_ASLEEP + ", " + AWAKE_COUNT + ", " + AWAKE_DURATION + ", " + RESTLESS_COUNT + ", " + RESTLESS_DURATION + ", " + START_TIME + ", " + MINUTES_AFTER_WAKEUP + ", " + EFFICIENCY + " FROM " + Settings.SLEEP_TABLE_NAME + " WHERE " + IS_MAIN_SLEEP + " == 1 AND " + DATE_OF_SLEEP + " BETWEEN '" + start.ToString(Settings.FORMAT_DAY) + "' AND '" + end.ToString(Settings.FORMAT_DAY) + "';";
             
             var table = Database.GetInstance().ExecuteReadQuery(query);
 

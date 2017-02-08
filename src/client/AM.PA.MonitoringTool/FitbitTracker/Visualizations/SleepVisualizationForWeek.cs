@@ -84,7 +84,7 @@ namespace FitbitTracker
             html += GenerateData(values, DateTimeHelper.GetFirstDayOfWeek_Iso8801(date), DateTimeHelper.GetLastDayOfWeek_Iso8801(date));
             html += "var xData = ['A', 'B', 'C'];";
             
-            html += "var margin = { top: 20, right: 50, bottom: 5, left: 50},";
+            html += "var margin = { top: 30, right: 50, bottom: 5, left: 50},";
             html += "width = actualWidth * 1.1 - margin.left - margin.right,";
             html += "height = (actualHeight * 0.65) - margin.top - margin.bottom;";
 
@@ -140,7 +140,7 @@ namespace FitbitTracker
             html += "})";
             html += ".attr('width', x.rangeBand());";
 
-            html += "var yTextPadding = 20;";
+            html += "var yTextPadding = 30;";
             html += "svg.selectAll('.bartext')";
             html += ".data(textData)";
             html += ".enter().append('text')";
@@ -153,25 +153,25 @@ namespace FitbitTracker
             html += ".attr('y', function(d) {";
             html += "return height - yTextPadding;";
             html += "})";
-            html += ".text(function(d){";
+            html += ".html(function(d){";
             html += "return (d.A / 60).toFixed(2) + 'h';";
             html += "});";
 
-            html += "var yTextPadding = 12;";
+            html += "var yTextPadding = 10;";
             html += "svg.selectAll('.totaltext')";
             html += ".data(totalData)";
             html += ".enter().append('text')";
             html += ".attr('class', 'totaltext')";
             html += ".attr('text-anchor', 'middle')";
-            html += ".attr('fill', 'black')";
+            html += ".attr('fill', 'white')";
             html += ".attr('x', function(d) {";
             html += "return x(d.day) + x.rangeBand() / 2;";
             html += "})";
             html += ".attr('y', function(d) {";
-            html += "return yTextPadding;";
+            html += "return height - yTextPadding;";
             html += "})";
-            html += ".text(function(d){";
-            html += "return (d.T / 60).toFixed(2) + 'h';";
+            html += ".html(function(d){";
+            html += "return '(&sum; ' + (d.T / 60).toFixed(2) + 'h)';";
             html += "});";
 
             html += "svg.append('g')";
