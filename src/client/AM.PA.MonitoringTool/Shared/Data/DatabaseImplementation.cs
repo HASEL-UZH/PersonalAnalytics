@@ -29,6 +29,31 @@ namespace Shared.Data
         #region Execute Queries & Log Messages
 
         /// <summary>
+        /// Returns true if the table passed in the parameter exists and false otherwise.
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
+        public bool HasTable(string tableName)
+        {
+            if (_connection == null || _connection.State != ConnectionState.Open) throw new Exception("Connection to database not established.");
+            try
+            {
+                var query = "SELECT name FROM sqlite_master WHERE type ='table' AND name='" + tableName + "';";
+
+                DataTable result = ExecuteReadQuery(query);
+                if (result == null || result.Rows.Count == 0)
+                {
+                    return false;
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Executes a query (given as parameter).
         /// Also logs the query.
         /// </summary>
