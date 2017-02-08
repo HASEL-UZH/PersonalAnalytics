@@ -186,7 +186,15 @@ namespace Retrospection
             var html = string.Empty;
             foreach (var vis in visualizations.OrderBy(v => v.Order))
             {
-                html += await Task.Run(() => CreateDashboardItem(vis, date));
+                //We want to avoid that a failing visualization stops the whole dashboard from working. Therefore we exclude failing visualizations and log the error.
+                try
+                {
+                    html += await Task.Run(() => CreateDashboardItem(vis, date));
+                }
+                catch (Exception e)
+                {
+                    Logger.WriteToLogFile(e);
+                }
             }
 
             return html;
