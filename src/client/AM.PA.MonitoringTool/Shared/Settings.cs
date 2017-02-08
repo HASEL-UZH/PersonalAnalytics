@@ -4,8 +4,10 @@
 // Licensed under the MIT License.
 
 using Shared.Data;
+using Shared.Helpers;
 using System;
 using System.IO;
+using System.Windows.Media;
 
 namespace Shared
 {
@@ -70,12 +72,23 @@ namespace Shared
         // contact emails
 
 
-#if PilotMSR
+        #if PilotMSR
         public const string EmailAddress1 = "tzimmer@microsoft.com"; // main email address
         public const string EmailAddress2 = "ameyer@ifi.uzh.ch";
-#else
+        #else
         public const string EmailAddress1 = "ameyer@ifi.uzh.ch"; // main email address
         public static string EmailAddress2 = string.Empty;
-#endif
+        #endif
+
+        //Colors
+        public const string RetrospectionColorHex = "#007acc";
+        private static SolidColorBrush retrospectionColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(RetrospectionColorHex));
+        public static SolidColorBrush RetrospectionColorBrush { get { return retrospectionColor; } }
+
+        public const string GrayColor = "#E8E8E8";
+        private static SolidColorBrush grayColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(GrayColor));
+        public static SolidColorBrush GrayColorBrush { get { return grayColor; } }
+
     }
+
 }

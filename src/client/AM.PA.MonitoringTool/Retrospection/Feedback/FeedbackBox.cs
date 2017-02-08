@@ -27,8 +27,8 @@ namespace Retrospection.Feedback
             // CSS
             /////////////////////
             html += "<style type='text/css'>";
-            html += ".button { padding:0.3125em; background-color:white; border:1px solid #007acc; color:#007acc; text-decoration:none; margin:0 auto; display: block; }";
-            html += ".button:hover { background-color:#007acc; border:1px solid #007acc; color:white; cursor: pointer; cursor: hand; }";
+            html += ".button { padding:0.3125em; background-color:white; border:1px solid " + Settings.RetrospectionColorHex + "; color:" + Settings.RetrospectionColorHex + "; text-decoration:none; margin:0 auto; display: block; }";
+            html += ".button:hover { background-color:" + Settings.RetrospectionColorHex + "; border:1px solid " + Settings.RetrospectionColorHex + "; color:white; cursor: pointer; cursor: hand; }";
             html += "</style>";
 
             /////////////////////

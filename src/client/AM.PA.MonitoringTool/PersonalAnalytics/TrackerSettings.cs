@@ -61,6 +61,16 @@ namespace Shared.Data
                     if (GetMSOfficeTracker() != null) GetMSOfficeTracker().MsOfficeTrackerEnabled = updatedSettings.Office365ApiEnabled.Value;
                     //if (GetPeopleVisualizer() != null) GetPeopleVisualizer().PeopleVisualizerEnabled = updatedSettings.Office365ApiEnabled.Value;
                 }
+
+                if (updatedSettings.PolarTrackerEnabled.HasValue)
+                {
+                    if (GetPolarTracker() != null) GetPolarTracker().ChangeEnableState(updatedSettings.PolarTrackerEnabled);
+                }
+
+                if (updatedSettings.FitbitTrackerEnabled.HasValue)
+                {
+                    if (GetFitbitTracker() != null) GetFitbitTracker().ChangeEnabledState(updatedSettings.FitbitTrackerEnabled);
+                }
             }
             catch (Exception e)
             {
@@ -97,10 +107,44 @@ namespace Shared.Data
                 //else if (peopleVisualizer == null && msOfficeTracker != null) dto.Office365ApiEnabled = msOfficeTracker.MsOfficeTrackerEnabled;
                 //else if (peopleVisualizer != null && msOfficeTracker == null) dto.Office365ApiEnabled = peopleVisualizer.PeopleVisualizerEnabled;
                 //else dto.Office365ApiEnabled = false;
+
+                var polarTracker = GetPolarTracker();
+                dto.PolarTrackerEnabled = polarTracker.IsEnabled();
+
+                var fitbitTracker = GetFitbitTracker();
+                dto.FitbitTrackerEnabled = fitbitTracker.IsEnabled();
             } 
             catch { }
 
             return dto;
+        }
+
+        private FitbitTracker.Deamon GetFitbitTracker()
+        {
+            try
+            {
+                var tracker =
+                    _trackers.Where(t => t.GetType() == typeof(FitbitTracker.Deamon))
+                        .Cast<FitbitTracker.Deamon>()
+                        .FirstOrDefault();
+
+                return tracker;
+            }
+            catch { return null; }
+        }
+
+        private PolarTracker.Deamon GetPolarTracker()
+        {
+            try
+            {
+                var tracker =
+                    _trackers.Where(t => t.GetType() == typeof(PolarTracker.Deamon))
+                        .Cast<PolarTracker.Deamon>()
+                        .FirstOrDefault();
+
+                return tracker;
+            }
+            catch { return null; }
         }
 
         //private PeopleVisualizer.PeopleVisualizer GetPeopleVisualizer()

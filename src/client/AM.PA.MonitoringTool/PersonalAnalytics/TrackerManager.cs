@@ -60,18 +60,19 @@ namespace PersonalAnalytics
             Register(new UserEfficiencyTracker.Daemon());
             Register(new UserInputTracker.Daemon());
             Register(new MsOfficeTracker.Daemon());
+            Register(new PolarTracker.Deamon());
+            Register(new FitbitTracker.Deamon());
             Register(new FocusLightTracker.Daemon());
 
-#if Dev
+            #if Dev
             //Register(new PeopleVisualizer.PeopleVisualizer()); // disabled, as it's not finished and pretty slow
             //Register(new WindowsContextTracker.Daemon();); // implementation not finished
 
-#elif TestPilot1
-
-            // if something is only required in the standard deployment
-
-#endif
-
+            #elif TestPilot1
+             // if something is only required in the standard deployment
+            
+            #endif
+            
             return _trackers; // return trackers for retrospection
         }
 
@@ -311,9 +312,9 @@ namespace PersonalAnalytics
             return _trackers;
         }
 
-        #endregion
+#endregion
 
-        #region Taskbar Icon Options
+#region Taskbar Icon Options
 
         /// <summary>
         /// Dreates a taskbar icon to modify its tooltip and create the context menu options
@@ -520,9 +521,9 @@ namespace PersonalAnalytics
             TaskbarIcon.ToolTipText = message;
         }
 
-        #endregion
+#endregion
 
-        #region Helpers
+#region Helpers
 
         /// <summary>
         /// On the first workday of the week, remind the user ONCE to share
@@ -685,7 +686,7 @@ namespace PersonalAnalytics
             }
         }
 
-        #region Check for Internet Connection
+#region Check for Internet Connection
 
         [DllImport("wininet.dll")]
         private extern static bool InternetGetConnectedState(out int description, int reservedValue);
@@ -696,7 +697,7 @@ namespace PersonalAnalytics
             return InternetGetConnectedState(out description, 0);
         }
 
-        #endregion
+#endregion
 
         /// <summary>
         /// Shutdown the application only if the state is saved, database disconnected, etc.
@@ -746,6 +747,6 @@ namespace PersonalAnalytics
 
 #endregion */
 
-        #endregion
+#endregion
     }
 }

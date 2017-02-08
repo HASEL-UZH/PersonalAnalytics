@@ -46,7 +46,7 @@ namespace WindowsActivityTracker.Visualizations
             /////////////////////
             // HTML
             /////////////////////
-            html += "<p style='text-align: center; margin-top:-0.7em;'><strong style='font-size:2.5em; color:#007acc;'>" + Math.Round(durInMin, 0) + "</strong>min</p>";
+            html += "<p style='text-align: center; margin-top:-0.7em;'><strong style='font-size:2.5em; color:" + Shared.Settings.RetrospectionColorHex + ";'>" + Math.Round(durInMin, 0) + "</strong>min</p>";
             html += string.Format(CultureInfo.InvariantCulture, "<p style='text-align: center; margin-top:-0.7em;'>in {0}<br />from {1} to {2}</p>",
                 ProcessNameHelper.GetFileDescription(queryResultsLocal.Process),
                 queryResultsLocal.From.ToShortTimeString(),

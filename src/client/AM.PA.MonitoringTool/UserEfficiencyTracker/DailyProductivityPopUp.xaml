@@ -6,6 +6,7 @@
 <Window x:Class="UserEfficiencyTracker.DailyProductivityPopUp"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:paColor="clr-namespace:Shared;assembly=Shared"
         SizeToContent="Height" Height="245" Width="500" 
         KeyDown="OnKeyDownHandler"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent">
@@ -13,7 +14,7 @@
     <Grid RenderTransformOrigin="0,1" >
 
         <!-- Notification area -->
-        <Border BorderThickness="1" Background="#007acc" BorderBrush="Black">
+        <Border BorderThickness="1" Background="{x:Static paColor:Settings.RetrospectionColorBrush}" BorderBrush="Black">
             <StackPanel Margin="10">
                 <TextBlock Text="Compared to your normal level of productivity, how productive" Foreground="White" FontWeight="Bold" FontSize="15" />
                 <TextBlock x:Name="LastTimeWorked" Text="do you consider your previous work day?" Foreground="White" FontWeight="Bold" FontSize="15" />
