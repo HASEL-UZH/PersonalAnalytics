@@ -7,8 +7,8 @@
     <ProjectGuid>{C42CC860-6372-469F-A52B-5D675F2650D6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BiometricsTracker</RootNamespace>
-    <AssemblyName>BiometricsTracker</AssemblyName>
+    <RootNamespace>PolarTracker</RootNamespace>
+    <AssemblyName>PolarTracker</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
