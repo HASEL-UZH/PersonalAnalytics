@@ -5,6 +5,7 @@ using Shared;
 using Shared.Data;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -76,6 +77,24 @@ namespace FlowLight
 
         public void Start()
         {
+            // on first start, a pop-up is shown to ask the user to enable/disable the FlowLight
+            if (IsFlowLightsFirstUse())
+            {
+                var msg = string.Format(CultureInfo.InvariantCulture, "FlowLight is a traffic-light like LED that indicates your availability for interruptions to your co-workers. It is also synched with your Skype for Business status. You can manually disable or enable the FlowLight anytime in the settings.\n\nDo you want to enable the FlowLight?");
+                var res = MessageBox.Show(msg, "FlowLight Setup",
+                    MessageBoxButton.YesNo);
+                if (res == MessageBoxResult.Yes)
+                {
+                    FlowLightEnabled = true;
+                }
+                else
+                {
+                    IsRunning = false;
+                    FlowLightEnabled = false;
+                    return; // don't start the FlowLight!
+                }
+            }
+
             //register and start update timer (for FlowTracker)
             if (_updateTimer != null)
                 Stop();
@@ -95,6 +114,15 @@ namespace FlowLight
             SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
 
             IsRunning = true;
+        }
+
+        /// <summary>
+        /// Checks if the office API is used for the first time
+        /// </summary>
+        /// <returns>true if there is no setting stored, else otherwise</returns>
+        private bool IsFlowLightsFirstUse()
+        {
+            return !Database.GetInstance().HasSetting("FlowLightTrackerEnabled");
         }
 
         public void Stop()
@@ -187,7 +215,7 @@ namespace FlowLight
                     // if the status was set to free (manually or by the calendar),
                     // we will respect that for 5 minutes and then start changing the state again by FlowTracker
 
-                    //StartTimedEnforcing(5);
+                    StartTimedEnforcing(5);
                 }
                 else
                 {
