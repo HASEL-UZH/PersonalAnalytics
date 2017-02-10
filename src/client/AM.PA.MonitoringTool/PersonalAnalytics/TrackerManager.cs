@@ -429,7 +429,7 @@ namespace PersonalAnalytics
         private System.Windows.Controls.MenuItem initFlowLightSubMenuItem(Status status, int minutes)
         {
             var menuItem = new System.Windows.Controls.MenuItem { Header = minutes + " min" };
-            menuItem.Click += (sender, e) => FlowLight.Handler.GetInstance().EnforcingClicked(menuItem, new FlowLight.Handler.MenuEventArgs(status, minutes));
+            menuItem.Click += (o, i) => FlowLight.Handler.GetInstance().EnforcingClicked(status, minutes);
             menuItem.Click += FlowLightEnforcingClicked;
 
             return menuItem;
@@ -450,7 +450,7 @@ namespace PersonalAnalytics
             if (rootMenuItem.Items.Count == 3)
             {
                 var resetMenuItem = new System.Windows.Controls.MenuItem { Header = "Reset" };
-                resetMenuItem.Click += FlowLight.Handler.GetInstance().ResetEnforcingClicked;
+                resetMenuItem.Click += (o, i) => FlowLight.Handler.GetInstance().ResetEnforcingClicked();
                 resetMenuItem.Click += ResetMenuItem_Click;
                 rootMenuItem.Items.Add(resetMenuItem);
             }

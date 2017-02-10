@@ -323,23 +323,6 @@ namespace FlowLight
         }
 
         /// <summary>
-        /// event arguments needed for the context menu of the application,
-        /// for the menu items where the user can set the light to a certain state
-        /// for e specified amount of minutes.
-        /// </summary>
-        public class MenuEventArgs : EventArgs
-        {
-            public Status Status { get; set; }
-            public int Minutes { get; set; }
-
-            public MenuEventArgs(Status status, int minutes)
-            {
-                Status = status;
-                Minutes = minutes;
-            }
-        }
-
-        /// <summary>
         /// This method handles the event if the user clicked on a context menu item to
         /// change the status for a certain amount of minutes.
         /// 
@@ -347,17 +330,17 @@ namespace FlowLight
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void EnforcingClicked(object sender, MenuEventArgs e)
+        public void EnforcingClicked(Status status, int minutes)
         {
-            StartTimedEnforcing(e.Minutes);
-            setStatus(Originator.User, e.Status);
+            StartTimedEnforcing(minutes);
+            setStatus(Originator.User, status);
         }
 
         /// <summary>
         /// this is executed when the user resets the enforcing via the context menu.
         /// this will stop the enforcing timer and set the status to free.
         /// </summary>
-        public void ResetEnforcingClicked(object sender, RoutedEventArgs e)
+        public void ResetEnforcingClicked()
         {
             StopEnforcing();
             setStatus(Originator.User, Status.Free);
