@@ -85,7 +85,8 @@ namespace FlowLight
                     MessageBoxButton.YesNo);
                 if (res == MessageBoxResult.Yes)
                 {
-                    FlowLightEnabled = true;
+                    _flowLightEnabled = true;
+                    Database.GetInstance().SetSettings("FlowLightTrackerEnabled", true);
                 }
                 else
                 {
