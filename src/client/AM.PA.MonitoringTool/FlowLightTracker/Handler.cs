@@ -29,6 +29,7 @@ namespace FlowLight
         private Blink1Client _lightClient;
         private LyncStatus _skypeClient;
         private Status _currentFlowLightStatus;
+        private List<ITracker> _trackers;
 
         #region Start/Stop & Initialization of Singleton
 
@@ -67,7 +68,7 @@ namespace FlowLight
                 }
                 else if (updatedIsEnabled && !IsRunning)
                 {
-                    Start();
+                    Start(_trackers);
                 }
 
                 // log
@@ -75,8 +76,10 @@ namespace FlowLight
             }
         }
 
-        public void Start()
+        public void Start(List<ITracker> trackers)
         {
+            _trackers = trackers;
+
             // on first start, a pop-up is shown to ask the user to enable/disable the FlowLight
             if (IsFlowLightsFirstUse())
             {
@@ -92,6 +95,7 @@ namespace FlowLight
                 {
                     IsRunning = false;
                     FlowLightEnabled = false;
+                    StopFlowTracker();
                     return; // don't start the FlowLight!
                 }
             }
@@ -137,7 +141,29 @@ namespace FlowLight
 
             _skypeClient.OnOutsideChange -= SkypeClient_OnOutsideChange;
 
+            //also stop flowTracker
+            StopFlowTracker();
+
             IsRunning = false;
+        }
+
+        private void StopFlowTracker()
+        {
+            try
+            {
+                var flowTracker = _trackers.Where(t => t.GetType() == typeof(FocusLightTracker.Daemon))
+                            .Cast<FocusLightTracker.Daemon>()
+                            .FirstOrDefault();
+
+                if (flowTracker != null)
+                {
+                    flowTracker.Stop();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
         }
 
         #endregion

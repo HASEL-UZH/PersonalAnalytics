@@ -63,7 +63,7 @@ namespace Shared.Data
                 }
                 if (updatedSettings.FlowLightEnabled.HasValue)
                 {
-                    if (GetFlowLight() != null) GetFlowLight().FlowLightEnabled = updatedSettings.FlowLightEnabled.Value;
+                    FlowLight.Handler.GetInstance().FlowLightEnabled = updatedSettings.FlowLightEnabled.Value;
                 }
             }
             catch (Exception e)
@@ -102,8 +102,8 @@ namespace Shared.Data
                 //else if (peopleVisualizer != null && msOfficeTracker == null) dto.Office365ApiEnabled = peopleVisualizer.PeopleVisualizerEnabled;
                 //else dto.Office365ApiEnabled = false;
 
-                var flowLightTracker = GetFlowLight();
-                if (flowLightTracker != null) dto.FlowLightEnabled = flowLightTracker.FlowLightEnabled;
+                var flowLight = FlowLight.Handler.GetInstance();
+                if (flowLight != null) dto.FlowLightEnabled = flowLight.FlowLightEnabled;
             } 
             catch { }
 
@@ -185,20 +185,6 @@ namespace Shared.Data
             var tracker = GetUserEfficiencyTracker();
             if (tracker != null) return tracker.PopUpEnabled;
             else return false;
-        }
-
-        private FlowLight.Handler GetFlowLight()
-        {
-            try
-            {
-                var tracker =
-                    _trackers.Where(t => t.GetType() == typeof(FlowLight.Handler))
-                        .Cast<FlowLight.Handler>()
-                        .FirstOrDefault();
-
-                return tracker;
-            }
-            catch { return null; }
         }
     }
 }

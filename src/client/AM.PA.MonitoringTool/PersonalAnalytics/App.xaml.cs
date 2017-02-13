@@ -128,7 +128,7 @@ namespace PersonalAnalytics
             //////////////////////////////////////////////////////
             if (FlowLight.Handler.GetInstance().FlowLightEnabled)
             {
-                FlowLight.Handler.GetInstance().Start();
+                FlowLight.Handler.GetInstance().Start(trackers);
             }
         }
 
