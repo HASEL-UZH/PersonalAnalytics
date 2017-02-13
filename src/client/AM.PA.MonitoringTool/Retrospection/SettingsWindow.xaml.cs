@@ -11,6 +11,8 @@ using System.Windows;
 using System.Linq;
 using System.Globalization;
 using System.Windows.Controls;
+using System.Diagnostics;
+using System.Collections.Specialized;
 
 namespace Retrospection
 {
@@ -27,6 +29,10 @@ namespace Retrospection
         private bool defaultTimeSpentShowProgramsEnabled;
         private bool defaultTimeSpentShowEmailsEnabled;
         private bool defaultFlowLightEnabled;
+        private bool defaultFlowLightAutomaticEnabled;
+        private bool defaultFlowLightDnDEnabled;
+        private int defaultFlowLightSensitivityLevel;
+        private string[] defaultFlowLightBlacklist;
 
         private string minutesStr = " minutes";
         private List<ITracker> _trackers;
@@ -52,6 +58,10 @@ namespace Retrospection
             defaultTimeSpentShowProgramsEnabled = dto.TimeSpentShowProgramsEnabled.Value;
             defaultTimeSpentShowEmailsEnabled = dto.TimeSpentShowEmailsEnabled.Value;
             defaultFlowLightEnabled = dto.FlowLightEnabled.Value;
+            defaultFlowLightAutomaticEnabled = dto.FlowLightAutomaticEnabled.Value;
+            defaultFlowLightDnDEnabled = dto.FlowLightDnDEnabled.Value;
+            defaultFlowLightSensitivityLevel = dto.FlowLightSensitivityLevel.Value;
+            defaultFlowLightBlacklist = dto.FlowLightBlacklist;
 
             // no changes yet, disable buttons by default
             SaveButtonsEnabled(false);
@@ -92,6 +102,72 @@ namespace Retrospection
             CbFlowLightEnabled.IsChecked = defaultFlowLightEnabled;
             CbFlowLightEnabled.Checked += CbChecked_Update;
             CbFlowLightEnabled.Unchecked += CbChecked_Update;
+
+            RbFlowLightAutomatic.IsChecked = defaultFlowLightAutomaticEnabled;
+            RbFlowLightManual.IsChecked = !defaultFlowLightAutomaticEnabled;
+            RbFlowLightAutomatic.Checked += CbChecked_Update;
+            RbFlowLightAutomatic.Unchecked += CbChecked_Update;
+
+            CbFlowLightAllowDnD.IsChecked = defaultFlowLightDnDEnabled;
+            CbFlowLightAllowDnD.Checked += CbChecked_Update;
+            CbFlowLightAllowDnD.Unchecked += CbChecked_Update;
+
+            SrFlowLightSensitivity.Value = defaultFlowLightSensitivityLevel;
+            SrFlowLightSensitivity.ValueChanged += CbChecked_Update;
+
+            foreach (string runningApplication in GetRunningApps())
+            {
+                LbFlowLightRunningApps.Items.Add(runningApplication);
+            }
+            foreach (string blacklistedApplication in defaultFlowLightBlacklist)
+            {
+                LbFlowLightBlacklistedApps.Items.Add(blacklistedApplication);
+            }
+
+            BtFlowLightMoveToBlacklist.Click += BtFlowLightMoveToBlacklist_Click;
+            BtFlowLightMoveFromBlacklist.Click += BtFlowLightMoveFromBlacklist_Click;
+        }
+
+        private void BtFlowLightMoveFromBlacklist_Click(object sender, RoutedEventArgs e)
+        {
+            string selectedItem = LbFlowLightBlacklistedApps.SelectedValue.ToString();
+            int selectedIndex = LbFlowLightBlacklistedApps.SelectedIndex;
+            LbFlowLightBlacklistedApps.Items.RemoveAt(selectedIndex);
+            LbFlowLightRunningApps.Items.Add(selectedItem);
+
+            UpdateSettingsChanged();
+        }
+
+        private void BtFlowLightMoveToBlacklist_Click(object sender, RoutedEventArgs e)
+        {
+            string selectedItem = LbFlowLightRunningApps.SelectedValue.ToString();
+            int selectedIndex = LbFlowLightRunningApps.SelectedIndex;
+            LbFlowLightRunningApps.Items.RemoveAt(selectedIndex);
+            LbFlowLightBlacklistedApps.Items.Add(selectedItem);
+
+            UpdateSettingsChanged();
+        }
+
+        private List<string> GetRunningApps()
+        {
+            var ret = new List<string>();
+
+            foreach (var proc in Process.GetProcesses())
+            {
+                var handle = IntPtr.Zero;
+                try
+                {
+                    handle = proc.MainWindowHandle;
+                }
+                catch (Exception) { }
+
+                if (handle != IntPtr.Zero && proc.ProcessName != "explorer")
+                {
+                    ret.Add(proc.ProcessName);
+                }
+            }
+
+            return ret;
         }
 
         #region User Changed Values
@@ -116,6 +192,9 @@ namespace Retrospection
         {
             try
             {
+                string[] blacklist = new string[LbFlowLightBlacklistedApps.Items.Count];
+                LbFlowLightBlacklistedApps.Items.CopyTo(blacklist, 0);
+
                 if ((defaultPopUpIsEnabled != CbPopUpsEnabled.IsChecked.Value) ||
                  (defaultPopUpInterval + minutesStr != CbPopUpInterval.SelectedValue.ToString()) ||
                  (defaultOffice365ApiEnabled != CbOfficeApiEnabled.IsChecked.Value) ||
@@ -123,7 +202,11 @@ namespace Retrospection
                  (defaultOpenRetrospectionInFullScreen != CbOpenRetrospectionInFullScreen.IsChecked.Value) ||
                  (defaultTimeSpentShowEmailsEnabled != CbTimeSpentShowEmailsEnabled.IsChecked.Value) ||
                  (defaultTimeSpentShowProgramsEnabled != CbTimeSpentShowProgramsEnabled.IsChecked.Value) ||
-                 (defaultFlowLightEnabled != CbFlowLightEnabled.IsChecked.Value)
+                 (defaultFlowLightEnabled != CbFlowLightEnabled.IsChecked.Value) ||
+                 (defaultFlowLightAutomaticEnabled != RbFlowLightAutomatic.IsChecked.Value) ||
+                 (defaultFlowLightDnDEnabled != CbFlowLightAllowDnD.IsChecked.Value) ||
+                 (defaultFlowLightSensitivityLevel != SrFlowLightSensitivity.Value) ||
+                 (!defaultFlowLightBlacklist.SequenceEqual(blacklist))
                  )
                 {
                     SaveButtonsEnabled(true);
@@ -202,6 +285,32 @@ namespace Retrospection
                     dto.FlowLightEnabled = CbFlowLightEnabled.IsChecked.Value;
                 }
                 else { dto.FlowLightEnabled = null; }
+
+                if (defaultFlowLightAutomaticEnabled != RbFlowLightAutomatic.IsChecked.Value)
+                {
+                    dto.FlowLightAutomaticEnabled = RbFlowLightAutomatic.IsChecked;
+                }
+                else { dto.FlowLightAutomaticEnabled = null; }
+
+                if (defaultFlowLightDnDEnabled != CbFlowLightAllowDnD.IsChecked.Value)
+                {
+                    dto.FlowLightDnDEnabled = CbFlowLightAllowDnD.IsChecked;
+                }
+                else { dto.FlowLightDnDEnabled = null; }
+
+                if (defaultFlowLightSensitivityLevel != SrFlowLightSensitivity.Value)
+                {
+                    dto.FlowLightSensitivityLevel = (int)SrFlowLightSensitivity.Value;
+                }
+                else { dto.FlowLightSensitivityLevel = null; }
+
+                string[] blacklist = new string[LbFlowLightBlacklistedApps.Items.Count];
+                LbFlowLightBlacklistedApps.Items.CopyTo(blacklist, 0);
+                if (!defaultFlowLightBlacklist.SequenceEqual(blacklist))
+                {
+                    dto.FlowLightBlacklist = blacklist;
+                }
+                else { dto.FlowLightBlacklist = null; }
             }
             catch { }
 

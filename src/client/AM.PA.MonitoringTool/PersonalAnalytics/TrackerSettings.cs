@@ -65,6 +65,22 @@ namespace Shared.Data
                 {
                     FlowLight.Handler.GetInstance().FlowLightEnabled = updatedSettings.FlowLightEnabled.Value;
                 }
+                if (updatedSettings.FlowLightAutomaticEnabled.HasValue)
+                {
+                    FlowLight.Handler.GetInstance().AutomaticEnabled = updatedSettings.FlowLightAutomaticEnabled.Value;
+                }
+                if (updatedSettings.FlowLightDnDEnabled.HasValue)
+                {
+                    FlowLight.Handler.GetInstance().DnDEnabled = updatedSettings.FlowLightDnDEnabled.Value;
+                }
+                if (updatedSettings.FlowLightSensitivityLevel.HasValue)
+                {
+                    FlowLight.Handler.GetInstance().SensitivityLevel = updatedSettings.FlowLightSensitivityLevel.Value;
+                }
+                if (updatedSettings.FlowLightBlacklist != null)
+                {
+                    GetFlowTracker().SetSetting_Application_Blacklist(updatedSettings.FlowLightBlacklist);
+                }
             }
             catch (Exception e)
             {
@@ -103,7 +119,16 @@ namespace Shared.Data
                 //else dto.Office365ApiEnabled = false;
 
                 var flowLight = FlowLight.Handler.GetInstance();
-                if (flowLight != null) dto.FlowLightEnabled = flowLight.FlowLightEnabled;
+                if (flowLight != null)
+                {
+                    dto.FlowLightEnabled = flowLight.FlowLightEnabled;
+                    dto.FlowLightAutomaticEnabled = flowLight.AutomaticEnabled;
+                    dto.FlowLightDnDEnabled = flowLight.DnDEnabled;
+                    dto.FlowLightSensitivityLevel = flowLight.SensitivityLevel;
+                }
+
+                var flowLightTracker = GetFlowTracker();
+                if (flowLightTracker != null) dto.FlowLightBlacklist = flowLightTracker.GetSetting_Application_Blacklist();
             } 
             catch { }
 
@@ -145,6 +170,20 @@ namespace Shared.Data
                 var tracker =
                     _trackers.Where(t => t.GetType() == typeof(MsOfficeTracker.Daemon))
                         .Cast<MsOfficeTracker.Daemon>()
+                        .FirstOrDefault();
+
+                return tracker;
+            }
+            catch { return null; }
+        }
+
+        private FocusLightTracker.Daemon GetFlowTracker()
+        {
+            try
+            {
+                var tracker =
+                    _trackers.Where(t => t.GetType() == typeof(FocusLightTracker.Daemon))
+                        .Cast<FocusLightTracker.Daemon>()
                         .FirstOrDefault();
 
                 return tracker;

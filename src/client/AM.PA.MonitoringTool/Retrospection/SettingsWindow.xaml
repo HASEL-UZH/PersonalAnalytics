@@ -6,7 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         Title="PersonalAnalytics: Settings"
         Width="650"
-        Height="620"
+        Height="680"
         ResizeMode="NoResize"
         mc:Ignorable="d">
 
@@ -32,72 +32,147 @@
                        Text="Settings" />
         </Grid>
 
-        <StackPanel Grid.Row="1" Margin="10">
-            <!--<TextBlock Text="Manage the settings:"/>-->
-            <CheckBox x:Name="CbPopUpsEnabled" Content="Productivity pop-ups enabled" />
-            <TextBlock Margin="20 0 0 0"
-                       Foreground="Gray"
-                       Text="Hint: This will show you a pop-up to chose your perceived productivity in an interval specified below. We suggest you to enable this feature as it may give you additional, unique insights."
-                       TextWrapping="Wrap" />
+        <TabControl Grid.Row="1" Margin="10">
+            <TabItem Height="22"
+                     VerticalAlignment="Top"
+                     Header="General Settings">
+                <StackPanel Margin="5">
+                    <!--<TextBlock Text="Manage the settings:"/>-->
+                    <CheckBox x:Name="CbPopUpsEnabled" Content="Productivity pop-ups enabled" />
+                    <TextBlock Margin="20 0 0 0"
+                               Foreground="Gray"
+                               Text="Hint: This will show you a pop-up to chose your perceived productivity in an interval specified below. We suggest you to enable this feature as it may give you additional, unique insights."
+                               TextWrapping="Wrap" />
 
-            <StackPanel Margin="20 20 0 0">
-                <TextBlock Text="How often should the pop-up be displayed to ask you about your perceived productivity?" />
-                <ComboBox x:Name="CbPopUpInterval"
-                          Width="200"
-                          Margin="0 5 10 0"
-                          HorizontalAlignment="Left"
-                          SelectedValuePath="Content">
-                    <ComboBoxItem>20 minutes</ComboBoxItem>
-                    <ComboBoxItem>30 minutes</ComboBoxItem>
-                    <ComboBoxItem>60 minutes</ComboBoxItem>
-                    <ComboBoxItem>120 minutes</ComboBoxItem>
-                </ComboBox>
-            </StackPanel>
+                    <StackPanel Margin="20 20 0 0">
+                        <TextBlock Text="How often should the pop-up be displayed to ask you about your perceived productivity?" />
+                        <ComboBox x:Name="CbPopUpInterval"
+                                  Width="200"
+                                  Margin="0 5 10 0"
+                                  HorizontalAlignment="Left"
+                                  SelectedValuePath="Content">
+                            <ComboBoxItem>20 minutes</ComboBoxItem>
+                            <ComboBoxItem>30 minutes</ComboBoxItem>
+                            <ComboBoxItem>60 minutes</ComboBoxItem>
+                            <ComboBoxItem>120 minutes</ComboBoxItem>
+                        </ComboBox>
+                    </StackPanel>
 
-            <CheckBox x:Name="CbUserInputTrackerEnabled"
-                      Margin="0 20 0 0"
-                      Content="User Input Tracker enabled" />
-            <TextBlock x:Name="TbUserInputTrackerHint"
-                       Margin="20 0 0 0"
-                       Foreground="Gray"
-                       Text="Hint: In case you experience some lags with the mouse and keyboard after you installed the tool, it might be caused by the user input tracker. Please let us know if you experience this issue so we can try to fix it. In the meantime, we suggest you to disable the tracker temporarily."
-                       TextWrapping="Wrap" />
+                    <CheckBox x:Name="CbUserInputTrackerEnabled"
+                              Margin="0 20 0 0"
+                              Content="User Input Tracker enabled" />
+                    <TextBlock x:Name="TbUserInputTrackerHint"
+                               Margin="20 0 0 0"
+                               Foreground="Gray"
+                               Text="Hint: In case you experience some lags with the mouse and keyboard after you installed the tool, it might be caused by the user input tracker. Please let us know if you experience this issue so we can try to fix it. In the meantime, we suggest you to disable the tracker temporarily."
+                               TextWrapping="Wrap" />
 
-            <CheckBox x:Name="CbOpenRetrospectionInFullScreen"
-                      Margin="0 20 0 0"
-                      Content="Always open the retrospection in full screen" />
+                    <CheckBox x:Name="CbOpenRetrospectionInFullScreen"
+                              Margin="0 20 0 0"
+                              Content="Always open the retrospection in full screen" />
 
-            <CheckBox x:Name="CbTimeSpentShowProgramsEnabled"
-                      Margin="0 20 0 0"
-                      Content="Show programs used in the 'Time Spent'-table" />
-            <CheckBox x:Name="CbTimeSpentShowEmailsEnabled"
-                      Margin="0 5 0 0"
-                      Content="Show details from working in Outlook in the 'Time Spent'-table" />
-            <TextBlock Margin="20 0 0 0"
-                       Foreground="Gray"
-                       Text="Hint: The time spent reading/writing emails might not be perfect as this metric bases on the Outlook window title, which is not changed if you are not reading/writing emails in new window, but the Outlook main window."
-                       TextWrapping="Wrap" />
+                    <CheckBox x:Name="CbTimeSpentShowProgramsEnabled"
+                              Margin="0 20 0 0"
+                              Content="Show programs used in the 'Time Spent'-table" />
+                    <CheckBox x:Name="CbTimeSpentShowEmailsEnabled"
+                              Margin="0 5 0 0"
+                              Content="Show details from working in Outlook in the 'Time Spent'-table" />
+                    <TextBlock Margin="20 0 0 0"
+                               Foreground="Gray"
+                               Text="Hint: The time spent reading/writing emails might not be perfect as this metric bases on the Outlook window title, which is not changed if you are not reading/writing emails in new window, but the Outlook main window."
+                               TextWrapping="Wrap" />
 
 
-            <CheckBox x:Name="CbOfficeApiEnabled"
-                      Margin="0 20 0 0"
-                      Content="Office 365 Tracker enabled" />
-            <TextBlock x:Name="TbOfficeApiHint"
-                       Margin="20 0 0 0"
-                       Foreground="Gray"
-                       Text="Hint: If you enable it, you need to log-in with your Office 365 work account. This tracker will then regularly collect the meetings in your calendar, and the number of emails sent, received and your inbox size. The contents of the emails and meetings are NOT accessed."
-                       TextWrapping="Wrap" />
+                    <CheckBox x:Name="CbOfficeApiEnabled"
+                              Margin="0 20 0 0"
+                              Content="Office 365 Tracker enabled" />
+                    <TextBlock x:Name="TbOfficeApiHint"
+                               Margin="20 0 0 0"
+                               Foreground="Gray"
+                               Text="Hint: If you enable it, you need to log-in with your Office 365 work account. This tracker will then regularly collect the meetings in your calendar, and the number of emails sent, received and your inbox size. The contents of the emails and meetings are NOT accessed."
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="FlowLight Settings">
+                <StackPanel Margin="5">
+                    <CheckBox x:Name="CbFlowLightEnabled"
+                              Margin="0 0 0 0"
+                              Content="FlowLight enabled" />
+                    <TextBlock x:Name="TbFlowLightEnabledHint"
+                               Margin="20,0,0,0"
+                               Foreground="Gray"
+                               Text="Hint: If you enable it, your Skype for Business status and your FlowLight will be updated automatically based on your activity on the computer and your calender events."
+                               TextWrapping="Wrap" />
 
-            <CheckBox x:Name="CbFlowLightEnabled"
-                      Margin="0 20 0 0"
-                      Content="FlowLight enabled" />
-            <TextBlock x:Name="TbFlowLightEnabledHint"
-                       Margin="20,0,0,0"
-                       Foreground="Gray"
-                       Text="Hint: If you enable it, your Skype for Business status and your FlowLight will be updated automatically based on your activity on the computer and your calender events."
-                       TextWrapping="Wrap" />
+                    <RadioButton x:Name="RbFlowLightAutomatic"
+                                 Margin="0 20 0 0"
+                                 Content="Automatic" />
+                    <TextBlock x:Name="TbFlowLightAutomaticHint"
+                               Margin="20,0,0,0"
+                               Foreground="Gray"
+                               Text="Hint: If you choose the Automatic mode, the status of FlowLight and Skype for Business will update automatically according to your activity on the computer. You can always override the automatic status in the context menu ('Keep Light ...') or in Skype for Business."
+                               TextWrapping="Wrap" />
+                    <CheckBox x:Name="CbFlowLightAllowDnD"
+                              Margin="20 10 0 0"
+                              Content="Allow status changes to Do Not Disturb" />
+                    <Label Margin="16 10 0 0" Content="FlowLight Sensitivity:" />
+                    <Slider x:Name="SrFlowLightSensitivity"
+                            Width="300"
+                            Margin="16 5 0 0"
+                            HorizontalAlignment="Left"
+                            Maximum="4"
+                            TickPlacement="BottomRight"
+                            Value="2" />
+                    <StackPanel Orientation="Horizontal">
+                        <Label Margin="16 0 0 0" Content="Low" />
+                        <Label Margin="92 0 0 0" Content="Medium" />
+                        <Label Margin="86 0 0 0" Content="High" />
+                    </StackPanel>
 
-        </StackPanel>
+                    <Label Margin="15 20 0 0" Content="Blacklist:" />
+                    <TextBlock x:Name="TbFlowLightBlacklistHint"
+                               Margin="20,0,0,0"
+                               Foreground="Gray"
+                               Text="Hint: Activity while working in applications on the Blacklist will be ignored."
+                               TextWrapping="Wrap" />
+                    <StackPanel Margin="15 0 0 0" Orientation="Horizontal">
+                        <StackPanel Orientation="Vertical">
+                            <Label Content="Running Applications" />
+                            <ListBox x:Name="LbFlowLightRunningApps"
+                                     Width="200"
+                                     Height="60"
+                                     Margin="5 0 0 0"
+                                     ScrollViewer.VerticalScrollBarVisibility="Visible" />
+                        </StackPanel>
+                        <StackPanel Margin="10 30 10 0" Orientation="Vertical">
+                            <Button x:Name="BtFlowLightMoveToBlacklist"
+                                    VerticalAlignment="Center"
+                                    Content="=&gt;" />
+                            <Button x:Name="BtFlowLightMoveFromBlacklist"
+                                    Margin="0 10 0 0"
+                                    VerticalAlignment="Center"
+                                    Content="&lt;=" />
+                        </StackPanel>
+                        <StackPanel Orientation="Vertical">
+                            <Label Content="Blacklisted Applications" />
+                            <ListBox x:Name="LbFlowLightBlacklistedApps"
+                                     Width="200"
+                                     Height="60"
+                                     ScrollViewer.VerticalScrollBarVisibility="Visible" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <RadioButton x:Name="RbFlowLightManual"
+                                 Margin="0 20 0 0"
+                                 Content="Manual" />
+                    <TextBlock x:Name="TbFlowLightManualHint"
+                               Margin="20,0,0,0"
+                               Foreground="Gray"
+                               Text="Hint: If you choose the Manual mode, the status of FlowLight and Skype for Business can only be changed manually in the context menu ('Keep Light ...') or in Skype for Business."
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </TabItem>
+        </TabControl>
 
         <StackPanel Grid.Row="2"
                     Margin="10"

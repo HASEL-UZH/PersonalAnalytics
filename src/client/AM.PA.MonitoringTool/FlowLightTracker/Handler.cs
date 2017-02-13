@@ -22,6 +22,9 @@ namespace FlowLight
         public bool IsRunning;
         private static Handler _handler;
         private bool _flowLightEnabled;
+        private bool _automaticEnabled;
+        private bool _dndEnabled;
+        private int _sensitivityLevel;
         private Timer _updateTimer;
         private bool _locked;
         private bool _enforcing;
@@ -48,33 +51,103 @@ namespace FlowLight
         {
             get
             {
-                _flowLightEnabled = Database.GetInstance().GetSettingsBool("FlowLightTrackerEnabled", Settings.IsEnabledByDefault);
+                _flowLightEnabled = Database.GetInstance().GetSettingsBool("FlowLightEnabled", Settings.IsEnabledByDefault);
                 return _flowLightEnabled;
             }
             set
             {
-                var updatedIsEnabled = value;
+                var flowLightEnabled = value;
 
                 // only update if settings changed
-                if (updatedIsEnabled == _flowLightEnabled) return;
+                if (flowLightEnabled == _flowLightEnabled) return;
 
                 // update settings
-                Database.GetInstance().SetSettings("FlowLightTrackerEnabled", value);
+                Database.GetInstance().SetSettings("FlowLightEnabled", value);
 
                 // start/stop tracker if necessary
-                if (!updatedIsEnabled && IsRunning)
+                if (!flowLightEnabled && IsRunning)
                 {
                     Stop();
                 }
-                else if (updatedIsEnabled && !IsRunning)
+                else if (flowLightEnabled && !IsRunning)
                 {
                     Start(_trackers);
                 }
 
                 // log
-                Database.GetInstance().LogInfo("The participant updated the setting 'FlowLightTrackerEnabled' to " + updatedIsEnabled);
+                Database.GetInstance().LogInfo("The participant updated the setting 'FlowLightEnabled' to " + flowLightEnabled);
             }
         }
+
+        public bool AutomaticEnabled
+        {
+            get
+            {
+                _automaticEnabled = Database.GetInstance().GetSettingsBool("FlowLightAutomaticEnabled", Settings.IsAutomaticByDefault);
+                return _automaticEnabled;
+            }
+            set
+            {
+                var automaticEnabled = value;
+
+                // only update if settings changed
+                if (automaticEnabled == _automaticEnabled) return;
+
+                // update settings
+                Database.GetInstance().SetSettings("FlowLightAutomaticEnabled", value);
+
+                // log
+                Database.GetInstance().LogInfo("The participant updated the setting 'FlowLightAutomaticEnabled' to " + automaticEnabled);
+            }
+        }
+
+        public bool DnDEnabled
+        {
+            get
+            {
+                _dndEnabled = Database.GetInstance().GetSettingsBool("FlowLightDnDEnabled", Settings.IsDnDAllowedByDefault);
+                return _dndEnabled;
+            }
+            set
+            {
+                var dndEnabled = value;
+
+                // only update if settings changed
+                if (dndEnabled == _dndEnabled) return;
+
+                // update settings
+                Database.GetInstance().SetSettings("FlowLightDnDEnabled", value);
+
+                // log
+                Database.GetInstance().LogInfo("The participant updated the setting 'FlowLightDnDEnabled' to " + dndEnabled);
+            }
+        }
+
+        public int SensitivityLevel
+        {
+            get
+            {
+                _sensitivityLevel = Database.GetInstance().GetSettingsInt("FlowLightSensitivityLevel", Settings.DefaultSensitivityLevel);
+                return _sensitivityLevel;
+            }
+            set
+            {
+                var sensitivityLevel = value;
+
+                // only update if settings changed
+                if (sensitivityLevel == _sensitivityLevel) return;
+
+                // update settings
+                Database.GetInstance().SetSettings("FlowLightSensitivityLevel", value.ToString());
+
+                // update FlowTracker
+                UpdateSensitivityInFlowTracker();
+
+                // log
+                Database.GetInstance().LogInfo("The participant updated the setting 'FlowLightSensitivityLevel' to " + sensitivityLevel);            
+            }
+        }
+
 
         public void Start(List<ITracker> trackers)
         {
@@ -95,10 +168,13 @@ namespace FlowLight
                 {
                     IsRunning = false;
                     FlowLightEnabled = false;
-                    StopFlowTracker();
+                    FocusLightTracker.Daemon flowTracker = GetFLowTracker();
+                    if (flowTracker != null) flowTracker.Stop();
                     return; // don't start the FlowLight!
                 }
             }
+
+            UpdateSensitivityInFlowTracker();
 
             //register and start update timer (for FlowTracker)
             if (_updateTimer != null)
@@ -119,6 +195,39 @@ namespace FlowLight
             SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
 
             IsRunning = true;
+        }
+
+        private void UpdateSensitivityInFlowTracker()
+        {
+            FocusLightTracker.Daemon flowTracker = GetFLowTracker();
+            if (flowTracker != null)
+            {
+                switch (SensitivityLevel)
+                {
+                    case 0:
+                        flowTracker.SetSetting_Threshold_High_Percentile(0.95);
+                        flowTracker.SetSetting_Threshold_VeryHigh_Percentile(0.98);
+                        break;
+                    case 1:
+                        flowTracker.SetSetting_Threshold_High_Percentile(0.93);
+                        flowTracker.SetSetting_Threshold_VeryHigh_Percentile(0.97);
+                        break;
+                    case 2:
+                        flowTracker.SetSetting_Threshold_High_Percentile(0.91);
+                        flowTracker.SetSetting_Threshold_VeryHigh_Percentile(0.96);
+                        break;
+                    case 3:
+                        flowTracker.SetSetting_Threshold_High_Percentile(0.89);
+                        flowTracker.SetSetting_Threshold_VeryHigh_Percentile(0.95);
+                        break;
+                    case 4:
+                        flowTracker.SetSetting_Threshold_High_Percentile(0.87);
+                        flowTracker.SetSetting_Threshold_VeryHigh_Percentile(0.94);
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
         /// <summary>
@@ -142,12 +251,13 @@ namespace FlowLight
             _skypeClient.OnOutsideChange -= SkypeClient_OnOutsideChange;
 
             //also stop flowTracker
-            StopFlowTracker();
+            FocusLightTracker.Daemon flowTracker = GetFLowTracker();
+            if (flowTracker != null) flowTracker.Stop();
 
             IsRunning = false;
         }
 
-        private void StopFlowTracker()
+        private FocusLightTracker.Daemon GetFLowTracker()
         {
             try
             {
@@ -157,12 +267,15 @@ namespace FlowLight
 
                 if (flowTracker != null)
                 {
-                    flowTracker.Stop();
+                    return flowTracker;
                 }
+
+                return null;
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
+                return null;
             }
         }
 
@@ -198,12 +311,15 @@ namespace FlowLight
         /// <param name="e"></param>
         private void UpdateTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            // Don't do anything if the work station is locked or we are enforcing a state
-            if (!_locked && !_enforcing)
+            // Don't do anything if the work station is locked, we are enforcing a state, or it is set to manual changes only
+            if (!_locked && !_enforcing && AutomaticEnabled)
             {
                 // set the status to the one determined by FlowTracker
                 FocusState newFlowStatus = FocusLightTracker.Data.Queries.GetCurrentSmoothedFocusState();
-                setStatus(newFlowStatus);
+                if (DnDEnabled || newFlowStatus != FocusState.VeryHigh)
+                { // only set to DnD if DnD is enabled
+                    setStatus(newFlowStatus);
+                }
 
                 Logger.WriteToConsole("FlowLight: Updating from FlowTracker to " + newFlowStatus);
             }
