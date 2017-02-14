@@ -36,6 +36,7 @@ namespace FitbitTracker.Data
         private const string ACTIVITY_URL = "https://api.fitbit.com/1/user/-/activities/date/{0}.json";
         private const string STEP_URL = "https://api.fitbit.com/1/user/-/activities/steps/date/{0}/1d/1min.json";
         private const string STEP_AGGREGATED_URL = "https://api.fitbit.com/1/user/-/activities/steps/date/{0}/1d/15min.json";
+        private const string REVOKE_URL = "https://api.fitbit.com/oauth2/revoke";
 
         //Called when refreshing the access token fails
         public delegate void OnRefreshTokenFail();
@@ -274,6 +275,50 @@ namespace FitbitTracker.Data
             SecretStorage.SaveRefreshToken(accessResponse.refresh_token);
 
             client.Dispose();
+        }
+
+        public static void RevokeAccessToken(string tokenToBeRevoked)
+        {
+            WebClient client = new WebClient();
+            string accessToken = Settings.CLIENT_ID + ":" + Settings.CLIENT_SECRET;
+            accessToken = Base64Encode(accessToken);
+            client.Headers.Add("Authorization", "Basic " + accessToken);
+
+            var values = new NameValueCollection();
+            values["token"] = tokenToBeRevoked;
+
+            try
+            {
+                var response = client.UploadValues(REVOKE_URL, values);
+                var responseString = Encoding.Default.GetString(response);
+
+                SecretStorage.RemoveAccessToken(tokenToBeRevoked);
+                SecretStorage.RemoveRefreshToken(SecretStorage.GetRefreshToken());
+            }
+            catch (WebException e)
+            {
+                if ((e.Response is HttpWebResponse) && ((e.Response as HttpWebResponse).StatusCode == HttpStatusCode.Unauthorized || (e.Response as HttpWebResponse).StatusCode == HttpStatusCode.BadRequest))
+                {
+                    RefreshTokenFail?.Invoke();
+                }
+                else if ((e.Response is HttpWebResponse) && (e.Response as HttpWebResponse).StatusCode.ToString().Equals("429"))
+                {
+                    Logger.WriteToConsole("Too many requests");
+                }
+                else
+                {
+                    Logger.WriteToLogFile(e);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+                Logger.WriteToConsole(e.ToString());
+            }
+            finally
+            {
+                client.Dispose();
+            }
         }
 
         internal static void RefreshAccessToken()

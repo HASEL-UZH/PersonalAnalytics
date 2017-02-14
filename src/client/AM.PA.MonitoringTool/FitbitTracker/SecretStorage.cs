@@ -27,6 +27,18 @@ namespace FitbitTracker
             vault.Add(credential);
         }
 
+        public static void RemoveAccessToken(string accessToken)
+        {
+            var vault = new PasswordVault();
+            vault.Remove(new PasswordCredential(RESOURCE_NAME, ACCESS_TOKEN, accessToken));
+        }
+
+        public static void RemoveRefreshToken(string refreshToken)
+        {
+            var vault = new PasswordVault();
+            vault.Remove(new PasswordCredential(RESOURCE_NAME, REFRESH_TOKEN, refreshToken));
+        }
+
         public static void SaveRefreshToken(string refreshToken)
         {
             var vault = new PasswordVault();
@@ -50,6 +62,7 @@ namespace FitbitTracker
             try
             {
                 var credential = vault.FindAllByResource(RESOURCE_NAME).FirstOrDefault();
+                
                 if (credential != null)
                 {
                     return vault.Retrieve(RESOURCE_NAME, kind).Password;

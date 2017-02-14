@@ -53,6 +53,7 @@
 
             <CheckBox x:Name="FitbitEnabled" Margin="0 20 0 0" Content="Fitbit Tracker enabled" />
             <TextBlock x:Name="FitbitHint" Margin="20 0 0 0" Foreground="Gray" Text="Hint: If enabled, this tracker collects your heartrate, sleep, activity and step data from your Fitbit account."></TextBlock>
+            <Button x:Name="FitbitRevoke" Margin="20 0 0 0" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" Foreground="White" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" VerticalAlignment="Center" HorizontalAlignment="Left" Click="FitbitRevoke_Click">Revoke Access Token</Button>
         </StackPanel>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="10">

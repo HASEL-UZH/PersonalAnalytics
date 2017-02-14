@@ -58,10 +58,16 @@ namespace FitbitTracker
         public override void Start()
         {
             FitbitConnector.RefreshTokenFail += FitbitConnector_RefreshTokenFail;
+
             CheckIfTokenIsAvailable();
-            Logger.WriteToConsole("Start Fitibit Tracker");
-            CreateFitbitPullTimer();
-            IsRunning = true;
+
+            if (IsEnabled())
+            {
+                Logger.WriteToConsole("Start Fitibit Tracker");
+                CreateFitbitPullTimer();
+                IsRunning = true;
+            }
+
         }
 
         //Called whenever refreshing the access or refresh token failed with a not authorized or bad request message
@@ -110,6 +116,7 @@ namespace FitbitTracker
             Logger.WriteToConsole("Couldn't register Fibit. FitbitTracker will be disabled.");
             IsRunning = false;
             Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, false);
+            Stop();
         }
 
         public void ChangeEnabledState(bool? fibtitTrackerEnabled)

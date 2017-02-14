@@ -8,9 +8,10 @@ using Shared.Data;
 using System;
 using System.Collections.Generic;
 using System.Windows;
-using System.Linq;
 using System.Globalization;
 using System.Windows.Controls;
+using FitbitTracker;
+using FitbitTracker.Data;
 
 namespace Retrospection
 {
@@ -40,6 +41,7 @@ namespace Retrospection
             _trackers = trackers;
             TbVersion.Text = "Version: " + version;
             SetDefaultValues(dto);
+            FitbitRevoke.IsEnabled = SecretStorage.GetAccessToken() != null;
         }
 
         private void SetDefaultValues(SettingsDto dto)
@@ -231,6 +233,12 @@ namespace Retrospection
         private void Feedback_Clicked(object sender, EventArgs e)
         {
             Handler.GetInstance().SendFeedback();
+        }
+
+        private void FitbitRevoke_Click(object sender, RoutedEventArgs e)
+        {
+            FitbitRevoke.IsEnabled = false;
+            FitbitConnector.RevokeAccessToken(SecretStorage.GetAccessToken());
         }
     }
 }
