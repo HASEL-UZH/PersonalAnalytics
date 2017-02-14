@@ -34,18 +34,7 @@ namespace FlowLight
         private Status _currentFlowLightStatus;
         private List<ITracker> _trackers;
 
-        #region Start/Stop & Initialization of Singleton
-
-        public static Handler GetInstance()
-        {
-            return _handler ?? (_handler = new Handler());
-        }
-
-        public Handler()
-        {
-            _lightClient = new Blink1Client();
-            _skypeClient = new LyncStatus();
-        }
+        #region Settings
 
         public bool FlowLightEnabled
         {
@@ -79,6 +68,10 @@ namespace FlowLight
             }
         }
 
+        /// <summary>
+        /// specifies whether the FlowTracker can automatically update the status based on the activity (= true) or if only manual
+        /// changes are possible (= false)
+        /// </summary>
         public bool AutomaticEnabled
         {
             get
@@ -101,6 +94,9 @@ namespace FlowLight
             }
         }
 
+        /// <summary>
+        /// specifies whether the FlowLight can automatically go to DnD (= true) or max. to Busy (= false)
+        /// </summary>
         public bool DnDEnabled
         {
             get
@@ -123,6 +119,9 @@ namespace FlowLight
             }
         }
 
+        /// <summary>
+        /// the sensitivity of the FlowTracker, can be between 0 and 4 (0 = low, 2 = medium, 4 = high)
+        /// </summary>
         public int SensitivityLevel
         {
             get
@@ -144,10 +143,24 @@ namespace FlowLight
                 UpdateSensitivityInFlowTracker();
 
                 // log
-                Database.GetInstance().LogInfo("The participant updated the setting 'FlowLightSensitivityLevel' to " + sensitivityLevel);            
+                Database.GetInstance().LogInfo("The participant updated the setting 'FlowLightSensitivityLevel' to " + sensitivityLevel);
             }
         }
 
+        #endregion
+
+        #region Start/Stop & Initialization of Singleton
+
+        public static Handler GetInstance()
+        {
+            return _handler ?? (_handler = new Handler());
+        }
+
+        public Handler()
+        {
+            _lightClient = new Blink1Client();
+            _skypeClient = new LyncStatus();
+        }
 
         public void Start(List<ITracker> trackers)
         {
@@ -197,48 +210,6 @@ namespace FlowLight
             IsRunning = true;
         }
 
-        private void UpdateSensitivityInFlowTracker()
-        {
-            FocusLightTracker.Daemon flowTracker = GetFLowTracker();
-            if (flowTracker != null)
-            {
-                switch (SensitivityLevel)
-                {
-                    case 0:
-                        flowTracker.SetSetting_Threshold_High_Percentile(0.95);
-                        flowTracker.SetSetting_Threshold_VeryHigh_Percentile(0.98);
-                        break;
-                    case 1:
-                        flowTracker.SetSetting_Threshold_High_Percentile(0.93);
-                        flowTracker.SetSetting_Threshold_VeryHigh_Percentile(0.97);
-                        break;
-                    case 2:
-                        flowTracker.SetSetting_Threshold_High_Percentile(0.91);
-                        flowTracker.SetSetting_Threshold_VeryHigh_Percentile(0.96);
-                        break;
-                    case 3:
-                        flowTracker.SetSetting_Threshold_High_Percentile(0.89);
-                        flowTracker.SetSetting_Threshold_VeryHigh_Percentile(0.95);
-                        break;
-                    case 4:
-                        flowTracker.SetSetting_Threshold_High_Percentile(0.87);
-                        flowTracker.SetSetting_Threshold_VeryHigh_Percentile(0.94);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Checks if the office API is used for the first time
-        /// </summary>
-        /// <returns>true if there is no setting stored, else otherwise</returns>
-        private bool IsFlowLightsFirstUse()
-        {
-            return !Database.GetInstance().HasSetting("FlowLightTrackerEnabled");
-        }
-
         public void Stop()
         {
             if (_updateTimer != null)
@@ -255,28 +226,6 @@ namespace FlowLight
             if (flowTracker != null) flowTracker.Stop();
 
             IsRunning = false;
-        }
-
-        private FocusLightTracker.Daemon GetFLowTracker()
-        {
-            try
-            {
-                var flowTracker = _trackers.Where(t => t.GetType() == typeof(FocusLightTracker.Daemon))
-                            .Cast<FocusLightTracker.Daemon>()
-                            .FirstOrDefault();
-
-                if (flowTracker != null)
-                {
-                    return flowTracker;
-                }
-
-                return null;
-            }
-            catch (Exception e)
-            {
-                Logger.WriteToLogFile(e);
-                return null;
-            }
         }
 
         #endregion
@@ -316,10 +265,14 @@ namespace FlowLight
             {
                 // set the status to the one determined by FlowTracker
                 FocusState newFlowStatus = FocusLightTracker.Data.Queries.GetCurrentSmoothedFocusState();
-                if (DnDEnabled || newFlowStatus != FocusState.VeryHigh)
-                { // only set to DnD if DnD is enabled
-                    setStatus(newFlowStatus);
+   
+                // if DnD is not enabled, the status can max. go to busy
+                if (newFlowStatus == FocusState.VeryHigh && !DnDEnabled)
+                {
+                    newFlowStatus = FocusState.High;
                 }
+
+                setStatus(newFlowStatus);        
 
                 Logger.WriteToConsole("FlowLight: Updating from FlowTracker to " + newFlowStatus);
             }
@@ -490,6 +443,74 @@ namespace FlowLight
         }
 
         #endregion
+
+        #endregion
+
+        #region Helpers
+
+        private FocusLightTracker.Daemon GetFLowTracker()
+        {
+            try
+            {
+                var flowTracker = _trackers.Where(t => t.GetType() == typeof(FocusLightTracker.Daemon))
+                            .Cast<FocusLightTracker.Daemon>()
+                            .FirstOrDefault();
+
+                if (flowTracker != null)
+                {
+                    return flowTracker;
+                }
+
+                return null;
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+                return null;
+            }
+        }
+
+        private void UpdateSensitivityInFlowTracker()
+        {
+            FocusLightTracker.Daemon flowTracker = GetFLowTracker();
+            if (flowTracker != null)
+            {
+                switch (SensitivityLevel)
+                {
+                    case 0:
+                        flowTracker.SetSetting_Threshold_High_Percentile(0.95);
+                        flowTracker.SetSetting_Threshold_VeryHigh_Percentile(0.98);
+                        break;
+                    case 1:
+                        flowTracker.SetSetting_Threshold_High_Percentile(0.93);
+                        flowTracker.SetSetting_Threshold_VeryHigh_Percentile(0.97);
+                        break;
+                    case 2:
+                        flowTracker.SetSetting_Threshold_High_Percentile(0.91);
+                        flowTracker.SetSetting_Threshold_VeryHigh_Percentile(0.96);
+                        break;
+                    case 3:
+                        flowTracker.SetSetting_Threshold_High_Percentile(0.89);
+                        flowTracker.SetSetting_Threshold_VeryHigh_Percentile(0.95);
+                        break;
+                    case 4:
+                        flowTracker.SetSetting_Threshold_High_Percentile(0.87);
+                        flowTracker.SetSetting_Threshold_VeryHigh_Percentile(0.94);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks if the office API is used for the first time
+        /// </summary>
+        /// <returns>true if there is no setting stored, else otherwise</returns>
+        private bool IsFlowLightsFirstUse()
+        {
+            return !Database.GetInstance().HasSetting("FlowLightTrackerEnabled");
+        }
 
         #endregion
     }
