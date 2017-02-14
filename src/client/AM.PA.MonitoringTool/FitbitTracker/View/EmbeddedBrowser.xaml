@@ -5,12 +5,26 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:FitbitTracker.View"
              mc:Ignorable="d"
-             Width="800" Height="550"
+             xmlns:paColors="clr-namespace:Shared;assembly=Shared"
              d:DesignHeight="300" d:DesignWidth="300">
-    
+
     <Grid Background="#007acc">
-        <WebBrowser x:Name="PABrowser"/>
-        <TextBlock Background="#007acc" Foreground="White" TextAlignment="Center" VerticalAlignment="Center" x:Name="Success" Text="Thanks for registering, this window closes in 10 seconds."  Visibility="Collapsed" Margin="30,30" TextWrapping="Wrap" FontSize="18" ></TextBlock>
-        <TextBlock Background="#007acc" Foreground="White" TextAlignment="Center" VerticalAlignment="Center" x:Name="Error" Text="Registration failed, FitbitTracker will be disabled. This window closes in 10 seconds."  Visibility="Collapsed" Margin="30,30" FontSize="18" TextWrapping="Wrap"></TextBlock>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <WebBrowser x:Name="PABrowser" Grid.Row="0" />
+
+        <StackPanel Background="{x:Static paColors:Settings.GrayColorBrush}" Grid.Row="0" x:Name="Success" Visibility="Collapsed">
+            <TextBlock Background="{x:Static paColors:Settings.GrayColorBrush}" Foreground="Black" TextAlignment="Center" VerticalAlignment="Center"  Text="Thanks for registering, you can now close this window." Margin="30,30" TextWrapping="Wrap" FontSize="18" ></TextBlock>
+            <Button Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" Foreground="White" Margin="50 0 50 0" Height="50" Content="OK" Click="Error_Click"></Button>
+        </StackPanel>
+
+        <StackPanel Background="{x:Static paColors:Settings.GrayColorBrush}" Grid.Row="0" x:Name="Error" Visibility="Collapsed">
+            <TextBlock Background="{x:Static paColors:Settings.GrayColorBrush}" Foreground="Black" TextAlignment="Center" VerticalAlignment="Center" Text="Registration failed, FitbitTracker will be disabled. You can now close this window" Margin="30,30" FontSize="18" TextWrapping="Wrap"></TextBlock>
+            <Button Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" Foreground="White" Margin="50 0 50 0" Height="50" Content="OK" Click="Error_Click"></Button>
+        </StackPanel>
+
     </Grid>
+
 </UserControl>

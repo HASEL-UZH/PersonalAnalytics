@@ -24,7 +24,6 @@
         </Grid>
 
         <StackPanel Grid.Row="1">
-            <TextBlock Margin="10,0,0,0">We could not find the BLE device you are normally using!</TextBlock>
             <TextBlock Margin="10,10,0,0" TextWrapping="Wrap" Grid.Row="1" Foreground="Black">
             Please make sure that Bluetooth is turned on, you are wearing the Polar chestband and that the device is paired with your computer. Then click on 'Find Devices' and select your chestband. In case you want to disable the PolarTracker, click on 'Disable PolarTracker'.
             </TextBlock>

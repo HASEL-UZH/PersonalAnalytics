@@ -22,7 +22,7 @@ using System.Reflection;
 
 namespace PolarTracker
 {
-    public sealed class Deamon : BaseTracker, ITracker
+    public sealed class Deamon : BaseTracker, ITracker, BluetoothDeviceListener
     {
         private static readonly ConcurrentQueue<HeartRateMeasurement> hrQueue = new ConcurrentQueue<HeartRateMeasurement>();
         private System.Timers.Timer saveToDatabaseTimer = new System.Timers.Timer();
@@ -71,6 +71,8 @@ namespace PolarTracker
             DatabaseConnector.CreatePolarTables();
         }
 
+        public override bool IsFirstStart { get { return !Database.GetInstance().HasSetting(Settings.TRACKER_ENEABLED_SETTING); } }
+
         public override string GetStatus()
         {
             return IsRunning ? (Name + " is running. A bluetooth device is " + (isConnectedToBluetoothDevice ? "connected." : "NOT connected.")) : (Name + " is NOT running.");
@@ -83,53 +85,42 @@ namespace PolarTracker
 
         public override async void Start()
         {
-            bool trackerEnabled = Database.GetInstance().GetSettingsBool(Settings.TRACKER_ENEABLED_SETTING, false);
-            if (trackerEnabled)
+            
+            string storedDeviceName = Database.GetInstance().GetSettingsString(Settings.HEARTRATE_TRACKER_ID_SETTING, String.Empty);
+            if (storedDeviceName.Equals(String.Empty))
             {
-                string storedDeviceName = Database.GetInstance().GetSettingsString(Settings.HEARTRATE_TRACKER_ID_SETTING, String.Empty);
-                if (storedDeviceName.Equals(String.Empty))
+                chooser.ShowDialog();
+            }
+            else
+            {
+                PortableBluetoothDeviceInformation deviceInformation = await Connector.Instance.FindDeviceByName(storedDeviceName);
+
+                if (deviceInformation == null)
                 {
                     chooser.ShowDialog();
                 }
                 else
                 {
-                    PortableBluetoothDeviceInformation deviceInformation = await Connector.Instance.FindDeviceByName(storedDeviceName);
+                    bool connected = await Connector.Instance.Connect(deviceInformation);
 
-                    if (deviceInformation == null)
+                    if (connected)
                     {
-                        chooser.ShowDialog();
+                        Connector.Instance.ConnectionLost += OnConnectionToDeviceLost;
+                        Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
+                        Connector.Instance.ConnectionReestablished += OnConnectionReestablished;
+                        Connector.Instance.BluetoothNotEnabled += OnBluetoothNotEnabled;
+                        FindSensorLocation();
+                        StartDatabaseTimer();
+                        IsRunning = true;
                     }
                     else
                     {
-                        bool connected = await Connector.Instance.Connect(deviceInformation);
-
-                        if (connected)
-                        {
-                            Connector.Instance.ConnectionLost += OnConnectionToDeviceLost;
-                            Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
-                            Connector.Instance.ConnectionReestablished += OnConnectionReestablished;
-                            Connector.Instance.BluetoothNotEnabled += OnBluetoothNotEnabled;
-                            FindSensorLocation();
-                            StartDatabaseTimer();
-                            IsRunning = true;
-                        }
-                        else
-                        {
-                            Logger.WriteToConsole("Couldn't establish a connection! Tracker is not running.");
-                            IsRunning = false;
-                        }
+                        Logger.WriteToConsole("Couldn't establish a connection! Tracker is not running.");
+                        IsRunning = false;
                     }
                 }
             }
-            else
-            {
-                if (!Database.GetInstance().HasSetting(Settings.TRACKER_ENEABLED_SETTING))
-                {
-                    FirstStartWindow window = new FirstStartWindow();
-                    window.Show();
-                    window.Closed += FirstStartWindowClosed;
-                }
-            }
+            
         }
 
         public void ChangeEnableState(bool? polarTrackerEnabled)
@@ -140,18 +131,14 @@ namespace PolarTracker
 
             if (polarTrackerEnabled.Value)
             {
+                CreateDatabaseTablesIfNotExist();
                 Start();
             } else
             {
                 Stop();
             }
         }
-
-        private void FirstStartWindowClosed(object sender, EventArgs e)
-        {
-            Start();
-        }
-
+        
         private void OnBluetoothNotEnabled()
         {
             Logger.WriteToConsole("Bluetooth not enabled!");
@@ -169,7 +156,7 @@ namespace PolarTracker
             showBluetoothNotification = false;
         }
 
-        public void OnConnectionEstablished(string deviceID)
+        void BluetoothDeviceListener.OnConnectionEstablished(string deviceID)
         {
             chooser.Close();
             Database.GetInstance().SetSettings(Settings.HEARTRATE_TRACKER_ID_SETTING, deviceID);
@@ -312,7 +299,7 @@ namespace PolarTracker
             isConnectedToBluetoothDevice = false;
         }
 
-        internal void OnTrackerDisabled()
+        void BluetoothDeviceListener.OnTrackerDisabled() 
         {
             chooser.Close();
             IsRunning = false;
@@ -333,6 +320,12 @@ namespace PolarTracker
         public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)
         {
             return new List<IVisualization> { new PolarVisualizationForWeek(date) };
+        }
+
+        public override List<FirstStartScreenContainer> GetStartScreens()
+        {
+            FirstStartWindow window = new FirstStartWindow();
+            return new List<FirstStartScreenContainer>() { new FirstStartScreenContainer(window, Settings.TRACKER_NAME, window.NextClicked) };
         }
     }
 }

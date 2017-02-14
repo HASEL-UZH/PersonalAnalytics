@@ -1,0 +1,23 @@
+﻿<UserControl x:Class="MsOfficeTracker.Views.FirstStartScreen"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MsOfficeTracker.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+    <StackPanel Grid.Row="0">
+    <TextBlock TextWrapping="Wrap" Padding="5">This tracker allows you to collect information about the meetings you attend and the emails you send/receive in a work day. In case you enable this tracker, you will need to authenticate with your Office 365 work account.</TextBlock>
+    <TextBlock TextWrapping="Wrap" Padding="5">The contents of the emails and meetings are NOT accessed. You can manually disable or enable this tracker anytime in the settings.</TextBlock>
+    <TextBlock TextWrapping="Wrap" Padding="5">Do you want to enable the tracker?</TextBlock>
+            <CheckBox Name="Enable" Checked="Enable_Checked" Unchecked="Enable_Unchecked"> Enable MsOfficeTracker</CheckBox>
+    </StackPanel>
+        <TextBlock Visibility="Hidden" TextWrapping="Wrap" Margin="5 20 0 0" Grid.Row="1" Name="ThanksMessage">Thank you for enabling the MSOfficeTracker. In the next window, please log into your account.</TextBlock>
+    </Grid>    
+</UserControl>

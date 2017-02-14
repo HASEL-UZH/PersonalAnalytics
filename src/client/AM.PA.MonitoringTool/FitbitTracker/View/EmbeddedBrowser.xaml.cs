@@ -3,6 +3,7 @@
 // 
 // Licensed under the MIT License.
 
+using Shared.Data;
 using System;
 using System.Timers;
 using System.Web;
@@ -80,27 +81,22 @@ namespace FitbitTracker.View
         {
             PABrowser.Visibility = System.Windows.Visibility.Collapsed;
             Error.Visibility = System.Windows.Visibility.Visible;
-            StartCountdown();
         }
         
         private void ShowThanksScreen()
         {
             PABrowser.Visibility = System.Windows.Visibility.Collapsed;
             Success.Visibility = System.Windows.Visibility.Visible;
-            StartCountdown();
         }
 
-        private void StartCountdown()
+        private void OK_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            Timer timer = new Timer();
-            timer.Interval = 10000;
-            timer.Elapsed += Finished;
-            timer.Start();
+            FinishEvent?.Invoke();
         }
 
-        private void Finished(object sender, ElapsedEventArgs e)
+        private void Error_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            (sender as Timer).Stop();
+            Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, false);
             FinishEvent?.Invoke();
         }
     }

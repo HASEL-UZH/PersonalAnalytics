@@ -14,6 +14,7 @@ using FitbitTracker.Data.FitbitModel;
 using FitbitTracker.View;
 using System.Windows;
 using System.Reflection;
+using System.Windows.Controls;
 
 namespace FitbitTracker
 {
@@ -52,24 +53,12 @@ namespace FitbitTracker
             return Database.GetInstance().GetSettingsBool(Settings.TRACKER_ENEABLED_SETTING, true);
         }
 
+        public override bool IsFirstStart { get { return !Database.GetInstance().HasSetting(Settings.TRACKER_ENEABLED_SETTING); } }
+
         public override void Start()
         {
-            bool isFirstStart = !Database.GetInstance().HasSetting(Settings.TRACKER_ENEABLED_SETTING);
-
             FitbitConnector.RefreshTokenFail += FitbitConnector_RefreshTokenFail;
-
-            if (isFirstStart)
-            {
-                FirstStartWindow window = new FirstStartWindow();
-                window.ErrorEvent += Browser_ErrorEvent;
-                window.RegistrationTokenEvent += Browser_RegistrationTokenEvent;
-                window.ShowDialog();
-            }
-            else
-            {
-                CheckIfTokenIsAvailable();
-            }
-
+            CheckIfTokenIsAvailable();
             Logger.WriteToConsole("Start Fitibit Tracker");
             CreateFitbitPullTimer();
             IsRunning = true;
@@ -131,6 +120,7 @@ namespace FitbitTracker
 
             if (fibtitTrackerEnabled.Value)
             {
+                CreateDatabaseTablesIfNotExist();
                 Start();
             }
             else
@@ -303,6 +293,12 @@ namespace FitbitTracker
         public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)
         {
             return new List<IVisualization> { new SleepVisualizationForWeek(date), new StepVisualizationForWeek(date) };
+        }
+
+        public override List<FirstStartScreenContainer> GetStartScreens()
+        {
+            FirstStartWindow window = new FirstStartWindow();
+            return new List<FirstStartScreenContainer>() { new FirstStartScreenContainer(window, Settings.TRACKER_NAME, window.NextClicked) };
         }
 
     }
