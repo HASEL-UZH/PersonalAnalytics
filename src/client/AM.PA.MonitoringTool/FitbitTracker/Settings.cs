@@ -3,6 +3,8 @@
 // 
 // Licensed under the MIT License.
 
+using Shared.Data;
+
 namespace FitbitTracker
 {
     internal class Settings
@@ -42,9 +44,12 @@ namespace FitbitTracker
         internal static readonly string FITBIT_FORMAT_DAY = "yyyy-MM-dd";
         internal static readonly int TOKEN_LIFETIME = 60 * 60 * 24 * 1; //1 day
         internal static readonly string REGISTRATION_URL = "https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=2283KD&redirect_uri=https%3A%2F%2Fgithub.com%2Fsealuzh%2FPersonalAnalytics&scope=activity%20heartrate%20location%20nutrition%20profile%20settings%20sleep%20social%20weight&expires_in=604800";
-        internal static readonly string FIRST_AUTHORIZATION_CODE = "MjI4M0tEOjU3NjUxNzFjNWJmMWU5MTExNTY4Mzg0YTI3ZjMzYTg3";
-        internal static readonly string CLIENT_ID = "2283KD";
-        internal static readonly string CLIENT_SECRET = "5765171c5bf1e9111568384a27f33a87";
+        internal static readonly string DB_FIRST_AUTHORIZATION_CODE = "FitbitFirstAuthorizationCode";
+        internal static readonly string FIRST_AUTHORIZATION_CODE = Database.GetInstance().GetSettingsString(Settings.DB_FIRST_AUTHORIZATION_CODE, string.Empty);
+        internal static readonly string DB_CLIENT_ID = "FitbitClientID";
+        internal static readonly string CLIENT_ID = Database.GetInstance().GetSettingsString(Settings.DB_CLIENT_ID, string.Empty);
+        internal static readonly string DB_CLIENT_SECRET = "FitbitClientSecret";
+        internal static readonly string CLIENT_SECRET = Database.GetInstance().GetSettingsString(Settings.DB_CLIENT_SECRET, string.Empty);
         internal static readonly string REDIRECT_URI = "https://github.com/sealuzh/PersonalAnalytics";
     }
 
