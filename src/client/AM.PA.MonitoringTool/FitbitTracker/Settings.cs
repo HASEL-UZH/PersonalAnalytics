@@ -3,6 +3,8 @@
 // 
 // Licensed under the MIT License.
 
+using Shared.Data;
+
 namespace FitbitTracker
 {
     internal class Settings
