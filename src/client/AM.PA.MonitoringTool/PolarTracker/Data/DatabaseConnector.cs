@@ -36,7 +36,11 @@ namespace PolarTracker.Data
             try
             {
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_QUERY);
-                Database.GetInstance().ExecuteDefaultQuery(CREATE_AGGREGATED_QUERY);
+
+                if (Settings.IsDetailedCollectionEnabled)
+                {
+                    Database.GetInstance().ExecuteDefaultQuery(CREATE_AGGREGATED_QUERY);
+                }
             }
             catch (Exception e)
             {

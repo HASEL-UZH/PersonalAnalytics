@@ -298,16 +298,20 @@ namespace FitbitTracker.Data
         {
             try
             {
+                if (Settings.IsDetailedCollectionEnabled)
+                {
+                    Database.GetInstance().ExecuteDefaultQuery(CREATE_SLEEP_INTRA_DAY_TABLE_QUERY);
+                    Database.GetInstance().ExecuteDefaultQuery(CREATE_HEARTRATE_INTRA_DAY_TABLE_QUERY);
+                    Database.GetInstance().ExecuteDefaultQuery(CREATE_STEPS_INTRA_DAY_TABLE_QUERY);
+                }
+
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_SLEEP_TABLE_QUERY);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_SLEEP_SUMMARY_TABLE_QUERY);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_DOWNLOAD_TABLE_QUERY);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_HEARTRATE_DAY_TABLE_QUERY);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_INDEX_FOR_HEARTRATE_DAY_TABLE);
-                Database.GetInstance().ExecuteDefaultQuery(CREATE_HEARTRATE_INTRA_DAY_TABLE_QUERY);
-                Database.GetInstance().ExecuteDefaultQuery(CREATE_STEPS_INTRA_DAY_TABLE_QUERY);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_STEPS_INTRA_DAY_AGGREGATED_TABLE_QUERY);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_ACTIVITY_SUMMARY_TABLE_QUERY);
-                Database.GetInstance().ExecuteDefaultQuery(CREATE_SLEEP_INTRA_DAY_TABLE_QUERY);
             }
             catch (Exception e)
             {
