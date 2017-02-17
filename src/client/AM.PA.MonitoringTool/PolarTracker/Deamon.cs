@@ -38,7 +38,7 @@ namespace PolarTracker
         public Deamon()
         {
             Name = Settings.TRACKER_NAME;
-            if (Settings.IsDetailedCollectionAvailable)
+            if (Settings.IsDetailedCollectionEnabled)
             {
                 Name += " (detailed)";
             }
@@ -236,7 +236,7 @@ namespace PolarTracker
                     }
                 }
 
-                if (Settings.IsDetailedCollectionAvailable)
+                if (Settings.IsDetailedCollectionEnabled)
                 {
                     DatabaseConnector.AddHeartMeasurementsToDatabase(measurements, false);
                 }

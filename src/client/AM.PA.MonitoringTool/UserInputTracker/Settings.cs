@@ -16,7 +16,7 @@ namespace UserInputTracker
 #if PilotManu_March17
         public const bool IsDetailedCollectionEnabled = true;
 #else
-        public const bool IsDetailedCollectionEnabled = true; // TODO: change after testing
+        public const bool IsDetailedCollectionEnabled = false;
 #endif
 
         #region Timer Intervals

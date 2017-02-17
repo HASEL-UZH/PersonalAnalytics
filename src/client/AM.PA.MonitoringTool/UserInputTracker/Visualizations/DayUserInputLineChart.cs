@@ -39,10 +39,10 @@ namespace UserInputTracker.Visualizations
 
             // if no user input data available, try to get it from the old data (V1 user input tracker)
             // TODO: remove at some point (when no one is using the old user-input tracker anymore)
-            if (chartQueryResultsLocal.Sum(i => i.Value) == 0)
-            {
-                chartQueryResultsLocal = Queries.GetUserInputTimelineData_v1(_date);
-            }
+            //if (chartQueryResultsLocal.Sum(i => i.Value) == 0)
+            //{
+            //    chartQueryResultsLocal = Queries.GetUserInputTimelineData_v1(_date);
+            //}
 
             // 3 is the minimum number of input-data-items - else, it makes no sense to show a visualization
             if (chartQueryResultsLocal.Count < 3) 

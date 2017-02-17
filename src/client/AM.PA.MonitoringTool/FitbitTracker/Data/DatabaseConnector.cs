@@ -469,7 +469,7 @@ namespace FitbitTracker.Data
                         sleepQuery += String.Format(INSERT_SLEEP_QUERY, id, "'" + DateTime.Now + "'", log.AwakeCount, log.AwakeDuration, "'" + log.DateOfSleep.ToString(Settings.FORMAT_DAY) + "'", log.Duration, log.Efficiency, log.IsMainSleep ? 1 : 0, log.LogID, log.MinutesAfterWakeup, log.MinutesAsleep, log.MinutesAwake, ReplaceNaNValues(log.MinutesToFallAsleep), log.RestlessCount, log.RestlessDuration, "'" + log.StartTime.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", log.TimeInBed);
                         Database.GetInstance().ExecuteDefaultQuery(sleepQuery);
                     }
-                    if (Settings.IsDetailedCollectionAvailable)
+                    if (Settings.IsDetailedCollectionEnabled)
                     {
                         InsertSleepIntradayData(log, day);
                     }

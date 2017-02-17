@@ -24,7 +24,7 @@ namespace UserInputTracker.Data
                 // V2.0: only one table needed as we store an aggregate
                 Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableUserInput_v2 + " (id INTEGER PRIMARY KEY, time TEXT, tsStart TEXT, tsEnd TEXT, keyTotal INTEGER, keyOther INTEGER, keyBackspace INTEGER, keyNavigate INTEGER, clickTotal INTEGER, clickOther INTEGER, clickLeft INTEGER, clickRight INTEGER, scrollDelta INTEGER, movedDistance INTEGER)");
                 
-                // V1.0: old tables
+                // V1.0: detailed (old) tables (used just for studies)
                 if (Settings.IsDetailedCollectionEnabled)
                 {
                     Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTableKeyboard_v1 + " (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, keystrokeType TEXT)");
@@ -362,7 +362,7 @@ namespace UserInputTracker.Data
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        internal static Dictionary<DateTime, int> GetUserInputTimelineData_v1(DateTimeOffset date)
+        /*internal static Dictionary<DateTime, int> GetUserInputTimelineData_v1(DateTimeOffset date)
         {
             var dto = new Dictionary<DateTime, int>();
 
@@ -472,6 +472,6 @@ namespace UserInputTracker.Data
             }
 
             return dto;
-        }
+        }*/
     }
 }

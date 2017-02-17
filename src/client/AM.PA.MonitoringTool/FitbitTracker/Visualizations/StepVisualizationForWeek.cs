@@ -28,7 +28,7 @@ namespace FitbitTracker
         {
             var html = string.Empty;
 
-            List<Tuple<DateTime, int>> values = DatabaseConnector.GetStepsPerTimeFraction(DateTimeHelper.GetFirstDayOfWeek_Iso8801(date), DateTimeHelper.GetLastDayOfWeek_Iso8801(date), 24 * 60, Settings.IsDetailedCollectionAvailable);
+            List<Tuple<DateTime, int>> values = DatabaseConnector.GetStepsPerTimeFraction(DateTimeHelper.GetFirstDayOfWeek_Iso8801(date), DateTimeHelper.GetLastDayOfWeek_Iso8801(date), 24 * 60, Settings.IsDetailedCollectionEnabled);
 
             if (values.Count <= 1)
             {

@@ -25,7 +25,7 @@ namespace FitbitTracker
         public Deamon()
         {
             Name = Settings.TRACKER_NAME;
-            if (Settings.IsDetailedCollectionAvailable)
+            if (Settings.IsDetailedCollectionEnabled)
             {
                 Name += " (detailed)";
             }
@@ -204,7 +204,7 @@ namespace FitbitTracker
             {
                 Logger.WriteToConsole("Sync Steps: " + day.ToString(Settings.FORMAT_DAY));
 
-                if (Settings.IsDetailedCollectionAvailable)
+                if (Settings.IsDetailedCollectionEnabled)
                 {
                     StepData stepData = FitbitConnector.GetStepDataForDay(day);
                     DatabaseConnector.SaveStepDataForDay(stepData, day, false);
@@ -250,7 +250,7 @@ namespace FitbitTracker
                 Tuple<List<HeartRateDayData>, List<HeartrateIntraDayData>> hrData = FitbitConnector.GetHeartrateForDay(day);
                 DatabaseConnector.SaveHRData(hrData.Item1);
 
-                if (Settings.IsDetailedCollectionAvailable)
+                if (Settings.IsDetailedCollectionEnabled)
                 {
                     DatabaseConnector.SaveHRIntradayData(hrData.Item2);
                 }

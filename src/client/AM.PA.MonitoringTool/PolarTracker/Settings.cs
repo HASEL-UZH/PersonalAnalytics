@@ -23,9 +23,9 @@ namespace PolarTracker
 
         //Settings
         #if PilotManu_March17
-            internal static readonly bool IsDetailedCollectionAvailable = true;
+            internal static readonly bool IsDetailedCollectionEnabled = true;
         #else
-            internal static readonly bool IsDetailedCollectionAvailable = true;
+        internal static readonly bool IsDetailedCollectionEnabled = false; // default: disabled
         #endif
 
         //Visualization for week

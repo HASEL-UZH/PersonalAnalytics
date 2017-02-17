@@ -57,7 +57,7 @@ namespace FitbitTracker
         {
             var html = string.Empty;
 
-            List<Tuple<DateTime, int>> values = DatabaseConnector.GetStepsPerTimeFraction(DateTimeHelper.GetStartOfDay(date), DateTimeHelper.GetEndOfDay(date), MINUTES_PER_BAR, Settings.IsDetailedCollectionAvailable);
+            List<Tuple<DateTime, int>> values = DatabaseConnector.GetStepsPerTimeFraction(DateTimeHelper.GetStartOfDay(date), DateTimeHelper.GetEndOfDay(date), MINUTES_PER_BAR, Settings.IsDetailedCollectionEnabled);
             
             if (values.FindAll(x => x.Item2 != 0).Count < 1)
             {
