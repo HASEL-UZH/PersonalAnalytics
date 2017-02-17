@@ -58,7 +58,7 @@ namespace MsOfficeTracker.Visualizations
             }
 
             // error (only if no data at all)
-            if (inbox == -1 && inbox == -1 && sent == -1 && received == -1 && receivedUnread == -1)
+            if (sent < 0 && (received < 0 || receivedUnread < 0) && inbox < 0 && inboxUnread < 0)
             {
                 return VisHelper.NotEnoughData(Dict.NotEnoughData);
             }
