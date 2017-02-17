@@ -11,3 +11,4 @@ bin/
 obj/
 Debug/
 /deployment/PersonalDeveloperAnalytics.old.rar
+*.DS_Store
