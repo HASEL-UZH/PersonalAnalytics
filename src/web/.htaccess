@@ -1,2 +1,0 @@
-RewriteEngine On
-ErrorDocument 404 /index.html
