@@ -18,6 +18,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Windows.Controls;
 
 namespace PersonalAnalytics
 {
@@ -84,20 +85,29 @@ namespace PersonalAnalytics
         {
             //GetDllVersions();
 
+            List<FirstStartScreenContainer> startScreens = new List<FirstStartScreenContainer>();
+
             // User First Start: Welcome
             if (!Database.GetInstance().HasSetting("FirstStartWindowShown"))
             {
-                var firstStart = new FirstStartWindow(_publishedAppVersion);
-                firstStart.ShowDialog();
-
-                Database.GetInstance().SetSettings("FirstStartWindowShown", true);
+                FirstStartWindow window = new FirstStartWindow();
+                startScreens.Add(new FirstStartScreenContainer(new FirstStartWindow(), "Personal Analytics: First Start", FirstStartWindow.NextClicked));
+            }
+            
+            foreach (var tracker in _trackers.Where(t => t.IsFirstStart)) {
+                startScreens.AddRange(tracker.GetStartScreens());
+            }
+            
+            if (startScreens.Count > 0)
+            {
+                StartScreenContainer container = new StartScreenContainer(_publishedAppVersion, startScreens);
+                container.ShowDialog();
             }
 
-            // Start all registered trackers
-            foreach (var tracker in _trackers)
+            // Start all registered trackers. Create db tables only for trackers that are running. This implies that trackers that are turned on have to verify that the tables are created.
+            foreach (var tracker in _trackers.Where(t => t.IsEnabled()))
             {
                 tracker.CreateDatabaseTablesIfNotExist();
-                if (! tracker.IsEnabled()) continue;
                 tracker.Start();
             }
 

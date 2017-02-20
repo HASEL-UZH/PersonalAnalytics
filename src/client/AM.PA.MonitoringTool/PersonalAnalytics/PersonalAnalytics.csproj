@@ -165,6 +165,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
+    <Compile Include="LastStartWindow.xaml.cs">
+      <DependentUpon>LastStartWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="StartScreenContainer.xaml.cs">
+      <DependentUpon>StartScreenContainer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Upload\Uploader.cs" />
     <Compile Include="Upload\UploadReminder.xaml.cs">
       <DependentUpon>UploadReminder.xaml</DependentUpon>
@@ -191,6 +197,14 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="TrackerSettings.cs" />
+    <Page Include="LastStartWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="StartScreenContainer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Upload\UploadReminder.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -45,13 +45,13 @@ namespace PolarTracker.Views
             FindButton.IsEnabled = true;
         }
 
-        private List<Deamon> listeners = new List<Deamon>();
+        private List<BluetoothDeviceListener> listeners = new List<BluetoothDeviceListener>();
 
-        internal void AddListener(Deamon deamon)
+        internal void AddListener(BluetoothDeviceListener listener)
         {
-            if (!listeners.Contains(deamon))
+            if (!listeners.Contains(listener))
             {
-                listeners.Add(deamon);
+                listeners.Add(listener);
             }
         }
 

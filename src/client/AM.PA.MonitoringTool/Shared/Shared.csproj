@@ -119,6 +119,7 @@
     <Compile Include="Data\Extractors\WindowTitleWebsitesExtractor.cs" />
     <Compile Include="Data\RemoteDataHandler.cs" />
     <Compile Include="Dict.cs" />
+    <Compile Include="FirstStartScreenContainer.cs" />
     <Compile Include="Helpers\DateTimeHelper.cs" />
     <Compile Include="Helpers\FeedbackHelper.cs" />
     <Compile Include="Helpers\FeedbackThumbs.cs" />

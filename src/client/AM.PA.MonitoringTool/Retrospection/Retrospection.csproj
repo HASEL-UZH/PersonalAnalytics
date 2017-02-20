@@ -150,6 +150,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FitbitTracker\FitbitTracker.csproj">
+      <Project>{D7752ED4-6DD5-4953-8B5F-BBCE24136D1C}</Project>
+      <Name>FitbitTracker</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Shared\Shared.csproj">
       <Project>{2bbdfa6d-20dd-4a7b-893e-43c388382c9a}</Project>
       <Name>Shared</Name>
@@ -166,8 +170,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-<PropertyGroup>
-<BuildEnvironment>DEV</BuildEnvironment>
-</PropertyGroup>
-<Import Project="../../../web/Customized.targets" Condition=" '$(BuildEnvironment)' == 'DEPLOY' "/>
+  <PropertyGroup>
+    <BuildEnvironment>DEV</BuildEnvironment>
+  </PropertyGroup>
+  <Import Project="../../../web/Customized.targets" Condition=" '$(BuildEnvironment)' == 'DEPLOY' " />
 </Project>

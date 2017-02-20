@@ -3,75 +3,81 @@
 // 
 // Licensed under the MIT License.
 
+using FitbitTracker.Data;
 using Shared.Data;
+using System;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace FitbitTracker.View
 {
     /// <summary>
     /// Interaction logic for FirstStartWindow.xaml
     /// </summary>
-    public partial class FirstStartWindow : Window
+    public partial class FirstStartWindow : UserControl
     {
-        private string token;
 
-        //Called when new tokens were received
-        public delegate void OnRegistrationToken(string token);
-        public event OnRegistrationToken RegistrationTokenEvent;
-
-        //Called when an error happened during retrieving new tokens
-        public delegate void OnError();
-        public event OnError ErrorEvent;
+        private Window browserWindow;
 
         public FirstStartWindow()
         {
             InitializeComponent();
-            Browser.ErrorEvent += Browser_ErrorEvent;
-            Browser.RegistrationTokenEvent += Browser_RegistrationTokenEvent;
-        }
-
-        private void Browser_RegistrationTokenEvent(string token)
-        {
-            this.token = token;
-            OK.IsEnabled = true;
-            Close.IsEnabled = false;
-        }
-
-        private void Browser_ErrorEvent()
-        {
-            OK.IsEnabled = false;
-            Close.IsEnabled = true;
+            if (Database.GetInstance().HasSetting(Settings.TRACKER_ENEABLED_SETTING))
+            {
+                Enabled.IsEnabled = Database.GetInstance().GetSettingsBool(Settings.TRACKER_ENEABLED_SETTING, false);
+            }
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
             ThanksMessage.Visibility = Visibility.Visible;
-            Browser.Visibility = Visibility.Visible;
-            Browser.Navigate(Settings.REGISTRATION_URL);
-            Close.IsEnabled = false;
         }
 
         private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
             ThanksMessage.Visibility = Visibility.Hidden;
-            Browser.Visibility = Visibility.Hidden;
-            Close.IsEnabled = true;
-            OK.IsEnabled = false;
         }
 
-        private void Close_Click(object sender, RoutedEventArgs e)
+        internal void NextClicked()
         {
-            Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, false);
-            ErrorEvent?.Invoke();
-            this.Close();
+            if (Enabled.IsChecked.HasValue)
+            {
+
+                if (Enabled.IsChecked.Value)
+                {
+                    Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, true);
+                    
+                    EmbeddedBrowser browser = new EmbeddedBrowser(Settings.REGISTRATION_URL);
+
+                    browserWindow = new Window
+                    {
+                        Title = "Register PersonalAnalytics to let it access Fitbit data",
+                        Content = browser
+                    };
+
+                    browser.FinishEvent += Browser_FinishEvent;
+                    browser.RegistrationTokenEvent += Browser_RegistrationTokenEvent;
+                    browserWindow.ShowDialog();
+                }
+                else
+                {
+                    Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, false);
+                }
+            }
+            else
+            {
+                Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, false);
+            }
         }
 
-        private void OK_Click(object sender, RoutedEventArgs e)
+        private void Browser_RegistrationTokenEvent(string token)
         {
-            Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, true);
-            RegistrationTokenEvent?.Invoke(token);
-            this.Close();
+            FitbitConnector.GetFirstAccessToken(token);
         }
 
+        private void Browser_FinishEvent()
+        {
+            browserWindow.Close();
+        }
     }
 }

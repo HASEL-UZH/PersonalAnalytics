@@ -173,6 +173,7 @@ namespace UserInputTracker
                 }
                 else if (updatedIsEnabled && !IsRunning)
                 {
+                    CreateDatabaseTablesIfNotExist();
                     Start();
                 }
 

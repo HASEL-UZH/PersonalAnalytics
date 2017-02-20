@@ -36,8 +36,11 @@ namespace MsOfficeTracker.Data
                 // database update 20.06.2016 (added two columns to 'emails' table)
                 if (version == 2)
                 {
-                    Database.GetInstance().ExecuteDefaultQuery("ALTER TABLE " + Settings.EmailsTable + " ADD COLUMN inboxUnread INTEGER;");
-                    Database.GetInstance().ExecuteDefaultQuery("ALTER TABLE " + Settings.EmailsTable + " ADD COLUMN receivedUnread INTEGER;");
+                    if (Database.GetInstance().HasTable(Settings.EmailsTable))
+                    {
+                        Database.GetInstance().ExecuteDefaultQuery("ALTER TABLE " + Settings.EmailsTable + " ADD COLUMN inboxUnread INTEGER;");
+                        Database.GetInstance().ExecuteDefaultQuery("ALTER TABLE " + Settings.EmailsTable + " ADD COLUMN receivedUnread INTEGER;");
+                    }
                 }
             }
             catch (Exception e)
