@@ -2,7 +2,6 @@
 using Shared.Data;
 using System.Drawing;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Forms;
 
 namespace MsOfficeTracker.Views
@@ -30,8 +29,9 @@ namespace MsOfficeTracker.Views
                         NotifyIcon notification = new NotifyIcon();
                         notification.Visible = true;
                         notification.BalloonTipTitle = "MsOfficeTracker disabled!";
+                        notification.BalloonTipText = "MsOfficeTracker was disabled as the authentication failed.";
                         notification.Icon = SystemIcons.Exclamation;
-                        notification.Text = "The MsOfficeTracker was disabled as the authentication with Office 365 failed.";
+                        notification.Text = "MsOfficeTracker was disabled as the authentication failed.";
                         notification.ShowBalloonTip(60 * 1000);
                     }
 

@@ -17,7 +17,7 @@
 
         <StackPanel Background="{x:Static paColors:Settings.GrayColorBrush}" Grid.Row="0" x:Name="Success" Visibility="Collapsed">
             <TextBlock Background="{x:Static paColors:Settings.GrayColorBrush}" Foreground="Black" TextAlignment="Center" VerticalAlignment="Center"  Text="Thanks for registering, you can now close this window." Margin="30,30" TextWrapping="Wrap" FontSize="18" ></TextBlock>
-            <Button Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" Foreground="White" Margin="50 0 50 0" Height="50" Content="OK" Click="Error_Click"></Button>
+            <Button Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" Foreground="White" Margin="50 0 50 0" Height="50" Content="OK" Click="OK_Click"></Button>
         </StackPanel>
 
         <StackPanel Background="{x:Static paColors:Settings.GrayColorBrush}" Grid.Row="0" x:Name="Error" Visibility="Collapsed">
