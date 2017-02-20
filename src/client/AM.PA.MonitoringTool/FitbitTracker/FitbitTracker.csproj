@@ -38,6 +38,8 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
@@ -87,6 +89,11 @@
     <Compile Include="Data\HeartRateDayData.cs" />
     <Compile Include="Data\HeartRateIntraDayData.cs" />
     <Compile Include="SecretStorage.cs" />
+    <Compile Include="Service References\AccessDataService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="View\FirstStartWindow.xaml.cs">
       <DependentUpon>FirstStartWindow.xaml</DependentUpon>
     </Compile>
@@ -107,7 +114,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="Service References\AccessDataService\AccessData.wsdl" />
+    <None Include="Service References\AccessDataService\AccessData.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\AccessDataService\AccessData1.xsd">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="View\EmbeddedBrowser.xaml">
@@ -118,6 +133,27 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\AccessDataService\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\AccessDataService\AccessData.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\AccessDataService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\AccessDataService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\AccessDataService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

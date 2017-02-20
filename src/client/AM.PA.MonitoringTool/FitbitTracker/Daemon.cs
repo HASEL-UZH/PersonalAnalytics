@@ -58,6 +58,8 @@ namespace FitbitTracker
 
             FitbitConnector.RefreshTokenFail += FitbitConnector_RefreshTokenFail;
 
+            CheckIfSecretsAreAvailable();
+
             if (isFirstStart)
             {
                 FirstStartWindow window = new FirstStartWindow();
@@ -69,10 +71,44 @@ namespace FitbitTracker
             {
                 CheckIfTokenIsAvailable();
             }
-
+            
             Logger.WriteToConsole("Start Fitibit Tracker");
             CreateFitbitPullTimer();
             IsRunning = true;
+        }
+
+        private void CheckIfSecretsAreAvailable()
+        {
+            if (SecretStorage.GetFibitFirstAuthorizationCode() == null || SecretStorage.GetFitbitClientID() == null || SecretStorage.GetFitbitClientSecret() == null)
+            {
+                try
+                {
+                    AccessDataService.AccessDataClient client = new AccessDataService.AccessDataClient();
+                        
+                    string authorizationCode = client.GetFitbitFirstAuthorizationCode();
+                    if (authorizationCode != null)
+                    {
+                        SecretStorage.SaveFitbitFirstAuthorizationCode(authorizationCode);
+                    }
+
+                    string clientID = client.GetFitbitClientID();
+                    if (clientID != null)
+                    {
+                        SecretStorage.SaveFitbitClientID(clientID);
+                    }
+
+                    string clientSecret = client.GetFitbitClientSecret();
+                    if (clientSecret != null)
+                    {
+                        SecretStorage.SaveFitbitClientSecret(clientSecret);
+                    }
+                }
+               
+                catch (Exception e)
+                {
+                    Logger.WriteToLogFile(e);
+                }
+            }
         }
 
         //Called whenever refreshing the access or refresh token failed with a not authorized or bad request message

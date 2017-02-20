@@ -257,10 +257,10 @@ namespace FitbitTracker.Data
             Logger.WriteToConsole("Try to get first access token");
 
             WebClient client = new WebClient();
-            client.Headers.Add("Authorization", "Basic " + Settings.FIRST_AUTHORIZATION_CODE);
+            client.Headers.Add("Authorization", "Basic " + SecretStorage.GetFibitFirstAuthorizationCode());
 
             var values = new NameValueCollection();
-            values["clientId"] = Settings.CLIENT_ID;
+            values["clientId"] = SecretStorage.GetFitbitClientID();
             values["grant_type"] = "authorization_code";
             values["redirect_uri"] = Settings.REDIRECT_URI;
             values["code"] = registrationToken;
@@ -281,7 +281,7 @@ namespace FitbitTracker.Data
             Logger.WriteToConsole("Access token not valid anymore. Try to refresh access token.");
 
             WebClient client = new WebClient();
-            string accessToken = Settings.CLIENT_ID + ":" + Settings.CLIENT_SECRET;
+            string accessToken = SecretStorage.GetFitbitClientID() + ":" + SecretStorage.GetFitbitClientSecret();
             accessToken = Base64Encode(accessToken);
             client.Headers.Add("Authorization", "Basic " + accessToken);
             

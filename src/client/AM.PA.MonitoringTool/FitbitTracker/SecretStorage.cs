@@ -20,6 +20,32 @@ namespace FitbitTracker
         private const string ACCESS_TOKEN = "accessToken";
         private const string REFRESH_TOKEN = "refreshToken";
 
+        private const string FITBIT_CREDENTIALS = "FitbitCredentials";
+        private const string FITBIT_CLIENT_ID = "FitbitClientID";
+        private const string FITBIT_CLIENT_SECRET = "FitbitClientSecret";
+        private const string FITBIT_FIRST_AUTHORIZATION_CODE = "FitbitFirstAuthorizationCode";
+
+        public static void SaveFitbitClientID(string clientID)
+        {
+            var vault = new PasswordVault();
+            var credentials = new PasswordCredential(FITBIT_CREDENTIALS, FITBIT_CLIENT_ID, clientID);
+            vault.Add(credentials);
+        }
+
+        public static void SaveFitbitClientSecret(string clientSecret)
+        {
+            var vault = new PasswordVault();
+            var credentials = new PasswordCredential(FITBIT_CREDENTIALS, FITBIT_CLIENT_SECRET, clientSecret);
+            vault.Add(credentials);
+        }
+
+        public static void SaveFitbitFirstAuthorizationCode(string firstAuthorizationCode)
+        {
+            var vault = new PasswordVault();
+            var credentials = new PasswordCredential(FITBIT_CREDENTIALS, FITBIT_FIRST_AUTHORIZATION_CODE, firstAuthorizationCode);
+            vault.Add(credentials);
+        }
+
         public static void SaveAccessToken(string accessToken)
         {
             var vault = new PasswordVault();
@@ -34,6 +60,21 @@ namespace FitbitTracker
             vault.Add(credential);
         }
 
+        public static string GetFitbitClientSecret()
+        {
+            return GetFitbitCredentials(FITBIT_CLIENT_SECRET);
+        }
+
+        public static string GetFitbitClientID()
+        {
+            return GetFitbitCredentials(FITBIT_CLIENT_ID);
+        }
+
+        public static string GetFibitFirstAuthorizationCode()
+        {
+            return GetFitbitCredentials(FITBIT_FIRST_AUTHORIZATION_CODE);
+        }
+
         public static string GetAccessToken()
         {
             return GetToken(ACCESS_TOKEN);
@@ -42,6 +83,27 @@ namespace FitbitTracker
         public static string GetRefreshToken()
         {
             return GetToken(REFRESH_TOKEN);
+        }
+
+        private static string GetFitbitCredentials(string kind)
+        {
+            var vault = new PasswordVault();
+            try
+            {
+                var credential = vault.FindAllByResource(FITBIT_CREDENTIALS).FirstOrDefault();
+                if (credential != null)
+                {
+                    return vault.Retrieve(FITBIT_CREDENTIALS, kind).Password;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
         }
 
         private static string GetToken(string kind)
