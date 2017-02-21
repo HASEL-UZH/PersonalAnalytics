@@ -24,21 +24,21 @@ namespace PolarTracker
 {
     public sealed class Deamon : BaseTracker, ITracker, BluetoothDeviceListener
     {
-        private static readonly ConcurrentQueue<HeartRateMeasurement> hrQueue = new ConcurrentQueue<HeartRateMeasurement>();
-        private System.Timers.Timer saveToDatabaseTimer = new System.Timers.Timer();
-
-        private NotifyIcon notification;
-        private NotifyIcon btNotification;
-        private bool showNotification = true;
-        private bool showBluetoothNotification = true;
-        private double previousRR = double.NaN;
-        private bool isConnectedToBluetoothDevice = false;
+        private static readonly ConcurrentQueue<HeartRateMeasurement> _hrQueue = new ConcurrentQueue<HeartRateMeasurement>();
+        private System.Timers.Timer _saveToDatabaseTimer = new System.Timers.Timer();
+        private NotifyIcon _btNotification;
+        private bool _showNotification = true;
+        private bool _showBluetoothNotification = true;
+        private double _previousRR = double.NaN;
+        private bool _isConnectedToBluetoothDevice = false;
         private ChooseBluetoothDevice _chooser;
         private bool WasFirstStart = true;
 
+        #region ITracker Stuff
+
         public Deamon()
         {
-            Name = Settings.TRACKER_NAME;
+            Name = "Polar Tracker";
             if (Settings.IsDetailedCollectionEnabled)
             {
                 Name += " (detailed)";
@@ -57,16 +57,6 @@ namespace PolarTracker
             return Shared.Helpers.VersionHelper.GetFormattedVersion(v);
         }
 
-        private void OnNewLogFileMessage(Exception error)
-        {
-            Logger.WriteToLogFile(error);
-        }
-
-        private void OnNewConsoleMessage(string message)
-        {
-            Logger.WriteToConsole(message);
-        }
-
         public override void CreateDatabaseTablesIfNotExist()
         {
             DatabaseConnector.CreatePolarTables();
@@ -76,7 +66,7 @@ namespace PolarTracker
 
         public override string GetStatus()
         {
-            return IsRunning ? (Name + " is running. A bluetooth device is " + (isConnectedToBluetoothDevice ? "connected." : "NOT connected.")) : (Name + " is NOT running.");
+            return IsRunning ? (Name + " is running. A bluetooth device is " + (_isConnectedToBluetoothDevice ? "connected." : "NOT connected.")) : (Name + " is NOT running.");
         }
 
         public override bool IsEnabled()
@@ -137,9 +127,58 @@ namespace PolarTracker
             
         }
 
+        public override async void Stop()
+        {
+            Connector.Instance.ValueChangeCompleted -= OnNewHeartrateMeasurement;
+            Connector.Instance.ConnectionLost -= OnConnectionToDeviceLost;
+            Connector.Instance.ConnectionReestablished -= OnConnectionReestablished;
+            Connector.Instance.BluetoothNotEnabled -= OnBluetoothNotEnabled;
+
+            Connector.Instance.Stop();
+            _saveToDatabaseTimer.Stop();
+            await Task.Run(() =>
+                SaveToDatabase()
+            );
+            IsRunning = false;
+            _isConnectedToBluetoothDevice = false;
+        }
+
+        void BluetoothDeviceListener.OnTrackerDisabled() 
+        {
+            _chooser.Close();
+            IsRunning = false;
+            _isConnectedToBluetoothDevice = false;
+            Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, false);
+        }
+
+        public override void UpdateDatabaseTables(int version)
+        {
+            // no database updates necessary yet
+        }
+
+        public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
+        {
+            return new List<IVisualization> { new PolarVisualizationForDay(date) };
+        }
+        
+        public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)
+        {
+            return new List<IVisualization> { new PolarVisualizationForWeek(date) };
+        }
+
+        public override List<FirstStartScreenContainer> GetStartScreens()
+        {
+            var window = new FirstStartWindow();
+            return new List<FirstStartScreenContainer>() { new FirstStartScreenContainer(window, Name, window.NextClicked) };
+        }
+
+        #endregion
+
+        #region Events and Helper Methods
+
         public void ChangeEnableState(bool? polarTrackerEnabled)
         {
-            Logger.WriteToConsole(Settings.TRACKER_NAME + " is now " + (polarTrackerEnabled.Value ? "enabled" : "disabled"));
+            Logger.WriteToConsole(Name + " is now " + (polarTrackerEnabled.Value ? "enabled" : "disabled"));
             Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, polarTrackerEnabled.Value);
             Database.GetInstance().LogInfo("The participant updated the setting '" + Settings.TRACKER_ENEABLED_SETTING + "' to " + polarTrackerEnabled.Value);
 
@@ -153,22 +192,22 @@ namespace PolarTracker
                 Stop();
             }
         }
-        
+
         private void OnBluetoothNotEnabled()
         {
             Logger.WriteToConsole("Bluetooth not enabled!");
-            if (showBluetoothNotification)
+            if (_showBluetoothNotification)
             {
-                btNotification = new NotifyIcon();
-                btNotification.Visible = true;
-                btNotification.BalloonTipTitle = "PersonalAnalytics: Bluetooth not enabled!";
-                btNotification.BalloonTipText = "PersonalAnalytics: Bluetooth is not enabled. To use the biometrics tracker, please enable bluetooth.";
-                btNotification.Icon = SystemIcons.Exclamation;
-                btNotification.Text = "PersonalAnalytics: Bluetooth not enabled!";
-                btNotification.ShowBalloonTip(60 * 1000);
+                _btNotification = new NotifyIcon();
+                _btNotification.Visible = true;
+                _btNotification.BalloonTipTitle = "PersonalAnalytics: Bluetooth not enabled!";
+                _btNotification.BalloonTipText = Name + ": Bluetooth is not enabled. To use the biometrics tracker, please enable bluetooth.";
+                _btNotification.Icon = SystemIcons.Exclamation;
+                _btNotification.Text = Name + ": Bluetooth not enabled!";
+                _btNotification.ShowBalloonTip(60 * 1000);
 
             }
-            showBluetoothNotification = false;
+            _showBluetoothNotification = false;
         }
 
         void BluetoothDeviceListener.OnConnectionEstablished(string deviceID)
@@ -187,25 +226,22 @@ namespace PolarTracker
         private void OnConnectionReestablished()
         {
             Logger.WriteToConsole("Connection restablished!");
-            if (notification != null)
+            if (_btNotification != null)
             {
-                notification.Dispose();
-            }
-            if (btNotification != null)
-            {
-                btNotification.Dispose();
+                _btNotification.Dispose();
             }
 
-            isConnectedToBluetoothDevice = true;
+            _isConnectedToBluetoothDevice = true;
         }
 
         private void StartDatabaseTimer()
         {
-            if (saveToDatabaseTimer != null && !saveToDatabaseTimer.Enabled)
+
+            if (_saveToDatabaseTimer != null && !_saveToDatabaseTimer.Enabled)
             {
-                saveToDatabaseTimer.Interval = Settings.SAVE_TO_DATABASE_INTERVAL;
-                saveToDatabaseTimer.Elapsed += OnSaveToDatabase;
-                saveToDatabaseTimer.Start();
+                _saveToDatabaseTimer.Interval = Settings.SAVE_TO_DATABASE_INTERVAL;
+                _saveToDatabaseTimer.Elapsed += OnSaveToDatabase;
+                _saveToDatabaseTimer.Start();
             }
         }
 
@@ -218,25 +254,23 @@ namespace PolarTracker
         {
             try
             {
-                if (hrQueue.Count > 0)
+                if (_hrQueue.Count > 0)
                 {
+                    _isConnectedToBluetoothDevice = true;
 
-                    Console.WriteLine(hrQueue.Count);
-
-                    isConnectedToBluetoothDevice = true;
                     var measurements = new List<HeartRateMeasurement>();
 
                     HeartRateMeasurement measurement = null;
-                    while (!hrQueue.IsEmpty)
+                    while (!_hrQueue.IsEmpty)
                     {
-                        hrQueue.TryDequeue(out measurement);
+                        _hrQueue.TryDequeue(out measurement);
                         if (measurement != null)
                         {
-                            if (!double.IsNaN(previousRR))
+                            if (!double.IsNaN(_previousRR))
                             {
-                                measurement.RRDifference = Math.Abs(measurement.RRInterval - previousRR);
+                                measurement.RRDifference = Math.Abs(measurement.RRInterval - _previousRR);
                             }
-                            previousRR = measurement.RRInterval;
+                            _previousRR = measurement.RRInterval;
                             measurements.Add(measurement);
                         }
                     }
@@ -262,7 +296,7 @@ namespace PolarTracker
                 }
                 else
                 {
-                    isConnectedToBluetoothDevice = false;
+                    _isConnectedToBluetoothDevice = false;
                     Logger.WriteToConsole("Nothing to save...");
                 }
             }
@@ -290,72 +324,38 @@ namespace PolarTracker
 
         private void OnConnectionToDeviceLost(string deviceName)
         {
-            if (showNotification)
+            if (_showNotification)
             {
-                notification = new NotifyIcon();
-                notification.Visible = true;
-                notification.BalloonTipTitle = "PersonalAnalytics: Connection lost!";
-                notification.BalloonTipText = Settings.TRACKER_NAME + " has lost the connection to: " + deviceName;
-                notification.Icon = SystemIcons.Exclamation;
-                notification.Text = "PersonalAnalytics: Connection to bluetooth device lost!";
-                notification.ShowBalloonTip(60 * 1000);
-                
+                _btNotification = new NotifyIcon();
+                _btNotification.Visible = true;
+                _btNotification.BalloonTipTitle = "PersonalAnalytics: Connection lost!";
+                _btNotification.BalloonTipText = Name + " has lost the connection to: " + deviceName;
+                _btNotification.Icon = SystemIcons.Exclamation;
+                _btNotification.Text = Name + ": Connection to bluetooth device lost!";
+                _btNotification.ShowBalloonTip(60 * 1000);
             }
-            showNotification = false;
-            isConnectedToBluetoothDevice = false;
+            _showNotification = false;
+            _isConnectedToBluetoothDevice = false;
         }
 
         private async void OnNewHeartrateMeasurement(List<HeartRateMeasurement> heartRateMeasurementValue)
         {
             foreach (HeartRateMeasurement measurement in heartRateMeasurementValue)
             {
-                await Task.Run(() => hrQueue.Enqueue(measurement));
+                await Task.Run(() => _hrQueue.Enqueue(measurement));
             }
         }
 
-        public override async void Stop()
+        private void OnNewLogFileMessage(Exception error)
         {
-            Connector.Instance.ValueChangeCompleted -= OnNewHeartrateMeasurement;
-            Connector.Instance.ConnectionLost -= OnConnectionToDeviceLost;
-            Connector.Instance.ConnectionReestablished -= OnConnectionReestablished;
-            Connector.Instance.BluetoothNotEnabled -= OnBluetoothNotEnabled;
-
-            Connector.Instance.Stop();
-            saveToDatabaseTimer.Stop();
-            await Task.Run(() =>
-                SaveToDatabase()
-            );
-            IsRunning = false;
-            isConnectedToBluetoothDevice = false;
+            Logger.WriteToLogFile(error);
         }
 
-        void BluetoothDeviceListener.OnTrackerDisabled() 
+        private void OnNewConsoleMessage(string message)
         {
-            _chooser.Close();
-            IsRunning = false;
-            isConnectedToBluetoothDevice = false;
-            Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, false);
+            Logger.WriteToConsole(message);
         }
 
-        public override void UpdateDatabaseTables(int version)
-        {
-            // no database updates necessary yet
-        }
-
-        public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
-        {
-            return new List<IVisualization> { new PolarVisualizationForDay(date) };
-        }
-        
-        public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)
-        {
-            return new List<IVisualization> { new PolarVisualizationForWeek(date) };
-        }
-
-        public override List<FirstStartScreenContainer> GetStartScreens()
-        {
-            FirstStartWindow window = new FirstStartWindow();
-            return new List<FirstStartScreenContainer>() { new FirstStartScreenContainer(window, Settings.TRACKER_NAME, window.NextClicked) };
-        }
+        #endregion
     }
 }
