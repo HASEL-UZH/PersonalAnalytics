@@ -574,16 +574,23 @@ namespace FitbitTracker.Data
                 throw new ArgumentException("In aggregated mode the fraction has to be at least 15 mins");
             }
 
-            List<Tuple<DateTime, int>> result = new List<Tuple<DateTime, int>>();
+            var result = new List<Tuple<DateTime, int>>();
 
-            string tableName = aggregated ? Settings.STEPS_INTRA_DAY_AGGREGATED_TABLE_NAME : Settings.STEPS_INTRA_DAY_TABLE_NAME;
-            string query = "SELECT SUM(" + VALUE + "), DATETIME((STRFTIME('%s', DATETIME(" + DATE_OF_STEPS + ")) / " + (minutes * 60) + ") * " + (minutes * 60) + ", 'unixepoch') AS TIMESTAMP FROM " + tableName + " WHERE " + DATE_OF_STEPS + " BETWEEN '" + start.ToString(Settings.FORMAT_DAY_AND_TIME) + "' AND '" + end.ToString(Settings.FORMAT_DAY_AND_TIME) + "' GROUP BY TIMESTAMP ORDER BY TIMESTAMP";
-
-            var table = Database.GetInstance().ExecuteReadQuery(query);
-
-            foreach (DataRow row in table.Rows)
+            try
             {
-                result.Add(Tuple.Create<DateTime, int>(DateTime.ParseExact(row[1].ToString(), Settings.FORMAT_DAY_AND_TIME, CultureInfo.InvariantCulture), Int32.Parse(row[0].ToString())));
+                string tableName = aggregated ? Settings.STEPS_INTRA_DAY_AGGREGATED_TABLE_NAME : Settings.STEPS_INTRA_DAY_TABLE_NAME;
+                string query = "SELECT SUM(" + VALUE + "), DATETIME((STRFTIME('%s', DATETIME(" + DATE_OF_STEPS + ")) / " + (minutes * 60) + ") * " + (minutes * 60) + ", 'unixepoch') AS TIMESTAMP FROM " + tableName + " WHERE " + DATE_OF_STEPS + " BETWEEN '" + start.ToString(Settings.FORMAT_DAY_AND_TIME) + "' AND '" + end.ToString(Settings.FORMAT_DAY_AND_TIME) + "' GROUP BY TIMESTAMP ORDER BY TIMESTAMP; ";
+
+                var table = Database.GetInstance().ExecuteReadQuery(query);
+
+                foreach (DataRow row in table.Rows)
+                {
+                    result.Add(Tuple.Create(DateTime.ParseExact(row[1].ToString(), Settings.FORMAT_DAY_AND_TIME, CultureInfo.InvariantCulture), Int32.Parse(row[0].ToString())));
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
             }
 
             return result;
