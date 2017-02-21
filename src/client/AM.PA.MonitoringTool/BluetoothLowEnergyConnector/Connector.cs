@@ -53,63 +53,70 @@ namespace BluetoothLowEnergy
         {
             List<PortableBluetoothDeviceInformation> result = new List<PortableBluetoothDeviceInformation>();
 
-            var devices = await GetAllDevices();
-            foreach (var device in devices)
-            {
-                LoggerWrapper.Instance.WriteToConsole(device.Name);
-                result.Add(new PortableBluetoothDeviceInformation
-                {
-                    Id = device.Id,
-                    Name = device.Name,
-                    Device = device
-                });
-            }
-
-            return result;
-        }
-
-        //Returns the sensor's location on the body. Possibly locations are: Chest, Wirst, Finger, Hand, Ear Lobe, Foot and Other. It it also possible that the connected device can't provide a body location.
-        public async Task<string> GetBodySensorLocation()
-        {
             try
             {
-                var bodySensorLocationCharacteristics = HeartRateService.Instance.Service.GetCharacteristics(GattCharacteristicUuids.BodySensorLocation);
-
-                if (bodySensorLocationCharacteristics.Count > 0)
+                var devices = await GetAllDevices();
+                foreach (var device in devices)
                 {
-                    GattReadResult readResult = await bodySensorLocationCharacteristics[0].ReadValueAsync();
-                    if (readResult.Status == GattCommunicationStatus.Success)
+                    LoggerWrapper.Instance.WriteToConsole(device.Name);
+                    result.Add(new PortableBluetoothDeviceInformation
                     {
-                        byte[] bodySensorLocationData = new byte[readResult.Value.Length];
-
-                        DataReader.FromBuffer(readResult.Value).ReadBytes(bodySensorLocationData);
-
-                        string bodySensorLocation = HeartRateService.Instance.ProcessBodySensorLocationData(bodySensorLocationData);
-                        if (bodySensorLocation != "")
-                        {
-                           return bodySensorLocation;
-                        }
-                        else
-                        {
-                            LoggerWrapper.Instance.WriteToConsole("The Body Sensor Location is not recognized");
-                        }
-                    }
-                    else
-                    {
-                        LoggerWrapper.Instance.WriteToConsole("Device is unreachable, most likely the device is out of range, or is running low on battery");
-                    }
-                }
-                else
-                {
-                    LoggerWrapper.Instance.WriteToConsole("Device does not support the Body Sensor Location characteristic.");
+                        Id = device.Id,
+                        Name = device.Name,
+                        Device = device
+                    });
                 }
             }
             catch (Exception e)
             {
                 LoggerWrapper.Instance.WriteToLogFile(e);
             }
-            return null;
+
+            return result;
         }
+
+        //Returns the sensor's location on the body. Possibly locations are: Chest, Wirst, Finger, Hand, Ear Lobe, Foot and Other. It it also possible that the connected device can't provide a body location.
+        //public async Task<string> GetBodySensorLocation()
+        //{
+        //    try
+        //    {
+        //        var bodySensorLocationCharacteristics = HeartRateService.Instance.Service.GetCharacteristics(GattCharacteristicUuids.BodySensorLocation);
+
+        //        if (bodySensorLocationCharacteristics.Count > 0)
+        //        {
+        //            GattReadResult readResult = await bodySensorLocationCharacteristics[0].ReadValueAsync();
+        //            if (readResult.Status == GattCommunicationStatus.Success)
+        //            {
+        //                byte[] bodySensorLocationData = new byte[readResult.Value.Length];
+
+        //                DataReader.FromBuffer(readResult.Value).ReadBytes(bodySensorLocationData);
+
+        //                string bodySensorLocation = HeartRateService.Instance.ProcessBodySensorLocationData(bodySensorLocationData);
+        //                if (bodySensorLocation != "")
+        //                {
+        //                   return bodySensorLocation;
+        //                }
+        //                else
+        //                {
+        //                    LoggerWrapper.Instance.WriteToConsole("The Body Sensor Location is not recognized");
+        //                }
+        //            }
+        //            else
+        //            {
+        //                LoggerWrapper.Instance.WriteToConsole("Device is unreachable, most likely the device is out of range, or is running low on battery");
+        //            }
+        //        }
+        //        else
+        //        {
+        //            LoggerWrapper.Instance.WriteToConsole("Device does not support the Body Sensor Location characteristic.");
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        LoggerWrapper.Instance.WriteToLogFile(e);
+        //    }
+        //    return null;
+        //}
 
         private async Task<DeviceInformationCollection> GetAllDevices()
         {

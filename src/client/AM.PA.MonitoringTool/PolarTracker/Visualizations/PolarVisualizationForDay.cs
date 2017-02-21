@@ -21,7 +21,7 @@ namespace PolarTracker.Visualizations
         {
             this.date = date;
 
-            Title = "Heart rate (HR) and interbeat interval (RMSSD)";
+            Title = "Heart rate and interbeat interval";
             IsEnabled = true;
             Order = 0;
             Size = VisSize.Wide;
@@ -50,7 +50,7 @@ namespace PolarTracker.Visualizations
 
             //HTML
             html += "<div id='chart' style='align: center'></div>";
-            html += "<p style='text-align: center; font-size: 0.66em;'>Hint: Visualizes your heart rate and your interbeat interval (Last time synced with BLE device: " + DatabaseConnector.GetLastTimeSynced().ToString(CultureInfo.InstalledUICulture) + ").</p>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>Hint: Visualizes your heart rate (HR) and your interbeat interval (RMSSD). (Last time synced with BLE device: " + DatabaseConnector.GetLastTimeSynced().ToString(CultureInfo.InstalledUICulture) + ")</p>";
 
             //JS
             html += "<script>";

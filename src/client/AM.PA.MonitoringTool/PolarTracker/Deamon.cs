@@ -196,51 +196,58 @@ namespace PolarTracker
 
         private async void OnSaveToDatabase(object sender, ElapsedEventArgs e)
         {
-            await Task.Run(() =>
-                SaveToDatabase()
-            );
+            await Task.Run(() => SaveToDatabase());
         }
 
         private void SaveToDatabase()
         {
-            if (hrQueue.Count > 0)
+            try
             {
-                isConnectedToBluetoothDevice = true;
-                List<HeartRateMeasurement> measurements = new List<HeartRateMeasurement>();
-
-                HeartRateMeasurement measurement = null;
-                while (!hrQueue.IsEmpty)
+                if (hrQueue.Count > 0)
                 {
-                    hrQueue.TryDequeue(out measurement);
-                    if (measurement != null)
+                    isConnectedToBluetoothDevice = true;
+                    var measurements = new List<HeartRateMeasurement>();
+
+                    HeartRateMeasurement measurement = null;
+                    while (!hrQueue.IsEmpty)
                     {
-                        if (!Double.IsNaN(previousRR))
+                        hrQueue.TryDequeue(out measurement);
+                        if (measurement != null)
                         {
-                            measurement.RRDifference = Math.Abs(measurement.RRInterval - previousRR);
+                            if (!double.IsNaN(previousRR))
+                            {
+                                measurement.RRDifference = Math.Abs(measurement.RRInterval - previousRR);
+                            }
+                            previousRR = measurement.RRInterval;
+                            measurements.Add(measurement);
                         }
-                        previousRR = measurement.RRInterval;
-                        measurements.Add(measurement);
                     }
-                }
 
-                if (Settings.IsDetailedCollectionEnabled)
-                {
-                    DatabaseConnector.AddHeartMeasurementsToDatabase(measurements, false);
+                    if (Settings.IsDetailedCollectionEnabled)
+                    {
+                        DatabaseConnector.AddHeartMeasurementsToDatabase(measurements, false);
+                    }
+
+                    var ts = (measurements.Count >= 0) ? measurements[0].Timestamp : string.Empty;
+
+                    var average = new HeartRateMeasurement()
+                    {
+                        HeartRateValue = measurements.Where(x => !double.IsNaN(x.HeartRateValue)).Average(x => x.HeartRateValue),
+                        RRDifference = measurements.Where(x => !double.IsNaN(x.RRDifference)).Average(x => x.RRDifference),
+                        RRInterval = measurements.Where(x => !double.IsNaN(x.RRInterval)).Average(x => x.RRInterval),
+                        Timestamp = ts
+                    };
+                    DatabaseConnector.AddHeartMeasurementsToDatabase(new List<HeartRateMeasurement>() { average }, true);
                 }
-               
-                HeartRateMeasurement average = new HeartRateMeasurement()
+                else
                 {
-                        HeartRateValue = measurements.Where(x => !Double.IsNaN(x.HeartRateValue)).Average(x => x.HeartRateValue),
-                        RRDifference = measurements.Where(x => !Double.IsNaN(x.RRDifference)).Average(x => x.RRDifference),
-                        RRInterval = measurements.Where(x => !Double.IsNaN(x.RRInterval)).Average(x => x.RRInterval),
-                        Timestamp = measurements[0].Timestamp
-                };
-                DatabaseConnector.AddHeartMeasurementsToDatabase(new List<HeartRateMeasurement>() { average }, true);
+                    isConnectedToBluetoothDevice = false;
+                    Logger.WriteToConsole("Nothing to save...");
+                }
             }
-            else
+            catch (Exception e)
             {
-                isConnectedToBluetoothDevice = false;
-                Logger.WriteToConsole("Nothing to save...");
+                Logger.WriteToLogFile(e);
             }
         }
 

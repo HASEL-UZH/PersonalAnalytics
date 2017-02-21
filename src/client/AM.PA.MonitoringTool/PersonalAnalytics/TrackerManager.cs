@@ -64,19 +64,18 @@ namespace PersonalAnalytics
             Register(new MsOfficeTracker.Daemon());
             Register(new PolarTracker.Deamon());
             Register(new FitbitTracker.Deamon());
+            Register(new FlowTracker.Daemon());
 
-            //Register(new FlowTracker.Daemon());
 
-
-            #if Dev
+#if Dev
             //Register(new PeopleVisualizer.PeopleVisualizer()); // disabled, as it's not finished and pretty slow
             //Register(new WindowsContextTracker.Daemon();); // implementation not finished
 
-            #elif TestPilot1
+#elif TestPilot1
              // if something is only required in the standard deployment
             
-            #endif
-            
+#endif
+
             return _trackers; // return trackers for retrospection
         }
 

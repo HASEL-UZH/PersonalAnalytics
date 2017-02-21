@@ -11,8 +11,6 @@ using PolarTracker.Data;
 using Shared.Helpers;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Windows.Media;
-using System.Drawing;
 
 namespace PolarTracker
 {
@@ -25,7 +23,7 @@ namespace PolarTracker
         {
             this.date = date;
 
-            Title = "Heart rate (HR) and interbeat interval (RMSSD)";
+            Title = "Heart rate and interbeat interval";
             IsEnabled = true;
             Order = -1;
             Size = VisSize.Wide;
@@ -62,7 +60,7 @@ namespace PolarTracker
             //HTML
             html += "<div id='chart'></div>";
             html += "<div id='dataset-picker' style='float: right;'></div>";
-            html += "<p style='text-align: center; font-size: 0.66em;'>Hint: Visualizes your heart rate and your interbeat interval (Last time synced with BLE device: " + DatabaseConnector.GetLastTimeSynced().ToString(CultureInfo.InstalledUICulture) + ").</p>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>Hint: Visualizes your heart rate (HR) and your interbeat interval (RMSSD). (Last time synced with BLE device: " + DatabaseConnector.GetLastTimeSynced().ToString(CultureInfo.InstalledUICulture) + ")</p>";
             html += "<div id='dataDiv' class='tooltip'></div>";
 
             //JS
