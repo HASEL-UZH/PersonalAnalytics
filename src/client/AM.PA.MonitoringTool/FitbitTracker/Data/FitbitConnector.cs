@@ -42,6 +42,10 @@ namespace FitbitTracker.Data
         public delegate void OnRefreshTokenFail();
         public static event OnRefreshTokenFail RefreshTokenFail;
 
+        //Called when token access is revoked
+        public delegate void OnTokenAccessRevoked();
+        public static event OnTokenAccessRevoked TokenRevoked;
+
         internal static StepData GetStepDataAggregatedForDay(DateTimeOffset day)
         {
             Tuple<StepData, bool> result = GetDataFromFitbit<StepData>(String.Format(STEP_AGGREGATED_URL, day.ToString(Settings.FITBIT_FORMAT_DAY)));
@@ -279,6 +283,8 @@ namespace FitbitTracker.Data
 
         public static void RevokeAccessToken(string tokenToBeRevoked)
         {
+            TokenRevoked?.Invoke();
+
             WebClient client = new WebClient();
             string accessToken = SecretStorage.GetFitbitClientID() + ":" + SecretStorage.GetFitbitClientSecret();
             accessToken = Base64Encode(accessToken);
@@ -294,21 +300,6 @@ namespace FitbitTracker.Data
 
                 SecretStorage.RemoveAccessToken(tokenToBeRevoked);
                 SecretStorage.RemoveRefreshToken(SecretStorage.GetRefreshToken());
-            }
-            catch (WebException e)
-            {
-                if ((e.Response is HttpWebResponse) && ((e.Response as HttpWebResponse).StatusCode == HttpStatusCode.Unauthorized || (e.Response as HttpWebResponse).StatusCode == HttpStatusCode.BadRequest))
-                {
-                    RefreshTokenFail?.Invoke();
-                }
-                else if ((e.Response is HttpWebResponse) && (e.Response as HttpWebResponse).StatusCode.ToString().Equals("429"))
-                {
-                    Logger.WriteToConsole("Too many requests");
-                }
-                else
-                {
-                    Logger.WriteToLogFile(e);
-                }
             }
             catch (Exception e)
             {

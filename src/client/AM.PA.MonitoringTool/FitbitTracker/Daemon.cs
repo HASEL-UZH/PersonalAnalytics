@@ -30,6 +30,14 @@ namespace FitbitTracker
             {
                 Name += " (detailed)";
             }
+
+            FitbitConnector.TokenRevoked += FitbitConnector_TokenRevoked;
+        }
+
+        private void FitbitConnector_TokenRevoked()
+        {
+            Stop();
+            Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, false);
         }
 
         public override string GetVersion()
