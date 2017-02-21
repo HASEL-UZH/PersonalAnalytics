@@ -239,6 +239,7 @@ namespace Retrospection
         {
             FitbitRevoke.IsEnabled = false;
             FitbitConnector.RevokeAccessToken(SecretStorage.GetAccessToken());
+            this.Close();
         }
     }
 }
