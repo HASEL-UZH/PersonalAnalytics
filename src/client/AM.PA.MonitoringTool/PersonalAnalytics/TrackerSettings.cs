@@ -177,13 +177,13 @@ namespace Shared.Data
             catch { return null; }
         }
 
-        private FocusLightTracker.Daemon GetFlowTracker()
+        private FlowTracker.Daemon GetFlowTracker()
         {
             try
             {
                 var tracker =
-                    _trackers.Where(t => t.GetType() == typeof(FocusLightTracker.Daemon))
-                        .Cast<FocusLightTracker.Daemon>()
+                    _trackers.Where(t => t.GetType() == typeof(FlowTracker.Daemon))
+                        .Cast<FlowTracker.Daemon>()
                         .FirstOrDefault();
 
                 return tracker;

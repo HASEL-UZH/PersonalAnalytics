@@ -1,5 +1,5 @@
 ﻿using ABB.FocuslightApp.Clients;
-using FocusLightTracker.Service;
+using FlowTracker.Service;
 using Microsoft.Win32;
 using Shared;
 using Shared.Data;
@@ -181,7 +181,7 @@ namespace FlowLight
                 {
                     IsRunning = false;
                     FlowLightEnabled = false;
-                    FocusLightTracker.Daemon flowTracker = GetFLowTracker();
+                    FlowTracker.Daemon flowTracker = GetFLowTracker();
                     if (flowTracker != null) flowTracker.Stop();
                     return; // don't start the FlowLight!
                 }
@@ -222,7 +222,7 @@ namespace FlowLight
             _skypeClient.OnOutsideChange -= SkypeClient_OnOutsideChange;
 
             //also stop flowTracker
-            FocusLightTracker.Daemon flowTracker = GetFLowTracker();
+            FlowTracker.Daemon flowTracker = GetFLowTracker();
             if (flowTracker != null) flowTracker.Stop();
 
             IsRunning = false;
@@ -264,7 +264,7 @@ namespace FlowLight
             if (!_locked && !_enforcing && AutomaticEnabled)
             {
                 // set the status to the one determined by FlowTracker
-                FocusState newFlowStatus = FocusLightTracker.Data.Queries.GetCurrentSmoothedFocusState();
+                FocusState newFlowStatus = FlowTracker.Data.Queries.GetCurrentSmoothedFocusState();
    
                 // if DnD is not enabled, the status can max. go to busy
                 if (newFlowStatus == FocusState.VeryHigh && !DnDEnabled)
@@ -448,12 +448,12 @@ namespace FlowLight
 
         #region Helpers
 
-        private FocusLightTracker.Daemon GetFLowTracker()
+        private FlowTracker.Daemon GetFLowTracker()
         {
             try
             {
-                var flowTracker = _trackers.Where(t => t.GetType() == typeof(FocusLightTracker.Daemon))
-                            .Cast<FocusLightTracker.Daemon>()
+                var flowTracker = _trackers.Where(t => t.GetType() == typeof(FlowTracker.Daemon))
+                            .Cast<FlowTracker.Daemon>()
                             .FirstOrDefault();
 
                 if (flowTracker != null)
@@ -472,7 +472,7 @@ namespace FlowLight
 
         private void UpdateSensitivityInFlowTracker()
         {
-            FocusLightTracker.Daemon flowTracker = GetFLowTracker();
+            FlowTracker.Daemon flowTracker = GetFLowTracker();
             if (flowTracker != null)
             {
                 switch (SensitivityLevel)
