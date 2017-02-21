@@ -229,15 +229,18 @@ namespace PolarTracker
                     }
 
                     var ts = (measurements.Count >= 0) ? measurements[0].Timestamp : string.Empty;
+                    var heartRateValues = measurements.Where(x => !double.IsNaN(x.HeartRateValue)).Select(x => x.HeartRateValue);
+                    var rrdifferences = measurements.Where(x => !double.IsNaN(x.RRDifference)).Select(x => x.RRDifference);
+                    var rrintervals = measurements.Where(x => !double.IsNaN(x.RRInterval)).Select(x => x.RRInterval);
 
-                    var average = new HeartRateMeasurement()
+                    var averages = new HeartRateMeasurement()
                     {
-                        HeartRateValue = measurements.Where(x => !double.IsNaN(x.HeartRateValue)).Average(x => x.HeartRateValue),
-                        RRDifference = measurements.Where(x => !double.IsNaN(x.RRDifference)).Average(x => x.RRDifference),
-                        RRInterval = measurements.Where(x => !double.IsNaN(x.RRInterval)).Average(x => x.RRInterval),
+                        HeartRateValue = (heartRateValues.Count() == 0) ? double.NaN : heartRateValues.Average(),
+                        RRDifference = (rrdifferences.Count() == 0) ? double.NaN : rrdifferences.Average(),
+                        RRInterval = (rrintervals.Count() == 0) ? double.NaN : rrintervals.Average(),
                         Timestamp = ts
                     };
-                    DatabaseConnector.AddHeartMeasurementsToDatabase(new List<HeartRateMeasurement>() { average }, true);
+                    DatabaseConnector.AddHeartMeasurementsToDatabase(new List<HeartRateMeasurement>() { averages }, true);
                 }
                 else
                 {
@@ -274,7 +277,7 @@ namespace PolarTracker
                 notification = new NotifyIcon();
                 notification.Visible = true;
                 notification.BalloonTipTitle = "PersonalAnalytics: Connection lost!";
-                notification.BalloonTipText = "PersonalAnalytics has lost the connection to: " + deviceName;
+                notification.BalloonTipText = Settings.TRACKER_NAME + " has lost the connection to: " + deviceName;
                 notification.Icon = SystemIcons.Exclamation;
                 notification.Text = "PersonalAnalytics: Connection to bluetooth device lost!";
                 notification.ShowBalloonTip(60 * 1000);
