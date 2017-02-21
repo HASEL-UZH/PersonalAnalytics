@@ -5,12 +5,12 @@
     Licensed under the MIT License.
     -->
 
-<UserControl x:Class="PersonalAnalytics.FirstStartWindow"
+<UserControl x:Class="PersonalAnalytics.Views.FirstStartWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PersonalAnalytics"
+        xmlns:local="clr-namespace:PersonalAnalytics.Views"
         xmlns:paColors="clr-namespace:Shared;assembly=Shared"
         mc:Ignorable="d">
 
@@ -19,7 +19,7 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <StackPanel Margin="10" Grid.Row="0">
+        <StackPanel Grid.Row="0">
             <TextBlock TextWrapping="Wrap">
                 Thank you for installing PersonalAnalytics and participating in our study. A few hints before you start:
                 <LineBreak  /><LineBreak  />
@@ -29,7 +29,7 @@
                 <LineBreak /><LineBreak />
                 <Span Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" FontWeight="Bold">Retrospection:</Span> This is the heart of the tool. It visualized the collected data in a daily and weekly retrospection. If you use it regularly, you can learn more about your work patterns and get valuable insights into your productivity.
                 <LineBreak /><LineBreak />
-                <Span Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" FontWeight="Bold">The Icon:</Span> In your task bar on the bottom right, you will find the PersonalAnalytics icon (<Image Source="Assets/icon.ico" Width="15" Height="15" />), whenever the tool is running. Right click on the icon to access all features, such as opening the Retrospection, pausing/continuing the monitoring component, or looking at the collected data.
+                <Span Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" FontWeight="Bold">The Icon:</Span> In your task bar on the bottom right, you will find the PersonalAnalytics icon (<Image Source="../Assets/icon.ico" Width="15" Height="15" />), whenever the tool is running. Right click on the icon to access all features, such as opening the Retrospection, pausing/continuing the monitoring component, or looking at the collected data.
             </TextBlock>
         </StackPanel>
  

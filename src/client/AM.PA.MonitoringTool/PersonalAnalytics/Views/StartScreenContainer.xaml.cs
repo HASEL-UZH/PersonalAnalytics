@@ -1,9 +1,14 @@
-﻿using Shared;
+﻿// Created by Sebastian Mueller (smueller@ifi.uzh.ch) from the University of Zurich
+// Created: 2017-02-07
+// 
+// Licensed under the MIT License.
+
+using Shared;
 using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Controls;
+using System.Linq;
 
-namespace PersonalAnalytics
+namespace PersonalAnalytics.Views
 {
     /// <summary>
     /// Interaction logic for StartScreenContainer.xaml
@@ -13,7 +18,6 @@ namespace PersonalAnalytics
         private string _appVersion;
         private List<FirstStartScreenContainer> startScreens;
         private int shownScreen = 0;
-        private List<string> trackerNames = new List<string>();
 
         public StartScreenContainer(string version, List<FirstStartScreenContainer> startScreens)
         {
@@ -73,10 +77,6 @@ namespace PersonalAnalytics
             {
                 Top.Inlines.Clear();
                 Top.Inlines.Add(startScreens[shownScreen].Title);
-                if (!trackerNames.Contains(startScreens[shownScreen].Title))
-                {
-                    trackerNames.Add(startScreens[shownScreen].Title);
-                }
 
                 Content.Children.Clear();
                 Content.Children.Add(startScreens[shownScreen].Content);
@@ -88,7 +88,7 @@ namespace PersonalAnalytics
             Top.Inlines.Clear();
             Top.Inlines.Add("Personal Analytics is now ready to be used!");
             Content.Children.Clear();
-            Content.Children.Add(new LastStartWindow(trackerNames));
+            Content.Children.Add(new LastStartWindow(TrackerManager.GetInstance().GetTrackers()));
 
             Buttons.Visibility = Visibility.Hidden;
         }

@@ -19,6 +19,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Controls;
+using PersonalAnalytics.Views;
 
 namespace PersonalAnalytics
 {
@@ -85,24 +86,8 @@ namespace PersonalAnalytics
         {
             //GetDllVersions();
 
-            List<FirstStartScreenContainer> startScreens = new List<FirstStartScreenContainer>();
-
-            // User First Start: Welcome
-            if (!Database.GetInstance().HasSetting("FirstStartWindowShown"))
-            {
-                FirstStartWindow window = new FirstStartWindow();
-                startScreens.Add(new FirstStartScreenContainer(new FirstStartWindow(), "Personal Analytics: First Start", FirstStartWindow.NextClicked));
-            }
-            
-            foreach (var tracker in _trackers.Where(t => t.IsFirstStart)) {
-                startScreens.AddRange(tracker.GetStartScreens());
-            }
-            
-            if (startScreens.Count > 0)
-            {
-                StartScreenContainer container = new StartScreenContainer(_publishedAppVersion, startScreens);
-                container.ShowDialog();
-            }
+            // show unified first start screens
+            ShowFirstStartScreens();
 
             // Start all registered trackers. Create db tables only for trackers that are running. This implies that trackers that are turned on have to verify that the tables are created.
             foreach (var tracker in _trackers.Where(t => t.IsEnabled()))
@@ -144,6 +129,34 @@ namespace PersonalAnalytics
             Database.GetInstance().CreateTimeZoneTable();
             SaveCurrentTimeZone(null, null);
             SystemEvents.TimeChanged += SaveCurrentTimeZone;
+        }
+
+        /// <summary>
+        /// show unified first start screens for tool and each tracker (where necessary)
+        /// </summary>
+        private void ShowFirstStartScreens()
+        {
+            var startScreens = new List<FirstStartScreenContainer>();
+
+            // add first start screen for tool if not yet shown
+            if (!Database.GetInstance().HasSetting("FirstStartWindowShown"))
+            {
+                var window = new FirstStartWindow();
+                startScreens.Add(new FirstStartScreenContainer(new FirstStartWindow(), "Personal Analytics: First Start", FirstStartWindow.NextClicked));
+            }
+
+            // add first start screen of each tracker where not yet shown
+            foreach (var tracker in _trackers.Where(t => t.IsFirstStart))
+            {
+                startScreens.AddRange(tracker.GetStartScreens());
+            }
+
+            // if there is any start screens: show them
+            if (startScreens.Count > 0)
+            {
+                var container = new StartScreenContainer(_publishedAppVersion, startScreens);
+                container.ShowDialog();
+            }
         }
 
         /// <summary>

@@ -10,10 +10,12 @@ using System.Web;
 using System.Windows.Controls;
 using System.Windows.Navigation;
 
-namespace FitbitTracker.View
+namespace FitbitTracker.Views
 {
 
-    //Browser view that is used to retrieve access tokens from fitbit
+    /// <summary>
+    /// Browser view that is used to retrieve access tokens from fitbit
+    /// </summary>
     public partial class EmbeddedBrowser : UserControl
     {
         private bool embedded;
@@ -50,7 +52,11 @@ namespace FitbitTracker.View
             PABrowser.Navigate(url);
         }
 
-        //Called when navigation to a new URL is completed. Here we have to check the code parameter in the URL. It contains the first access token. If an error parameter is passed in the URL, we know that retrieving tokens failed.
+        /// <summary>
+        /// Called when navigation to a new URL is completed. Here we have to check the code parameter in the URL. It contains the first access token. If an error parameter is passed in the URL, we know that retrieving tokens failed.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnNavigation(object sender, NavigationEventArgs e)
         {
             if (!e.Uri.ToString().Equals(Settings.REGISTRATION_URL))

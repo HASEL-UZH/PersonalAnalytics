@@ -165,12 +165,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Include="LastStartWindow.xaml.cs">
-      <DependentUpon>LastStartWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="StartScreenContainer.xaml.cs">
-      <DependentUpon>StartScreenContainer.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Upload\Uploader.cs" />
     <Compile Include="Upload\UploadReminder.xaml.cs">
       <DependentUpon>UploadReminder.xaml</DependentUpon>
@@ -178,13 +172,19 @@
     <Compile Include="Upload\UploadWizard.xaml.cs">
       <DependentUpon>UploadWizard.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\FirstStartWindow.xaml.cs">
+      <DependentUpon>FirstStartWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LastStartWindow.xaml.cs">
+      <DependentUpon>LastStartWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\StartScreenContainer.xaml.cs">
+      <DependentUpon>StartScreenContainer.xaml</DependentUpon>
+    </Compile>
     <Page Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="FirstStartWindow.xaml.cs">
-      <DependentUpon>FirstStartWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Helpers\SingleInstance.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -197,19 +197,23 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="TrackerSettings.cs" />
-    <Page Include="LastStartWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="StartScreenContainer.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Upload\UploadReminder.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Upload\UploadWizard.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\FirstStartWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\LastStartWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\StartScreenContainer.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -349,12 +353,6 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="FirstStartWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup />
   <!-- Necessary for ClickOnce deployment to not be included. 07.12.2016 -->

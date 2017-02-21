@@ -9,7 +9,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace FitbitTracker.View
+namespace FitbitTracker.Views
 {
     /// <summary>
     /// Interaction logic for FirstStartWindow.xaml
@@ -47,11 +47,11 @@ namespace FitbitTracker.View
                 {
                     Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, true);
                     
-                    EmbeddedBrowser browser = new EmbeddedBrowser(Settings.REGISTRATION_URL);
+                    var browser = new EmbeddedBrowser(Settings.REGISTRATION_URL);
 
                     browserWindow = new Window
                     {
-                        Title = "Register PersonalAnalytics to let it access Fitbit data",
+                        Title = Settings.TRACKER_NAME,
                         Content = browser
                     };
 

@@ -6,7 +6,7 @@ using Shared.Data;
 using System;
 using System.Windows.Controls;
 
-namespace PersonalAnalytics
+namespace PersonalAnalytics.Views
 {
     /// <summary>
     /// Interaction logic for FirstStartWindow.xaml

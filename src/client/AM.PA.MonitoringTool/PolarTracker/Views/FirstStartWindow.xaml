@@ -15,13 +15,13 @@
 
         <StackPanel Margin="10" Grid.Row="1">
             <TextBlock TextWrapping="Wrap">
-                The PolarTracker is used to collect your heartrate measurements. If you want to enable this tracker, please check the next checkbox.
+                The Polar Tracker is used to collect your heartrate measurements. If you want to enable this tracker, please check the checkbox below:
                 <LineBreak  /><LineBreak  />
-                <CheckBox Name="Enable" Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked">Enable PolarTracker</CheckBox>
+                <CheckBox Name="Enable" Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked">Enable Polar Tracker</CheckBox>
                 <LineBreak ></LineBreak><LineBreak></LineBreak>
             </TextBlock>
-            <TextBlock Name="ThanksMessage" TextWrapping="Wrap" Visibility="Hidden">
-                Thanks for enabling the PolarTracker. Now, turn on bluetooth and select the Polar device you want to connect to in the popup that appears when clicking on the next button. Please make sure that the device is already paired to your computer.
+            <TextBlock Name="ThanksMessage" TextWrapping="Wrap" Visibility="Collapsed" Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}">
+                Thanks for enabling the Polar Tracker! Please turn on the bluetooth on your computer and select the Polar device (e.g. chest band) you want to connect to in the pop-up that appears when clicking 'Next'. Please make sure that the device is already paired to your computer.
             </TextBlock>
         </StackPanel>
 

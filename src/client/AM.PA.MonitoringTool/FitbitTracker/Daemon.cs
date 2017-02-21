@@ -11,10 +11,9 @@ using FitbitTracker.Data;
 using FitbitTracker.Model;
 using System.Collections.Generic;
 using FitbitTracker.Data.FitbitModel;
-using FitbitTracker.View;
 using System.Windows;
 using System.Reflection;
-using System.Windows.Controls;
+using FitbitTracker.Views;
 
 namespace FitbitTracker
 {
@@ -134,7 +133,7 @@ namespace FitbitTracker
         {
             Application.Current.Dispatcher.Invoke((Action)(() =>
             {
-                EmbeddedBrowser browser = new EmbeddedBrowser(Settings.REGISTRATION_URL);
+                var browser = new EmbeddedBrowser(Settings.REGISTRATION_URL);
                 browser.FinishEvent += Browser_FinishEvent;
                 browser.RegistrationTokenEvent += Browser_RegistrationTokenEvent;
                 browser.ErrorEvent += Browser_ErrorEvent;

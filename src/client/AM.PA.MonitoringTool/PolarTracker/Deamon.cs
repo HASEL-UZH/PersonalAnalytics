@@ -31,7 +31,7 @@ namespace PolarTracker
         private NotifyIcon btNotification;
         private bool showNotification = true;
         private bool showBluetoothNotification = true;
-        private double previousRR = Double.NaN;
+        private double previousRR = double.NaN;
         private bool isConnectedToBluetoothDevice = false;
         private ChooseBluetoothDevice chooser;
 

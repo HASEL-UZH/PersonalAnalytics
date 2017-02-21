@@ -94,7 +94,10 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
     </Compile>
-    <Compile Include="View\FirstStartWindow.xaml.cs">
+    <Compile Include="Views\EmbeddedBrowser.xaml.cs">
+      <DependentUpon>EmbeddedBrowser.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FirstStartWindow.xaml.cs">
       <DependentUpon>FirstStartWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Visualizations\SleepVisualizationForDay.cs" />
@@ -103,9 +106,6 @@
     <Compile Include="Visualizations\StepVisualizationForDay.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="View\EmbeddedBrowser.xaml.cs">
-      <DependentUpon>EmbeddedBrowser.xaml</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Shared\Shared.csproj">
@@ -123,16 +123,6 @@
     <None Include="Service References\AccessDataService\AccessData1.xsd">
       <SubType>Designer</SubType>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="View\EmbeddedBrowser.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="View\FirstStartWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
@@ -154,6 +144,16 @@
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Views\EmbeddedBrowser.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\FirstStartWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

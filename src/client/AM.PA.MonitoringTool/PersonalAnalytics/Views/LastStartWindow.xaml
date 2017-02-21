@@ -1,0 +1,27 @@
+﻿<UserControl x:Class="PersonalAnalytics.Views.LastStartWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:PersonalAnalytics.Views"
+             xmlns:paColors="clr-namespace:Shared;assembly=Shared"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock TextWrapping="Wrap" Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" >Thank you for configuring PersonalAnalytics!</TextBlock>
+            <TextBlock Margin="0 20 0 0" TextWrapping="Wrap">You've decided to use the following data trackers (including the ones which are always enabled):</TextBlock>
+            <TextBlock Margin="0 10 0 0" TextWrapping="Wrap" Name="EnabledTrackerList"></TextBlock>
+            <TextBlock Margin="0 20 0 0" TextWrapping="Wrap">You've decided to disable the following data trackers:</TextBlock>
+            <TextBlock Margin="0 10 0 0" TextWrapping="Wrap" Name="DisabledTrackerList"></TextBlock>
+            <TextBlock Margin="0 20 0 0" TextWrapping="Wrap">You can change this selection any time by enabling or disabling them using the settings menu in the taskbar icon.</TextBlock>
+            <Button Margin="0 20 0 0" Grid.Row="1" Height="30" Width="300" VerticalAlignment="Center" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" Click="Button_Click">start using PersonalAnalytics now</Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

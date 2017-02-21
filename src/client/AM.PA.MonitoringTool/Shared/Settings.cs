@@ -56,6 +56,7 @@ namespace Shared
         // path (Regedit): Computer\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run
         public const string RegAppPath = @"\PersonalAnalytics\PersonalAnalytics\PersonalAnalytics.appref-ms"; // change also publisher name in .csproj
 
+
         ////////////////////////////////////////////////////////////
         // retrospection constants
         // hint: any changes must also be done in styles_css
@@ -68,10 +69,9 @@ namespace Shared
         //internal const double sideMargin = 1.25; //2.5; //1.25;
         //internal const double titleMargin = 4.0; //5.625; //3.125;
 
+
         ////////////////////////////////////////////////////////////
         // contact emails
-
-
         #if PilotMSR
         public const string EmailAddress1 = "tzimmer@microsoft.com"; // main email address
         public const string EmailAddress2 = "ameyer@ifi.uzh.ch";
@@ -80,14 +80,20 @@ namespace Shared
         public static string EmailAddress2 = string.Empty;
         #endif
 
-        //Colors
+
+        ////////////////////////////////////////////////////////////
+        // Colors
         public const string RetrospectionColorHex = "#007acc";
-        private static SolidColorBrush retrospectionColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(RetrospectionColorHex));
-        public static SolidColorBrush RetrospectionColorBrush { get { return retrospectionColor; } }
+        private static SolidColorBrush _retrospectionColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(RetrospectionColorHex));
+        public static SolidColorBrush RetrospectionColorBrush { get { return _retrospectionColor; } }
 
         public const string GrayColor = "#E8E8E8";
-        private static SolidColorBrush grayColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(GrayColor));
-        public static SolidColorBrush GrayColorBrush { get { return grayColor; } }
+        private static SolidColorBrush _grayColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(GrayColor));
+        public static SolidColorBrush GrayColorBrush { get { return _grayColor; } }
+
+        public const string DarkGrayColor = "#808080";
+        private static SolidColorBrush _darkGrayColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(DarkGrayColor));
+        public static SolidColorBrush DarkGrayColorBrush { get { return _darkGrayColor; } }
 
     }
 

@@ -68,7 +68,7 @@
         <Grid Background="{x:Static paColors:Settings.GrayColorBrush}" Grid.Row="3">
             <Grid.Resources>
                 <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
-                    <Setter Property="Foreground" Value="Gray" />
+                    <Setter Property="Foreground" Value="{x:Static paColors:Settings.DarkGrayColorBrush}" />
                     <Setter Property="Background" Value="{x:Static paColors:Settings.GrayColorBrush}" />
                     <Setter Property="BorderBrush" Value="{x:Static paColors:Settings.GrayColorBrush}" />
                     <Setter Property="Padding" Value="5 0 5 0" />
