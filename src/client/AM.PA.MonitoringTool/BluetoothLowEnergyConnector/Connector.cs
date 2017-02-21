@@ -119,18 +119,25 @@ namespace BluetoothLowEnergy
         //Checks whether the device passed in the parameter is paired and within reach. If it is, an object representating this device is returned. Otherwise, null is returned.
         public async Task<PortableBluetoothDeviceInformation> FindDeviceByName(string name)
         {
-            var devices = await GetAllDevices();
-            foreach (var device in devices)
+            try
             {
-                if (device.Name.Equals(name))
+                var devices = await GetAllDevices();
+                foreach (var device in devices)
                 {
-                    return new PortableBluetoothDeviceInformation
+                    if (device.Name.Equals(name))
                     {
-                        Id = device.Id,
-                        Name = device.Name,
-                        Device = device
-                    };
+                        return new PortableBluetoothDeviceInformation
+                        {
+                            Id = device.Id,
+                            Name = device.Name,
+                            Device = device
+                        };
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                LoggerWrapper.Instance.WriteToLogFile(e);
             }
             return null;
         }
