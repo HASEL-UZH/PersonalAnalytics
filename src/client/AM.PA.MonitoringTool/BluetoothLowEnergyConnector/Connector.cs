@@ -176,26 +176,34 @@ namespace BluetoothLowEnergy
 
         private async Task<bool> Connect(DeviceInformation device)
         {
-            if (device == null)
+            try
             {
-                return false;
-            }
-            else
-            {
-                HeartRateService.Instance.DeviceConnectionUpdated += OnDeviceConnectionUpdated;
-
-                bool connected = await HeartRateService.Instance.InitializeServiceAsync(device);
-                if (connected)
-                { 
-                    connectedDevice = device;
-                    HeartRateService.Instance.ValueChangeCompleted += Instance_ValueChangeCompleted;
-                    StartWatching();
+                if (device == null)
+                {
+                    return false;
                 }
                 else
                 {
-                    HeartRateService.Instance.DeviceConnectionUpdated -= OnDeviceConnectionUpdated;
+                    HeartRateService.Instance.DeviceConnectionUpdated += OnDeviceConnectionUpdated;
+
+                    bool connected = await HeartRateService.Instance.InitializeServiceAsync(device);
+                    if (connected)
+                    {
+                        connectedDevice = device;
+                        HeartRateService.Instance.ValueChangeCompleted += Instance_ValueChangeCompleted;
+                        StartWatching();
+                    }
+                    else
+                    {
+                        HeartRateService.Instance.DeviceConnectionUpdated -= OnDeviceConnectionUpdated;
+                    }
+                    return connected;
                 }
-                return connected;
+            }
+            catch (Exception e)
+            {
+                LoggerWrapper.Instance.WriteToConsole(e.ToString());
+                return false;
             }
         }
         

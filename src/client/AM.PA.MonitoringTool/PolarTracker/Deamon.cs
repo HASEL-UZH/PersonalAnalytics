@@ -34,6 +34,7 @@ namespace PolarTracker
         private double previousRR = double.NaN;
         private bool isConnectedToBluetoothDevice = false;
         private ChooseBluetoothDevice _chooser;
+        private bool WasFirstStart = true;
 
         public Deamon()
         {
@@ -71,7 +72,7 @@ namespace PolarTracker
             DatabaseConnector.CreatePolarTables();
         }
 
-        public override bool IsFirstStart { get { return !Database.GetInstance().HasSetting(Settings.TRACKER_ENEABLED_SETTING); } }
+        public override bool IsFirstStart { get { WasFirstStart = !Database.GetInstance().HasSetting(Settings.TRACKER_ENEABLED_SETTING); return !Database.GetInstance().HasSetting(Settings.TRACKER_ENEABLED_SETTING); } }
 
         public override string GetStatus()
         {
@@ -89,6 +90,11 @@ namespace PolarTracker
             if (storedDeviceName.Equals(string.Empty))
             {
                 _chooser.ShowDialog();
+
+                Connector.Instance.ConnectionLost += OnConnectionToDeviceLost;
+                Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
+                Connector.Instance.ConnectionReestablished += OnConnectionReestablished;
+                Connector.Instance.BluetoothNotEnabled += OnBluetoothNotEnabled;
             }
             else
             {
@@ -100,7 +106,15 @@ namespace PolarTracker
                 }
                 else
                 {
-                    bool connected = await Connector.Instance.Connect(deviceInformation);
+                    bool connected = false;
+                    if (!WasFirstStart)
+                    {
+                        connected = await Connector.Instance.Connect(deviceInformation);
+                    }
+                    else
+                    {
+                        connected = true;
+                    }
 
                     if (connected)
                     {
@@ -118,6 +132,7 @@ namespace PolarTracker
                         IsRunning = false;
                     }
                 }
+                
             }
             
         }
@@ -160,10 +175,10 @@ namespace PolarTracker
         {
             _chooser.Close();
             Database.GetInstance().SetSettings(Settings.HEARTRATE_TRACKER_ID_SETTING, deviceID);
-            Connector.Instance.ConnectionLost += OnConnectionToDeviceLost;
-            Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
-            Connector.Instance.ConnectionReestablished += OnConnectionReestablished;
-            Connector.Instance.BluetoothNotEnabled += OnBluetoothNotEnabled;
+            //Connector.Instance.ConnectionLost += OnConnectionToDeviceLost;
+            //Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
+            //Connector.Instance.ConnectionReestablished += OnConnectionReestablished;
+            //Connector.Instance.BluetoothNotEnabled += OnBluetoothNotEnabled;
             //FindSensorLocation();
             StartDatabaseTimer();
             IsRunning = true;
@@ -186,7 +201,7 @@ namespace PolarTracker
 
         private void StartDatabaseTimer()
         {
-            if (saveToDatabaseTimer != null)
+            if (saveToDatabaseTimer != null && !saveToDatabaseTimer.Enabled)
             {
                 saveToDatabaseTimer.Interval = Settings.SAVE_TO_DATABASE_INTERVAL;
                 saveToDatabaseTimer.Elapsed += OnSaveToDatabase;
@@ -205,6 +220,9 @@ namespace PolarTracker
             {
                 if (hrQueue.Count > 0)
                 {
+
+                    Console.WriteLine(hrQueue.Count);
+
                     isConnectedToBluetoothDevice = true;
                     var measurements = new List<HeartRateMeasurement>();
 

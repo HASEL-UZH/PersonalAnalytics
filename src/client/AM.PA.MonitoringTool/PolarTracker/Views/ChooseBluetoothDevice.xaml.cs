@@ -60,7 +60,7 @@ namespace PolarTracker.Views
             FindButton.IsEnabled = false;
             var device = Devices.SelectedItem as PortableBluetoothDeviceInformation;
             await Connector.Instance.Connect(device);
-            
+
             foreach (var listener in listeners)
             {
                 listener.OnConnectionEstablished(device.Name);

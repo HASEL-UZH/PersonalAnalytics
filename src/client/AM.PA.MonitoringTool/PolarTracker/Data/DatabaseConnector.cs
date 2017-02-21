@@ -209,8 +209,6 @@ namespace PolarTracker.Data
 
         private static List<Tuple<DateTime, double>> CalculateHourAverage(List<Tuple<DateTime, double, double>> values)
         {
-            Console.WriteLine(values.Count);
-
             var result = new List<Tuple<DateTime, double>>();
 
             if (values.Count > 0)

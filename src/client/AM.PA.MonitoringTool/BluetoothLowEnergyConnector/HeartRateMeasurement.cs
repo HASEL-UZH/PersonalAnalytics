@@ -21,7 +21,7 @@ namespace BluetoothLowEnergy
 
         public override string ToString()
         {
-            return HeartRateValue.ToString() + " bpm / " + RRInterval.ToString() + " ms @ " + Timestamp;
+            return HeartRateValue.ToString() + " bpm / " + RRInterval.ToString() + " ms / " + RRDifference.ToString() + " @ " + Timestamp;
         }
 
     }
