@@ -113,7 +113,16 @@ namespace BluetoothLowEnergy
 
         private async Task<DeviceInformationCollection> GetAllDevices()
         {
-            return await DeviceInformation.FindAllAsync(GattDeviceService.GetDeviceSelectorFromUuid(GattServiceUuids.HeartRate), new string[] { CONTAINER_ID_PROPERTY });
+            try
+            {
+                return await DeviceInformation.FindAllAsync(GattDeviceService.GetDeviceSelectorFromUuid(GattServiceUuids.HeartRate), new string[] { CONTAINER_ID_PROPERTY });
+            }
+            catch (Exception e)
+            {
+                LoggerWrapper.Instance.WriteToLogFile(e);
+            }
+
+            return null;
         }
 
         //Checks whether the device passed in the parameter is paired and within reach. If it is, an object representating this device is returned. Otherwise, null is returned.
@@ -122,16 +131,19 @@ namespace BluetoothLowEnergy
             try
             {
                 var devices = await GetAllDevices();
-                foreach (var device in devices)
+                if (devices != null)
                 {
-                    if (device.Name.Equals(name))
+                    foreach (var device in devices)
                     {
-                        return new PortableBluetoothDeviceInformation
+                        if (device.Name.Equals(name))
                         {
-                            Id = device.Id,
-                            Name = device.Name,
-                            Device = device
-                        };
+                            return new PortableBluetoothDeviceInformation
+                            {
+                                Id = device.Id,
+                                Name = device.Name,
+                                Device = device
+                            };
+                        }
                     }
                 }
             }

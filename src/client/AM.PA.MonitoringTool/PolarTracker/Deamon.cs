@@ -108,7 +108,7 @@ namespace PolarTracker
                         Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
                         Connector.Instance.ConnectionReestablished += OnConnectionReestablished;
                         Connector.Instance.BluetoothNotEnabled += OnBluetoothNotEnabled;
-                        FindSensorLocation();
+                        //FindSensorLocation();
                         StartDatabaseTimer();
                         IsRunning = true;
                     }
@@ -164,7 +164,7 @@ namespace PolarTracker
             Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
             Connector.Instance.ConnectionReestablished += OnConnectionReestablished;
             Connector.Instance.BluetoothNotEnabled += OnBluetoothNotEnabled;
-            FindSensorLocation();
+            //FindSensorLocation();
             StartDatabaseTimer();
             IsRunning = true;
         }
@@ -244,21 +244,21 @@ namespace PolarTracker
             }
         }
 
-        private void FindSensorLocation()
-        {
-            string sensorLocation = Connector.Instance.GetBodySensorLocation().Result.ToString();
-            if (sensorLocation != null)
-            {
-                isConnectedToBluetoothDevice = true;
-                Database.GetInstance().SetSettings(Settings.HEARTRATE_TRACKER_LOCATION_SETTING, sensorLocation);
-                Logger.WriteToConsole("Body sensor location: " + sensorLocation);
-            }
-            else
-            {
-                Database.GetInstance().SetSettings(Settings.HEARTRATE_TRACKER_LOCATION_SETTING, Settings.HEARTRATE_TRACKER_LOCATION_UNKNOWN);
-                Logger.WriteToConsole("Body sensor location unknown");
-            }
-        }
+        //private void FindSensorLocation()
+        //{
+        //    string sensorLocation = Connector.Instance.GetBodySensorLocation().Result.ToString();
+        //    if (sensorLocation != null)
+        //    {
+        //        isConnectedToBluetoothDevice = true;
+        //        Database.GetInstance().SetSettings(Settings.HEARTRATE_TRACKER_LOCATION_SETTING, sensorLocation);
+        //        Logger.WriteToConsole("Body sensor location: " + sensorLocation);
+        //    }
+        //    else
+        //    {
+        //        Database.GetInstance().SetSettings(Settings.HEARTRATE_TRACKER_LOCATION_SETTING, Settings.HEARTRATE_TRACKER_LOCATION_UNKNOWN);
+        //        Logger.WriteToConsole("Body sensor location unknown");
+        //    }
+        //}
 
         private void OnConnectionToDeviceLost(string deviceName)
         {
