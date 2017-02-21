@@ -40,7 +40,7 @@ namespace PolarTracker
             List<Tuple<DateTime, double>> hrValues = DatabaseConnector.GetHRValuesForWeek(date);
             List<Tuple<DateTime, double>> rmssdValues = DatabaseConnector.GetRMSSDValuesForWeek(date);
             
-            if (hrValues.Count == 0 && rmssdValues.Count == 0)
+            if (hrValues.Count < Settings.NUMBER_OF_BUCKETS || rmssdValues.Count < Settings.NUMBER_OF_BUCKETS)
             {
                 html += VisHelper.NotEnoughData("It is not possible to give you insights because there is not enough biometric data available.");
                 return html;

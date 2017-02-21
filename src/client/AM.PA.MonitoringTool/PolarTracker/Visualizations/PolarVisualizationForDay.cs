@@ -35,7 +35,7 @@ namespace PolarTracker.Visualizations
             //Get Data
             List<Tuple<DateTime, double, double>> values = DatabaseConnector.GetPolarValuesForDay(date);
             
-            if (values.Count <= 1)
+            if (values.Count <= 3)
             {
                 html += VisHelper.NotEnoughData("It is not possible to give you insights because there is not enough biometric data available.");
                 return html;
