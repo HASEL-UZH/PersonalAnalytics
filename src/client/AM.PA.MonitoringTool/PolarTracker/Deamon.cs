@@ -47,7 +47,7 @@ namespace PolarTracker
             LoggerWrapper.Instance.NewLogFileMessage += OnNewLogFileMessage;
 
             _chooser = new ChooseBluetoothDevice();
-            _chooser.AddListener(this);
+            _chooser.AddListener(this); // TODO: refactor to register for event
         }
 
         public override string GetVersion()
@@ -85,14 +85,14 @@ namespace PolarTracker
 
         public override async void Start()
         {
-            string storedDeviceName = Database.GetInstance().GetSettingsString(Settings.HEARTRATE_TRACKER_ID_SETTING, String.Empty);
+            string storedDeviceName = Database.GetInstance().GetSettingsString(Settings.HEARTRATE_TRACKER_ID_SETTING, string.Empty);
             if (storedDeviceName.Equals(string.Empty))
             {
                 _chooser.ShowDialog();
             }
             else
             {
-                var deviceInformation = await Connector.Instance.FindDeviceByName(storedDeviceName); // TODO: error
+                var deviceInformation = await Connector.Instance.FindDeviceByName(storedDeviceName);
 
                 if (deviceInformation == null)
                 {
