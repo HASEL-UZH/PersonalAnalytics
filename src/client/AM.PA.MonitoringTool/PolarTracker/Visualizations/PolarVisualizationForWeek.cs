@@ -5,6 +5,7 @@
 //
 // Adapted from bl.ocks.org/tjdecke/5558084
 //
+
 using System;
 using Shared;
 using PolarTracker.Data;
@@ -16,12 +17,11 @@ namespace PolarTracker
 {
     internal class PolarVisualizationForWeek : BaseVisualization, IVisualization
     {
-
-        private DateTimeOffset date;
+        private DateTimeOffset _date;
 
         public PolarVisualizationForWeek(DateTimeOffset date)
         {
-            this.date = date;
+            this._date = date;
 
             Title = "Heart rate and interbeat interval";
             IsEnabled = true;
@@ -35,8 +35,8 @@ namespace PolarTracker
             var html = string.Empty;
 
             //Get Data
-            List<Tuple<DateTime, double>> hrValues = DatabaseConnector.GetHRValuesForWeek(date);
-            List<Tuple<DateTime, double>> rmssdValues = DatabaseConnector.GetRMSSDValuesForWeek(date);
+            var hrValues = DatabaseConnector.GetHRValuesForWeek(_date);
+            var rmssdValues = DatabaseConnector.GetRMSSDValuesForWeek(_date);
             
             if (hrValues.Count < Settings.NUMBER_OF_BUCKETS || rmssdValues.Count < Settings.NUMBER_OF_BUCKETS)
             {
@@ -55,8 +55,11 @@ namespace PolarTracker
             html += "text.axis-workweek { fill: #000; }";
             html += "text.axis-worktime { fill: #000; }";
             html += ".tooltip {background-color: white; box-shadow: 4px 4px 4px #888888; -webkit-box-shadow:2px 3px 4px #888888;padding:2px;position:absolute;top:0px;left:0px;visibility:hidden;border: solid 1px black;border-radius:5px;}";
+            html += ".dataset-button { padding:0.3125em; background-color:white; border:1px solid " + Shared.Settings.RetrospectionColorHex + "; color:" + Shared.Settings.RetrospectionColorHex + "; text-decoration:none; margin:5px auto; }";
+            html += ".dataset-button-active { padding:0.3125em; background-color:" + Shared.Settings.RetrospectionColorHex + "; border:1px solid " + Shared.Settings.RetrospectionColorHex + "; color: white; text-decoration:none; margin:5px auto; }";
+            html += ".dataset-button:hover { background-color:" + Shared.Settings.RetrospectionColorHex + "; border:1px solid " + Shared.Settings.RetrospectionColorHex + "; color:white; cursor: pointer; cursor: hand; }";
             html += "</style>";
-            
+
             //HTML
             html += "<div id='chart'></div>";
             html += "<div id='dataset-picker' style='float: right;'></div>";
@@ -126,8 +129,8 @@ namespace PolarTracker
                 
             html += "heatmapChart(hrdata);";
 
-            html += "d3.select('#dataset-picker').append('input').attr('type', 'button').style('color', 'white').style('background-color', '" + Shared.Settings.RetrospectionColorHex + "').attr('value', 'HR').attr('class', 'dataset-button').attr('id', 'hrbutton').on('click', function() {document.getElementById('rmssdbutton').style.color='black';document.getElementById('rmssdbutton').style.backgroundColor='" + Shared.Settings.GrayColor + "';this.style.backgroundColor = '" + Shared.Settings.RetrospectionColorHex + "';this.style.color='white';heatmapChart(hrdata);});";
-            html += "d3.select('#dataset-picker').append('input').attr('type', 'button').style('color', 'black').style('background-color', '" + Shared.Settings.GrayColor + "').attr('value', 'RMSSD').attr('class', 'dataset-button').attr('id', 'rmssdbutton').on('click', function() {document.getElementById('hrbutton').style.color='black';document.getElementById('hrbutton').style.backgroundColor='" + Shared.Settings.GrayColor + "';this.style.backgroundColor = '" + Shared.Settings.RetrospectionColorHex + "';this.style.color='white';heatmapChart(rmssddata);});";
+            html += "d3.select('#dataset-picker').append('input').attr('type', 'button').attr('value', 'HR').attr('class', 'dataset-button-active').attr('id', 'hrbutton').on('click', function() {document.getElementById('rmssdbutton');document.getElementById('rmssdbutton').style.backgroundColor='White';document.getElementById('rmssdbutton').style.color='black';this.style.backgroundColor = '" + Shared.Settings.RetrospectionColorHex + "';this.style.color='white';heatmapChart(hrdata);});";
+            html += "d3.select('#dataset-picker').append('input').attr('type', 'button').attr('value', 'RMSSD').attr('class', 'dataset-button').attr('id', 'rmssdbutton').on('click', function() {document.getElementById('hrbutton');document.getElementById('hrbutton').style.backgroundColor='White';document.getElementById('hrbutton').style.color='black';this.style.backgroundColor = '" + Shared.Settings.RetrospectionColorHex + "';this.style.color='white';heatmapChart(rmssddata);});";
 
             html += "function showData(evt) { var target = evt.target;  target.setAttribute('opacity', '.8');";
             html += "var x = evt.clientX;";

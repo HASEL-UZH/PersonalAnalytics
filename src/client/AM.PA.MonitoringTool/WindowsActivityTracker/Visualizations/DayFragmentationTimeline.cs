@@ -26,7 +26,7 @@ namespace WindowsActivityTracker.Visualizations
             this._date = date;
 
             Title = "Activities over the Day"; //hint; overwritten below
-            IsEnabled = true; //todo: handle by user
+            IsEnabled = false; //todo: handle by user
             Order = 2; //todo: handle by user
             Size = VisSize.Wide;
             Type = VisType.Day;

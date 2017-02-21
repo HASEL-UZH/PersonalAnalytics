@@ -10,7 +10,6 @@ namespace PolarTracker
     internal class Settings
     {
         //Deamon
-        internal const string TRACKER_NAME = "Polar Tracker";
         internal const string TRACKER_ENEABLED_SETTING = "PolarTrackerEnabled";
         internal const string HEARTRATE_TRACKER_ID_SETTING = "HeartrateTrackerID";
         internal const string HEARTRATE_TRACKER_LOCATION_SETTING = "HeartrateTrackerLocation";
