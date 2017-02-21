@@ -566,19 +566,19 @@ namespace FitbitTracker.Data
         }
 
         
-        public static List<Tuple<DateTime, int>> GetStepsPerTimeFraction(DateTimeOffset start, DateTimeOffset end, int minutes, bool aggregated)
+        public static List<Tuple<DateTime, int>> GetStepsPerTimeFraction(DateTimeOffset start, DateTimeOffset end, int minutes)
         {
             //When we collect the data in an aggregated form, we can't get data for time fractions below 15 minutes
-            if (aggregated && minutes < 15)
+            if (minutes < 15)
             {
-                throw new ArgumentException("In aggregated mode the fraction has to be at least 15 mins");
+                throw new ArgumentException("The time fraction should not be less than 15 mins");
             }
 
             var result = new List<Tuple<DateTime, int>>();
 
             try
             {
-                string tableName = aggregated ? Settings.STEPS_INTRA_DAY_AGGREGATED_TABLE_NAME : Settings.STEPS_INTRA_DAY_TABLE_NAME;
+                string tableName = Settings.STEPS_INTRA_DAY_AGGREGATED_TABLE_NAME;
                 string query = "SELECT SUM(" + VALUE + "), DATETIME((STRFTIME('%s', DATETIME(" + DATE_OF_STEPS + ")) / " + (minutes * 60) + ") * " + (minutes * 60) + ", 'unixepoch') AS TIMESTAMP FROM " + tableName + " WHERE " + DATE_OF_STEPS + " BETWEEN '" + start.ToString(Settings.FORMAT_DAY_AND_TIME) + "' AND '" + end.ToString(Settings.FORMAT_DAY_AND_TIME) + "' GROUP BY TIMESTAMP ORDER BY TIMESTAMP; ";
 
                 var table = Database.GetInstance().ExecuteReadQuery(query);

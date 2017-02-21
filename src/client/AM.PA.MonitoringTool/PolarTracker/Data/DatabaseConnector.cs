@@ -108,7 +108,7 @@ namespace PolarTracker.Data
         {
             List<Tuple<DateTime, double, double>> result = new List<Tuple<DateTime, double, double>>();
 
-            string tableName = Settings.IsDetailedCollectionEnabled ? Settings.TABLE_NAME : Settings.TABLE_NAME_AGGREGATED;
+            string tableName = Settings.TABLE_NAME_AGGREGATED;
 
             var query = "SELECT " + "STRFTIME('%Y-%m-%d %H:%M', " + TIME + ")" + ", AVG(" + HEARTRATE + "), AVG(" + DIFFERENCE_RRINTERVAL + "*" + DIFFERENCE_RRINTERVAL + ") FROM " + tableName + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, TIME) + "GROUP BY strftime('%H:%M', " + TIME + ");";
             var table = Database.GetInstance().ExecuteReadQuery(query);
@@ -163,7 +163,7 @@ namespace PolarTracker.Data
         {
             var result = new List<Tuple<DateTime, double>>();
 
-            string tableName = Settings.IsDetailedCollectionEnabled ? Settings.TABLE_NAME : Settings.TABLE_NAME_AGGREGATED;
+            string tableName = Settings.TABLE_NAME_AGGREGATED;
 
             var query = "SELECT strftime('%Y-%m-%d %H'," + TIME + "), avg(" + column + ") FROM " + tableName + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Week, date, TIME) + "AND " + column + " <= " + GetThresholdValue(column) + " GROUP BY strftime('%Y-%m-%d %H',time);";
             var table = Database.GetInstance().ExecuteReadQuery(query);
@@ -287,7 +287,7 @@ namespace PolarTracker.Data
 
         internal static DateTime GetLastTimeSynced()
         {
-            string tableName = Settings.IsDetailedCollectionEnabled ? Settings.TABLE_NAME : Settings.TABLE_NAME_AGGREGATED;
+            string tableName = Settings.TABLE_NAME_AGGREGATED;
             var query = "SELECT " + TIME + " FROM " + tableName + " ORDER BY " + TIME + " DESC LIMIT 1";
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
