@@ -81,8 +81,8 @@ namespace PolarTracker.Visualizations
             html += "var yAxisLeft = d3.svg.axis().scale(y0).orient('left').ticks(5);";
             html += "var yAxisRight = d3.svg.axis().scale(y1).orient('right').ticks(5);";
 
-            html += "var valueLine1 = d3.svg.line().defined(function(d) {return d.hr != null; }).x(function(d) {return x(d.ts); }).y(function(d) { return y0(d.hr); });";
-            html += "var valueLine2 = d3.svg.line().defined(function(d) {return d.rmssd != null; }).x(function(d) {return x(d.ts); }).y(function(d) { return y1(d.rmssd); });";
+            html += "var valueLine1 = d3.svg.line().interpolate('basis').defined(function(d) {return d.hr != null; }).x(function(d) {return x(d.ts); }).y(function(d) { return y0(d.hr); });";
+            html += "var valueLine2 = d3.svg.line().interpolate('basis').defined(function(d) {return d.rmssd != null; }).x(function(d) {return x(d.ts); }).y(function(d) { return y1(d.rmssd); });";
 
             html += "var svg = d3.select('#chart').append('svg').attr('width', width + margin.left + margin.righ).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');";
             
