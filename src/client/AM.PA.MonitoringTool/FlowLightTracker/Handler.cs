@@ -242,12 +242,12 @@ namespace FlowLight
         {
             if (e.Reason == SessionSwitchReason.SessionLock)
             {
-                setStatus(Originator.System, Status.Away);
+                SetStatus(Originator.System, Status.Away);
                 _locked = true;
             }
             else if (e.Reason == SessionSwitchReason.SessionUnlock)
             {
-                setStatus(Originator.System, Status.Free);
+                SetStatus(Originator.System, Status.Free);
                 _locked = false;
             }
         }
@@ -318,7 +318,7 @@ namespace FlowLight
                     StartInfiniteEnforcing();
                 }
 
-                setStatus(Originator.Skype, e.CurrentStatus);
+                SetStatus(Originator.Skype, e.CurrentStatus);
             }
         }
 
@@ -327,7 +327,7 @@ namespace FlowLight
         /// </summary>
         /// <param name="originator"></param>
         /// <param name="newStatus"></param>
-        private void setStatus(Originator originator, Status newStatus)
+        private void SetStatus(Originator originator, Status newStatus)
         {
             //only do status changes if the new status is different from the old one
             if (_currentFlowLightStatus != newStatus)
@@ -356,13 +356,13 @@ namespace FlowLight
             {
                 case FocusState.Low:
                 case FocusState.Medium:
-                    setStatus(Originator.FlowTracker, Status.Free);
+                    SetStatus(Originator.FlowTracker, Status.Free);
                     break;
                 case FocusState.High:
-                    setStatus(Originator.FlowTracker, Status.Busy);
+                    SetStatus(Originator.FlowTracker, Status.Busy);
                     break;
                 case FocusState.VeryHigh:
-                    setStatus(Originator.FlowTracker, Status.DoNotDisturb);
+                    SetStatus(Originator.FlowTracker, Status.DoNotDisturb);
                     break;
             }
         }
@@ -402,7 +402,6 @@ namespace FlowLight
         private void StopEnforcing()
         {
             Logger.WriteToConsole("FlowLight: Cancelling enforcing.");
-
             _enforcingTimer.Stop();
             _enforcing = false;
         }
@@ -429,7 +428,7 @@ namespace FlowLight
         public void EnforcingClicked(Status status, int minutes)
         {
             StartTimedEnforcing(minutes);
-            setStatus(Originator.User, status);
+            SetStatus(Originator.User, status);
         }
 
         /// <summary>
@@ -439,7 +438,7 @@ namespace FlowLight
         public void ResetEnforcingClicked()
         {
             StopEnforcing();
-            setStatus(Originator.User, Status.Free);
+            SetStatus(Originator.User, Status.Free);
         }
 
         #endregion

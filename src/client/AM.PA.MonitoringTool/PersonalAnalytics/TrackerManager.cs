@@ -352,17 +352,16 @@ namespace PersonalAnalytics
             TaskbarIcon.MenuActivation = PopupActivationMode.RightClick;
             TaskbarIcon.ContextMenu = cm;
 
-            var m8 = new System.Windows.Controls.MenuItem { Header = "Upload collected data" };
-            m8.Click += (o, i) => UploadTrackedData();
-            if (Settings.IsUploadEnabled) TaskbarIcon.ContextMenu.Items.Add(m8);
+            if (Settings.IsUploadEnabled)
+            {
+                var m8 = new System.Windows.Controls.MenuItem { Header = "Upload collected data" };
+                m8.Click += (o, i) => UploadTrackedData();
+                TaskbarIcon.ContextMenu.Items.Add(m8);
+            }
 
             var m4 = new System.Windows.Controls.MenuItem { Header = "Open collected data" };
             m4.Click += (o, i) => OpenDataExportDirectory();
             TaskbarIcon.ContextMenu.Items.Add(m4);
-
-            var m6 = new System.Windows.Controls.MenuItem { Header = "Settings" };
-            m6.Click += (o, i) => OpenSettings();
-            TaskbarIcon.ContextMenu.Items.Add(m6);
 
             var m2 = new System.Windows.Controls.MenuItem { Header = "Answer pop-up now" };
             m2.Click += (o, i) => ManuallyStartUserSurvey();
@@ -380,24 +379,31 @@ namespace PersonalAnalytics
             if (FlowLight.Handler.GetInstance().FlowLightEnabled)
             {
                 // FlowLight menu items to keep the light in a certain state for the specified time
-                var m9 = new System.Windows.Controls.MenuItem { Header = "Keep Light ..." };
+                var m9 = new System.Windows.Controls.MenuItem { Header = "Switch FlowLight Status to" };
                 var m9Free = new System.Windows.Controls.MenuItem { Header = "Free" };
-                m9Free.Items.Add(initFlowLightSubMenuItem(Status.Free, 1));
-                m9Free.Items.Add(initFlowLightSubMenuItem(Status.Free, 2));
-                m9Free.Items.Add(initFlowLightSubMenuItem(Status.Free, 3));
-                var m9Busy = new System.Windows.Controls.MenuItem { Header = "Busy" };
-                m9Busy.Items.Add(initFlowLightSubMenuItem(Status.Busy, 1));
-                m9Busy.Items.Add(initFlowLightSubMenuItem(Status.Busy, 2));
-                m9Busy.Items.Add(initFlowLightSubMenuItem(Status.Busy, 3));
-                var m9DnD = new System.Windows.Controls.MenuItem { Header = "Do not Disturb" };
-                m9DnD.Items.Add(initFlowLightSubMenuItem(Status.DoNotDisturb, 1));
-                m9DnD.Items.Add(initFlowLightSubMenuItem(Status.DoNotDisturb, 2));
-                m9DnD.Items.Add(initFlowLightSubMenuItem(Status.DoNotDisturb, 3));
+                m9Free.Items.Add(InitFlowLightSubMenuItem(Status.Free, 1));
+                m9Free.Items.Add(InitFlowLightSubMenuItem(Status.Free, 2));
+                m9Free.Items.Add(InitFlowLightSubMenuItem(Status.Free, 3));
                 m9.Items.Add(m9Free);
+
+                var m9Busy = new System.Windows.Controls.MenuItem { Header = "Busy" };
+                m9Busy.Items.Add(InitFlowLightSubMenuItem(Status.Busy, 1));
+                m9Busy.Items.Add(InitFlowLightSubMenuItem(Status.Busy, 2));
+                m9Busy.Items.Add(InitFlowLightSubMenuItem(Status.Busy, 3));
                 m9.Items.Add(m9Busy);
+
+                var m9DnD = new System.Windows.Controls.MenuItem { Header = "Do not Disturb" };
+                m9DnD.Items.Add(InitFlowLightSubMenuItem(Status.DoNotDisturb, 1));
+                m9DnD.Items.Add(InitFlowLightSubMenuItem(Status.DoNotDisturb, 2));
+                m9DnD.Items.Add(InitFlowLightSubMenuItem(Status.DoNotDisturb, 3));
                 m9.Items.Add(m9DnD);
+
                 TaskbarIcon.ContextMenu.Items.Add(m9);
             }
+
+            var m6 = new System.Windows.Controls.MenuItem { Header = "Settings" };
+            m6.Click += (o, i) => OpenSettings();
+            TaskbarIcon.ContextMenu.Items.Add(m6);
 
             var m3 = new System.Windows.Controls.MenuItem { Header = "Pause Tracker" };
             m3.Click += (o, i) => PauseContinueTracker(m3);
@@ -426,7 +432,7 @@ namespace PersonalAnalytics
         /// <param name="status"></param>
         /// <param name="minutes"></param>
         /// <returns></returns>
-        private System.Windows.Controls.MenuItem initFlowLightSubMenuItem(Status status, int minutes)
+        private System.Windows.Controls.MenuItem InitFlowLightSubMenuItem(Status status, int minutes)
         {
             var menuItem = new System.Windows.Controls.MenuItem { Header = minutes + " min" };
             menuItem.Click += (o, i) => FlowLight.Handler.GetInstance().EnforcingClicked(status, minutes);
