@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using Shared;
+using System;
 
 namespace PolarTracker.Views
 {
@@ -24,25 +25,32 @@ namespace PolarTracker.Views
 
         private async void FindDevices(object sender, RoutedEventArgs e)
         {
-            Logger.WriteToConsole("Start looking for Bluetooth devices");
-            DeviceList.Visibility = Visibility.Hidden;
-            FindButton.IsEnabled = false;
-
-            List<PortableBluetoothDeviceInformation> devices = await Connector.Instance.GetDevices();
-
-            Logger.WriteToConsole("Finsihed looking for Bluetooth devices. Found " + devices.Count + " devices.");
-
-            if (devices.Count > 0)
+            try
             {
-                DeviceList.Visibility = Visibility.Visible;
-            }
+                Logger.WriteToConsole("Start looking for Bluetooth devices");
+                DeviceList.Visibility = Visibility.Hidden;
+                FindButton.IsEnabled = false;
 
-            Devices.Items.Clear();
-            foreach (PortableBluetoothDeviceInformation device in devices)
-            {
-                Devices.Items.Add(device);
+                List<PortableBluetoothDeviceInformation> devices = await Connector.Instance.GetDevices();
+
+                Logger.WriteToConsole("Finsihed looking for Bluetooth devices. Found " + devices.Count + " devices.");
+
+                if (devices.Count > 0)
+                {
+                    DeviceList.Visibility = Visibility.Visible;
+                }
+
+                Devices.Items.Clear();
+                foreach (PortableBluetoothDeviceInformation device in devices)
+                {
+                    Devices.Items.Add(device);
+                }
+                FindButton.IsEnabled = true;
             }
-            FindButton.IsEnabled = true;
+            catch (Exception ex)
+            {
+                Logger.WriteToLogFile(ex);
+            }
         }
 
         private List<BluetoothDeviceListener> listeners = new List<BluetoothDeviceListener>();

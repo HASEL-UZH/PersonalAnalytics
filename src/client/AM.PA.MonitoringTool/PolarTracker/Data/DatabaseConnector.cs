@@ -108,42 +108,48 @@ namespace PolarTracker.Data
         {
             List<Tuple<DateTime, double, double>> result = new List<Tuple<DateTime, double, double>>();
 
-            string tableName = Settings.TABLE_NAME_AGGREGATED;
-
-            var query = "SELECT " + "STRFTIME('%Y-%m-%d %H:%M', " + TIME + ")" + ", AVG(" + HEARTRATE + "), AVG(" + DIFFERENCE_RRINTERVAL + "*" + DIFFERENCE_RRINTERVAL + ") FROM " + tableName + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, TIME) + "GROUP BY strftime('%H:%M', " + TIME + ");";
-            var table = Database.GetInstance().ExecuteReadQuery(query);
-
-            foreach (DataRow row in table.Rows)
+            try
             {
-                var timestamp = (String)row[0];
-                
-                double hr = Double.NaN;
-                double.TryParse(row[1].ToString(), out hr);
-                if (IsAboveThresholdValue(hr, HEARTRATE))
-                {
-                    hr = Double.NaN;
-                }
+                string tableName = Settings.TABLE_NAME_AGGREGATED;
 
-                double rmssd = Double.NaN;
-                if (row[2] != DBNull.Value)
+                var query = "SELECT " + "STRFTIME('%Y-%m-%d %H:%M', " + TIME + ")" + ", AVG(" + HEARTRATE + "), AVG(" + DIFFERENCE_RRINTERVAL + "*" + DIFFERENCE_RRINTERVAL + ") FROM " + tableName + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, TIME) + "GROUP BY strftime('%H:%M', " + TIME + ");";
+                var table = Database.GetInstance().ExecuteReadQuery(query);
+
+                foreach (DataRow row in table.Rows)
                 {
-                    double.TryParse(row[2].ToString(), out rmssd);
-                    
-                    if (rmssd > 1)
+                    var timestamp = (String)row[0];
+
+                    double hr = Double.NaN;
+                    double.TryParse(row[1].ToString(), out hr);
+                    if (IsAboveThresholdValue(hr, HEARTRATE))
                     {
-                        rmssd = Double.NaN;
+                        hr = Double.NaN;
                     }
 
-                    if (!Double.IsNaN(rmssd))
+                    double rmssd = Double.NaN;
+                    if (row[2] != DBNull.Value)
                     {
-                        rmssd = Math.Sqrt(rmssd);
-                        rmssd *= 1000;
+                        double.TryParse(row[2].ToString(), out rmssd);
+
+                        if (rmssd > 1)
+                        {
+                            rmssd = Double.NaN;
+                        }
+
+                        if (!Double.IsNaN(rmssd))
+                        {
+                            rmssd = Math.Sqrt(rmssd);
+                            rmssd *= 1000;
+                        }
                     }
+                    result.Add(new Tuple<DateTime, double, double>(DateTime.ParseExact(timestamp, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture), hr, rmssd));
                 }
-                result.Add(new Tuple<DateTime, double, double>(DateTime.ParseExact(timestamp, "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture), hr, rmssd));
+                table.Dispose();
             }
-            table.Dispose();
-
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
             return result;
         }
         #endregion
@@ -163,23 +169,29 @@ namespace PolarTracker.Data
         {
             var result = new List<Tuple<DateTime, double>>();
 
-            string tableName = Settings.TABLE_NAME_AGGREGATED;
-
-            var query = "SELECT strftime('%Y-%m-%d %H'," + TIME + "), avg(" + column + ") FROM " + tableName + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Week, date, TIME) + "AND " + column + " <= " + GetThresholdValue(column) + " GROUP BY strftime('%Y-%m-%d %H',time);";
-            var table = Database.GetInstance().ExecuteReadQuery(query);
-
-            foreach (DataRow row in table.Rows)
+            try
             {
-                var timestamp = (String)row[0];
-                double value = Double.NaN;
-                if (row[1] != DBNull.Value)
-                {
-                   double.TryParse(row[1].ToString(), out value);
-                }
-                result.Add(new Tuple<DateTime, double>(DateTime.ParseExact(timestamp, "yyyy-MM-dd H", CultureInfo.InvariantCulture), value));
-            }
-            table.Dispose();
+                string tableName = Settings.TABLE_NAME_AGGREGATED;
 
+                var query = "SELECT strftime('%Y-%m-%d %H'," + TIME + "), avg(" + column + ") FROM " + tableName + " WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Week, date, TIME) + "AND " + column + " <= " + GetThresholdValue(column) + " GROUP BY strftime('%Y-%m-%d %H',time);";
+                var table = Database.GetInstance().ExecuteReadQuery(query);
+
+                foreach (DataRow row in table.Rows)
+                {
+                    var timestamp = (String)row[0];
+                    double value = Double.NaN;
+                    if (row[1] != DBNull.Value)
+                    {
+                        double.TryParse(row[1].ToString(), out value);
+                    }
+                    result.Add(new Tuple<DateTime, double>(DateTime.ParseExact(timestamp, "yyyy-MM-dd H", CultureInfo.InvariantCulture), value));
+                }
+                table.Dispose();
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
             return result;
         }
 
@@ -189,21 +201,29 @@ namespace PolarTracker.Data
         {
             var result = new List<Tuple<DateTime, double>>();
 
-            //Go back to Monday
-            while (date.DayOfWeek != DayOfWeek.Monday)
+            try
             {
-                date = date.AddDays(-1);
-            }
+                //Go back to Monday
+                while (date.DayOfWeek != DayOfWeek.Monday)
+                {
+                    date = date.AddDays(-1);
+                }
 
-            //Iterate over whole week
-            while (date.DayOfWeek != DayOfWeek.Sunday)
-            {
+                //Iterate over whole week
+                while (date.DayOfWeek != DayOfWeek.Sunday)
+                {
+                    result.AddRange(CalculateHourAverage(GetPolarValuesForDay(date)));
+                    date = date.AddDays(1);
+                }
+
+                //Iterate Sunday
                 result.AddRange(CalculateHourAverage(GetPolarValuesForDay(date)));
-                date = date.AddDays(1);
-            }
 
-            //Iterate Sunday
-            result.AddRange(CalculateHourAverage(GetPolarValuesForDay(date)));
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
             return result;
         }
 
@@ -211,23 +231,30 @@ namespace PolarTracker.Data
         {
             var result = new List<Tuple<DateTime, double>>();
 
-            if (values.Count > 0)
+            try
             {
-                DateTime firstHour = values[0].Item1;
-                DateTime lastHour = values[values.Count - 1].Item1;
+                if (values.Count > 0)
+                {
+                    DateTime firstHour = values[0].Item1;
+                    DateTime lastHour = values[values.Count - 1].Item1;
 
-                if (firstHour.Hour == lastHour.Hour)
-                {
-                    SumUpValuesForOneHour(values, result, firstHour);
-                }
-                else
-                {
-                    while (firstHour.Hour.CompareTo(lastHour.Hour + 1) != 0)
+                    if (firstHour.Hour == lastHour.Hour)
                     {
                         SumUpValuesForOneHour(values, result, firstHour);
-                        firstHour = firstHour.AddHours(1);
+                    }
+                    else
+                    {
+                        while (firstHour.Hour.CompareTo(lastHour.Hour + 1) != 0)
+                        {
+                            SumUpValuesForOneHour(values, result, firstHour);
+                            firstHour = firstHour.AddHours(1);
+                        }
                     }
                 }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
             }
             return result;
         }

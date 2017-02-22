@@ -88,59 +88,72 @@ namespace PolarTracker
             }
             else
             {
-                var deviceInformation = await Connector.Instance.FindDeviceByName(storedDeviceName);
+                try
+                {
+                    var deviceInformation = await Connector.Instance.FindDeviceByName(storedDeviceName);
 
-                if (deviceInformation == null)
-                {
-                    _chooser.ShowDialog();
-                }
-                else
-                {
-                    bool connected = false;
-                    if (!WasFirstStart)
+                    if (deviceInformation == null)
                     {
-                        connected = await Connector.Instance.Connect(deviceInformation);
+                        _chooser.ShowDialog();
                     }
                     else
                     {
-                        connected = true;
-                    }
+                        bool connected = false;
+                        if (!WasFirstStart)
+                        {
+                            connected = await Connector.Instance.Connect(deviceInformation);
+                        }
+                        else
+                        {
+                            connected = true;
+                        }
 
-                    if (connected)
-                    {
-                        Connector.Instance.ConnectionLost += OnConnectionToDeviceLost;
-                        Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
-                        Connector.Instance.ConnectionReestablished += OnConnectionReestablished;
-                        Connector.Instance.BluetoothNotEnabled += OnBluetoothNotEnabled;
-                        //FindSensorLocation();
-                        StartDatabaseTimer();
-                        IsRunning = true;
-                    }
-                    else
-                    {
-                        Logger.WriteToConsole("Couldn't establish a connection! Tracker is not running.");
-                        IsRunning = false;
+                        if (connected)
+                        {
+                            Connector.Instance.ConnectionLost += OnConnectionToDeviceLost;
+                            Connector.Instance.ValueChangeCompleted += OnNewHeartrateMeasurement;
+                            Connector.Instance.ConnectionReestablished += OnConnectionReestablished;
+                            Connector.Instance.BluetoothNotEnabled += OnBluetoothNotEnabled;
+                            //FindSensorLocation();
+                            StartDatabaseTimer();
+                            IsRunning = true;
+                        }
+                        else
+                        {
+                            Logger.WriteToConsole("Couldn't establish a connection! Tracker is not running.");
+                            IsRunning = false;
+                        }
                     }
                 }
-                
+                catch (Exception e)
+                {
+                    Logger.WriteToLogFile(e);
+                }
             }
             
         }
 
         public override async void Stop()
         {
-            Connector.Instance.ValueChangeCompleted -= OnNewHeartrateMeasurement;
-            Connector.Instance.ConnectionLost -= OnConnectionToDeviceLost;
-            Connector.Instance.ConnectionReestablished -= OnConnectionReestablished;
-            Connector.Instance.BluetoothNotEnabled -= OnBluetoothNotEnabled;
+            try
+            {
+                Connector.Instance.ValueChangeCompleted -= OnNewHeartrateMeasurement;
+                Connector.Instance.ConnectionLost -= OnConnectionToDeviceLost;
+                Connector.Instance.ConnectionReestablished -= OnConnectionReestablished;
+                Connector.Instance.BluetoothNotEnabled -= OnBluetoothNotEnabled;
 
-            Connector.Instance.Stop();
-            _saveToDatabaseTimer.Stop();
-            await Task.Run(() =>
-                SaveToDatabase()
-            );
-            IsRunning = false;
-            _isConnectedToBluetoothDevice = false;
+                Connector.Instance.Stop();
+                _saveToDatabaseTimer.Stop();
+                await Task.Run(() =>
+                    SaveToDatabase()
+                );
+                IsRunning = false;
+                _isConnectedToBluetoothDevice = false;
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
         }
 
         void BluetoothDeviceListener.OnTrackerDisabled() 

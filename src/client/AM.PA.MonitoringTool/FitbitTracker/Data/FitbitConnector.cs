@@ -259,26 +259,41 @@ namespace FitbitTracker.Data
 
         internal static void GetFirstAccessToken(string registrationToken)
         {
-            Logger.WriteToConsole("Try to get first access token");
-
             WebClient client = new WebClient();
-            client.Headers.Add("Authorization", "Basic " + SecretStorage.GetFibitFirstAuthorizationCode());
 
-            var values = new NameValueCollection();
-            values["clientId"] = SecretStorage.GetFitbitClientID();
-            values["grant_type"] = "authorization_code";
-            values["redirect_uri"] = Settings.REDIRECT_URI;
-            values["code"] = registrationToken;
+            try
+            {
+                Logger.WriteToConsole("Try to get first access token");
+    
+                client.Headers.Add("Authorization", "Basic " + SecretStorage.GetFibitFirstAuthorizationCode());
 
-            var response = client.UploadValues(REFRESH_URL, values);
-            var responseString = Encoding.Default.GetString(response);
-            AccessRefreshResponse accessResponse = JsonConvert.DeserializeObject<AccessRefreshResponse>(responseString);
+                var values = new NameValueCollection();
+                values["clientId"] = SecretStorage.GetFitbitClientID();
+                values["grant_type"] = "authorization_code";
+                values["redirect_uri"] = Settings.REDIRECT_URI;
+                values["code"] = registrationToken;
 
-            Database.GetInstance().LogInfo("Retreived new access and refresh token: " + accessResponse.access_token + " / " + accessResponse.refresh_token);
-            SecretStorage.SaveAccessToken(accessResponse.access_token);
-            SecretStorage.SaveRefreshToken(accessResponse.refresh_token);
+                var response = client.UploadValues(REFRESH_URL, values);
+                var responseString = Encoding.Default.GetString(response);
+                AccessRefreshResponse accessResponse = JsonConvert.DeserializeObject<AccessRefreshResponse>(responseString);
 
-            client.Dispose();
+                Database.GetInstance().LogInfo("Retreived new access and refresh token: " + accessResponse.access_token + " / " + accessResponse.refresh_token);
+                SecretStorage.SaveAccessToken(accessResponse.access_token);
+                SecretStorage.SaveRefreshToken(accessResponse.refresh_token);
+
+                client.Dispose();
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+            finally
+            {
+                if (client != null)
+                {
+                    client.Dispose();
+                }
+            }
         }
 
         public static void RevokeAccessToken(string tokenToBeRevoked)
@@ -308,7 +323,10 @@ namespace FitbitTracker.Data
             }
             finally
             {
-                client.Dispose();
+                if (client != null)
+                {
+                    client.Dispose();
+                }
             }
         }
 
@@ -361,7 +379,10 @@ namespace FitbitTracker.Data
             }
             finally
             {
-                client.Dispose();
+                if (client != null)
+                {
+                    client.Dispose();
+                }
             }
         }
 

@@ -64,21 +64,23 @@ namespace FitbitTracker
 
         public override void Start()
         {
-            FitbitConnector.RefreshTokenFail += FitbitConnector_RefreshTokenFail;
-
-            CheckIfSecretsAreAvailable();
-            CheckIfTokenIsAvailable();
-            
-            if (IsEnabled())
-
+            try
             {
+                FitbitConnector.RefreshTokenFail += FitbitConnector_RefreshTokenFail;
 
-                Logger.WriteToConsole("Start Fitibit Tracker");
+                CheckIfSecretsAreAvailable();
+                CheckIfTokenIsAvailable();
 
-                CreateFitbitPullTimer();
-
-                IsRunning = true;
-
+                if (IsEnabled())
+                {
+                    Logger.WriteToConsole("Start Fitibit Tracker");
+                    CreateFitbitPullTimer();
+                    IsRunning = true;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
             }
         }
 
