@@ -22,6 +22,9 @@ namespace PersonalAnalytics.Views
         public StartScreenContainer(string version, List<FirstStartScreenContainer> startScreens)
         {
             InitializeComponent();
+            //Prevent this window from being closed.
+            this.Closing += new System.ComponentModel.CancelEventHandler(OnClose);
+            
             _appVersion = version;
             this.startScreens = startScreens;
             TbVersion.Text = "Version: " + _appVersion;
@@ -29,7 +32,12 @@ namespace PersonalAnalytics.Views
             Top.Inlines.Add(startScreens[0].Title);
             Content.Children.Add(startScreens[0].Content);
         }
-        
+
+        private void OnClose(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            e.Cancel = true;
+        }
+
         private void NextClicked(object sender, RoutedEventArgs args)
         {
             startScreens[shownScreen].NextCallback?.Invoke();
