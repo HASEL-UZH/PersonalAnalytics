@@ -1,4 +1,9 @@
-﻿using ABB.FocuslightApp.Clients;
+﻿// Created by Manuela Zueger (zueger@ifi.uzh.ch) from the University of Zurich
+// Created: 2017-02-18
+// 
+// Licensed under the MIT License.
+
+using ABB.FocuslightApp.Clients;
 using FlowTracker.Service;
 using Microsoft.Win32;
 using Shared;
@@ -7,14 +12,14 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 
 namespace FlowLight
 {
+    /// <summary>
+    /// Class which manages the flowlight (and connection to Skype4Business)
+    /// </summary>
     public class Handler
     {
         enum Originator {System, Skype, FlowTracker, User };
@@ -34,7 +39,7 @@ namespace FlowLight
         private Status _currentFlowLightStatus;
         private List<ITracker> _trackers;
 
-        #region Settings
+        #region Settings Properties
 
         public bool FlowLightEnabled
         {
@@ -189,7 +194,7 @@ namespace FlowLight
 
             UpdateSensitivityInFlowTracker();
 
-            //register and start update timer (for FlowTracker)
+            // register and start update timer (for FlowTracker)
             if (_updateTimer != null)
                 Stop();
             _updateTimer = new Timer();
@@ -197,14 +202,14 @@ namespace FlowLight
             _updateTimer.Elapsed += UpdateTimer_Elapsed;
             _updateTimer.Start();
 
-            //register event handler for status changes in skype
+            // register event handler for status changes in skype
             _skypeClient.OnOutsideChange += SkypeClient_OnOutsideChange;
 
-            //register enforcing timer (for manual state changes)
+            // register enforcing timer (for manual state changes)
             _enforcingTimer = new Timer();
             _enforcingTimer.Elapsed += EnforcingTimer_Elapsed;
 
-            //register event to track when work station is locked / unlocked
+            // register event to track when work station is locked / unlocked
             SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
 
             IsRunning = true;
@@ -212,6 +217,7 @@ namespace FlowLight
 
         public void Stop()
         {
+            // stop update timer
             if (_updateTimer != null)
             {
                 _updateTimer.Stop();
@@ -219,7 +225,19 @@ namespace FlowLight
                 _updateTimer = null;
             }
 
+            // stop enforcing timer
+            if (_enforcingTimer != null)
+            {
+                _enforcingTimer.Stop();
+                _enforcingTimer.Dispose();
+                _enforcingTimer = null;
+            }
+
+            // unregister event handler for status changes in Skype
             _skypeClient.OnOutsideChange -= SkypeClient_OnOutsideChange;
+
+            // unregister event to track when work station is locked / unlocked
+            SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
 
             //also stop flowTracker
             var flowTracker = GetFlowTracker();
