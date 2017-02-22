@@ -181,7 +181,7 @@ namespace FlowLight
                 {
                     IsRunning = false;
                     FlowLightEnabled = false;
-                    FlowTracker.Daemon flowTracker = GetFLowTracker();
+                    FlowTracker.Daemon flowTracker = GetFlowTracker();
                     if (flowTracker != null) flowTracker.Stop();
                     return; // don't start the FlowLight!
                 }
@@ -222,7 +222,7 @@ namespace FlowLight
             _skypeClient.OnOutsideChange -= SkypeClient_OnOutsideChange;
 
             //also stop flowTracker
-            FlowTracker.Daemon flowTracker = GetFLowTracker();
+            var flowTracker = GetFlowTracker();
             if (flowTracker != null) flowTracker.Stop();
 
             IsRunning = false;
@@ -447,7 +447,7 @@ namespace FlowLight
 
         #region Helpers
 
-        private FlowTracker.Daemon GetFLowTracker()
+        private FlowTracker.Daemon GetFlowTracker()
         {
             try
             {
@@ -471,7 +471,7 @@ namespace FlowLight
 
         private void UpdateSensitivityInFlowTracker()
         {
-            FlowTracker.Daemon flowTracker = GetFLowTracker();
+            FlowTracker.Daemon flowTracker = GetFlowTracker();
             if (flowTracker != null)
             {
                 switch (SensitivityLevel)

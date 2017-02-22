@@ -247,7 +247,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FlowLightTracker\FlowLight.csproj">
+    <ProjectReference Include="..\FlowLight\FlowLight.csproj">
       <Project>{cbcf1a82-62fa-4162-8036-62038ca00401}</Project>
       <Name>FlowLight</Name>
     </ProjectReference>
