@@ -82,7 +82,9 @@
     <Content Include="lib\FlowTracker.dll" />
     <Content Include="lib\FocuslightClients.dll" />
     <Content Include="lib\HidLibrary.dll" />
-    <Content Include="lib\Microsoft.Lync.Model.dll" />
+    <Content Include="lib\Microsoft.Lync.Model.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="lib\Microsoft.Office.Uc.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

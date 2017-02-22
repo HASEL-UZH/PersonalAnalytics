@@ -290,12 +290,11 @@ namespace FlowLight
                     newFlowStatus = FocusState.High;
                 }
 
-                setStatus(newFlowStatus);        
+                SetStatus(newFlowStatus);        
 
                 Logger.WriteToConsole("FlowLight: Updating from FlowTracker to " + newFlowStatus);
             }
         }
-
 
         /// <summary>
         /// This method is executed whenever the status was changed in Skype.
@@ -368,7 +367,7 @@ namespace FlowLight
         /// sets the status from FlowTracker (maps the FlowTracker status to FocusLightClients - Status)
         /// </summary>
         /// <param name="newStatus"></param>
-        private void setStatus(FocusState newStatus)
+        private void SetStatus(FocusState newStatus)
         {
             switch (newStatus)
             {
