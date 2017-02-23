@@ -32,9 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FlowTracker, Version=2.0.6261.16301, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="FlowTracker, Version=2.0.6262.20257, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\FlowTracker.dll</HintPath>
+      <HintPath>..\PersonalAnalytics\lib\FlowTracker.dll</HintPath>
     </Reference>
     <Reference Include="FocuslightClients, Version=99.99.693.513, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -79,7 +79,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="lib\FlowTracker.dll" />
     <Content Include="lib\FocuslightClients.dll" />
     <Content Include="lib\HidLibrary.dll" />
     <Content Include="lib\Microsoft.Lync.Model.dll">
