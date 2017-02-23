@@ -380,21 +380,21 @@ namespace PersonalAnalytics
                 // FlowLight menu items to keep the light in a certain state for the specified time
                 var m9 = new System.Windows.Controls.MenuItem { Header = "Switch FlowLight Status to" };
                 var m9Free = new System.Windows.Controls.MenuItem { Header = "Free" };
-                m9Free.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.Free, 1));
-                m9Free.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.Free, 2));
-                m9Free.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.Free, 3));
+                m9Free.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.Free, 30));
+                m9Free.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.Free, 60));
+                m9Free.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.Free, 90));
                 m9.Items.Add(m9Free);
 
                 var m9Busy = new System.Windows.Controls.MenuItem { Header = "Busy" };
-                m9Busy.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.Busy, 1));
-                m9Busy.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.Busy, 2));
-                m9Busy.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.Busy, 3));
+                m9Busy.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.Busy, 30));
+                m9Busy.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.Busy, 60));
+                m9Busy.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.Busy, 90));
                 m9.Items.Add(m9Busy);
 
                 var m9DnD = new System.Windows.Controls.MenuItem { Header = "Do not Disturb" };
-                m9DnD.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.DnD, 1));
-                m9DnD.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.DnD, 2));
-                m9DnD.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.DnD, 3));
+                m9DnD.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.DnD, 30));
+                m9DnD.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.DnD, 60));
+                m9DnD.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.DnD, 90));
                 m9.Items.Add(m9DnD);
 
                 TaskbarIcon.ContextMenu.Items.Add(m9);
