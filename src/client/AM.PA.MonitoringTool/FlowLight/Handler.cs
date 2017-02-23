@@ -474,9 +474,11 @@ namespace FlowLight
         /// <param name="e"></param>
         public void EnforcingClicked(EnforceStatus status, int minutes)
         {
-            
-            StartTimedEnforcing(minutes);
-            SetStatus(Originator.User, ParseEnforceStatus(status));
+            if (FlowLightEnabled)
+            {
+                StartTimedEnforcing(minutes);
+                SetStatus(Originator.User, ParseEnforceStatus(status));
+            }
         }
 
         private Status ParseEnforceStatus(EnforceStatus enforceStatus)
