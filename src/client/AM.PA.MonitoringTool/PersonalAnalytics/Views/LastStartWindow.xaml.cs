@@ -39,7 +39,10 @@ namespace PersonalAnalytics.Views
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            Window.GetWindow(this).Close();
+            var w = Window.GetWindow(this) as StartScreenContainer;
+            w.EnableClose();
+            w.Close();
+            //Window.GetWindow(this).Close();
         }
     }
 }

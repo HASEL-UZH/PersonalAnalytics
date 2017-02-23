@@ -18,13 +18,14 @@ namespace PersonalAnalytics.Views
         private string _appVersion;
         private List<FirstStartScreenContainer> startScreens;
         private int shownScreen = 0;
+        private bool _canClose = false;
 
         public StartScreenContainer(string version, List<FirstStartScreenContainer> startScreens)
         {
             InitializeComponent();
             //Prevent this window from being closed.
             this.Closing += new System.ComponentModel.CancelEventHandler(OnClose);
-            
+
             _appVersion = version;
             this.startScreens = startScreens;
             TbVersion.Text = "Version: " + _appVersion;
@@ -35,7 +36,12 @@ namespace PersonalAnalytics.Views
 
         private void OnClose(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            e.Cancel = true;
+            e.Cancel = !_canClose;
+        }
+
+        public void EnableClose()
+        {
+            _canClose = true;
         }
 
         private void NextClicked(object sender, RoutedEventArgs args)
