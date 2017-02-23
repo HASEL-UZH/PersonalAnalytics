@@ -262,6 +262,9 @@ namespace FlowLight
             // unregister event handler for status changes in Skype
             _skypeClient.OnOutsideChange -= SkypeClient_OnOutsideChange;
 
+            // turn off the light
+            _lightClient.Solid(0, 0, 0, 0);
+
             // unregister event to track when work station is locked / unlocked
             SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
 
