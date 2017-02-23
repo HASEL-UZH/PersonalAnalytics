@@ -6,7 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         Title="PersonalAnalytics: Settings"
         Width="650"
-        Height="680"
+        Height="710"
         ResizeMode="NoResize"
         mc:Ignorable="d">
 
@@ -33,11 +33,8 @@
         </Grid>
 
         <TabControl Grid.Row="1" Margin="10">
-            <TabItem Height="22"
-                     VerticalAlignment="Top"
-                     Header="General Settings">
-                <StackPanel Margin="5">
-                    <!--<TextBlock Text="Manage the settings:"/>-->
+            <TabItem Height="22" VerticalAlignment="Top" Header="Data Tracker Settings">
+                <StackPanel Margin="10">
                     <CheckBox x:Name="CbPopUpsEnabled" Content="Productivity pop-ups enabled" />
                     <TextBlock Margin="20 0 0 0"
                                Foreground="Gray"
@@ -94,82 +91,85 @@
                 </StackPanel>
             </TabItem>
             <TabItem Header="FlowLight Settings">
-                <StackPanel Margin="5">
+                <StackPanel Margin="10">
                     <CheckBox x:Name="CbFlowLightEnabled"
                               Margin="0 0 0 0"
                               Content="FlowLight enabled" />
                     <TextBlock x:Name="TbFlowLightEnabledHint"
-                               Margin="20,0,0,0"
-                               Foreground="Gray"
-                               Text="Hint: If you enable it, your Skype for Business status and your FlowLight will be updated automatically based on your activity on the computer and your calender events."
-                               TextWrapping="Wrap" />
+                                   Margin="20,0,0,0"
+                                   Foreground="Gray"
+                                   Text="Hint: If enabled, your Skype for Business status and your FlowLight will be updated automatically based on your activity on the computer and your calender events."
+                                   TextWrapping="Wrap" />
+                    <StackPanel Margin="20 0 0 0">
+                        
+                        <RadioButton x:Name="RbFlowLightManual"
+                                     Margin="0 10 0 0"
+                                     Content="Manual (not recommended)" />
+                        <TextBlock x:Name="TbFlowLightManualHint"
+                                   Margin="20,0,0,0"
+                                   Foreground="Gray"
+                                   Text="Hint: If you select the 'Manual mode', the status of FlowLight and Skype for Business can only be changed manually using the context menu in the task tray icon or in Skype for Business."
+                                   TextWrapping="Wrap" />
+                    
+                        <RadioButton x:Name="RbFlowLightAutomatic"
+                                     Margin="0 10 0 0"
+                                     Content="Automatic" />
+                        <TextBlock x:Name="TbFlowLightAutomaticHint"
+                                   Margin="20,0,0,0"
+                                   Foreground="Gray"
+                                   Text="Hint: If you choose the Automatic mode, the status of FlowLight and Skype for Business will update automatically according to your activity on the computer. You can always manually override the automatic status temporarily by modifying the status in the context menu of the task tray icon. Another option to manually change your availability status in Skype for Business."
+                                   TextWrapping="Wrap" />
+                        <CheckBox x:Name="CbFlowLightAllowDnD"
+                                  Margin="20 10 0 0"
+                                  Content="Allow status changes to Do Not Disturb" />
+                        <Label Margin="16 10 0 0" Content="FlowLight Sensitivity:" FontWeight="Bold" />
+                        <Slider x:Name="SrFlowLightSensitivity"
+                                Width="300"
+                                Margin="16 5 0 0"
+                                HorizontalAlignment="Left"
+                                Maximum="4"
+                                TickPlacement="BottomRight"
+                                Value="2" />
+                        <StackPanel Orientation="Horizontal">
+                            <Label Margin="16 0 0 0" Content="Low" />
+                            <Label Margin="92 0 0 0" Content="Medium" />
+                            <Label Margin="86 0 0 0" Content="High" />
+                        </StackPanel>
 
-                    <RadioButton x:Name="RbFlowLightAutomatic"
-                                 Margin="0 20 0 0"
-                                 Content="Automatic" />
-                    <TextBlock x:Name="TbFlowLightAutomaticHint"
-                               Margin="20,0,0,0"
-                               Foreground="Gray"
-                               Text="Hint: If you choose the Automatic mode, the status of FlowLight and Skype for Business will update automatically according to your activity on the computer. You can always override the automatic status in the context menu ('Keep Light ...') or in Skype for Business."
-                               TextWrapping="Wrap" />
-                    <CheckBox x:Name="CbFlowLightAllowDnD"
-                              Margin="20 10 0 0"
-                              Content="Allow status changes to Do Not Disturb" />
-                    <Label Margin="16 10 0 0" Content="FlowLight Sensitivity:" />
-                    <Slider x:Name="SrFlowLightSensitivity"
-                            Width="300"
-                            Margin="16 5 0 0"
-                            HorizontalAlignment="Left"
-                            Maximum="4"
-                            TickPlacement="BottomRight"
-                            Value="2" />
-                    <StackPanel Orientation="Horizontal">
-                        <Label Margin="16 0 0 0" Content="Low" />
-                        <Label Margin="92 0 0 0" Content="Medium" />
-                        <Label Margin="86 0 0 0" Content="High" />
+                        <Label Margin="15 20 0 0" Content="Blacklist:" FontWeight="Bold" />
+                        <TextBlock x:Name="TbFlowLightBlacklistHint"
+                                   Margin="20,0,0,0"
+                                   Foreground="Gray"
+                                   Text="Hint: All activity performed in an application on the blacklist will not be considered for the FlowLight status."
+                                   TextWrapping="Wrap" />
+                        <StackPanel Margin="15 0 0 0" Orientation="Horizontal">
+                            <StackPanel Orientation="Vertical">
+                                <Label Content="Running Applications" />
+                                <ListBox x:Name="LbFlowLightRunningApps"
+                                         Width="200"
+                                         Height="80"
+                                         Margin="5 0 0 0"
+                                         ScrollViewer.VerticalScrollBarVisibility="Visible" />
+                            </StackPanel>
+                            <StackPanel Margin="10 30 10 0" Orientation="Vertical">
+                                <Button x:Name="BtFlowLightMoveToBlacklist"
+                                        Margin="0 10 0 0"
+                                        VerticalAlignment="Center"
+                                        Content="=&gt;" />
+                                <Button x:Name="BtFlowLightMoveFromBlacklist"
+                                        Margin="0 10 0 0"
+                                        VerticalAlignment="Center"
+                                        Content="&lt;=" />
+                            </StackPanel>
+                            <StackPanel Orientation="Vertical">
+                                <Label Content="Blacklisted Applications" />
+                                <ListBox x:Name="LbFlowLightBlacklistedApps"
+                                         Width="200"
+                                         Height="80"
+                                         ScrollViewer.VerticalScrollBarVisibility="Visible" />
+                            </StackPanel>
+                        </StackPanel>
                     </StackPanel>
-
-                    <Label Margin="15 20 0 0" Content="Blacklist:" />
-                    <TextBlock x:Name="TbFlowLightBlacklistHint"
-                               Margin="20,0,0,0"
-                               Foreground="Gray"
-                               Text="Hint: Activity while working in applications on the Blacklist will be ignored."
-                               TextWrapping="Wrap" />
-                    <StackPanel Margin="15 0 0 0" Orientation="Horizontal">
-                        <StackPanel Orientation="Vertical">
-                            <Label Content="Running Applications" />
-                            <ListBox x:Name="LbFlowLightRunningApps"
-                                     Width="200"
-                                     Height="60"
-                                     Margin="5 0 0 0"
-                                     ScrollViewer.VerticalScrollBarVisibility="Visible" />
-                        </StackPanel>
-                        <StackPanel Margin="10 30 10 0" Orientation="Vertical">
-                            <Button x:Name="BtFlowLightMoveToBlacklist"
-                                    VerticalAlignment="Center"
-                                    Content="=&gt;" />
-                            <Button x:Name="BtFlowLightMoveFromBlacklist"
-                                    Margin="0 10 0 0"
-                                    VerticalAlignment="Center"
-                                    Content="&lt;=" />
-                        </StackPanel>
-                        <StackPanel Orientation="Vertical">
-                            <Label Content="Blacklisted Applications" />
-                            <ListBox x:Name="LbFlowLightBlacklistedApps"
-                                     Width="200"
-                                     Height="60"
-                                     ScrollViewer.VerticalScrollBarVisibility="Visible" />
-                        </StackPanel>
-                    </StackPanel>
-
-                    <RadioButton x:Name="RbFlowLightManual"
-                                 Margin="0 20 0 0"
-                                 Content="Manual" />
-                    <TextBlock x:Name="TbFlowLightManualHint"
-                               Margin="20,0,0,0"
-                               Foreground="Gray"
-                               Text="Hint: If you choose the Manual mode, the status of FlowLight and Skype for Business can only be changed manually in the context menu ('Keep Light ...') or in Skype for Business."
-                               TextWrapping="Wrap" />
                 </StackPanel>
             </TabItem>
         </TabControl>
