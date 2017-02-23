@@ -31,6 +31,7 @@ namespace FlowLight
         private bool _automaticEnabled;
         private bool _dndEnabled;
         private int _sensitivityLevel;
+        private bool _skypeForBusinessEnabled;
         private Timer _updateTimer;
         private bool _locked;
         private bool _enforcing;
@@ -71,6 +72,28 @@ namespace FlowLight
 
                 // log
                 Database.GetInstance().LogInfo("The participant updated the setting 'FlowLightEnabled' to " + flowLightEnabled);
+            }
+        }
+
+        public bool SkypeForBusinessEnabled
+        {
+            get
+            {
+                _skypeForBusinessEnabled = Database.GetInstance().GetSettingsBool("FlowLightSkypeForBusinessEnabled", Settings.IsSkypeForBusinessEnabledByDefault);
+                return _skypeForBusinessEnabled;
+            }
+            set
+            {
+                var skypeForBusinessEnabled = value;
+
+                // only update if settings changed
+                if (skypeForBusinessEnabled == _skypeForBusinessEnabled) return;
+
+                // update settings
+                Database.GetInstance().SetSettings("FlowLightSkypeForBusinessEnabled", value);
+
+                // log
+                Database.GetInstance().LogInfo("The participant updated the setting 'FlowLightSkypeForBusinessEnabled' to " + skypeForBusinessEnabled);
             }
         }
 
@@ -152,6 +175,8 @@ namespace FlowLight
                 Database.GetInstance().LogInfo("The participant updated the setting 'FlowLightSensitivityLevel' to " + sensitivityLevel);
             }
         }
+
+        
 
         #endregion
 
@@ -312,12 +337,13 @@ namespace FlowLight
         /// <param name="e"></param>
         private void SkypeClient_OnOutsideChange(object sender, StatusEventArgs e)
         {
-            Logger.WriteToConsole("FlowLight: Skype status change detected: " + e.CurrentStatus + ", outside: " + e.Outside);
-
-            // Ignore all changes from Skype if the workstation is locked. 
+            // ignore all changes from Skype when it is disabled or if the change is originated by us.
+            // Also ignore all changes from Skype if the workstation is locked
             // Reason: Sometimes Skype cannot reflect the correct status (Away) when the computer is locked.
-            if (!_locked && e.Outside)
+            if (SkypeForBusinessEnabled && e.Outside && !_locked)
             {
+                Logger.WriteToConsole("FlowLight: Skype status change detected: " + e.CurrentStatus + ", outside: " + e.Outside);
+
                 if (_enforcing)
                 {
                     // if the state has been enforced and changed again now, we cancel the enforcing
@@ -351,7 +377,7 @@ namespace FlowLight
             if (_currentFlowLightStatus != newStatus)
             {
                 // Skype should only be updated if it is origniated by someone else than Skype, otherwise it is already updated
-                if (originator != Originator.Skype)
+                if (originator != Originator.Skype && SkypeForBusinessEnabled)
                 {
                     _skypeClient.Status = newStatus;
                 }

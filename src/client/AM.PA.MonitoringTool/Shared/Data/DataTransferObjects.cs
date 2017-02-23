@@ -36,6 +36,7 @@ namespace Shared.Data
         public bool? FlowLightDnDEnabled { get; set; }
         public int? FlowLightSensitivityLevel { get; set; }
         public string[] FlowLightBlacklist { get; set;}
+        public bool? FlowLightSkypeForBusinessEnabled { get; set; }
     }
     public class StartEndTimeDto
     {

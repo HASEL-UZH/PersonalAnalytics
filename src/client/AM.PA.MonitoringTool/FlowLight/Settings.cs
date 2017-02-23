@@ -13,5 +13,6 @@ namespace FlowLight
         public static bool IsDnDAllowedByDefault = true;
         public static int DefaultSensitivityLevel = 2;
         public static string[] DefaultBlacklist = { "skype", "lync" };
+        public static bool IsSkypeForBusinessEnabledByDefault = true;
     }
 }

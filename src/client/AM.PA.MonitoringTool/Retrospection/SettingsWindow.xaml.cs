@@ -29,10 +29,11 @@ namespace Retrospection
         private bool defaultTimeSpentShowProgramsEnabled;
         private bool defaultTimeSpentShowEmailsEnabled;
         private bool defaultFlowLightEnabled;
+        private bool defaultSkypeForBusinessEnabled;
         private bool defaultFlowLightAutomaticEnabled;
         private bool defaultFlowLightDnDEnabled;
         private int defaultFlowLightSensitivityLevel;
-        private string[] defaultFlowLightBlacklist;
+        private string[] defaultFlowLightBlacklist;     
 
         private string minutesStr = " minutes";
         private List<ITracker> _trackers;
@@ -58,6 +59,7 @@ namespace Retrospection
             defaultTimeSpentShowProgramsEnabled = dto.TimeSpentShowProgramsEnabled.Value;
             defaultTimeSpentShowEmailsEnabled = dto.TimeSpentShowEmailsEnabled.Value;
             defaultFlowLightEnabled = dto.FlowLightEnabled.Value;
+            defaultSkypeForBusinessEnabled = dto.FlowLightSkypeForBusinessEnabled.Value;
             defaultFlowLightAutomaticEnabled = dto.FlowLightAutomaticEnabled.Value;
             defaultFlowLightDnDEnabled = dto.FlowLightDnDEnabled.Value;
             defaultFlowLightSensitivityLevel = dto.FlowLightSensitivityLevel.Value;
@@ -102,6 +104,10 @@ namespace Retrospection
             CbFlowLightEnabled.IsChecked = defaultFlowLightEnabled;
             CbFlowLightEnabled.Checked += CbChecked_Update;
             CbFlowLightEnabled.Unchecked += CbChecked_Update;
+
+            CbFlowLightSkypeForBusinessEnabled.IsChecked = defaultSkypeForBusinessEnabled;
+            CbFlowLightSkypeForBusinessEnabled.Checked += CbChecked_Update;
+            CbFlowLightSkypeForBusinessEnabled.Unchecked += CbChecked_Update;
 
             RbFlowLightAutomatic.IsChecked = defaultFlowLightAutomaticEnabled;
             RbFlowLightManual.IsChecked = !defaultFlowLightAutomaticEnabled;
@@ -203,6 +209,7 @@ namespace Retrospection
                  (defaultTimeSpentShowEmailsEnabled != CbTimeSpentShowEmailsEnabled.IsChecked.Value) ||
                  (defaultTimeSpentShowProgramsEnabled != CbTimeSpentShowProgramsEnabled.IsChecked.Value) ||
                  (defaultFlowLightEnabled != CbFlowLightEnabled.IsChecked.Value) ||
+                 (defaultSkypeForBusinessEnabled != CbFlowLightSkypeForBusinessEnabled.IsChecked.Value) ||
                  (defaultFlowLightAutomaticEnabled != RbFlowLightAutomatic.IsChecked.Value) ||
                  (defaultFlowLightDnDEnabled != CbFlowLightAllowDnD.IsChecked.Value) ||
                  (defaultFlowLightSensitivityLevel != SrFlowLightSensitivity.Value) ||
@@ -285,6 +292,12 @@ namespace Retrospection
                     dto.FlowLightEnabled = CbFlowLightEnabled.IsChecked.Value;
                 }
                 else { dto.FlowLightEnabled = null; }
+
+                if (defaultSkypeForBusinessEnabled != CbFlowLightSkypeForBusinessEnabled.IsChecked.Value)
+                {
+                    dto.FlowLightSkypeForBusinessEnabled = CbFlowLightSkypeForBusinessEnabled.IsChecked.Value;
+                }
+                else { dto.FlowLightSkypeForBusinessEnabled = null; }
 
                 if (defaultFlowLightAutomaticEnabled != RbFlowLightAutomatic.IsChecked.Value)
                 {

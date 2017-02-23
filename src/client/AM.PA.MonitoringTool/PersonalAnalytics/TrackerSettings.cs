@@ -65,6 +65,10 @@ namespace Shared.Data
                 {
                     FlowLight.Handler.GetInstance().FlowLightEnabled = updatedSettings.FlowLightEnabled.Value;
                 }
+                if (updatedSettings.FlowLightSkypeForBusinessEnabled.HasValue)
+                {
+                    FlowLight.Handler.GetInstance().SkypeForBusinessEnabled = updatedSettings.FlowLightSkypeForBusinessEnabled.Value;
+                }
                 if (updatedSettings.FlowLightAutomaticEnabled.HasValue)
                 {
                     FlowLight.Handler.GetInstance().AutomaticEnabled = updatedSettings.FlowLightAutomaticEnabled.Value;
@@ -122,9 +126,10 @@ namespace Shared.Data
                 if (flowLight != null)
                 {
                     dto.FlowLightEnabled = flowLight.FlowLightEnabled;
+                    dto.FlowLightSkypeForBusinessEnabled = flowLight.SkypeForBusinessEnabled;
                     dto.FlowLightAutomaticEnabled = flowLight.AutomaticEnabled;
                     dto.FlowLightDnDEnabled = flowLight.DnDEnabled;
-                    dto.FlowLightSensitivityLevel = flowLight.SensitivityLevel;
+                    dto.FlowLightSensitivityLevel = flowLight.SensitivityLevel;            
                 }
 
                 var flowLightTracker = GetFlowTracker();
