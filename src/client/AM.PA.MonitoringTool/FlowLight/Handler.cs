@@ -22,7 +22,8 @@ namespace FlowLight
     /// </summary>
     public class Handler
     {
-        enum Originator {System, Skype, FlowTracker, User };
+        enum Originator { System, Skype, FlowTracker, User };
+        public enum EnforceStatus { Free, Busy, DnD };
 
         public bool IsRunning;
         private static Handler _handler;
@@ -442,10 +443,26 @@ namespace FlowLight
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void EnforcingClicked(Status status, int minutes)
+        public void EnforcingClicked(EnforceStatus status, int minutes)
         {
+            
             StartTimedEnforcing(minutes);
-            SetStatus(Originator.User, status);
+            SetStatus(Originator.User, ParseEnforceStatus(status));
+        }
+
+        private Status ParseEnforceStatus(EnforceStatus enforceStatus)
+        {
+            switch (enforceStatus)
+            {
+                case EnforceStatus.Free:
+                    return Status.Free;
+                case EnforceStatus.Busy:
+                    return Status.Busy;
+                case EnforceStatus.DnD:
+                    return Status.DoNotDisturb;
+                default:
+                    return Status.Free;
+            }
         }
 
         /// <summary>
