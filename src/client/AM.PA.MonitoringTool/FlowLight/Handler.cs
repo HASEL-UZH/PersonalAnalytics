@@ -63,7 +63,7 @@ namespace FlowLight
                 // start/stop tracker if necessary
                 if (!flowLightEnabled && IsRunning)
                 {
-                    Stop();
+                    PauseOrStop();
                 }
                 else if (flowLightEnabled && !IsRunning)
                 {
@@ -220,28 +220,74 @@ namespace FlowLight
 
             UpdateSensitivityInFlowTracker();
 
+            AttachHandlers();
+
+            IsRunning = true;
+        }
+
+        public void Continue()
+        {
+            AttachHandlers();
+
+            // set the FlowLight status from skype if possible, or set to free
+            if (SkypeForBusinessEnabled)
+            {
+                _currentFlowLightStatus = _skypeClient.Status;
+                _lightClient.Status = _skypeClient.Status;
+
+                Logger.WriteToConsole("FlowLight: The status was set after resume by " + Originator.Skype + " to " + _skypeClient.Status + ".");
+                Database.GetInstance().LogInfo("FlowLight: The status was set after resume by " + Originator.Skype + " to " + _skypeClient.Status + ".");
+
+                if (_skypeClient.Status != Status.Free)
+                {
+                    StartInfiniteEnforcing();
+                }
+            } else
+            {
+                _currentFlowLightStatus = Status.Free;
+                _lightClient.Status = Status.Free;
+
+                Logger.WriteToConsole("FlowLight: The status was set after resume to " + Status.Free + ".");
+                Database.GetInstance().LogInfo("FlowLight: The status was set after resume to " + Status.Free + ".");
+            }
+
+            IsRunning = true;
+        }
+
+        private void AttachHandlers()
+        {
             // register and start update timer (for FlowTracker)
-            if (_updateTimer != null)
-                Stop();
             _updateTimer = new Timer();
             _updateTimer.Interval = Settings.UpdateInterval * 1000;
             _updateTimer.Elapsed += UpdateTimer_Elapsed;
             _updateTimer.Start();
 
-            // register event handler for status changes in skype
-            _skypeClient.OnOutsideChange += SkypeClient_OnOutsideChange;
-
             // register enforcing timer (for manual state changes)
             _enforcingTimer = new Timer();
             _enforcingTimer.Elapsed += EnforcingTimer_Elapsed;
 
+            // register event handler for status changes in skype
+            _skypeClient.OnOutsideChange += SkypeClient_OnOutsideChange;
+
             // register event to track when work station is locked / unlocked
             SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
-
-            IsRunning = true;
         }
 
-        public void Stop()
+        public void PauseOrStop()
+        {
+            DisattachHandlers();
+
+            //also stop flowTracker
+            var flowTracker = GetFlowTracker();
+            if (flowTracker != null) flowTracker.Stop();
+
+            // turn off the light
+            _lightClient.Solid(0, 0, 0, 0);
+
+            IsRunning = false;
+        }
+
+        private void DisattachHandlers()
         {
             // stop update timer
             if (_updateTimer != null)
@@ -258,21 +304,13 @@ namespace FlowLight
                 _enforcingTimer.Dispose();
                 _enforcingTimer = null;
             }
+            _enforcing = false;
 
             // unregister event handler for status changes in Skype
             _skypeClient.OnOutsideChange -= SkypeClient_OnOutsideChange;
 
-            // turn off the light
-            _lightClient.Solid(0, 0, 0, 0);
-
             // unregister event to track when work station is locked / unlocked
             SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
-
-            //also stop flowTracker
-            var flowTracker = GetFlowTracker();
-            if (flowTracker != null) flowTracker.Stop();
-
-            IsRunning = false;
         }
 
         #endregion
@@ -474,7 +512,7 @@ namespace FlowLight
         /// <param name="e"></param>
         public void EnforcingClicked(EnforceStatus status, int minutes)
         {
-            if (FlowLightEnabled)
+            if (FlowLightEnabled && IsRunning)
             {
                 StartTimedEnforcing(minutes);
                 SetStatus(Originator.User, ParseEnforceStatus(status));

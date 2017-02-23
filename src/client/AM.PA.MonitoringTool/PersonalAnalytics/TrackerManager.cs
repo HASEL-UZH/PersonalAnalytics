@@ -217,7 +217,7 @@ namespace PersonalAnalytics
             Retrospection.Handler.GetInstance().Stop();
 
             // stop the FlowLight
-            FlowLight.Handler.GetInstance().Stop();
+            FlowLight.Handler.GetInstance().PauseOrStop();
 
             // stop timers & unregister
             if (_taskbarIconTimer != null) _taskbarIconTimer.Stop();
@@ -251,6 +251,7 @@ namespace PersonalAnalytics
             {
                 tracker.Stop();
             }
+            FlowLight.Handler.GetInstance().PauseOrStop();
             _isPaused = true;
 
             if (_remindToContinueTrackerTimer == null)
@@ -287,6 +288,7 @@ namespace PersonalAnalytics
                 if (!tracker.IsEnabled()) continue;
                 tracker.Start();
             }
+            FlowLight.Handler.GetInstance().Continue();
             _isPaused = false;
 
             Database.GetInstance().LogInfo("The participant resumed the trackers.");
@@ -447,17 +449,20 @@ namespace PersonalAnalytics
         /// <param name="e"></param>
         private void FlowLightEnforcingClicked(object sender, RoutedEventArgs e)
         {
-            var menuItem = (System.Windows.Controls.MenuItem)sender;
-            var parentMenuItem = (System.Windows.Controls.MenuItem)menuItem.Parent;
-            var rootMenuItem = (System.Windows.Controls.MenuItem)parentMenuItem.Parent;
-
-            //only add the reset button if there is no one there yet!
-            if (rootMenuItem.Items.Count == 3)
+            if (FlowLight.Handler.GetInstance().FlowLightEnabled && FlowLight.Handler.GetInstance().IsRunning)
             {
-                var resetMenuItem = new System.Windows.Controls.MenuItem { Header = "Reset" };
-                resetMenuItem.Click += (o, i) => FlowLight.Handler.GetInstance().ResetEnforcingClicked();
-                resetMenuItem.Click += ResetMenuItem_Click;
-                rootMenuItem.Items.Add(resetMenuItem);
+                var menuItem = (System.Windows.Controls.MenuItem)sender;
+                var parentMenuItem = (System.Windows.Controls.MenuItem)menuItem.Parent;
+                var rootMenuItem = (System.Windows.Controls.MenuItem)parentMenuItem.Parent;
+
+                //only add the reset button if there is no one there yet!
+                if (rootMenuItem.Items.Count == 3)
+                {
+                    var resetMenuItem = new System.Windows.Controls.MenuItem { Header = "Reset" };
+                    resetMenuItem.Click += (o, i) => FlowLight.Handler.GetInstance().ResetEnforcingClicked();
+                    resetMenuItem.Click += ResetMenuItem_Click;
+                    rootMenuItem.Items.Add(resetMenuItem);
+                }
             }
         }
 
