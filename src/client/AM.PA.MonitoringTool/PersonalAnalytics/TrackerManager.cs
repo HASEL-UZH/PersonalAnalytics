@@ -35,12 +35,12 @@ namespace PersonalAnalytics
         private DispatcherTimer _remindToShareStudyDataTimer;
         private DispatcherTimer _checkForUpdatesTimer;
 
-        private System.Windows.Controls.MenuItem _pauseContinueMenuItem;
+        private MenuItem _pauseContinueMenuItem;
         private string _publishedAppVersion;
         private bool _isPaused;
 
-        private System.Windows.Controls.MenuItem _flowLightEnforceMenuItem;
-        private System.Windows.Controls.MenuItem _flowLightResetMenuItem;
+        private MenuItem _flowLightEnforceMenuItem;
+        private MenuItem _flowLightResetMenuItem;
 
         #region Initialize & Handle TrackerManager
 
@@ -174,6 +174,12 @@ namespace PersonalAnalytics
             {
                 var window = new FirstStartWindow();
                 startScreens.Add(new FirstStartScreenContainer(new FirstStartWindow(), "Personal Analytics: First Start", FirstStartWindow.NextClicked));
+            }
+
+            // add first start screen for flowlight
+            if (FlowLight.Handler.GetInstance().IsFlowLightsFirstUse())
+            {
+                startScreens.Add(FlowLight.Handler.GetInstance().GetStartScreen());
             }
 
             // add first start screen of each tracker where not yet shown
@@ -374,7 +380,7 @@ namespace PersonalAnalytics
 
 #endregion
 
-#region Taskbar Icon Options
+        #region Taskbar Icon Options
 
         /// <summary>
         /// Dreates a taskbar icon to modify its tooltip and create the context menu options
@@ -686,9 +692,9 @@ namespace PersonalAnalytics
             TaskbarIcon.ToolTipText = message;
         }
 
-#endregion
+        #endregion
 
-#region Helpers
+        #region Helpers
 
         /// <summary>
         /// On the first workday of the week, remind the user ONCE to share

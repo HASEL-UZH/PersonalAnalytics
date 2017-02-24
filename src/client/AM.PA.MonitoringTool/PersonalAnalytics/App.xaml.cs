@@ -109,6 +109,7 @@ namespace PersonalAnalytics
             //////////////////////////////////////////////////////
             var trackers = TrackerManager.GetInstance().RegisterTrackers();
             TrackerManager.GetInstance().SetAppVersion(GetPublishedAppVersion());
+            FlowLight.Handler.GetInstance().SetTrackers(trackers);
             TrackerManager.GetInstance().Start();
 
 
@@ -128,7 +129,7 @@ namespace PersonalAnalytics
             //////////////////////////////////////////////////////
             if (FlowLight.Handler.GetInstance().FlowLightEnabled)
             {
-                FlowLight.Handler.GetInstance().Start(trackers);
+                FlowLight.Handler.GetInstance().Start();
             }
         }
 

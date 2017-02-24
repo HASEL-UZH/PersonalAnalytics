@@ -33,7 +33,7 @@ namespace PolarTracker.Views
 
         private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
-            ThanksMessage.Visibility = Visibility.Hidden;
+            ThanksMessage.Visibility = Visibility.Collapsed;
         }
     
         internal void NextClicked()
