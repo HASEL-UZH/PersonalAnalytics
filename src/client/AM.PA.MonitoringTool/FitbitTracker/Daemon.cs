@@ -173,14 +173,18 @@ namespace FitbitTracker
             Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, fibtitTrackerEnabled.Value);
             Database.GetInstance().LogInfo("The participant updated the setting '" + Settings.TRACKER_ENEABLED_SETTING + "' to " + fibtitTrackerEnabled.Value);
 
-            if (fibtitTrackerEnabled.Value)
+            if (fibtitTrackerEnabled.Value && IsRunning)
             {
                 CreateDatabaseTablesIfNotExist();
                 Start();
             }
-            else
+            else if (!fibtitTrackerEnabled.Value && IsRunning)
             {
                 Stop();
+            }
+            else
+            {
+                Logger.WriteToConsole("Don't do anything, tracker is paused");
             }
         }
 

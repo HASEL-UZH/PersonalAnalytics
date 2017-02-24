@@ -195,14 +195,18 @@ namespace PolarTracker
             Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, polarTrackerEnabled.Value);
             Database.GetInstance().LogInfo("The participant updated the setting '" + Settings.TRACKER_ENEABLED_SETTING + "' to " + polarTrackerEnabled.Value);
 
-            if (polarTrackerEnabled.Value)
+            if (polarTrackerEnabled.Value && IsRunning)
             {
                 CreateDatabaseTablesIfNotExist();
                 Start();
             }
-            else
+            else if (!polarTrackerEnabled.Value && IsRunning)
             {
                 Stop();
+            }
+            else
+            {
+                Logger.WriteToConsole("Don't do anything, tracker is paused");
             }
         }
 
