@@ -177,13 +177,13 @@ namespace PersonalAnalytics
             }
 
             // add first start screen for flowlight
-            if (FlowLight.Handler.GetInstance().IsFlowLightsFirstUse())
+            if (FlowLight.Handler.GetInstance().FlowLightEnabled && FlowLight.Handler.GetInstance().IsFlowLightsFirstUse())
             {
                 startScreens.Add(FlowLight.Handler.GetInstance().GetStartScreen());
             }
 
             // add first start screen of each tracker where not yet shown
-            foreach (var tracker in _trackers.Where(t => t.IsFirstStart))
+            foreach (var tracker in _trackers.Where(t => t.IsFirstStart && t.IsEnabled()))
             {
                 startScreens.AddRange(tracker.GetStartScreens());
             }
