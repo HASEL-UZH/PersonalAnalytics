@@ -25,7 +25,12 @@ namespace FlowLight
         enum Originator { System, Skype, FlowTracker, User };
         public enum EnforceStatus { Free, Busy, DnD };
 
+        public event EventHandler EnforcingCancelled;
+        public event EventHandler FlowLightStarted;
+        public event EventHandler FLowLightStopped;
+
         public bool IsRunning;
+        private bool _isPaused;
         private static Handler _handler;
         private bool _flowLightEnabled;
         private bool _automaticEnabled;
@@ -63,9 +68,9 @@ namespace FlowLight
                 // start/stop tracker if necessary
                 if (!flowLightEnabled && IsRunning)
                 {
-                    PauseOrStop();
+                    Stop();
                 }
-                else if (flowLightEnabled && !IsRunning)
+                else if (flowLightEnabled && !IsRunning && !_isPaused)
                 {
                     Start(_trackers);
                 }
@@ -225,13 +230,21 @@ namespace FlowLight
             AttachHandlers();
             InitiateStatus();
             IsRunning = true;
+            _isPaused = false;
+            OnFlowLightStarted(new EventArgs());
         }
 
         public void Continue()
         {
-            AttachHandlers();
-            InitiateStatus();
-            IsRunning = true;
+            if (FlowLightEnabled)
+            {
+                AttachHandlers();
+                InitiateStatus();
+                IsRunning = true;               
+                OnFlowLightStarted(new EventArgs());
+            }
+
+            _isPaused = false;
         }
 
         /// <summary>
@@ -281,7 +294,13 @@ namespace FlowLight
             SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
         }
 
-        public void PauseOrStop()
+        public void Pause()
+        {
+            _isPaused = true;
+            Stop();
+        }
+
+        public void Stop()
         {
             DisattachHandlers();
 
@@ -290,9 +309,10 @@ namespace FlowLight
             if (flowTracker != null) flowTracker.Stop();
 
             // turn off the light
-            _lightClient.Solid(0, 0, 0, 0);
+            if (_lightClient != null && _lightClient.Okay) _lightClient.Solid(0, 0, 0, 0);
 
             IsRunning = false;
+            OnFlowLightStopped(new EventArgs());
         }
 
         private void DisattachHandlers()
@@ -313,6 +333,7 @@ namespace FlowLight
                 _enforcingTimer = null;
             }
             _enforcing = false;
+            OnEnforcingCancelled(new EventArgs());
 
             // unregister event handler for status changes in Skype
             _skypeClient.OnOutsideChange -= SkypeClient_OnOutsideChange;
@@ -497,7 +518,10 @@ namespace FlowLight
             Logger.WriteToConsole("FlowLight: Cancelling enforcing.");
             _enforcingTimer.Stop();
             _enforcing = false;
+            OnEnforcingCancelled(new EventArgs());
         }
+
+
 
         /// <summary>
         /// This method is executed when the enforcing timer has elapsed.
@@ -550,6 +574,21 @@ namespace FlowLight
         {
             StopEnforcing();
             SetStatus(Originator.User, Status.Free);
+        }
+
+        protected virtual void OnEnforcingCancelled(EventArgs e)
+        {
+            EnforcingCancelled?.Invoke(this, e);
+        }
+
+        protected virtual void OnFlowLightStarted(EventArgs e)
+        {
+            FlowLightStarted?.Invoke(this, e);
+        }
+
+        protected virtual void OnFlowLightStopped(EventArgs e)
+        {
+            FLowLightStopped?.Invoke(this, e);
         }
 
         #endregion
