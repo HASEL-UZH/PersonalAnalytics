@@ -116,6 +116,10 @@
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="FlowLight, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\FlowLight.dll</HintPath>
+    </Reference>
     <Reference Include="FlowTracker, Version=2.0.6262.20257, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\FlowTracker.dll</HintPath>
@@ -244,10 +248,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FlowLight\FlowLight.csproj">
-      <Project>{cbcf1a82-62fa-4162-8036-62038ca00401}</Project>
-      <Name>FlowLight</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TimeSpentVisualizer\TimeSpentVisualizer.csproj">
       <Project>{8eba3b95-be0e-4498-9eac-20d417176a00}</Project>
       <Name>TimeSpentVisualizer</Name>
@@ -283,7 +283,14 @@
     </Resource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="lib\FlowLight.dll" />
     <Content Include="lib\FlowTracker.dll" />
+    <Content Include="lib\FocuslightClients.dll" />
+    <Content Include="lib\HidLibrary.dll" />
+    <Content Include="lib\Microsoft.Lync.Model.dll" />
+    <Content Include="lib\Microsoft.Office.Uc.dll" />
+    <Content Include="lib\NLog.dll" />
+    <Content Include="lib\ThingM.Blink1.dll" />
     <Content Include="x64\SQLite.Interop.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
