@@ -196,6 +196,7 @@ namespace FlowLight
         public void Start(List<ITracker> trackers)
         {
             _trackers = trackers;
+            FlowTracker.Daemon flowTracker = GetFlowTracker();
 
             // on first start, a pop-up is shown to ask the user to enable/disable the FlowLight
             if (IsFlowLightsFirstUse())
@@ -212,46 +213,53 @@ namespace FlowLight
                 {
                     IsRunning = false;
                     FlowLightEnabled = false;
-                    FlowTracker.Daemon flowTracker = GetFlowTracker();
-                    if (flowTracker != null) flowTracker.Stop();
+                    
+                    if (flowTracker != null && flowTracker.IsRunning) flowTracker.Stop();
                     return; // don't start the FlowLight!
                 }
             }
 
+            //start FlowLight if it isn't running yet
+            if (flowTracker != null && !flowTracker.IsRunning) flowTracker.Start();
             UpdateSensitivityInFlowTracker();
-
             AttachHandlers();
-
+            InitiateStatus();
             IsRunning = true;
         }
 
         public void Continue()
         {
             AttachHandlers();
+            InitiateStatus();
+            IsRunning = true;
+        }
 
-            // set the FlowLight status from skype if possible, or set to free
+        /// <summary>
+        /// sets the FlowLight status from skype if possible, or set to free
+        /// </summary>
+        private void InitiateStatus()
+        {
             if (SkypeForBusinessEnabled)
             {
                 _currentFlowLightStatus = _skypeClient.Status;
                 _lightClient.Status = _skypeClient.Status;
 
-                Logger.WriteToConsole("FlowLight: The status was set after resume by " + Originator.Skype + " to " + _skypeClient.Status + ".");
-                Database.GetInstance().LogInfo("FlowLight: The status was set after resume by " + Originator.Skype + " to " + _skypeClient.Status + ".");
+                Logger.WriteToConsole("FlowLight: The status was initiated by " + Originator.Skype + " to " + _skypeClient.Status + ".");
+                Database.GetInstance().LogInfo("FlowLight: The status was initiated by " + Originator.Skype + " to " + _skypeClient.Status + ".");
 
                 if (_skypeClient.Status != Status.Free)
                 {
                     StartInfiniteEnforcing();
                 }
-            } else
+            }
+            else
             {
                 _currentFlowLightStatus = Status.Free;
                 _lightClient.Status = Status.Free;
 
-                Logger.WriteToConsole("FlowLight: The status was set after resume to " + Status.Free + ".");
-                Database.GetInstance().LogInfo("FlowLight: The status was set after resume to " + Status.Free + ".");
+                Logger.WriteToConsole("FlowLight: The status was initiated to " + Status.Free + ".");
+                Database.GetInstance().LogInfo("FlowLight: The status was initiated to " + Status.Free + ".");
             }
-
-            IsRunning = true;
         }
 
         private void AttachHandlers()

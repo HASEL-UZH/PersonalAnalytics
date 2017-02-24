@@ -94,9 +94,13 @@ namespace PersonalAnalytics
             // Start all registered trackers
             foreach (var tracker in _trackers)
             {
-                tracker.CreateDatabaseTablesIfNotExist();
-                if (! tracker.IsEnabled()) continue;
-                tracker.Start();
+                // only start FlowTracker if FlowLight is enabled.
+                if (!(tracker is FlowTracker.Daemon) || FlowLight.Handler.GetInstance().FlowLightEnabled)
+                {
+                    tracker.CreateDatabaseTablesIfNotExist();
+                    if (!tracker.IsEnabled()) continue;
+                    tracker.Start();
+                }
             }
 
             // run database updates for trackers

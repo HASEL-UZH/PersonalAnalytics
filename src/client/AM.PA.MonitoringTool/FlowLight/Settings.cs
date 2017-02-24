@@ -8,7 +8,7 @@ namespace FlowLight
     internal class Settings
     {
         public const int UpdateInterval = 20; // in seconds
-        public static bool IsEnabledByDefault = true; // TODO: change back
+        public static bool IsEnabledByDefault = false; 
         public static bool IsAutomaticByDefault = true;
         public static bool IsDnDAllowedByDefault = true;
         public static int DefaultSensitivityLevel = 2;
