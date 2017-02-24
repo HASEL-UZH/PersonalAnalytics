@@ -94,6 +94,19 @@ namespace FlowLight
                 // only update if settings changed
                 if (skypeForBusinessEnabled == _skypeForBusinessEnabled) return;
 
+                // TODO: disable skype for business
+                if (skypeForBusinessEnabled && _skypeClient == null)
+                {
+                    _skypeClient = new LyncStatus();
+                    _skypeClient.OnOutsideChange += SkypeClient_OnOutsideChange;
+                }
+                else if (! skypeForBusinessEnabled)
+                {
+                    // TODO: disabling the setting doesn't stop the skypeClient
+                    _skypeClient.OnOutsideChange -= SkypeClient_OnOutsideChange;
+                    _skypeClient = null;
+                }
+
                 // update settings
                 Database.GetInstance().SetSettings("FlowLightSkypeForBusinessEnabled", value);
 
@@ -181,8 +194,6 @@ namespace FlowLight
             }
         }
 
-        
-
         #endregion
 
         #region Start/Stop & Initialization of Singleton
@@ -194,8 +205,7 @@ namespace FlowLight
 
         public Handler()
         {
-            _lightClient = new Blink1Client();
-            _skypeClient = new LyncStatus();
+            // empty constructor
         }
 
         public void Start(List<ITracker> trackers)
@@ -211,6 +221,8 @@ namespace FlowLight
                     MessageBoxButton.YesNo);
                 if (res == MessageBoxResult.Yes)
                 {
+                    // TODO: ask if skype for business should be enabled
+
                     _flowLightEnabled = true;
                     Database.GetInstance().SetSettings("FlowLightTrackerEnabled", true);
                 }
@@ -220,12 +232,17 @@ namespace FlowLight
                     FlowLightEnabled = false;
                     
                     if (flowTracker != null && flowTracker.IsRunning) flowTracker.Stop();
+                    OnFlowLightStopped(new EventArgs());
                     return; // don't start the FlowLight!
                 }
             }
 
+            // start FlowLight
+            _lightClient = new Blink1Client();
+            if (SkypeForBusinessEnabled) _skypeClient = new LyncStatus();
+
             //start FlowLight if it isn't running yet
-            if (flowTracker != null && !flowTracker.IsRunning) flowTracker.Start();
+            if (flowTracker != null && !flowTracker.IsRunning) flowTracker.Start(); // TODO: check if necessary
             UpdateSensitivityInFlowTracker();
             AttachHandlers();
             InitiateStatus();
@@ -288,7 +305,7 @@ namespace FlowLight
             _enforcingTimer.Elapsed += EnforcingTimer_Elapsed;
 
             // register event handler for status changes in skype
-            _skypeClient.OnOutsideChange += SkypeClient_OnOutsideChange;
+            if (_skypeClient != null) _skypeClient.OnOutsideChange += SkypeClient_OnOutsideChange;
 
             // register event to track when work station is locked / unlocked
             SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
@@ -336,7 +353,7 @@ namespace FlowLight
             OnEnforcingCancelled(new EventArgs());
 
             // unregister event handler for status changes in Skype
-            _skypeClient.OnOutsideChange -= SkypeClient_OnOutsideChange;
+            if (_skypeClient != null) _skypeClient.OnOutsideChange -= SkypeClient_OnOutsideChange;
 
             // unregister event to track when work station is locked / unlocked
             SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;

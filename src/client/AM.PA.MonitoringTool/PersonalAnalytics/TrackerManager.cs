@@ -97,13 +97,15 @@ namespace PersonalAnalytics
             // Start all registered trackers
             foreach (var tracker in _trackers)
             {
-                // only start FlowTracker if FlowLight is enabled.
-                if (!(tracker is FlowTracker.Daemon) || FlowLight.Handler.GetInstance().FlowLightEnabled)
-                {
-                    tracker.CreateDatabaseTablesIfNotExist();
-                    if (!tracker.IsEnabled()) continue;
-                    tracker.Start();
-                }
+                // if tracker is disabled - don't start it
+                if (!tracker.IsEnabled()) continue;
+
+                // if flowlight is disabled - don't start the flowtracker (TODO: remove!)
+                if ((tracker is FlowTracker.Daemon) && !FlowLight.Handler.GetInstance().FlowLightEnabled) continue;
+
+                // else: create tables & start tracker
+                tracker.CreateDatabaseTablesIfNotExist();
+                tracker.Start();
             }
 
             // register FlowLight Events
@@ -405,6 +407,11 @@ namespace PersonalAnalytics
             TaskbarIcon.ContextMenu.Items.Add(m5);
 #endif
 
+            if (FlowLight.Handler.GetInstance().FlowLightEnabled)
+            {
+                InsertFlowLightMenuItem();
+            }
+
             var m6 = new System.Windows.Controls.MenuItem { Header = "Settings" };
             m6.Click += (o, i) => OpenSettings();
             TaskbarIcon.ContextMenu.Items.Add(m6);
@@ -417,11 +424,6 @@ namespace PersonalAnalytics
             var m7 = new System.Windows.Controls.MenuItem { Header = "Shutdown Tracker" };
             m7.Click += (o, i) => Stop(true);
             TaskbarIcon.ContextMenu.Items.Add(m7);
-
-            if (FlowLight.Handler.GetInstance().FlowLightEnabled)
-            {
-                InsertFlowLightMenuItem();
-            }
 
             // Styling
             //var converter = new System.Windows.Media.BrushConverter();
@@ -463,7 +465,7 @@ namespace PersonalAnalytics
                     _flowLightEnforceMenuItem.Items.Add(mIDnD);
                 }
 
-                TaskbarIcon.ContextMenu.Items.Insert(TaskbarIcon.ContextMenu.Items.Count - 3, _flowLightEnforceMenuItem);
+                TaskbarIcon.ContextMenu.Items.Add(_flowLightEnforceMenuItem);
             }
             
         }
