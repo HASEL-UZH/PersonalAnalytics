@@ -252,7 +252,7 @@ namespace FlowLight
         /// </summary>
         private void InitiateStatus()
         {
-            if (SkypeForBusinessEnabled)
+            if (SkypeForBusinessEnabled && _skypeClient.Status != Status.Unknown && _skypeClient.Status != Status.Offline)
             {
                 _currentFlowLightStatus = _skypeClient.Status;
                 _lightClient.Status = _skypeClient.Status;
