@@ -13,7 +13,7 @@ using System.Windows.Controls;
 using FitbitTracker;
 using FitbitTracker.Data;
 using System.Diagnostics;
-using System.Collections.Specialized;
+using System.Linq;
 
 namespace Retrospection
 {
@@ -223,7 +223,7 @@ namespace Retrospection
                  (defaultTimeSpentShowEmailsEnabled != CbTimeSpentShowEmailsEnabled.IsChecked.Value) ||
                  (defaultTimeSpentShowProgramsEnabled != CbTimeSpentShowProgramsEnabled.IsChecked.Value) ||
                  (defaultPolarTrackerEnabled != PolarEnabled.IsChecked.Value) ||
-                 (defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value)
+                 (defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value) ||
                  (defaultFlowLightEnabled != CbFlowLightEnabled.IsChecked.Value) ||
                  (defaultSkypeForBusinessEnabled != CbFlowLightSkypeForBusinessEnabled.IsChecked.Value) ||
                  (defaultFlowLightAutomaticEnabled != RbFlowLightAutomatic.IsChecked.Value) ||
