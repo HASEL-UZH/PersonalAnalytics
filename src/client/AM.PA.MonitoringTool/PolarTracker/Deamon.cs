@@ -71,7 +71,7 @@ namespace PolarTracker
 
         public override bool IsEnabled()
         {
-            return Database.GetInstance().GetSettingsBool(Settings.TRACKER_ENEABLED_SETTING, true);
+            return Database.GetInstance().GetSettingsBool(Settings.TRACKER_ENEABLED_SETTING, Settings.IsEnabledByDefault);
         }
 
         public override async void Start()

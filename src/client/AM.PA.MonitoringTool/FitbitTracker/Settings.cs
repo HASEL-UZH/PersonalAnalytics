@@ -19,8 +19,9 @@ namespace FitbitTracker
         #if PilotManu_March17
             internal static readonly bool IsDetailedCollectionEnabled = true;
         #else
-        internal static readonly bool IsDetailedCollectionEnabled = false; // default: disabled
+            internal static readonly bool IsDetailedCollectionEnabled = false; // default: disabled
         #endif
+        internal static readonly bool IsEnabledByDefault = true;
 
         //Database table names
         internal static readonly string SLEEP_INTRA_DAY_TABLE_NAME = "fitbit_sleep_intraday";
