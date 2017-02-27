@@ -21,10 +21,10 @@
                     </Style>
                 </DataGrid.Resources>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Goal" Binding="{Binding Path=Goal}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Goal" Binding="{Binding Path=Rule.Goal}"></DataGridTextColumn>
                     <DataGridTextColumn Header="Activity" Binding="{Binding Path=Activity}"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Operator" Binding="{Binding Path=Operator}"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Value" Binding="{Binding Path=Value}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Operator" Binding="{Binding Path=Rule.Operator}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Value" Binding="{Binding Path=Rule.TargetValue}"></DataGridTextColumn>
                     <DataGridTextColumn Header="Timespan" Binding="{Binding Path=TimeSpan}"></DataGridTextColumn>
                 </DataGrid.Columns>
             </DataGrid>

@@ -49,8 +49,10 @@
     <Compile Include="GoalSettingManager.cs" />
     <Compile Include="Model\ActivityContext.cs" />
     <Compile Include="Model\Goal.cs" />
-    <Compile Include="Model\Rule.cs" />
-    <Compile Include="Model\RuleTimeSpan.cs" />
+    <Compile Include="Rules\PARule.cs" />
+    <Compile Include="Rules\Rule.cs" />
+    <Compile Include="Rules\RuleTimeSpan.cs" />
+    <Compile Include="Rules\RuleEngine.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Model\Activity.cs" />
     <Compile Include="Views\GoalSetting.xaml.cs">

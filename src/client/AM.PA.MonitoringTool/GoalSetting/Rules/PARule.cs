@@ -3,19 +3,14 @@
 // 
 // Licensed under the MIT License.
 
-
 using Shared.Data;
 
-namespace GoalSetting.Model
+namespace GoalSetting.Rules
 {
-    public class Rule
+    public class PARule
     {
 
-        public Goal Goal { get; set; }
-
-        public string Operator { get; set; }
-
-        public int Value { get; set; }
+        public Rule Rule { get; set; }
 
         public ContextCategory Activity { get; set; }
 
@@ -23,7 +18,7 @@ namespace GoalSetting.Model
 
         public override string ToString()
         {
-            return Goal.ToString() + " " + Activity.ToString() + " " + Operator.ToString() + " " + Value.ToString() + " (per " + TimeSpan.ToString() + ")";
+            return Rule.Goal + " " + Activity.ToString() + " " + Rule.Operator.ToString() + " " + Rule.TargetValue.ToString() + " (per " + TimeSpan.ToString() + ")";
         }
 
     }

@@ -17,28 +17,17 @@ namespace GoalSetting.Model
 
         public ContextCategory Activity { get; set; }
 
-        public TimeSpan Duration { get {
-            if (End.HasValue)
-                {
-                    return End.Value - Start;
-                }
-                else
-                {
-                    return TimeSpan.FromMilliseconds(0);
-                }
+        public TimeSpan Duration
+        {
+            get
+            {
+                return End.HasValue ? End.Value - Start : TimeSpan.FromMilliseconds(0);
             }
         }
 
         public override string ToString()
         {
-            if (End.HasValue)
-            {
-                return Activity + " from " + Start.ToString(Settings.DateFormat) + " to " + End.Value.ToString(Settings.DateFormat);
-            }
-            else
-            {
-                return Activity + " from " + Start.ToString(Settings.DateFormat) + " to " + "N/A";
-            }
+            return End.HasValue ? Activity + " from " + Start.ToString(Settings.DateFormat) + " to " + End.Value.ToString(Settings.DateFormat) : Activity + " from " + Start.ToString(Settings.DateFormat) + " to " + "N/A";
         }
 
         public override bool Equals(object obj)

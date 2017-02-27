@@ -12,6 +12,8 @@ using GoalSetting.Data;
 using Shared.Data;
 using System.Linq;
 using Shared.Helpers;
+using GoalSetting.Rules;
+using System.Collections.Generic;
 
 namespace GoalSetting
 {
@@ -20,9 +22,9 @@ namespace GoalSetting
     /// </summary>
     public partial class GoalSetting : UserControl
     {
-        private ObservableCollection<Rule> rules;
+        private ObservableCollection<PARule> rules;
 
-        public GoalSetting(ObservableCollection<Rule> rules)
+        public GoalSetting(ObservableCollection<PARule> rules)
         {
             InitializeComponent();
             this.rules = rules;
@@ -31,26 +33,34 @@ namespace GoalSetting
 
         private void CheckRules_Click(object sender, System.Windows.RoutedEventArgs e)
         {
+            List<Func<Activity,bool>> compiledRules = new List<Func<Activity, bool>>();
+
             Logger.WriteToConsole("Check for rules: ");
-            foreach (Rule rule in rules)
+            foreach (PARule rule in rules)
             {
                 Logger.WriteToConsole(rule.ToString());
+                compiledRules.Add(RuleEngine.CompileRule<Activity>(rule.Rule));
             }
-
+    
             var activities = DatabaseConnector.GetActivitiesSince(new DateTime(DateTimeHelper.GetStartOfDay(DateTime.Now.AddDays(-10)).Ticks));
             activities = DataHelper.MergeSameActivities(activities, Settings.MinimumSwitchTime);
-            
+
             foreach (ContextCategory category in Enum.GetValues(typeof(ContextCategory))) {
 
                 Activity activity = new Activity
                 {
-                    Category = category,
-                    TotalDuration = DataHelper.GetTotalTimeSpentOnActivity(activities, category),
-                    TotalSwitches = DataHelper.GetNumberOfSwitchesToActivity(activities, category),
+                    Category = category.ToString(),
+                    TimeSpentOn = DataHelper.GetTotalTimeSpentOnActivity(activities, category).TotalMilliseconds,
+                    NumberOfSwitchesTo = DataHelper.GetNumberOfSwitchesToActivity(activities, category),
                     Context = activities.Where(a => a.Activity.Equals(category)).ToList()
                 };
 
                 Console.WriteLine(activity);
+                foreach (Func<Activity,bool> cRule in compiledRules)
+                {
+                    Console.WriteLine(cRule.ToString());
+                    Console.WriteLine(cRule(activity));
+                }
             }
             
         }

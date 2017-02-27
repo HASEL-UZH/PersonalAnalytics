@@ -3,7 +3,7 @@
 // 
 // Licensed under the MIT License.
 
-namespace GoalSetting.Model
+namespace GoalSetting.Rules
 {
     public enum RuleTimeSpan
     {

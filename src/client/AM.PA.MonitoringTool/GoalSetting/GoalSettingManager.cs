@@ -4,6 +4,7 @@
 // Licensed under the MIT License.
 
 using GoalSetting.Model;
+using GoalSetting.Rules;
 using Shared.Data;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -34,9 +35,10 @@ namespace GoalSetting
         /// </summary>
         public void Start()
         {
-            var rules = new ObservableCollection<Rule>();
-            rules.Add(new Rule() { Goal = Goal.TimeSpentOn, Operator = ">", Value = 1, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.EveryDay });
-            rules.Add(new Rule() { Goal = Goal.NumberOfSwitchesTo, Operator = "<", Value = 2, Activity = ContextCategory.Email, TimeSpan = RuleTimeSpan.Week });
+            var rules = new ObservableCollection<PARule>();
+            
+            rules.Add(new PARule() { Rule = new Rule { Goal = Goal.TimeSpentOn.ToString(), Operator = "GreaterThan", TargetValue = "1000" }, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.EveryDay });
+            rules.Add(new PARule() { Rule = new Rule { Goal = Goal.NumberOfSwitchesTo.ToString(), Operator = "GreaterThan", TargetValue = "2" }, Activity = ContextCategory.Email, TimeSpan = RuleTimeSpan.Week });
             
             Window window = new Window
             {
