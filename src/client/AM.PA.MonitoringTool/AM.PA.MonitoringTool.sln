@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitbitTracker", "FitbitTrac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoalSetting", "GoalSetting\GoalSetting.csproj", "{D4792DE4-9A01-47C9-B30D-B40DEE6C3450}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoalSettingTests", "GoalSettingTests\GoalSettingTests.csproj", "{59386409-5BD5-4E2D-AB63-1FF668DA80CD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -141,6 +143,14 @@ Global
 		{D4792DE4-9A01-47C9-B30D-B40DEE6C3450}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D4792DE4-9A01-47C9-B30D-B40DEE6C3450}.Release|x86.ActiveCfg = Release|Any CPU
 		{D4792DE4-9A01-47C9-B30D-B40DEE6C3450}.Release|x86.Build.0 = Release|Any CPU
+		{59386409-5BD5-4E2D-AB63-1FF668DA80CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59386409-5BD5-4E2D-AB63-1FF668DA80CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59386409-5BD5-4E2D-AB63-1FF668DA80CD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{59386409-5BD5-4E2D-AB63-1FF668DA80CD}.Debug|x86.Build.0 = Debug|Any CPU
+		{59386409-5BD5-4E2D-AB63-1FF668DA80CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59386409-5BD5-4E2D-AB63-1FF668DA80CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59386409-5BD5-4E2D-AB63-1FF668DA80CD}.Release|x86.ActiveCfg = Release|Any CPU
+		{59386409-5BD5-4E2D-AB63-1FF668DA80CD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
