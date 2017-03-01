@@ -21,6 +21,7 @@
                     </Style>
                 </DataGrid.Resources>
                 <DataGrid.Columns>
+                    <DataGridTextColumn Header="Title" Binding="{Binding Path=Title}"></DataGridTextColumn>
                     <DataGridTextColumn Header="Goal" Binding="{Binding Path=Rule.Goal}"></DataGridTextColumn>
                     <DataGridTextColumn Header="Activity" Binding="{Binding Path=Activity}"></DataGridTextColumn>
                     <DataGridTextColumn Header="Operator" Binding="{Binding Path=Rule.Operator}"></DataGridTextColumn>

@@ -37,9 +37,12 @@ namespace GoalSetting
         {
             var rules = new ObservableCollection<PARule>();
             
-            rules.Add(new PARule() { Rule = new Rule { Goal = Goal.TimeSpentOn.ToString(), Operator = "GreaterThan", TargetValue = "1000" }, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.EveryDay });
-            rules.Add(new PARule() { Rule = new Rule { Goal = Goal.NumberOfSwitchesTo.ToString(), Operator = "GreaterThan", TargetValue = "2" }, Activity = ContextCategory.Email, TimeSpan = RuleTimeSpan.Week });
-            
+            rules.Add(new PARule() { Title = "Test Rule 1", Rule = new Rule { Goal = Goal.TimeSpentOn.ToString(), Operator = "GreaterThan", TargetValue = "1000" }, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.EveryDay, Progress = Progress.VeryLow });
+            rules.Add(new PARule() { Title = "Test Rule 2", Rule = new Rule { Goal = Goal.NumberOfSwitchesTo.ToString(), Operator = "GreaterThan", TargetValue = "2" }, Activity = ContextCategory.Email, TimeSpan = RuleTimeSpan.Week, Progress = Progress.Low });
+            rules.Add(new PARule() { Title = "Test Rule 3", Rule = new Rule { Goal = Goal.NumberOfSwitchesTo.ToString(), Operator = "GreaterThan", TargetValue = "2" }, Activity = ContextCategory.Email, TimeSpan = RuleTimeSpan.Week, Progress = Progress.Average });
+            rules.Add(new PARule() { Title = "Test Rule 4", Rule = new Rule { Goal = Goal.NumberOfSwitchesTo.ToString(), Operator = "GreaterThan", TargetValue = "2" }, Activity = ContextCategory.Email, TimeSpan = RuleTimeSpan.Week, Progress = Progress.High });
+            rules.Add(new PARule() { Title = "Test Rule 5", Rule = new Rule { Goal = Goal.NumberOfSwitchesTo.ToString(), Operator = "GreaterThan", TargetValue = "2" }, Activity = ContextCategory.Email, TimeSpan = RuleTimeSpan.Week, Progress = Progress.VeryHigh });
+           
             Window window = new Window
             {
                 Title = "Goal setting dashboard",

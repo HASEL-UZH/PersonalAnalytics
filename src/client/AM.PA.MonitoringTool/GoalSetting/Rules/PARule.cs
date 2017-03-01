@@ -10,6 +10,8 @@ namespace GoalSetting.Rules
     public class PARule
     {
 
+        public string Title { get; set; }
+
         public Rule Rule { get; set; }
 
         public ContextCategory Activity { get; set; }
@@ -21,6 +23,16 @@ namespace GoalSetting.Rules
             return Rule.Goal + " " + Activity.ToString() + " " + Rule.Operator.ToString() + " " + Rule.TargetValue.ToString() + " (per " + TimeSpan.ToString() + ")";
         }
 
+        public Progress Progress { get; set; }
+    }
+
+    public enum Progress
+    {
+        VeryLow,
+        Low,
+        Average,
+        High,
+        VeryHigh
     }
 
 }

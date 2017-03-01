@@ -68,7 +68,7 @@ namespace UserEfficiencyTracker
         {
             UserFinishedSurvey(-1); // user didn't work
         }
-
+        
         /// <summary>
         /// override ShowDialog method to place it on the bottom right corner
         /// of the developer's screen
