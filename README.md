@@ -10,6 +10,7 @@ Personal Developer Analytics project by André Meyer from the SEAL Lab at the Un
 - Mai, 2016: Started working on a communication dashboard (including more insights into interactions with others) with ABB Research (on a separate branch)
 - June, 2016: Started working on integrating the Muse tracker with Monica Trink, a master student at UZH (on the 'muse' branch)
 - December, 2016: Started working on integrating several other biometric sensors (Polar, Garmin, FitBit) (on the 'biometrics' branch)
+- February, 2017: Integrated the FlowLight to avoid interruptions at inopportune moments
 
 # Core Contributor & Contact
 André Meyer (ameyer@ifi.uzh.ch)
