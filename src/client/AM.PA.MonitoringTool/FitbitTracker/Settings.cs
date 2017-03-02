@@ -43,7 +43,7 @@ namespace FitbitTracker
         internal static readonly string FORMAT_DAY = "yyyy-MM-dd";
         internal static readonly string FORMAT_DAY_AND_TIME = "yyyy-MM-dd HH:mm:ss";
         internal static readonly string FITBIT_FORMAT_DAY = "yyyy-MM-dd";
-        internal static readonly int TOKEN_LIFETIME = 60 * 60 * 24 * 1; //1 day
+        internal static readonly int TOKEN_LIFETIME = 60 * 60 * 24 * 30; //30 days
         internal static readonly string REGISTRATION_URL = "https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=2283KD&redirect_uri=https%3A%2F%2Fgithub.com%2Fsealuzh%2FPersonalAnalytics&scope=activity%20heartrate%20location%20nutrition%20profile%20settings%20sleep%20social%20weight&expires_in=604800";
         internal static readonly string REDIRECT_URI = "https://github.com/sealuzh/PersonalAnalytics";
     }
