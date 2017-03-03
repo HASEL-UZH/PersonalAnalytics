@@ -165,7 +165,7 @@ namespace Retrospection
         {
             // get updated visualizations (if enabled)
             var visualizations = new List<IVisualization>();
-            foreach (var tracker in _trackers.Where(t => t.IsEnabled() == true))
+            foreach (var tracker in _trackers.Where(t => t.IsEnabled() == true && t.IsRunning))
             {
                 switch (type)
                 {
