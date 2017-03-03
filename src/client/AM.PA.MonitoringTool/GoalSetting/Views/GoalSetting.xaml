@@ -27,6 +27,7 @@
                     <DataGridTextColumn Header="Operator" Binding="{Binding Path=Rule.Operator}"></DataGridTextColumn>
                     <DataGridTextColumn Header="Value" Binding="{Binding Path=Rule.TargetValue}"></DataGridTextColumn>
                     <DataGridTextColumn Header="Timespan" Binding="{Binding Path=TimeSpan}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Action" Binding="{Binding Path=Action}"></DataGridTextColumn>
                 </DataGrid.Columns>
             </DataGrid>
             <StackPanel Grid.Row="1">

@@ -24,6 +24,9 @@ namespace GoalSetting.Rules
         }
 
         public Progress Progress { get; set; }
+
+        public string Action { get; set; }
+
     }
 
     public enum Progress

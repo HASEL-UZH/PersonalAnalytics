@@ -11,8 +11,8 @@
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <!-- Notification area -->
-        <Border Grid.Row="0" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="Black">
-            <StackPanel Margin="10">
+        <Border Grid.Row="0" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="Black" MouseRightButtonDown="Border_MouseButtonDown" MouseLeftButtonDown="Border_MouseButtonDown">
+            <StackPanel Margin="10" Orientation="Horizontal">
                 <TextBlock Text="Overview about your goals" Foreground="White" FontWeight="Bold" FontSize="15" />
             </StackPanel>
         </Border>

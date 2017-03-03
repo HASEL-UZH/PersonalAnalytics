@@ -37,16 +37,6 @@ namespace GoalSetting
 
         private void CheckRules_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-
-           
-                Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(
-                () =>
-                {
-                    var popup = new RulePopUp(rules);
-                    popup.ShowDialog();
-                }));
-            
-
             List<Func<Activity, bool>> compiledRules = new List<Func<Activity, bool>>();
 
             Logger.WriteToConsole("Check for rules: ");
@@ -76,7 +66,14 @@ namespace GoalSetting
                     Console.WriteLine(cRule(activity));
                 }
             }
-
+            
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            {
+                var popup = new RulePopUp(rules);
+                popup.ShowDialog();
+            }
+            ));
+            
         }
     }
 
