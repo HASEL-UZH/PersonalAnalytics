@@ -19,11 +19,11 @@ namespace GoalSetting
 
         #region SELECT
 
-        public static List<ActivityContext> GetActivitiesSince(DateTime date)
+        private static List<ActivityContext> GetActivities(string query)
         {
             var activities = new List<ActivityContext>();
 
-            var query = "SELECT * FROM " + Settings.ActivityTable + " WHERE Time > '" + date.ToString(Settings.DateFormat) + "';";
+            Logger.WriteToConsole(query);
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
             try
@@ -54,7 +54,19 @@ namespace GoalSetting
 
             return activities;
         }
-        
+
+        public static List<ActivityContext> GetActivitiesSince(DateTime date)
+        {
+            var query = "SELECT * FROM " + Settings.ActivityTable + " WHERE Time > '" + date.ToString(Settings.DateFormat) + "';";
+            return GetActivities(query);
+        }
+
+        internal static List<ActivityContext> GetActivitiesSinceAndBefore(DateTime start, DateTime end)
+        {
+            var query = "SELECT * FROM " + Settings.ActivityTable + " WHERE Time > '" + start.ToString(Settings.DateFormat) + "' AND Time < '" + end.ToString(Settings.DateFormat) + "';";
+            return GetActivities(query);
+        }
+
         #endregion
 
     }

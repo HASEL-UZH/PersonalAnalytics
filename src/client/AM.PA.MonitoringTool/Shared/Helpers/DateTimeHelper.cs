@@ -10,6 +10,11 @@ namespace Shared.Helpers
 {
     public static class DateTimeHelper
     {
+        public static DateTimeOffset GetStartOfMonth(DateTime date)
+        {
+            return new DateTimeOffset(new DateTime(date.Year, date.Month, 1, 0, 0, 0));
+        }
+
         public static DateTimeOffset GetStartOfDay(this DateTimeOffset date)
         {
             return date.Date;
@@ -18,6 +23,25 @@ namespace Shared.Helpers
         public static DateTimeOffset GetEndOfDay(this DateTimeOffset date)
         {
             return date.Date.AddDays(1).AddTicks(-1);
+        }
+
+        public static DateTimeOffset GetNoonOfDay(this DateTime date)
+        {
+            return new DateTimeOffset(new DateTime(date.Year, date.Month, date.Day, 12, 0, 0, 0));
+        }
+
+        /// <summary>
+        /// Returns the specific day of the week that was passed in the parameter and that was before the DateTime passed as a parameter.
+        /// If the parameter itself is the same day of week, then the parameter is returned and not the day seven days ago.
+        /// The function always returns the start of the day it calculated.
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="dayOfWeek"></param>
+        /// <returns></returns>
+        public static DateTimeOffset GetPreviousSpecificDay(this DateTime date, DayOfWeek dayOfWeek)
+        {
+            while (date.DayOfWeek != dayOfWeek) date = date.AddDays(-1);
+            return GetStartOfDay(date);
         }
 
         /// <summary>
@@ -41,7 +65,7 @@ namespace Shared.Helpers
             // Return the week of our adjusted day
             return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(time, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
         }
-
+        
         /// <summary>
         /// For a given date, return the week's start date
         /// see: http://stackoverflow.com/questions/662379/calculate-date-from-week-number

@@ -4,6 +4,7 @@
 // Licensed under the MIT License.
 
 using Shared.Data;
+using System;
 
 namespace GoalSetting.Rules
 {
@@ -27,8 +28,15 @@ namespace GoalSetting.Rules
 
         public string Action { get; set; }
 
-    }
+        internal Func<Activity, bool> CompiledRule { get; set; }
 
+        public void Compile()
+        {
+            CompiledRule = RuleEngine.CompileRule<Activity>(Rule);
+        }
+
+    }
+    
     public enum Progress
     {
         VeryLow,

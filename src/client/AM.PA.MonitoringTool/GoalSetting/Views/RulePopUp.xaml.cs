@@ -1,5 +1,4 @@
 ﻿using GoalSetting.Rules;
-using System;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Drawing.Imaging;
