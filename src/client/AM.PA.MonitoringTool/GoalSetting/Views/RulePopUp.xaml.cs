@@ -23,7 +23,14 @@ namespace GoalSetting.Views
         {
             InitializeComponent();
             this.rules = rules;
+            AddHeaderPictures();
             AddRules();
+        }
+
+        internal void AddHeaderPictures()
+        {
+            Close.Source = BitmapToImageSource(Properties.Resources.close);
+            Dashboard.Source = BitmapToImageSource(Properties.Resources.dashboard);
         }
 
         internal void AddRules()
@@ -108,9 +115,15 @@ namespace GoalSetting.Views
             return base.ShowDialog();
         }
 
-        private void Border_MouseButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void Close_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             this.Close();
+        }
+
+        private void Dashboard_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            this.Close();
+            
         }
     }
 
