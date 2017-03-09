@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:GoalSetting"
              xmlns:paColors="clr-namespace:Shared;assembly=Shared"
              mc:Ignorable="d" 
-             Width="500" Height="200">
+             Width="500" Height="500">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
@@ -14,7 +14,7 @@
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0">
             <TextBlock>Your goals:</TextBlock>
-            <DataGrid Name="Rules" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ColumnWidth="*">
+            <DataGrid Name="Rules" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ColumnWidth="*" SelectedCellsChanged="Rules_SelectedCellsChanged">
                 <DataGrid.Resources>
                     <Style TargetType="{x:Type DataGridColumnHeader}">
                         <Setter Property="Foreground" Value="{x:Static paColors:Settings.RetrospectionColorBrush}"></Setter>
@@ -32,6 +32,9 @@
             </DataGrid>
             <StackPanel Grid.Row="1">
                 <Button Name="CheckRules" Click="CheckRules_Click"  Margin="0 10 0 0">Check rules</Button>
+                <Button Name="SaveRules" Click="SaveRules_Click" Margin="0 10 0 0">Save rules</Button>
+                <Button Name="AddRule" Click="AddRule_Click" Margin="0 10 0 0">Add rule</Button>
+                <Button Name="DeleteRule" Click="DeleteRule_Click" Margin="0 10 0 0" IsEnabled="False">Delete selected rule</Button>
             </StackPanel>
         </StackPanel>
     </Grid>

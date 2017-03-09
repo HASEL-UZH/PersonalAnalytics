@@ -51,6 +51,7 @@
     <Compile Include="GoalSettingManager.cs" />
     <Compile Include="Model\ActivityContext.cs" />
     <Compile Include="Model\Goal.cs" />
+    <Compile Include="Model\GoalDomain.cs" />
     <Compile Include="Model\Operator.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -63,6 +64,9 @@
     <Compile Include="Rules\RuleEngine.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Model\Activity.cs" />
+    <Compile Include="Views\AddRule.xaml.cs">
+      <DependentUpon>AddRule.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\GoalSetting.xaml.cs">
       <DependentUpon>GoalSetting.xaml</DependentUpon>
     </Compile>
@@ -70,8 +74,15 @@
     <Compile Include="Views\RulePopUp.xaml.cs">
       <DependentUpon>RulePopUp.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\WorkFragmentation.xaml.cs">
+      <DependentUpon>WorkFragmentation.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Views\AddRule.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\GoalSetting.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -80,11 +91,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\WorkFragmentation.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Retrospection\Retrospection.csproj">
+      <Project>{ebd795e6-e7ad-49e4-a812-d2de29186c49}</Project>
+      <Name>Retrospection</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Shared\Shared.csproj">
       <Project>{2bbdfa6d-20dd-4a7b-893e-43c388382c9a}</Project>
       <Name>Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WindowsActivityTracker\WindowsActivityTracker.csproj">
+      <Project>{2b903556-4dd2-41ce-beac-3ddd045f717d}</Project>
+      <Name>WindowsActivityTracker</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

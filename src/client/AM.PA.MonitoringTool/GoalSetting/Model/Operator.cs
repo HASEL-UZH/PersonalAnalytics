@@ -3,15 +3,28 @@
 // 
 // Licensed under the MIT License.
 
+using System.ComponentModel;
+
 namespace GoalSetting.Model
 {
     public enum Operator
     {
+        [Description("exactly")]
         Equal,
+
+        [Description("not")]
         NotEqual,
+
+        [Description("more than")]
         GreaterThan,
+
+        [Description("less than")]
         LessThan,
+
+        [Description("more than or exactly")]
         GreaterThanOrEqual,
+
+        [Description("less than or exactly")]
         LessThanOrEqual
     }
 }

@@ -3,6 +3,7 @@
 // 
 // Licensed under the MIT License.
 
+using GoalSetting.Model;
 using Shared.Data;
 using System;
 
@@ -21,10 +22,12 @@ namespace GoalSetting.Rules
 
         public override string ToString()
         {
-            return Rule.Goal + " " + Activity.ToString() + " " + Rule.Operator.ToString() + " " + Rule.TargetValue.ToString() + " (per " + TimeSpan.ToString() + ")";
+            return "Goal: " + Rule.Goal + " " + Activity.ToString() + " " + Rule.Operator.ToString() + " " + Rule.TargetValue.ToString() + " (per " + TimeSpan.ToString() + ")";
         }
 
-        public Progress Progress { get; set; }
+        private Progress _progress = null;
+
+        public Progress Progress { get { if (_progress == null) { _progress = new Progress(); } return _progress; } set { _progress = value;  } }
 
         public string Action { get; set; }
 
@@ -35,9 +38,111 @@ namespace GoalSetting.Rules
             CompiledRule = RuleEngine.CompileRule<Activity>(Rule);
         }
 
+        internal void CalculateProgressStatus()
+        {
+            double percentage = Double.NaN;
+
+            switch ((Goal)Enum.Parse(typeof(Goal), Rule.Goal))
+            {
+                case Goal.TimeSpentOn:
+                    double targetTime = Double.Parse(Rule.TargetValue) / 1000 / 60 / 60;
+                    double actualTime = Double.Parse(Progress.Time);
+                    percentage = actualTime / targetTime;
+                    break;
+                case Goal.NumberOfSwitchesTo:
+                    double targetSwitches = Double.Parse(Rule.TargetValue);
+                    double actualSwitches = Progress.Switches;
+                    percentage = actualSwitches / targetSwitches;
+                    break;
+            }
+            
+            if (Rule.Operator.Equals(Operator.GreaterThan.ToString()) || Rule.Operator.Equals(Operator.GreaterThanOrEqual.ToString()))
+            {
+                if (percentage < 0.3)
+                {
+                    Progress.Status = ProgressStatus.VeryLow;
+                }
+                else if (percentage < 0.7)
+                {
+                    Progress.Status = ProgressStatus.Low;
+                }
+                else if (percentage < 0.9)
+                {
+                    Progress.Status = ProgressStatus.Average;
+                }
+                else if (percentage < 1)
+                {
+                    Progress.Status = ProgressStatus.High;
+                }
+                else
+                {
+                    Progress.Status = ProgressStatus.VeryHigh;
+                }
+                
+            }
+            else if (Rule.Operator.Equals(Operator.LessThan.ToString()) || Rule.Operator.Equals(Operator.LessThanOrEqual.ToString()))
+            {
+                if (percentage < 0.9)
+                {
+                    Progress.Status = ProgressStatus.VeryHigh;
+                }
+                else if (percentage <= 1)
+                {
+                    Progress.Status = ProgressStatus.High;
+                }
+                else if (percentage <= 1.1)
+                {
+                    Progress.Status = ProgressStatus.Average;
+                }
+                else if (percentage <= 1.5)
+                {
+                    Progress.Status = ProgressStatus.Low;
+                }
+                else
+                {
+                    Progress.Status = ProgressStatus.VeryLow;
+                }
+            }
+            else
+            {
+                if (Progress.Success.HasValue && Progress.Success.Value)
+                {
+                    Progress.Status = ProgressStatus.VeryHigh;
+                }
+                else if (percentage <= 1.1 && percentage >= 0.9)
+                {
+                    Progress.Status = ProgressStatus.High;
+                }
+                else if (percentage <= 1.2 && percentage >= 0.8)
+                {
+                    Progress.Status = ProgressStatus.Average;
+                }
+                else if (percentage <= 1.3 && percentage >= 0.7)
+                {
+                    Progress.Status = ProgressStatus.Low;
+                }
+                else
+                {
+                    Progress.Status = ProgressStatus.VeryLow;
+                }
+            }
+        }
+
+        internal string GetProgressMessage()
+        {
+            return Progress.Time + " hours / " + Progress.Switches + " switches";
+        }
     }
     
-    public enum Progress
+    public class Progress
+    {
+        public ProgressStatus Status { get; set; }
+        public bool? Success { get; set; }
+        public string Time { get; set; }
+        public int Switches { get; set; }
+    }
+
+    public enum ProgressStatus
     {
         VeryLow,
         Low,

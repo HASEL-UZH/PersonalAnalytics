@@ -16,11 +16,13 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
+using WindowsActivityTracker.Data;
 
 namespace GoalSetting
 {
     public class GoalSettingManager
     {
+        private ObservableCollection<PARule> rules;
 
         private static GoalSettingManager instance;
 
@@ -38,19 +40,30 @@ namespace GoalSetting
             }
         }
 
+        internal void AddNewRule()
+        {
+            Window window = new Window
+            {
+                Title = "Goal Setting Dashboard",
+                Content = new AddRule(rules)
+            };
+            window.ShowDialog();
+        }
+
         /// <summary>
         /// Starts the goal setting manager. This method is called whenever the user clicks on 'Goal setting' in the context menu.
         /// </summary>
         public void Start()
         {
-            var rules = new ObservableCollection<PARule>();
-            
-            rules.Add(new PARule() { Title = "Test Rule 1", Rule = new Rule { Goal = Goal.TimeSpentOn.ToString(), Operator = Operator.GreaterThanOrEqual.ToString(), TargetValue = TimeSpan.FromMinutes(30).TotalMilliseconds.ToString() }, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.EveryDay, Progress = Progress.VeryLow });
-            rules.Add(new PARule() { Title = "Test Rule 2", Rule = new Rule { Goal = Goal.TimeSpentOn.ToString(), Operator = Operator.LessThanOrEqual.ToString(), TargetValue = TimeSpan.FromMinutes(30).TotalMilliseconds.ToString() }, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.Month, Progress = Progress.VeryLow });
-            rules.Add(new PARule() { Title = "Test Rule 3", Rule = new Rule { Goal = Goal.NumberOfSwitchesTo.ToString(), Operator = Operator.GreaterThan.ToString(), TargetValue = "2" }, Activity = ContextCategory.Email, TimeSpan = RuleTimeSpan.Week, Progress = Progress.Low });
-            rules.Add(new PARule() { Title = "Test Rule 4", Rule = new Rule { Goal = Goal.NumberOfSwitchesTo.ToString(), Operator = Operator.LessThan.ToString(), TargetValue = "2" }, Activity = ContextCategory.Email, TimeSpan = RuleTimeSpan.Friday, Progress = Progress.Average });
-            rules.Add(new PARule() { Title = "Test Rule 5", Rule = new Rule { Goal = Goal.NumberOfSwitchesTo.ToString(), Operator = Operator.Equal.ToString(), TargetValue = "2" }, Activity = ContextCategory.DevCode, TimeSpan = RuleTimeSpan.Week, Progress = Progress.High });
-            rules.Add(new PARule() { Title = "Test Rule 6", Rule = new Rule { Goal = Goal.NumberOfSwitchesTo.ToString(), Operator = Operator.NotEqual.ToString(), TargetValue = "2" }, Activity = ContextCategory.DevCode, TimeSpan = RuleTimeSpan.EveryDay, Progress = Progress.VeryHigh });
+            DatabaseConnector.CreateRulesTableIfNotExists();
+
+            rules = DatabaseConnector.GetStoredRules();
+
+            //If there are any rules that require watching all new activity events, we register for the events from the activity tracker
+            if (rules.Any(r => r.Rule.Goal.Equals(Goal.NumberOfSwitchesTo.ToString()) || r.Rule.Goal.Equals(Goal.TimeSpentOn.ToString())))
+            {
+                Queries.NewSnapshotEvent += OnNewSnapshot;
+            }
            
             Window window = new Window
             {
@@ -58,8 +71,16 @@ namespace GoalSetting
                 Content = new GoalSetting(rules)
             };
             window.ShowDialog();
+            
         }
-        
+
+        private void OnNewSnapshot(string window, string process)
+        {
+            var dto = new ContextDto { Context = new ContextInfos { ProgramInUse = process, WindowTitle = window} };
+            ContextCategory activity = ContextMapper.GetContextCategory(dto);
+            Console.WriteLine("New activity: " + activity);
+        }
+
         private List<Activity> GetActivity(RuleTimeSpan timespan)
         {
             List<ActivityContext> activities = new List<ActivityContext>();
@@ -140,10 +161,16 @@ namespace GoalSetting
             return result;
         }
 
+        internal void DeleteCachedResults()
+        {
+            activitiesMap.Clear();
+        }
+
+        Dictionary<RuleTimeSpan, List<Activity>> activitiesMap = new Dictionary<RuleTimeSpan, List<Activity>>();
+
         public void CheckRules(ObservableCollection<PARule> rules)
         {
-            Dictionary<RuleTimeSpan, List<Activity>> activitiesMap = new Dictionary<RuleTimeSpan, List<Activity>>();
-
+            
             foreach (PARule rule in rules)
             {
                 //if we do not yet have the activities, we have to get them!
@@ -165,6 +192,12 @@ namespace GoalSetting
                             rule.Compile();
                             Logger.WriteToConsole(rule.ToString());
                             Logger.WriteToConsole(rule.CompiledRule(activity) + "");
+
+                            //Store results in PARule
+                            rule.Progress.Success = rule.CompiledRule(activity);
+                            rule.Progress.Time = activity.GetTimeSpentInHours();
+                            rule.Progress.Switches = activity.NumberOfSwitchesTo;
+                            rule.CalculateProgressStatus();
                         }
                     }
                 }

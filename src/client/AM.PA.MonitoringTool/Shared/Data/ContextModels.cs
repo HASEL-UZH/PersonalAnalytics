@@ -3,21 +3,45 @@
 // 
 // Licensed under the MIT License.
 
+using System.ComponentModel;
+
 namespace Shared.Data
 {
     public enum ContextCategory
     {
+        [Description("coding")]
         DevCode,
+
+        [Description("debugging")]
         DevDebug,
+
+        [Description("reviewing")]
         DevReview,
+
+        [Description("DevVc")]
         DevVc,
+
+        [Description("email")]
         Email,
+
+        [Description("planning")]
         Planning,
+
+        [Description("reading/writing")]
         ReadWriteDocument,
+
+        [Description("planned meetings")]
         PlannedMeeting,
+
+        [Description("informal meetings")]
         InformalMeeting,
+
+        [Description("work-related browsing")]
         WorkRelatedBrowsing,
+
+        [Description("work-unrelated browsing")]
         WorkUnrelatedBrowsing,
+
         Other,
         OtherRdp,
         Unknown,

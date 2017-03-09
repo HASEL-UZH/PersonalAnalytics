@@ -28,6 +28,9 @@ namespace WindowsActivityTracker.Data
             }
         }
 
+        public delegate void OnNewSnapshot(string window, string process);
+        public static event OnNewSnapshot NewSnapshotEvent;
+
         /// <summary>
         /// Saves the timestamp, process name and window title into the database.
         /// 
@@ -38,6 +41,7 @@ namespace WindowsActivityTracker.Data
         /// <param name="process"></param>
         internal static void InsertSnapshot(string window, string process)
         {
+            NewSnapshotEvent?.Invoke(window, process);
             if (Shared.Settings.AnonymizeSensitiveData)
             {
                 var dto = new ContextDto { Context = new ContextInfos { ProgramInUse = process, WindowTitle = window } };

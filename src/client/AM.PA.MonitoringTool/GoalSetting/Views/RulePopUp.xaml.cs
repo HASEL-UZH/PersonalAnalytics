@@ -8,6 +8,8 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Retrospection;
+using System.Windows.Documents;
 
 namespace GoalSetting.Views
 {
@@ -37,6 +39,7 @@ namespace GoalSetting.Views
             foreach (PARule rule in rules)
             {
                 StackPanel container = new StackPanel();
+                container.Tag = rule;
                 container.Background = new SolidColorBrush(Colors.LightGray);
                 container.Orientation = System.Windows.Controls.Orientation.Horizontal;
                 Thickness containerMargin = container.Margin;
@@ -47,37 +50,56 @@ namespace GoalSetting.Views
                 System.Windows.Controls.Image smiley = new System.Windows.Controls.Image();
                 smiley.Height = 25;
 
-                switch (rule.Progress)
+                switch (rule.Progress.Status)
                 {
-                    case Progress.VeryLow:
+                    case ProgressStatus.VeryLow:
                         smiley.Source = BitmapToImageSource(Properties.Resources.smiley_5);
                         break;
-                    case Progress.Low:
+                    case ProgressStatus.Low:
                         smiley.Source = BitmapToImageSource(Properties.Resources.smiley_4);
                         break;
-                    case Progress.Average:
+                    case ProgressStatus.Average:
                         smiley.Source = BitmapToImageSource(Properties.Resources.smiley_3);
                         break;
-                    case Progress.High:
+                    case ProgressStatus.High:
                         smiley.Source = BitmapToImageSource(Properties.Resources.smiley_2);
                         break;
-                    case Progress.VeryHigh:
+                    case ProgressStatus.VeryHigh:
                         smiley.Source = BitmapToImageSource(Properties.Resources.smiley_1);
                         break;
                 }
 
                 TextBlock text = new TextBlock();
                 text.VerticalAlignment = VerticalAlignment.Center;
-                text.Inlines.Add(rule.Title);
+                text.Inlines.Add(rule.ToString());
+                text.Inlines.Add(new LineBreak());
+                text.Inlines.Add(rule.GetProgressMessage());
+
                 Thickness margin = text.Margin;
                 margin.Left = 20;
                 text.Margin = margin;
 
                 container.Children.Add(smiley);
                 container.Children.Add(text);
+                container.MouseLeftButtonDown += Rule_MouseLeftButtonDown;
+
                 Rules.Children.Add(container);
             }
 
+        }
+
+        private void Rule_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            PARule rule = (PARule) (sender as FrameworkElement).Tag;
+            if (rule.TimeSpan == RuleTimeSpan.Week || rule.TimeSpan == RuleTimeSpan.Month)
+            {
+                //TODO: Open retrospection in week view
+                Handler.GetInstance().OpenRetrospection();
+            }
+            else
+            {
+                Handler.GetInstance().OpenRetrospection();
+            }
         }
 
         private BitmapImage BitmapToImageSource(Bitmap bitmap)
@@ -117,12 +139,13 @@ namespace GoalSetting.Views
         private void Close_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             this.Close();
+            GoalSettingManager.Instance.DeleteCachedResults();
         }
 
         private void Dashboard_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             this.Close();
-            
+            Handler.GetInstance().OpenRetrospection();
         }
     }
 

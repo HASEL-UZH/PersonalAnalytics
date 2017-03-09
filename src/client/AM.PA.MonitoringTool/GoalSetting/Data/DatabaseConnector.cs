@@ -5,19 +5,113 @@
 
 using GoalSetting.Data;
 using GoalSetting.Model;
+using GoalSetting.Rules;
 using Shared;
 using Shared.Data;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.Globalization;
 
 namespace GoalSetting
 {
-    class DatabaseConnector
+    public class DatabaseConnector
     {
 
+        //Database fields
+        private const string ID = "id";
+        private const string Title = "title";
+        private const string Activity = "contextcategory";
+        private const string Timespan = "timespan";
+        private const string Action = "action";
+        private const string Goal = "goal";
+        private const string Target = "target";
+        private const string Operator = "operator";
+        
+        //CREATE Queries
+        private static readonly string CREATE_RULES_TABLE = "CREATE TABLE IF NOT EXISTS " + Settings.RuleTableName + " ("
+                                                            + ID + " INTEGER PRIMARY KEY, "
+                                                            + Title + " TEXT, "
+                                                            + Activity + " TEXT, "
+                                                            + Timespan + " TEXT, "
+                                                            + Action + " TEXT, "
+                                                            + Goal + " TEXT, "
+                                                            + Target + " TEXT, "
+                                                            + Operator + " TEXT);";
+
+
+        //SELECT Queries
+        private static readonly string GET_RULES_QUERY = "SELECT * FROM " + Settings.RuleTableName + ";";
+
+        //INSERT Queries
+        private static readonly string INSERT_RULES_QUERY = "INSERT INTO " + Settings.RuleTableName
+                                                            + " SELECT null as " + ID + ", "
+                                                            + "'{0}' AS " + Title + ", "
+                                                            + "'{1}' AS " + Activity + ", "
+                                                            + "'{2}' AS " + Timespan + ", "
+                                                            + "'{4}' AS " + Action + ", "
+                                                            + "'{5}' AS " + Goal + ", "
+                                                            + "'{6}' AS " + Target + ", "
+                                                            + "'{7}' AS " + Operator;
+
+        #region INSERT
+
+        internal static void SaveRules(ObservableCollection<PARule> rules)
+        {
+            //First delete all rules and then save the new rules
+            Database.GetInstance().ExecuteDefaultQuery("DELETE FROM " + Settings.RuleTableName + ";");
+
+            foreach (PARule rule in rules)
+            {
+                string query = string.Empty;
+                query += String.Format(INSERT_RULES_QUERY, rule.Title, rule.Activity, rule.TimeSpan, rule.Action, rule.Rule.Goal, rule.Rule.TargetValue, rule.Rule.Operator);
+                Console.WriteLine(query);
+                Database.GetInstance().ExecuteDefaultQuery(query);
+            }
+        }
+
+        #endregion
+
+        #region CREATE
+
+        internal static void CreateRulesTableIfNotExists()
+        {
+            try
+            {
+                Database.GetInstance().ExecuteDefaultQuery(CREATE_RULES_TABLE);
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+        }
+
+        #endregion
+
         #region SELECT
+
+        internal static ObservableCollection<PARule> GetStoredRules()
+        {
+            var rules = new ObservableCollection<PARule>();
+
+            var table = Database.GetInstance().ExecuteReadQuery(GET_RULES_QUERY);
+
+            foreach (DataRow row in table.Rows)
+            {
+                string title = row[1].ToString();
+                ContextCategory activity = (ContextCategory) Enum.Parse(typeof(ContextCategory), row[2].ToString());
+                RuleTimeSpan timeSpan = (RuleTimeSpan) Enum.Parse(typeof(RuleTimeSpan), row[3].ToString());
+                string action = row[4].ToString();
+                string goal = row[5].ToString();
+                string target = row[6].ToString();
+                string op = row[7].ToString();
+
+                rules.Add(new PARule() { Title = title, Rule = new Rules.Rule { Goal = goal, Operator = op, TargetValue = target }, Activity = activity, TimeSpan = timeSpan });
+            }
+
+            return rules;
+        }
 
         private static List<ActivityContext> GetActivities(string query)
         {

@@ -1,0 +1,21 @@
+﻿<UserControl x:Class="GoalSetting.Views.WorkFragmentation"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:GoalSetting.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <StackPanel>
+        <TextBlock>I want to switch</TextBlock>
+        <ComboBox SelectionChanged="Values_Changed"  Name="Operator"></ComboBox>
+        <StackPanel>
+            <Slider Name="slValue"></Slider>
+            <TextBox Text="{Binding ElementName=slValue, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Bottom" TextAlignment="Center" Width="40" />
+            <TextBlock>times per</TextBlock>
+        </StackPanel>
+        <ComboBox SelectionChanged="Values_Changed" Name="Timespan"></ComboBox>
+        <ComboBox SelectionChanged="Values_Changed" Name="Activity"></ComboBox>
+        <Button Name="Add" Click="Add_Click" IsEnabled="False">Add Rule</Button>
+    </StackPanel>
+</UserControl>
