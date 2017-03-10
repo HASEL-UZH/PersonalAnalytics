@@ -7,6 +7,7 @@ using Shared;
 using System.Collections.Generic;
 using System.Windows;
 using System.Linq;
+using System.Windows.Controls;
 
 namespace PersonalAnalytics.Views
 {
@@ -16,11 +17,11 @@ namespace PersonalAnalytics.Views
     public partial class StartScreenContainer : Window
     {
         private string _appVersion;
-        private List<FirstStartScreenContainer> startScreens;
+        private List<IFirstStartScreen> startScreens;
         private int shownScreen = 0;
         private bool _canClose = false;
 
-        public StartScreenContainer(string version, List<FirstStartScreenContainer> startScreens)
+        public StartScreenContainer(string version, List<IFirstStartScreen> startScreens)
         {
             InitializeComponent();
             //Prevent this window from being closed.
@@ -30,8 +31,8 @@ namespace PersonalAnalytics.Views
             this.startScreens = startScreens;
             TbVersion.Text = "Version: " + _appVersion;
 
-            Top.Inlines.Add(startScreens[0].Title);
-            Content.Children.Add(startScreens[0].Content);
+            Top.Inlines.Add(startScreens[0].GetTitle());
+            Content.Children.Add((UserControl) startScreens[0]);
         }
 
         private void OnClose(object sender, System.ComponentModel.CancelEventArgs e)
@@ -46,13 +47,13 @@ namespace PersonalAnalytics.Views
 
         private void NextClicked(object sender, RoutedEventArgs args)
         {
-            startScreens[shownScreen].NextCallback?.Invoke();
+            startScreens[shownScreen].NextClicked();
             ShowNextScreen();
         }
 
         private void BackClicked(object sender, RoutedEventArgs args)
         {
-            startScreens[shownScreen].PreviousCallback?.Invoke();
+            startScreens[shownScreen].PreviousClicked();
             ShowPreviousScreen();
         }
         
@@ -67,9 +68,9 @@ namespace PersonalAnalytics.Views
             if (shownScreen >= 0)
             {
                 Top.Inlines.Clear();
-                Top.Inlines.Add(startScreens[shownScreen].Title);
+                Top.Inlines.Add(startScreens[shownScreen].GetTitle());
                 Content.Children.Clear();
-                Content.Children.Add(startScreens[shownScreen].Content);
+                Content.Children.Add((UserControl) startScreens[shownScreen]);
 
                 if (shownScreen == 0)
                 {
@@ -90,10 +91,10 @@ namespace PersonalAnalytics.Views
             else
             {
                 Top.Inlines.Clear();
-                Top.Inlines.Add(startScreens[shownScreen].Title);
+                Top.Inlines.Add(startScreens[shownScreen].GetTitle());
 
                 Content.Children.Clear();
-                Content.Children.Add(startScreens[shownScreen].Content);
+                Content.Children.Add((UserControl) startScreens[shownScreen]);
             }
         }
 

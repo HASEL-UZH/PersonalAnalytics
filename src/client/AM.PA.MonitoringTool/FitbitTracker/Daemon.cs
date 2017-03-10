@@ -355,10 +355,9 @@ namespace FitbitTracker
             return new List<IVisualization> { new SleepVisualizationForWeek(date), new StepVisualizationForWeek(date) };
         }
 
-        public override List<FirstStartScreenContainer> GetStartScreens()
+        public override List<IFirstStartScreen> GetStartScreens()
         {
-            FirstStartWindow window = new FirstStartWindow();
-            return new List<FirstStartScreenContainer>() { new FirstStartScreenContainer(window, Settings.TRACKER_NAME, window.NextClicked) };
+            return new List<IFirstStartScreen>() { new FirstStartWindow() };
         }
 
     }

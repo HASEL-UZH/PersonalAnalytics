@@ -13,7 +13,7 @@ namespace PolarTracker.Views
     /// <summary>
     /// Interaction logic for FirstStartWindow.xaml
     /// </summary>
-    public partial class FirstStartWindow : UserControl
+    public partial class FirstStartWindow : UserControl, IFirstStartScreen
     {
         private ChooseBluetoothDevice _chooser;
         
@@ -32,7 +32,12 @@ namespace PolarTracker.Views
             ThanksMessage.Visibility = Visibility.Collapsed;
         }
     
-        internal void NextClicked()
+        public string GetTitle()
+        {
+            return Settings.Name;
+        }
+
+        public void NextClicked()
         {
             if (Enable.IsChecked.HasValue)
             {
@@ -54,6 +59,11 @@ namespace PolarTracker.Views
                 Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, false);
                 Logger.WriteToConsole("The participant updated the setting '" + Settings.TRACKER_ENEABLED_SETTING + "' to False");
             }
+        }
+
+        public void PreviousClicked()
+        {
+
         }
 
         void OnConnectionEstablished(string deviceName)

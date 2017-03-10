@@ -1,4 +1,5 @@
 ﻿using MsOfficeTracker.Helpers;
+using Shared;
 using Shared.Data;
 using System.Drawing;
 using System.Windows;
@@ -9,14 +10,24 @@ namespace MsOfficeTracker.Views
     /// <summary>
     /// Interaction logic for FirstStartScreen.xaml
     /// </summary>
-    public partial class FirstStartScreen : System.Windows.Controls.UserControl
+    public partial class FirstStartScreen : System.Windows.Controls.UserControl, IFirstStartScreen
     {
         public FirstStartScreen()
         {
             InitializeComponent();
         }
 
-        internal async void NextClicked()
+        public string GetTitle()
+        {
+            return Settings.TrackerName;
+        }
+
+        public void PreviousClicked()
+        {
+            //not needed
+        }
+
+        public async void NextClicked()
         {
             if (Enable.IsChecked.HasValue)
             {
