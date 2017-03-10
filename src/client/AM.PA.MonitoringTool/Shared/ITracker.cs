@@ -27,7 +27,7 @@ namespace Shared
         bool IsEnabled();
         List<IVisualization> GetVisualizationsDay(DateTimeOffset date);
         List<IVisualization> GetVisualizationsWeek(DateTimeOffset date);
-        List<FirstStartScreenContainer> GetStartScreens();
+        List<IFirstStartScreen> GetStartScreens();
     }
 
     public abstract class BaseTracker : ITracker
@@ -58,9 +58,9 @@ namespace Shared
             return new List<IVisualization>(); // default: return an empty list
         }
 
-        public virtual List<FirstStartScreenContainer> GetStartScreens()
+        public virtual List<IFirstStartScreen> GetStartScreens()
         {
-            return new List<FirstStartScreenContainer>();
+            return new List<IFirstStartScreen>();
         }
     }
 
@@ -141,9 +141,9 @@ namespace Shared
             return new List<IVisualization>(); // default: return an empty list
         }
 
-        public virtual List<FirstStartScreenContainer> GetStartScreens()
+        public virtual List<IFirstStartScreen> GetStartScreens()
         {
-            return new List<FirstStartScreenContainer>();
+            return new List<IFirstStartScreen>();
         }
     }
 }

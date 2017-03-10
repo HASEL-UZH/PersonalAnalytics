@@ -38,7 +38,7 @@ namespace PolarTracker
 
         public Deamon()
         {
-            Name = "Polar Tracker";
+            Name = Settings.Name;
             if (Settings.IsDetailedCollectionEnabled)
             {
                 Name += " (detailed)";
@@ -185,10 +185,9 @@ namespace PolarTracker
             return new List<IVisualization> { new PolarVisualizationForWeek(date) };
         }
 
-        public override List<FirstStartScreenContainer> GetStartScreens()
+        public override List<IFirstStartScreen> GetStartScreens()
         {
-            var window = new FirstStartWindow();
-            return new List<FirstStartScreenContainer>() { new FirstStartScreenContainer(window, Name, window.NextClicked) };
+            return new List<IFirstStartScreen>() { new FirstStartWindow() };
         }
 
         #endregion

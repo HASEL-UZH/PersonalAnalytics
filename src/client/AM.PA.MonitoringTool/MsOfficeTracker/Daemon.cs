@@ -28,7 +28,7 @@ namespace MsOfficeTracker
 
         public Daemon()
         {
-            Name = "Office 365 Tracker";
+            Name = Settings.TrackerName;
         }
 
         public async override void Start()
@@ -85,10 +85,9 @@ namespace MsOfficeTracker
         
         public override bool IsFirstStart { get { return !Database.GetInstance().HasSetting("MsOfficeTrackerEnabled"); } }
 
-        public override List<FirstStartScreenContainer> GetStartScreens()
+        public override List<IFirstStartScreen> GetStartScreens()
         {
-            FirstStartScreen window = new FirstStartScreen();
-            return new List<FirstStartScreenContainer>() {new FirstStartScreenContainer(window, this.Name, window.NextClicked)};
+            return new List<IFirstStartScreen>() { new FirstStartScreen() };
         }
 
         public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)

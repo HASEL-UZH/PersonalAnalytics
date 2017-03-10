@@ -3,7 +3,7 @@
 // 
 // Licensed under the MIT License.
 using Shared.Data;
-using System;
+using Shared;
 using System.Windows.Controls;
 
 namespace PersonalAnalytics.Views
@@ -11,7 +11,7 @@ namespace PersonalAnalytics.Views
     /// <summary>
     /// Interaction logic for FirstStartWindow.xaml
     /// </summary>
-    public partial class FirstStartWindow : UserControl
+    public partial class FirstStartWindow : UserControl, IFirstStartScreen
     {
         
         public FirstStartWindow()
@@ -19,9 +19,19 @@ namespace PersonalAnalytics.Views
             InitializeComponent();
         }
 
-        internal static void NextClicked()
+        public void NextClicked()
         {
             Database.GetInstance().SetSettings("FirstStartWindowShown", true);
+        }
+
+        public string GetTitle()
+        {
+            return "Personal Analytics: First Start";
+        }
+
+        public void PreviousClicked()
+        {
+            //not needed
         }
     }
 

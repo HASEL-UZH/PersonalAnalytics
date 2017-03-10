@@ -4,6 +4,7 @@
 // Licensed under the MIT License.
 
 using FitbitTracker.Data;
+using Shared;
 using Shared.Data;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,7 +14,7 @@ namespace FitbitTracker.Views
     /// <summary>
     /// Interaction logic for FirstStartWindow.xaml
     /// </summary>
-    public partial class FirstStartWindow : UserControl
+    public partial class FirstStartWindow : UserControl, IFirstStartScreen
     {
 
         private Window _browserWindow;
@@ -37,7 +38,12 @@ namespace FitbitTracker.Views
             ThanksMessage.Visibility = Visibility.Hidden;
         }
 
-        internal void NextClicked()
+        public void PreviousClicked()
+        {
+            //not needed
+        }
+
+        public void NextClicked()
         {
             if (Enabled.IsChecked.HasValue)
             {
@@ -77,6 +83,11 @@ namespace FitbitTracker.Views
         private void Browser_FinishEvent()
         {
             _browserWindow.Close();
+        }
+
+        public string GetTitle()
+        {
+            return Settings.TRACKER_NAME;
         }
     }
 }

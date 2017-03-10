@@ -65,12 +65,12 @@ namespace PersonalAnalytics
             Register(new TimeSpentVisualizer.Visualizers.TimeSpentVisualizer());
             Register(new UserEfficiencyTracker.Daemon());
             Register(new UserInputTracker.Daemon());
-            /**
+            
             Register(new MsOfficeTracker.Daemon());
             Register(new PolarTracker.Deamon());
             Register(new FitbitTracker.Deamon());
             Register(new FlowTracker.Daemon());
-            **/
+            
 
 #if Dev
             //Register(new PeopleVisualizer.PeopleVisualizer()); // disabled, as it's not finished and pretty slow
@@ -169,13 +169,12 @@ namespace PersonalAnalytics
         /// </summary>
         private void ShowFirstStartScreens()
         {
-            var startScreens = new List<FirstStartScreenContainer>();
+            var startScreens = new List<IFirstStartScreen>();
 
             // add first start screen for tool if not yet shown
             if (!Database.GetInstance().HasSetting("FirstStartWindowShown"))
             {
-                var window = new FirstStartWindow();
-                startScreens.Add(new FirstStartScreenContainer(new FirstStartWindow(), "Personal Analytics: First Start", FirstStartWindow.NextClicked));
+                startScreens.Add(new FirstStartWindow());
             }
 
             // add first start screen for flowlight

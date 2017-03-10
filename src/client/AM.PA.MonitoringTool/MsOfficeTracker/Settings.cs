@@ -7,6 +7,8 @@ namespace MsOfficeTracker
 {
     internal class Settings
     {
+        public const string TrackerName = "Office 365 Tracker";
+
         public static bool IsEnabledByDefault = true; // user will see a pop-up (the first start) to decide whether to use it or not
         public const int SaveEmailCountsIntervalInMinutes = 20; // in minutes
         public const int UpdateCacheForDays = 10;

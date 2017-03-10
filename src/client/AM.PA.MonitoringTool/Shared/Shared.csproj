@@ -119,7 +119,6 @@
     <Compile Include="Data\Extractors\WindowTitleWebsitesExtractor.cs" />
     <Compile Include="Data\RemoteDataHandler.cs" />
     <Compile Include="Dict.cs" />
-    <Compile Include="FirstStartScreenContainer.cs" />
     <Compile Include="Helpers\DateTimeHelper.cs" />
     <Compile Include="Helpers\FeedbackHelper.cs" />
     <Compile Include="Helpers\FeedbackThumbs.cs" />
@@ -127,6 +126,7 @@
     <Compile Include="Helpers\ProcessNameHelper.cs" />
     <Compile Include="Helpers\VersionHelper.cs" />
     <Compile Include="Helpers\VisHelper.cs" />
+    <Compile Include="IFirstStartScreen.cs" />
     <Compile Include="ITracker.cs" />
     <Compile Include="IVisualization.cs" />
     <Compile Include="Logger.cs" />
