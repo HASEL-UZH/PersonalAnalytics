@@ -8,7 +8,6 @@ using Shared;
 using FitbitTracker.Data;
 using Shared.Helpers;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace FitbitTracker
 {
@@ -16,12 +15,12 @@ namespace FitbitTracker
     {
         public readonly int MINUTES_PER_BAR = 60;
 
-        private DateTimeOffset date;
+        private DateTimeOffset _date;
 
         public StepVisualizationForDay(DateTimeOffset date)
         {
             Title = "Steps per " + MINUTES_PER_BAR + " minutes";
-            this.date = date;
+            this._date = date;
             IsEnabled = true;
             Size = VisSize.Wide;
             Order = 0;
@@ -57,7 +56,7 @@ namespace FitbitTracker
         {
             var html = string.Empty;
 
-            List<Tuple<DateTime, int>> values = DatabaseConnector.GetStepsPerTimeFraction(DateTimeHelper.GetStartOfDay(date), DateTimeHelper.GetEndOfDay(date), MINUTES_PER_BAR);
+            List<Tuple<DateTime, int>> values = DatabaseConnector.GetStepsPerTimeFraction(DateTimeHelper.GetStartOfDay(_date), DateTimeHelper.GetEndOfDay(_date), MINUTES_PER_BAR);
             
             if (values.FindAll(x => x.Item2 != 0).Count < 1)
             {

@@ -18,7 +18,7 @@ namespace FitbitTracker.Views
     /// </summary>
     public partial class EmbeddedBrowser : UserControl
     {
-        private bool embedded;
+        private bool _embedded;
 
         //Called when process is finished
         public delegate void OnFinish();
@@ -34,14 +34,14 @@ namespace FitbitTracker.Views
 
         public EmbeddedBrowser()
         {
-            embedded = true;
+            _embedded = true;
             InitializeComponent();
             PABrowser.Navigated += OnNavigation;
         }
 
         public EmbeddedBrowser(string url)
         {
-            embedded = false;
+            _embedded = false;
             InitializeComponent();
             PABrowser.Navigate(url);
             PABrowser.Navigated += OnNavigation;
@@ -66,7 +66,7 @@ namespace FitbitTracker.Views
                     var queryDict = HttpUtility.ParseQueryString(e.Uri.Query);
                     string accessCode = queryDict.Get("code");
                     accessCode = accessCode.Replace("#_=_", "");
-                    if (!embedded)
+                    if (!_embedded)
                     {
                         ShowThanksScreen();
                     }
@@ -74,7 +74,7 @@ namespace FitbitTracker.Views
                 }
                 else if (e.Uri.ToString().Contains("?error"))
                 {
-                    if (!embedded)
+                    if (!_embedded)
                     {
                         ShowErrorScreen();
                     }

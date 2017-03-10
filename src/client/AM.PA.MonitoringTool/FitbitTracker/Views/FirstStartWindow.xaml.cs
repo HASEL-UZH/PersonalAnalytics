@@ -5,7 +5,6 @@
 
 using FitbitTracker.Data;
 using Shared.Data;
-using System;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -17,7 +16,7 @@ namespace FitbitTracker.Views
     public partial class FirstStartWindow : UserControl
     {
 
-        private Window browserWindow;
+        private Window _browserWindow;
 
         public FirstStartWindow()
         {
@@ -49,7 +48,7 @@ namespace FitbitTracker.Views
                     
                     var browser = new EmbeddedBrowser(Settings.REGISTRATION_URL);
 
-                    browserWindow = new Window
+                    _browserWindow = new Window
                     {
                         Title = Settings.TRACKER_NAME,
                         Content = browser
@@ -57,7 +56,7 @@ namespace FitbitTracker.Views
 
                     browser.FinishEvent += Browser_FinishEvent;
                     browser.RegistrationTokenEvent += Browser_RegistrationTokenEvent;
-                    browserWindow.ShowDialog();
+                    _browserWindow.ShowDialog();
                 }
                 else
                 {
@@ -77,7 +76,7 @@ namespace FitbitTracker.Views
 
         private void Browser_FinishEvent()
         {
-            browserWindow.Close();
+            _browserWindow.Close();
         }
     }
 }
