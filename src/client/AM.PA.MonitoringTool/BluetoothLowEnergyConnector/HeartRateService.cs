@@ -32,14 +32,14 @@ namespace BluetoothLowEnergy
         private const GattClientCharacteristicConfigurationDescriptorValue CHARACTERISTIC_NOTIFICATION_TYPE = GattClientCharacteristicConfigurationDescriptorValue.Notify;
         private const string ConnectedProperty = "System.Devices.Connected";
         private const string ContainerIDProperty = "System.Devices.ContainerId";
-        private static HeartRateService instance = new HeartRateService();
+        private static HeartRateService _instance = new HeartRateService();
 
         private Guid CHARACTERISTIC_UUID = GattCharacteristicUuids.HeartRateMeasurement;
-        private GattDeviceService service;
-        private GattCharacteristic characteristic;
-        private List<HeartRateMeasurement> datapoints;
-        private PnpObjectWatcher watcher;
-        private String deviceContainerId;
+        private GattDeviceService _service;
+        private GattCharacteristic _characteristic;
+        private List<HeartRateMeasurement> _datapoints;
+        private PnpObjectWatcher _watcher;
+        private string _deviceContainerId;
 
         public event ValueChangeCompletedHandler ValueChangeCompleted;
         public event DeviceConnectionUpdatedHandler DeviceConnectionUpdated;
@@ -48,7 +48,7 @@ namespace BluetoothLowEnergy
         //Returns the instance of this class.
         public static HeartRateService Instance
         {
-            get { return instance; }
+            get { return _instance; }
         }
 
         //Returns a bool indicating whether this service is running or not
@@ -57,7 +57,7 @@ namespace BluetoothLowEnergy
         //Returns a reference to the Gatt service
         public GattDeviceService Service
         {
-            get { return service; }
+            get { return _service; }
         }
 
         //Returns a list of datapoints received from the BLE device
@@ -66,9 +66,9 @@ namespace BluetoothLowEnergy
             get
             {
                 HeartRateMeasurement[] retval;
-                lock (datapoints)
+                lock (_datapoints)
                 {
-                    retval = datapoints.ToArray();
+                    retval = _datapoints.ToArray();
                 }
                 return retval;
             }
@@ -76,7 +76,7 @@ namespace BluetoothLowEnergy
 
         private HeartRateService()
         {
-            datapoints = new List<HeartRateMeasurement>();
+            _datapoints = new List<HeartRateMeasurement>();
         }
         
         //Starts the service. Returns true if started sucessfully and false otherwise.
@@ -84,11 +84,11 @@ namespace BluetoothLowEnergy
         {
             try
             {
-                deviceContainerId = "{" + device.Properties[ContainerIDProperty] + "}";
+                _deviceContainerId = "{" + device.Properties[ContainerIDProperty] + "}";
                 
                 try
                 {
-                    service = await GattDeviceService.FromIdAsync(device.Id);
+                    _service = await GattDeviceService.FromIdAsync(device.Id);
                 }
                 catch (Exception e)
                 {
@@ -105,7 +105,7 @@ namespace BluetoothLowEnergy
                     return false;
                 }
 
-                if (service != null)
+                if (_service != null)
                 {
                     IsServiceInitialized = true;
                     await ConfigureServiceForNotificationsAsync();
@@ -127,15 +127,15 @@ namespace BluetoothLowEnergy
         {
             try
             {
-                characteristic = service.GetCharacteristics(CHARACTERISTIC_UUID)[CHARACTERISTIC_INDEX];
-                characteristic.ProtectionLevel = GattProtectionLevel.EncryptionRequired;
-                characteristic.ValueChanged += Characteristic_ValueChanged;
+                _characteristic = _service.GetCharacteristics(CHARACTERISTIC_UUID)[CHARACTERISTIC_INDEX];
+                _characteristic.ProtectionLevel = GattProtectionLevel.EncryptionRequired;
+                _characteristic.ValueChanged += Characteristic_ValueChanged;
 
-                var currentDescriptorValue = await characteristic.ReadClientCharacteristicConfigurationDescriptorAsync();
+                var currentDescriptorValue = await _characteristic.ReadClientCharacteristicConfigurationDescriptorAsync();
 
                 if ((currentDescriptorValue.Status != GattCommunicationStatus.Success) || (currentDescriptorValue.ClientCharacteristicConfigurationDescriptor != CHARACTERISTIC_NOTIFICATION_TYPE))
                 {
-                    GattCommunicationStatus status = await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(CHARACTERISTIC_NOTIFICATION_TYPE);
+                    GattCommunicationStatus status = await _characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(CHARACTERISTIC_NOTIFICATION_TYPE);
                     if (status == GattCommunicationStatus.Unreachable)
                     {
                         StartDeviceConnectionWatcher();
@@ -150,24 +150,24 @@ namespace BluetoothLowEnergy
 
         private void StartDeviceConnectionWatcher()
         {
-            watcher = PnpObject.CreateWatcher(PnpObjectType.DeviceContainer, new string[] { ConnectedProperty }, String.Empty);
-            watcher.Updated += DeviceConnection_Updated;
-            watcher.Start();
+            _watcher = PnpObject.CreateWatcher(PnpObjectType.DeviceContainer, new string[] { ConnectedProperty }, String.Empty);
+            _watcher.Updated += DeviceConnection_Updated;
+            _watcher.Start();
         }
 
         private async void DeviceConnection_Updated(PnpObjectWatcher sender, PnpObjectUpdate args)
         {
             var connectedProperty = args.Properties[ConnectedProperty];
             bool isConnected = false;
-            if ((deviceContainerId == args.Id) && Boolean.TryParse(connectedProperty.ToString(), out isConnected) && isConnected)
+            if ((_deviceContainerId == args.Id) && Boolean.TryParse(connectedProperty.ToString(), out isConnected) && isConnected)
             {
-                var status = await characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(CHARACTERISTIC_NOTIFICATION_TYPE);
+                var status = await _characteristic.WriteClientCharacteristicConfigurationDescriptorAsync(CHARACTERISTIC_NOTIFICATION_TYPE);
 
                 if (status == GattCommunicationStatus.Success)
                 {
                     IsServiceInitialized = true;
-                    watcher.Stop();
-                    watcher = null;
+                    _watcher.Stop();
+                    _watcher = null;
                 }
                 DeviceConnectionUpdated?.Invoke(isConnected);
             }
@@ -177,21 +177,21 @@ namespace BluetoothLowEnergy
         internal void Stop()
         {
             IsServiceInitialized = false;
-            datapoints.Clear();
-            if (service != null)
+            _datapoints.Clear();
+            if (_service != null)
             {
-                service.Dispose();
+                _service.Dispose();
             }
 
-            if (characteristic != null)
+            if (_characteristic != null)
             {
-                characteristic = null;
+                _characteristic = null;
             }
 
-            if (watcher != null)
+            if (_watcher != null)
             {
-                watcher.Stop();
-                watcher = null;
+                _watcher.Stop();
+                _watcher = null;
             }
         }
 
@@ -203,11 +203,11 @@ namespace BluetoothLowEnergy
 
             List<HeartRateMeasurement> values = ProcessRawData(data);
            
-            lock (datapoints)
+            lock (_datapoints)
             {
                 foreach (HeartRateMeasurement value in values)
                 {
-                    datapoints.Add(value);
+                    _datapoints.Add(value);
                 }
             }
 

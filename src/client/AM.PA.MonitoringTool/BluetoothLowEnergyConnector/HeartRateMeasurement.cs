@@ -11,13 +11,13 @@ namespace BluetoothLowEnergy
     //Data class for storing measurement data from a BLE device.
     public class HeartRateMeasurement
     {
-        private double hr = Double.NaN;
-        private double rrDifference = Double.NaN;
+        private double _hr = Double.NaN;
+        private double _rrDifference = Double.NaN;
 
-        public double HeartRateValue { get { return hr; } set { hr = value; } }
+        public double HeartRateValue { get { return _hr; } set { _hr = value; } }
         public string Timestamp { get; set; }
         public double RRInterval { get; set;  }
-        public double RRDifference { get { return rrDifference; } set { rrDifference = value; }  }
+        public double RRDifference { get { return _rrDifference; } set { _rrDifference = value; }  }
 
         public override string ToString()
         {
