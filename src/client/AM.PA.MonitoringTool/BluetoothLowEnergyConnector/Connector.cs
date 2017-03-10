@@ -32,12 +32,12 @@ namespace BluetoothLowEnergy
     {
         private const string CONTAINER_ID_PROPERTY = "System.Devices.ContainerId";
 
-        private static Connector instance;
-        private DateTime timeOFLastDataPoint = DateTime.MaxValue;
-        private DeviceInformation connectedDevice;
+        private static Connector _instance;
+        private DateTime _timeOFLastDataPoint = DateTime.MaxValue;
+        private DeviceInformation _connectedDevice;
 
-        private Timer watchTimer;
-        private Timer reconnectTimer;
+        private Timer _watchTimer;
+        private Timer _reconnectTimer;
 
         private Connector() {
             HeartRateService.Instance.BluetoothNotEnabled += OnBluetoothNotEnabled;
@@ -189,7 +189,7 @@ namespace BluetoothLowEnergy
                     bool connected = await HeartRateService.Instance.InitializeServiceAsync(device);
                     if (connected)
                     {
-                        connectedDevice = device;
+                        _connectedDevice = device;
                         HeartRateService.Instance.ValueChangeCompleted += Instance_ValueChangeCompleted;
                         StartWatching();
                     }
@@ -211,7 +211,7 @@ namespace BluetoothLowEnergy
         public void TryReconnectToDevice(DeviceInformation device)
         {
             LoggerWrapper.Instance.WriteToConsole("Should try to reestablish connection to: " + device.Name);
-            reconnectTimer = new Timer(OnReconnectTry, device, 0, Settings.WAIT_TIME_BETWEEN_RECONNECT_TRIES);
+            _reconnectTimer = new Timer(OnReconnectTry, device, 0, Settings.WAIT_TIME_BETWEEN_RECONNECT_TRIES);
         }
 
         private async void OnReconnectTry(object obj)
@@ -229,9 +229,9 @@ namespace BluetoothLowEnergy
 
             if (connected)
             {
-                if (reconnectTimer != null)
+                if (_reconnectTimer != null)
                 {
-                    reconnectTimer.Cancel();
+                    _reconnectTimer.Cancel();
                 }
                 ConnectionReestablished?.Invoke();
             }
@@ -239,25 +239,25 @@ namespace BluetoothLowEnergy
         
         private void StartWatching()
         {
-            watchTimer = new Timer(OnWatchPeriodPassed, null, 0, Settings.WAIT_TIME_BETWEEN_WATCHING_THREADS);
+            _watchTimer = new Timer(OnWatchPeriodPassed, null, 0, Settings.WAIT_TIME_BETWEEN_WATCHING_THREADS);
         }
 
         private void OnWatchPeriodPassed(object state)
         {
             LoggerWrapper.Instance.WriteToConsole("Watching BLE device");
-            if (timeOFLastDataPoint != DateTime.MaxValue && timeOFLastDataPoint.AddSeconds(Settings.TIME_SINCE_NO_DATA_RECEIVED).CompareTo(DateTime.Now) == -1)
+            if (_timeOFLastDataPoint != DateTime.MaxValue && _timeOFLastDataPoint.AddSeconds(Settings.TIME_SINCE_NO_DATA_RECEIVED).CompareTo(DateTime.Now) == -1)
             {
-                if (watchTimer != null)
+                if (_watchTimer != null)
                 {
-                    watchTimer.Cancel();
+                    _watchTimer.Cancel();
                 }
                 HeartRateService.Instance.ValueChangeCompleted -= Instance_ValueChangeCompleted;
                 HeartRateService.Instance.DeviceConnectionUpdated -= OnDeviceConnectionUpdated;
-                timeOFLastDataPoint = DateTime.MaxValue;
+                _timeOFLastDataPoint = DateTime.MaxValue;
                 HeartRateService.Instance.Stop();
                 LoggerWrapper.Instance.WriteToConsole("Received no data since more than " + Settings.TIME_SINCE_NO_DATA_RECEIVED + " seconds");
-                ConnectionLost?.Invoke(connectedDevice.Name);
-                TryReconnectToDevice(connectedDevice);
+                ConnectionLost?.Invoke(_connectedDevice.Name);
+                TryReconnectToDevice(_connectedDevice);
             }
         }
 
@@ -266,11 +266,11 @@ namespace BluetoothLowEnergy
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new Connector();
+                    _instance = new Connector();
                 }
-                return instance;
+                return _instance;
             }
         }
 
@@ -290,7 +290,7 @@ namespace BluetoothLowEnergy
 
         private void Instance_ValueChangeCompleted(List<HeartRateMeasurement> heartRateMeasurementValue)
         {
-            timeOFLastDataPoint = DateTime.Now;
+            _timeOFLastDataPoint = DateTime.Now;
             ValueChangeCompleted?.Invoke(heartRateMeasurementValue);
         }
 

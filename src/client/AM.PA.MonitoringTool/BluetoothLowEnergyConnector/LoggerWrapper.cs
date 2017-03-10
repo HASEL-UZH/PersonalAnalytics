@@ -14,7 +14,7 @@ namespace BluetoothLowEnergy
     
     public class LoggerWrapper
     {
-        private static LoggerWrapper instance;
+        private static LoggerWrapper _instance;
 
         private LoggerWrapper() { }
 
@@ -22,11 +22,11 @@ namespace BluetoothLowEnergy
         {
             get
             {
-                if (instance == null)
+                if (_instance == null)
                 {
-                    instance = new LoggerWrapper();
+                    _instance = new LoggerWrapper();
                 }
-                return instance;
+                return _instance;
             }
         }
 
