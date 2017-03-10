@@ -15,11 +15,11 @@ namespace PolarTracker.Visualizations
     internal class PolarVisualizationForDay : BaseVisualization, IVisualization
     {
         private const string TIME_FORMAT = "yyyy-MM-dd HH:mm";
-        private DateTimeOffset date;
+        private DateTimeOffset _date;
 
         public PolarVisualizationForDay(DateTimeOffset date)
         {
-            this.date = date;
+            this._date = date;
 
             Title = "Heart rate and interbeat interval";
             IsEnabled = true;
@@ -33,7 +33,7 @@ namespace PolarTracker.Visualizations
             var html = string.Empty;
 
             //Get Data
-            List<Tuple<DateTime, double, double>> values = DatabaseConnector.GetPolarValuesForDay(date);
+            List<Tuple<DateTime, double, double>> values = DatabaseConnector.GetPolarValuesForDay(_date);
             
             if (values.Count <= 3)
             {

@@ -53,15 +53,8 @@ namespace PolarTracker.Views
             }
         }
 
-        private List<BluetoothDeviceListener> listeners = new List<BluetoothDeviceListener>();
-
-        internal void AddListener(BluetoothDeviceListener listener)
-        {
-            if (!listeners.Contains(listener))
-            {
-                listeners.Add(listener);
-            }
-        }
+        public delegate void OnConnectionEstablished(string deviceName);
+        public event OnConnectionEstablished ConnectionEstablishedEvent;
 
         private async void OnDeviceSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -69,18 +62,15 @@ namespace PolarTracker.Views
             var device = Devices.SelectedItem as PortableBluetoothDeviceInformation;
             await Connector.Instance.Connect(device);
 
-            foreach (var listener in listeners)
-            {
-                listener.OnConnectionEstablished(device.Name);
-            }
+            ConnectionEstablishedEvent?.Invoke(device.Name);
         }
+
+        public delegate void OnTrackerDisabled();
+        public event OnTrackerDisabled TrackerDisabledEvent;
 
         private void DisableTracker(object sender, RoutedEventArgs e)
         {
-            foreach (var listener in listeners)
-            {
-                listener.OnTrackerDisabled();
-            }
+            TrackerDisabledEvent?.Invoke();
         }
     }
 }
