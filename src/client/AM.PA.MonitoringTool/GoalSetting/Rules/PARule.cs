@@ -42,7 +42,7 @@ namespace GoalSetting.Rules
         {
             double percentage = Double.NaN;
 
-            switch ((Goal)Enum.Parse(typeof(Goal), Rule.Goal))
+            switch (Rule.Goal)
             {
                 case Goal.TimeSpentOn:
                     double targetTime = Double.Parse(Rule.TargetValue) / 1000 / 60 / 60;
@@ -56,7 +56,7 @@ namespace GoalSetting.Rules
                     break;
             }
             
-            if (Rule.Operator.Equals(Operator.GreaterThan.ToString()) || Rule.Operator.Equals(Operator.GreaterThanOrEqual.ToString()))
+            if (Rule.Operator == Operator.GreaterThan || Rule.Operator == Operator.GreaterThanOrEqual)
             {
                 if (percentage < 0.3)
                 {
@@ -80,7 +80,7 @@ namespace GoalSetting.Rules
                 }
                 
             }
-            else if (Rule.Operator.Equals(Operator.LessThan.ToString()) || Rule.Operator.Equals(Operator.LessThanOrEqual.ToString()))
+            else if (Rule.Operator == Operator.LessThan || Rule.Operator == Operator.LessThanOrEqual)
             {
                 if (percentage < 0.9)
                 {

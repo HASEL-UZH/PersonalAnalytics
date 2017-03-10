@@ -60,7 +60,7 @@ namespace GoalSetting
             rules = DatabaseConnector.GetStoredRules();
 
             //If there are any rules that require watching all new activity events, we register for the events from the activity tracker
-            if (rules.Any(r => r.Rule.Goal.Equals(Goal.NumberOfSwitchesTo.ToString()) || r.Rule.Goal.Equals(Goal.TimeSpentOn.ToString())))
+            if (rules.Any(r => r.Rule.Goal == Goal.NumberOfSwitchesTo || r.Rule.Goal == Goal.TimeSpentOn))
             {
                 Queries.NewSnapshotEvent += OnNewSnapshot;
             }
@@ -190,7 +190,7 @@ namespace GoalSetting
                         {
                             Console.WriteLine(activity);
                             rule.Compile();
-                            Logger.WriteToConsole(rule.ToString());
+                            Logger.WriteToConsole("" + rule);
                             Logger.WriteToConsole(rule.CompiledRule(activity) + "");
 
                             //Store results in PARule

@@ -3,22 +3,30 @@
 // 
 // Licensed under the MIT License.
 
+using GoalSetting.Model;
 using System;
 
 namespace GoalSetting.Rules
 {
     public class Rule
     {
-        public string Goal { get; set; }
+        //GOAL
+        public Goal Goal { get; set; }
 
-        public string Operator { get; set; }
+        public string GoalString { get { return Goal.ToString(); } }
+
+
+        //OPERATOR
+        public Operator Operator { get; set; }
+
+        public string OperatorString { get { return Operator.ToString();  } }
 
         private string _target;
 
         //That's milliseconds!
         public string TargetValue { get { return _target; } set {
                 _target = value;
-                if (Goal.Equals(Model.Goal.TimeSpentOn.ToString()))
+                if (Goal == Goal.TimeSpentOn)
                 {
                     TimeSpan time = TimeSpan.FromMilliseconds(Convert.ToDouble(value));
                     if (time.TotalMinutes < 60)

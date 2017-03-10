@@ -103,9 +103,9 @@ namespace GoalSetting
                 ContextCategory activity = (ContextCategory) Enum.Parse(typeof(ContextCategory), row[2].ToString());
                 RuleTimeSpan timeSpan = (RuleTimeSpan) Enum.Parse(typeof(RuleTimeSpan), row[3].ToString());
                 string action = row[4].ToString();
-                string goal = row[5].ToString();
+                Goal goal = (Goal)Enum.Parse(typeof(Goal), row[5].ToString());
                 string target = row[6].ToString();
-                string op = row[7].ToString();
+                Operator op = (Operator)Enum.Parse(typeof(Operator), row[7].ToString());
 
                 rules.Add(new PARule() { Title = title, Rule = new Rules.Rule { Goal = goal, Operator = op, TargetValue = target }, Activity = activity, TimeSpan = timeSpan });
             }

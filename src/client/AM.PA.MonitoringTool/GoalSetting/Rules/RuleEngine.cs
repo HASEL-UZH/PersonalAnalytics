@@ -20,11 +20,11 @@ namespace GoalSetting.Rules
 
         static Expression BuildExpr<T>(Rule r, ParameterExpression param)
         {
-            var left = MemberExpression.Property(param, r.Goal);
-            var tProp = typeof(T).GetProperty(r.Goal).PropertyType;
+            var left = MemberExpression.Property(param, r.GoalString);
+            var tProp = typeof(T).GetProperty(r.GoalString).PropertyType;
             ExpressionType tBinary;
             // is the operator a known .NET operator?
-            if (ExpressionType.TryParse(r.Operator, out tBinary))
+            if (ExpressionType.TryParse(r.OperatorString, out tBinary))
             {
                 var right = Expression.Constant(Convert.ChangeType(r.TargetValue, tProp));
                 return Expression.MakeBinary(tBinary, left, right);
@@ -32,7 +32,7 @@ namespace GoalSetting.Rules
             // use a method call, e.g. 'Contains'
             else
             {
-                var method = tProp.GetMethod(r.Operator);
+                var method = tProp.GetMethod(r.OperatorString);
                 var tParam = method.GetParameters()[0].ParameterType;
                 var right = Expression.Constant(Convert.ChangeType(r.TargetValue, tParam));
                 return Expression.Call(left, method, right);

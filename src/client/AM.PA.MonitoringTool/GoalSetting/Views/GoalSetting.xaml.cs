@@ -15,23 +15,30 @@ namespace GoalSetting
     /// </summary>
     public partial class GoalSetting : UserControl
     {
-        private ObservableCollection<PARule> rules;
+        private ObservableCollection<PARule> _rules;
 
         public GoalSetting(ObservableCollection<PARule> rules)
         {
             InitializeComponent();
-            this.rules = rules;
-            this.Rules.ItemsSource = rules;
+            this._rules = rules;
+            Rules.ItemsSource = rules;
+            _rules.CollectionChanged += _rules_CollectionChanged;
+            CheckRules.IsEnabled = _rules.Count > 0;
+        }
+
+        private void _rules_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            CheckRules.IsEnabled = _rules.Count > 0;
         }
 
         private void CheckRules_Click(object sender, RoutedEventArgs e)
         {
-            GoalSettingManager.Instance.CheckRules(rules);
+            GoalSettingManager.Instance.CheckRules(_rules);
         }
 
         private void SaveRules_Click(object sender, RoutedEventArgs e)
         {
-            DatabaseConnector.SaveRules(rules);
+            DatabaseConnector.SaveRules(_rules);
         }
 
         private void AddRule_Click(object sender, RoutedEventArgs e)
@@ -41,13 +48,14 @@ namespace GoalSetting
 
         private void DeleteRule_Click(object sender, RoutedEventArgs e)
         {
-            
+            //TODO
         }
 
         private void Rules_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
         {
             DeleteRule.IsEnabled = Rules.SelectedCells.Count > 0;
         }
+
     }
 
 }
