@@ -12,12 +12,12 @@ namespace FitbitTracker
 {
     internal class SleepVisualizationForDay : BaseVisualization, IVisualization
     {
-        private DateTimeOffset date;
+        private DateTimeOffset _date;
 
         public SleepVisualizationForDay(DateTimeOffset date)
         {
             Title = "Sleep stats";
-            this.date = date;
+            this._date = date;
             IsEnabled = true;
             Size = VisSize.Square;
             Order = 0;
@@ -27,7 +27,7 @@ namespace FitbitTracker
         {
             var html = string.Empty;
 
-            SleepVisualizationEntry value = DatabaseConnector.GetSleepDataForDay(DateTimeHelper.GetStartOfDay(date), DateTimeHelper.GetEndOfDay(date));
+            SleepVisualizationEntry value = DatabaseConnector.GetSleepDataForDay(DateTimeHelper.GetStartOfDay(_date), DateTimeHelper.GetEndOfDay(_date));
 
             if (value == null)
             {

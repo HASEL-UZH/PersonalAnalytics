@@ -13,11 +13,11 @@ namespace FitbitTracker
 {
     internal class StepVisualizationForWeek : BaseVisualization, IVisualization
     {
-        private DateTimeOffset date;
+        private DateTimeOffset _date;
 
         public StepVisualizationForWeek(DateTimeOffset date)
         {
-            this.date = date;
+            this._date = date;
             Title = "Steps per weekday";
             IsEnabled = true;
             Size = VisSize.Wide;
@@ -28,7 +28,7 @@ namespace FitbitTracker
         {
             var html = string.Empty;
 
-            List<Tuple<DateTime, int>> values = DatabaseConnector.GetStepsPerTimeFraction(DateTimeHelper.GetFirstDayOfWeek_Iso8801(date), DateTimeHelper.GetLastDayOfWeek_Iso8801(date), 24 * 60);
+            List<Tuple<DateTime, int>> values = DatabaseConnector.GetStepsPerTimeFraction(DateTimeHelper.GetFirstDayOfWeek_Iso8801(_date), DateTimeHelper.GetLastDayOfWeek_Iso8801(_date), 24 * 60);
 
             if (values.Count <= 1)
             {

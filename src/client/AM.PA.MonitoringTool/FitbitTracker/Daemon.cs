@@ -19,8 +19,8 @@ namespace FitbitTracker
 {
     public sealed class Deamon : BaseTracker, ITracker
     {
-        private Window browserWindow;
-        private Timer fitbitTimer;
+        private Window _browserWindow;
+        private Timer _fitbitTimer;
 
         public Deamon()
         {
@@ -148,13 +148,13 @@ namespace FitbitTracker
                 browser.RegistrationTokenEvent += Browser_RegistrationTokenEvent;
                 browser.ErrorEvent += Browser_ErrorEvent;
 
-                browserWindow = new Window
+                _browserWindow = new Window
                 {
                     Title = "Register PersonalAnalytics to let it access Fitbit data",
                     Content = browser
                 };
 
-                browserWindow.ShowDialog();
+                _browserWindow.ShowDialog();
             }));
         }
 
@@ -200,23 +200,23 @@ namespace FitbitTracker
         {
             Application.Current.Dispatcher.Invoke((Action)(() =>
             {
-                browserWindow.Close();
+                _browserWindow.Close();
             }));
         }
 
         //Creates a timer that is used to periodically pull data from the fitbit API
         private void CreateFitbitPullTimer()
         {
-            fitbitTimer = new Timer();
-            fitbitTimer.Elapsed += OnPullFromFitbit;
-            fitbitTimer.Interval = Settings.SYNCHRONIZE_INTERVALL_FIRST;
-            fitbitTimer.Enabled = true;
+            _fitbitTimer = new Timer();
+            _fitbitTimer.Elapsed += OnPullFromFitbit;
+            _fitbitTimer.Interval = Settings.SYNCHRONIZE_INTERVALL_FIRST;
+            _fitbitTimer.Enabled = true;
         }
 
         //Called when new data should be pull from the fitbit API
         private void OnPullFromFitbit(object sender, ElapsedEventArgs eventArgs)
         {
-            fitbitTimer.Interval = Settings.SYNCHRONIZE_INTERVALL_SECOND;
+            _fitbitTimer.Interval = Settings.SYNCHRONIZE_INTERVALL_SECOND;
 
             Logger.WriteToConsole("Try to sync with Fitbit");
 
@@ -333,9 +333,9 @@ namespace FitbitTracker
 
         public override void Stop()
         {
-            if (fitbitTimer != null)
+            if (_fitbitTimer != null)
             {
-                fitbitTimer.Enabled = false;
+                _fitbitTimer.Enabled = false;
             }
             IsRunning = false;
         }

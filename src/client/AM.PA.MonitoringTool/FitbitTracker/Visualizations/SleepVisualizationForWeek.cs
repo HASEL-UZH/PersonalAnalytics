@@ -13,11 +13,11 @@ namespace FitbitTracker
 {
     internal class SleepVisualizationForWeek : BaseVisualization, IVisualization
     {
-        private DateTimeOffset date;
+        private DateTimeOffset _date;
 
         public SleepVisualizationForWeek(DateTimeOffset date)
         {
-            this.date = date;
+            this._date = date;
             Title = "Sleep stats per week day";
             Size = VisSize.Wide;
             IsEnabled = true;
@@ -28,7 +28,7 @@ namespace FitbitTracker
         {
             var html = string.Empty;
 
-            List<SleepVisualizationForWeekEntry> values = DatabaseConnector.GetSleepDataForWeek(DateTimeHelper.GetFirstDayOfWeek_Iso8801(date), DateTimeHelper.GetLastDayOfWeek_Iso8801(date));
+            List<SleepVisualizationForWeekEntry> values = DatabaseConnector.GetSleepDataForWeek(DateTimeHelper.GetFirstDayOfWeek_Iso8801(_date), DateTimeHelper.GetLastDayOfWeek_Iso8801(_date));
 
             if (values == null || values.Count == 0)
             {
@@ -81,7 +81,7 @@ namespace FitbitTracker
             html += "})";
             html += ".attr('width', 15);";
 
-            html += GenerateData(values, DateTimeHelper.GetFirstDayOfWeek_Iso8801(date), DateTimeHelper.GetLastDayOfWeek_Iso8801(date));
+            html += GenerateData(values, DateTimeHelper.GetFirstDayOfWeek_Iso8801(_date), DateTimeHelper.GetLastDayOfWeek_Iso8801(_date));
             html += "var xData = ['A', 'B', 'C'];";
             
             html += "var margin = { top: 30, right: 50, bottom: 5, left: 50},";
