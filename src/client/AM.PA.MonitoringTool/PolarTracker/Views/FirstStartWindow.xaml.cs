@@ -3,23 +3,19 @@
 // 
 // Licensed under the MIT License.
 
-using BluetoothLowEnergy;
-using BluetoothLowEnergyConnector;
 using Shared;
 using Shared.Data;
-using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System;
 
 namespace PolarTracker.Views
 {
     /// <summary>
     /// Interaction logic for FirstStartWindow.xaml
     /// </summary>
-    public partial class FirstStartWindow : UserControl, BluetoothDeviceListener
+    public partial class FirstStartWindow : UserControl
     {
-        private ChooseBluetoothDevice chooser;
+        private ChooseBluetoothDevice _chooser;
         
         public FirstStartWindow()
         {
@@ -42,9 +38,10 @@ namespace PolarTracker.Views
             {
                 if (Enable.IsChecked.Value)
                 {
-                    chooser = new ChooseBluetoothDevice();
-                    chooser.AddListener(this);
-                    chooser.ShowDialog();
+                    _chooser = new ChooseBluetoothDevice();
+                    _chooser.ConnectionEstablishedEvent += OnConnectionEstablished;
+                    _chooser.TrackerDisabledEvent += OnTrackerDisabled;
+                    _chooser.ShowDialog();
                 }
                 else
                 {
@@ -59,17 +56,17 @@ namespace PolarTracker.Views
             }
         }
 
-        void BluetoothDeviceListener.OnConnectionEstablished(string deviceName)
+        void OnConnectionEstablished(string deviceName)
         {
             Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, true);
             Database.GetInstance().SetSettings(Settings.HEARTRATE_TRACKER_ID_SETTING, deviceName);
-            chooser.Close();
+            _chooser.Close();
         }
 
-        void BluetoothDeviceListener.OnTrackerDisabled()
+        void OnTrackerDisabled()
         {
             Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, false);
-            chooser.Close();
+            _chooser.Close();
         }
     }
 }

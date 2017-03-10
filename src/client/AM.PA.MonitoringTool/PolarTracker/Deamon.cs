@@ -22,7 +22,7 @@ using System.Reflection;
 
 namespace PolarTracker
 {
-    public sealed class Deamon : BaseTracker, ITracker, BluetoothDeviceListener
+    public sealed class Deamon : BaseTracker, ITracker
     {
         private static readonly ConcurrentQueue<HeartRateMeasurement> _hrQueue = new ConcurrentQueue<HeartRateMeasurement>();
         private System.Timers.Timer _saveToDatabaseTimer = new System.Timers.Timer();
@@ -32,7 +32,7 @@ namespace PolarTracker
         private double _previousRR = double.NaN;
         private bool _isConnectedToBluetoothDevice = false;
         private ChooseBluetoothDevice _chooser;
-        private bool WasFirstStart = true;
+        private bool _wasFirstStart = true;
 
         #region ITracker Stuff
 
@@ -48,7 +48,13 @@ namespace PolarTracker
             LoggerWrapper.Instance.NewLogFileMessage += OnNewLogFileMessage;
 
             _chooser = new ChooseBluetoothDevice();
-            _chooser.AddListener(this); // TODO: refactor to register for event
+            _chooser.ConnectionEstablishedEvent += OnConnectionEstablished;
+            _chooser.TrackerDisabledEvent += OnTrackerDisabled;
+        }
+
+        private void _chooser_DeviceSelectionChangedEvent()
+        {
+            throw new NotImplementedException();
         }
 
         public override string GetVersion()
@@ -62,7 +68,7 @@ namespace PolarTracker
             DatabaseConnector.CreatePolarTables();
         }
 
-        public override bool IsFirstStart { get { WasFirstStart = !Database.GetInstance().HasSetting(Settings.TRACKER_ENEABLED_SETTING); return !Database.GetInstance().HasSetting(Settings.TRACKER_ENEABLED_SETTING); } }
+        public override bool IsFirstStart { get { _wasFirstStart = !Database.GetInstance().HasSetting(Settings.TRACKER_ENEABLED_SETTING); return !Database.GetInstance().HasSetting(Settings.TRACKER_ENEABLED_SETTING); } }
 
         public override string GetStatus()
         {
@@ -99,7 +105,7 @@ namespace PolarTracker
                     else
                     {
                         bool connected = false;
-                        if (!WasFirstStart)
+                        if (!_wasFirstStart)
                         {
                             connected = await Connector.Instance.Connect(deviceInformation);
                         }
@@ -156,7 +162,7 @@ namespace PolarTracker
             }
         }
 
-        void BluetoothDeviceListener.OnTrackerDisabled() 
+        void OnTrackerDisabled() 
         {
             _chooser.Close();
             IsRunning = false;
@@ -227,7 +233,7 @@ namespace PolarTracker
             _showBluetoothNotification = false;
         }
 
-        void BluetoothDeviceListener.OnConnectionEstablished(string deviceID)
+        void OnConnectionEstablished(string deviceID)
         {
             _chooser.Close();
             Database.GetInstance().SetSettings(Settings.HEARTRATE_TRACKER_ID_SETTING, deviceID);
