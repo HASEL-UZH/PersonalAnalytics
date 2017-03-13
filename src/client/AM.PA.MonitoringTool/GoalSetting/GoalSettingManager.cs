@@ -16,7 +16,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
-using WindowsActivityTracker.Data;
+using Shared.Events;
 
 namespace GoalSetting
 {
@@ -63,13 +63,7 @@ namespace GoalSetting
             DatabaseConnector.CreateRulesTableIfNotExists();
 
             _rules = DatabaseConnector.GetStoredRules();
-
-            //If there are any rules that require watching all new activity events, we register for the events from the activity tracker
-            if (_rules.Any(r => r.Rule.Goal == Goal.NumberOfSwitchesTo || r.Rule.Goal == Goal.TimeSpentOn))
-            {
-                Queries.NewSnapshotEvent += OnNewSnapshot;
-            }
-           
+            
             Window window = new Window
             {
                 Title = "Goal Setting Dashboard",
@@ -79,17 +73,20 @@ namespace GoalSetting
             
         }
 
+        public void OnNewTrackerEvent(object sender, TrackerEvents e)
+        {
+            if (e is ActivitySwitchEvent)
+            {
+                var dto = new ContextDto { Context = new ContextInfos { ProgramInUse = (e as ActivitySwitchEvent).NewProcessName, WindowTitle = (e as ActivitySwitchEvent).NewWindowTitle } };
+                ContextCategory activity = ContextMapper.GetContextCategory(dto);
+                Console.WriteLine("New activity: " + activity);
+            }
+        }
+
         internal void DeleteRule(PARule rule)
         {
             Logger.WriteToConsole("Delete: " + rule);
             _rules.Remove(rule);
-        }
-
-        private void OnNewSnapshot(string window, string process)
-        {
-            var dto = new ContextDto { Context = new ContextInfos { ProgramInUse = process, WindowTitle = window} };
-            ContextCategory activity = ContextMapper.GetContextCategory(dto);
-            Console.WriteLine("New activity: " + activity);
         }
 
         private List<Activity> GetActivity(RuleTimeSpan timespan)

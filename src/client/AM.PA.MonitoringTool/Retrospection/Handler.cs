@@ -15,6 +15,7 @@ using Shared.Helpers;
 using System.Globalization;
 using System.Threading;
 using GoalSetting;
+using Shared.Events;
 
 namespace Retrospection
 {
@@ -57,6 +58,10 @@ namespace Retrospection
 
             // set needed variables
             SetTrackers(trackers);
+            foreach (ITracker tracker in trackers)
+            {
+                tracker.TrackerEvent += Tracker_TrackerEvent;
+            }
             _publishedAppVersion = appVersion;
 
             // Start goal setting
@@ -64,6 +69,13 @@ namespace Retrospection
             GoalSettingManager.Instance.Start();
 
             IsRunning = true;
+        }
+
+        public event EventHandler<TrackerEvents> TrackerEvent;
+
+        private void Tracker_TrackerEvent(object sender, TrackerEvents e)
+        {
+            GoalSettingManager.Instance.OnNewTrackerEvent(sender, e);
         }
 
         private void OpenRetrospectionFromGoalSetting()

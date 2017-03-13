@@ -116,10 +116,6 @@
       <Project>{2bbdfa6d-20dd-4a7b-893e-43c388382c9a}</Project>
       <Name>Shared</Name>
     </ProjectReference>
-    <ProjectReference Include="..\WindowsActivityTracker\WindowsActivityTracker.csproj">
-      <Project>{2b903556-4dd2-41ce-beac-3ddd045f717d}</Project>
-      <Name>WindowsActivityTracker</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

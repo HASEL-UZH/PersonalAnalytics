@@ -3,6 +3,7 @@
 // 
 // Licensed under the MIT License.
 
+using Shared.Events;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -28,6 +29,7 @@ namespace Shared
         List<IVisualization> GetVisualizationsDay(DateTimeOffset date);
         List<IVisualization> GetVisualizationsWeek(DateTimeOffset date);
         List<IFirstStartScreen> GetStartScreens();
+        event EventHandler<TrackerEvents> TrackerEvent;
     }
 
     public abstract class BaseTracker : ITracker
@@ -35,6 +37,9 @@ namespace Shared
         public string Name { get; set; }
         public bool IsRunning { get; set; }
         public virtual bool IsFirstStart { get; set; }
+
+        public virtual event EventHandler<TrackerEvents> TrackerEvent;
+
         public abstract void Start();
         public abstract void Stop();
         public abstract void CreateDatabaseTablesIfNotExist();
@@ -102,6 +107,9 @@ namespace Shared
         public string Name { get; set; }
         public bool IsRunning { get; set; }
         public bool IsFirstStart { get; set; }
+
+        public virtual event EventHandler<TrackerEvents> TrackerEvent;
+
         public virtual void Start()
         {
             IsRunning = true;

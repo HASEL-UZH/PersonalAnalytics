@@ -9,6 +9,7 @@ using System.Text;
 using System.Timers;
 using WindowsActivityTracker.Helpers;
 using Shared;
+using Shared.Events;
 using Shared.Data;
 using System.Collections.Generic;
 using WindowsActivityTracker.Visualizations;
@@ -44,6 +45,8 @@ namespace WindowsActivityTracker
         {
             Name = "Windows Activity Tracker";
         }
+
+        public override event EventHandler<TrackerEvents> TrackerEvent;
 
         protected override void Dispose(bool disposing)
         {
@@ -170,7 +173,7 @@ namespace WindowsActivityTracker
         #region Idle Time Checker
 
         private NativeMethods.LASTINPUTINFO _lastInputInfo;
-
+        
         /// <summary>
         ///  check every 10 seconds if the user has been idle for the past 120s
         /// </summary>
@@ -214,6 +217,8 @@ namespace WindowsActivityTracker
             {
                 _lastEntryWasIdle = true;
                 _previousWindowTitleEntry = currentWindowTitle;
+
+                TrackerEvent?.Invoke(this, new ActivitySwitchEvent { NewWindowTitle = currentWindowTitle, NewProcessName = process });
                 Queries.InsertSnapshot(currentWindowTitle, process);
                 //Console.WriteLine(DateTime.Now.ToString("t") + " " + DateTime.Now.Millisecond + "\t" + process + "\t" + currentWindowTitle);
             }
@@ -296,6 +301,7 @@ namespace WindowsActivityTracker
                 _previousHandle = handle;
                 _lastEntryWasIdle = false;
 
+                TrackerEvent?.Invoke(this, new ActivitySwitchEvent { NewWindowTitle = currentWindowTitle, NewProcessName = currentProcess });
                 Queries.InsertSnapshot(currentWindowTitle, currentProcess);
             }
         }
@@ -323,6 +329,7 @@ namespace WindowsActivityTracker
             _previousProcess = process;
             _lastEntryWasIdle = (process == Dict.Idle);
 
+            TrackerEvent?.Invoke(this, new ActivitySwitchEvent { NewWindowTitle = windowTitle, NewProcessName = process });
             Queries.InsertSnapshot(windowTitle, process);
         }
 
