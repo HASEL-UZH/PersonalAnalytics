@@ -14,6 +14,7 @@ using System.Windows.Threading;
 using Shared.Helpers;
 using System.Globalization;
 using System.Threading;
+using GoalSetting;
 
 namespace Retrospection
 {
@@ -58,7 +59,16 @@ namespace Retrospection
             SetTrackers(trackers);
             _publishedAppVersion = appVersion;
 
+            // Start goal setting
+            GoalSettingManager.Instance.OpenRetrospectionEvent += OpenRetrospectionFromGoalSetting;
+            GoalSettingManager.Instance.Start();
+
             IsRunning = true;
+        }
+
+        private void OpenRetrospectionFromGoalSetting()
+        {
+            OpenRetrospection();
         }
 
         private void StartHttpServer()

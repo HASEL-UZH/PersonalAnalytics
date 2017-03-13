@@ -1,5 +1,5 @@
 ﻿// Created by Sebastian Mueller (smueller@ifi.uzh.ch) from the University of Zurich
-// Created: 2017-03-09
+// Created: 2017-03-13
 // 
 // Licensed under the MIT License.
 
@@ -9,26 +9,28 @@ using Shared.Helpers;
 using GoalSetting.Rules;
 using Shared.Data;
 using System.Windows;
+using System.ComponentModel;
+using System;
 
 namespace GoalSetting.Views
 {
     /// <summary>
-    /// Interaction logic for WorkFragmentation.xaml
+    /// Interaction logic for TimeSpent.xaml
     /// </summary>
-    public partial class WorkFragmentation : UserControl
+    public partial class TimeSpent : UserControl
     {
-
         private AddRule _parent;
-
-        public WorkFragmentation(GoalDomain goalDomain, AddRule parent)
+        
+        public TimeSpent(GoalDomain goalDomain, AddRule parent)
         {
             InitializeComponent();
-
-            _parent = parent;
+            
+            this._parent = parent;
 
             Operator.ItemsSource = FormatStringHelper.GetDescriptions(typeof(Operator));
             Timespan.ItemsSource = FormatStringHelper.GetDescriptions(typeof(RuleTimeSpan));
             Activity.ItemsSource = FormatStringHelper.GetDescriptions(typeof(ContextCategory));
+            TimeUnit.ItemsSource = FormatStringHelper.GetDescriptions(typeof(TimeUnit));
 
             switch (goalDomain)
             {
@@ -45,17 +47,34 @@ namespace GoalSetting.Views
                     Activity.SelectedItem = FormatStringHelper.GetDescription(ContextCategory.PlannedMeeting);
                     break;
             }
-            
         }
 
         private void Add_Click(object sender, RoutedEventArgs e)
         {
             string title = Title.Text;
             Operator op = FormatStringHelper.GetValueFromDescription<Operator>(Operator.SelectedItem.ToString());
-            Rule rule = new Rule { Goal = Goal.NumberOfSwitchesTo, Operator = op, TargetValue = slValue.Value.ToString()};
+
+            double targetValue = slValue.Value;
+
+            TimeUnit selectedTimeUnit = FormatStringHelper.GetValueFromDescription<TimeUnit>(TimeUnit.SelectedItem.ToString());
+            switch (selectedTimeUnit)
+            {
+                case Views.TimeUnit.Minutes:
+                    targetValue = TimeSpan.FromMinutes(targetValue).TotalMilliseconds;
+                    break;
+                case Views.TimeUnit.Hours:
+                    targetValue = TimeSpan.FromHours(targetValue).TotalMilliseconds;
+                    break;
+                case Views.TimeUnit.Days:
+                    targetValue = TimeSpan.FromDays(targetValue).TotalMilliseconds;
+                    break;
+            }
+
+
+            Rule rule = new Rule { Goal = Goal.TimeSpentOn, Operator = op, TargetValue = targetValue.ToString() };
             ContextCategory activity = FormatStringHelper.GetValueFromDescription<ContextCategory>(Activity.SelectedItem.ToString());
             RuleTimeSpan timespan = FormatStringHelper.GetValueFromDescription<RuleTimeSpan>(Timespan.SelectedItem.ToString());
-            
+
             PARule newRule = new PARule { Title = title, Rule = rule, Activity = activity, TimeSpan = timespan, TimePoint = null };
             GoalSettingManager.Instance.AddRule(newRule);
             this.Visibility = Visibility.Collapsed;
@@ -74,7 +93,7 @@ namespace GoalSetting.Views
 
         private void ValuesUpdated()
         {
-            if (Operator.SelectedIndex != -1 && Timespan.SelectedIndex != -1 && Activity.SelectedIndex != -1 && !string.IsNullOrEmpty(Title.Text))
+            if (Operator.SelectedIndex != -1 && Timespan.SelectedIndex != -1 && Activity.SelectedIndex != -1 && TimeUnit.SelectedIndex != -1 && !string.IsNullOrEmpty(Title.Text))
             {
                 Add.IsEnabled = true;
             }
@@ -83,5 +102,17 @@ namespace GoalSetting.Views
                 Add.IsEnabled = false;
             }
         }
+    }
+
+    public enum TimeUnit
+    {
+        [Description("minutes")]
+        Minutes,
+
+        [Description("hours")]
+        Hours,
+
+        [Description("days")]
+        Days,
     }
 }

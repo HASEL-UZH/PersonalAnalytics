@@ -27,6 +27,7 @@
                     <DataGridTextColumn Header="Operator" Binding="{Binding Path=Rule.Operator}"></DataGridTextColumn>
                     <DataGridTextColumn Header="Value" Binding="{Binding Path=Rule.TargetTimeSpan}"></DataGridTextColumn>
                     <DataGridTextColumn Header="Timespan" Binding="{Binding Path=TimeSpan}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Timepoint" Binding="{Binding Path=TimePoint}"></DataGridTextColumn>
                     <DataGridTextColumn Header="Action" Binding="{Binding Path=Action}"></DataGridTextColumn>
                 </DataGrid.Columns>
             </DataGrid>

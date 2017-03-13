@@ -8,7 +8,6 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Retrospection;
 using System.Windows.Documents;
 
 namespace GoalSetting.Views
@@ -94,11 +93,11 @@ namespace GoalSetting.Views
             if (rule.TimeSpan == RuleTimeSpan.Week || rule.TimeSpan == RuleTimeSpan.Month)
             {
                 //TODO: Open retrospection in week view
-                Handler.GetInstance().OpenRetrospection();
+                GoalSettingManager.Instance.OpenRetrospection();
             }
             else
             {
-                Handler.GetInstance().OpenRetrospection();
+                GoalSettingManager.Instance.OpenRetrospection();
             }
         }
 
@@ -145,7 +144,7 @@ namespace GoalSetting.Views
         private void Dashboard_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             this.Close();
-            Handler.GetInstance().OpenRetrospection();
+            GoalSettingManager.Instance.OpenRetrospection();
         }
     }
 

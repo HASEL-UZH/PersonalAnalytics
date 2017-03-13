@@ -8,6 +8,7 @@ namespace GoalSetting.Model
     public enum Goal
     {
         TimeSpentOn,
-        NumberOfSwitchesTo
+        NumberOfSwitchesTo,
+        NumberOfEmailsInInbox
     }
 }

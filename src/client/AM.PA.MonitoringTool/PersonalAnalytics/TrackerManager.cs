@@ -14,13 +14,11 @@ using Shared.Data;
 using System.Windows;
 using System.Globalization;
 using Microsoft.Win32;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Controls;
 using PersonalAnalytics.Views;
-using GoalSetting;
 
 namespace PersonalAnalytics
 {
@@ -458,11 +456,7 @@ namespace PersonalAnalytics
             var m7 = new System.Windows.Controls.MenuItem { Header = "Shutdown Tracker" };
             m7.Click += (o, i) => Stop(true);
             TaskbarIcon.ContextMenu.Items.Add(m7);
-
-            var m9 = new MenuItem { Header = "Goal setting" };
-            m9.Click += (o, i) => StartGoalSetting();
-            TaskbarIcon.ContextMenu.Items.Add(m9);
-
+            
             // Styling
             //var converter = new System.Windows.Media.BrushConverter();
             //var brush = (System.Windows.Media.Brush)converter.ConvertFromString("#FFFFFF90");
@@ -473,15 +467,7 @@ namespace PersonalAnalytics
             //var style = App.Current.TryFindResource("SysTrayMenu");
             //_taskbarIcon.ContextMenu = (System.Windows.Controls.ContextMenu)style;
         }
-
-        /// <summary>
-        /// Starts the goal setting. This method is called whenever the user clicks on 'Goal setting' in the context menu.
-        /// </summary>
-        private void StartGoalSetting()
-        {
-            GoalSettingManager.Instance.Start();
-        }
-
+        
         /// <summary>
         /// add FlowLight menu items to keep the light in a certain state for the specified time
         /// </summary>

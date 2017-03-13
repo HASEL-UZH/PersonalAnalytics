@@ -65,12 +65,14 @@ namespace GoalSetting.Views
         {
             Step2.Visibility = Visibility.Collapsed;
             Step3.Visibility = Visibility.Visible;
+            Step3.Content = new EmailInbox(this);
         }
 
         private void TimeSpentButton_Click(object sender, RoutedEventArgs e)
         {
             Step2.Visibility = Visibility.Collapsed;
             Step3.Visibility = Visibility.Visible;
+            Step3.Content = new TimeSpent(selectedGoalDomain, this);
         }
 
         private void WorkFragmentationButton_Click(object sender, RoutedEventArgs e)

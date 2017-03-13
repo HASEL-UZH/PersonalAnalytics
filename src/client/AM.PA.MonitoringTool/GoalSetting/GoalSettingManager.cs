@@ -172,6 +172,14 @@ namespace GoalSetting
             return result;
         }
 
+        public delegate void OnOpenRetrospectionFromGoalSetting();
+        public event OnOpenRetrospectionFromGoalSetting OpenRetrospectionEvent;
+
+        internal void OpenRetrospection()
+        {
+            OpenRetrospectionEvent?.Invoke();
+        }
+
         internal void DeleteCachedResults()
         {
             activitiesMap.Clear();
@@ -184,30 +192,34 @@ namespace GoalSetting
             
             foreach (PARule rule in rules)
             {
-                //if we do not yet have the activities, we have to get them!
-                if (!activitiesMap.ContainsKey(rule.TimeSpan))
+                //We can only do that for rules that have a timespan
+                if (rule.TimeSpan.HasValue)
                 {
-                    activitiesMap.Add(rule.TimeSpan, GetActivity(rule.TimeSpan));
-                }
-
-                List<Activity> activities = null;
-                activitiesMap.TryGetValue(rule.TimeSpan, out activities);
-
-                if (activities != null)
-                {
-                    foreach (Activity activity in activities)
+                    //if we do not yet have the activities, we have to get them!
+                    if (!activitiesMap.ContainsKey(rule.TimeSpan.Value))
                     {
-                        if (activity.Category.Equals(rule.Activity.ToString()))
-                        {
-                            Logger.WriteToConsole("" + activity);
-                            Logger.WriteToConsole("" + rule);
-                            rule.Compile();
+                        activitiesMap.Add(rule.TimeSpan.Value, GetActivity(rule.TimeSpan.Value));
+                    }
 
-                            //Store results in PARule
-                            rule.Progress.Success = rule.CompiledRule(activity);
-                            rule.Progress.Time = activity.GetTimeSpentInHours();
-                            rule.Progress.Switches = activity.NumberOfSwitchesTo;
-                            rule.CalculateProgressStatus();
+                    List<Activity> activities = null;
+                    activitiesMap.TryGetValue(rule.TimeSpan.Value, out activities);
+
+                    if (activities != null)
+                    {
+                        foreach (Activity activity in activities)
+                        {
+                            if (activity.Category.Equals(rule.Activity.ToString()))
+                            {
+                                Logger.WriteToConsole("" + activity);
+                                Logger.WriteToConsole("" + rule);
+                                rule.Compile();
+
+                                //Store results in PARule
+                                rule.Progress.Success = rule.CompiledRule(activity);
+                                rule.Progress.Time = activity.GetTimeSpentInHours();
+                                rule.Progress.Switches = activity.NumberOfSwitchesTo;
+                                rule.CalculateProgressStatus();
+                            }
                         }
                     }
                 }

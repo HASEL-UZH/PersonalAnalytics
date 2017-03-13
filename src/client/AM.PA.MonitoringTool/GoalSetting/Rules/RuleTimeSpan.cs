@@ -43,6 +43,7 @@ namespace GoalSetting.Rules
         Morning,
 
         [Description("afternoon")]
-        Afternoon
+        Afternoon,
+        
     }
 }

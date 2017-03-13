@@ -18,7 +18,9 @@ namespace GoalSetting.Rules
 
         public ContextCategory Activity { get; set; }
 
-        public RuleTimeSpan TimeSpan { get; set; }
+        public RuleTimeSpan? TimeSpan { get; set; }
+
+        public RuleTimePoint? TimePoint { get; set; }
 
         public override string ToString()
         {
