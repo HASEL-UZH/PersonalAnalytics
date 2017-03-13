@@ -58,11 +58,13 @@ namespace Retrospection
 
             // set needed variables
             SetTrackers(trackers);
+            _publishedAppVersion = appVersion;
+
+            //register at each tracker to receive all events from the trackers. Events are defined in Shared.Events
             foreach (ITracker tracker in trackers)
             {
                 tracker.TrackerEvent += Tracker_TrackerEvent;
             }
-            _publishedAppVersion = appVersion;
 
             // Start goal setting
             GoalSettingManager.Instance.OpenRetrospectionEvent += OpenRetrospectionFromGoalSetting;
@@ -70,9 +72,12 @@ namespace Retrospection
 
             IsRunning = true;
         }
-
-        public event EventHandler<TrackerEvents> TrackerEvent;
-
+        
+        /// <summary>
+        /// Forward all events recevied from the trackers to the GoalSetting project. The GoalSetting project decides what to do with these events.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Tracker_TrackerEvent(object sender, TrackerEvents e)
         {
             GoalSettingManager.Instance.OnNewTrackerEvent(sender, e);
