@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Controls;
 using GoalSetting.Rules;
 using System.Windows;
+using System.Collections.Specialized;
 
 namespace GoalSetting
 {
@@ -21,12 +22,13 @@ namespace GoalSetting
         {
             InitializeComponent();
             this._rules = rules;
+            Rules.SelectionMode = DataGridSelectionMode.Single;
             Rules.ItemsSource = rules;
             _rules.CollectionChanged += _rules_CollectionChanged;
             CheckRules.IsEnabled = _rules.Count > 0;
         }
 
-        private void _rules_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void _rules_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             CheckRules.IsEnabled = _rules.Count > 0;
         }
@@ -48,7 +50,8 @@ namespace GoalSetting
 
         private void DeleteRule_Click(object sender, RoutedEventArgs e)
         {
-            //TODO
+            PARule rule = (PARule) Rules.SelectedItem;
+            GoalSettingManager.Instance.DeleteRule(rule);
         }
 
         private void Rules_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)

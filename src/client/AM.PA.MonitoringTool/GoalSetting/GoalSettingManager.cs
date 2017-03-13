@@ -22,7 +22,7 @@ namespace GoalSetting
 {
     public class GoalSettingManager
     {
-        private ObservableCollection<PARule> rules;
+        private ObservableCollection<PARule> _rules;
 
         private static GoalSettingManager instance;
 
@@ -45,9 +45,14 @@ namespace GoalSetting
             Window window = new Window
             {
                 Title = "Goal Setting Dashboard",
-                Content = new AddRule(rules)
+                Content = new AddRule(_rules)
             };
             window.ShowDialog();
+        }
+
+        internal void AddRule(PARule newRule)
+        {
+            _rules.Add(newRule);
         }
 
         /// <summary>
@@ -57,10 +62,10 @@ namespace GoalSetting
         {
             DatabaseConnector.CreateRulesTableIfNotExists();
 
-            rules = DatabaseConnector.GetStoredRules();
+            _rules = DatabaseConnector.GetStoredRules();
 
             //If there are any rules that require watching all new activity events, we register for the events from the activity tracker
-            if (rules.Any(r => r.Rule.Goal == Goal.NumberOfSwitchesTo || r.Rule.Goal == Goal.TimeSpentOn))
+            if (_rules.Any(r => r.Rule.Goal == Goal.NumberOfSwitchesTo || r.Rule.Goal == Goal.TimeSpentOn))
             {
                 Queries.NewSnapshotEvent += OnNewSnapshot;
             }
@@ -68,10 +73,16 @@ namespace GoalSetting
             Window window = new Window
             {
                 Title = "Goal Setting Dashboard",
-                Content = new GoalSetting(rules)
+                Content = new GoalSetting(_rules)
             };
             window.ShowDialog();
             
+        }
+
+        internal void DeleteRule(PARule rule)
+        {
+            Logger.WriteToConsole("Delete: " + rule);
+            _rules.Remove(rule);
         }
 
         private void OnNewSnapshot(string window, string process)
@@ -188,10 +199,9 @@ namespace GoalSetting
                     {
                         if (activity.Category.Equals(rule.Activity.ToString()))
                         {
-                            Console.WriteLine(activity);
-                            rule.Compile();
+                            Logger.WriteToConsole("" + activity);
                             Logger.WriteToConsole("" + rule);
-                            Logger.WriteToConsole(rule.CompiledRule(activity) + "");
+                            rule.Compile();
 
                             //Store results in PARule
                             rule.Progress.Success = rule.CompiledRule(activity);

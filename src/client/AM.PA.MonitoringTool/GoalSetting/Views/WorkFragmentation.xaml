@@ -7,15 +7,23 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <TextBox>Title:</TextBox>
+            <TextBox Name="Title" Margin="10 0 0 0" MinWidth="200" TextChanged="Title_TextChanged"></TextBox>
+        </StackPanel>
         <TextBlock>I want to switch</TextBlock>
         <ComboBox SelectionChanged="Values_Changed"  Name="Operator"></ComboBox>
         <StackPanel>
-            <Slider Name="slValue"></Slider>
+            <Slider Name="slValue" IsSnapToTickEnabled="True" TickFrequency="1" Minimum="0" Maximum="100"></Slider>
             <TextBox Text="{Binding ElementName=slValue, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Bottom" TextAlignment="Center" Width="40" />
             <TextBlock>times per</TextBlock>
         </StackPanel>
         <ComboBox SelectionChanged="Values_Changed" Name="Timespan"></ComboBox>
+        <TextBox>on:</TextBox>
         <ComboBox SelectionChanged="Values_Changed" Name="Activity"></ComboBox>
-        <Button Name="Add" Click="Add_Click" IsEnabled="False">Add Rule</Button>
+
+        <DockPanel Height="auto" Width="auto" LastChildFill="True" Margin="10 20 10 0">
+            <Button Width="auto" DockPanel.Dock="Top" Name="Add" Click="Add_Click" IsEnabled="False">Add Rule</Button>
+        </DockPanel>
     </StackPanel>
 </UserControl>

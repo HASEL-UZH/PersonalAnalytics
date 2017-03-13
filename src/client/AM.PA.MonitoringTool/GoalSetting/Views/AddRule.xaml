@@ -45,6 +45,14 @@
         <ContentControl Grid.Row="0" Name="Step3" Visibility="Collapsed">
         </ContentControl>
         
+        <!--Step 4-->
+        <ContentControl Grid.Row="0" Name="Step4" Visibility="Collapsed">
+            <StackPanel>
+                <TextBlock>Thanks for adding a new goal</TextBlock>
+                <Button Name="OK" Click="OK_Click">OK</Button>
+            </StackPanel>
+        </ContentControl>
+        
         <!--Not supported-->
         <TextBlock Grid.Row="0" Name="NotYetSupported" Visibility="Collapsed">
             This goal is not yet supported!

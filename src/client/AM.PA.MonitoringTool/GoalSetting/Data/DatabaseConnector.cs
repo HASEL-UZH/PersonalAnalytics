@@ -50,10 +50,10 @@ namespace GoalSetting
                                                             + "'{0}' AS " + Title + ", "
                                                             + "'{1}' AS " + Activity + ", "
                                                             + "'{2}' AS " + Timespan + ", "
-                                                            + "'{4}' AS " + Action + ", "
-                                                            + "'{5}' AS " + Goal + ", "
-                                                            + "'{6}' AS " + Target + ", "
-                                                            + "'{7}' AS " + Operator;
+                                                            + "'{3}' AS " + Action + ", "
+                                                            + "'{4}' AS " + Goal + ", "
+                                                            + "'{5}' AS " + Target + ", "
+                                                            + "'{6}' AS " + Operator;
 
         #region INSERT
 
@@ -65,7 +65,7 @@ namespace GoalSetting
             foreach (PARule rule in rules)
             {
                 string query = string.Empty;
-                query += String.Format(INSERT_RULES_QUERY, rule.Title, rule.Activity, rule.TimeSpan, rule.Action, rule.Rule.Goal, rule.Rule.TargetValue, rule.Rule.Operator);
+                query += String.Format(INSERT_RULES_QUERY, (rule.Title == null ? "" : rule.Title), rule.Activity, rule.TimeSpan, (rule.Action == null ? "" : rule.Action), rule.Rule.Goal, rule.Rule.TargetValue, rule.Rule.Operator);
                 Console.WriteLine(query);
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }

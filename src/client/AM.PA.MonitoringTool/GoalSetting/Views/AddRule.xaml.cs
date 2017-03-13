@@ -77,7 +77,7 @@ namespace GoalSetting.Views
         {
             Step2.Visibility = Visibility.Collapsed;
             Step3.Visibility = Visibility.Visible;
-            Step3.Content = new WorkFragmentation();
+            Step3.Content = new WorkFragmentation(selectedGoalDomain, this);
         }
 
         private void Step_2_Email(object sender, RoutedEventArgs e)
@@ -112,7 +112,22 @@ namespace GoalSetting.Views
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {
+            Close();
+        }
+
+        public void Step_4()
+        {
+            Step4.Visibility = Visibility.Visible;
+        }
+
+        private void Close()
+        {
             (this.Parent as Window).Close();
+        }
+
+        private void OK_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 
