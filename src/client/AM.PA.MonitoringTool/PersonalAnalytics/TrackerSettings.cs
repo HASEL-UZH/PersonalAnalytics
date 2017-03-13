@@ -3,6 +3,8 @@
 // 
 // Licensed under the MIT License.
 
+using FitbitTracker;
+using FitbitTracker.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -94,6 +96,11 @@ namespace Shared.Data
                 {
                     if (GetFitbitTracker() != null) GetFitbitTracker().ChangeEnabledState(updatedSettings.FitbitTrackerEnabled);
                 }
+
+                if (updatedSettings.FitbitTokenRevoked.HasValue)
+                {
+                    FitbitConnector.RevokeAccessToken(SecretStorage.GetAccessToken());
+                }
             }
             catch (Exception e)
             {
@@ -136,6 +143,8 @@ namespace Shared.Data
 
                 var fitbitTracker = GetFitbitTracker();
                 dto.FitbitTrackerEnabled = fitbitTracker.IsEnabled();
+                dto.FitbitTokenRevokEnabled = SecretStorage.GetAccessToken() != null && fitbitTracker.IsEnabled();
+                dto.FitbitTokenRevoked = dto.FitbitTokenRevokEnabled;
 
                 var flowLight = FlowLight.Handler.GetInstance();
                 if (flowLight != null)

@@ -60,9 +60,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FocusLightTracker">
-      <HintPath>..\FlowLightTracker\lib\FocusLightTracker.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -153,9 +150,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FitbitTracker\FitbitTracker.csproj">
-      <Project>{D7752ED4-6DD5-4953-8B5F-BBCE24136D1C}</Project>
-      <Name>FitbitTracker</Name>
+    <ProjectReference Include="..\GoalSetting\GoalSetting.csproj">
+      <Project>{d4792de4-9a01-47c9-b30d-b40dee6c3450}</Project>
+      <Name>GoalSetting</Name>
     </ProjectReference>
     <ProjectReference Include="..\Shared\Shared.csproj">
       <Project>{2bbdfa6d-20dd-4a7b-893e-43c388382c9a}</Project>

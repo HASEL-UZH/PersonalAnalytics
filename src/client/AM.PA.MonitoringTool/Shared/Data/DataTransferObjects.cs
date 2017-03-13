@@ -39,6 +39,8 @@ namespace Shared.Data
         public int? FlowLightSensitivityLevel { get; set; }
         public string[] FlowLightBlacklist { get; set;}
         public bool? FlowLightSkypeForBusinessEnabled { get; set; }
+        public bool? FitbitTokenRevokEnabled { get; set; }
+        public bool? FitbitTokenRevoked { get; set; }
     }
     public class StartEndTimeDto
     {
