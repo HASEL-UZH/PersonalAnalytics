@@ -10,8 +10,6 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Globalization;
 using System.Windows.Controls;
-using FitbitTracker;
-using FitbitTracker.Data;
 using System.Diagnostics;
 using System.Linq;
 
@@ -31,6 +29,8 @@ namespace Retrospection
         private bool defaultTimeSpentShowEmailsEnabled;
         private bool defaultPolarTrackerEnabled;
         private bool defaultFitbitTrackerEnabled;
+        private bool defaultFitbitTokenRemoveEnabled;
+        private bool defaultFitbitTokenRevoked;
         private bool defaultFlowLightEnabled;
         private bool defaultSkypeForBusinessEnabled;
         private bool defaultFlowLightAutomaticEnabled;
@@ -49,7 +49,6 @@ namespace Retrospection
             _trackers = trackers;
             TbVersion.Text = "Version: " + version;
             SetDefaultValues(dto);
-            FitbitRevoke.IsEnabled = SecretStorage.GetAccessToken() != null;
         }
 
         private void SetDefaultValues(SettingsDto dto)
@@ -70,7 +69,9 @@ namespace Retrospection
             defaultFlowLightDnDEnabled = dto.FlowLightDnDEnabled.Value;
             defaultFlowLightSensitivityLevel = dto.FlowLightSensitivityLevel.Value;
             defaultFlowLightBlacklist = dto.FlowLightBlacklist;
-
+            defaultFitbitTokenRemoveEnabled = dto.FitbitTokenRevokEnabled.Value;
+            defaultFitbitTokenRevoked = dto.FitbitTokenRevoked.Value;
+            
             // no changes yet, disable buttons by default
             SaveButtonsEnabled(false);
 
@@ -114,6 +115,8 @@ namespace Retrospection
             FitbitEnabled.IsChecked = defaultFitbitTrackerEnabled;
             FitbitEnabled.Checked += CbChecked_Update;
             FitbitEnabled.Unchecked += CbChecked_Update;
+
+            FitbitRevoke.IsEnabled = defaultFitbitTokenRemoveEnabled;
 
             CbFlowLightEnabled.IsChecked = defaultFlowLightEnabled;
             CbFlowLightEnabled.Checked += CbChecked_Update;
@@ -373,7 +376,12 @@ namespace Retrospection
         private void FitbitRevoke_Click(object sender, RoutedEventArgs e)
         {
             FitbitRevoke.IsEnabled = false;
-            FitbitConnector.RevokeAccessToken(SecretStorage.GetAccessToken());
+
+            //  FitbitConnector.RevokeAccessToken(SecretStorage.GetAccessToken());
+            UpdatedSettingsDto = new SettingsDto();
+            UpdatedSettingsDto.FitbitTokenRevoked = true;
+
+            DialogResult = true;
             this.Close();
         }
     }
