@@ -50,8 +50,14 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TaskDetectionPopupTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TaskDetectionTracker\TaskDetectionTracker.csproj">
+      <Project>{177B7B36-9B59-47DA-9038-41FDB619EC6A}</Project>
+      <Name>TaskDetectionTracker</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
