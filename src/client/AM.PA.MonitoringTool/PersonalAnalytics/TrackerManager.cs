@@ -68,6 +68,7 @@ namespace PersonalAnalytics
             Register(new PolarTracker.Deamon());
             Register(new FitbitTracker.Deamon());
             Register(new FlowTracker.Daemon());
+            Register(new TaskDetectionTracker.Deamon());
 
 #if Dev
             //Register(new PeopleVisualizer.PeopleVisualizer()); // disabled, as it's not finished and pretty slow

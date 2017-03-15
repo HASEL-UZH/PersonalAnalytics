@@ -288,6 +288,10 @@
       <Project>{c42cc860-6372-469f-a52b-5d675f2650d6}</Project>
       <Name>PolarTracker</Name>
     </ProjectReference>
+    <ProjectReference Include="..\TaskDetectionTracker\TaskDetectionTracker.csproj">
+      <Project>{177b7b36-9b59-47da-9038-41fdb619ec6a}</Project>
+      <Name>TaskDetectionTracker</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TimeSpentVisualizer\TimeSpentVisualizer.csproj">
       <Project>{8eba3b95-be0e-4498-9eac-20d417176a00}</Project>
       <Name>TimeSpentVisualizer</Name>
