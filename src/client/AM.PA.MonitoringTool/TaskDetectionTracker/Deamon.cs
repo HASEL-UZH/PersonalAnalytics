@@ -6,10 +6,12 @@
 using Shared;
 using Shared.Data;
 using System;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
+using TaskDetectionTracker.Model;
 using TaskDetectionTracker.Views;
 
 namespace TaskDetectionTracker
@@ -61,7 +63,7 @@ namespace TaskDetectionTracker
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(
                 () =>
                 {
-                    var popup = new TaskDetectionPopup();
+                    var popup = new TaskDetectionPopup(new ObservableCollection<TaskDetectionInput>());
                     popup.ShowDialog();
                 }));
             }

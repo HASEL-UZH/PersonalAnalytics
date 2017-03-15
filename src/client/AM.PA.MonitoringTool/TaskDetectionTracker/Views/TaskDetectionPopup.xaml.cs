@@ -3,7 +3,9 @@
 // 
 // Licensed under the MIT License.
 
+using System.Collections.ObjectModel;
 using System.Windows;
+using TaskDetectionTracker.Model;
 
 namespace TaskDetectionTracker.Views
 {
@@ -12,8 +14,11 @@ namespace TaskDetectionTracker.Views
     /// </summary>
     public partial class TaskDetectionPopup : Window
     {
-        public TaskDetectionPopup()
+        private ObservableCollection<TaskDetectionInput> _input;
+
+        public TaskDetectionPopup(ObservableCollection<TaskDetectionInput> input)
         {
+            this._input = input;
             InitializeComponent();
         }
     }

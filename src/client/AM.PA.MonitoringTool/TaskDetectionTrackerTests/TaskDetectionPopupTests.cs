@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Windows;
 using TaskDetectionTracker.Model;
 
 namespace TaskDetectionTracker.Views.Tests
@@ -20,6 +21,11 @@ namespace TaskDetectionTracker.Views.Tests
         public void TaskDetectionPopupTest()
         {
             var input = LoadTestData();
+            var popup = (Window) new TaskDetectionPopup(input);
+            popup.ShowDialog();
+
+           
+
             Assert.Fail();
         }
 
