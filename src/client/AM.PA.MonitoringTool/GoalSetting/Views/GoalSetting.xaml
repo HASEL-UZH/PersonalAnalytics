@@ -33,7 +33,18 @@
             </DataGrid>
             <StackPanel Grid.Row="1">
                 <Button Name="CheckRules" IsEnabled="False" Click="CheckRules_Click"  Margin="0 10 0 0">Check rules</Button>
-                <Button Name="SaveRules" Click="SaveRules_Click" Margin="0 10 0 0">Save rules</Button>
+                <Button Name="SaveRules" Content="Save rules" Click="SaveRules_Click" Margin="0 10 0 0">
+                    <Button.Style>
+                        <Style TargetType="{x:Type Button}">
+                            <Setter Property="IsEnabled" Value="True"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasChanged}" Value="False">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
                 <Button Name="AddRule" Click="AddRule_Click" Margin="0 10 0 0">Add rule</Button>
                 <Button Name="DeleteRule" Click="DeleteRule_Click" Margin="0 10 0 0" IsEnabled="False">Delete selected rule</Button>
             </StackPanel>

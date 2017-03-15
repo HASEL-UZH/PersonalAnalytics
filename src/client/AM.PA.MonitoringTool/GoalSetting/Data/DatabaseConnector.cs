@@ -60,18 +60,27 @@ namespace GoalSetting
 
         #region INSERT
 
-        internal static void SaveRules(ObservableCollection<PARule> rules)
+        internal static bool SaveRules(ObservableCollection<PARule> rules)
         {
-            //First delete all rules and then save the new rules
-            Database.GetInstance().ExecuteDefaultQuery("DELETE FROM " + Settings.RuleTableName + ";");
-
-            foreach (PARule rule in rules)
+            try
             {
-                string query = string.Empty;
-                query += String.Format(INSERT_RULES_QUERY, (rule.Title == null ? "" : rule.Title), rule.Activity, rule.TimeSpan, rule.TimePoint, (rule.Action == null ? "" : rule.Action), rule.Rule.Goal, rule.Rule.TargetValue, rule.Rule.Operator);
-                Console.WriteLine(query);
-                Database.GetInstance().ExecuteDefaultQuery(query);
+                //First delete all rules and then save the new rules
+                Database.GetInstance().ExecuteDefaultQuery("DELETE FROM " + Settings.RuleTableName + ";");
+
+                foreach (PARule rule in rules)
+                {
+                    string query = string.Empty;
+                    query += String.Format(INSERT_RULES_QUERY, (rule.Title == null ? "" : rule.Title), rule.Activity, rule.TimeSpan, rule.TimePoint, (rule.Action == null ? "" : rule.Action), rule.Rule.Goal, rule.Rule.TargetValue, rule.Rule.Operator);
+                    Console.WriteLine(query);
+                    Database.GetInstance().ExecuteDefaultQuery(query);
+                }
             }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+                return false;
+            }
+            return true;
         }
 
         #endregion
