@@ -42,7 +42,6 @@ namespace TaskDetectionTracker
         public override void Start()
         {
             //TODO
-            ShowTaskDetectionPopup();
         }
 
         public override void Stop()
