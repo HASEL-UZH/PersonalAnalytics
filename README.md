@@ -1,4 +1,4 @@
-﻿# PersonalAnalytics
+# PersonalAnalytics
 Personal Developer Analytics project by André Meyer from the SEAL Lab at the University of Zurich (UZH). The current public release can be downloaded from: http://pluto.ifi.uzh.ch/PersonalAnalytics-master Comments, contributors and questions are welcome! 
 
 # Updates & Branches
@@ -11,6 +11,7 @@ Personal Developer Analytics project by André Meyer from the SEAL Lab at the Un
 - June, 2016: Started working on integrating the Muse tracker with Monica Trink, a master student at UZH (on the 'muse' branch)
 - December, 2016: Started working on integrating several other biometric sensors (Polar, Garmin, FitBit) (on the 'biometrics' branch)
 - February, 2017: Integrated the FlowLight to avoid interruptions at inopportune moments
+- March, 2017: Started working on task type detection (on the 'taskdetection' branch)
 
 # Core Contributor & Contact
 André Meyer (ameyer@ifi.uzh.ch)
