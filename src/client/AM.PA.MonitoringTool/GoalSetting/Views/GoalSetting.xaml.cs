@@ -74,8 +74,13 @@ namespace GoalSetting
         private void Rules_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
         {
             DeleteRule.IsEnabled = Rules.SelectedCells.Count > 0;
+            EditRule.IsEnabled = Rules.SelectedCells.Count > 0;
         }
 
+        private void EditRule_Click(object sender, RoutedEventArgs e)
+        {
+            //TODO
+        }
     }
 
 }

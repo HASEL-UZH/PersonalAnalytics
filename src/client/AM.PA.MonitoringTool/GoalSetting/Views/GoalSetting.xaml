@@ -14,10 +14,16 @@
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0">
             <TextBlock>Your goals:</TextBlock>
-            <DataGrid Name="Rules" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ColumnWidth="*" SelectedCellsChanged="Rules_SelectedCellsChanged">
+            <DataGrid Name="Rules" HeadersVisibility="Column" BorderBrush="Black" BorderThickness="1" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ColumnWidth="*" SelectedCellsChanged="Rules_SelectedCellsChanged" GridLinesVisibility="None">
                 <DataGrid.Resources>
                     <Style TargetType="{x:Type DataGridColumnHeader}">
                         <Setter Property="Foreground" Value="{x:Static paColors:Settings.RetrospectionColorBrush}"></Setter>
+                        <Setter Property="Background" Value="Transparent"></Setter>
+                        <Setter Property="BorderThickness" Value="0"></Setter>
+                    </Style>
+                    <Style TargetType="{x:Type DataGridRow}">
+                        <Setter Property="Background" Value="Transparent"></Setter>
+                        <Setter Property="BorderThickness" Value="0"></Setter>
                     </Style>
                 </DataGrid.Resources>
                 <DataGrid.Columns>
@@ -46,6 +52,7 @@
                     </Button.Style>
                 </Button>
                 <Button Name="AddRule" Click="AddRule_Click" Margin="0 10 0 0">Add rule</Button>
+                <Button Name="EditRule" Click="EditRule_Click" Margin="0 10 0 0" IsEnabled="False">Edit selected rule</Button>
                 <Button Name="DeleteRule" Click="DeleteRule_Click" Margin="0 10 0 0" IsEnabled="False">Delete selected rule</Button>
             </StackPanel>
         </StackPanel>
