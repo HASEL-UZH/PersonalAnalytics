@@ -13,8 +13,9 @@ namespace Retrospection
         string _currentPage;
         VisType _currentVisType;
 
-        public RetrospectionWindow()
+        public RetrospectionWindow(VisType type)
         {
+            _currentVisType = type;
             InitializeComponent();
             webBrowser = (wbWinForms.Child as System.Windows.Forms.WebBrowser);
         }
@@ -54,7 +55,7 @@ namespace Retrospection
 
 
         // load default page
-        WebBrowserNavigateTo(Handler.GetInstance().GetDashboardHome());
+        WebBrowserNavigateTo(Handler.GetInstance().GetDashboardHome(_currentVisType));
         SwitchToWeekButton.Visibility = Visibility.Visible;
         SwitchToDayButton.Visibility = Visibility.Collapsed;
     }

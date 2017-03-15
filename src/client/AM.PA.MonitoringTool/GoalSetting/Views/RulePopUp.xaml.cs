@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Documents;
+using Shared;
 
 namespace GoalSetting.Views
 {
@@ -92,12 +93,11 @@ namespace GoalSetting.Views
             PARule rule = (PARule) (sender as FrameworkElement).Tag;
             if (rule.TimeSpan == RuleTimeSpan.Week || rule.TimeSpan == RuleTimeSpan.Month)
             {
-                //TODO: Open retrospection in week view
-                GoalSettingManager.Instance.OpenRetrospection();
+                GoalSettingManager.Instance.OpenRetrospection(VisType.Week);
             }
             else
             {
-                GoalSettingManager.Instance.OpenRetrospection();
+                GoalSettingManager.Instance.OpenRetrospection(VisType.Day);
             }
         }
 
@@ -144,7 +144,7 @@ namespace GoalSetting.Views
         private void Dashboard_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             this.Close();
-            GoalSettingManager.Instance.OpenRetrospection();
+            GoalSettingManager.Instance.OpenRetrospection(VisType.Week);
         }
     }
 

@@ -169,12 +169,12 @@ namespace GoalSetting
             return result;
         }
 
-        public delegate void OnOpenRetrospectionFromGoalSetting();
+        public delegate void OnOpenRetrospectionFromGoalSetting(VisType type);
         public event OnOpenRetrospectionFromGoalSetting OpenRetrospectionEvent;
 
-        internal void OpenRetrospection()
+        internal void OpenRetrospection(VisType type)
         {
-            OpenRetrospectionEvent?.Invoke();
+            OpenRetrospectionEvent?.Invoke(type);
         }
 
         internal void DeleteCachedResults()

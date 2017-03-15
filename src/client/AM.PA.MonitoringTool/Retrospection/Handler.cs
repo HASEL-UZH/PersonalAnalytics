@@ -72,7 +72,7 @@ namespace Retrospection
 
             IsRunning = true;
         }
-        
+
         /// <summary>
         /// Forward all events recevied from the trackers to the GoalSetting project. The GoalSetting project decides what to do with these events.
         /// </summary>
@@ -83,9 +83,9 @@ namespace Retrospection
             GoalSettingManager.Instance.OnNewTrackerEvent(sender, e);
         }
 
-        private void OpenRetrospectionFromGoalSetting()
+        private void OpenRetrospectionFromGoalSetting(VisType type)
         {
-            OpenRetrospection();
+            OpenRetrospection(type);
         }
 
         private void StartHttpServer()
@@ -137,9 +137,9 @@ namespace Retrospection
 
         #region Open/Close & Navigate Retrospection
 
-        internal string GetDashboardHome()
+        internal string GetDashboardHome(VisType type)
         {
-            return GetDashboardNavigateUriForType(DateTime.Now, VisType.Day); // default: daily retrospection
+            return GetDashboardNavigateUriForType(DateTime.Now, type); // default: daily retrospection
         }
 
         internal string GetDashboardNavigateUriForType(DateTime date, VisType type)
@@ -153,14 +153,14 @@ namespace Retrospection
             return "http://localhost:" + Settings.Port + "/" + parameters;
         }
 
-        public bool OpenRetrospection()
+        public bool OpenRetrospection(VisType type = VisType.Day)
         {
             try
             {
                 // new window
                 if (_retrospection == null)
                 {
-                    _retrospection = new RetrospectionWindow();
+                    _retrospection = new RetrospectionWindow(type);
                     _retrospection.WindowState = (OpenRetrospectionInFullScreen) ? WindowState.Maximized : WindowState.Normal;
                     _retrospection.Topmost = true;
                     _retrospection.Topmost = false;
@@ -189,9 +189,9 @@ namespace Retrospection
         /// <summary>
         /// User manually wants to have the retrospection in the browser to be able to bookmark it
         /// </summary>
-        public void OpenRetrospectionInBrowser()
+        public void OpenRetrospectionInBrowser(VisType type = VisType.Day)
         {
-            Process.Start(GetDashboardHome());
+            Process.Start(GetDashboardHome(type));
         }
 
         public void CloseRetrospection()
