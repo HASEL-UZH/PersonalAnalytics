@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows;
 using TaskDetectionTracker.Model;
+using TaskDetectionTrackerTests;
 
 namespace TaskDetectionTracker.Views.Tests
 {
@@ -20,35 +21,12 @@ namespace TaskDetectionTracker.Views.Tests
         [TestMethod()]
         public void TaskDetectionPopupTest()
         {
-            var input = LoadTestData();
-            var popup = (Window) new TaskDetectionPopup(input);
+            var input = DataLoader.LoadTestData();
+            var popup = (Window) new TaskDetectionPopup(new ObservableCollection<TaskDetectionInput>(input));
             popup.ShowDialog();
-
-           
-
+            
             Assert.Fail();
         }
-
-        private ObservableCollection<TaskDetectionInput> LoadTestData()
-        {
-            var input = new ObservableCollection<TaskDetectionInput>();
-            try
-            {
-                string path = Environment.CurrentDirectory + @"\testdata.csv";
-                
-                using (TextFieldParser parser = new TextFieldParser(path))
-                {
-                    parser.TextFieldType = FieldType.Delimited;
-                    parser.SetDelimiters(",");
-                    while (!parser.EndOfData)
-                    {
-                        string[] fields = parser.ReadFields();
-                        input.Add(new TaskDetectionInput { Start = DateTime.Parse(fields[1], CultureInfo.InvariantCulture), WindowTitles = new List<string> { fields[2]}, ProcessName = fields[3] });
-                    }
-                }
-            }
-            catch (Exception e) { }
-            return input;
-        }
+        
     }
 }

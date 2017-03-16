@@ -3,16 +3,11 @@
 // 
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace TaskDetectionTracker
 {
-    class Settings
+    public class Settings
     {
         public const string TrackerName = "Task Detection Tracker";
+        public const int MinimumProcessTimeInSeconds = 10;
     }
 }
