@@ -25,5 +25,9 @@ namespace TaskDetectionTracker.Model
         public int NumberOfKeystrokes { get { return _numberOfKeystrokes; } set { _numberOfKeystrokes = value; } }
         public int NumberOfMouseClicks { get { return _numberOfMouseClicks; } set { _numberOfMouseClicks = value; } }
 
+        public override string ToString()
+        {
+            return ProcessName + ": " + Start.ToLongTimeString() + " - " + End.ToLongTimeString();
+        }
     }
 }
