@@ -283,8 +283,8 @@ namespace PersonalAnalytics
             if (_taskbarIconTimer != null) _taskbarIconTimer.Stop();
             if (_remindToContinueTrackerTimer != null) _remindToContinueTrackerTimer.Stop();
             if (_checkForUpdatesTimer != null) _checkForUpdatesTimer.Stop();
-            TaskbarIcon.TrayBalloonTipClicked -= TrayBallonTipClicked;
-            TaskbarIcon.TrayMouseDoubleClick -= (o, i) => OpenRetrospection();
+            TaskbarIcon.TrayBalloonTipClicked -= TrayBalloonTipClicked;
+            TaskbarIcon.TrayMouseDoubleClick -= (o, i) => TrayMouseDoubleClicked();
             SystemEvents.TimeChanged -= SaveCurrentTimeZone;
 
             // sometimes the icon doesn't go away unless we manually dispose it
@@ -388,8 +388,8 @@ namespace PersonalAnalytics
             TaskbarIcon = new TaskbarIcon();
             TaskbarIcon.Icon = new Icon("Assets/icon.ico");
             TaskbarIcon.ToolTipText = "PersonalAnalytics starting up...";
-            TaskbarIcon.TrayMouseDoubleClick += (o, i) => OpenRetrospection();
-            TaskbarIcon.TrayBalloonTipClicked += TrayBallonTipClicked;
+            TaskbarIcon.TrayMouseDoubleClick += (o, i) => TrayMouseDoubleClicked();
+            TaskbarIcon.TrayBalloonTipClicked += TrayBalloonTipClicked;
             SetContextMenuOptions();
         }
 
@@ -399,9 +399,19 @@ namespace PersonalAnalytics
         /// </summary>
         /// <param name="s"></param>
         /// <param name="e"></param>
-        private void TrayBallonTipClicked(object s, RoutedEventArgs e)
+        private void TrayBalloonTipClicked(object s, RoutedEventArgs e)
         {
             PauseContinueTracker(_pauseContinueMenuItem);
+        }
+
+        /// <summary>
+        /// Called when the user double clicks the system tray icon
+        /// Open the retrospection if it is enabled
+        /// </summary>
+        private void TrayMouseDoubleClicked()
+        {
+            if (Retrospection.Settings.IsEnabled) OpenRetrospection();
+            // else: do nothing
         }
 
         /// <summary>
@@ -409,50 +419,47 @@ namespace PersonalAnalytics
         /// </summary>
         private void SetContextMenuOptions()
         {
-            var cm = new System.Windows.Controls.ContextMenu();
+            var cm = new ContextMenu();
             TaskbarIcon.MenuActivation = PopupActivationMode.RightClick;
             TaskbarIcon.ContextMenu = cm;
 
             if (Settings.IsUploadEnabled)
             {
-                var m8 = new System.Windows.Controls.MenuItem { Header = "Upload collected data" };
+                var m8 = new MenuItem { Header = "Upload collected data" };
                 m8.Click += (o, i) => UploadTrackedData();
                 TaskbarIcon.ContextMenu.Items.Add(m8);
             }
 
-            var m4 = new System.Windows.Controls.MenuItem { Header = "Open collected data" };
+            var m4 = new MenuItem { Header = "Open collected data" };
             m4.Click += (o, i) => OpenDataExportDirectory();
             TaskbarIcon.ContextMenu.Items.Add(m4);
 
-            var m2 = new System.Windows.Controls.MenuItem { Header = "Answer pop-up now" };
+            var m2 = new MenuItem { Header = "Answer pop-up now" };
             m2.Click += (o, i) => ManuallyStartUserSurvey();
             if (_settings.IsUserEfficiencyTrackerEnabled()) TaskbarIcon.ContextMenu.Items.Add(m2);
 
-            var m1 = new System.Windows.Controls.MenuItem { Header = "Show Retrospection" };
+            var m1 = new MenuItem { Header = "Show Retrospection" };
             m1.Click += (o, i) => Retrospection.Handler.GetInstance().OpenRetrospection();
-            TaskbarIcon.ContextMenu.Items.Add(m1);
+            if (Retrospection.Settings.IsEnabled) TaskbarIcon.ContextMenu.Items.Add(m1);
 
 #if DEBUG
-            var m5 = new System.Windows.Controls.MenuItem { Header = "Show Retrospection (in browser)" };
+            var m5 = new MenuItem { Header = "Show Retrospection (in browser)" };
             m5.Click += (o, i) => Retrospection.Handler.GetInstance().OpenRetrospectionInBrowser();
-            TaskbarIcon.ContextMenu.Items.Add(m5);
+            if (Retrospection.Settings.IsEnabled) TaskbarIcon.ContextMenu.Items.Add(m5);
 #endif
 
-            if (FlowLight.Handler.GetInstance().FlowLightEnabled)
-            {
-                InsertFlowLightMenuItem();
-            }
+            if (FlowLight.Handler.GetInstance().FlowLightEnabled) InsertFlowLightMenuItem();
 
-            var m6 = new System.Windows.Controls.MenuItem { Header = "Settings" };
+            var m6 = new MenuItem { Header = "Settings" };
             m6.Click += (o, i) => OpenSettings();
             TaskbarIcon.ContextMenu.Items.Add(m6);
 
-            var m3 = new System.Windows.Controls.MenuItem { Header = "Pause Tracker" };
+            var m3 = new MenuItem { Header = "Pause Tracker" };
             m3.Click += (o, i) => PauseContinueTracker(m3);
             TaskbarIcon.ContextMenu.Items.Add(m3);
             _pauseContinueMenuItem = m3;
 
-            var m7 = new System.Windows.Controls.MenuItem { Header = "Shutdown Tracker" };
+            var m7 = new MenuItem { Header = "Shutdown Tracker" };
             m7.Click += (o, i) => Stop(true);
             TaskbarIcon.ContextMenu.Items.Add(m7);
 
