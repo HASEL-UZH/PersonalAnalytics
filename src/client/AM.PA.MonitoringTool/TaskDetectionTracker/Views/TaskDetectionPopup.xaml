@@ -6,12 +6,13 @@
              xmlns:local="clr-namespace:TaskDetectionTracker.Views"
              xmlns:paColors="clr-namespace:Shared;assembly=Shared"
              mc:Ignorable="d" 
-             Title="PersonalAnalytics: Validate Task Boundaries" Height="380" Width="600" ResizeMode="NoResize">
+             Title="PersonalAnalytics: Validate Task Boundaries" Width="1400" Height="600" WindowStyle="None" SizeChanged="Window_SizeChanged">
     
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />
             <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
             <RowDefinition Height="*" />
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
@@ -26,7 +27,7 @@
 
        <!-- <Canvas Name="Timeline" Grid.Row="2" Background="Aqua"></Canvas> -->
 
-        <ItemsControl Grid.Row="2" Background="Beige" ItemsSource="{Binding RectItems}" Name="Timeline">
+        <ItemsControl Grid.Row="2" ItemsSource="{Binding RectItems}" Name="Timeline">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <Canvas/>
@@ -40,12 +41,21 @@
             </ItemsControl.ItemContainerStyle>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Rectangle Width="{Binding Width}" Height="{Binding Height}" Fill="Black"/>
+                    <Rectangle Width="{Binding Width}" Height="{Binding Height}" Fill="{Binding Color}"/>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <Grid Grid.Row="3" Height="100">
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <TextBlock Name="StartTime" Grid.Column="0"></TextBlock>
+            <TextBlock Name="EndTime" Grid.Column="1" HorizontalAlignment="Right"></TextBlock>
+        </Grid>
+        
+        <Grid Grid.Row="4" Height="100">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="auto" />

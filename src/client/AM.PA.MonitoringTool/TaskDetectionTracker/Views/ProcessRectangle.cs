@@ -3,6 +3,7 @@
 // 
 // Licensed under the MIT License.
 
+using System.Windows.Media;
 
 namespace TaskDetectionTracker.Views
 {
@@ -12,5 +13,6 @@ namespace TaskDetectionTracker.Views
         public double Y { get; set; }
         public double Width { get; set; }
         public double Height { get; set; }
+        public Brush Color { get; set; }
     }
 }
