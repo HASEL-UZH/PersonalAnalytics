@@ -7,6 +7,7 @@
              xmlns:paColors="clr-namespace:Shared;assembly=Shared"
              mc:Ignorable="d" 
              Title="PersonalAnalytics: Validate Task Boundaries" Height="380" Width="600" ResizeMode="NoResize">
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />
@@ -23,8 +24,27 @@
             Hint: Which task boundaries are okay, which not... Then click save.
         </TextBlock>
 
-        <Canvas Name="Timeline" Grid.Row="2" Background="Aqua"></Canvas>
-        
+       <!-- <Canvas Name="Timeline" Grid.Row="2" Background="Aqua"></Canvas> -->
+
+        <ItemsControl Grid.Row="2" Background="Beige" ItemsSource="{Binding RectItems}" Name="Timeline">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Canvas/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                    <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Rectangle Width="{Binding Width}" Height="{Binding Height}" Fill="Black"/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
         <Grid Grid.Row="3" Height="100">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />

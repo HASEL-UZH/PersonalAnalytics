@@ -3,14 +3,9 @@
 // 
 // Licensed under the MIT License.
 
-using Microsoft.VisualBasic.FileIO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Windows;
-using TaskDetectionTracker.Model;
 using TaskDetectionTrackerTests;
 
 namespace TaskDetectionTracker.Views.Tests
@@ -22,7 +17,8 @@ namespace TaskDetectionTracker.Views.Tests
         public void TaskDetectionPopupTest()
         {
             var input = DataLoader.LoadTestData();
-            var popup = (Window) new TaskDetectionPopup(new ObservableCollection<TaskDetectionInput>(input));
+            input = DataMerger.MergeProcesses(input, TimeSpan.FromHours(1));
+            var popup = (Window) new TaskDetectionPopup(input);
             popup.ShowDialog();
             
             Assert.Fail();

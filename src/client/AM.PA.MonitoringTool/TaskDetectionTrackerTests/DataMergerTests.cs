@@ -18,6 +18,8 @@ namespace TaskDetectionTracker.Tests
             var input = DataLoader.LoadTestData();
             var mergedProcesses = DataMerger.MergeProcesses(input, TimeSpan.FromHours(1));
             
+            //TODO: Write actual tests
+
             Assert.Fail();
         }
     }
