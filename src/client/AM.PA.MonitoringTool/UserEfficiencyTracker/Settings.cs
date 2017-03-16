@@ -4,7 +4,6 @@
 // Licensed under the MIT License.
 
 using System;
-using Shared.Data;
 
 namespace UserEfficiencyTracker
 {
@@ -12,7 +11,7 @@ namespace UserEfficiencyTracker
     {
 #if Pilot_TaskDetection_March17
         public static bool DefaultPopUpIsEnabled = false;
-#else // default:
+#else
         public static bool DefaultPopUpIsEnabled = true;
 #endif
         public const int DefaultPopUpInterval = 60; // in minutes
