@@ -4,9 +4,44 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TaskDetectionTracker.Views"
+             xmlns:paColors="clr-namespace:Shared;assembly=Shared"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             Title="PersonalAnalytics: Validate Task Boundaries" Height="380" Width="600" ResizeMode="NoResize">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        
+        <Grid Grid.Row="0" Background="{x:Static paColors:Settings.RetrospectionColorBrush}">
+            <TextBlock Grid.Row="0" FontSize="16" VerticalAlignment="Center" Margin="10 0 0 0" Text="Validate Task Boundaries" Foreground="White" />
+        </Grid>
 
+        <TextBlock Grid.Row="1">
+            Hint: Which task boundaries are okay, which not... Then click save.
+        </TextBlock>
+
+        <Canvas Name="Timeline" Grid.Row="2" Background="Aqua"></Canvas>
+        
+        <Grid Grid.Row="3" Height="100">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0">Comments:</TextBlock>
+                <TextBox Grid.Row="1"></TextBox>
+            </Grid>
+            
+            <Button Margin="10 35" Grid.Column="1" Name="Save" Click="Save_Click" Content="Save" Width="50" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}"/>
+        
+        </Grid>
     </Grid>
 </Window>

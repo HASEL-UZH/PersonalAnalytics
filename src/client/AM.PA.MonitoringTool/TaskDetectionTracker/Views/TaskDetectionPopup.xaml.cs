@@ -21,5 +21,10 @@ namespace TaskDetectionTracker.Views
             this._input = input;
             InitializeComponent();
         }
+        
+        private void Save_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
+        }
     }
 }
