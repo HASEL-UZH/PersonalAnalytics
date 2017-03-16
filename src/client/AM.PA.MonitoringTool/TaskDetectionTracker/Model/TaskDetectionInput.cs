@@ -14,7 +14,7 @@ namespace TaskDetectionTracker.Model
         private DateTime _start;
         private DateTime _end;
         private string _processName;
-        private List<string> _windowTitles;
+        private List<string> _windowTitles = new List<string>();
         private int _numberOfKeystrokes;
         private int _numberOfMouseClicks;
 

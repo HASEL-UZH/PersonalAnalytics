@@ -14,5 +14,6 @@ namespace TaskDetectionTracker.Views
         public double Width { get; set; }
         public double Height { get; set; }
         public Brush Color { get; set; }
+        public string Tooltip { get; set; }
     }
 }

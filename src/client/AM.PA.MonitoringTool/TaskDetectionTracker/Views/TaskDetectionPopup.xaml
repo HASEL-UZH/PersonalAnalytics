@@ -41,7 +41,7 @@
             </ItemsControl.ItemContainerStyle>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Rectangle Width="{Binding Width}" Height="{Binding Height}" Fill="{Binding Color}"/>
+                    <Rectangle Width="{Binding Width}" Height="{Binding Height}" Fill="{Binding Color}" ToolTip="{Binding Tooltip}"/>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

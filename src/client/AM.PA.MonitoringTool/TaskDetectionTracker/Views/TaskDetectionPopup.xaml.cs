@@ -9,6 +9,7 @@ using System.Windows;
 using TaskDetectionTracker.Model;
 using System.Linq;
 using System.Windows.Media;
+using System;
 
 namespace TaskDetectionTracker.Views
 {
@@ -52,6 +53,7 @@ namespace TaskDetectionTracker.Views
                 TaskDetectionInput process = _processes.ElementAt(i);
                 double duration = process.End.Subtract(process.Start).TotalSeconds;
                 double width = duration * (totalWidth / totalDuration);
+                string tooltip = string.Join(Environment.NewLine, process.WindowTitles) + Environment.NewLine + "Keystrokes: " + process.NumberOfKeystrokes + Environment.NewLine + "Mouse clicks: " + process.NumberOfMouseClicks;
 
                 Brush color;
 
@@ -62,7 +64,7 @@ namespace TaskDetectionTracker.Views
                     colors.Add(process.ProcessName, color);
                 }
 
-                RectItems.Add(new ProcessRectangle { X = x, Y = 100, Width = width, Height = 20, Color = color });
+                RectItems.Add(new ProcessRectangle { X = x, Y = 100, Width = width, Height = 20, Color = color, Tooltip = tooltip });
                 x += width;
             }
         }

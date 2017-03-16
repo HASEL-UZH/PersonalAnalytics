@@ -33,7 +33,7 @@ namespace TaskDetectionTracker
                 if (!currentGroup.First().ProcessName.Equals(item.ProcessName))
                 {
                     //Create new merged process
-                    result.Add(new TaskDetectionInput { Start = currentGroup.First().Start, End = currentGroup.Last().End, ProcessName = currentGroup.First().ProcessName, WindowTitles = currentGroup.SelectMany(w => w.WindowTitles).ToList() });
+                    result.Add(new TaskDetectionInput { Start = currentGroup.First().Start, End = currentGroup.Last().End, ProcessName = currentGroup.First().ProcessName, WindowTitles = currentGroup.SelectMany(w => w.WindowTitles).Distinct().ToList() });
                     currentGroup = new List<TaskDetectionInput> { item };
                 }
                 else
@@ -42,7 +42,7 @@ namespace TaskDetectionTracker
                 }
             }
             //Add the last one too
-            result.Add(new TaskDetectionInput { Start = currentGroup.First().Start, End = currentGroup.Last().End, ProcessName = currentGroup.First().ProcessName });
+            result.Add(new TaskDetectionInput { Start = currentGroup.First().Start, End = currentGroup.Last().End, ProcessName = currentGroup.First().ProcessName, WindowTitles = currentGroup.SelectMany(w => w.WindowTitles).Distinct().ToList() });
             
             //LINQ based solution
             /**
