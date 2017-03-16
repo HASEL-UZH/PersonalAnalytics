@@ -18,7 +18,7 @@
             <TextBlock TextWrapping="Wrap" Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" FontSize="14">Thank you for configuring PersonalAnalytics!</TextBlock>
             <TextBlock Margin="0 20 0 0" TextWrapping="Wrap">You've decided to use the following data trackers (including the ones which are always enabled):</TextBlock>
             <TextBlock Margin="0 10 0 0" TextWrapping="Wrap" Name="EnabledTrackerList"></TextBlock>
-            <TextBlock Margin="0 20 0 0" TextWrapping="Wrap">You've decided to disable the following data trackers:</TextBlock>
+            <TextBlock Margin="0 20 0 0" TextWrapping="Wrap">The following data trackers are disabled:</TextBlock>
             <TextBlock Margin="0 10 0 0" TextWrapping="Wrap" Name="DisabledTrackerList"></TextBlock>
             <TextBlock Margin="0 20 0 0" TextWrapping="Wrap">You can change this selection any time by enabling or disabling them using the settings menu in the taskbar icon.</TextBlock>
             <Button Margin="0 20 0 0" Grid.Row="1" Height="30" Width="300" VerticalAlignment="Center" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" Click="Button_Click">start using PersonalAnalytics now</Button>

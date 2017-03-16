@@ -19,6 +19,8 @@ namespace TaskDetectionTracker
     public class Deamon : BaseTracker, ITracker
     {
 
+        #region ITracker Stuff
+
         public Deamon()
         {
             Name = Settings.TrackerName;
@@ -26,7 +28,7 @@ namespace TaskDetectionTracker
 
         public override void CreateDatabaseTablesIfNotExist()
         {
-            //TODO
+            //TODO: create table
         }
 
         public override string GetVersion()
@@ -37,24 +39,29 @@ namespace TaskDetectionTracker
 
         public override bool IsEnabled()
         {
-            //TODO
-            return true;
+            return Settings.IsEnabledByDefault;
         }
 
         public override void Start()
         {
-            //TODO
+            //TODO: start timer
+       
+            IsRunning = true;
         }
 
         public override void Stop()
         {
-            //TODO
+            //TODO: stop timer
+
+            IsRunning = false;
         }
 
         public override void UpdateDatabaseTables(int version)
         {
             //not needed
         }
+
+        #endregion
 
         private void ShowTaskDetectionPopup()
         {

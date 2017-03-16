@@ -15,8 +15,8 @@ namespace Shared.Helpers
 
         private FeedbackThumbs()
         {
-            // also call if not enabled (to have it)
-            CreateWindowsActivityTable();
+            // also call if not enabled (to be sure to have it)
+            CreateFeedbackTable();
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace Shared.Helpers
             return _feedback ?? (_feedback = new FeedbackThumbs());
         }
 
-        private static void CreateWindowsActivityTable()
+        private static void CreateFeedbackTable()
         {
             try
             {

@@ -1,4 +1,4 @@
-﻿// Created by André Meyer at MSR
+﻿// Created by André Meyer (ameyer@ifi.uzh.ch) at MSR
 // Created: 2016-01-13
 // 
 // Licensed under the MIT License.
@@ -13,7 +13,7 @@ namespace Retrospection.Feedback
         public FeedbackBox(VisType type)
         {
             Title = "Got feedback?";
-            IsEnabled = Settings.IsFeedbackEnabled;
+            IsEnabled = Shared.Settings.IsFeedbackEnabled;
             Order = 22; //todo: handle by user
             Size = VisSize.Small;
             Type = type;
@@ -27,8 +27,8 @@ namespace Retrospection.Feedback
             // CSS
             /////////////////////
             html += "<style type='text/css'>";
-            html += ".button { padding:0.3125em; background-color:white; border:1px solid " + Settings.RetrospectionColorHex + "; color:" + Settings.RetrospectionColorHex + "; text-decoration:none; margin:0 auto; display: block; }";
-            html += ".button:hover { background-color:" + Settings.RetrospectionColorHex + "; border:1px solid " + Settings.RetrospectionColorHex + "; color:white; cursor: pointer; cursor: hand; }";
+            html += ".button { padding:0.3125em; background-color:white; border:1px solid " + Shared.Settings.RetrospectionColorHex + "; color:" + Shared.Settings.RetrospectionColorHex + "; text-decoration:none; margin:0 auto; display: block; }";
+            html += ".button:hover { background-color:" + Shared.Settings.RetrospectionColorHex + "; border:1px solid " + Shared.Settings.RetrospectionColorHex + "; color:white; cursor: pointer; cursor: hand; }";
             html += "</style>";
 
             /////////////////////

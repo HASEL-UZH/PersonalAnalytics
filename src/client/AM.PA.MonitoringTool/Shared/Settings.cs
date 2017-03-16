@@ -19,14 +19,19 @@ namespace Shared
          * version 3 - update focus_state table in FlowTracker (2017-01-12)
          */
         public const int DatabaseVersion = 3; // !!! update when existing database table changes (have a look at PerformDatabaseUpdatesIfNecessary() for details)
-        public const bool IsFeedbackEnabled = true;
 
-#if PilotMSR
+#if Pilot_MSR
         public const bool IsUploadEnabled = true;
         public const bool IsUploadReminderEnabled = true;
+        public const bool IsFeedbackEnabled = false;
+#elif Pilot_TaskDetection_March17
+        public const bool IsUploadEnabled = false;
+        public const bool IsUploadReminderEnabled = false;
+        public const bool IsFeedbackEnabled = false;
 #else
         public const bool IsUploadEnabled = false;
         public const bool IsUploadReminderEnabled = false;
+        public const bool IsFeedbackEnabled = false;
 #endif
 
         public static bool AnonymizeSensitiveData = false;
