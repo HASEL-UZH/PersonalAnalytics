@@ -134,14 +134,15 @@ namespace UserEfficiencyTracker
                 Database.GetInstance().SetSettings("PopUpEnabled", value);
 
                 // start/stop timer if necessary
-                if (!updatedIsEnabled && _timer.IsEnabled)
+                if (!updatedIsEnabled && IsRunning)
                 {
-                    _timer.Stop();
+                    Stop();
                     _popUpIntervalInMins = TimeSpan.MinValue;
                 }
-                else if (updatedIsEnabled && !_timer.IsEnabled)
+                else if (updatedIsEnabled && !IsRunning)
                 {
-                    _timer.Start();
+                    CreateDatabaseTablesIfNotExist();
+                    Start();
                     _popUpIntervalInMins = PopUpIntervalInMins;
                 }
 
