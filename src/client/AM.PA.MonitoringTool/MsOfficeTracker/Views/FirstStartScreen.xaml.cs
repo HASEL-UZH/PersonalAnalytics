@@ -39,10 +39,10 @@ namespace MsOfficeTracker.Views
                     {
                         NotifyIcon notification = new NotifyIcon();
                         notification.Visible = true;
-                        notification.BalloonTipTitle = "MsOfficeTracker disabled!";
-                        notification.BalloonTipText = "MsOfficeTracker was disabled as the authentication failed.";
+                        notification.BalloonTipTitle = "PersonalAnalytics";
+                        notification.BalloonTipText = Settings.TrackerName + " was disabled as the authentication failed.";
                         notification.Icon = SystemIcons.Exclamation;
-                        notification.Text = "MsOfficeTracker was disabled as the authentication failed.";
+                        notification.Text = Settings.TrackerName  + " was disabled as the authentication failed.";
                         notification.ShowBalloonTip(60 * 1000);
                     }
 
