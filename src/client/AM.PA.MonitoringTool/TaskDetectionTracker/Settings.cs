@@ -3,16 +3,16 @@
 // 
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace TaskDetectionTracker
 {
     class Settings
     {
         public const string TrackerName = "Task Detection Tracker";
+
+#if Pilot_TaskDetection_March17
+        public static bool IsEnabledByDefault = true;
+#else
+        public static bool IsEnabledByDefault = false;
+#endif
     }
 }
