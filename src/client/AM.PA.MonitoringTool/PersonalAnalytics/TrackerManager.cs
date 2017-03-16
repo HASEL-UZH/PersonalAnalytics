@@ -484,20 +484,20 @@ namespace PersonalAnalytics
             {
                 if (_flowLightEnforceMenuItem == null)
                 {
-                    _flowLightEnforceMenuItem = new System.Windows.Controls.MenuItem { Header = "Switch FlowLight Status to" };
-                    var mIFree = new System.Windows.Controls.MenuItem { Header = "Free" };
+                    _flowLightEnforceMenuItem = new MenuItem { Header = "Switch FlowLight Status to" };
+                    var mIFree = new MenuItem { Header = "Free" };
                     mIFree.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.Free, 30));
                     mIFree.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.Free, 60));
                     mIFree.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.Free, 90));
                     _flowLightEnforceMenuItem.Items.Add(mIFree);
 
-                    var mIBusy = new System.Windows.Controls.MenuItem { Header = "Busy" };
+                    var mIBusy = new MenuItem { Header = "Busy" };
                     mIBusy.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.Busy, 30));
                     mIBusy.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.Busy, 60));
                     mIBusy.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.Busy, 90));
                     _flowLightEnforceMenuItem.Items.Add(mIBusy);
 
-                    var mIDnD = new System.Windows.Controls.MenuItem { Header = "Do not Disturb" };
+                    var mIDnD = new MenuItem { Header = "Do not Disturb" };
                     mIDnD.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.DnD, 30));
                     mIDnD.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.DnD, 60));
                     mIDnD.Items.Add(InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus.DnD, 90));
@@ -526,9 +526,9 @@ namespace PersonalAnalytics
         /// <param name="status"></param>
         /// <param name="minutes"></param>
         /// <returns></returns>
-        private System.Windows.Controls.MenuItem InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus status, int minutes)
+        private MenuItem InitFlowLightSubMenuItem(FlowLight.Handler.EnforceStatus status, int minutes)
         {
-            var menuItem = new System.Windows.Controls.MenuItem { Header = minutes + " min" };
+            var menuItem = new MenuItem { Header = minutes + " min" };
             menuItem.Click += (o, i) => FlowLight.Handler.GetInstance().EnforcingClicked(status, minutes);
             menuItem.Click += FlowLightEnforcingClicked;
 
@@ -547,7 +547,7 @@ namespace PersonalAnalytics
                 //only add the reset button if there is no one there yet!
                 if (_flowLightEnforceMenuItem != null && _flowLightEnforceMenuItem.Items.Count == 3)
                 {
-                    _flowLightResetMenuItem = new System.Windows.Controls.MenuItem { Header = "Reset" };
+                    _flowLightResetMenuItem = new MenuItem { Header = "Reset" };
                     _flowLightResetMenuItem.Click += (o, i) => FlowLight.Handler.GetInstance().ResetEnforcingClicked();
                     _flowLightResetMenuItem.Click += ResetMenuItem_Click;
                     _flowLightEnforceMenuItem.Items.Add(_flowLightResetMenuItem);
@@ -672,8 +672,9 @@ namespace PersonalAnalytics
         private void UpdateTooltipIcon(object sender, EventArgs e)
         {
             // Update Taskbar Icon Tooltip
-            var text = _trackers.Aggregate(String.Empty, (current, tracker) => current + (tracker.GetStatus() + "\n"));
-            text += "Version: " + _publishedAppVersion;
+            var text = _trackers.Where(t => t.IsRunning).Aggregate(string.Empty, (current, tracker) => current + (tracker.GetStatus() + "\n"));
+            text += "\n" + _trackers.Where(t => !t.IsRunning).Aggregate(string.Empty, (current, tracker) => current + (tracker.GetStatus() + "\n"));
+            text += "\nVersion: " + _publishedAppVersion;
             SetTaskbarIconTooltip(text);
 
             // Update database file (if necessary)
