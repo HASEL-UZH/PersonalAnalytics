@@ -16,6 +16,7 @@ using UserInputTracker.Models;
 using Timer = System.Timers.Timer;
 using UserInputTracker.Visualizations;
 using Shared.Data;
+using System.Reflection;
 
 namespace UserInputTracker
 {
@@ -51,6 +52,7 @@ namespace UserInputTracker
         public Daemon()
         {
             Name = "User Input Tracker";
+            if (Settings.IsDetailedCollectionEnabled) Name += " (detailed)";
         }
 
         protected override  void Dispose(bool disposing)
@@ -60,7 +62,6 @@ namespace UserInputTracker
                 if (disposing)
                 {
                     _saveToDatabaseTimer.Dispose();
-                    //_mouseSnapshotTimer.Dispose();
                     _mEvents.Dispose();
                 }
 
@@ -105,13 +106,6 @@ namespace UserInputTracker
                 _saveToDatabaseTimer = null;
             }
 
-            //if (_mouseSnapshotTimer != null)
-            //{
-            //    _mouseSnapshotTimer.Stop();
-            //    _mouseSnapshotTimer.Dispose();
-            //    _mouseSnapshotTimer = null;
-            //}
-
             // unregister mouse & keyboard events
             if (_mEvents != null)
             {
@@ -148,6 +142,12 @@ namespace UserInputTracker
             return UserInputTrackerEnabled;
         }
 
+        public override string GetVersion()
+        {
+            var v = new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version;
+            return Shared.Helpers.VersionHelper.GetFormattedVersion(v);
+        }
+
         private bool _userInputTrackerEnabled;
         public bool UserInputTrackerEnabled
         {
@@ -173,6 +173,7 @@ namespace UserInputTracker
                 }
                 else if (updatedIsEnabled && !IsRunning)
                 {
+                    CreateDatabaseTablesIfNotExist();
                     Start();
                 }
 
@@ -182,8 +183,6 @@ namespace UserInputTracker
         }
 
         #endregion
-
-        #region Daemon Tracker: Events & manual Clicks (save to buffer)
 
         #region Provide Public Events
 
@@ -204,7 +203,8 @@ namespace UserInputTracker
         #region Prepare Buffers for saving in database (User Input Events)
 
         /// <summary>
-        /// Mouse Click event. Create a new event and add it to the buffer.
+        /// Catch the mouse click event, save it in the buffer and forward the event in 
+        /// case a client registered for it.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -218,8 +218,8 @@ namespace UserInputTracker
         }
 
         /// <summary>
-        /// Mouse scrolling event. Save it to a temp list to only save it ever x seconds to the database 
-        /// (see Settings.MouseSnapshotInterval) to reduce the data load.
+        /// Catch the mouse scrolling event, save it in the buffer and forward the event in 
+        /// case a client registered for it.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -233,8 +233,8 @@ namespace UserInputTracker
         }
 
         /// <summary>
-        /// Mouse Movement event. Save it to a temp list to only save it ever x seconds to the database 
-        /// (see Settings.MouseSnapshotInterval) to reduce the data load.
+        /// Catch the mouse movement event, save it in the buffer and forward the event in 
+        /// case a client registered for it.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -248,7 +248,8 @@ namespace UserInputTracker
         }
 
         /// <summary>
-        /// Keyboard Click event. Create a new event and add it to the buffer.
+        /// Catch the keystroke event, save it in the buffer and forward the event in 
+        /// case a client registered for it.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -291,6 +292,7 @@ namespace UserInputTracker
                 aggregate.TsStart = tsStart;
                 aggregate.TsEnd = tsEnd;
 
+                // sum up user input types in aggregate
                 AddKeystrokesToAggregate(aggregate, tsStart, tsEnd);
                 AddMouseClicksToAggregate(aggregate, tsStart, tsEnd);
                 AddMouseScrollsToAggregate(aggregate, tsStart, tsEnd);
@@ -299,10 +301,7 @@ namespace UserInputTracker
                 // save aggregate to database
                 Queries.SaveUserInputSnapshotToDatabase(aggregate);
             }
-            catch (Exception e)
-            {
-                //Logger.WriteToLogFile(e);
-            }
+            catch { }
         }
 
         /// <summary>
@@ -331,6 +330,9 @@ namespace UserInputTracker
             aggregate.KeyBackspace = thisIntervalKeystrokes.Count(i => i.KeystrokeType == KeystrokeType.Backspace);
             aggregate.KeyOther = thisIntervalKeystrokes.Count(i => i.KeystrokeType == KeystrokeType.Key);
             aggregate.KeyTotal = aggregate.KeyNavigate + aggregate.KeyBackspace + aggregate.KeyOther;
+
+            // if detailed user input logging for studies is enabled, save keystrokes separately
+            if (Settings.IsDetailedCollectionEnabled) Queries.SaveKeystrokesToDatabase(thisIntervalKeystrokes.ToList());
 
             // delete all items older than tsEnd
             KeystrokeListToSave.RemoveAll(i => i.Timestamp < tsEnd);
@@ -363,6 +365,9 @@ namespace UserInputTracker
             aggregate.ClickOther = thisIntervalMouseClicks.Count(i => (i.Button != MouseButtons.Left && i.Button != MouseButtons.Right));
             aggregate.ClickTotal = aggregate.ClickLeft + aggregate.ClickRight + aggregate.ClickOther;
 
+            // if detailed user input logging for studies is enabled, save mouse clicks separately
+            if (Settings.IsDetailedCollectionEnabled) Queries.SaveMouseClicksToDatabase(thisIntervalMouseClicks.ToList());
+
             // delete all items older than tsEnd
             MouseClickListToSave.RemoveAll(i => i.Timestamp < tsEnd);
         }
@@ -391,8 +396,48 @@ namespace UserInputTracker
             var thisIntervalMouseScrolls = MouseScrollsListToSave.Where(i => i.Timestamp >= tsStart && i.Timestamp < tsEnd);
             aggregate.ScrollDelta = thisIntervalMouseScrolls.Sum(i => Math.Abs(i.ScrollDelta));
 
+            // if detailed user input logging for studies is enabled, save mouse scrolls separately
+            if (Settings.IsDetailedCollectionEnabled) SaveDetailedMouseScrolls(tsStart, tsEnd, thisIntervalMouseScrolls);
+
             // delete all items older than tsEnd
             MouseScrollsListToSave.RemoveAll(i => i.Timestamp < tsEnd);
+        }
+
+        /// <summary>
+        /// Save the mouse scrolls per second
+        /// (calculates the scrolled distance per second and saves it)
+        /// </summary>
+        /// <param name="tsStart"></param>
+        /// <param name="tsEnd"></param>
+        /// <param name="thisIntervalMouseMovements"></param>
+        private void SaveDetailedMouseScrolls(DateTime tsStart, DateTime tsEnd, IEnumerable<MouseScrollSnapshot> thisIntervalMouseMovements)
+        {
+            var thisIntervalMouseScrollsPerSecond = new List<MouseScrollSnapshot>();
+
+            var tsCurrent = tsStart;
+            while (tsCurrent <= tsEnd)
+            {
+                // calculate moved pixels for this second
+                var tsCurrentNext = tsCurrent.AddSeconds(1);
+                var mouseScrollsForSecond = thisIntervalMouseMovements.Where(i => i.Timestamp >= tsCurrent && i.Timestamp < tsCurrentNext);
+
+                if (mouseScrollsForSecond.Count() > 0)
+                {
+                    var scrolledPixels = mouseScrollsForSecond.Sum(i => Math.Abs(i.ScrollDelta));
+
+                    // store if there are any
+                    if (scrolledPixels > 0)
+                    {
+                        mouseScrollsForSecond.Last().ScrollDelta = (int)scrolledPixels;
+                        thisIntervalMouseScrollsPerSecond.Add(mouseScrollsForSecond.Last());
+                    }
+                }
+
+                tsCurrent = tsCurrentNext; // for next iteration
+            }
+
+            // save mouse moved per second to database
+            Queries.SaveMouseScrollsToDatabase(thisIntervalMouseScrollsPerSecond);
         }
 
         /// <summary>
@@ -419,8 +464,48 @@ namespace UserInputTracker
             var thisIntervalMouseMovements = MouseMovementListToSave.Where(i => i.Timestamp >= tsStart && i.Timestamp < tsEnd);
             aggregate.MovedDistance = (int)CalculateMouseMovementDistance(thisIntervalMouseMovements);
 
+            // if detailed user input logging for studies is enabled, save mouse movements separately
+            if (Settings.IsDetailedCollectionEnabled) SaveDetailedMouseMovements(tsStart, tsEnd, thisIntervalMouseMovements);
+
             // delete all items older than tsEnd
             MouseMovementListToSave.RemoveAll(i => i.Timestamp < tsEnd);
+        }
+
+        /// <summary>
+        /// Save the mouse movements per second
+        /// (calculates the moved distance per second and saves it)
+        /// </summary>
+        /// <param name="tsStart"></param>
+        /// <param name="tsEnd"></param>
+        /// <param name="thisIntervalMouseMovements"></param>
+        private void SaveDetailedMouseMovements(DateTime tsStart, DateTime tsEnd, IEnumerable<MouseMovementSnapshot> thisIntervalMouseMovements)
+        {
+            var thisIntervalMouseMovementsPerSecond = new List<MouseMovementSnapshot>();
+
+            var tsCurrent = tsStart;
+            while (tsCurrent <= tsEnd)
+            {
+                // calculate moved pixels for this second
+                var tsCurrentNext = tsCurrent.AddSeconds(1);
+                var mouseMovementsForSecond = thisIntervalMouseMovements.Where(i => i.Timestamp >= tsCurrent && i.Timestamp < tsCurrentNext);
+
+                if (mouseMovementsForSecond.Count() > 0)
+                {
+                    var movedPixels = CalculateMouseMovementDistance(mouseMovementsForSecond);
+
+                    // store if there are any
+                    if (movedPixels > 0)
+                    {
+                        mouseMovementsForSecond.Last().MovedDistance = (int)movedPixels;
+                        thisIntervalMouseMovementsPerSecond.Add(mouseMovementsForSecond.Last());
+                    }
+                }
+
+                tsCurrent = tsCurrentNext; // for next iteration
+            }
+
+            // save mouse moved per second to database
+            Queries.SaveMouseMovementsToDatabase(thisIntervalMouseMovementsPerSecond);
         }
 
         /// <summary>
@@ -455,8 +540,6 @@ namespace UserInputTracker
 
             return distance;
         }
-
-        #endregion
 
         #endregion
 

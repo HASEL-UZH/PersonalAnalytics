@@ -79,16 +79,7 @@ namespace Shared.Data.Extractors
                 for (var i = 0; i < websiteRules.Count; i++)
                 {
                     var processName = websiteRules[i].ProcessName.ToLower();
-
-                    // special case for Microsoft Edge (as its process name might be applicationframehost, which is the same for the Photos, Calculator, Settings, etc. apps)
-                    if (processName == "applicationframehost")
-                    {
-                        onlySearchForProgramsWhereRulesExists += "(lower(t1.process) = '" + processName + "' and lower(t1.window) LIKE '%Microsoft Edge%') ";
-                    }
-                    else
-                    {
-                        onlySearchForProgramsWhereRulesExists += "lower(t1.process) = '" + processName + "' ";
-                    }
+                    onlySearchForProgramsWhereRulesExists += "lower(t1.process) = '" + processName + "' ";
 
                     if (i + 1 < websiteRules.Count) onlySearchForProgramsWhereRulesExists += "or ";
                 }
@@ -111,7 +102,7 @@ namespace Shared.Data.Extractors
         /// <returns></returns>
         public static string GetWebsiteDetails(string process, string windowTitle)
         {
-            process = BaseRules.RunApplicationHostTitleCleaning(process, windowTitle);
+            //process = BaseRules.RunApplicationHostTitleCleaning(process, windowTitle);
             windowTitle = CleanWindowTitle(process, windowTitle);
             //if (fileName.Length == 0) return string.Empty; // could not get filename
             //var fileNameWithExtension = ValidateOrAddExtension(fileName, process);

@@ -15,8 +15,8 @@ namespace Shared.Helpers
 
         private FeedbackThumbs()
         {
-            // also call if not enabled (to have it)
-            CreateWindowsActivityTable();
+            // also call if not enabled (to be sure to have it)
+            CreateFeedbackTable();
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace Shared.Helpers
             return _feedback ?? (_feedback = new FeedbackThumbs());
         }
 
-        private static void CreateWindowsActivityTable()
+        private static void CreateFeedbackTable()
         {
             try
             {
@@ -78,7 +78,6 @@ namespace Shared.Helpers
                     + "<input class=\"thumb\" type=\"image\"  src=\"thumbUpGray.png\" onmouseover=\"this.src='thumbUpBlue.png'\" onmouseout=\"this.src='thumbUpGray.png'\" onclick =\"window.external.JS_ThumbsVote('up', '{0}', '{1}', '{2}')\" /> "
                     + "<input class=\"thumb\" type=\"image\"  src=\"thumbDownGray.png\" onmouseover=\"this.src='thumbDownBlue.png'\" onmouseout=\"this.src='thumbDownGray.png'\" onclick =\"window.external.JS_ThumbsVote('down', '{0}', '{1}', '{2}')\" />"
                     + "</div>";
-
 
             return string.Format(CultureInfo.InvariantCulture, html, VisHelper.CreateChartHtmlTitle(vis.Title), vis.Type, date);
         }

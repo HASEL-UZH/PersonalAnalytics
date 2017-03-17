@@ -88,7 +88,6 @@ namespace MsOfficeTracker.Helpers
                 // and let them click the Sign-In button.
                 if (ex.ErrorCode == "user_interaction_required")
                 {
-                    //Console.WriteLine("Please sign in first");
                     var res = await SignIn();
                     return res;
                 }
@@ -470,16 +469,70 @@ namespace MsOfficeTracker.Helpers
                 var dtStart = date.Date.ToUniversalTime();
                 var dtEnd = date.Date.AddDays(1).ToUniversalTime();
 
+                // TODO: bug: this query also includes sent items (and not just received ones)
                 var groups = await _client.Me.Messages
                     .OrderByDescending(m => m.ReceivedDateTime)
-                    .Where(m => m.ReceivedDateTime.Value >= dtStart && m.ReceivedDateTime.Value <= dtEnd 
-                            && m.IsRead == false)  // only unread emails                                                                                                                                                //todo: filter if not in Junk Email and Deleted Folder (maybe with ParentFolderId)
+                    .Where(m => m.ReceivedDateTime.Value >= dtStart && m.ReceivedDateTime.Value <= dtEnd
+                             && m.IsDraft == false && m.IsRead == false)  // only unread emails                                                                                                                                                //todo: filter if not in Junk Email and Deleted Folder (maybe with ParentFolderId)
                     .Take(20)
-                    .Select(m => new { m.From, m.ParentFolderId }) // new DisplayEmail(m))
+                    .Select(m => new { m.ParentFolderId }) // new DisplayEmail(m)) // m.From
                     .ExecuteAsync();
 
                 var deleteFolders = await GetDeleteAndJunkFolderIds();
 
+                var numberOfEmailsReceived = 0;
+                do
+                {
+                    var mailResults = groups.CurrentPage.ToList();
+
+                    if (deleteFolders.Item1 == false)
+                    {
+                        numberOfEmailsReceived += mailResults.Count;
+                    }
+                    else
+                    {
+                        numberOfEmailsReceived += mailResults.Where(m => m.ParentFolderId != deleteFolders.Item2 && m.ParentFolderId != deleteFolders.Item3 // not in deleted folder
+                                                                    && m.ParentFolderId != deleteFolders.Item4 && m.ParentFolderId != deleteFolders.Item5).ToList().Count; // not in junk folder
+                    }
+
+                    groups = await groups.GetNextPageAsync();
+                }
+                while (groups != null); //&& groups.MorePagesAvailable);
+
+                return numberOfEmailsReceived;
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// Returns a list of emails which were received on a given date
+        /// (and not in junk or delete folder)
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public async Task<int> GetTotalNumberOfEmailsReceived(DateTimeOffset date)
+        {
+            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return -1;
+
+            try
+            {
+                var dtStart = date.Date.ToUniversalTime();
+                var dtEnd = date.Date.AddDays(1).ToUniversalTime();
+
+                // TODO: bug: this query also includes sent items (and not just received ones)
+                var groups = await _client.Me.Messages
+                    .Where(m => m.ReceivedDateTime.Value >= dtStart && m.ReceivedDateTime.Value <= dtEnd && m.IsDraft == false)
+                    .OrderByDescending(m => m.ReceivedDateTime)
+                    .Take(20)
+                    .Select(m => new { m.ParentFolderId }) // new DisplayEmail(m)) // m.From
+                    .ExecuteAsync();
+
+                // filter if not in Junk Email and Deleted Folder (maybe with ParentFolderId)
+                var deleteFolders = await GetDeleteAndJunkFolderIds();
                 var numberOfEmailsReceived = 0;
                 do
                 {
@@ -549,58 +602,6 @@ namespace MsOfficeTracker.Helpers
             catch
             {
                 return new Tuple<bool, string, string, string, string>(false, "", "", "", "");
-            }
-        }
-
-        /// <summary>
-        /// Returns a list of emails which were received on a given date
-        /// (and not in junk or delete folder)
-        /// </summary>
-        /// <param name="date"></param>
-        /// <returns></returns>
-        public async Task<int> GetTotalNumberOfEmailsReceived(DateTimeOffset date)
-        {
-            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return -1;
-
-            try
-            {
-                var dtStart = date.Date.ToUniversalTime();
-                var dtEnd = date.Date.AddDays(1).ToUniversalTime();
-
-                var groups = await _client.Me.Messages
-                    .OrderByDescending(m => m.ReceivedDateTime)
-                    .Where(m => m.ReceivedDateTime.Value >= dtStart && m.ReceivedDateTime.Value <= dtEnd)
-                    //todo: filter if not in Junk Email and Deleted Folder (maybe with ParentFolderId)
-                    .Take(20)
-                    .Select(m => new { m.From, m.ParentFolderId }) // new DisplayEmail(m))
-                    .ExecuteAsync();
-
-                var deleteFolders = await GetDeleteAndJunkFolderIds();
-                var numberOfEmailsReceived = 0;
-                do
-                {
-                    var mailResults = groups.CurrentPage.ToList();
-
-                    if (deleteFolders.Item1 == false)
-                    {
-                        numberOfEmailsReceived += mailResults.Count;
-                    }
-                    else
-                    {
-                        numberOfEmailsReceived += mailResults.Where(m => m.ParentFolderId != deleteFolders.Item2 && m.ParentFolderId != deleteFolders.Item3 // not in deleted folder
-                                                                    && m.ParentFolderId != deleteFolders.Item4 && m.ParentFolderId != deleteFolders.Item5).ToList().Count; // not in junk folder
-                    }
-
-                    groups = await groups.GetNextPageAsync();
-                }
-                while (groups != null); //&& groups.MorePagesAvailable);
-
-                return numberOfEmailsReceived;
-            }
-            catch (Exception e)
-            {
-                Logger.WriteToLogFile(e);
-                return -1;
             }
         }
 

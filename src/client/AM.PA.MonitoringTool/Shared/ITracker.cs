@@ -5,6 +5,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Windows.Controls;
 
 namespace Shared
 {
@@ -15,25 +17,30 @@ namespace Shared
     {
         string Name { get; set; }
         bool IsRunning { get; set; }
+        bool IsFirstStart { get; set; }
         void Start();
         void Stop();
         void CreateDatabaseTablesIfNotExist();
         void UpdateDatabaseTables(int version);
         string GetStatus();
+        string GetVersion();
         bool IsEnabled();
         List<IVisualization> GetVisualizationsDay(DateTimeOffset date);
-
         List<IVisualization> GetVisualizationsWeek(DateTimeOffset date);
+        List<IFirstStartScreen> GetStartScreens();
     }
 
     public abstract class BaseTracker : ITracker
     {
         public string Name { get; set; }
         public bool IsRunning { get; set; }
+        public virtual bool IsFirstStart { get; set; }
         public abstract void Start();
         public abstract void Stop();
         public abstract void CreateDatabaseTablesIfNotExist();
         public abstract void UpdateDatabaseTables(int version);
+        public abstract string GetVersion();
+
         public virtual string GetStatus()
         {
             return IsRunning ? Name + " is running." : Name + " is NOT running.";
@@ -49,6 +56,11 @@ namespace Shared
         public virtual List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)
         {
             return new List<IVisualization>(); // default: return an empty list
+        }
+
+        public virtual List<IFirstStartScreen> GetStartScreens()
+        {
+            return new List<IFirstStartScreen>();
         }
     }
 
@@ -89,6 +101,7 @@ namespace Shared
     {
         public string Name { get; set; }
         public bool IsRunning { get; set; }
+        public bool IsFirstStart { get; set; }
         public virtual void Start()
         {
             IsRunning = true;
@@ -109,6 +122,8 @@ namespace Shared
             // nothing to do here
         }
 
+        public abstract string GetVersion();
+
         public virtual string GetStatus()
         {
             return IsRunning ? Name + " is running." : Name + " is NOT running.";
@@ -124,6 +139,11 @@ namespace Shared
         public virtual List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)
         {
             return new List<IVisualization>(); // default: return an empty list
+        }
+
+        public virtual List<IFirstStartScreen> GetStartScreens()
+        {
+            return new List<IFirstStartScreen>();
         }
     }
 }

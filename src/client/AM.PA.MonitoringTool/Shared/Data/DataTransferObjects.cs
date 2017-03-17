@@ -31,7 +31,16 @@ namespace Shared.Data
         public bool? OpenRetrospectionInFullScreen { get; set; }
         public bool? TimeSpentShowEmailsEnabled { get; set; }
         public bool? TimeSpentShowProgramsEnabled { get; set; }
-
+        public bool? PolarTrackerEnabled { get; set; }
+        public bool? FitbitTrackerEnabled { get; set; }
+        public bool? FlowLightEnabled { get; set; }
+        public bool? FlowLightAutomaticEnabled { get; set; }
+        public bool? FlowLightDnDEnabled { get; set; }
+        public int? FlowLightSensitivityLevel { get; set; }
+        public string[] FlowLightBlacklist { get; set;}
+        public bool? FlowLightSkypeForBusinessEnabled { get; set; }
+        public bool? FitbitTokenRevokEnabled { get; set; }
+        public bool? FitbitTokenRevoked { get; set; }
     }
     public class StartEndTimeDto
     {

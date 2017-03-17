@@ -14,6 +14,7 @@ using UserEfficiencyTracker.Data;
 using System.Collections.Generic;
 using UserEfficiencyTracker.Visualizations;
 using System.Globalization;
+using System.Reflection;
 
 namespace UserEfficiencyTracker
 {
@@ -102,7 +103,13 @@ namespace UserEfficiencyTracker
 
         public override bool IsEnabled()
         {
-            return true; // currently, it is always enabled
+            return PopUpEnabled;
+        }
+
+        public override string GetVersion()
+        {
+            var v = new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version;
+            return Shared.Helpers.VersionHelper.GetFormattedVersion(v);
         }
 
         #region Settings
@@ -127,14 +134,15 @@ namespace UserEfficiencyTracker
                 Database.GetInstance().SetSettings("PopUpEnabled", value);
 
                 // start/stop timer if necessary
-                if (!updatedIsEnabled && _timer.IsEnabled)
+                if (!updatedIsEnabled && IsRunning)
                 {
-                    _timer.Stop();
+                    Stop();
                     _popUpIntervalInMins = TimeSpan.MinValue;
                 }
-                else if (updatedIsEnabled && !_timer.IsEnabled)
+                else if (updatedIsEnabled && !IsRunning)
                 {
-                    _timer.Start();
+                    CreateDatabaseTablesIfNotExist();
+                    Start();
                     _popUpIntervalInMins = PopUpIntervalInMins;
                 }
 

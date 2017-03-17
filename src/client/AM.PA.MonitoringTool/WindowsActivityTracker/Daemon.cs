@@ -14,6 +14,10 @@ using System.Collections.Generic;
 using WindowsActivityTracker.Visualizations;
 using WindowsActivityTracker.Data;
 using System.Globalization;
+using System.Threading.Tasks;
+using Microsoft.Win32;
+using System.Reflection;
+using System.Linq;
 
 namespace WindowsActivityTracker
 {
@@ -31,6 +35,7 @@ namespace WindowsActivityTracker
 
         private string _previousWindowTitleEntry = string.Empty;
         private string _previousProcess = string.Empty;
+        private IntPtr _previousHandle = IntPtr.Zero;
         private bool _lastEntryWasIdle = false;
 
         #region ITracker Stuff
@@ -67,6 +72,9 @@ namespace WindowsActivityTracker
                 _hWinEventHookForWindowSwitch = NativeMethods.SetWinEventHook(NativeMethods.EVENT_SYSTEM_FOREGROUND, NativeMethods.EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, _dele, 0, 0, NativeMethods.WINEVENT_OUTOFCONTEXT);
                 _hWinEventHookForWindowTitleChange = NativeMethods.SetWinEventHook(NativeMethods.EVENT_OBJECT_NAMECHANGE, NativeMethods.EVENT_OBJECT_NAMECHANGE, IntPtr.Zero, _dele, 0, 0, NativeMethods.WINEVENT_OUTOFCONTEXT);
 
+                // Register for logout/shutdown event
+                SystemEvents.SessionEnding += SessionEnding;
+
                 // Register to check if idle or not
                 if (Settings.RecordIdle)
                 {
@@ -96,11 +104,17 @@ namespace WindowsActivityTracker
         {
             try
             {
-                // unregister for window events
+                // insert idle event (as last entry
+                SetAndStoreProcessAndWindowTitle("Tracker stopped", Dict.Idle);
+
+                // Unregister for window events
                 NativeMethods.UnhookWinEvent(_hWinEventHookForWindowSwitch);
                 NativeMethods.UnhookWinEvent(_hWinEventHookForWindowTitleChange);
 
-                // unregister idle time checker
+                // Unregister for logout/shutdown event
+                SystemEvents.SessionEnding -= SessionEnding;
+
+                // Unregister idle time checker
                 if (_idleCheckTimer != null)
                 {
                     _idleCheckTimer.Stop();
@@ -131,11 +145,18 @@ namespace WindowsActivityTracker
             return Settings.IsEnabled;
         }
 
+        public override string GetVersion()
+        {
+            var v = new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version;
+            return Shared.Helpers.VersionHelper.GetFormattedVersion(v);
+        }
+
         public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
         {
             var vis1 = new DayProgramsUsedPieChart(date);
             var vis2 = new DayMostFocusedProgram(date);
-            return new List<IVisualization> { vis1, vis2 };
+            var vis3 = new DayFragmentationTimeline(date);
+            return new List<IVisualization> { vis1, vis2, vis3 };
         }
 
         public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)
@@ -212,7 +233,7 @@ namespace WindowsActivityTracker
         /// <param name="idChild"></param>
         /// <param name="dwEventThread"></param>
         /// <param name="dwmsEventTime"></param>
-        public void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
+        public async void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
         {
             try
             {
@@ -222,7 +243,8 @@ namespace WindowsActivityTracker
                     return;
                 }
 
-                StoreProcess();
+                // run on separate thread (to avoid lags)
+                await Task.Run(() => StoreProcess());
             }
             catch (Exception e)
             {
@@ -240,14 +262,28 @@ namespace WindowsActivityTracker
             // get current process name
             var currentProcess = GetProcessName(handle);
 
-            // special cases: lockscreen, shutdown, restart
+            // [special case] lockscreen (shutdown and logout events are handled separately)
             if (!string.IsNullOrEmpty(currentProcess) && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture).Contains("lockapp"))
             {
                 currentWindowTitle = "LockScreen";
                 currentProcess = Dict.Idle;
             }
-            //TODO: add more special cases
-            
+            // [special case] Windows 10 apps (e.g. Edge, Photos, Mail)
+            else if (currentProcess.ToLower().Equals("applicationframehost"))
+            {
+                var lastDash = currentWindowTitle.LastIndexOf("- ");
+                if (lastDash > 0)
+                {
+                    var processName = currentWindowTitle.Substring(lastDash).Replace("- ", "").Trim();
+                    if (!string.IsNullOrEmpty(processName)) currentProcess = processName;
+                }
+                else
+                {
+                    currentProcess = currentWindowTitle;
+                }
+            }
+            //add more special cases if necessary
+
             // save if process or window title changed and user was not IDLE in past interval
             var differentProcessNotIdle = !string.IsNullOrEmpty(currentProcess) && _previousProcess != currentProcess && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture) != "idle";
             var differentWindowTitle = !string.IsNullOrEmpty(currentWindowTitle) && _previousWindowTitleEntry != currentWindowTitle;
@@ -257,11 +293,37 @@ namespace WindowsActivityTracker
             {
                 _previousWindowTitleEntry = currentWindowTitle;
                 _previousProcess = currentProcess;
+                _previousHandle = handle;
                 _lastEntryWasIdle = false;
 
                 Queries.InsertSnapshot(currentWindowTitle, currentProcess);
-                //Console.WriteLine(DateTime.Now.ToString("t") + " " + DateTime.Now.Millisecond + "\t" + currentProcess + "\t" + currentWindowTitle);
             }
+        }
+
+        /// <summary>
+        /// Catch logout/Shutdown event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SessionEnding(object sender, SessionEndingEventArgs e)
+        {
+            if (e.Reason == SessionEndReasons.Logoff)
+            {
+                SetAndStoreProcessAndWindowTitle("Logoff", Dict.Idle);
+            }
+            else if (e.Reason == SessionEndReasons.SystemShutdown)
+            {
+                SetAndStoreProcessAndWindowTitle("SystemShutdown", Dict.Idle);
+            }
+        }
+
+        private void SetAndStoreProcessAndWindowTitle(string windowTitle, string process)
+        {
+            _previousWindowTitleEntry = windowTitle;
+            _previousProcess = process;
+            _lastEntryWasIdle = (process == Dict.Idle);
+
+            Queries.InsertSnapshot(windowTitle, process);
         }
 
         /// <summary>
@@ -269,13 +331,21 @@ namespace WindowsActivityTracker
         /// </summary>
         /// <param name="handle"></param>
         /// <returns></returns>
-        private static string GetProcessName(IntPtr handle)
+        private string GetProcessName(IntPtr handle)
         {
             try
             {
+                // performance: if same handle than previously, just return the process-name
+                if (_previousHandle == handle) return _previousProcess;
+
+                // else: get the process name from the list of processes
                 uint processId;
                 NativeMethods.GetWindowThreadProcessId(handle, out processId);
-                return Process.GetProcessById((int)processId).ProcessName;
+                var processlist = Process.GetProcesses();
+                return processlist.FirstOrDefault(pr => pr.Id == processId).ProcessName;
+
+                // 2017-01-24 usually slower:
+                //var pN = Process.GetProcessById((int)processId).ProcessName;
             }
             catch {}
             return string.Empty;

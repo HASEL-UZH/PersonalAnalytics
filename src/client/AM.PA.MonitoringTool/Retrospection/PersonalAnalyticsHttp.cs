@@ -54,7 +54,7 @@ namespace Retrospection
         {
             if (_server != null)
             {
-                _server.Start(Settings.Port, true); // true -> IPAddress.Loopback (loopback address (localhost / 127.0.0.1)) 
+                _server.Start(Shared.Settings.Port, true); // true -> IPAddress.Loopback (loopback address (localhost / 127.0.0.1)) 
             }
         }
 
@@ -143,9 +143,9 @@ namespace Retrospection
             switch (visType)
             {
                 case VisType.Day:
-                    return "Your retrospection for the " + date.Date.ToShortDateString();
+                    return "Your Retrospection for the " + date.Date.ToShortDateString();
                 case VisType.Week:
-                    return string.Format(CultureInfo.InvariantCulture, "Your retrospection for Week {0} ({1} - {2})",
+                    return string.Format(CultureInfo.InvariantCulture, "Your Retrospection for Week {0} ({1} - {2})",
                         DateTimeHelper.GetWeekOfYear_Iso8601(date.Date),
                         DateTimeHelper.GetFirstDayOfWeek_Iso8801(date.Date).Date.ToShortDateString(),
                         DateTimeHelper.GetLastDayOfWeek_Iso8801(date.Date).Date.ToShortDateString());
@@ -165,7 +165,7 @@ namespace Retrospection
         {
             // get updated visualizations (if enabled)
             var visualizations = new List<IVisualization>();
-            foreach (var tracker in _trackers.Where(t => t.IsEnabled() == true))
+            foreach (var tracker in _trackers.Where(t => t.IsEnabled() == true && t.IsRunning))
             {
                 switch (type)
                 {
@@ -186,7 +186,15 @@ namespace Retrospection
             var html = string.Empty;
             foreach (var vis in visualizations.OrderBy(v => v.Order))
             {
-                html += await Task.Run(() => CreateDashboardItem(vis, date));
+                //We want to avoid that a failing visualization stops the whole dashboard from working. Therefore we exclude failing visualizations and log the error.
+                try
+                {
+                    html += await Task.Run(() => CreateDashboardItem(vis, date));
+                }
+                catch (Exception e)
+                {
+                    Logger.WriteToLogFile(e);
+                }
             }
 
             return html;

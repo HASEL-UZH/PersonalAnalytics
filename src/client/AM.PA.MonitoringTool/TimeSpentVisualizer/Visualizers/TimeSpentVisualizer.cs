@@ -8,11 +8,11 @@ using Shared;
 using System.Collections.Generic;
 using Shared.Helpers;
 using System.Linq;
-using Shared.Data.Extractors;
 using ArtifactVisualizer.Helpers;
 using ArtifactVisualizer.Models;
 using System.Globalization;
 using Shared.Data;
+using System.Reflection;
 
 namespace TimeSpentVisualizer.Visualizers
 {
@@ -28,6 +28,12 @@ namespace TimeSpentVisualizer.Visualizers
         public override bool IsEnabled()
         {
             return _isEnabled;
+        }
+
+        public override string GetVersion()
+        {
+            var v = new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version;
+            return VersionHelper.GetFormattedVersion(v);
         }
 
         public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
@@ -98,7 +104,7 @@ namespace TimeSpentVisualizer.Visualizers
 
             Title = "Time Spent"; // (on websites, in meetings, in programs, in files, in Visual Studio projects and on code reviews)";
             IsEnabled = true; //todo: handle by user
-            Order = 2; //todo: handle by user
+            Order = 23; //todo: handle by user
             Size = VisSize.Wide;
             Type = VisType.Day;
         }

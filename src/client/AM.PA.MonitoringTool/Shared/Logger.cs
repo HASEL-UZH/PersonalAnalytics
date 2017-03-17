@@ -4,9 +4,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.Xml;
 
 namespace Shared
 {
@@ -18,7 +16,9 @@ namespace Shared
         /// <param name="message"></param>
         public static void WriteToConsole(string message)
         {
+#if DEBUG
             Console.WriteLine("# " + message);
+#endif
         }
 
         /// <summary>

@@ -88,6 +88,7 @@
     <Compile Include="HttpInterface.cs" />
     <Compile Include="ObjectForScriptingHelper.cs" />
     <Compile Include="PersonalAnalyticsHttp.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
@@ -150,6 +151,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\GoalSetting\GoalSetting.csproj">
+      <Project>{d4792de4-9a01-47c9-b30d-b40dee6c3450}</Project>
+      <Name>GoalSetting</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Shared\Shared.csproj">
       <Project>{2bbdfa6d-20dd-4a7b-893e-43c388382c9a}</Project>
       <Name>Shared</Name>
@@ -166,8 +171,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-<PropertyGroup>
-<BuildEnvironment>DEV</BuildEnvironment>
-</PropertyGroup>
-<Import Project="../../../web/Customized.targets" Condition=" '$(BuildEnvironment)' == 'DEPLOY' "/>
+  <PropertyGroup>
+    <BuildEnvironment>DEV</BuildEnvironment>
+  </PropertyGroup>
+  <Import Project="../../../web/Customized.targets" Condition=" '$(BuildEnvironment)' == 'DEPLOY' " />
 </Project>

@@ -45,7 +45,7 @@
         <Grid Background="{x:Static paColors:Settings.GrayColorBrush}" Grid.Row="2">
             <Grid.Resources>
                 <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
-                    <Setter Property="Foreground" Value="Gray" />
+                    <Setter Property="Foreground" Value="{x:Static paColors:Settings.DarkGrayColorBrush}" />
                     <Setter Property="Background" Value="{x:Static paColors:Settings.GrayColorBrush}" />
                     <Setter Property="BorderBrush" Value="{x:Static paColors:Settings.GrayColorBrush}" />
                     <Setter Property="Padding" Value="5 0 5 0" />
@@ -56,7 +56,7 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="0" x:Name="TbVersion" Margin="10 0 0 0" Foreground="Gray" />
+            <TextBlock Grid.Column="0" x:Name="TbVersion" Margin="10 0 0 0" Foreground="{x:Static paColors:Settings.DarkGrayColorBrush}" />
             <Button Grid.Column="1" Content="Feedback" Click="Feedback_Clicked" VerticalAlignment="Center" Margin="0 0 5 0" />
         </Grid>
     </Grid>

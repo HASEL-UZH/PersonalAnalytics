@@ -13,19 +13,28 @@ namespace Shared
 {
     public static class Settings
     {
-        public const int DatabaseVersion = 2; // !!! update when exisitng database table changes (have a look at PerformDatabaseUpdatesIfNecessary() for details)
-        public const bool IsFeedbackEnabled = false;
+        /**
+         * version 1 - initial release
+         * version 2 - update emails table in MsOfficeTracker (2016-06-20)
+         * version 3 - update focus_state table in FlowTracker (2017-01-12)
+         */
+        public const int DatabaseVersion = 3; // !!! update when existing database table changes (have a look at PerformDatabaseUpdatesIfNecessary() for details)
 
-// only enable the current uploader in the MSR-deployment (default: disabled)
-#if ! PilotMSR
-        public const bool IsUploadEnabled = false;
-        public const bool IsUploadReminderEnabled = false;
-#else
+#if Pilot_MSR
         public const bool IsUploadEnabled = true;
         public const bool IsUploadReminderEnabled = true;
+        public const bool IsFeedbackEnabled = false;
+#elif Pilot_TaskDetection_March17
+        public const bool IsUploadEnabled = false;
+        public const bool IsUploadReminderEnabled = false;
+        public const bool IsFeedbackEnabled = false;
+#else
+        public const bool IsUploadEnabled = false;
+        public const bool IsUploadReminderEnabled = false;
+        public const bool IsFeedbackEnabled = false;
 #endif
 
-        public const bool AnonymizeSensitiveData = false;
+        public static bool AnonymizeSensitiveData = false;
         public const bool PrintQueriesToConsole = false;
 
         internal const string LogDbTable = "log";
@@ -52,6 +61,7 @@ namespace Shared
         // path (Regedit): Computer\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run
         public const string RegAppPath = @"\PersonalAnalytics\PersonalAnalytics\PersonalAnalytics.appref-ms"; // change also publisher name in .csproj
 
+
         ////////////////////////////////////////////////////////////
         // retrospection constants
         // hint: any changes must also be done in styles_css
@@ -64,11 +74,31 @@ namespace Shared
         //internal const double sideMargin = 1.25; //2.5; //1.25;
         //internal const double titleMargin = 4.0; //5.625; //3.125;
 
+
         ////////////////////////////////////////////////////////////
         // contact emails
-
+        #if PilotMSR
+        public const string EmailAddress1 = "tzimmer@microsoft.com"; // main email address
+        public const string EmailAddress2 = "ameyer@ifi.uzh.ch";
+        #else
         public const string EmailAddress1 = "ameyer@ifi.uzh.ch"; // main email address
-        public const string EmailAddress2 = "tzimmer@microsoft.com";
+        public static string EmailAddress2 = string.Empty;
+        #endif
+
+
+        ////////////////////////////////////////////////////////////
+        // Colors
+        public const string RetrospectionColorHex = "#007acc";
+        private static SolidColorBrush _retrospectionColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(RetrospectionColorHex));
+        public static SolidColorBrush RetrospectionColorBrush { get { return _retrospectionColor; } }
+
+        public const string GrayColor = "#E8E8E8";
+        private static SolidColorBrush _grayColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(GrayColor));
+        public static SolidColorBrush GrayColorBrush { get { return _grayColor; } }
+
+        public const string DarkGrayColor = "#808080";
+        private static SolidColorBrush _darkGrayColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(DarkGrayColor));
+        public static SolidColorBrush DarkGrayColorBrush { get { return _darkGrayColor; } }
 
         //Colors
         public const string RetrospectionColorHex = "#007acc";

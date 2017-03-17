@@ -11,16 +11,6 @@ namespace Shared.Data.Extractors
 {
     public static class BaseRules
     {
-        public static string RunApplicationHostTitleCleaning(string process, string window)
-        {
-            if (process.ToLower() != "applicationframehost") return process;
-
-            if (Regex.Match(window, @"[\?]?\- Microsoft Edge").Success) return "microsoftedge";
-            else if (Regex.Match(window, @"[\?]?\- Photos").Success) return "microsoftphotos";
-
-            return ""; // don't do anything with it...
-        }
-
         /// <summary>
         /// remove [Read-Only][Administrator][Compatibly Mode]
         /// </summary>
@@ -56,6 +46,7 @@ namespace Shared.Data.Extractors
 
             // PDF Readers
             new ProgramInfo("acrord32", ".pdf", @"\- Adobe(.*)Reader(.*)$"), // also removes Adobe Acrobat Reader DC
+            new ProgramInfo("acrobat", ".pdf", @"\- Adobe Acrobat Pro(.*)$"), // also removes Adobe Acrobat Pro DC
             new ProgramInfo("foxitreader", ".pdf", @"\- Foxit Reader"),
 
             // Editors
@@ -64,8 +55,15 @@ namespace Shared.Data.Extractors
             new ProgramInfo("notepad++", _possibleEditorExtensions, @"\- Notepad\+\+"),
             new ProgramInfo("sublime", _possibleEditorExtensions, new List<string> { @"\- Sublime Text(.*)$", @"\(r_scripts\)", "•" }),
 
+            // SQL (MySQLWorkbench doesn't have window titles)
+            new ProgramInfo("sqlitebrowser", ".dat", @"DB Browser for SQLite \-"),
+
             // Photo programs
-            new ProgramInfo("microsoftphotos", @"[\?]?\- Photos"), // hint: win10 app has process applicationframehost, which is a special case
+            new ProgramInfo("photos", @"[\?]?\- Photos"),
+
+            // Latex programs
+            new ProgramInfo("texstudio", ".tex", @"\- TeXstudio"),
+            new ProgramInfo("texmaker", ".tex", @"Document : "),
         };
 
 
@@ -78,10 +76,12 @@ namespace Shared.Data.Extractors
         public static List<ProgramInfo> WebsiteRules = new List<ProgramInfo>
         {
             new ProgramInfo("iexplore", new List<string> { @"\- Internet Explorer", removeStuffInBrackets1, removeStuffInBrackets2 }),
-            new ProgramInfo("applicationframehost", new List<string> { @"[\?]?\- Microsoft Edge", removeStuffInBrackets1, removeStuffInBrackets2 }),  // hint: win10 app has process applicationframehost, which is a special case
-            new ProgramInfo("microsoftedge", new List<string> { @"[\?]?\- Microsoft Edge", removeStuffInBrackets1, removeStuffInBrackets2 }), // hint: win10 app has process applicationframehost, which is a special case
+            new ProgramInfo("microsoft edge", new List<string> { @"[\?]?\- Microsoft Edge", removeStuffInBrackets1, removeStuffInBrackets2 }),
+            new ProgramInfo("microsoftedge", new List<string> { @"[\?]?\- Microsoft Edge", removeStuffInBrackets1, removeStuffInBrackets2 }),
+            //new ProgramInfo("applicationframehost", new List<string> { @"[\?]?\- Microsoft Edge", removeStuffInBrackets1, removeStuffInBrackets2 }),  // TODO: remove at some point, as WindowsActivityTracker handles it
             new ProgramInfo("firefox",  new List<string> { @"\- Mozilla Firefox", removeStuffInBrackets1, removeStuffInBrackets2 }),
             new ProgramInfo("chrome", new List<string> { @"\- Google Chrome", removeStuffInBrackets1, removeStuffInBrackets2 }),
+            new ProgramInfo("opera", new List<string> { @"\- Opera", removeStuffInBrackets1, removeStuffInBrackets2 }),
         };
 
         /// <summary>

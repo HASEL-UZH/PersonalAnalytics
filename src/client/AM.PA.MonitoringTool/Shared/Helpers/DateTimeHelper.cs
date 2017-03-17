@@ -10,6 +10,16 @@ namespace Shared.Helpers
 {
     public static class DateTimeHelper
     {
+        public static DateTimeOffset GetStartOfDay(this DateTimeOffset date)
+        {
+            return date.Date;
+        }
+
+        public static DateTimeOffset GetEndOfDay(this DateTimeOffset date)
+        {
+            return date.Date.AddDays(1).AddTicks(-1);
+        }
+
         /// <summary>
         /// This presumes that weeks start with Monday.
         /// Week 1 is the 1st week of the year with a Thursday in it.

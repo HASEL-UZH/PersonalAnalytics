@@ -8,9 +8,10 @@ using Shared.Data;
 using System;
 using System.Collections.Generic;
 using System.Windows;
-using System.Linq;
 using System.Globalization;
 using System.Windows.Controls;
+using System.Diagnostics;
+using System.Linq;
 
 namespace Retrospection
 {
@@ -26,6 +27,16 @@ namespace Retrospection
         private bool defaultOpenRetrospectionInFullScreen;
         private bool defaultTimeSpentShowProgramsEnabled;
         private bool defaultTimeSpentShowEmailsEnabled;
+        private bool defaultPolarTrackerEnabled;
+        private bool defaultFitbitTrackerEnabled;
+        private bool defaultFitbitTokenRemoveEnabled;
+        private bool defaultFitbitTokenRevoked;
+        private bool defaultFlowLightEnabled;
+        private bool defaultSkypeForBusinessEnabled;
+        private bool defaultFlowLightAutomaticEnabled;
+        private bool defaultFlowLightDnDEnabled;
+        private int defaultFlowLightSensitivityLevel;
+        private string[] defaultFlowLightBlacklist;
 
         private string minutesStr = " minutes";
         private List<ITracker> _trackers;
@@ -50,7 +61,17 @@ namespace Retrospection
             defaultOpenRetrospectionInFullScreen = dto.OpenRetrospectionInFullScreen.Value;
             defaultTimeSpentShowProgramsEnabled = dto.TimeSpentShowProgramsEnabled.Value;
             defaultTimeSpentShowEmailsEnabled = dto.TimeSpentShowEmailsEnabled.Value;
-
+            defaultPolarTrackerEnabled = dto.PolarTrackerEnabled.Value;
+            defaultFitbitTrackerEnabled = dto.FitbitTrackerEnabled.Value;
+            defaultFlowLightEnabled = dto.FlowLightEnabled.Value;
+            defaultSkypeForBusinessEnabled = dto.FlowLightSkypeForBusinessEnabled.Value;
+            defaultFlowLightAutomaticEnabled = dto.FlowLightAutomaticEnabled.Value;
+            defaultFlowLightDnDEnabled = dto.FlowLightDnDEnabled.Value;
+            defaultFlowLightSensitivityLevel = dto.FlowLightSensitivityLevel.Value;
+            defaultFlowLightBlacklist = dto.FlowLightBlacklist;
+            defaultFitbitTokenRemoveEnabled = dto.FitbitTokenRevokEnabled.Value;
+            defaultFitbitTokenRevoked = dto.FitbitTokenRevoked.Value;
+            
             // no changes yet, disable buttons by default
             SaveButtonsEnabled(false);
 
@@ -86,6 +107,90 @@ namespace Retrospection
                 CbPopUpInterval.IsEnabled = true;
             }
             CbPopUpInterval.SelectionChanged += CbPopUpInterval_SelectionChanged;
+
+            PolarEnabled.IsChecked = defaultPolarTrackerEnabled;
+            PolarEnabled.Checked += CbChecked_Update;
+            PolarEnabled.Unchecked += CbChecked_Update;
+
+            FitbitEnabled.IsChecked = defaultFitbitTrackerEnabled;
+            FitbitEnabled.Checked += CbChecked_Update;
+            FitbitEnabled.Unchecked += CbChecked_Update;
+
+            FitbitRevoke.IsEnabled = defaultFitbitTokenRemoveEnabled;
+
+            CbFlowLightEnabled.IsChecked = defaultFlowLightEnabled;
+            CbFlowLightEnabled.Checked += CbChecked_Update;
+            CbFlowLightEnabled.Unchecked += CbChecked_Update;
+
+            CbFlowLightSkypeForBusinessEnabled.IsChecked = defaultSkypeForBusinessEnabled;
+            CbFlowLightSkypeForBusinessEnabled.Checked += CbChecked_Update;
+            CbFlowLightSkypeForBusinessEnabled.Unchecked += CbChecked_Update;
+
+            RbFlowLightAutomatic.IsChecked = defaultFlowLightAutomaticEnabled;
+            RbFlowLightManual.IsChecked = !defaultFlowLightAutomaticEnabled;
+            RbFlowLightAutomatic.Checked += CbChecked_Update;
+            RbFlowLightAutomatic.Unchecked += CbChecked_Update;
+
+            CbFlowLightAllowDnD.IsChecked = defaultFlowLightDnDEnabled;
+            CbFlowLightAllowDnD.Checked += CbChecked_Update;
+            CbFlowLightAllowDnD.Unchecked += CbChecked_Update;
+
+            SrFlowLightSensitivity.Value = defaultFlowLightSensitivityLevel;
+            SrFlowLightSensitivity.ValueChanged += CbChecked_Update;
+
+            foreach (string runningApplication in GetRunningApps())
+            {
+                LbFlowLightRunningApps.Items.Add(runningApplication);
+            }
+            foreach (string blacklistedApplication in defaultFlowLightBlacklist)
+            {
+                LbFlowLightBlacklistedApps.Items.Add(blacklistedApplication);
+            }
+
+            BtFlowLightMoveToBlacklist.Click += BtFlowLightMoveToBlacklist_Click;
+            BtFlowLightMoveFromBlacklist.Click += BtFlowLightMoveFromBlacklist_Click;
+        }
+
+        private void BtFlowLightMoveFromBlacklist_Click(object sender, RoutedEventArgs e)
+        {
+            string selectedItem = LbFlowLightBlacklistedApps.SelectedValue.ToString();
+            int selectedIndex = LbFlowLightBlacklistedApps.SelectedIndex;
+            LbFlowLightBlacklistedApps.Items.RemoveAt(selectedIndex);
+            LbFlowLightRunningApps.Items.Add(selectedItem);
+
+            UpdateSettingsChanged();
+        }
+
+        private void BtFlowLightMoveToBlacklist_Click(object sender, RoutedEventArgs e)
+        {
+            string selectedItem = LbFlowLightRunningApps.SelectedValue.ToString();
+            int selectedIndex = LbFlowLightRunningApps.SelectedIndex;
+            LbFlowLightRunningApps.Items.RemoveAt(selectedIndex);
+            LbFlowLightBlacklistedApps.Items.Add(selectedItem);
+
+            UpdateSettingsChanged();
+        }
+
+        private List<string> GetRunningApps()
+        {
+            var ret = new List<string>();
+
+            foreach (var proc in Process.GetProcesses())
+            {
+                var handle = IntPtr.Zero;
+                try
+                {
+                    handle = proc.MainWindowHandle;
+                }
+                catch (Exception) { }
+
+                if (handle != IntPtr.Zero && proc.ProcessName != "explorer")
+                {
+                    ret.Add(proc.ProcessName);
+                }
+            }
+
+            return ret;
         }
 
         #region User Changed Values
@@ -110,13 +215,24 @@ namespace Retrospection
         {
             try
             {
+                string[] blacklist = new string[LbFlowLightBlacklistedApps.Items.Count];
+                LbFlowLightBlacklistedApps.Items.CopyTo(blacklist, 0);
+
                 if ((defaultPopUpIsEnabled != CbPopUpsEnabled.IsChecked.Value) ||
                  (defaultPopUpInterval + minutesStr != CbPopUpInterval.SelectedValue.ToString()) ||
                  (defaultOffice365ApiEnabled != CbOfficeApiEnabled.IsChecked.Value) ||
                  (defaultUserInputTrackerEnabled != CbUserInputTrackerEnabled.IsChecked.Value) ||
                  (defaultOpenRetrospectionInFullScreen != CbOpenRetrospectionInFullScreen.IsChecked.Value) ||
                  (defaultTimeSpentShowEmailsEnabled != CbTimeSpentShowEmailsEnabled.IsChecked.Value) ||
-                 (defaultTimeSpentShowProgramsEnabled != CbTimeSpentShowProgramsEnabled.IsChecked.Value)
+                 (defaultTimeSpentShowProgramsEnabled != CbTimeSpentShowProgramsEnabled.IsChecked.Value) ||
+                 (defaultPolarTrackerEnabled != PolarEnabled.IsChecked.Value) ||
+                 (defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value) ||
+                 (defaultFlowLightEnabled != CbFlowLightEnabled.IsChecked.Value) ||
+                 (defaultSkypeForBusinessEnabled != CbFlowLightSkypeForBusinessEnabled.IsChecked.Value) ||
+                 (defaultFlowLightAutomaticEnabled != RbFlowLightAutomatic.IsChecked.Value) ||
+                 (defaultFlowLightDnDEnabled != CbFlowLightAllowDnD.IsChecked.Value) ||
+                 (defaultFlowLightSensitivityLevel != SrFlowLightSensitivity.Value) ||
+                 (!defaultFlowLightBlacklist.SequenceEqual(blacklist))
                  )
                 {
                     SaveButtonsEnabled(true);
@@ -137,8 +253,8 @@ namespace Retrospection
             BtnSave.IsEnabled = isEnabled;
             //BtnCancel.IsEnabled = isEnabled;
         }
-        
-#endregion
+
+        #endregion
 
 
         private void SaveClicked(object sender, RoutedEventArgs e)
@@ -151,7 +267,7 @@ namespace Retrospection
                 {
                     dto.PopUpEnabled = CbPopUpsEnabled.IsChecked.Value;
                 }
-                else { dto.PopUpEnabled = null;  }
+                else { dto.PopUpEnabled = null; }
 
                 if (defaultPopUpInterval + minutesStr != CbPopUpInterval.SelectedValue.ToString())
                 {
@@ -189,6 +305,56 @@ namespace Retrospection
                     dto.UserInputTrackerEnabled = CbUserInputTrackerEnabled.IsChecked.Value;
                 }
                 else { dto.UserInputTrackerEnabled = null; }
+
+                if (defaultPolarTrackerEnabled != PolarEnabled.IsChecked.Value)
+                {
+                    dto.PolarTrackerEnabled = PolarEnabled.IsChecked.Value;
+                }
+                else { dto.PolarTrackerEnabled = null; }
+
+                if (defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value)
+                {
+                    dto.FitbitTrackerEnabled = FitbitEnabled.IsChecked.Value;
+                }
+                else { dto.FitbitTrackerEnabled = null; }
+
+                if (defaultFlowLightEnabled != CbFlowLightEnabled.IsChecked.Value)
+                {
+                    dto.FlowLightEnabled = CbFlowLightEnabled.IsChecked.Value;
+                }
+                else { dto.FlowLightEnabled = null; }
+
+                if (defaultSkypeForBusinessEnabled != CbFlowLightSkypeForBusinessEnabled.IsChecked.Value)
+                {
+                    dto.FlowLightSkypeForBusinessEnabled = CbFlowLightSkypeForBusinessEnabled.IsChecked.Value;
+                }
+                else { dto.FlowLightSkypeForBusinessEnabled = null; }
+
+                if (defaultFlowLightAutomaticEnabled != RbFlowLightAutomatic.IsChecked.Value)
+                {
+                    dto.FlowLightAutomaticEnabled = RbFlowLightAutomatic.IsChecked;
+                }
+                else { dto.FlowLightAutomaticEnabled = null; }
+
+                if (defaultFlowLightDnDEnabled != CbFlowLightAllowDnD.IsChecked.Value)
+                {
+                    dto.FlowLightDnDEnabled = CbFlowLightAllowDnD.IsChecked;
+                }
+                else { dto.FlowLightDnDEnabled = null; }
+
+                if (defaultFlowLightSensitivityLevel != SrFlowLightSensitivity.Value)
+                {
+                    dto.FlowLightSensitivityLevel = (int)SrFlowLightSensitivity.Value;
+                }
+                else { dto.FlowLightSensitivityLevel = null; }
+
+                string[] blacklist = new string[LbFlowLightBlacklistedApps.Items.Count];
+                LbFlowLightBlacklistedApps.Items.CopyTo(blacklist, 0);
+                if (!defaultFlowLightBlacklist.SequenceEqual(blacklist))
+                {
+                    dto.FlowLightBlacklist = blacklist;
+                }
+                else { dto.FlowLightBlacklist = null; }
             }
             catch { }
 
@@ -205,6 +371,18 @@ namespace Retrospection
         private void Feedback_Clicked(object sender, EventArgs e)
         {
             Handler.GetInstance().SendFeedback();
+        }
+
+        private void FitbitRevoke_Click(object sender, RoutedEventArgs e)
+        {
+            FitbitRevoke.IsEnabled = false;
+
+            //  FitbitConnector.RevokeAccessToken(SecretStorage.GetAccessToken());
+            UpdatedSettingsDto = new SettingsDto();
+            UpdatedSettingsDto.FitbitTokenRevoked = true;
+
+            DialogResult = true;
+            this.Close();
         }
     }
 }

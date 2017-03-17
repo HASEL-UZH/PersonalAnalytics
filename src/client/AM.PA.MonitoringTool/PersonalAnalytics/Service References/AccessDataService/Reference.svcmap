@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="76ff0e85-bee3-4910-8ddf-76b8e477ff88" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="http://pluto.ifi.uzh.ch/HostedServices/AccessData.svc" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="AccessData.xsd" MetadataType="Schema" ID="60abfdb8-fea5-4b4e-b3cb-17d83f5b20c0" SourceId="1" SourceUrl="http://pluto.ifi.uzh.ch/HostedServices/AccessData.svc?xsd=xsd1" />
+    <MetadataFile FileName="AccessData.wsdl" MetadataType="Wsdl" ID="90f3e014-5fb9-4340-b16f-5a6d511ffd41" SourceId="1" SourceUrl="http://pluto.ifi.uzh.ch/HostedServices/AccessData.svc?wsdl" />
+    <MetadataFile FileName="AccessData.disco" MetadataType="Disco" ID="877a625f-042f-4bfe-bd85-84fdc1941bbc" SourceId="1" SourceUrl="http://pluto.ifi.uzh.ch/HostedServices/AccessData.svc?disco" />
+    <MetadataFile FileName="AccessData1.xsd" MetadataType="Schema" ID="cd7d6594-1e85-4470-9428-0af23ffdd2bb" SourceId="1" SourceUrl="http://pluto.ifi.uzh.ch/HostedServices/AccessData.svc?xsd=xsd0" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("WindowsActivityTracker")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Tracker for the PersonalAnalytics project.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("WindowsActivityTracker.Properties")]
-[assembly: AssemblyCopyright("Copyright ©  2016")]
+[assembly: AssemblyProduct("WindowsActivityTracker")]
+[assembly: AssemblyCopyright("Copyright by Andre Meyer, University of Zurich © 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -30,5 +30,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("1.0.*")]
+[assembly: AssemblyVersion("2.0.*")]
 //[assembly: AssemblyFileVersion("1.0.0.0")]

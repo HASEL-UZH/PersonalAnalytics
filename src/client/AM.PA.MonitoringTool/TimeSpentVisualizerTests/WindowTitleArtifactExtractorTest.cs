@@ -47,7 +47,7 @@ namespace TimeSpentVisualizer
             dummyList.Add(new ArtifactTest("PassportApplicationComplete (1).pdf - Foxit Reader", "foxitreader", "PassportApplicationComplete (1).pdf"));
             dummyList.Add(new ArtifactTest("Nonimmigrant Visa - Confirmation Page.pdf - Adobe Reader", "AcroRd32", "Nonimmigrant Visa - Confirmation Page.pdf"));
             dummyList.Add(new ArtifactTest("Nonimmigrant Visa - Confirmation Page.pdf - Adobe Acrobat Reader DC", "AcroRd32", "Nonimmigrant Visa - Confirmation Page.pdf"));
-            dummyList.Add(new ArtifactTest("2015-11-29 MS Covergence 15 Bar 24 by Picturex (1320284).jpg ?- Photos", "applicationframehost", "2015-11-29 MS Covergence 15 Bar 24 by Picturex (1320284).jpg"));
+            dummyList.Add(new ArtifactTest("2015-11-29 MS Covergence 15 Bar 24 by Picturex (1320284).jpg ?- Photos", "Photos", "2015-11-29 MS Covergence 15 Bar 24 by Picturex (1320284).jpg"));
 
             // run method
             foreach (var row in dummyList)
@@ -64,8 +64,8 @@ namespace TimeSpentVisualizer
         {
             // dummy data
             var dummyList = new List<ArtifactTest>();
-            dummyList.Add(new ArtifactTest("Your retrospection for the 7/14/2015 - Microsoft Edge", "ApplicationFrameHost", "Your retrospection for the 7/14/2015"));
-            dummyList.Add(new ArtifactTest("Your retrospection for the 7/14/2015 ?- Microsoft Edge", "MicrosoftEdge", "Your retrospection for the 7/14/2015"));
+            dummyList.Add(new ArtifactTest("Your retrospection for the 7/14/2015 - Microsoft Edge", "Microsoft Edge", "Your retrospection for the 7/14/2015"));
+            dummyList.Add(new ArtifactTest("Your retrospection for the 7/15/2015 ?- Microsoft Edge", "Microsoft Edge", "Your retrospection for the 7/15/2015"));
             dummyList.Add(new ArtifactTest("SiriusXM - Channel Line up - Google Chrome", "chrome", "SiriusXM - Channel Line up"));
             dummyList.Add(new ArtifactTest("Grant access to Visual Studio Online for Power BI - Internet Explorer", "iexplore", "Grant access to Visual Studio Online for Power BI"));
             dummyList.Add(new ArtifactTest("Search | King County Library System | BiblioCommons - Mozilla Firefox", "firefox", "Search | King County Library System | BiblioCommons"));

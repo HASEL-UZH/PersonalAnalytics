@@ -14,6 +14,7 @@ using System.Globalization;
 using PersonalAnalytics.Helpers;
 using System.Collections.Generic;
 using System.Deployment.Application;
+using Shared.Helpers;
 
 namespace PersonalAnalytics
 {
@@ -99,15 +100,16 @@ namespace PersonalAnalytics
             RegisterAppForPcStartup();
 
             // add a firewall exception
-            //AddFirewallException(); // TODO: problems if not system admin
+            //AddFirewallException(); // disabled because it causes problems if not system admin
 
 
             //////////////////////////////////////////////////////
             // Start Tracker Manager (i.e. the monitoring tool)
             //////////////////////////////////////////////////////
             var trackers = TrackerManager.GetInstance().RegisterTrackers();
-            TrackerManager.GetInstance().Start();
             TrackerManager.GetInstance().SetAppVersion(GetPublishedAppVersion());
+            FlowLight.Handler.GetInstance().SetTrackers(trackers);
+            TrackerManager.GetInstance().Start();
 
 
             //////////////////////////////////////////////////////
@@ -119,7 +121,18 @@ namespace PersonalAnalytics
             //////////////////////////////////////////////////////
             // Start the Retrospection
             //////////////////////////////////////////////////////
-            Retrospection.Handler.GetInstance().Start(trackers, GetPublishedAppVersion()); // register the same trackers from the monitoring tool for the retrospection
+            if (Retrospection.Settings.IsEnabled)
+            {
+                Retrospection.Handler.GetInstance().Start(trackers, GetPublishedAppVersion()); // register the same trackers from the monitoring tool for the retrospection
+            }
+
+            //////////////////////////////////////////////////////
+            // Start the FlowLight
+            //////////////////////////////////////////////////////
+            if (FlowLight.Handler.GetInstance().FlowLightEnabled)
+            {
+                FlowLight.Handler.GetInstance().Start();
+            }
         }
 
         /// <summary>
@@ -212,9 +225,12 @@ namespace PersonalAnalytics
         /// <returns></returns>
         private static string GetPublishedAppVersion()
         {
-            if (!ApplicationDeployment.IsNetworkDeployed) return "?.?.?.?";
-            var cd = ApplicationDeployment.CurrentDeployment;
-            return string.Format(CultureInfo.InvariantCulture, "{0}.{1}.{2}.{3}", cd.CurrentVersion.Major, cd.CurrentVersion.Minor, cd.CurrentVersion.Build, cd.CurrentVersion.Revision);
+            Version v = null;
+            if (ApplicationDeployment.IsNetworkDeployed)
+            {
+                v = ApplicationDeployment.CurrentDeployment.CurrentVersion;
+            }
+            return VersionHelper.GetFormattedVersion(v);
         }
     }
 }

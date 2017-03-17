@@ -13,6 +13,9 @@ using Shared.Data;
 using System.Globalization;
 using System.Threading;
 using MsOfficeTracker.Helpers;
+using System.Reflection;
+using System.Windows.Controls;
+using MsOfficeTracker.Views;
 
 namespace MsOfficeTracker
 {
@@ -25,32 +28,11 @@ namespace MsOfficeTracker
 
         public Daemon()
         {
-            Name = "Office 365 Tracker";
+            Name = Settings.TrackerName;
         }
 
         public async override void Start()
         {
-            // on first start, a pop-up is shown to ask the user to enable/disable the tracker
-            if (IsOffice365ApiFirstUse())
-            {
-                var msg = string.Format(CultureInfo.InvariantCulture, "This version of the {1} tool allows you to collect information about the meetings you attend and the emails you send/receive in a work day. In case you enable this tracker, you will need to authenticate with your Office 365 work account.\n\nThe contents of the emails and meetings are NOT accessed. You can manually disable or enable this tracker anytime in the settings.\n\nDo you want to enable the {0}?", Name, Dict.ToolName);
-                var res = MessageBox.Show(msg,
-                    Dict.ToolName + ": " + Name, 
-                    MessageBoxButton.YesNo);
-                if (res == MessageBoxResult.Yes)
-                {
-                    _msOfficeTrackerEnabled = true;
-                    Database.GetInstance().SetSettings("MsOfficeTrackerEnabled", true);
-                }
-                else
-                {
-                    IsRunning = false;
-                    MsOfficeTrackerEnabled = false;
-                    return; // don't start the tracker !
-                }
-            }
-
-
             // initialize API & authenticate if necessary
             var isAuthenticated = await Office365Api.GetInstance().Authenticate();
 
@@ -61,6 +43,7 @@ namespace MsOfficeTracker
 
                 var msg = string.Format(CultureInfo.InvariantCulture, "The {0} was disabled as the authentication with Office 365 failed. Maybe you don't have an internet connection or the Office 365 credentials were wrong.\n\nThe tool will prompt the Office 365 login again with the next start of the application. You can also disable the {0} in the settings.\n\nIf the problem persists, please contact us via " + Shared.Settings.EmailAddress1 + " and attach the logfile.", Name);
                 MessageBox.Show(msg, Dict.ToolName + ": Error", MessageBoxButton.OK); //todo: use toast message
+                return;
             }
             else
             {
@@ -99,14 +82,12 @@ namespace MsOfficeTracker
         {
             Queries.UpdateDatabaseTables(version);
         }
+        
+        public override bool IsFirstStart { get { return !Database.GetInstance().HasSetting("MsOfficeTrackerEnabled"); } }
 
-        /// <summary>
-        /// Checks if the office API is used for the first time
-        /// </summary>
-        /// <returns>true if there is no setting stored, else otherwise</returns>
-        private bool IsOffice365ApiFirstUse ()
+        public override List<IFirstStartScreen> GetStartScreens()
         {
-            return ! Database.GetInstance().HasSetting("MsOfficeTrackerEnabled");
+            return new List<IFirstStartScreen>() { new FirstStartScreen() };
         }
 
         public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
@@ -121,6 +102,12 @@ namespace MsOfficeTracker
         public override bool IsEnabled()
         {
             return MsOfficeTrackerEnabled;
+        }
+
+        public override string GetVersion()
+        {
+            var v = new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version;
+            return Shared.Helpers.VersionHelper.GetFormattedVersion(v);
         }
 
         private bool _msOfficeTrackerEnabled;
@@ -148,6 +135,7 @@ namespace MsOfficeTracker
                 }
                 else if (updatedIsEnabled && !IsRunning)
                 {
+                    CreateDatabaseTablesIfNotExist();
                     Start();
                 }
 
