@@ -103,7 +103,7 @@ namespace UserEfficiencyTracker
 
         public override bool IsEnabled()
         {
-            return true; // currently, it is always enabled
+            return PopUpEnabled;
         }
 
         public override string GetVersion()
