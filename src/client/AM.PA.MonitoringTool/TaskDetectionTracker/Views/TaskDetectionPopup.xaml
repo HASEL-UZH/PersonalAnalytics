@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:TaskDetectionTracker.Views"
              xmlns:paColors="clr-namespace:Shared;assembly=Shared"
              mc:Ignorable="d" 
-             Title="PersonalAnalytics: Validate Task Boundaries" Width="1800" Height="600" WindowStyle="None" SizeChanged="Window_SizeChanged">
+             Title="PersonalAnalytics: Validate Task Boundaries" Width="1800" Height="600" SizeChanged="Window_SizeChanged">
     
     <Grid>
         <Grid.RowDefinitions>
@@ -21,8 +21,8 @@
             <TextBlock Grid.Row="0" FontSize="16" VerticalAlignment="Center" Margin="10 0 0 0" Text="Validate Task Boundaries" Foreground="White" />
         </Grid>
 
-        <TextBlock Grid.Row="1">
-            Hint: Which task boundaries are okay, which not... Then click save.
+        <TextBlock Grid.Row="1" FontSize="18" Margin="20">
+            Hint: Please tick the correct task boundaries. In case there is not task boundary, add a new box.
         </TextBlock>
 
         <ItemsControl Grid.Row="2" ItemsSource="{Binding RectItems}" Name="Timeline">
@@ -39,13 +39,17 @@
             </ItemsControl.ItemContainerStyle>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Orientation="Vertical">
-                        <Grid>
-                            <Rectangle Width="1" Height="100" Fill="Blue" HorizontalAlignment="Right"></Rectangle>
-                            <Rectangle Width="{Binding Width}" Height="{Binding Height}" Fill="{Binding Color}" ToolTip="{Binding Tooltip}"/>
-                        </Grid>
-                        <Button HorizontalAlignment="Left" Width="10" Height="10">X</Button>
-                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Rectangle Width="{Binding Width}" Height="{Binding Height}" Fill="{Binding Color}" ToolTip="{Binding Tooltip}"/>
+                        <StackPanel Orientation="Vertical">
+                            <Rectangle Width="{Binding TaskBoundaryWidth}" Height="100" Fill="LightBlue" HorizontalAlignment="Left"></Rectangle>
+                            <CheckBox Margin="0 10 0 0" Width="{Binding TaskCheckboxWidth}" IsChecked="False" HorizontalAlignment="Left">
+                                <CheckBox.RenderTransform>
+                                    <TranslateTransform X="{Binding TaskBoundaryTransform}"/>
+                                </CheckBox.RenderTransform>
+                           </CheckBox>
+                       </StackPanel>
+                   </StackPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

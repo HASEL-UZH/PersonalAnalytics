@@ -31,7 +31,7 @@ namespace TaskDetectionTracker.Views
 
             StartTime.Inlines.Add(_processes.First().Start.ToShortTimeString());
             EndTime.Inlines.Add(_processes.Last().End.ToShortTimeString());
-
+            
             RectItems = new ObservableCollection<ProcessRectangle>();
             GenerateRectangles();
         }
@@ -44,9 +44,12 @@ namespace TaskDetectionTracker.Views
 
         private void GenerateRectangles()
         {
+            double margin = 20;
+            double totalTaskBorderSpace = _processes.Count * ProcessRectangle.TaskBoundaryWidth;
+
             double totalDuration = _processes.Sum(p => p.End.Subtract(p.Start).TotalSeconds);
-            double totalWidth = this.Width - 40;
-            double x = 20;
+            double totalWidth = this.Width - (2 * margin) - totalTaskBorderSpace;
+            double x = margin;
 
             for (int i = 0; i < _processes.Count; i++)
             {
@@ -65,7 +68,7 @@ namespace TaskDetectionTracker.Views
                 }
 
                 RectItems.Add(new ProcessRectangle { X = x, Y = 100, Width = width, Height = 20, Color = color, Tooltip = tooltip });
-                x += width;
+                x += (width + ProcessRectangle.TaskBoundaryWidth);
             }
         }
         
