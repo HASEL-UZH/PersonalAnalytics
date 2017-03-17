@@ -45,8 +45,8 @@ namespace TaskDetectionTracker.Views
         private void GenerateRectangles()
         {
             double totalDuration = _processes.Sum(p => p.End.Subtract(p.Start).TotalSeconds);
-            double totalWidth = this.Width;
-            double x = 0;
+            double totalWidth = this.Width - 40;
+            double x = 20;
 
             for (int i = 0; i < _processes.Count; i++)
             {
