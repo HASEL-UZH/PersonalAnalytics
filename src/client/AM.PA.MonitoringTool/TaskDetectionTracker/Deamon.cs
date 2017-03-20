@@ -19,11 +19,12 @@ namespace TaskDetectionTracker
 {
     public class Deamon : BaseTracker, ITracker
     {
-
-        #region ITracker Stuff
-
         private DispatcherTimer _popUpTimer;
         private DispatcherTimer _popUpReminderTimer;
+
+        private DateTime _lastPopUpResponse = DateTime.MinValue;
+
+        #region ITracker Stuff
 
         public Deamon()
         {
@@ -88,25 +89,43 @@ namespace TaskDetectionTracker
             //not needed
         }
 
+        public override string GetStatus()
+        {
+            var nextSurveyTs = _lastPopUpResponse.Add(Settings.PopUpInterval);
+            return (!IsRunning || !_popUpTimer.IsEnabled)
+                ? Name + " is NOT running"
+                : Name + " is running. Next task detection validation at " + nextSurveyTs.ToShortDateString() + " " + nextSurveyTs.ToShortTimeString() + ".";
+        }
+
         #endregion
 
         private void PopUp_Tick(object sender, EventArgs e)
         {
-            // re-start pop-up timer 
-            // > what if person is IDLE 2 hours????? (still per hour?), what if end of workday ????
+            // stop pop-up timer
+            _popUpTimer.Stop();
 
             // load all data first
             var taskDetections = PrepareTaskDetectionDataForPopup();
 
             // show pop-up 
             ShowTaskDetectionValidationPopup(taskDetections);
-
-            // re-start pop-up reminder timer
-            _popUpReminderTimer.Start(); // TODO: check if full 10min are reset
         }
 
+        /// <summary>
+        /// Show the task detection validation for the time since the last 
+        /// time the participant answered the popup
+        /// </summary>
+        /// <returns></returns>
         private List<TaskDetection> PrepareTaskDetectionDataForPopup()
         {
+            // get session start and end
+            var sessionStart = _lastPopUpResponse;
+            if (_lastPopUpResponse == DateTime.MinValue || _lastPopUpResponse.Date != DateTime.Now.Date)
+            {
+                _lastPopUpResponse = Database.GetInstance().GetUserWorkStart(DateTime.Now.Date);
+            }
+            var sessionEnd = DateTime.Now;
+
             var processes = new List<TaskDetectionInput>(); // TODO: get list of processes (+ user input) from database
             var taskDetections = new List<TaskDetection>(); // TODO: run task detection (using Katja's helper, likely on separate thread)
 
