@@ -88,13 +88,13 @@
                                     </ItemsControl.ItemContainerStyle>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Grid Width="{Binding Width}">
+                                            <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*" />
                                                     <ColumnDefinition Width="auto" />
                                                 </Grid.ColumnDefinitions>
-                                                <Rectangle Grid.Column="0" Height="{Binding Height}" Fill="{Binding Color}" ToolTip="{Binding Tooltip}"></Rectangle>
-                                                <Rectangle Grid.Column="1" Width="{Binding TaskBoundaryWidth}" Fill="{x:Static paColors:Settings.RetrospectionColorBrush}" Visibility="{Binding Path=IsVisible, Converter={StaticResource BoolToVisConverter}}">
+                                                <Rectangle Grid.Column="0" Width="{Binding Width}" Height="{Binding Height}" Fill="{Binding Color}" ToolTip="{Binding Tooltip}"></Rectangle>
+                                                <Rectangle Grid.Column="1" MouseLeftButtonDown="Rectangle_MouseLeftButtonDown" Width="{Binding TaskBoundaryWidth}" Fill="{x:Static paColors:Settings.RetrospectionColorBrush}" Visibility="{Binding Path=IsVisible, Converter={StaticResource BoolToVisConverter}}">
                                                     <Rectangle.RenderTransform>
                                                         <TransformGroup>
                                                             <ScaleTransform ScaleY="-4" />

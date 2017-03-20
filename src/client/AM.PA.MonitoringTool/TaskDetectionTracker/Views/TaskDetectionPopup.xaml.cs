@@ -12,6 +12,9 @@ using System.Windows.Media;
 using System;
 using System.Windows.Threading;
 using System.ComponentModel;
+using System.Windows.Input;
+using System.Diagnostics;
+using System.Windows.Shapes;
 
 namespace TaskDetectionTracker.Views
 {
@@ -115,10 +118,16 @@ namespace TaskDetectionTracker.Views
 
         #endregion
 
-        Brush[] brushes = new Brush[]
+        Brush[] taskBrushes = new Brush[]
         {
             Brushes.Beige,
             Brushes.AliceBlue
+        };
+
+        Brush[] processBrushes = new Brush[]
+        {
+            Brushes.Violet,
+            Brushes.Green
         };
 
         private void GenerateRectangles()
@@ -141,32 +150,34 @@ namespace TaskDetectionTracker.Views
                 bool hasKey = colors.TryGetValue(task.TaskTypeProposed, out color);
                 if (!hasKey)
                 {
-                    color = brushes[colors.Keys.Count % brushes.Length];
+                    color = taskBrushes[colors.Keys.Count % taskBrushes.Length];
                     colors.Add(task.TaskTypeProposed, color);
                 }
 
                 var processRectangles = new ObservableCollection<ProcessRectangle>();
                 double totalProcessDuration = task.TimelineInfos.Sum(p => p.End.Subtract(p.Start).TotalSeconds);
-                
+                double processBorderWidth = (task.TimelineInfos.Count - 1) * ProcessRectangle.TaskBoundaryWidth;
+
                 double processX = 0;
                 var lastProcess = task.TimelineInfos.Last();
                 foreach (TaskDetectionInput process in task.TimelineInfos)
                 {
                     double processDuration = process.End.Subtract(process.Start).TotalSeconds;
-                    double processWidth = processDuration * (width / totalProcessDuration);
+                    
+                    double processWidth = processDuration * ((width - processBorderWidth) / totalProcessDuration);
                     string tooltip = string.Join(Environment.NewLine, process.WindowTitles) + Environment.NewLine + "Keystrokes: " + process.NumberOfKeystrokes + Environment.NewLine + "Mouse clicks: " + process.NumberOfMouseClicks;
 
                     Brush processColor;
                     bool hasProcessKey = colors.TryGetValue(process.ProcessName, out processColor);
                     if (!hasProcessKey)
                     {
-                        processColor = brushes[colors.Keys.Count % brushes.Length];
+                        processColor = processBrushes[colors.Keys.Count % processBrushes.Length];
                         colors.Add(process.ProcessName, processColor);
                     }
 
                     bool visibility = lastProcess.Equals(process) ? false : true;
                     processRectangles.Add(new ProcessRectangle { Width = processWidth, Height = 30, X = processX, Color = processColor, Tooltip = tooltip, IsVisible = visibility });
-                    processX += processWidth;
+                    processX += (processWidth + ProcessRectangle.TaskBoundaryWidth);
                 }
 
                 RectItems.Add(new TaskRectangle { X = x, Width = width, Height = 30, Color = color, ProcessRectangle = processRectangles, TaskName = task.TaskTypeProposed, Timestamp = task.End.ToShortTimeString() });
@@ -189,6 +200,11 @@ namespace TaskDetectionTracker.Views
         {
             RectItems.Clear();
             GenerateRectangles();
+        }
+
+        private void Rectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Trace.WriteLine( (sender as Rectangle).DataContext);
         }
     }
 }
