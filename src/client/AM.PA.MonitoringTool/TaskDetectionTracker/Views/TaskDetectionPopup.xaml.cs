@@ -10,6 +10,8 @@ using TaskDetectionTracker.Model;
 using System.Linq;
 using System.Windows.Media;
 using System;
+using System.Windows.Threading;
+using System.ComponentModel;
 
 namespace TaskDetectionTracker.Views
 {
@@ -18,7 +20,9 @@ namespace TaskDetectionTracker.Views
     /// </summary>
     public partial class TaskDetectionPopup : Window
     {
-        public bool ValidationComplete { get; set; }
+        public bool ValidationComplete { get; set; } // TODO: remove
+
+        private DispatcherTimer _popUpReminderTimer;
 
         private List<TaskDetection> _tasks;
         private Dictionary<string, Brush> colors = new Dictionary<string, Brush>();
@@ -27,18 +31,86 @@ namespace TaskDetectionTracker.Views
 
         public TaskDetectionPopup(List<TaskDetection> tasks)
         {
-            this._tasks = tasks;
             InitializeComponent();
+
+            this.StateChanged += Window_StateChanged;
+            this.Closing += Window_OnClosing;
+            this.SizeChanged += Window_SizeChanged;
 
             Timeline.DataContext = this;
             
-
+            this._tasks = tasks;
             StartTime.Inlines.Add(_tasks.First().Start.ToShortTimeString());
             EndTime.Inlines.Add(_tasks.Last().End.ToShortTimeString());
             
             RectItems = new ObservableCollection<TaskRectangle>();
             GenerateRectangles();
         }
+
+        #region Handle PopUp Response (Reminder, avoid closing before validated, etc.)
+
+        /// <summary>
+        /// Prevent the window from closing. Minimize it.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_OnClosing(object sender, CancelEventArgs e)
+        {
+            // TODO: add messagebox in red to emphasize how important it is to answer this popup. And say please and thanks ;)
+            e.Cancel = true;
+            WindowState = WindowState.Minimized;
+        }
+
+        /// <summary>
+        /// Start the popup reminder when the user minimizes the popup
+        /// Stop the popup reminder when the user opens/maximizes the popup
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_StateChanged(object sender, EventArgs e)
+        {
+            switch(WindowState)
+            {
+                case WindowState.Minimized:
+                    StartReminderTimer();
+                    break;
+                case WindowState.Maximized:
+                case WindowState.Normal:
+                    StopReminderTimer();
+                    RedrawTimeline();
+                    break;
+            }
+        }
+
+        private void StartReminderTimer()
+        {
+            if (_popUpReminderTimer != null)
+            {
+                _popUpReminderTimer = null;
+            }
+
+            _popUpReminderTimer = new DispatcherTimer();
+            _popUpReminderTimer.Interval = Settings.PopUpReminderInterval;
+            _popUpReminderTimer.Tick += PopUpReminder_Tick;
+            _popUpReminderTimer.Start();
+        }
+
+        private void StopReminderTimer()
+        {
+            if (_popUpReminderTimer != null)
+            {
+                _popUpReminderTimer.Stop();
+                _popUpReminderTimer = null;
+            }
+        }
+
+        private void PopUpReminder_Tick(object sender, EventArgs e)
+        {
+            // TODO: add text in red to emphasize how important it is to answer this popup. And say please and thanks ;)
+            WindowState = WindowState.Normal;
+        }
+
+        #endregion
 
         Brush[] brushes = new Brush[]
         {
@@ -104,6 +176,11 @@ namespace TaskDetectionTracker.Views
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            RedrawTimeline();
+        }
+
+        private void RedrawTimeline()
         {
             RectItems.Clear();
             GenerateRectangles();

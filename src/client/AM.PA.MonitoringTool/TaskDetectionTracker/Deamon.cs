@@ -20,7 +20,6 @@ namespace TaskDetectionTracker
     public class Deamon : BaseTracker, ITracker
     {
         private DispatcherTimer _popUpTimer;
-        private DispatcherTimer _popUpReminderTimer;
 
         private DateTime _lastPopUpResponse = DateTime.MinValue;
 
@@ -33,7 +32,7 @@ namespace TaskDetectionTracker
 
         public override void Start()
         {
-            if (_popUpTimer != null || _popUpReminderTimer != null)
+            if (_popUpTimer != null)
             {
                 Stop(); // stop timers
             }
@@ -42,11 +41,6 @@ namespace TaskDetectionTracker
             _popUpTimer = new DispatcherTimer();
             _popUpTimer.Interval = Settings.PopUpInterval;
             _popUpTimer.Tick += PopUp_Tick;
-
-            // initialize the popup reminder timer
-            _popUpReminderTimer = new DispatcherTimer();
-            _popUpReminderTimer.Interval = Settings.PopUpReminderInterval;
-            _popUpReminderTimer.Tick += PopUpReminder_Tick;
 
             IsRunning = true;
         }
@@ -57,11 +51,6 @@ namespace TaskDetectionTracker
             {
                 _popUpTimer.Stop();
                 _popUpTimer = null;
-            }
-            if (_popUpReminderTimer != null)
-            {
-                _popUpReminderTimer.Stop();
-                _popUpReminderTimer = null;
             }
 
             IsRunning = false;
@@ -153,7 +142,7 @@ namespace TaskDetectionTracker
                     }
                     else
                     {
-                        // we get here when DialogResult is set to false (which never happens) 
+                        // we get here when DialogResult is set to false (which should never happen) 
                         Database.GetInstance().LogErrorUnknown("DialogResult of PopUp was set to false in tracker: " + Name);
                     }
                 }));
@@ -173,22 +162,15 @@ namespace TaskDetectionTracker
         {
             if (popup.ValidationComplete)
             {
-                // no need for the reminder anymore
-                _popUpReminderTimer.Stop();
-
                 // save validation responses to the database
                 DatabaseConnector.TaskDetectionSession_SaveToDatabase(taskDetections);
             }
             else
             {
-                // TODO: restart popup !!
+                // we get here when DialogResult is set to false (which never happens) 
+                Database.GetInstance().LogErrorUnknown("User closed the PopUp without completing the validation in tracker: " + Name);
+                //TODO: what happens here?
             }
-        }
-
-        private void PopUpReminder_Tick(object sender, EventArgs e)
-        {
-            // TODO: show reminder for timespan
-            // TODO: get the timespan that is still missing
         }
     }
 }

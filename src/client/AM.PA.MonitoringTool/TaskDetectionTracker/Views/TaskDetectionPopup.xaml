@@ -6,7 +6,7 @@
     xmlns:local="clr-namespace:TaskDetectionTracker.Views"
     xmlns:paColors="clr-namespace:Shared;assembly=Shared"
     mc:Ignorable="d" Topmost="True"
-    Title="PersonalAnalytics: Validate Task Detection" Width="1800" Height="600" SizeChanged="Window_SizeChanged">
+    Title="PersonalAnalytics: Validate Task Detection" Width="1800" Height="600">
     
     <Grid>
         <Grid.RowDefinitions>
