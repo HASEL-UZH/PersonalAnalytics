@@ -48,7 +48,12 @@
                                     <TranslateTransform X="{Binding TaskBoundaryTransform}"/>
                                 </CheckBox.RenderTransform>
                            </CheckBox>
-                       </StackPanel>
+                            <CheckBox Margin="0 10 0 0" Width="{Binding TaskCheckboxWidth}" IsChecked="False" HorizontalAlignment="Left">
+                                <CheckBox.RenderTransform>
+                                    <TranslateTransform X="{Binding TaskBoundaryTransform}"/>
+                                </CheckBox.RenderTransform>
+                            </CheckBox>
+                        </StackPanel>
                    </StackPanel>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
