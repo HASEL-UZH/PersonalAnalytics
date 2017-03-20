@@ -149,6 +149,7 @@ namespace TaskDetectionTracker.Views
                 double totalProcessDuration = task.TimelineInfos.Sum(p => p.End.Subtract(p.Start).TotalSeconds);
                 
                 double processX = 0;
+                var lastProcess = task.TimelineInfos.Last();
                 foreach (TaskDetectionInput process in task.TimelineInfos)
                 {
                     double processDuration = process.End.Subtract(process.Start).TotalSeconds;
@@ -163,7 +164,8 @@ namespace TaskDetectionTracker.Views
                         colors.Add(process.ProcessName, processColor);
                     }
 
-                    processRectangles.Add(new ProcessRectangle { Width = processWidth, Height = 30, X = processX, Color = processColor, Tooltip = tooltip });
+                    bool visibility = lastProcess.Equals(process) ? false : true;
+                    processRectangles.Add(new ProcessRectangle { Width = processWidth, Height = 30, X = processX, Color = processColor, Tooltip = tooltip, IsVisible = visibility });
                     processX += processWidth;
                 }
 

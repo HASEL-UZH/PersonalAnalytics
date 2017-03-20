@@ -24,10 +24,7 @@ namespace TaskDetectionTracker.Views
 
         private static double _taskCheckboxWidth = 15;
         public static double TaskCheckboxWidth { get { return _taskCheckboxWidth; } }
-
-        private static double _taskBoundaryTransform = -1 * TaskBoundaryWidth;
-        public static double TaskBoundaryTransform { get { return _taskBoundaryTransform; } }
-
+        
         //Process rectangle
         public ObservableCollection<ProcessRectangle> ProcessRectangle { get; set; }
     }
@@ -38,5 +35,10 @@ namespace TaskDetectionTracker.Views
         public double X { get; set; }
         public Brush Color { get; set; }
         public string Tooltip { get; set; }
+        
+        //Potential task boundary
+        private static double _taskBoundaryWidth = 5;
+        public static double TaskBoundaryWidth { get { return _taskBoundaryWidth; } }
+        public bool IsVisible { get; set; }
     }
 }
