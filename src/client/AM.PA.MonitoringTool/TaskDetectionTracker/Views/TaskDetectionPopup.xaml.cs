@@ -22,6 +22,9 @@ namespace TaskDetectionTracker.Views
         private Dictionary<string, Brush> colors = new Dictionary<string, Brush>();
 
         public ObservableCollection<TaskRectangle> RectItems { get; set; }
+         
+        //Canvas width
+        public static double CanvasWidth { get { return 3000; } }
 
         public TaskDetectionPopup(List<TaskDetection> tasks)
         {
@@ -30,7 +33,6 @@ namespace TaskDetectionTracker.Views
 
             Timeline.DataContext = this;
             
-
             StartTime.Inlines.Add(_tasks.First().Start.ToShortTimeString());
             EndTime.Inlines.Add(_tasks.Last().End.ToShortTimeString());
             
@@ -50,7 +52,7 @@ namespace TaskDetectionTracker.Views
             double totalTaskBorderSpace = _tasks.Count * TaskRectangle.TaskBoundaryWidth;
 
             double totalDuration = _tasks.Sum(p => p.End.Subtract(p.Start).TotalSeconds);
-            double totalWidth = this.Width - (2 * margin) - totalTaskBorderSpace;
+            double totalWidth = CanvasWidth - (2 * margin) - totalTaskBorderSpace;
             double x = margin;
 
             for (int i = 0; i < _tasks.Count; i++)
