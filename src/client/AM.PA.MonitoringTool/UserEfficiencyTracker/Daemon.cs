@@ -254,7 +254,7 @@ namespace UserEfficiencyTracker
                     else
                     {
                         // we get here when DialogResult is set to false (which never happens) 
-                        Database.GetInstance().LogErrorUnknown(Name);
+                        Database.GetInstance().LogErrorUnknown("DialogResult of PopUp was set to false in tracker: " + Name);
 
                         // to ensure it still shows some pop-ups later 
                         _timeRemainingUntilNextSurvey = PopUpIntervalInMins;

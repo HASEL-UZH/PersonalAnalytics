@@ -96,36 +96,80 @@ namespace TaskDetectionTracker
             // > what if person is IDLE 2 hours????? (still per hour?), what if end of workday ????
 
             // load all data first
-            // > TODO: implement
+            var taskDetections = PrepareTaskDetectionDataForPopup();
 
             // show pop-up 
-            // > when closed:
-            //   > if un-answered: restart popup & ask again to do it
-            //   > if answered: stop the popupremindertimer
+            ShowTaskDetectionValidationPopup(taskDetections);
 
             // re-start pop-up reminder timer
             _popUpReminderTimer.Start(); // TODO: check if full 10min are reset
         }
 
-        private void PopUpReminder_Tick(object sender, EventArgs e)
+        private List<TaskDetection> PrepareTaskDetectionDataForPopup()
         {
-            // TODO: show reminder for timespan
-            // TODO: get the timespan that is still missing
+            var processes = new List<TaskDetectionInput>(); // TODO: get list of processes (+ user input) from database
+            var taskDetections = new List<TaskDetection>(); // TODO: run task detection (using Katja's helper, likely on separate thread)
+
+            return taskDetections;
         }
 
-        private void ShowTaskDetectionPopup()
+        /// <summary>
+        /// Shows a popup with all detected task switches and asks the user
+        /// to validate them. The response is handled in a separate method.
+        /// </summary>
+        /// <param name="taskDetections"></param>
+        private void ShowTaskDetectionValidationPopup(List<TaskDetection> taskDetections)
         {
             try
             {
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(
                 () =>
                 {
-                    var popup = new TaskDetectionPopup(new List<TaskDetection>());
-                    popup.ShowDialog();
+                    var popup = new TaskDetectionPopup(taskDetections);
+
+                    // show popup & handle response
+                    if (popup.ShowDialog() == true)
+                    {
+                        HandlePopUpResponse(popup, taskDetections);
+                    }
+                    else
+                    {
+                        // we get here when DialogResult is set to false (which never happens) 
+                        Database.GetInstance().LogErrorUnknown("DialogResult of PopUp was set to false in tracker: " + Name);
+                    }
                 }));
             }
             catch (ThreadAbortException e) { Database.GetInstance().LogError(Name + ": " + e.Message); }
-            catch (Exception e) { Database.GetInstance().LogError(Name + ": " + e.Message); }
+            catch (Exception e) { Logger.WriteToLogFile(e); }
+        }
+
+        /// <summary>
+        /// Handles the popup response.
+        /// - if answered: stores the validation in the database
+        /// - else: re-opens the window and asks the user to do it again
+        /// </summary>
+        /// <param name="taskDetectionPopup"></param>
+        /// <param name="popup"></param>
+        private void HandlePopUpResponse(TaskDetectionPopup popup, List<TaskDetection> taskDetections)
+        {
+            if (popup.ValidationComplete)
+            {
+                // no need for the reminder anymore
+                _popUpReminderTimer.Stop();
+
+                // save validation responses to the database
+                DatabaseConnector.TaskDetectionSession_SaveToDatabase(taskDetections);
+            }
+            else
+            {
+                // TODO: restart popup !!
+            }
+        }
+
+        private void PopUpReminder_Tick(object sender, EventArgs e)
+        {
+            // TODO: show reminder for timespan
+            // TODO: get the timespan that is still missing
         }
     }
 }
