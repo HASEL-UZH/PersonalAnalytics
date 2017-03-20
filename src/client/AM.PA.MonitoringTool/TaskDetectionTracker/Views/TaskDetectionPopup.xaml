@@ -47,12 +47,19 @@
                             <ColumnDefinition Width="auto"/>
                             <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
-                   
-                        <Label Grid.Row="0" Content="{Binding TaskName}" Grid.Column="0" Width="{Binding Width}" Height="{Binding Height}" Background="{Binding Color}"/>
 
+                        <Grid Grid.Row="0" Grid.Column="0" Width="{Binding Width}" Height="{Binding Height}" Background="{Binding Color}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="auto" />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0" Content="{Binding TaskName}"/>
+                            <CheckBox Grid.Column="1" VerticalAlignment="Center"></CheckBox>
+                        </Grid>
+                        
                         <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Orientation="Horizontal">
                             <StackPanel Orientation="Vertical">
-                                <Rectangle Width="{Binding TaskBoundaryWidth}" Margin="0 30 0 0" Height="120" Fill="LightBlue" HorizontalAlignment="Left"></Rectangle>
+                                <Rectangle Width="{Binding TaskBoundaryWidth}" Margin="0 30 0 0" Height="120" Fill="{x:Static paColors:Settings.RetrospectionColorBrush}" HorizontalAlignment="Left"></Rectangle>
                                 <CheckBox Margin="0 10 0 0" Width="{Binding TaskCheckboxWidth}" IsChecked="False" HorizontalAlignment="Left"></CheckBox>
                                 <CheckBox Margin="0 10 0 0" Width="{Binding TaskCheckboxWidth}" IsChecked="False" HorizontalAlignment="Left"></CheckBox>
                             </StackPanel>
