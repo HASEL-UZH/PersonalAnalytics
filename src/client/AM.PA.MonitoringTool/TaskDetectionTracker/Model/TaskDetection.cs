@@ -10,24 +10,18 @@ namespace TaskDetectionTracker.Model
 {
     public class TaskDetection
     {
-        private int _sessionID;
         private DateTime _start;
-        private DateTime _end;
-        private DateTime _timeOfSwitch;
+        private DateTime _end; //time of switch away
         private string _taskTypeProposed;
-        private string _taskTypeValidated;
+        private string _taskTypeValidated; //empty at the beginning
         private TaskDetectionCase _taskDetectionCase;
         private List<TaskDetectionInput> _timelineInfos;
-        private string _comment;
-
-        public int SessionID { get { return _sessionID; } set { _sessionID = value; } }
+        
         public DateTime Start { get { return _start; } set { _start = value; } }
         public DateTime End { get { return _end; } set { _end = value; } }
-        public DateTime TimeOfSwitch { get { return _timeOfSwitch; } set { _timeOfSwitch = value; } }
         public string TaskTypeProposed { get { return _taskTypeProposed; } set { _taskTypeProposed = value; } }
         public string TaskTypeValidated { get { return _taskTypeValidated; } set { _taskTypeValidated = value; } }
         public TaskDetectionCase TaskDetectionCase { get { return _taskDetectionCase; } set { _taskDetectionCase = value; } }
         public List<TaskDetectionInput> TimelineInfos { get { return _timelineInfos; } set { _timelineInfos = value; } }
-        public string Comment { get { return _comment; } set { _comment = value; } }
     }
 }
