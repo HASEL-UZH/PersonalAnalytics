@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataMerger.cs" />
+    <Compile Include="Data\DatabaseConnector.cs" />
     <Compile Include="Deamon.cs" />
     <Compile Include="Model\TaskDetection.cs" />
     <Compile Include="Model\TaskDetectionCase.cs" />

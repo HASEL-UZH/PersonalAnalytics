@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
+using TaskDetectionTracker.Data;
 using TaskDetectionTracker.Model;
 using TaskDetectionTracker.Views;
 
@@ -21,14 +22,53 @@ namespace TaskDetectionTracker
 
         #region ITracker Stuff
 
+        private DispatcherTimer _popUpTimer;
+        private DispatcherTimer _popUpReminderTimer;
+
         public Deamon()
         {
             Name = Settings.TrackerName;
         }
 
+        public override void Start()
+        {
+            if (_popUpTimer != null || _popUpReminderTimer != null)
+            {
+                Stop(); // stop timers
+            }
+
+            // initialize the popup timer
+            _popUpTimer = new DispatcherTimer();
+            _popUpTimer.Interval = Settings.PopUpInterval;
+            _popUpTimer.Tick += PopUp_Tick;
+
+            // initialize the popup reminder timer
+            _popUpReminderTimer = new DispatcherTimer();
+            _popUpReminderTimer.Interval = Settings.PopUpReminderInterval;
+            _popUpReminderTimer.Tick += PopUpReminder_Tick;
+
+            IsRunning = true;
+        }
+
+        public override void Stop()
+        {
+            if (_popUpTimer != null)
+            {
+                _popUpTimer.Stop();
+                _popUpTimer = null;
+            }
+            if (_popUpReminderTimer != null)
+            {
+                _popUpReminderTimer.Stop();
+                _popUpReminderTimer = null;
+            }
+
+            IsRunning = false;
+        }
+
         public override void CreateDatabaseTablesIfNotExist()
         {
-            //TODO: create table
+            DatabaseConnector.CreateTaskDetectionValidationTable();
         }
 
         public override string GetVersion()
@@ -39,21 +79,8 @@ namespace TaskDetectionTracker
 
         public override bool IsEnabled()
         {
+            // no settings, meaning: the user cannot disable it
             return Settings.IsEnabledByDefault;
-        }
-
-        public override void Start()
-        {
-            //TODO: start timer
-       
-            IsRunning = true;
-        }
-
-        public override void Stop()
-        {
-            //TODO: stop timer
-
-            IsRunning = false;
         }
 
         public override void UpdateDatabaseTables(int version)
@@ -62,6 +89,27 @@ namespace TaskDetectionTracker
         }
 
         #endregion
+
+        private void PopUp_Tick(object sender, EventArgs e)
+        {
+            // re-start pop-up timer 
+            // > what if person is IDLE 2 hours????? (still per hour?), what if end of workday ????
+
+            // load all data first
+            // > TODO: implement
+
+            // show pop-up 
+            // > if answered: stop the popupremindertimer
+
+            // re-start pop-up reminder timer
+            _popUpReminderTimer.Start(); // TODO: check if full 10min are reset
+        }
+
+        private void PopUpReminder_Tick(object sender, EventArgs e)
+        {
+            // TODO: show reminder for timespan
+            // TODO: get the timespan that is still missing
+        }
 
         private void ShowTaskDetectionPopup()
         {
