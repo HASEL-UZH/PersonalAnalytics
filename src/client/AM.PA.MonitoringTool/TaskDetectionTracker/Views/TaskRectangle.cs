@@ -5,6 +5,7 @@
 
 using System.Collections.ObjectModel;
 using System.Windows.Media;
+using TaskDetectionTracker.Model;
 
 namespace TaskDetectionTracker.Views
 {
@@ -30,15 +31,18 @@ namespace TaskDetectionTracker.Views
     }
 
     public class ProcessRectangle {
+
         public double Width { get; set; }
         public double Height { get; set; }
         public double X { get; set; }
         public Brush Color { get; set; }
         public string Tooltip { get; set; }
-        
+        public TaskDetectionInput Data { get; set; }
+
         //Potential task boundary
         private static double _taskBoundaryWidth = 5;
         public static double TaskBoundaryWidth { get { return _taskBoundaryWidth; } }
         public bool IsVisible { get; set; }
+
     }
 }

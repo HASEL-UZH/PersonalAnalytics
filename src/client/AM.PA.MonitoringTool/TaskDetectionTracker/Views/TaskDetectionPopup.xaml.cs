@@ -13,7 +13,6 @@ using System;
 using System.Windows.Threading;
 using System.ComponentModel;
 using System.Windows.Input;
-using System.Diagnostics;
 using System.Windows.Shapes;
 
 namespace TaskDetectionTracker.Views
@@ -176,7 +175,7 @@ namespace TaskDetectionTracker.Views
                     }
 
                     bool visibility = lastProcess.Equals(process) ? false : true;
-                    processRectangles.Add(new ProcessRectangle { Width = processWidth, Height = 30, X = processX, Color = processColor, Tooltip = tooltip, IsVisible = visibility });
+                    processRectangles.Add(new ProcessRectangle { Data = process, Width = processWidth, Height = 30, X = processX, Color = processColor, Tooltip = tooltip, IsVisible = visibility });
                     processX += (processWidth + ProcessRectangle.TaskBoundaryWidth);
                 }
 
@@ -204,7 +203,21 @@ namespace TaskDetectionTracker.Views
 
         private void Rectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            Trace.WriteLine( (sender as Rectangle).DataContext);
+            var processToMerge = ((sender as Rectangle).DataContext as ProcessRectangle).Data;
+            
+            foreach (TaskDetection task in _tasks)
+            {
+                int index = task.TimelineInfos.FindIndex(p => p.Equals(processToMerge));
+                if (index != -1 && (index + 1) < task.TimelineInfos.Count)
+                {
+                    SplitProcesses(processToMerge, task.TimelineInfos[++index]);
+                }
+            }
+        }
+
+        private void SplitProcesses(TaskDetectionInput process1, TaskDetectionInput process2)
+        {
+            //TODO: merge process 1 and process 2
         }
     }
 }
