@@ -10,7 +10,9 @@ namespace TaskDetectionTracker
     public class Settings
     {
         public const string TrackerName = "Task Detection Tracker";
-        public const string DbTableTaskDetectionValidation = "user_validated_task_detection";
+
+        public const string DbTable_TaskDetection_Sessions = "task_detection_sessions";
+        public const string DbTable_TaskDetection_Validations = "task_detection_validations";
 
         #if Pilot_TaskDetection_March17
             public static bool IsEnabledByDefault = true;

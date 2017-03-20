@@ -99,7 +99,9 @@ namespace TaskDetectionTracker
             // > TODO: implement
 
             // show pop-up 
-            // > if answered: stop the popupremindertimer
+            // > when closed:
+            //   > if un-answered: restart popup & ask again to do it
+            //   > if answered: stop the popupremindertimer
 
             // re-start pop-up reminder timer
             _popUpReminderTimer.Start(); // TODO: check if full 10min are reset
