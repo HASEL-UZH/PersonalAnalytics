@@ -15,6 +15,7 @@ namespace TaskDetectionTracker.Views
         public double Width { get; set; }
         public double Height { get; set; }
         public Brush Color { get; set; }
+        public string TaskName { get; set; }
 
         //Task boundary
         private static double _taskBoundaryWidth = 5;

@@ -42,8 +42,6 @@ namespace TaskDetectionTracker.Views.Tests
            
             var popup = (Window) new TaskDetectionPopup(input);
             popup.ShowDialog();
-            
-            Assert.Fail();
         }
         
     }

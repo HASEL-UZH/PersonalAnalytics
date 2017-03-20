@@ -40,8 +40,8 @@ namespace TaskDetectionTracker.Views
 
         Brush[] brushes = new Brush[]
         {
-            Brushes.Black,
-            Brushes.Red
+            Brushes.Beige,
+            Brushes.AliceBlue
         };
 
         private void GenerateRectangles()
@@ -86,11 +86,11 @@ namespace TaskDetectionTracker.Views
                         colors.Add(process.ProcessName, processColor);
                     }
 
-                    processRectangles.Add(new ProcessRectangle { Width = processWidth, Height = 20, X = processX, Color = processColor, Tooltip = tooltip });
+                    processRectangles.Add(new ProcessRectangle { Width = processWidth, Height = 30, X = processX, Color = processColor, Tooltip = tooltip });
                     processX += processWidth;
                 }
 
-                RectItems.Add(new TaskRectangle { X = x, Width = width, Height = 20, Color = color, ProcessRectangle = processRectangles });
+                RectItems.Add(new TaskRectangle { X = x, Width = width, Height = 30, Color = color, ProcessRectangle = processRectangles, TaskName = task.TaskTypeProposed });
                 x += (width + TaskRectangle.TaskBoundaryWidth);
             }
         }

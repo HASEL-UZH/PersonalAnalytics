@@ -13,7 +13,7 @@
             <RowDefinition Height="40" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
         
@@ -48,11 +48,11 @@
                             <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
                    
-                        <Rectangle Grid.Row="0" Grid.Column="0" Width="{Binding Width}" Height="{Binding Height}" Fill="{Binding Color}"/>
+                        <Label Grid.Row="0" Content="{Binding TaskName}" Grid.Column="0" Width="{Binding Width}" Height="{Binding Height}" Background="{Binding Color}"/>
 
                         <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Orientation="Horizontal">
                             <StackPanel Orientation="Vertical">
-                                <Rectangle Width="{Binding TaskBoundaryWidth}" Height="100" Fill="LightBlue" HorizontalAlignment="Left"></Rectangle>
+                                <Rectangle Width="{Binding TaskBoundaryWidth}" Margin="0 30 0 0" Height="120" Fill="LightBlue" HorizontalAlignment="Left"></Rectangle>
                                 <CheckBox Margin="0 10 0 0" Width="{Binding TaskCheckboxWidth}" IsChecked="False" HorizontalAlignment="Left"></CheckBox>
                                 <CheckBox Margin="0 10 0 0" Width="{Binding TaskCheckboxWidth}" IsChecked="False" HorizontalAlignment="Left"></CheckBox>
                             </StackPanel>
