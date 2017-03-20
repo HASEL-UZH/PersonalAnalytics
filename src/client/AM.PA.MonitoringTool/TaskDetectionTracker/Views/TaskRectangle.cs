@@ -3,19 +3,18 @@
 // 
 // Licensed under the MIT License.
 
+using System.Collections.ObjectModel;
 using System.Windows.Media;
 
 namespace TaskDetectionTracker.Views
 {
-    public class ProcessRectangle
+    public class TaskRectangle
     {
-        //Process rectangle
+        //Task rectangle
         public double X { get; set; }
-        public double Y { get; set; }
         public double Width { get; set; }
         public double Height { get; set; }
         public Brush Color { get; set; }
-        public string Tooltip { get; set; }
 
         //Task boundary
         private static double _taskBoundaryWidth = 5;
@@ -26,5 +25,16 @@ namespace TaskDetectionTracker.Views
 
         private static double _taskBoundaryTransform = -1 * TaskBoundaryWidth;
         public static double TaskBoundaryTransform { get { return _taskBoundaryTransform; } }
+
+        //Process rectangle
+        public ObservableCollection<ProcessRectangle> ProcessRectangle { get; set; }
+    }
+
+    public class ProcessRectangle {
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public double X { get; set; }
+        public Brush Color { get; set; }
+        public string Tooltip { get; set; }
     }
 }

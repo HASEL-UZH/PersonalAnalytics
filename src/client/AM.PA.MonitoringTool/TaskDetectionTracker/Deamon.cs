@@ -70,7 +70,7 @@ namespace TaskDetectionTracker
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(
                 () =>
                 {
-                    var popup = new TaskDetectionPopup(new List<TaskDetectionInput>());
+                    var popup = new TaskDetectionPopup(new List<TaskDetection>());
                     popup.ShowDialog();
                 }));
             }

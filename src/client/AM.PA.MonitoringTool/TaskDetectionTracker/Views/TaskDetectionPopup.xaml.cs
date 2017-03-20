@@ -18,21 +18,23 @@ namespace TaskDetectionTracker.Views
     /// </summary>
     public partial class TaskDetectionPopup : Window
     {
-        private List<TaskDetectionInput> _processes;
+        private List<TaskDetection> _tasks;
         private Dictionary<string, Brush> colors = new Dictionary<string, Brush>();
 
-        public ObservableCollection<ProcessRectangle> RectItems { get; set; }
+        public ObservableCollection<TaskRectangle> RectItems { get; set; }
 
-        public TaskDetectionPopup(List<TaskDetectionInput> processes)
+        public TaskDetectionPopup(List<TaskDetection> tasks)
         {
-            this._processes = processes;
+            this._tasks = tasks;
             InitializeComponent();
-            Timeline.DataContext = this;
 
-            StartTime.Inlines.Add(_processes.First().Start.ToShortTimeString());
-            EndTime.Inlines.Add(_processes.Last().End.ToShortTimeString());
+            Timeline.DataContext = this;
             
-            RectItems = new ObservableCollection<ProcessRectangle>();
+
+            StartTime.Inlines.Add(_tasks.First().Start.ToShortTimeString());
+            EndTime.Inlines.Add(_tasks.Last().End.ToShortTimeString());
+            
+            RectItems = new ObservableCollection<TaskRectangle>();
             GenerateRectangles();
         }
 
@@ -45,30 +47,51 @@ namespace TaskDetectionTracker.Views
         private void GenerateRectangles()
         {
             double margin = 20;
-            double totalTaskBorderSpace = _processes.Count * ProcessRectangle.TaskBoundaryWidth;
+            double totalTaskBorderSpace = _tasks.Count * TaskRectangle.TaskBoundaryWidth;
 
-            double totalDuration = _processes.Sum(p => p.End.Subtract(p.Start).TotalSeconds);
+            double totalDuration = _tasks.Sum(p => p.End.Subtract(p.Start).TotalSeconds);
             double totalWidth = this.Width - (2 * margin) - totalTaskBorderSpace;
             double x = margin;
 
-            for (int i = 0; i < _processes.Count; i++)
+            for (int i = 0; i < _tasks.Count; i++)
             {
-                TaskDetectionInput process = _processes.ElementAt(i);
-                double duration = process.End.Subtract(process.Start).TotalSeconds;
+                TaskDetection task = _tasks.ElementAt(i);
+                double duration = task.End.Subtract(task.Start).TotalSeconds;
                 double width = duration * (totalWidth / totalDuration);
-                string tooltip = string.Join(Environment.NewLine, process.WindowTitles) + Environment.NewLine + "Keystrokes: " + process.NumberOfKeystrokes + Environment.NewLine + "Mouse clicks: " + process.NumberOfMouseClicks;
-
+            
                 Brush color;
 
-                bool hasKey = colors.TryGetValue(process.ProcessName, out color);
+                bool hasKey = colors.TryGetValue(task.TaskTypeProposed, out color);
                 if (!hasKey)
                 {
                     color = brushes[colors.Keys.Count % brushes.Length];
-                    colors.Add(process.ProcessName, color);
+                    colors.Add(task.TaskTypeProposed, color);
                 }
 
-                RectItems.Add(new ProcessRectangle { X = x, Y = 100, Width = width, Height = 20, Color = color, Tooltip = tooltip });
-                x += (width + ProcessRectangle.TaskBoundaryWidth);
+                var processRectangles = new ObservableCollection<ProcessRectangle>();
+                double totalProcessDuration = task.TimelineInfos.Sum(p => p.End.Subtract(p.Start).TotalSeconds);
+                
+                double processX = 0;
+                foreach (TaskDetectionInput process in task.TimelineInfos)
+                {
+                    double processDuration = process.End.Subtract(process.Start).TotalSeconds;
+                    double processWidth = processDuration * (width / totalProcessDuration);
+                    string tooltip = string.Join(Environment.NewLine, process.WindowTitles) + Environment.NewLine + "Keystrokes: " + process.NumberOfKeystrokes + Environment.NewLine + "Mouse clicks: " + process.NumberOfMouseClicks;
+
+                    Brush processColor;
+                    bool hasProcessKey = colors.TryGetValue(process.ProcessName, out processColor);
+                    if (!hasProcessKey)
+                    {
+                        processColor = brushes[colors.Keys.Count % brushes.Length];
+                        colors.Add(process.ProcessName, processColor);
+                    }
+
+                    processRectangles.Add(new ProcessRectangle { Width = processWidth, Height = 20, X = processX, Color = processColor, Tooltip = tooltip });
+                    processX += processWidth;
+                }
+
+                RectItems.Add(new TaskRectangle { X = x, Width = width, Height = 20, Color = color, ProcessRectangle = processRectangles });
+                x += (width + TaskRectangle.TaskBoundaryWidth);
             }
         }
         
