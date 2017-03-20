@@ -167,7 +167,7 @@ namespace TaskDetectionTracker.Views
                     processX += processWidth;
                 }
 
-                RectItems.Add(new TaskRectangle { X = x, Width = width, Height = 30, Color = color, ProcessRectangle = processRectangles, TaskName = task.TaskTypeProposed });
+                RectItems.Add(new TaskRectangle { X = x, Width = width, Height = 30, Color = color, ProcessRectangle = processRectangles, TaskName = task.TaskTypeProposed, Timestamp = task.End.ToShortTimeString() });
                 x += (width + TaskRectangle.TaskBoundaryWidth);
             }
         }
