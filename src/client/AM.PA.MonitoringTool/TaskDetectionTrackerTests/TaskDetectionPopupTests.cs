@@ -18,14 +18,14 @@ namespace TaskDetectionTracker.Views.Tests
     {
 
         private int _numberOfElementsPerTask = 3;
-        private string[] tasks = { "research", "coding", "planning", "private"};
+        private string[] tasks = { "research", "coding", "planning", "private" };
 
         [TestMethod()]
         public void TaskDetectionPopupTest()
         {
             var processes = DataLoader.LoadTestData();
             processes = DataMerger.MergeProcesses(processes, TimeSpan.FromHours(1));
-            
+
             int numberOfInput = processes.Count / _numberOfElementsPerTask + processes.Count % _numberOfElementsPerTask;
 
             var input = new List<TaskDetection>();
@@ -39,9 +39,10 @@ namespace TaskDetectionTracker.Views.Tests
                 tdInput.TimelineInfos = prc;
                 input.Add(tdInput);
             }
-           
-            var popup = (Window) new TaskDetectionPopup(input);
+
+            var popup = (Window)new TaskDetectionPopup(input);
             popup.ShowDialog();
+            
         }
         
     }
