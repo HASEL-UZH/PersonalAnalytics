@@ -10,7 +10,6 @@ namespace TaskDetectionTracker.Model
 {
     public class TaskDetectionInput
     {
-
         private DateTime _start;
         private DateTime _end;
         private string _processName;
