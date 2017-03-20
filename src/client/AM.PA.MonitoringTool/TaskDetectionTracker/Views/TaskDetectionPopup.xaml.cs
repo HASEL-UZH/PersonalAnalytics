@@ -18,6 +18,8 @@ namespace TaskDetectionTracker.Views
     /// </summary>
     public partial class TaskDetectionPopup : Window
     {
+        public bool ValidationComplete { get; set; }
+
         private List<TaskDetection> _tasks;
         private Dictionary<string, Brush> colors = new Dictionary<string, Brush>();
 
@@ -99,6 +101,7 @@ namespace TaskDetectionTracker.Views
         
         private void Save_Click(object sender, RoutedEventArgs e)
         {
+            ValidationComplete = true; //TODO: validate input & only enable save-button when complete
             Close();
         }
 

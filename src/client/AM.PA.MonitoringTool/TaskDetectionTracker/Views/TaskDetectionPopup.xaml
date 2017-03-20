@@ -5,9 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TaskDetectionTracker.Views"
              xmlns:paColors="clr-namespace:Shared;assembly=Shared"
-             mc:Ignorable="d" 
+             mc:Ignorable="d" Topmost="True"
              Title="PersonalAnalytics: Validate Task Boundaries" SizeChanged="Window_SizeChanged" Width="1200">
-    
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />
