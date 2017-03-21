@@ -14,7 +14,6 @@ using System.Windows.Threading;
 using System.ComponentModel;
 using System.Windows.Input;
 using System.Windows.Shapes;
-using System.Diagnostics;
 
 namespace TaskDetectionTracker.Views
 {
@@ -221,14 +220,8 @@ namespace TaskDetectionTracker.Views
         private void ExtractProcessesFromTask(TaskDetection task, List<TaskDetectionInput> processes)
         {
             //Remove process from old task
-            foreach (TaskDetectionInput process in processes)
-            {
-                Trace.WriteLine("Extract " + process + " from " + task);
-                task.TimelineInfos.Remove(process);
-            }
-
+            task.TimelineInfos.RemoveAll(process => processes.Contains(process));
             task.TimelineInfos.Sort();
-            Trace.WriteLine(task.TimelineInfos.Count);
             task.Start = task.TimelineInfos.First().Start;
             task.End = task.TimelineInfos.Last().End;
             
@@ -238,6 +231,7 @@ namespace TaskDetectionTracker.Views
             newTask.Start = newTask.TimelineInfos.First().Start;
             newTask.End = newTask.TimelineInfos.Last().End;
             newTask.TaskTypeProposed = string.Empty;
+            newTask.TaskDetectionCase = TaskDetectionCase.Missing;
 
             //Add new task to list of tasks
             _tasks.Add(newTask);
