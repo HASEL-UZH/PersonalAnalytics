@@ -12,6 +12,37 @@
         <local:BoolToVisibilityConverter x:Key="BoolToVisConverter" TrueValue="Visible" FalseValue="Collapsed"/>
         <local:BoolToVisibilityConverter x:Key="BoolToHiddenConverter" TrueValue="Visible" FalseValue="Hidden" />
         <local:BoolToVisibilityConverter x:Key="BoolToHiddenConverterInverted" TrueValue="Hidden" FalseValue="Visible" />
+        <Style x:Key="EditableLabelStyle" TargetType="{x:Type Label}">
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Top"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Label}">
+                        <Grid>
+                            <TextBox Name="textBox"
+                             Grid.ZIndex="1"
+                             Padding="1,3,0,0"
+                             Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Label}}, Path=Content, UpdateSourceTrigger=PropertyChanged}"
+                             Opacity="0"/>
+                            <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter TargetName="textBox" Property="Opacity" Value="1"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -64,7 +95,7 @@
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="auto" />
                                     </Grid.ColumnDefinitions>
-                                    <Label Grid.Column="0" Content="{Binding TaskName}"/>
+                                    <Label Style="{StaticResource EditableLabelStyle}" Grid.Column="0" Content="{Binding TaskName, Mode=TwoWay}"/>
                                     <CheckBox Grid.Column="1" VerticalAlignment="Center"></CheckBox>
                                 </Grid>
 
@@ -151,8 +182,8 @@
                 <TextBlock Grid.Row="0">Comments:</TextBlock>
                 <TextBox Grid.Row="1"></TextBox>
             </Grid>
-            
-            <Button Margin="10 35" Grid.Column="1" Name="Save" IsEnabled="False" Click="Save_Click" Content="Save" Width="50" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}"/>
+
+            <Button Margin="10 35" Grid.Column="1" Name="Save" IsEnabled="{Binding ValidationComplete}" Click="Save_Click" Content="Save" Width="50" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}"/>
         
         </Grid>
     </Grid>
