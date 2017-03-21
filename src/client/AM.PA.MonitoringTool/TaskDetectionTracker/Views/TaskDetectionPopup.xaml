@@ -102,8 +102,8 @@
                                 <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Orientation="Horizontal">
                                     <StackPanel Orientation="Vertical">
                                         <Rectangle Width="{Binding TaskBoundaryWidth}" Margin="0 60 0 0" Height="120" Fill="{x:Static paColors:Settings.RetrospectionColorBrush}" HorizontalAlignment="Left"></Rectangle>
-                                        <RadioButton GroupName="Validate" BorderBrush="Green" Foreground="Green" Margin="0 10 0 0" Width="{Binding TaskCheckboxWidth}" IsChecked="False" HorizontalAlignment="Left" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverterInverted}}"></RadioButton>
-                                        <RadioButton GroupName="Validate" BorderBrush="Red" Foreground="Red" Margin="0 10 0 0" Width="{Binding TaskCheckboxWidth}" IsChecked="False" HorizontalAlignment="Left" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverterInverted}}"></RadioButton>
+                                        <RadioButton Checked="RadioButton_Checked_Correct" GroupName="{Binding ID}" BorderBrush="Green" Foreground="Green" Margin="0 10 0 0" Width="{Binding TaskCheckboxWidth}" IsChecked="False" HorizontalAlignment="Left" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverterInverted}}"></RadioButton>
+                                        <RadioButton Checked="RadioButton_Checked_Incorrect" GroupName="{Binding ID}" BorderBrush="Red" Foreground="Red" Margin="0 10 0 0" Width="{Binding TaskCheckboxWidth}" IsChecked="False" HorizontalAlignment="Left" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverterInverted}}"></RadioButton>
                                         <Button Name="DeleteTaskBoundaryButton" Width="{Binding TaskCheckboxWidth}" Margin="0 10 0 0" Height="{Binding TaskCheckboxWidth}" Content="x" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverter}}" Click="DeleteTaskBoundaryButton_Click"></Button>
                                         <TextBlock Text="{Binding Timestamp}"></TextBlock>
                                     </StackPanel>
@@ -183,7 +183,7 @@
                 <TextBox Grid.Row="1"></TextBox>
             </Grid>
 
-            <Button Margin="10 35" Grid.Column="1" Name="Save" IsEnabled="{Binding ValidationComplete}" Click="Save_Click" Content="Save" Width="50" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}"/>
+            <Button Margin="10 35" Grid.Column="1" Name="Save" IsEnabled="{Binding ValidationComplete, UpdateSourceTrigger=PropertyChanged}" Click="Save_Click" Content="Save" Width="50" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}"/>
         
         </Grid>
     </Grid>

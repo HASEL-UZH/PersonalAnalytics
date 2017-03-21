@@ -22,9 +22,21 @@ namespace TaskDetectionTracker.Views
     /// <summary>
     /// Interaction logic for TaskDetectionPopup.xaml
     /// </summary>
-    public partial class TaskDetectionPopup : Window
+    public partial class TaskDetectionPopup : Window, INotifyPropertyChanged
     {
-        public bool ValidationComplete { get { return true; } } // TODO: remove
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private bool _validationComplete = false;
+        public bool ValidationComplete { get { return _validationComplete; } set { _validationComplete = value; OnPropertyChanged("ValidationComplete"); } }
+
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
 
         private DispatcherTimer _popUpReminderTimer;
 
@@ -45,6 +57,7 @@ namespace TaskDetectionTracker.Views
             this.SizeChanged += Window_SizeChanged;
 
             Timeline.DataContext = this;
+            Save.DataContext = this;
             
             this._tasks = tasks;
             StartTime.Inlines.Add(_tasks.First().Start.ToShortTimeString());
@@ -189,11 +202,10 @@ namespace TaskDetectionTracker.Views
         
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            //TODO: validate input & only enable save-button when complete
-
             foreach (TaskDetection task in _tasks)
             {
                 Trace.WriteLine(task);
+                //TODO: actual save
             }
 
             Close();
@@ -283,6 +295,33 @@ namespace TaskDetectionTracker.Views
             _tasks.Sort();
 
             RedrawTimeline();
+        }
+
+        private void RadioButton_Checked_Correct(object sender, RoutedEventArgs e)
+        {
+            var task = ((sender as RadioButton).DataContext as TaskRectangle).Data;
+            task.TaskDetectionCase = TaskDetectionCase.Correct;
+            ValidateSaveButtonEnabled();
+        }
+
+        private void RadioButton_Checked_Incorrect(object sender, RoutedEventArgs e)
+        {
+            var task = ((sender as RadioButton).DataContext as TaskRectangle).Data;
+            task.TaskDetectionCase = TaskDetectionCase.Wrong;
+            ValidateSaveButtonEnabled();
+        }
+
+        private void ValidateSaveButtonEnabled()
+        {
+            foreach (var task in _tasks)
+            {
+                if (task.TaskDetectionCase == TaskDetectionCase.NotValidated)
+                {
+                    ValidationComplete = false;
+                    break;
+                }
+                ValidationComplete = true;
+            }
         }
     }
 }
