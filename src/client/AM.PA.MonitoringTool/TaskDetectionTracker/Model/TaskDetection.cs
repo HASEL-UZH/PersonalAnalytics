@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace TaskDetectionTracker.Model
 {
-    public class TaskDetection
+    public class TaskDetection : IComparable<TaskDetection>
     {
         private DateTime _start;
         private DateTime _end; //time of switch away
@@ -23,5 +23,15 @@ namespace TaskDetectionTracker.Model
         public string TaskTypeValidated { get { return _taskTypeValidated; } set { _taskTypeValidated = value; } }
         public TaskDetectionCase TaskDetectionCase { get { return _taskDetectionCase; } set { _taskDetectionCase = value; } }
         public List<TaskDetectionInput> TimelineInfos { get { return _timelineInfos; } set { _timelineInfos = value; } }
+
+        public override string ToString()
+        {
+            return TaskTypeProposed + "[" + Start.ToShortTimeString() + " - " + End.ToShortTimeString() + "]";
+        }
+
+        public int CompareTo(TaskDetection other)
+        {
+            return Start.CompareTo(other.Start);
+        }
     }
 }

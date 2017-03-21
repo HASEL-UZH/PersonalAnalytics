@@ -14,6 +14,7 @@ using System.Windows.Threading;
 using System.ComponentModel;
 using System.Windows.Input;
 using System.Windows.Shapes;
+using System.Diagnostics;
 
 namespace TaskDetectionTracker.Views
 {
@@ -198,26 +199,51 @@ namespace TaskDetectionTracker.Views
         private void RedrawTimeline()
         {
             RectItems.Clear();
+            //RectItems = new ObservableCollection<TaskRectangle>();
             GenerateRectangles();
         }
 
         private void Rectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            var processToMerge = ((sender as Rectangle).DataContext as ProcessRectangle).Data;
+            var process = ((sender as Rectangle).DataContext as ProcessRectangle).Data;
             
             foreach (TaskDetection task in _tasks)
             {
-                int index = task.TimelineInfos.FindIndex(p => p.Equals(processToMerge));
+                int index = task.TimelineInfos.FindIndex(p => p.Equals(process));
                 if (index != -1 && (index + 1) < task.TimelineInfos.Count)
                 {
-                    SplitProcesses(processToMerge, task.TimelineInfos[++index]);
+                    ExtractProcessesFromTask(task, task.TimelineInfos.GetRange(++index, task.TimelineInfos.Count - index));
+                    break;
                 }
             }
         }
 
-        private void SplitProcesses(TaskDetectionInput process1, TaskDetectionInput process2)
+        private void ExtractProcessesFromTask(TaskDetection task, List<TaskDetectionInput> processes)
         {
-            //TODO: merge process 1 and process 2
+            //Remove process from old task
+            foreach (TaskDetectionInput process in processes)
+            {
+                Trace.WriteLine("Extract " + process + " from " + task);
+                task.TimelineInfos.Remove(process);
+            }
+
+            task.TimelineInfos.Sort();
+            Trace.WriteLine(task.TimelineInfos.Count);
+            task.Start = task.TimelineInfos.First().Start;
+            task.End = task.TimelineInfos.Last().End;
+            
+            //Add process to new task
+            TaskDetection newTask = new TaskDetection();
+            newTask.TimelineInfos = processes;
+            newTask.Start = newTask.TimelineInfos.First().Start;
+            newTask.End = newTask.TimelineInfos.Last().End;
+            newTask.TaskTypeProposed = string.Empty;
+
+            //Add new task to list of tasks
+            _tasks.Add(newTask);
+            _tasks.Sort();
+
+            RedrawTimeline();
         }
     }
 }
