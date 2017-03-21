@@ -71,8 +71,8 @@
                                 <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Orientation="Horizontal">
                                     <StackPanel Orientation="Vertical">
                                         <Rectangle Width="{Binding TaskBoundaryWidth}" Margin="0 60 0 0" Height="120" Fill="{x:Static paColors:Settings.RetrospectionColorBrush}" HorizontalAlignment="Left"></Rectangle>
-                                        <CheckBox BorderBrush="Green" Foreground="Green" Margin="0 10 0 0" Width="{Binding TaskCheckboxWidth}" IsChecked="False" HorizontalAlignment="Left" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverterInverted}}"></CheckBox>
-                                        <CheckBox BorderBrush="Red" Foreground="Red" Margin="0 10 0 0" Width="{Binding TaskCheckboxWidth}" IsChecked="False" HorizontalAlignment="Left" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverterInverted}}"></CheckBox>
+                                        <RadioButton GroupName="Validate" BorderBrush="Green" Foreground="Green" Margin="0 10 0 0" Width="{Binding TaskCheckboxWidth}" IsChecked="False" HorizontalAlignment="Left" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverterInverted}}"></RadioButton>
+                                        <RadioButton GroupName="Validate" BorderBrush="Red" Foreground="Red" Margin="0 10 0 0" Width="{Binding TaskCheckboxWidth}" IsChecked="False" HorizontalAlignment="Left" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverterInverted}}"></RadioButton>
                                         <Button Name="DeleteTaskBoundaryButton" Width="{Binding TaskCheckboxWidth}" Margin="0 10 0 0" Height="{Binding TaskCheckboxWidth}" Content="x" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverter}}" Click="DeleteTaskBoundaryButton_Click"></Button>
                                         <TextBlock Text="{Binding Timestamp}"></TextBlock>
                                     </StackPanel>
