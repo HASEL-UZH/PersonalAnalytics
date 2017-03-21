@@ -18,6 +18,8 @@ namespace TaskDetectionTracker.Views
         public Brush Color { get; set; }
         public string TaskName { get; set; }
         public string Timestamp { get; set; }
+        public bool IsUserDefined { get; set; }
+        public TaskDetection Data { get; set; }
 
         //Task boundary
         private static double _taskBoundaryWidth = 5;

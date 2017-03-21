@@ -9,7 +9,9 @@
              Title="PersonalAnalytics: Validate Task Detection" Width="1200">
 
     <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
+        <local:BoolToVisibilityConverter x:Key="BoolToVisConverter" TrueValue="Visible" FalseValue="Collapsed"/>
+        <local:BoolToVisibilityConverter x:Key="BoolToHiddenConverter" TrueValue="Visible" FalseValue="Hidden" />
+        <local:BoolToVisibilityConverter x:Key="BoolToHiddenConverterInverted" TrueValue="Hidden" FalseValue="Visible" />
     </Window.Resources>
 
     <Grid>
@@ -68,9 +70,10 @@
 
                                 <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Orientation="Horizontal">
                                     <StackPanel Orientation="Vertical">
-                                        <Rectangle Width="{Binding TaskBoundaryWidth}" Margin="0 40 0 0" Height="120" Fill="{x:Static paColors:Settings.RetrospectionColorBrush}" HorizontalAlignment="Left"></Rectangle>
-                                        <CheckBox BorderBrush="Green" Foreground="Green" Margin="0 10 0 0" Width="{Binding TaskCheckboxWidth}" IsChecked="False" HorizontalAlignment="Left"></CheckBox>
-                                        <CheckBox BorderBrush="Red" Foreground="Red" Margin="0 10 0 0" Width="{Binding TaskCheckboxWidth}" IsChecked="False" HorizontalAlignment="Left"></CheckBox>
+                                        <Rectangle Width="{Binding TaskBoundaryWidth}" Margin="0 60 0 0" Height="120" Fill="{x:Static paColors:Settings.RetrospectionColorBrush}" HorizontalAlignment="Left"></Rectangle>
+                                        <CheckBox BorderBrush="Green" Foreground="Green" Margin="0 10 0 0" Width="{Binding TaskCheckboxWidth}" IsChecked="False" HorizontalAlignment="Left" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverterInverted}}"></CheckBox>
+                                        <CheckBox BorderBrush="Red" Foreground="Red" Margin="0 10 0 0" Width="{Binding TaskCheckboxWidth}" IsChecked="False" HorizontalAlignment="Left" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverterInverted}}"></CheckBox>
+                                        <Button Name="DeleteTaskBoundaryButton" Width="{Binding TaskCheckboxWidth}" Margin="0 10 0 0" Height="{Binding TaskCheckboxWidth}" Content="x" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverter}}" Click="DeleteTaskBoundaryButton_Click"></Button>
                                         <TextBlock Text="{Binding Timestamp}"></TextBlock>
                                     </StackPanel>
                                 </StackPanel>
@@ -98,12 +101,12 @@
                                                     <Rectangle.RenderTransform>
                                                         <TransformGroup>
                                                             <ScaleTransform ScaleY="-4" />
-                                                            <TranslateTransform Y="32" />
+                                                            <TranslateTransform Y="30" />
                                                         </TransformGroup>
                                                     </Rectangle.RenderTransform>
                                                     <Rectangle.Style>
                                                         <Style TargetType="{x:Type Rectangle}">
-                                                            <Setter Property="Opacity" Value="0.25" />
+                                                            <Setter Property="Opacity" Value="0.1" />
                                                             <Style.Triggers>
                                                                 <Trigger Property="IsMouseOver" Value="True">
                                                                     <Setter Property="Opacity">

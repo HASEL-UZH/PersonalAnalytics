@@ -14,6 +14,7 @@ using System.Windows.Threading;
 using System.ComponentModel;
 using System.Windows.Input;
 using System.Windows.Shapes;
+using System.Windows.Controls;
 
 namespace TaskDetectionTracker.Views
 {
@@ -179,7 +180,8 @@ namespace TaskDetectionTracker.Views
                     processX += (processWidth + ProcessRectangle.TaskBoundaryWidth);
                 }
 
-                RectItems.Add(new TaskRectangle { X = x, Width = width, Height = 30, Color = color, ProcessRectangle = processRectangles, TaskName = task.TaskTypeProposed, Timestamp = task.End.ToShortTimeString() });
+                bool isUserDefined = task.TaskDetectionCase == TaskDetectionCase.Missing ? true : false;
+                RectItems.Add(new TaskRectangle { Data = task, X = x, Width = width, Height = 30, Color = color, ProcessRectangle = processRectangles, TaskName = task.TaskTypeProposed, Timestamp = task.End.ToShortTimeString(), IsUserDefined = isUserDefined });
                 x += (width + TaskRectangle.TaskBoundaryWidth);
             }
         }
@@ -198,7 +200,6 @@ namespace TaskDetectionTracker.Views
         private void RedrawTimeline()
         {
             RectItems.Clear();
-            //RectItems = new ObservableCollection<TaskRectangle>();
             GenerateRectangles();
         }
 
@@ -224,17 +225,54 @@ namespace TaskDetectionTracker.Views
             task.TimelineInfos.Sort();
             task.Start = task.TimelineInfos.First().Start;
             task.End = task.TimelineInfos.Last().End;
-            
+            task.TaskDetectionCase = TaskDetectionCase.Missing;
+
             //Add process to new task
             TaskDetection newTask = new TaskDetection();
             newTask.TimelineInfos = processes;
             newTask.Start = newTask.TimelineInfos.First().Start;
             newTask.End = newTask.TimelineInfos.Last().End;
             newTask.TaskTypeProposed = string.Empty;
-            newTask.TaskDetectionCase = TaskDetectionCase.Missing;
 
             //Add new task to list of tasks
             _tasks.Add(newTask);
+            _tasks.Sort();
+
+            RedrawTimeline();
+        }
+
+        private void DeleteTaskBoundaryButton_Click(object sender, RoutedEventArgs e)
+        {
+            var task = ((sender as Button).DataContext as TaskRectangle).Data;
+            var index = _tasks.FindIndex(t => t.Equals(task));
+
+            TaskDetection taskToAdd = null;
+
+            if (index != -1 && index + 1 < _tasks.Count)
+            {
+                taskToAdd = _tasks.ElementAt(++index);
+            }
+            else if (index != -1 && index - 1 >= 0)
+            {
+                taskToAdd = _tasks.ElementAt(--index);
+            }
+
+            if (taskToAdd != null)
+            {
+                AddProcessesToAnotherTask(task, taskToAdd, task.TimelineInfos);
+            }
+        }
+
+        private void AddProcessesToAnotherTask(TaskDetection oldTask, TaskDetection newTask, List<TaskDetectionInput> processes)
+        {
+            _tasks.Remove(oldTask);
+
+            newTask.TimelineInfos.AddRange(processes);
+            newTask.TimelineInfos.Sort();
+            newTask.Start = newTask.TimelineInfos.First().Start;
+            newTask.End = newTask.TimelineInfos.Last().End;
+            newTask.TaskTypeProposed = oldTask.TaskTypeProposed;
+
             _tasks.Sort();
 
             RedrawTimeline();

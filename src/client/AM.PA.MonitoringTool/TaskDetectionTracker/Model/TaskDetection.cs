@@ -26,7 +26,7 @@ namespace TaskDetectionTracker.Model
 
         public override string ToString()
         {
-            return TaskTypeProposed + "[" + Start.ToShortTimeString() + " - " + End.ToShortTimeString() + "]";
+            return TaskTypeProposed + "[" + Start.ToShortTimeString() + " - " + End.ToShortTimeString() + "] - " + TaskDetectionCase;
         }
 
         public int CompareTo(TaskDetection other)
