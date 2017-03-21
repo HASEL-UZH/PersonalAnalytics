@@ -16,7 +16,7 @@ namespace TaskDetectionTracker.Views
         public double Width { get; set; }
         public double Height { get; set; }
         public Brush Color { get; set; }
-        public string TaskName { get { return Data.TaskTypeProposed; } set { Data.TaskTypeProposed = value; } }
+        public string TaskName { get { return Data.TaskTypeValidated; } set { Data.TaskTypeValidated = value; } }
         public string Timestamp { get; set; }
         public bool IsUserDefined { get; set; }
         public TaskDetection Data { get; set; }

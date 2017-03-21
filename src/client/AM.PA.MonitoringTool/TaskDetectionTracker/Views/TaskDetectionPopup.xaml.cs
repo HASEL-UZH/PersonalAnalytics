@@ -161,11 +161,11 @@ namespace TaskDetectionTracker.Views
             
                 Brush color;
 
-                bool hasKey = colors.TryGetValue(task.TaskTypeProposed, out color);
+                bool hasKey = colors.TryGetValue(task.TaskTypeValidated, out color);
                 if (!hasKey)
                 {
                     color = taskBrushes[colors.Keys.Count % taskBrushes.Length];
-                    colors.Add(task.TaskTypeProposed, color);
+                    colors.Add(task.TaskTypeValidated, color);
                 }
 
                 var processRectangles = new ObservableCollection<ProcessRectangle>();
@@ -195,7 +195,7 @@ namespace TaskDetectionTracker.Views
                 }
 
                 bool isUserDefined = task.TaskDetectionCase == TaskDetectionCase.Missing ? true : false;
-                RectItems.Add(new TaskRectangle { Data = task, X = x, Width = width, Height = 30, Color = color, ProcessRectangle = processRectangles, TaskName = task.TaskTypeProposed, Timestamp = task.End.ToShortTimeString(), IsUserDefined = isUserDefined });
+                RectItems.Add(new TaskRectangle { Data = task, X = x, Width = width, Height = 30, Color = color, ProcessRectangle = processRectangles, TaskName = task.TaskTypeValidated, Timestamp = task.End.ToShortTimeString(), IsUserDefined = isUserDefined });
                 x += (width + TaskRectangle.TaskBoundaryWidth);
             }
         }
@@ -251,7 +251,7 @@ namespace TaskDetectionTracker.Views
             newTask.TimelineInfos = processes;
             newTask.Start = newTask.TimelineInfos.First().Start;
             newTask.End = newTask.TimelineInfos.Last().End;
-            newTask.TaskTypeProposed = string.Empty;
+            newTask.TaskTypeValidated = string.Empty;
 
             //Add new task to list of tasks
             _tasks.Add(newTask);
@@ -290,7 +290,7 @@ namespace TaskDetectionTracker.Views
             newTask.TimelineInfos.Sort();
             newTask.Start = newTask.TimelineInfos.First().Start;
             newTask.End = newTask.TimelineInfos.Last().End;
-            newTask.TaskTypeProposed = oldTask.TaskTypeProposed;
+            newTask.TaskTypeValidated = oldTask.TaskTypeValidated;
 
             _tasks.Sort();
 
