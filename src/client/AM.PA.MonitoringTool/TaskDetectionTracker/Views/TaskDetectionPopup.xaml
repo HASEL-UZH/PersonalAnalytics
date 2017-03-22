@@ -16,10 +16,7 @@
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1200" />
-        </Grid.ColumnDefinitions>
-        
+
         <Grid Grid.Row="0" Grid.Column="0" Background="{x:Static paColors:Settings.RetrospectionColorBrush}">
             <TextBlock Grid.Row="0" FontSize="16" VerticalAlignment="Center" Margin="10 0 0 0" Text="Validate Task Boundaries" Foreground="White" />
         </Grid>
