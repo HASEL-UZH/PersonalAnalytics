@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace TaskDetectionTracker.Model
 {
-    public class TaskDetectionInput
+    public class TaskDetectionInput : IComparable<TaskDetectionInput>
     {
         private DateTime _start;
         private DateTime _end;
@@ -27,6 +27,11 @@ namespace TaskDetectionTracker.Model
         public override string ToString()
         {
             return ProcessName + ": " + Start.ToLongTimeString() + " - " + End.ToLongTimeString();
+        }
+        
+        public int CompareTo(TaskDetectionInput other)
+        {
+            return Start.CompareTo(other.Start);
         }
     }
 }

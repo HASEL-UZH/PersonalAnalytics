@@ -4,17 +4,74 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:TaskDetectionTracker.Views"
+             xmlns:model="clr-namespace:TaskDetectionTracker.Model"
+             xmlns:converters="clr-namespace:TaskDetectionTracker.Views.Converters"
              xmlns:paColors="clr-namespace:Shared;assembly=Shared"
              mc:Ignorable="d" Topmost="True"
              Title="PersonalAnalytics: Validate Task Detection" Width="1200">
 
+    <Window.Resources>
+        <converters:EnumToBooleanConverter x:Key="EnumToBoolConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisConverter" TrueValue="Visible" FalseValue="Collapsed"/>
+        <converters:BoolToVisibilityConverter x:Key="BoolToHiddenConverter" TrueValue="Visible" FalseValue="Hidden" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToHiddenConverterInverted" TrueValue="Hidden" FalseValue="Visible" />
+        <Style x:Key="NoHoverButtonStyle" TargetType="Button">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Name="border" 
+                            BorderThickness="0"
+                            Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="EditableLabelStyle" TargetType="{x:Type Label}">
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Top"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Label}">
+                        <Grid>
+                            <TextBox Name="textBox"
+                             Grid.ZIndex="1"
+                             Padding="1,3,0,0"
+                             Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Label}}, Path=Content, UpdateSourceTrigger=PropertyChanged}"
+                             Opacity="0"/>
+                            <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter TargetName="textBox" Property="Opacity" Value="1"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="40" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Grid.Column="0" Background="{x:Static paColors:Settings.RetrospectionColorBrush}">
@@ -22,98 +79,132 @@
         </Grid>
 
         <TextBlock Grid.Row="1" Grid.Column="0" FontSize="18" Margin="20">
-            Hint: Please tick the correct task boundaries. In case there is not task boundary, add a new box.
+            Hint: Please tick the correct task boundaries. In case there is not task boundary, create a new one. Also mark your main (most important) tasks.
         </TextBlock>
 
         <ScrollViewer Grid.Row="2" Grid.Column="0" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Visible">
-            <ItemsControl ItemsSource="{Binding RectItems}" Name="Timeline">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Canvas Width="{Binding CanvasWidth}"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemContainerStyle>
-                    <Style TargetType="ContentPresenter">
-                        <Setter Property="Canvas.Left" Value="{Binding X}"/>
-                    </Style>
-                </ItemsControl.ItemContainerStyle>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto"/>
-                                <RowDefinition Height="auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="auto"/>
-                                <ColumnDefinition Width="auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Grid Grid.Row="0" Grid.Column="0" Width="{Binding Width}" Height="{Binding Height}" Background="{Binding Color}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <ItemsControl Height="250" Grid.Row="0" ItemsSource="{Binding RectItems}" Name="Timeline">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas Width="{Binding CanvasWidth}"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="auto"/>
+                                    <RowDefinition Height="auto"/>
+                                </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="auto"/>
                                 </Grid.ColumnDefinitions>
-                                <Label Grid.Column="0" Content="{Binding TaskName}"/>
-                                <CheckBox Grid.Column="1" VerticalAlignment="Center"></CheckBox>
-                            </Grid>
 
-                            <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Orientation="Horizontal">
-                                <StackPanel Orientation="Vertical">
-                                    <Rectangle Width="{Binding TaskBoundaryWidth}" Margin="0 30 0 0" Height="120" Fill="{x:Static paColors:Settings.RetrospectionColorBrush}" HorizontalAlignment="Left"></Rectangle>
-                                    <CheckBox BorderBrush="Green" Foreground="Green" Margin="0 10 0 0" Width="{Binding TaskCheckboxWidth}" IsChecked="False" HorizontalAlignment="Left"></CheckBox>
-                                    <CheckBox BorderBrush="Red" Foreground="Red" Margin="0 10 0 0" Width="{Binding TaskCheckboxWidth}" IsChecked="False" HorizontalAlignment="Left"></CheckBox>
+                                <Grid Grid.Row="0" Grid.Column="0" Width="{Binding Width}" Height="{Binding Height}" Background="{Binding Color}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Label Style="{StaticResource EditableLabelStyle}" Grid.Column="0" Content="{Binding TaskName, Mode=TwoWay}"/>
+                                    <CheckBox Grid.Column="1" VerticalAlignment="Center" Margin="0 0 10 0" IsChecked="{Binding IsMainTask}"></CheckBox>
+                                </Grid>
+
+                                <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Orientation="Horizontal">
+                                    <StackPanel Orientation="Vertical">
+                                        <Rectangle Width="{Binding TaskBoundaryWidth}" Margin="0 62 0 0" Height="122" Fill="{x:Static paColors:Settings.RetrospectionColorBrush}" HorizontalAlignment="Left"></Rectangle>
+                                        <RadioButton Margin="-5 10 0 0" Checked="RadioButton_Checked_Correct" GroupName="{Binding ID}" BorderBrush="Green" Foreground="Green" Width="{Binding TaskCheckboxWidth}" IsChecked="{Binding Path=TaskDetectionCase, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static model:TaskDetectionCase.Correct}}" HorizontalAlignment="Left" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverterInverted}}"></RadioButton>
+                                        <RadioButton Margin="-5 10 0 0" Checked="RadioButton_Checked_Incorrect" GroupName="{Binding ID}" BorderBrush="Red" Foreground="Red" Width="{Binding TaskCheckboxWidth}" IsChecked="{Binding Path=TaskDetectionCase, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static model:TaskDetectionCase.Wrong}}" HorizontalAlignment="Left" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverterInverted}}"></RadioButton>
+                                        <Button Style="{StaticResource NoHoverButtonStyle}" Margin="-5 10 0 4.5" Name="DeleteTaskBoundaryButton" Width="{Binding TaskCheckboxWidth}" Height="{Binding TaskCheckboxWidth}" VerticalAlignment="Center" BorderThickness="0" Foreground="Red" Background="Transparent" Content="x" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverter}}" Click="DeleteTaskBoundaryButton_Click"></Button>
+                                        <TextBlock Margin="-5 0 0 0" Text="{Binding Timestamp}"></TextBlock>
+                                    </StackPanel>
                                 </StackPanel>
-                            </StackPanel>
 
-                            <ItemsControl Grid.Row="1" Grid.Column="0" x:Name="ProcessesTimeline" ItemsSource="{Binding ProcessRectangle}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <Canvas/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemContainerStyle>
-                                    <Style TargetType="ContentPresenter">
-                                        <Setter Property="Canvas.Left" Value="{Binding X}"/>
-                                    </Style>
-                                </ItemsControl.ItemContainerStyle>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Rectangle Width="{Binding Width}" Height="{Binding Height}" Fill="{Binding Color}" ToolTip="{Binding Tooltip}"></Rectangle>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                                <ItemsControl Grid.Row="1" Grid.Column="0" x:Name="ProcessesTimeline" ItemsSource="{Binding ProcessRectangle}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <Canvas/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemContainerStyle>
+                                        <Style TargetType="ContentPresenter">
+                                            <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                                        </Style>
+                                    </ItemsControl.ItemContainerStyle>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <Rectangle Grid.Column="0" Width="{Binding Width}" Height="{Binding Height}" Fill="{Binding Color}" ToolTip="{Binding Tooltip}"></Rectangle>
+                                                <Rectangle Grid.Column="1" MouseLeftButtonDown="Rectangle_MouseLeftButtonDown" Width="{Binding TaskBoundaryWidth}" Fill="{x:Static paColors:Settings.RetrospectionColorBrush}" Visibility="{Binding Path=IsVisible, Converter={StaticResource BoolToVisConverter}}">
+                                                    <Rectangle.RenderTransform>
+                                                        <TransformGroup>
+                                                            <ScaleTransform ScaleY="-4" />
+                                                            <TranslateTransform Y="30" />
+                                                        </TransformGroup>
+                                                    </Rectangle.RenderTransform>
+                                                    <Rectangle.Style>
+                                                        <Style TargetType="{x:Type Rectangle}">
+                                                            <Setter Property="Opacity" Value="0.1" />
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Opacity">
+                                                                        <Setter.Value>1</Setter.Value>
+                                                                    </Setter>
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Rectangle.Style>
+                                                </Rectangle>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Name="StartTime" FontSize="18" Margin="10 20 10 10" Grid.Column="0"></TextBlock>
+                    <TextBlock Name="EndTime" FontSize="18" Margin="10 20 10 10" Grid.Column="1" HorizontalAlignment="Right"></TextBlock>
+                </Grid>
+            </Grid>
         </ScrollViewer>
 
         <Grid Grid.Row="3" Grid.Column="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            <TextBlock Name="StartTime" Grid.Column="0"></TextBlock>
-            <TextBlock Name="EndTime" Grid.Column="1" HorizontalAlignment="Right"></TextBlock>
-        </Grid>
-        
-        <Grid Grid.Row="4" Height="100" Grid.Column="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
             
-            <Grid Grid.Column="0">
+            <Grid Margin="10 10 10 10" Grid.Column="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0">Comments:</TextBlock>
-                <TextBox Grid.Row="1"></TextBox>
+                <TextBox Name="Comments" Grid.Row="1"></TextBox>
             </Grid>
-            
-            <Button Margin="10 35" Grid.Column="1" Name="Save" IsEnabled="False" Click="Save_Click" Content="Save" Width="50" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}"/>
+
+            <Button Margin="10 35" Grid.Column="1" Name="Save" IsEnabled="{Binding ValidationComplete, UpdateSourceTrigger=PropertyChanged}" Click="Save_Click" Content="Save" Height="30" Width="50" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}"/>
         
         </Grid>
     </Grid>

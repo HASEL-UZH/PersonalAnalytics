@@ -5,6 +5,7 @@
 
 using System.Collections.ObjectModel;
 using System.Windows.Media;
+using TaskDetectionTracker.Model;
 
 namespace TaskDetectionTracker.Views
 {
@@ -15,7 +16,13 @@ namespace TaskDetectionTracker.Views
         public double Width { get; set; }
         public double Height { get; set; }
         public Brush Color { get; set; }
-        public string TaskName { get; set; }
+        public string TaskName { get { return Data.TaskTypeValidated; } set { Data.TaskTypeValidated = value; } }
+        public string Timestamp { get; set; }
+        public bool IsUserDefined { get; set; }
+        public TaskDetection Data { get; set; }
+        public string ID { get { return TaskName + Timestamp; } }
+        public TaskDetectionCase TaskDetectionCase { get { return Data.TaskDetectionCase; } set { Data.TaskDetectionCase = value; } }
+        public bool IsMainTask { get { return Data.IsMainTask; } set { Data.IsMainTask = value; } }
 
         //Task boundary
         private static double _taskBoundaryWidth = 5;
@@ -23,19 +30,24 @@ namespace TaskDetectionTracker.Views
 
         private static double _taskCheckboxWidth = 15;
         public static double TaskCheckboxWidth { get { return _taskCheckboxWidth; } }
-
-        private static double _taskBoundaryTransform = -1 * TaskBoundaryWidth;
-        public static double TaskBoundaryTransform { get { return _taskBoundaryTransform; } }
-
+        
         //Process rectangle
         public ObservableCollection<ProcessRectangle> ProcessRectangle { get; set; }
     }
 
     public class ProcessRectangle {
+
         public double Width { get; set; }
         public double Height { get; set; }
         public double X { get; set; }
         public Brush Color { get; set; }
         public string Tooltip { get; set; }
+        public TaskDetectionInput Data { get; set; }
+
+        //Potential task boundary
+        private static double _taskBoundaryWidth = 5;
+        public static double TaskBoundaryWidth { get { return _taskBoundaryWidth; } }
+        public bool IsVisible { get; set; }
+
     }
 }
