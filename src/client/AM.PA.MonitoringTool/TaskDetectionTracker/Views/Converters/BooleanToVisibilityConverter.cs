@@ -10,7 +10,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace TaskDetectionTracker.Views
+namespace TaskDetectionTracker.Views.Converters
 {
     [ValueConversion(typeof(bool), typeof(Visibility))]
     public sealed class BoolToVisibilityConverter : IValueConverter

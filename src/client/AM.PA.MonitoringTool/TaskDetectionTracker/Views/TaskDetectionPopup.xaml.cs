@@ -239,20 +239,21 @@ namespace TaskDetectionTracker.Views
 
         private void ExtractProcessesFromTask(TaskDetection task, List<TaskDetectionInput> processes)
         {
-            //Remove process from old task
-            task.TimelineInfos.RemoveAll(process => processes.Contains(process));
-            task.TimelineInfos.Sort();
-            task.Start = task.TimelineInfos.First().Start;
-            task.End = task.TimelineInfos.Last().End;
-            task.TaskDetectionCase = TaskDetectionCase.Missing;
-
             //Add process to new task
             TaskDetection newTask = new TaskDetection();
             newTask.TimelineInfos = processes;
             newTask.Start = newTask.TimelineInfos.First().Start;
             newTask.End = newTask.TimelineInfos.Last().End;
             newTask.TaskTypeValidated = string.Empty;
+            newTask.TaskDetectionCase = task.TaskDetectionCase;
 
+            //Remove process from old task
+            task.TimelineInfos.RemoveAll(process => processes.Contains(process));
+            task.TimelineInfos.Sort();
+            task.Start = task.TimelineInfos.First().Start;
+            task.End = task.TimelineInfos.Last().End;
+            task.TaskDetectionCase = TaskDetectionCase.Missing;
+            
             //Add new task to list of tasks
             _tasks.Add(newTask);
             _tasks.Sort();

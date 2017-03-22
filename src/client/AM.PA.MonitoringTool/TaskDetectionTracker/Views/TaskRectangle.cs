@@ -21,6 +21,7 @@ namespace TaskDetectionTracker.Views
         public bool IsUserDefined { get; set; }
         public TaskDetection Data { get; set; }
         public string ID { get { return TaskName + Timestamp; } }
+        public TaskDetectionCase TaskDetectionCase {get { return Data.TaskDetectionCase;} set {Data.TaskDetectionCase = value;}}
 
         //Task boundary
         private static double _taskBoundaryWidth = 5;
