@@ -18,7 +18,7 @@ namespace TaskDetectionTracker.Views.Tests
     {
 
         private int _numberOfElementsPerTask = 3;
-        private string[] tasks = { "research", "coding", "planning", "private" };
+        private string[] tasks = { "research", "coding", "planning", "private", "meeting" };
 
         [TestMethod()]
         public void TaskDetectionPopupTest()

@@ -24,6 +24,32 @@ namespace TaskDetectionTracker.Views
     /// </summary>
     public partial class TaskDetectionPopup : Window, INotifyPropertyChanged
     {
+        #region Color definitions
+        private static BrushConverter converter = new BrushConverter();
+
+        Brush[] taskBrushes = new Brush[]
+        {
+            (Brush) converter.ConvertFromString("#247BA0"),
+            (Brush) converter.ConvertFromString("#70C1B3"),
+            (Brush) converter.ConvertFromString("#B2DBBF"),
+            (Brush) converter.ConvertFromString("#F3FFBD"),
+            (Brush) converter.ConvertFromString("#FF1654")
+        };
+
+        Brush[] processBrushes = new Brush[]
+        {
+            (Brush) converter.ConvertFromString("#50514F"),
+            (Brush) converter.ConvertFromString("#F25F5C"),
+            (Brush) converter.ConvertFromString("#FFE066"),
+            (Brush) converter.ConvertFromString("#247BA0"),
+            (Brush) converter.ConvertFromString("#70C1B3")
+        };
+
+        private Dictionary<string, Brush> taskColors = new Dictionary<string, Brush>();
+        private Dictionary<string, Brush> processColors = new Dictionary<string, Brush>();
+        #endregion
+
+        #region Validation of save button
         public event PropertyChangedEventHandler PropertyChanged;
 
         private bool _validationComplete = false;
@@ -37,15 +63,11 @@ namespace TaskDetectionTracker.Views
                 handler(this, new PropertyChangedEventArgs(name));
             }
         }
+        #endregion
 
         private DispatcherTimer _popUpReminderTimer;
-
         private List<TaskDetection> _tasks;
-        private Dictionary<string, Brush> colors = new Dictionary<string, Brush>();
-
         public ObservableCollection<TaskRectangle> RectItems { get; set; }
-         
-        //Canvas width
         public static double CanvasWidth { get { return 3000; } }
 
         public TaskDetectionPopup(List<TaskDetection> tasks)
@@ -132,18 +154,7 @@ namespace TaskDetectionTracker.Views
 
         #endregion
 
-        Brush[] taskBrushes = new Brush[]
-        {
-            Brushes.Beige,
-            Brushes.AliceBlue
-        };
-
-        Brush[] processBrushes = new Brush[]
-        {
-            Brushes.Violet,
-            Brushes.Green
-        };
-
+        #region Draw Timeline
         private void GenerateRectangles()
         {
             double margin = 20;
@@ -161,11 +172,11 @@ namespace TaskDetectionTracker.Views
             
                 Brush color;
 
-                bool hasKey = colors.TryGetValue(task.TaskTypeValidated, out color);
+                bool hasKey = taskColors.TryGetValue(task.TaskTypeValidated, out color);
                 if (!hasKey)
                 {
-                    color = taskBrushes[colors.Keys.Count % taskBrushes.Length];
-                    colors.Add(task.TaskTypeValidated, color);
+                    color = taskBrushes[taskColors.Keys.Count % taskBrushes.Length];
+                    taskColors.Add(task.TaskTypeValidated, color);
                 }
 
                 var processRectangles = new ObservableCollection<ProcessRectangle>();
@@ -182,11 +193,11 @@ namespace TaskDetectionTracker.Views
                     string tooltip = string.Join(Environment.NewLine, process.WindowTitles) + Environment.NewLine + "Keystrokes: " + process.NumberOfKeystrokes + Environment.NewLine + "Mouse clicks: " + process.NumberOfMouseClicks;
 
                     Brush processColor;
-                    bool hasProcessKey = colors.TryGetValue(process.ProcessName, out processColor);
+                    bool hasProcessKey = processColors.TryGetValue(process.ProcessName, out processColor);
                     if (!hasProcessKey)
                     {
-                        processColor = processBrushes[colors.Keys.Count % processBrushes.Length];
-                        colors.Add(process.ProcessName, processColor);
+                        processColor = processBrushes[processColors.Keys.Count % processBrushes.Length];
+                        processColors.Add(process.ProcessName, processColor);
                     }
 
                     bool visibility = lastProcess.Equals(process) ? false : true;
@@ -199,7 +210,15 @@ namespace TaskDetectionTracker.Views
                 x += (width + TaskRectangle.TaskBoundaryWidth);
             }
         }
-        
+
+        private void RedrawTimeline()
+        {
+            RectItems.Clear();
+            GenerateRectangles();
+        }
+        #endregion
+
+        #region UI handlers
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             foreach (TaskDetection task in _tasks)
@@ -207,19 +226,13 @@ namespace TaskDetectionTracker.Views
                 Trace.WriteLine(task);
                 //TODO: actual save
             }
-
+            Trace.WriteLine("Comments: " + Comments.Text);
             Close();
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             RedrawTimeline();
-        }
-
-        private void RedrawTimeline()
-        {
-            RectItems.Clear();
-            GenerateRectangles();
         }
 
         private void Rectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -235,30 +248,6 @@ namespace TaskDetectionTracker.Views
                     break;
                 }
             }
-        }
-
-        private void ExtractProcessesFromTask(TaskDetection task, List<TaskDetectionInput> processes)
-        {
-            //Add process to new task
-            TaskDetection newTask = new TaskDetection();
-            newTask.TimelineInfos = processes;
-            newTask.Start = newTask.TimelineInfos.First().Start;
-            newTask.End = newTask.TimelineInfos.Last().End;
-            newTask.TaskTypeValidated = string.Empty;
-            newTask.TaskDetectionCase = task.TaskDetectionCase;
-
-            //Remove process from old task
-            task.TimelineInfos.RemoveAll(process => processes.Contains(process));
-            task.TimelineInfos.Sort();
-            task.Start = task.TimelineInfos.First().Start;
-            task.End = task.TimelineInfos.Last().End;
-            task.TaskDetectionCase = TaskDetectionCase.Missing;
-            
-            //Add new task to list of tasks
-            _tasks.Add(newTask);
-            _tasks.Sort();
-
-            RedrawTimeline();
         }
 
         private void DeleteTaskBoundaryButton_Click(object sender, RoutedEventArgs e)
@@ -283,6 +272,46 @@ namespace TaskDetectionTracker.Views
             }
         }
 
+        private void RadioButton_Checked_Correct(object sender, RoutedEventArgs e)
+        {
+            var task = ((sender as RadioButton).DataContext as TaskRectangle).Data;
+            task.TaskDetectionCase = TaskDetectionCase.Correct;
+            ValidateSaveButtonEnabled();
+        }
+
+        private void RadioButton_Checked_Incorrect(object sender, RoutedEventArgs e)
+        {
+            var task = ((sender as RadioButton).DataContext as TaskRectangle).Data;
+            task.TaskDetectionCase = TaskDetectionCase.Wrong;
+            ValidateSaveButtonEnabled();
+        }
+        #endregion
+
+        #region Add and remove processes
+        private void ExtractProcessesFromTask(TaskDetection task, List<TaskDetectionInput> processes)
+        {
+            //Add process to new task
+            TaskDetection newTask = new TaskDetection();
+            newTask.TimelineInfos = processes;
+            newTask.Start = newTask.TimelineInfos.First().Start;
+            newTask.End = newTask.TimelineInfos.Last().End;
+            newTask.TaskTypeValidated = string.Empty;
+            newTask.TaskDetectionCase = task.TaskDetectionCase;
+
+            //Remove process from old task
+            task.TimelineInfos.RemoveAll(process => processes.Contains(process));
+            task.TimelineInfos.Sort();
+            task.Start = task.TimelineInfos.First().Start;
+            task.End = task.TimelineInfos.Last().End;
+            task.TaskDetectionCase = TaskDetectionCase.Missing;
+            
+            //Add new task to list of tasks
+            _tasks.Add(newTask);
+            _tasks.Sort();
+
+            RedrawTimeline();
+        }
+        
         private void AddProcessesToAnotherTask(TaskDetection oldTask, TaskDetection newTask, List<TaskDetectionInput> processes)
         {
             _tasks.Remove(oldTask);
@@ -297,21 +326,9 @@ namespace TaskDetectionTracker.Views
 
             RedrawTimeline();
         }
+        #endregion
 
-        private void RadioButton_Checked_Correct(object sender, RoutedEventArgs e)
-        {
-            var task = ((sender as RadioButton).DataContext as TaskRectangle).Data;
-            task.TaskDetectionCase = TaskDetectionCase.Correct;
-            ValidateSaveButtonEnabled();
-        }
-
-        private void RadioButton_Checked_Incorrect(object sender, RoutedEventArgs e)
-        {
-            var task = ((sender as RadioButton).DataContext as TaskRectangle).Data;
-            task.TaskDetectionCase = TaskDetectionCase.Wrong;
-            ValidateSaveButtonEnabled();
-        }
-
+        #region Save button validation
         private void ValidateSaveButtonEnabled()
         {
             foreach (var task in _tasks)
@@ -324,5 +341,6 @@ namespace TaskDetectionTracker.Views
                 ValidationComplete = true;
             }
         }
+        #endregion
     }
 }
