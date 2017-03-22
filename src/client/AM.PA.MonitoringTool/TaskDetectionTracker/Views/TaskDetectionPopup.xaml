@@ -15,6 +15,24 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisConverter" TrueValue="Visible" FalseValue="Collapsed"/>
         <converters:BoolToVisibilityConverter x:Key="BoolToHiddenConverter" TrueValue="Visible" FalseValue="Hidden" />
         <converters:BoolToVisibilityConverter x:Key="BoolToHiddenConverterInverted" TrueValue="Hidden" FalseValue="Visible" />
+        <Style x:Key="NoHoverButtonStyle" TargetType="Button">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Name="border" 
+                            BorderThickness="0"
+                            Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <Style x:Key="EditableLabelStyle" TargetType="{x:Type Label}">
             <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
             <Setter Property="Background" Value="Transparent"/>
@@ -107,7 +125,7 @@
                                         <Rectangle Width="{Binding TaskBoundaryWidth}" Margin="0 62 0 0" Height="122" Fill="{x:Static paColors:Settings.RetrospectionColorBrush}" HorizontalAlignment="Left"></Rectangle>
                                         <RadioButton Margin="-5 10 0 0" Checked="RadioButton_Checked_Correct" GroupName="{Binding ID}" BorderBrush="Green" Foreground="Green" Width="{Binding TaskCheckboxWidth}" IsChecked="{Binding Path=TaskDetectionCase, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static model:TaskDetectionCase.Correct}}" HorizontalAlignment="Left" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverterInverted}}"></RadioButton>
                                         <RadioButton Margin="-5 10 0 0" Checked="RadioButton_Checked_Incorrect" GroupName="{Binding ID}" BorderBrush="Red" Foreground="Red" Width="{Binding TaskCheckboxWidth}" IsChecked="{Binding Path=TaskDetectionCase, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static model:TaskDetectionCase.Wrong}}" HorizontalAlignment="Left" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverterInverted}}"></RadioButton>
-                                        <Button Margin="-5 10 0 4.5" Name="DeleteTaskBoundaryButton" Width="{Binding TaskCheckboxWidth}" Height="{Binding TaskCheckboxWidth}" VerticalAlignment="Center" BorderThickness="0" Foreground="Red" Background="Transparent" Content="x" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverter}}" Click="DeleteTaskBoundaryButton_Click"></Button>
+                                        <Button Style="{StaticResource NoHoverButtonStyle}" Margin="-5 10 0 4.5" Name="DeleteTaskBoundaryButton" Width="{Binding TaskCheckboxWidth}" Height="{Binding TaskCheckboxWidth}" VerticalAlignment="Center" BorderThickness="0" Foreground="Red" Background="Transparent" Content="x" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverter}}" Click="DeleteTaskBoundaryButton_Click"></Button>
                                         <TextBlock Margin="-5 0 0 0" Text="{Binding Timestamp}"></TextBlock>
                                     </StackPanel>
                                 </StackPanel>

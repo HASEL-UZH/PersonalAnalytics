@@ -84,7 +84,7 @@ namespace TaskDetectionTracker.Views
             this._tasks = tasks;
             StartTime.Inlines.Add(_tasks.First().Start.ToShortTimeString());
             EndTime.Inlines.Add(_tasks.Last().End.ToShortTimeString());
-            
+
             RectItems = new ObservableCollection<TaskRectangle>();
             GenerateRectangles();
         }
