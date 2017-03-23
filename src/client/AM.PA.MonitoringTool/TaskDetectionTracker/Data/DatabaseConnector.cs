@@ -45,7 +45,7 @@ namespace TaskDetectionTracker.Data
 
             try
             {
-                string query = "Select time, window, process from windows_activity where time >= '" + from + "' AND time < '" + to + "';";
+                string query = "Select time, window, process from windows_activity where " + "(" + " STRFTIME('%s', DATE(time)) between STRFTIME('%s', DATE('" + from.ToString("u") + "')) and STRFTIME('%s', DATE('" + to.ToString("u") + "')) "+ " ) ";
                 var table = Database.GetInstance().ExecuteReadQuery(query);
                 foreach (DataRow row in table.Rows)
                 {
