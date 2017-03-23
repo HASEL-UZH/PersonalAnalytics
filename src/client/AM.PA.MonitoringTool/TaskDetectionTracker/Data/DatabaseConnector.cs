@@ -28,7 +28,7 @@ namespace TaskDetectionTracker.Data
         internal static void TaskDetectionSession_SaveToDatabase(List<TaskDetection> taskDetections)
         {
             // TODO: implement
-            throw new NotImplementedException("Not implemented yet!");
+            Shared.Logger.WriteToConsole("## Not yet implemented: TaskDetectionSession_SaveToDatabase!");
         }
     }
 }

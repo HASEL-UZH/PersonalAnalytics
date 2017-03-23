@@ -138,8 +138,8 @@ namespace TaskDetectionTracker
                     {
                         var popup = new TaskDetectionPopup(taskDetections);
 
-                    // show popup & handle response
-                    if (popup.ShowDialog() == true)
+                        // show popup & handle response
+                        if (popup.ShowDialog() == true)
                         {
                             HandlePopUpResponse(popup, taskDetections, detectionSessionEnd);
                         }

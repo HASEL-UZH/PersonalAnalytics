@@ -98,9 +98,11 @@ namespace TaskDetectionTracker.Views
         /// <param name="e"></param>
         private void Window_OnClosing(object sender, CancelEventArgs e)
         {
-            // TODO: add messagebox in red to emphasize how important it is to answer this popup. And say please and thanks ;)
-            e.Cancel = true;
-            WindowState = WindowState.Minimized;
+            if (DialogResult != true || ValidationComplete == false)
+            {
+                e.Cancel = true;
+                WindowState = WindowState.Minimized;
+            }
         }
 
         /// <summary>
@@ -148,7 +150,7 @@ namespace TaskDetectionTracker.Views
 
         private void PopUpReminder_Tick(object sender, EventArgs e)
         {
-            // TODO: add text in red to emphasize how important it is to answer this popup. And say please and thanks ;)
+            BegForParticipation.Visibility = Visibility.Visible;
             WindowState = WindowState.Normal;
         }
 
@@ -219,6 +221,7 @@ namespace TaskDetectionTracker.Views
         #endregion
 
         #region UI handlers
+
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             foreach (TaskDetection task in _tasks)
@@ -227,6 +230,7 @@ namespace TaskDetectionTracker.Views
                 //TODO: actual save
             }
             Trace.WriteLine("Comments: " + Comments.Text);
+            DialogResult = true;
             Close();
         }
 
