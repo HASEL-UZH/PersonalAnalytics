@@ -15,13 +15,13 @@ namespace TaskDetectionTracker
         public const string DbTable_TaskDetection_Validations = "task_detection_validations";
 
         #if Pilot_TaskDetection_March17
-            public static bool IsEnabledByDefault = true;
+        public static bool IsEnabledByDefault = true;
         #else
-            public static bool IsEnabledByDefault = false;
+        public static bool IsEnabledByDefault = true; //TODO: change back
         #endif
 
-        public static TimeSpan PopUpInterval = TimeSpan.FromMinutes(60);
-        public static TimeSpan PopUpReminderInterval = TimeSpan.FromSeconds(5); // TODO: TimeSpan.FromMinutes(5);
+        public static TimeSpan PopUpInterval = TimeSpan.FromSeconds(5); // TimeSpan.FromMinutes(60);
+        public static TimeSpan PopUpReminderInterval = TimeSpan.FromSeconds(2); // TimeSpan.FromMinutes(5);
 
         public const int MinimumProcessTimeInSeconds = 10;
     }
