@@ -41,6 +41,7 @@ namespace TaskDetectionTracker
             _popUpTimer = new DispatcherTimer();
             _popUpTimer.Interval = Settings.PopUpInterval;
             _popUpTimer.Tick += PopUp_Tick;
+            _popUpTimer.Start();
 
             IsRunning = true;
         }
@@ -93,11 +94,19 @@ namespace TaskDetectionTracker
             // stop pop-up timer
             _popUpTimer.Stop();
 
+            // get session start and end
+            var sessionStart = _lastPopUpResponse;
+            if (_lastPopUpResponse == DateTime.MinValue || _lastPopUpResponse.Date != DateTime.Now.Date)
+            {
+                sessionStart = Database.GetInstance().GetUserWorkStart(DateTime.Now.Date);
+            }
+            var sessionEnd = DateTime.Now;
+
             // load all data first
-            var taskDetections = PrepareTaskDetectionDataForPopup();
+            var taskDetections = PrepareTaskDetectionDataForPopup(sessionStart, sessionEnd);
 
             // show pop-up 
-            ShowTaskDetectionValidationPopup(taskDetections);
+            ShowTaskDetectionValidationPopup(taskDetections, sessionStart, sessionEnd);
         }
 
         /// <summary>
@@ -105,16 +114,8 @@ namespace TaskDetectionTracker
         /// time the participant answered the popup
         /// </summary>
         /// <returns></returns>
-        private List<TaskDetection> PrepareTaskDetectionDataForPopup()
+        private List<TaskDetection> PrepareTaskDetectionDataForPopup(DateTime sessionStart, DateTime sessionEnd)
         {
-            // get session start and end
-            var sessionStart = _lastPopUpResponse;
-            if (_lastPopUpResponse == DateTime.MinValue || _lastPopUpResponse.Date != DateTime.Now.Date)
-            {
-                _lastPopUpResponse = Database.GetInstance().GetUserWorkStart(DateTime.Now.Date);
-            }
-            var sessionEnd = DateTime.Now;
-
             var processes = new List<TaskDetectionInput>(); // TODO: get list of processes (+ user input) from database
             var taskDetections = new List<TaskDetection>(); // TODO: run task detection (using Katja's helper, likely on separate thread)
 
@@ -126,29 +127,47 @@ namespace TaskDetectionTracker
         /// to validate them. The response is handled in a separate method.
         /// </summary>
         /// <param name="taskDetections"></param>
-        private void ShowTaskDetectionValidationPopup(List<TaskDetection> taskDetections)
+        private void ShowTaskDetectionValidationPopup(List<TaskDetection> taskDetections, DateTime detectionSessionStart, DateTime detectionSessionEnd)
         {
-            try
+            if (taskDetections.Count > 0)
             {
-                Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(
-                () =>
+                try
                 {
-                    var popup = new TaskDetectionPopup(taskDetections);
+                    Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(
+                    () =>
+                    {
+                        var popup = new TaskDetectionPopup(taskDetections);
 
                     // show popup & handle response
                     if (popup.ShowDialog() == true)
-                    {
-                        HandlePopUpResponse(popup, taskDetections);
-                    }
-                    else
-                    {
-                        // we get here when DialogResult is set to false (which should never happen) 
-                        Database.GetInstance().LogErrorUnknown("DialogResult of PopUp was set to false in tracker: " + Name);
-                    }
-                }));
+                        {
+                            HandlePopUpResponse(popup, taskDetections, detectionSessionEnd);
+                        }
+                        else
+                        {
+                            // we get here when DialogResult is set to false (which should never happen) 
+                            Database.GetInstance().LogErrorUnknown("DialogResult of PopUp was set to false in tracker: " + Name);
+                        }
+                    }));
+                }
+                catch (ThreadAbortException e)
+                {
+                    Database.GetInstance().LogError(Name + ": " + e.Message);
+                    _popUpTimer.Start();
+                }
+                catch (Exception e)
+                {
+                    Logger.WriteToLogFile(e);
+                    _popUpTimer.Start();
+                }
             }
-            catch (ThreadAbortException e) { Database.GetInstance().LogError(Name + ": " + e.Message); }
-            catch (Exception e) { Logger.WriteToLogFile(e); }
+            // no tasks in timeline detected
+            else
+            {
+                var msg = string.Format("No tasks detected between {0} {1} and {2} {3}.", detectionSessionStart.ToShortDateString(), detectionSessionStart.ToShortTimeString(), detectionSessionEnd.ToShortDateString(), detectionSessionEnd.ToShortTimeString());
+                Database.GetInstance().LogWarning(msg);
+                _popUpTimer.Start();
+            }
         }
 
         /// <summary>
@@ -158,19 +177,31 @@ namespace TaskDetectionTracker
         /// </summary>
         /// <param name="taskDetectionPopup"></param>
         /// <param name="popup"></param>
-        private void HandlePopUpResponse(TaskDetectionPopup popup, List<TaskDetection> taskDetections)
+        private void HandlePopUpResponse(TaskDetectionPopup popup, List<TaskDetection> taskDetections, DateTime detectionSessionEnd)
         {
+            // successful popup response
             if (popup.ValidationComplete)
             {
                 // save validation responses to the database
-                DatabaseConnector.TaskDetectionSession_SaveToDatabase(taskDetections);
-            }
+                DatabaseConnector.TaskDetectionSession_SaveToDatabase(taskDetections); //TODO: implement
+
+                // next popup will start from this timestamp
+                _lastPopUpResponse = detectionSessionEnd;
+
+                // set timer interval to regular interval
+                _popUpTimer.Interval = Settings.PopUpInterval;
+            } 
             else
             {
                 // we get here when DialogResult is set to false (which never happens) 
                 Database.GetInstance().LogErrorUnknown("User closed the PopUp without completing the validation in tracker: " + Name);
-                //TODO: what happens here?
+
+                // set timer interval to a short one, to try again
+                _popUpTimer.Interval = Settings.PopUpReminderInterval;
             }
+
+            // restart timer
+            _popUpTimer.Start();
         }
     }
 }
