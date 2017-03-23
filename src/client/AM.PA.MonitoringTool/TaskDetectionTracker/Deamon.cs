@@ -118,12 +118,16 @@ namespace TaskDetectionTracker
         private List<TaskDetection> PrepareTaskDetectionDataForPopup(DateTime sessionStart, DateTime sessionEnd)
         {
             var processes = DatabaseConnector.GetProcesses(sessionStart, sessionEnd);
-            processes = DataMerger.MergeProcesses(processes, sessionEnd.Subtract(sessionStart));
+            
+            if (processes.Count > 0)
+            {
+                processes = DataMerger.MergeProcesses(processes, sessionEnd.Subtract(sessionStart));
 
-            TaskDetection task = new TaskDetection { Start = processes.First().Start, End = processes.Last().End, TimelineInfos = processes, TaskTypeValidated = "test task" };
-            var taskDetections = new List<TaskDetection> { task }; // TODO: run task detection (using Katja's helper, likely on separate thread)
-
-            return taskDetections;
+                TaskDetection task = new TaskDetection { Start = processes.First().Start, End = processes.Last().End, TimelineInfos = processes, TaskTypeValidated = "test task" };
+                var taskDetections = new List<TaskDetection> { task }; // TODO: run task detection (using Katja's helper, likely on separate thread)
+                return taskDetections;
+            }
+            return new List<TaskDetection>();
         }
 
         /// <summary>
