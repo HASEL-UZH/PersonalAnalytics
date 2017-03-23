@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using Shared.Data;
 using TaskDetectionTracker.Model;
+using System.Data;
+using Shared;
 
 namespace TaskDetectionTracker.Data
 {
@@ -29,6 +31,37 @@ namespace TaskDetectionTracker.Data
         {
             // TODO: implement
             throw new NotImplementedException("Not implemented yet!");
+        }
+
+        /// <summary>
+        /// Returns all processes from the windows_activity table within a given time frame
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <returns></returns>
+        internal static List<TaskDetectionInput> GetProcesses(DateTime from, DateTime to)
+        {
+            List<TaskDetectionInput> result = new List<TaskDetectionInput>();
+
+            try
+            {
+                string query = "Select time, window, process from windows_activity where time >= '" + from + "' AND time < '" + to + "';";
+                var table = Database.GetInstance().ExecuteReadQuery(query);
+                foreach (DataRow row in table.Rows)
+                {
+                    DateTime start = DateTime.Parse(row[0].ToString());
+                    string window = row[1].ToString();
+                    string processName = row[2].ToString();
+                    var process = new TaskDetectionInput { Start = start, WindowTitles = new List<string> { window }, ProcessName = processName };
+                    result.Add(process);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+            
+            return result;
         }
     }
 }

@@ -7,6 +7,7 @@ using Shared;
 using Shared.Data;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows;
@@ -41,6 +42,7 @@ namespace TaskDetectionTracker
             _popUpTimer = new DispatcherTimer();
             _popUpTimer.Interval = Settings.PopUpInterval;
             _popUpTimer.Tick += PopUp_Tick;
+            _popUpTimer.Start();
 
             IsRunning = true;
         }
@@ -115,8 +117,11 @@ namespace TaskDetectionTracker
             }
             var sessionEnd = DateTime.Now;
 
-            var processes = new List<TaskDetectionInput>(); // TODO: get list of processes (+ user input) from database
-            var taskDetections = new List<TaskDetection>(); // TODO: run task detection (using Katja's helper, likely on separate thread)
+            var processes = DatabaseConnector.GetProcesses(sessionStart, sessionEnd);
+            processes = DataMerger.MergeProcesses(processes, sessionEnd.Subtract(sessionStart));
+
+            TaskDetection task = new TaskDetection { Start = processes.First().Start, End = processes.Last().End, TimelineInfos = processes, TaskTypeValidated = "test task" };
+            var taskDetections = new List<TaskDetection> { task }; // TODO: run task detection (using Katja's helper, likely on separate thread)
 
             return taskDetections;
         }
