@@ -33,7 +33,7 @@ namespace TaskDetectionTracker.Views
             (Brush) converter.ConvertFromString("#70C1B3"),
             (Brush) converter.ConvertFromString("#B2DBBF"),
             (Brush) converter.ConvertFromString("#F3FFBD"),
-            (Brush) converter.ConvertFromString("#FF1654")
+            (Brush) converter.ConvertFromString("#FF1654"),
         };
 
         Brush[] processBrushes = new Brush[]
@@ -219,7 +219,7 @@ namespace TaskDetectionTracker.Views
         #endregion
 
         #region UI handlers
-        private void Label_MouseLeave(object sender, MouseEventArgs e)
+        private void RedrawTimelineEvent(object sender, MouseEventArgs e)
         {
             GenerateRectangles();
         }
@@ -281,6 +281,13 @@ namespace TaskDetectionTracker.Views
         {
             var task = ((sender as RadioButton).DataContext as TaskRectangle).Data;
             task.TaskDetectionCase = TaskDetectionCase.Correct;
+            var index = _tasks.FindIndex(t => t.Equals(task));
+            if (index != -1 && index + 1 < _tasks.Count)
+            {
+                var nextTask = _tasks.ElementAt(++index);
+                nextTask.TaskTypeValidated = string.Empty;
+            }
+
             ValidateSaveButtonEnabled();
         }
 
@@ -288,8 +295,16 @@ namespace TaskDetectionTracker.Views
         {
             var task = ((sender as RadioButton).DataContext as TaskRectangle).Data;
             task.TaskDetectionCase = TaskDetectionCase.Wrong;
+            var index = _tasks.FindIndex(t => t.Equals(task));
+            if (index != -1 && index + 1 < _tasks.Count)
+            {
+                var nextTask = _tasks.ElementAt(++index);
+                nextTask.TaskTypeValidated = task.TaskTypeValidated;
+            }
+            
             ValidateSaveButtonEnabled();
         }
+        
         #endregion
 
         #region Add and remove processes
