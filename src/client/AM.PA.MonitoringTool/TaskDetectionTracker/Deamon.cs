@@ -7,6 +7,7 @@ using Shared;
 using Shared.Data;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows;
@@ -116,10 +117,18 @@ namespace TaskDetectionTracker
         /// <returns></returns>
         private List<TaskDetection> PrepareTaskDetectionDataForPopup(DateTime sessionStart, DateTime sessionEnd)
         {
-            var processes = new List<TaskDetectionInput>(); // TODO: get list of processes (+ user input) from database
-            var taskDetections = new List<TaskDetection>(); // TODO: run task detection (using Katja's helper, likely on separate thread)
+            var processes = DatabaseConnector.GetProcesses(sessionStart, sessionEnd);
+            
+            if (processes.Count > 0)
+            {
+                processes = DataMerger.MergeProcesses(processes, sessionEnd.Subtract(sessionStart));
 
-            return taskDetections;
+                TaskDetection task = new TaskDetection { Start = processes.First().Start, End = processes.Last().End, TimelineInfos = processes, TaskTypeValidated = "test task" };
+                //TODO: file and website extractor
+                var taskDetections = new List<TaskDetection> { task }; // TODO: run task detection (using Katja's helper, likely on separate thread)
+                return taskDetections;
+            }
+            return new List<TaskDetection>();
         }
 
         /// <summary>

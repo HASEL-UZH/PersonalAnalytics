@@ -21,7 +21,7 @@ namespace TaskDetectionTracker
         #endif
 
         public static TimeSpan PopUpInterval = TimeSpan.FromSeconds(5); // TimeSpan.FromMinutes(60);
-        public static TimeSpan PopUpReminderInterval = TimeSpan.FromSeconds(2); // TimeSpan.FromMinutes(5);
+        public static TimeSpan PopUpReminderInterval = TimeSpan.FromMinutes(5);
 
         public const int MinimumProcessTimeInSeconds = 10;
     }
