@@ -72,5 +72,10 @@ namespace TaskDetectionTracker
                 processes.ElementAt(i).End = processes.ElementAt(i + 1).Start;
             }
         }
+
+        internal static void AddMouseClickAndKeystrokesToProcesses(List<TaskDetectionInput> processes)
+        {
+            //TODO: for each process, find the number of keystrokes and mouse clicks
+        }
     }
 }

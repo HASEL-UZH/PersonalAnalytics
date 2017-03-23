@@ -122,6 +122,7 @@ namespace TaskDetectionTracker
             if (processes.Count > 0)
             {
                 processes = DataMerger.MergeProcesses(processes, sessionEnd.Subtract(sessionStart));
+                DataMerger.AddMouseClickAndKeystrokesToProcesses(processes);
 
                 TaskDetection task = new TaskDetection { Start = processes.First().Start, End = processes.Last().End, TimelineInfos = processes, TaskTypeValidated = "test task" };
                 //TODO: file and website extractor
