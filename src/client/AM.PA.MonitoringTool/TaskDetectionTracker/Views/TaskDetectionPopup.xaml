@@ -116,7 +116,7 @@
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="auto" />
                                     </Grid.ColumnDefinitions>
-                                    <Label Style="{StaticResource EditableLabelStyle}" Grid.Column="0" Content="{Binding TaskName, Mode=TwoWay}"/>
+                                    <Label Style="{StaticResource EditableLabelStyle}" Grid.Column="0" Content="{Binding TaskName, Mode=TwoWay}" Mouse.MouseLeave="Label_MouseLeave"/>
                                     <CheckBox Grid.Column="1" VerticalAlignment="Center" Margin="0 0 10 0" IsChecked="{Binding IsMainTask}"></CheckBox>
                                 </Grid>
 

@@ -219,6 +219,11 @@ namespace TaskDetectionTracker.Views
         #endregion
 
         #region UI handlers
+        private void Label_MouseLeave(object sender, MouseEventArgs e)
+        {
+            GenerateRectangles();
+        }
+
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             foreach (TaskDetection task in _tasks)
