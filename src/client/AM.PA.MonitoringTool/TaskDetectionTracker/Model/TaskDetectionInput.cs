@@ -26,7 +26,7 @@ namespace TaskDetectionTracker.Model
 
         public override string ToString()
         {
-            return ProcessName + ": " + Start.ToLongTimeString() + " - " + End.ToLongTimeString();
+            return ProcessName + ": " + Start.ToLongTimeString() + " - " + End.ToLongTimeString() + " (" + End.Subtract(Start).ToString();
         }
         
         public int CompareTo(TaskDetectionInput other)

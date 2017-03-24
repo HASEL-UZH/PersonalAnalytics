@@ -33,7 +33,7 @@ namespace TaskDetectionTracker.Views
             (Brush) converter.ConvertFromString("#70C1B3"),
             (Brush) converter.ConvertFromString("#B2DBBF"),
             (Brush) converter.ConvertFromString("#F3FFBD"),
-            (Brush) converter.ConvertFromString("#FF1654"),
+            (Brush) converter.ConvertFromString("#FF1654")
         };
 
         Brush[] processBrushes = new Brush[]
@@ -190,9 +190,12 @@ namespace TaskDetectionTracker.Views
                 foreach (TaskDetectionInput process in task.TimelineInfos)
                 {
                     double processDuration = process.End.Subtract(process.Start).TotalSeconds;
-                    
+
                     double processWidth = processDuration * ((width - processBorderWidth) / totalProcessDuration);
-                    string tooltip = string.Join(Environment.NewLine, process.WindowTitles) + Environment.NewLine + "Keystrokes: " + process.NumberOfKeystrokes + Environment.NewLine + "Mouse clicks: " + process.NumberOfMouseClicks;
+
+                    process.WindowTitles.RemoveAll(w => string.IsNullOrWhiteSpace(w) || string.IsNullOrEmpty(w));
+                    string windowTitle = process.WindowTitles.Count > 0 ? string.Join(Environment.NewLine, process.WindowTitles) : "[no window titles]";
+                    string tooltip = windowTitle + Environment.NewLine + "Keystrokes: " + process.NumberOfKeystrokes + Environment.NewLine + "Mouse clicks: " + process.NumberOfMouseClicks;
 
                     Brush processColor;
                     bool hasProcessKey = processColors.TryGetValue(process.ProcessName, out processColor);
