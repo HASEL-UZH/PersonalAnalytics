@@ -13,12 +13,13 @@ Personal Developer Analytics project by André Meyer from the SEAL Lab at the Un
 - February, 2017: Integrated the FlowLight to avoid interruptions at inopportune moments
 - March, 2017: Started working on task type detection (on the 'taskdetection' branch)
 
-# Core Contributor & Contact
+# Contact
 André Meyer (ameyer@ifi.uzh.ch)
 
 
-# Collaborations
-- Prof. Dr. Thomas Fritz (University of Zurich)
+# Collaborators & Contributors
+- André Meyer (University of Zurich)
+- Prof. Dr. Thomas Fritz (University of British Columbia)
 - Dr. Tom Zimmermann (Microsoft Research)
 - Prof. Dr. Gail C. Murphy (University of British Columbia)
 - Manuela Züger and Sebastian Müller (University of Zurich)
