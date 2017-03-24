@@ -8,7 +8,6 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using TaskDetectionTracker.Model;
 using System.Linq;
-using System.Windows.Media;
 using System;
 using System.Windows.Threading;
 using System.ComponentModel;
@@ -24,31 +23,6 @@ namespace TaskDetectionTracker.Views
     /// </summary>
     public partial class TaskDetectionPopup : Window, INotifyPropertyChanged
     {
-        #region Color definitions
-        private static BrushConverter converter = new BrushConverter();
-
-        Brush[] taskBrushes = new Brush[]
-        {
-            (Brush) converter.ConvertFromString("#247BA0"),
-            (Brush) converter.ConvertFromString("#70C1B3"),
-            (Brush) converter.ConvertFromString("#B2DBBF"),
-            (Brush) converter.ConvertFromString("#F3FFBD"),
-            (Brush) converter.ConvertFromString("#FF1654")
-        };
-
-        Brush[] processBrushes = new Brush[]
-        {
-            (Brush) converter.ConvertFromString("#50514F"),
-            (Brush) converter.ConvertFromString("#F25F5C"),
-            (Brush) converter.ConvertFromString("#FFE066"),
-            (Brush) converter.ConvertFromString("#247BA0"),
-            (Brush) converter.ConvertFromString("#70C1B3")
-        };
-
-        private Dictionary<string, Brush> taskColors = new Dictionary<string, Brush>();
-        private Dictionary<string, Brush> processColors = new Dictionary<string, Brush>();
-        #endregion
-
         #region Validation of save button
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -172,15 +146,6 @@ namespace TaskDetectionTracker.Views
                 double duration = task.End.Subtract(task.Start).TotalSeconds;
                 double width = duration * (totalWidth / totalDuration);
             
-                Brush color;
-
-                bool hasKey = taskColors.TryGetValue(task.TaskTypeValidated, out color);
-                if (!hasKey)
-                {
-                    color = taskBrushes[taskColors.Keys.Count % taskBrushes.Length];
-                    taskColors.Add(task.TaskTypeValidated, color);
-                }
-
                 var processRectangles = new ObservableCollection<ProcessRectangle>();
                 double totalProcessDuration = task.TimelineInfos.Sum(p => p.End.Subtract(p.Start).TotalSeconds);
                 double processBorderWidth = (task.TimelineInfos.Count - 1) * ProcessRectangle.TaskBoundaryWidth;
@@ -196,22 +161,14 @@ namespace TaskDetectionTracker.Views
                     process.WindowTitles.RemoveAll(w => string.IsNullOrWhiteSpace(w) || string.IsNullOrEmpty(w));
                     string windowTitle = process.WindowTitles.Count > 0 ? string.Join(Environment.NewLine, process.WindowTitles) : "[no window titles]";
                     string tooltip = windowTitle + Environment.NewLine + "Keystrokes: " + process.NumberOfKeystrokes + Environment.NewLine + "Mouse clicks: " + process.NumberOfMouseClicks;
-
-                    Brush processColor;
-                    bool hasProcessKey = processColors.TryGetValue(process.ProcessName, out processColor);
-                    if (!hasProcessKey)
-                    {
-                        processColor = processBrushes[processColors.Keys.Count % processBrushes.Length];
-                        processColors.Add(process.ProcessName, processColor);
-                    }
-
+                    
                     bool visibility = lastProcess.Equals(process) ? false : true;
-                    processRectangles.Add(new ProcessRectangle { Data = process, Width = processWidth, Height = 30, X = processX, Color = processColor, Tooltip = tooltip, IsVisible = visibility });
+                    processRectangles.Add(new ProcessRectangle { Data = process, Width = processWidth, Height = 30, X = processX, Tooltip = tooltip, IsVisible = visibility });
                     processX += (processWidth + ProcessRectangle.TaskBoundaryWidth);
                 }
 
                 bool isUserDefined = task.TaskDetectionCase == TaskDetectionCase.Missing ? true : false;
-                RectItems.Add(new TaskRectangle { Data = task, X = x, Width = width, Height = 30, Color = color, ProcessRectangle = processRectangles, TaskName = task.TaskTypeValidated, Timestamp = task.End.ToShortTimeString(), IsUserDefined = isUserDefined });
+                RectItems.Add(new TaskRectangle(task) { X = x, Width = width, Height = 30, ProcessRectangle = processRectangles, TaskName = task.TaskTypeValidated, Timestamp = task.End.ToShortTimeString(), IsUserDefined = isUserDefined });
                 x += (width + TaskRectangle.TaskBoundaryWidth);
             }
         }
@@ -287,14 +244,18 @@ namespace TaskDetectionTracker.Views
         private void RadioButton_Checked_Correct(object sender, RoutedEventArgs e)
         {
             var task = ((sender as RadioButton).DataContext as TaskRectangle).Data;
+            TaskDetectionCase previousTaskDetectionCase = task.TaskDetectionCase;
             task.TaskDetectionCase = TaskDetectionCase.Correct;
-            var index = _tasks.FindIndex(t => t.Equals(task));
-            if (index != -1 && index + 1 < _tasks.Count)
-            {
-                var nextTask = _tasks.ElementAt(++index);
-                nextTask.TaskTypeValidated = string.Empty;
-            }
 
+            if (previousTaskDetectionCase == TaskDetectionCase.Wrong)
+            {
+                var index = _tasks.FindIndex(t => t.Equals(task));
+                if (index != -1 && index + 1 < _tasks.Count)
+                {
+                    var nextTask = _tasks.ElementAt(++index);
+                    nextTask.TaskTypeValidated = string.Empty;
+                }
+            }
             ValidateSaveButtonEnabled();
         }
 

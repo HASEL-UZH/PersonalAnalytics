@@ -5,10 +5,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace TaskDetectionTracker.Model
 {
-    public class TaskDetection : IComparable<TaskDetection>
+    public class TaskDetection : IComparable<TaskDetection>, INotifyPropertyChanged
     {
         private DateTime _start;
         private DateTime _end; //time of switch away
@@ -18,11 +19,11 @@ namespace TaskDetectionTracker.Model
         private TaskDetectionCase _taskDetectionCase;
         private List<TaskDetectionInput> _timelineInfos;
         private bool _isMainTask = false;
-
+        
         public DateTime Start { get { return _start; } set { _start = value; } }
         public DateTime End { get { return _end; } set { _end = value; } }
         public string TaskTypeProposed { get { return _taskTypeProposed; } set { if (!_taskTypeProposedSet) { _taskTypeProposed = value; _taskTypeProposedSet = true; _taskTypeValidated = value; } } }
-        public string TaskTypeValidated { get { return _taskTypeValidated; } set { _taskTypeValidated = value; } }
+        public string TaskTypeValidated { get { return _taskTypeValidated; } set { _taskTypeValidated = value; NotifyPropertyChanged("TaskTypeValidated"); } }
         public TaskDetectionCase TaskDetectionCase { get { return _taskDetectionCase; } set { _taskDetectionCase = value; } }
         public List<TaskDetectionInput> TimelineInfos { get { return _timelineInfos; } set { _timelineInfos = value; } }
         public bool IsMainTask { get { return _isMainTask; } set { _isMainTask = value; } }
@@ -35,6 +36,15 @@ namespace TaskDetectionTracker.Model
         public int CompareTo(TaskDetection other)
         {
             return Start.CompareTo(other.Start);
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void NotifyPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
         }
     }
 }
