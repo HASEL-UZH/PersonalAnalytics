@@ -8,6 +8,10 @@ using System.Collections.Generic;
 
 namespace TaskDetectionTracker.Model
 {
+
+    /// <summary>
+    /// Input model for Katja's algorithm
+    /// </summary>
     public class TaskDetectionInput : IComparable<TaskDetectionInput>
     {
         private DateTime _start;

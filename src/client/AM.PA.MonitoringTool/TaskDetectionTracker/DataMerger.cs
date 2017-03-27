@@ -14,6 +14,16 @@ namespace TaskDetectionTracker
     public class DataMerger
     {
 
+        /// <summary>
+        /// Merges processes using the following procedure:
+        /// 1. Set the end timestamp for each process to the start timestamp of the next process
+        /// 2. Set the timestamp of the very last process
+        /// 3. Delete all processes that last for less than the minimum threshold (from the Settings)
+        /// 4. For the remaining processes, merge all subsequent processses if they are the same
+        /// </summary>
+        /// <param name="processes"></param>
+        /// <param name="totalDuration"></param>
+        /// <returns></returns>
         public static List<TaskDetectionInput> MergeProcesses(List<TaskDetectionInput> processes, TimeSpan totalDuration)
         {
             //First set the end timestamp of each process to the value of the start timestamp of the next process
@@ -69,7 +79,10 @@ namespace TaskDetectionTracker
             return result;
         }
 
-
+        /// <summary>
+        /// Sets the timestamps for each process
+        /// </summary>
+        /// <param name="processes"></param>
         private static void SetTimestamps(List<TaskDetectionInput> processes)
         {
             for (int i = 0; i < processes.Count - 1; i++)
@@ -78,9 +91,12 @@ namespace TaskDetectionTracker
             }
         }
 
+        /// <summary>
+        /// Add nubmer of keystrokes and mouse clicks to each process
+        /// </summary>
+        /// <param name="processes"></param>
         internal static void AddMouseClickAndKeystrokesToProcesses(List<TaskDetectionInput> processes)
         {
-            //TODO: for each process, find the number of keystrokes and mouse clicks
             var clicks = DatabaseConnector.GetMouseClickData(processes.First().Start, processes.Last().End);
             var keys = DatabaseConnector.GetKeystrokeData(processes.First().Start, processes.Last().End);
 

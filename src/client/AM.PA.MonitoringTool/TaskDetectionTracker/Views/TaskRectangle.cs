@@ -9,6 +9,9 @@ using TaskDetectionTracker.Model;
 
 namespace TaskDetectionTracker.Views
 {
+    /// <summary>
+    /// View Model for tasks
+    /// </summary>
     public class TaskRectangle : INotifyPropertyChanged
     {
         public TaskRectangle(TaskDetection data)
@@ -58,6 +61,9 @@ namespace TaskDetectionTracker.Views
         }
     }
 
+    /// <summary>
+    /// View model for processes
+    /// </summary>
     public class ProcessRectangle {
 
         public double Width { get; set; }

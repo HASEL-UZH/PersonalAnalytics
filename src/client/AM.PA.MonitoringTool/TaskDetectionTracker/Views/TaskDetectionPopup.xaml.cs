@@ -44,21 +44,27 @@ namespace TaskDetectionTracker.Views
         public ObservableCollection<TaskRectangle> RectItems { get; set; }
         public static double CanvasWidth { get { return 3000; } }
 
+        /// <summary>
+        /// Create a new Popup with the tasks in the parameter
+        /// </summary>
+        /// <param name="tasks"></param>
         public TaskDetectionPopup(List<TaskDetection> tasks)
         {
             InitializeComponent();
 
+            //Event handlers
             this.StateChanged += Window_StateChanged;
             this.Closing += Window_OnClosing;
             this.SizeChanged += Window_SizeChanged;
 
+            //Set task context
             Timeline.DataContext = this;
             Save.DataContext = this;
             
+            //Create timeline
             this._tasks = tasks;
             StartTime.Inlines.Add(_tasks.First().Start.ToShortTimeString());
             EndTime.Inlines.Add(_tasks.Last().End.ToShortTimeString());
-
             RectItems = new ObservableCollection<TaskRectangle>();
             GenerateRectangles();
         }
@@ -131,8 +137,12 @@ namespace TaskDetectionTracker.Views
         #endregion
 
         #region Draw Timeline
+        /// <summary>
+        /// Draws the timeline
+        /// </summary>
         private void GenerateRectangles()
         {
+            //margin on the left and right side of the timeline
             double margin = 20;
             double totalTaskBorderSpace = _tasks.Count * TaskRectangle.TaskBoundaryWidth;
 
@@ -140,6 +150,7 @@ namespace TaskDetectionTracker.Views
             double totalWidth = CanvasWidth - (2 * margin) - totalTaskBorderSpace;
             double x = margin;
 
+            //draw each task
             for (int i = 0; i < _tasks.Count; i++)
             {
                 TaskDetection task = _tasks.ElementAt(i);
@@ -152,6 +163,7 @@ namespace TaskDetectionTracker.Views
 
                 double processX = 0;
                 var lastProcess = task.TimelineInfos.Last();
+                //draw each process
                 foreach (TaskDetectionInput process in task.TimelineInfos)
                 {
                     double processDuration = process.End.Subtract(process.Start).TotalSeconds;
@@ -187,6 +199,11 @@ namespace TaskDetectionTracker.Views
             GenerateRectangles();
         }
 
+        /// <summary>
+        /// Called when the save button is clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             foreach (TaskDetection task in _tasks)
@@ -204,6 +221,7 @@ namespace TaskDetectionTracker.Views
             RedrawTimeline();
         }
 
+        //Called when a user clicks on a task boundary
         private void Rectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             var process = ((sender as Rectangle).DataContext as ProcessRectangle).Data;
@@ -219,6 +237,7 @@ namespace TaskDetectionTracker.Views
             }
         }
 
+        //Called when the user wants to deleted a user-defined task boundary
         private void DeleteTaskBoundaryButton_Click(object sender, RoutedEventArgs e)
         {
             var task = ((sender as Button).DataContext as TaskRectangle).Data;
@@ -241,6 +260,7 @@ namespace TaskDetectionTracker.Views
             }
         }
 
+        //Called when the user validates a task boundary (correct boundary)
         private void RadioButton_Checked_Correct(object sender, RoutedEventArgs e)
         {
             var task = ((sender as RadioButton).DataContext as TaskRectangle).Data;
@@ -259,6 +279,7 @@ namespace TaskDetectionTracker.Views
             ValidateSaveButtonEnabled();
         }
 
+        //Called when the user validates a task boundary (wrong boundary)
         private void RadioButton_Checked_Incorrect(object sender, RoutedEventArgs e)
         {
             var task = ((sender as RadioButton).DataContext as TaskRectangle).Data;
@@ -276,6 +297,7 @@ namespace TaskDetectionTracker.Views
         #endregion
 
         #region Add and remove processes
+        //Extract a process from a task and at it to a newly created task
         private void ExtractProcessesFromTask(TaskDetection task, List<TaskDetectionInput> processes)
         {
             //Add process to new task
@@ -300,6 +322,7 @@ namespace TaskDetectionTracker.Views
             RedrawTimeline();
         }
         
+        //Remove process from a task and add it to another task
         private void AddProcessesToAnotherTask(TaskDetection oldTask, TaskDetection newTask, List<TaskDetectionInput> processes)
         {
             _tasks.Remove(oldTask);
@@ -317,6 +340,7 @@ namespace TaskDetectionTracker.Views
         #endregion
 
         #region Save button validation
+        //Validate whether the save button should be enabled
         private void ValidateSaveButtonEnabled()
         {
             foreach (var task in _tasks)

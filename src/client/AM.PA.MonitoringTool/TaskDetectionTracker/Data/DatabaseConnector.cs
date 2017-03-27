@@ -9,7 +9,6 @@ using Shared.Data;
 using TaskDetectionTracker.Model;
 using System.Data;
 using Shared;
-using TaskDetectionTracker;
 
 namespace TaskDetectionTracker.Data
 {
@@ -65,6 +64,12 @@ namespace TaskDetectionTracker.Data
             return result;
         }
 
+        /// <summary>
+        /// Returns the number of keystrokes per minute between the start and the end date
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <returns></returns>
         internal static List<KeystrokeData> GetKeystrokeData(DateTime start, DateTime end)
         {
             var result = new List<KeystrokeData>();
@@ -90,6 +95,12 @@ namespace TaskDetectionTracker.Data
             return result;
         }
 
+        /// <summary>
+        /// Returns the number of mouse clicks per minute between the start and the end date
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <returns></returns>
         internal static List<MouseClickData> GetMouseClickData(DateTime start, DateTime end)
         {
             var result = new List<MouseClickData>();

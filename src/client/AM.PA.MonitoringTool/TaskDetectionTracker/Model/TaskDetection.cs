@@ -9,6 +9,10 @@ using System.ComponentModel;
 
 namespace TaskDetectionTracker.Model
 {
+
+    /// <summary>
+    /// Model for the task detection. Returned by Katja's algorithm.
+    /// </summary>
     public class TaskDetection : IComparable<TaskDetection>, INotifyPropertyChanged
     {
         private DateTime _start;
