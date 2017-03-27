@@ -29,7 +29,8 @@ namespace GoalSetting
         private const string Goal = "goal";
         private const string Target = "target";
         private const string Operator = "operator";
-        
+        private const string VisualizationEnabled = "visualizationEnabled";
+
         //CREATE Queries
         private static readonly string CREATE_RULES_TABLE = "CREATE TABLE IF NOT EXISTS " + Settings.RuleTableName + " ("
                                                             + ID + " INTEGER PRIMARY KEY, "
@@ -40,7 +41,8 @@ namespace GoalSetting
                                                             + Action + " TEXT, "
                                                             + Goal + " TEXT, "
                                                             + Target + " TEXT, "
-                                                            + Operator + " TEXT);";
+                                                            + Operator + " TEXT, "
+                                                            + VisualizationEnabled + " TEXT);";
 
 
         //SELECT Queries
@@ -56,7 +58,8 @@ namespace GoalSetting
                                                             + "'{4}' AS " + Action + ", "
                                                             + "'{5}' AS " + Goal + ", "
                                                             + "'{6}' AS " + Target + ", "
-                                                            + "'{7}' AS " + Operator;
+                                                            + "'{7}' AS " + Operator + ", "
+                                                            + "'{8}' AS " + VisualizationEnabled;
 
         #region INSERT
 
@@ -70,7 +73,7 @@ namespace GoalSetting
                 foreach (PARule rule in rules)
                 {
                     string query = string.Empty;
-                    query += String.Format(INSERT_RULES_QUERY, (rule.Title == null ? "" : rule.Title), rule.Activity, rule.TimeSpan, rule.TimePoint, (rule.Action == null ? "" : rule.Action), rule.Rule.Goal, rule.Rule.TargetValue, rule.Rule.Operator);
+                    query += String.Format(INSERT_RULES_QUERY, (rule.Title == null ? "" : rule.Title), rule.Activity, rule.TimeSpan, rule.TimePoint, (rule.Action == null ? "" : rule.Action), rule.Rule.Goal, rule.Rule.TargetValue, rule.Rule.Operator, rule.IsVisualizationEnabled);
                     Console.WriteLine(query);
                     Database.GetInstance().ExecuteDefaultQuery(query);
                 }
@@ -107,33 +110,43 @@ namespace GoalSetting
         {
             var rules = new ObservableCollection<PARule>();
 
-            var table = Database.GetInstance().ExecuteReadQuery(GET_RULES_QUERY);
-
-            foreach (DataRow row in table.Rows)
+            try
             {
-                string title = row[1].ToString();
-                ContextCategory activity = (ContextCategory) Enum.Parse(typeof(ContextCategory), row[2].ToString());
+                var table = Database.GetInstance().ExecuteReadQuery(GET_RULES_QUERY);
 
-                RuleTimeSpan? timeSpan = null;
-                if (!string.IsNullOrEmpty(row[3].ToString()))
+                foreach (DataRow row in table.Rows)
                 {
-                    timeSpan = (RuleTimeSpan)Enum.Parse(typeof(RuleTimeSpan), row[3].ToString());
+                    string title = row[1].ToString();
+                    ContextCategory activity = (ContextCategory)Enum.Parse(typeof(ContextCategory), row[2].ToString());
+
+                    RuleTimeSpan? timeSpan = null;
+                    if (!string.IsNullOrEmpty(row[3].ToString()))
+                    {
+                        timeSpan = (RuleTimeSpan)Enum.Parse(typeof(RuleTimeSpan), row[3].ToString());
+                    }
+
+                    RuleTimePoint? timePoint = null;
+                    if (!string.IsNullOrEmpty(row[4].ToString()))
+                    {
+                        timePoint = (RuleTimePoint)Enum.Parse(typeof(RuleTimePoint), row[4].ToString());
+                    }
+
+                    string action = row[5].ToString();
+                    Goal goal = (Goal)Enum.Parse(typeof(Goal), row[6].ToString());
+
+                    string target = row[7].ToString();
+                    Operator op = (Operator)Enum.Parse(typeof(Operator), row[8].ToString());
+
+                    string visualizationEnabled = row[9].ToString();
+                    bool visualization = Boolean.Parse(visualizationEnabled);
+
+                    rules.Add(new PARule() { Title = title, Rule = new Rules.Rule { Goal = goal, Operator = op, TargetValue = target }, Activity = activity, TimeSpan = timeSpan, TimePoint = timePoint, IsVisualizationEnabled = visualization });
                 }
-
-                RuleTimePoint? timePoint = null;
-                if (!string.IsNullOrEmpty(row[4].ToString()))
-                {
-                    timePoint = (RuleTimePoint)Enum.Parse(typeof(RuleTimePoint), row[4].ToString());
-                }
-
-                string action = row[5].ToString();
-                Goal goal = (Goal)Enum.Parse(typeof(Goal), row[6].ToString());
-                string target = row[7].ToString();
-                Operator op = (Operator)Enum.Parse(typeof(Operator), row[8].ToString());
-
-                rules.Add(new PARule() { Title = title, Rule = new Rules.Rule { Goal = goal, Operator = op, TargetValue = target }, Activity = activity, TimeSpan = timeSpan, TimePoint = timePoint });
             }
-
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
             return rules;
         }
 

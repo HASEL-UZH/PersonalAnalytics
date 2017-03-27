@@ -75,7 +75,7 @@ namespace GoalSetting.Views
             ContextCategory activity = FormatStringHelper.GetValueFromDescription<ContextCategory>(Activity.SelectedItem.ToString());
             RuleTimeSpan timespan = FormatStringHelper.GetValueFromDescription<RuleTimeSpan>(Timespan.SelectedItem.ToString());
 
-            PARule newRule = new PARule { Title = title, Rule = rule, Activity = activity, TimeSpan = timespan, TimePoint = null };
+            PARule newRule = new PARule { Title = title, Rule = rule, Activity = activity, TimeSpan = timespan, TimePoint = null, IsVisualizationEnabled = true };
             GoalSettingManager.Instance.AddRule(newRule);
             this.Visibility = Visibility.Collapsed;
             _parent.Step_4();

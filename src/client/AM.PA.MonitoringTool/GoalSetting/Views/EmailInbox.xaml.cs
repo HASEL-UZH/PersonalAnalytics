@@ -61,7 +61,7 @@ namespace GoalSetting.Views
             ContextCategory activity = ContextCategory.Email;
             RuleTimePoint timepoint = FormatStringHelper.GetValueFromDescription<RuleTimePoint>(Checkpoint.SelectedItem.ToString());
 
-            PARule newRule = new PARule { Title = title, Rule = rule, Activity = activity, TimePoint = timepoint, TimeSpan = null };
+            PARule newRule = new PARule { Title = title, Rule = rule, Activity = activity, TimePoint = timepoint, TimeSpan = null, IsVisualizationEnabled = true };
             GoalSettingManager.Instance.AddRule(newRule);
 
             this.Visibility = Visibility.Collapsed;

@@ -19,6 +19,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Controls;
 using PersonalAnalytics.Views;
+using GoalSetting;
 
 namespace PersonalAnalytics
 {
@@ -68,8 +69,8 @@ namespace PersonalAnalytics
             Register(new PolarTracker.Deamon());
             Register(new FitbitTracker.Deamon());
             Register(new FlowTracker.Daemon());
-            
 
+            Register(new GoalSetting.Visualizers.GoalVisualizer());
 #if Dev
             //Register(new PeopleVisualizer.PeopleVisualizer()); // disabled, as it's not finished and pretty slow
             //Register(new WindowsContextTracker.Daemon();); // implementation not finished

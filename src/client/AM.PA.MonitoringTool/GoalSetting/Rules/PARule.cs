@@ -11,7 +11,7 @@ namespace GoalSetting.Rules
 {
     public class PARule
     {
-
+        
         public string Title { get; set; }
 
         public Rule Rule { get; set; }
@@ -21,6 +21,8 @@ namespace GoalSetting.Rules
         public RuleTimeSpan? TimeSpan { get; set; }
 
         public RuleTimePoint? TimePoint { get; set; }
+
+        public bool IsVisualizationEnabled { get; set; }
 
         public override string ToString()
         {

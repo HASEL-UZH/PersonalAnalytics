@@ -40,6 +40,11 @@ namespace GoalSetting
             }
         }
 
+        internal List<PARule> GetRules()
+        {
+            return _rules.ToList();
+        }
+
         internal void AddNewRule()
         {
             Window window = new Window

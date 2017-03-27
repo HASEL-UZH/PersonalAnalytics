@@ -84,6 +84,9 @@
     <Compile Include="Views\WorkFragmentation.xaml.cs">
       <DependentUpon>WorkFragmentation.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Visualizers\DayVisualization.cs" />
+    <Compile Include="Visualizers\GoalVisualizer.cs" />
+    <Compile Include="Visualizers\WeekVisualization.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="Views\AddRule.xaml">
