@@ -61,7 +61,7 @@ namespace PolarTracker
             html += "</style>";
 
             //HTML
-            html += "<div id='chart'></div>";
+            html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "'></div>";
             html += "<div id='dataset-picker' style='float: right;'></div>";
             html += "<p style='text-align: center; font-size: 0.66em;'>Hint: Visualizes your heart rate (HR) and your interbeat interval (RMSSD). (Last time synced with BLE device: " + DatabaseConnector.GetLastTimeSynced().ToString(CultureInfo.InstalledUICulture) + ")</p>";
             html += "<div id='dataDiv' class='tooltip'></div>";
@@ -80,7 +80,7 @@ namespace PolarTracker
             html += "days = ['" + dayNames[(int)DayOfWeek.Monday] + "', '" + dayNames[(int)DayOfWeek.Tuesday] + "', '" + dayNames[(int)DayOfWeek.Wednesday] +"', '" + dayNames[(int)DayOfWeek.Thursday] + "', '" + dayNames[(int)DayOfWeek.Friday] + "', '" + dayNames[(int)DayOfWeek.Saturday] + "', '" + dayNames[(int)DayOfWeek.Sunday] + "'],";
             html += "times = ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'];";
        
-            html += "var svg = d3.select('#chart').append('svg')";
+            html += "var svg = d3.select('#" + VisHelper.CreateChartHtmlTitle(Title) + "').append('svg')";
             html += ".attr('width', width + margin.left + margin.right)";
             html += ".attr('height', height + margin.top + margin.bottom)";
             html += ".append('g')";

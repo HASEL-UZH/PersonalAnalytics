@@ -87,7 +87,7 @@ namespace FitbitTracker
             html += "</style>";
 
             //HTML
-            html += "<svg id='visualisation'></svg>";
+            html += "<svg id='" + VisHelper.CreateChartHtmlTitle(Title) + "'></svg>";
             html += "<p style='text-align: center; font-size: 0.66em;'>Hint: Visualizes your steps per " + MINUTES_PER_BAR + " minutes. For more detailed information, visit: <a href='http://fitbit.com' target=_blank>fitbit.com</a>. (Last synced: " + DatabaseConnector.GetLastTimeSynced() + ").</p>";
 
             //SCRIPT
@@ -101,7 +101,7 @@ namespace FitbitTracker
 
             html += "var actualHeight = document.getElementsByClassName('item Wide')[0].offsetHeight;";
             html += "var actualWidth = document.getElementsByClassName('item Wide')[0].offsetWidth;";
-            html += "var vis = d3.select('#visualisation'),";
+            html += "var vis = d3.select('#" + VisHelper.CreateChartHtmlTitle(Title) + "'),";
             html += "WIDTH = actualWidth, HEIGHT = actualHeight * 0.75,";
             html += "MARGINS = {top: 20, right: 20, bottom: 20, left: 50";
             html += "},";

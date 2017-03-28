@@ -37,7 +37,7 @@ namespace FitbitTracker
             }
 
             //HTML
-            html += "<div id='chart' height=20em, width=50em, style='align: center'></div>";
+            html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "' height=20em, width=50em, style='align: center'></div>";
             html += "<p style='text-align: center; font-size: 0.66em;'>Hint: Visualizes your steps per day. For more detailed information, visit: <a href='http://fitbit.com' target=_blank>fitbit.com</a>. (Last synced: " + DatabaseConnector.GetLastTimeSynced() + ").</p>";
             
             return html;

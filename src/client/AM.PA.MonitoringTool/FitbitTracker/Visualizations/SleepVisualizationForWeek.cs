@@ -37,7 +37,7 @@ namespace FitbitTracker
             }
 
             //HTML
-            html += "<div id='sleepVis'></div>";
+            html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "'></div>";
             html += "<div id='legend'></div>";
             html += "<p style='text-align: center; font-size: 0.66em;'>Hint: Visualizes your sleep stats for this week. For more detailed information, visit: <a href='http://fitbit.com' target=_blank>fitbit.com</a>. (Last synced: " + DatabaseConnector.GetLastTimeSynced() + ").</p>";
 
@@ -94,7 +94,7 @@ namespace FitbitTracker
             html += "var color = d3.scale.category10();";
             html += "var xAxis = d3.svg.axis().scale(x).orient('bottom');";
 
-            html += "var svg = d3.select('#sleepVis').append('svg')";
+            html += "var svg = d3.select('#" + VisHelper.CreateChartHtmlTitle(Title) + "').append('svg')";
             html += ".attr('width', width + margin.left + margin.right)";
             html += ".attr('height', height + margin.top + margin.bottom)";
             html += ".append('g')";

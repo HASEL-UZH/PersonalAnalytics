@@ -11,6 +11,7 @@ using GoalSetting.Data;
 using GoalSetting.Model;
 using System.Collections.Generic;
 using System.Linq;
+using Shared.Helpers;
 
 namespace GoalSetting.Visualizers
 {
@@ -49,8 +50,8 @@ namespace GoalSetting.Visualizers
             html += "</style>";
             
             //HTML
-            html += "<div id='chart' style='align: center'></div>";
-            html += "<d<p style='text-align: center; font-size: 0.66em;'>Number of switches per time</p>";
+            html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "' style='align: center'></div>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>Number of switches per time</p>";
 
             //JS
             html += "<script>";
@@ -61,7 +62,8 @@ namespace GoalSetting.Visualizers
 
             //Prepare data
             html += "var parseTime = d3.time.format('%H:%M').parse;";
-            html += GenerateJSData(GenerateData(activities, targetActivity));
+            var dataPoints = GenerateData(activities, targetActivity);
+            html += GenerateJSData(dataPoints);
             html += "data.forEach(function(d) {d.start = parseTime(d.start); d.end = parseTime(d.end);});";
             
             //Prepare scales
@@ -74,10 +76,10 @@ namespace GoalSetting.Visualizers
 
             //Prepare lines
             html += "var limit = " + _rule.Rule.TargetValue + ";";
-            html += "var valueLine1 = d3.svg.line().interpolate('step-after').defined(function(d) {return d.switch != null; }).x(function(d) {return x(d.start); }).y(function(d) { return y0(d.switch); });";
+            html += "var valueLine1 = d3.svg.line().interpolate('step-after').x(function(d) {return x(d.start); }).y(function(d) { return y0(d.switch); });";
             
             //Prepare chart area
-            html += "var svg = d3.select('#chart').append('svg').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');";
+            html += "var svg = d3.select('#" + VisHelper.CreateChartHtmlTitle(Title) + "').append('svg').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');";
 
             //Prepare patterns to color rectangles
             html += @"var pattern = svg.append('defs')
@@ -93,18 +95,26 @@ namespace GoalSetting.Visualizers
                     .attr({ width: '4', height: '8', transform: 'translate(0,0)', opacity: '0.25', fill: 'red' });";
 
             //Prepare domain of axes
-            html += "x.domain( [d3.min(data, function(d) { return d.start; }), d3.max(data, function(d) { return d.end; }) ] );";
-            html += "var switchValues = data.map(function(o){return o.switch;}).filter(function(val) {return val !== null});";
-            html += "var timeValues = data.map(function(o){return o.time;}).filter(function(val) {return val !== null});";
-            html += "y0.domain([d3.min(switchValues) * 0.95, d3.max(data, function(d) {return Math.max(d.switch);}) * 1.01]);";
-         
+            if (dataPoints.Count > 0)
+            {
+                html += "x.domain( [d3.min(data, function(d) { return d.start; }), d3.max(data, function(d) { return d.end; }) ] );";
+                html += "var switchValues = data.map(function(o){return o.switch;}).filter(function(val) {return val !== null});";
+                html += "var timeValues = data.map(function(o){return o.time;}).filter(function(val) {return val !== null});";
+                html += "y0.domain([d3.min(switchValues) * 0.95, d3.max(data, function(d) {return Math.max(d.switch);}) * 1.01]);";
+            }
+            else
+            {
+                html += "y0.domain([0,0]);";
+                html += "x.domain([parseTime('" + Database.GetInstance().GetUserWorkStart(DateTime.Now.Date).ToString("HH:mm") + "'), parseTime('" + Database.GetInstance().GetUserWorkEnd(DateTime.Now.Date).ToString("HH:mm") + "')]);";
+            }
+
             //Draw lines and axes
             html += "svg.append('path').style('stroke', '" + Shared.Settings.RetrospectionColorHex + "').attr('d', valueLine1(data.filter(function(d) {return d.switch <= limit;}))).attr('fill', 'none').attr('stroke-width', '3');";
             html += "svg.append('path').style('stroke', 'red').attr('d', valueLine1(data.filter(function(d) {return d.switch >= limit;}))).attr('fill', 'none').attr('stroke-width', '3');";
             html += "xAxisYPosition = height;";
             html += "svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + xAxisYPosition + ')').call(xAxis);";
             html += "svg.append('g').attr('class', 'y axis').style('fill', 'black').call(yAxisLeft);";
-
+            
             //Draw legend
             html += "svg.append('text').attr('x', 0).attr('y', -10).style('text-anchor', 'middle').text('# Switches');";
 
@@ -167,6 +177,12 @@ namespace GoalSetting.Visualizers
                 dataPoints.Add(new TimelineDataPoint { Start = activity.Start, End = activity.End.HasValue ? activity.End.Value : DateTime.Now, SumTime = sumTime, SumSwitches = sumSwitches });
             }
 
+            //if we have actual data points, add 1 more datapoint at the end of the list with the current data to ensure that the line is drawn until now.
+            if (dataPoints.Count > 0)
+            {
+                dataPoints.Add(new TimelineDataPoint { Start = DateTime.Now, End = DateTime.Now, SumTime = sumTime, SumSwitches = sumSwitches });
+            }
+
             return dataPoints;
         }
 
@@ -174,12 +190,17 @@ namespace GoalSetting.Visualizers
         {
             string data = "var data = [";
 
+            bool hasData = false;
             foreach (TimelineDataPoint dataPoint in dataPoints)
             {
                 data +=  dataPoint + ",";
+                hasData = true;
             }
 
-            data = data.Substring(0, data.Length - 1);
+            if (hasData)
+            {
+                data = data.Substring(0, data.Length - 1);
+            }
             data += "];";
 
             return data;

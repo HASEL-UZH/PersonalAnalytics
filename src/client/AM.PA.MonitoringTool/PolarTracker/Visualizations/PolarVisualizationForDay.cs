@@ -49,7 +49,7 @@ namespace PolarTracker.Visualizations
             html += "</style>";
 
             //HTML
-            html += "<div id='chart' style='align: center'></div>";
+            html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "' style='align: center'></div>";
             html += "<p style='text-align: center; font-size: 0.66em;'>Hint: Visualizes your heart rate (HR) and your interbeat interval (RMSSD). (Last time synced with BLE device: " + DatabaseConnector.GetLastTimeSynced().ToString(CultureInfo.InstalledUICulture) + ")</p>";
 
             //JS
@@ -84,7 +84,7 @@ namespace PolarTracker.Visualizations
             html += "var valueLine1 = d3.svg.line().interpolate('basis').defined(function(d) {return d.hr != null; }).x(function(d) {return x(d.ts); }).y(function(d) { return y0(d.hr); });";
             html += "var valueLine2 = d3.svg.line().interpolate('basis').defined(function(d) {return d.rmssd != null; }).x(function(d) {return x(d.ts); }).y(function(d) { return y1(d.rmssd); });";
 
-            html += "var svg = d3.select('#chart').append('svg').attr('width', width + margin.left + margin.righ).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');";
+            html += "var svg = d3.select('#" + VisHelper.CreateChartHtmlTitle(Title) + "').append('svg').attr('width', width + margin.left + margin.righ).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');";
             
             html += "x.domain(d3.extent(data, function(d) { return d.ts}));";
             html += "var hrValues = data.map(function(o){return o.hr;}).filter(function(val) {return val !== null});";

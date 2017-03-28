@@ -36,7 +36,7 @@ namespace FitbitTracker
             }
 
             //HTML
-            html += "<div id='chart' style='align: center; font-size: 1.15em;'>";
+            html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "' style='align: center; font-size: 1.15em;'>";
             html += "<p><b>Start:</b> " + value.StartTime.ToString(Settings.FORMAT_TIME) + "<span style='padding-left: 2em;'><b>End:</b> " + value.StartTime.AddMinutes(value.SleepDuration + value.AwakeDuration + value.RestlessDuration + value.AwakeAfterWakeUp).ToString(Settings.FORMAT_TIME) + "</span><span style='padding-left: 2em;'><b>Efficiency:</b> " + value.Efficiency + "%</span></p>";
             html += "<p><b>Slept for:</b> " + DurationToTime(value.SleepDuration) + "</p>";
             html += "<p><b>Time in bed after wakeup:</b> " + value.AwakeAfterWakeUp + " minutes</p>";
