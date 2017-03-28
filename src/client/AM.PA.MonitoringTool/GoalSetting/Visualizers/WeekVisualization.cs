@@ -28,7 +28,6 @@ namespace GoalSetting.Visualizers
         public override string GetHtml()
         {
             var html = string.Empty;
-
             html += VisHelper.NotEnoughData();
             return html;
         }
