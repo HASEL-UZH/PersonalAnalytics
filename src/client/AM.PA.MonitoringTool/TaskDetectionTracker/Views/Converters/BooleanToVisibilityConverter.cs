@@ -12,6 +12,7 @@ using System.Windows.Data;
 
 namespace TaskDetectionTracker.Views.Converters
 {
+
     [ValueConversion(typeof(bool), typeof(Visibility))]
     public sealed class BoolToVisibilityConverter : IValueConverter
     {

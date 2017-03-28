@@ -8,6 +8,10 @@ using System.Collections.Generic;
 
 namespace TaskDetectionTracker.Model
 {
+
+    /// <summary>
+    /// Input model for Katja's algorithm
+    /// </summary>
     public class TaskDetectionInput : IComparable<TaskDetectionInput>
     {
         private DateTime _start;
@@ -26,7 +30,7 @@ namespace TaskDetectionTracker.Model
 
         public override string ToString()
         {
-            return ProcessName + ": " + Start.ToLongTimeString() + " - " + End.ToLongTimeString();
+            return ProcessName + ": " + Start.ToLongTimeString() + " - " + End.ToLongTimeString() + " (" + End.Subtract(Start).ToString();
         }
         
         public int CompareTo(TaskDetectionInput other)

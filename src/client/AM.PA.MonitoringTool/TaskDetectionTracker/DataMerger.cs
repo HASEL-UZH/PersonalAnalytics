@@ -7,12 +7,23 @@ using System.Collections.Generic;
 using TaskDetectionTracker.Model;
 using System.Linq;
 using System;
+using TaskDetectionTracker.Data;
 
 namespace TaskDetectionTracker
 {
     public class DataMerger
     {
 
+        /// <summary>
+        /// Merges processes using the following procedure:
+        /// 1. Set the end timestamp for each process to the start timestamp of the next process
+        /// 2. Set the timestamp of the very last process
+        /// 3. Delete all processes that last for less than the minimum threshold (from the Settings)
+        /// 4. For the remaining processes, merge all subsequent processses if they are the same
+        /// </summary>
+        /// <param name="processes"></param>
+        /// <param name="totalDuration"></param>
+        /// <returns></returns>
         public static List<TaskDetectionInput> MergeProcesses(List<TaskDetectionInput> processes, TimeSpan totalDuration)
         {
             //First set the end timestamp of each process to the value of the start timestamp of the next process
@@ -26,24 +37,28 @@ namespace TaskDetectionTracker
 
             //For the remaining processes, merge all subsequent processes if they are the same
             List<TaskDetectionInput> result = new List<TaskDetectionInput>();
-            var currentGroup = new List<TaskDetectionInput> { processes.First() };
-            
-            foreach (var item in processes.Skip(1))
+
+            if (processes.Count > 0)
             {
-                if (!currentGroup.First().ProcessName.Equals(item.ProcessName))
+                var currentGroup = new List<TaskDetectionInput> { processes.First() };
+
+                foreach (var item in processes.Skip(1))
                 {
-                    //Create new merged process
-                    result.Add(new TaskDetectionInput { Start = currentGroup.First().Start, End = currentGroup.Last().End, ProcessName = currentGroup.First().ProcessName, WindowTitles = currentGroup.SelectMany(w => w.WindowTitles).Distinct().ToList() });
-                    currentGroup = new List<TaskDetectionInput> { item };
+                    if (!currentGroup.First().ProcessName.Equals(item.ProcessName))
+                    {
+                        //Create new merged process
+                        result.Add(new TaskDetectionInput { Start = currentGroup.First().Start, End = currentGroup.Last().End, ProcessName = currentGroup.First().ProcessName, WindowTitles = currentGroup.SelectMany(w => w.WindowTitles).Distinct().ToList() });
+                        currentGroup = new List<TaskDetectionInput> { item };
+                    }
+                    else
+                    {
+                        currentGroup.Add(item);
+                    }
                 }
-                else
-                {
-                    currentGroup.Add(item);
-                }
+                //Add the last one too
+                result.Add(new TaskDetectionInput { Start = currentGroup.First().Start, End = currentGroup.Last().End, ProcessName = currentGroup.First().ProcessName, WindowTitles = currentGroup.SelectMany(w => w.WindowTitles).Distinct().ToList() });
             }
-            //Add the last one too
-            result.Add(new TaskDetectionInput { Start = currentGroup.First().Start, End = currentGroup.Last().End, ProcessName = currentGroup.First().ProcessName, WindowTitles = currentGroup.SelectMany(w => w.WindowTitles).Distinct().ToList() });
-            
+
             //LINQ based solution
             /**
             int groupID = -1;
@@ -64,7 +79,10 @@ namespace TaskDetectionTracker
             return result;
         }
 
-
+        /// <summary>
+        /// Sets the timestamps for each process
+        /// </summary>
+        /// <param name="processes"></param>
         private static void SetTimestamps(List<TaskDetectionInput> processes)
         {
             for (int i = 0; i < processes.Count - 1; i++)
@@ -73,9 +91,40 @@ namespace TaskDetectionTracker
             }
         }
 
+        /// <summary>
+        /// Add nubmer of keystrokes and mouse clicks to each process
+        /// </summary>
+        /// <param name="processes"></param>
         internal static void AddMouseClickAndKeystrokesToProcesses(List<TaskDetectionInput> processes)
         {
-            //TODO: for each process, find the number of keystrokes and mouse clicks
+            var clicks = DatabaseConnector.GetMouseClickData(processes.First().Start, processes.Last().End);
+            var keys = DatabaseConnector.GetKeystrokeData(processes.First().Start, processes.Last().End);
+
+            foreach(TaskDetectionInput process in processes)
+            {
+                //Ignore processes that are shorter than 1 minute
+                if (process.End.Subtract(process.Start).TotalSeconds > 60)
+                {
+                    var clicksForProcess = clicks.Where(c => c.Start >= process.Start && c.Start <= process.End);
+                    var keysForProcess = keys.Where(k => k.Start >= process.Start && k.Start <= process.End);
+                    process.NumberOfKeystrokes = keysForProcess.Sum(k => k.Keystrokes);
+                    process.NumberOfMouseClicks = clicksForProcess.Sum(c => c.Mouseclicks);
+                }
+            }
         }
+    }
+
+    public struct KeystrokeData
+    {
+        public DateTime Start;
+        public DateTime End;
+        public int Keystrokes;
+    }
+
+    public struct MouseClickData
+    {
+        public DateTime Start;
+        public DateTime End;
+        public int Mouseclicks;
     }
 }

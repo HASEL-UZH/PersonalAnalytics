@@ -63,5 +63,67 @@ namespace TaskDetectionTracker.Data
             
             return result;
         }
+
+        /// <summary>
+        /// Returns the number of keystrokes per minute between the start and the end date
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <returns></returns>
+        internal static List<KeystrokeData> GetKeystrokeData(DateTime start, DateTime end)
+        {
+            var result = new List<KeystrokeData>();
+
+            try
+            {
+                string query = "Select tsStart, tsEnd, keyTotal from user_input where " + "(" + " STRFTIME('%s', DATE(tsStart)) between STRFTIME('%s', DATE('" + start.ToString("u") + "')) and STRFTIME('%s', DATE('" + end.ToString("u") + "')) " + " ) AND " + "(" + " STRFTIME('%s', DATE(tsEnd)) between STRFTIME('%s', DATE('" + start.ToString("u") + "')) and STRFTIME('%s', DATE('" + end.ToString("u") + "')) " + " );";
+                var table = Database.GetInstance().ExecuteReadQuery(query);
+
+                foreach (DataRow row in table.Rows)
+                {
+                    DateTime startTime = DateTime.Parse(row[0].ToString());
+                    DateTime endTime = DateTime.Parse(row[1].ToString());
+                    int keys = Int32.Parse(row[2].ToString());
+                    result.Add(new KeystrokeData { Start = startTime, End = endTime, Keystrokes = keys });
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Returns the number of mouse clicks per minute between the start and the end date
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <returns></returns>
+        internal static List<MouseClickData> GetMouseClickData(DateTime start, DateTime end)
+        {
+            var result = new List<MouseClickData>();
+
+            try
+            {
+                string query = "Select tsStart, tsEnd, clickTotal from user_input where " + "(" + " STRFTIME('%s', DATE(tsStart)) between STRFTIME('%s', DATE('" + start.ToString("u") + "')) and STRFTIME('%s', DATE('" + end.ToString("u") + "')) " + " ) AND " + "(" + " STRFTIME('%s', DATE(tsEnd)) between STRFTIME('%s', DATE('" + start.ToString("u") + "')) and STRFTIME('%s', DATE('" + end.ToString("u") + "')) " + " );";
+                var table = Database.GetInstance().ExecuteReadQuery(query);
+
+                foreach (DataRow row in table.Rows)
+                {
+                    DateTime startTime = DateTime.Parse(row[0].ToString());
+                    DateTime endTime = DateTime.Parse(row[1].ToString());
+                    int clicks = Int32.Parse(row[2].ToString());
+                    result.Add(new MouseClickData { Start = startTime, End = endTime, Mouseclicks = clicks });
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+
+            return result;
+        }
     }
 }
