@@ -98,7 +98,7 @@ namespace UserEfficiencyTracker
             var nextSurveyTs = DateTime.Now.Add(_timeRemainingUntilNextSurvey);
             return (! IsRunning || ! _timer.IsEnabled)
                 ? Name + " is NOT running"
-                : Name + " is running. Next mini-survey at " + nextSurveyTs.ToShortDateString() + " " + nextSurveyTs.ToShortTimeString() + ".";
+                : Name + " is running. Next mini-survey at " + nextSurveyTs.ToLongTimeString() + ".";
         }
 
         public override bool IsEnabled()

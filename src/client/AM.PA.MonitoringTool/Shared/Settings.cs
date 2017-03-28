@@ -49,7 +49,7 @@ namespace Shared
 
         public static TimeSpan CheckForStudyDataSharedReminderInterval = TimeSpan.FromHours(4); // every 4 hours, check if we should remind the user to share study data
         public static TimeSpan CheckForToolUpdatesInterval = TimeSpan.FromHours(6); // every 6 hours, check if there is an update available
-        public static TimeSpan TooltipIconUpdateInterval = TimeSpan.FromSeconds(20); // every 20 seconds, update the tasktray icon tool tip
+        public static TimeSpan TooltipIconUpdateInterval = TimeSpan.FromSeconds(5); // every 5 seconds, update the tasktray icon tool tip
         public static TimeSpan RemindToResumeToolInterval = TimeSpan.FromMinutes(30); // every 30 minutes, check if the tool is still paused, if yes: remind the user
 
         public static string ExportFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PersonalAnalytics");
@@ -77,7 +77,7 @@ namespace Shared
 
         ////////////////////////////////////////////////////////////
         // contact emails
-        #if PilotMSR
+        #if Pilot_MSR
         public const string EmailAddress1 = "tzimmer@microsoft.com"; // main email address
         public const string EmailAddress2 = "ameyer@ifi.uzh.ch";
         #else

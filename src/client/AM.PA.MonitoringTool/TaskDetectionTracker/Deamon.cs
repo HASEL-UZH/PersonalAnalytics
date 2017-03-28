@@ -82,10 +82,10 @@ namespace TaskDetectionTracker
 
         public override string GetStatus()
         {
-            var nextSurveyTs = _lastPopUpResponse.Add(Settings.PopUpInterval);
-            return (!IsRunning || !_popUpTimer.IsEnabled)
+            var nextSurveyTs = (_lastPopUpResponse == DateTime.MinValue) ? DateTime.Now.Add(Settings.PopUpInterval) : _lastPopUpResponse.Add(Settings.PopUpInterval);
+            return (!IsRunning || _popUpTimer == null)
                 ? Name + " is NOT running"
-                : Name + " is running. Next task detection validation at " + nextSurveyTs.ToShortDateString() + " " + nextSurveyTs.ToShortTimeString() + ".";
+                : Name + " is running. Next task detection validation at " + nextSurveyTs.ToLongTimeString() + ".";
         }
 
         #endregion
@@ -102,6 +102,12 @@ namespace TaskDetectionTracker
                 sessionStart = Database.GetInstance().GetUserWorkStart(DateTime.Now.Date);
             }
             var sessionEnd = DateTime.Now;
+
+            // make sure, sessionStart is not too long
+            if (sessionEnd - sessionStart > Settings.MaximumValidationInterval)
+            {
+                sessionStart = sessionEnd - Settings.MaximumValidationInterval;
+            }
 
             // load all data first
             var taskDetections = PrepareTaskDetectionDataForPopup(sessionStart, sessionEnd);
