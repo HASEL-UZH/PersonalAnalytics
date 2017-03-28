@@ -97,18 +97,21 @@ namespace TaskDetectionTracker
         /// <param name="processes"></param>
         internal static void AddMouseClickAndKeystrokesToProcesses(List<TaskDetectionInput> processes)
         {
-            var clicks = DatabaseConnector.GetMouseClickData(processes.First().Start, processes.Last().End);
-            var keys = DatabaseConnector.GetKeystrokeData(processes.First().Start, processes.Last().End);
-
-            foreach(TaskDetectionInput process in processes)
+            if (processes.Count > 0)
             {
-                //Ignore processes that are shorter than 1 minute
-                if (process.End.Subtract(process.Start).TotalSeconds > 60)
+                var clicks = DatabaseConnector.GetMouseClickData(processes.First().Start, processes.Last().End);
+                var keys = DatabaseConnector.GetKeystrokeData(processes.First().Start, processes.Last().End);
+
+                foreach (TaskDetectionInput process in processes)
                 {
-                    var clicksForProcess = clicks.Where(c => c.Start >= process.Start && c.Start <= process.End);
-                    var keysForProcess = keys.Where(k => k.Start >= process.Start && k.Start <= process.End);
-                    process.NumberOfKeystrokes = keysForProcess.Sum(k => k.Keystrokes);
-                    process.NumberOfMouseClicks = clicksForProcess.Sum(c => c.Mouseclicks);
+                    //Ignore processes that are shorter than 1 minute
+                    if (process.End.Subtract(process.Start).TotalSeconds > 60)
+                    {
+                        var clicksForProcess = clicks.Where(c => c.Start >= process.Start && c.Start <= process.End);
+                        var keysForProcess = keys.Where(k => k.Start >= process.Start && k.Start <= process.End);
+                        process.NumberOfKeystrokes = keysForProcess.Sum(k => k.Keystrokes);
+                        process.NumberOfMouseClicks = clicksForProcess.Sum(c => c.Mouseclicks);
+                    }
                 }
             }
         }
