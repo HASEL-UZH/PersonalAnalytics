@@ -20,8 +20,9 @@ namespace TaskDetectionTracker
         public static bool IsEnabledByDefault = true; //TODO: change back
         #endif
 
-        public static TimeSpan PopUpInterval = TimeSpan.FromSeconds(5); // TimeSpan.FromMinutes(60);
+        public static TimeSpan PopUpInterval = TimeSpan.FromSeconds(200); // TimeSpan.FromMinutes(60);
         public static TimeSpan PopUpReminderInterval = TimeSpan.FromMinutes(5);
+        public static TimeSpan MaximumValidationInterval = TimeSpan.FromHours(3); 
 
         public const int MinimumProcessTimeInSeconds = 10;
     }
