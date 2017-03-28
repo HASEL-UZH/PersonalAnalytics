@@ -84,13 +84,13 @@ namespace GoalSetting.Visualizers
                     .append('pattern')
                     .attr({ id: 'success-pattern', width: '8', height: '8', patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(60)'})
 	                .append('rect')
-                    .attr({ width: '4', height: '8', transform: 'translate(0,0)', opacity: '0.5', fill: '" + Shared.Settings.RetrospectionColorHex + "' });";
+                    .attr({ width: '4', height: '8', transform: 'translate(0,0)', opacity: '0.25', fill: '" + Shared.Settings.RetrospectionColorHex + "' });";
 
             html += @"var pattern = svg.append('defs')
                     .append('pattern')
                     .attr({ id: 'error-pattern', width: '8', height: '8', patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(60)'})
 	                .append('rect')
-                    .attr({ width: '4', height: '8', transform: 'translate(0,0)', opacity: '0.5', fill: 'red' });";
+                    .attr({ width: '4', height: '8', transform: 'translate(0,0)', opacity: '0.25', fill: 'red' });";
 
             //Prepare domain of axes
             html += "x.domain( [d3.min(data, function(d) { return d.start; }), d3.max(data, function(d) { return d.end; }) ] );";
@@ -99,8 +99,8 @@ namespace GoalSetting.Visualizers
             html += "y0.domain([d3.min(switchValues) * 0.95, d3.max(data, function(d) {return Math.max(d.switch);}) * 1.01]);";
          
             //Draw lines and axes
-            html += "svg.append('path').style('stroke', '" + Shared.Settings.RetrospectionColorHex + "').attr('d', valueLine1(data.filter(function(d) {return d.switch <= limit;}))).attr('fill', 'none');";
-            html += "svg.append('path').style('stroke', 'red').attr('d', valueLine1(data.filter(function(d) {return d.switch >= limit;}))).attr('fill', 'none');";
+            html += "svg.append('path').style('stroke', '" + Shared.Settings.RetrospectionColorHex + "').attr('d', valueLine1(data.filter(function(d) {return d.switch <= limit;}))).attr('fill', 'none').attr('stroke-width', '3');";
+            html += "svg.append('path').style('stroke', 'red').attr('d', valueLine1(data.filter(function(d) {return d.switch >= limit;}))).attr('fill', 'none').attr('stroke-width', '3');";
             html += "xAxisYPosition = height;";
             html += "svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + xAxisYPosition + ')').call(xAxis);";
             html += "svg.append('g').attr('class', 'y axis').style('fill', 'black').call(yAxisLeft);";
