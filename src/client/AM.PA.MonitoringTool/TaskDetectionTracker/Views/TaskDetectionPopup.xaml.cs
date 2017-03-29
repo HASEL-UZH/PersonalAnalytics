@@ -42,7 +42,7 @@ namespace TaskDetectionTracker.Views
         private DispatcherTimer _popUpReminderTimer;
         private List<TaskDetection> _tasks;
         public ObservableCollection<TaskRectangle> RectItems { get; set; }
-        public static double CanvasWidth { get { return 3000; } }
+        public static double CanvasWidth { get; set; }
 
         /// <summary>
         /// Create a new Popup with the tasks in the parameter
@@ -65,6 +65,12 @@ namespace TaskDetectionTracker.Views
             this._tasks = tasks;
             StartTime.Inlines.Add(_tasks.First().Start.ToShortTimeString());
             EndTime.Inlines.Add(_tasks.Last().End.ToShortTimeString());
+
+            double minDuration = _tasks.Min(t => t.TimelineInfos.Min(p => p.End.Subtract(p.Start))).TotalSeconds;
+            double totalDuration = _tasks.Sum(t => t.TimelineInfos.Sum(p => p.End.Subtract(p.Start).TotalSeconds));
+            double timeLineWidth = totalDuration / minDuration * Settings.MinimumProcessWidth;
+            CanvasWidth = Math.Max(timeLineWidth, Settings.MinimumTimeLineWidth);
+            
             RectItems = new ObservableCollection<TaskRectangle>();
             GenerateRectangles();
         }
