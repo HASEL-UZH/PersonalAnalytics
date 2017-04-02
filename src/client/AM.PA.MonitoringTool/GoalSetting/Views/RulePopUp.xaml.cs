@@ -10,6 +10,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Documents;
 using Shared;
+using Shared.Helpers;
 
 namespace GoalSetting.Views
 {
@@ -30,8 +31,8 @@ namespace GoalSetting.Views
 
         internal void AddHeaderPictures()
         {
-            Close.Source = BitmapToImageSource(Properties.Resources.close);
-            Dashboard.Source = BitmapToImageSource(Properties.Resources.dashboard);
+            Close.Source = ImageHelper.BitmapToImageSource(Properties.Resources.close);
+            Dashboard.Source = ImageHelper.BitmapToImageSource(Properties.Resources.dashboard);
         }
 
         internal void AddRules()
@@ -53,19 +54,19 @@ namespace GoalSetting.Views
                 switch (rule.Progress.Status)
                 {
                     case ProgressStatus.VeryLow:
-                        smiley.Source = BitmapToImageSource(Properties.Resources.smiley_5);
+                        smiley.Source = ImageHelper.BitmapToImageSource(Properties.Resources.smiley_5);
                         break;
                     case ProgressStatus.Low:
-                        smiley.Source = BitmapToImageSource(Properties.Resources.smiley_4);
+                        smiley.Source = ImageHelper.BitmapToImageSource(Properties.Resources.smiley_4);
                         break;
                     case ProgressStatus.Average:
-                        smiley.Source = BitmapToImageSource(Properties.Resources.smiley_3);
+                        smiley.Source = ImageHelper.BitmapToImageSource(Properties.Resources.smiley_3);
                         break;
                     case ProgressStatus.High:
-                        smiley.Source = BitmapToImageSource(Properties.Resources.smiley_2);
+                        smiley.Source = ImageHelper.BitmapToImageSource(Properties.Resources.smiley_2);
                         break;
                     case ProgressStatus.VeryHigh:
-                        smiley.Source = BitmapToImageSource(Properties.Resources.smiley_1);
+                        smiley.Source = ImageHelper.BitmapToImageSource(Properties.Resources.smiley_1);
                         break;
                 }
 
@@ -100,23 +101,7 @@ namespace GoalSetting.Views
                 GoalSettingManager.Instance.OpenRetrospection(VisType.Day);
             }
         }
-
-        private BitmapImage BitmapToImageSource(Bitmap bitmap)
-        {
-            using (MemoryStream stream = new MemoryStream())
-            {
-                bitmap.Save(stream, ImageFormat.Png);
-                stream.Position = 0;
-                BitmapImage result = new BitmapImage();
-                result.BeginInit();
-                result.CacheOption = BitmapCacheOption.OnLoad;
-                result.StreamSource = stream;
-                result.EndInit();
-                result.Freeze();
-                return result;
-            }
-        }
-
+        
         public new bool? ShowDialog()
         {
             Screen mainScreen = Screen.AllScreens[0];

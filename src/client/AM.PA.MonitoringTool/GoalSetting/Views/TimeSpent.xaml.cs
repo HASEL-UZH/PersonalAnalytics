@@ -78,7 +78,7 @@ namespace GoalSetting.Views
             PARule newRule = new PARule { Title = title, Rule = rule, Activity = activity, TimeSpan = timespan, TimePoint = null, IsVisualizationEnabled = true };
             GoalSettingManager.Instance.AddRule(newRule);
             this.Visibility = Visibility.Collapsed;
-            _parent.Step_4();
+            _parent.Close();
         }
 
         private void Values_Changed(object sender, SelectionChangedEventArgs e)

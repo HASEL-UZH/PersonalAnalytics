@@ -50,7 +50,8 @@ namespace GoalSetting
             Window window = new Window
             {
                 Title = "Goal Setting Dashboard",
-                Content = new AddRule(_rules)
+                Content = new AddRule(_rules),
+                SizeToContent = SizeToContent.WidthAndHeight
             };
             window.ShowDialog();
         }
@@ -72,7 +73,8 @@ namespace GoalSetting
             Window window = new Window
             {
                 Title = "Goal Setting Dashboard",
-                Content = new GoalSetting(_rules)
+                Content = new GoalSetting(_rules),
+                SizeToContent = SizeToContent.WidthAndHeight
             };
             window.ShowDialog();
             

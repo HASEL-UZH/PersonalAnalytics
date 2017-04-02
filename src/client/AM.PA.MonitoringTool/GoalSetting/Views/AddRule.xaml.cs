@@ -29,12 +29,25 @@ namespace GoalSetting.Views
             Step1.Visibility = Visibility.Collapsed;
             selectedGoalDomain = goalDomain;
 
+            TextBlock title = new TextBlock();
+            title.FontSize = 18;
+            title.Inlines.Add("Choose your work behaviour goal");
+            Step2.Children.Add(title);
+
             Button workFragmentationButton = new Button() { Content = "Work Fragmentation" };
             workFragmentationButton.Click += WorkFragmentationButton_Click;
+            workFragmentationButton.Height = 40;
+            workFragmentationButton.Margin = new Thickness(25, 10, 25, 10);
+
             Button timeSpentButton = new Button() { Content = "Time spent on" };
             timeSpentButton.Click += TimeSpentButton_Click;
+            timeSpentButton.Height = 40;
+            timeSpentButton.Margin = new Thickness(25, 10, 25, 10);
+
             Button emailsInboxButton = new Button() { Content = "Emails in Inbox" };
             emailsInboxButton.Click += EmailsInboxButton_Click;
+            emailsInboxButton.Height = 40;
+            emailsInboxButton.Margin = new Thickness(25, 10, 25, 10);
 
             switch (goalDomain)
             {
@@ -116,21 +129,12 @@ namespace GoalSetting.Views
         {
             Close();
         }
-
-        public void Step_4()
-        {
-            Step4.Visibility = Visibility.Visible;
-        }
-
-        private void Close()
+        
+        public void Close()
         {
             (this.Parent as Window).Close();
         }
 
-        private void OK_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
     }
 
 }

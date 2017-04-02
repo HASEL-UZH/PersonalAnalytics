@@ -31,15 +31,36 @@ namespace GoalSetting.Rules
                     TimeSpan time = TimeSpan.FromMilliseconds(Convert.ToDouble(value));
                     if (time.TotalMinutes < 60)
                     {
-                        _timespan = time.TotalMinutes + " minutes";
+                        if (time.TotalMinutes == 1)
+                        {
+                            _timespan = time.TotalMinutes + " minute";
+                        }
+                        else
+                        {
+                            _timespan = time.TotalMinutes + " minutes";
+                        }
                     }
                     else if (time.TotalHours < 24)
                     {
-                        _timespan = time.TotalHours + " hours";
+                        if (time.TotalHours == 1)
+                        {
+                            _timespan = time.TotalHours + " hour";
+                        }
+                        else
+                        {
+                            _timespan = time.TotalHours + " hours";
+                        }
                     }
                     else
                     {
-                        _timespan = time.TotalDays + " days";
+                        if (time.TotalDays == 1)
+                        {
+                            _timespan = time.TotalDays + " day";
+                        }
+                        else
+                        {
+                            _timespan = time.TotalDays + " days";
+                        }
                     }
                 }
                 else

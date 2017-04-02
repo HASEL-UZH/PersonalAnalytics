@@ -9,6 +9,9 @@ using GoalSetting.Rules;
 using System.Windows;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Windows.Media;
+using Shared.Helpers;
+using System.Windows.Documents;
 
 namespace GoalSetting
 {
@@ -41,6 +44,64 @@ namespace GoalSetting
             _rules.CollectionChanged += _rules_CollectionChanged;
             CheckRules.IsEnabled = _rules.Count > 0;
             SaveRules.DataContext = this;
+
+            LoadRuleStatus();
+        }
+
+        private void LoadRuleStatus()
+        {
+            foreach (PARule rule in _rules)
+            {
+                rule.CalculateProgressStatus();
+
+                StackPanel container = new StackPanel();
+                container.Tag = rule;
+                container.Background = new SolidColorBrush(Colors.LightGray);
+                container.Orientation = Orientation.Horizontal;
+                Thickness containerMargin = container.Margin;
+                container.Height = 60;
+                containerMargin.Bottom = 5;
+                container.Margin = containerMargin;
+
+                Image smiley = new Image();
+                smiley.Margin = new Thickness(10, 0, 10, 0);
+                smiley.Height = 40;
+
+                switch (rule.Progress.Status)
+                {
+                    case ProgressStatus.VeryLow:
+                        smiley.Source = ImageHelper.BitmapToImageSource(Properties.Resources.smiley_5);
+                        break;
+                    case ProgressStatus.Low:
+                        smiley.Source = ImageHelper.BitmapToImageSource(Properties.Resources.smiley_4);
+                        break;
+                    case ProgressStatus.Average:
+                        smiley.Source = ImageHelper.BitmapToImageSource(Properties.Resources.smiley_3);
+                        break;
+                    case ProgressStatus.High:
+                        smiley.Source = ImageHelper.BitmapToImageSource(Properties.Resources.smiley_2);
+                        break;
+                    case ProgressStatus.VeryHigh:
+                        smiley.Source = ImageHelper.BitmapToImageSource(Properties.Resources.smiley_1);
+                        break;
+                }
+
+                TextBlock text = new TextBlock();
+                text.FontSize = 18;
+                text.VerticalAlignment = VerticalAlignment.Center;
+                text.Inlines.Add(rule.ToString());
+                text.Inlines.Add(new LineBreak());
+                text.Inlines.Add(rule.GetProgressMessage());
+
+                Thickness margin = text.Margin;
+                margin.Left = 20;
+                text.Margin = margin;
+
+                container.Children.Add(smiley);
+                container.Children.Add(text);
+                
+                RulesOverview.Children.Add(container);
+            }
         }
 
         private void _rules_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

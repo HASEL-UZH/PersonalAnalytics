@@ -4,24 +4,24 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GoalSetting.Views"
-             mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             mc:Ignorable="d">
+    
     <StackPanel>
-        <StackPanel Orientation="Horizontal">
-            <TextBlock>Title:</TextBlock>
+        <DockPanel LastChildFill="True" Margin="10">
+            <TextBlock FontSize="18">Title:</TextBlock>
             <TextBox Name="Title" Margin="10 0 0 0" MinWidth="200" TextChanged="Title_TextChanged"></TextBox>
-        </StackPanel>
-        <DockPanel LastChildFill="True">
-            <ComboBox Name="Checkpoint" MinWidth="100" SelectionChanged="Values_Changed"></ComboBox>
+        </DockPanel>
+        <DockPanel Margin="10">
+            <ComboBox Name="Checkpoint" SelectionChanged="Values_Changed"></ComboBox>
             <TextBox Name="EnterTime" Visibility="Collapsed">00:00</TextBox>
             <TextBlock Name="TimeHint" Visibility="Collapsed">24h format</TextBlock>
         </DockPanel>
-        <TextBlock>the numbers of emails in my inbox should be</TextBlock>
-        <ComboBox SelectionChanged="Values_Changed"  Name="Operator"></ComboBox>
-        <Slider Name="slValue" IsSnapToTickEnabled="True" TickFrequency="1" Minimum="0" Maximum="100"></Slider>
+        <TextBlock Margin="10" FontSize="18">the numbers of emails in my inbox should be</TextBlock>
+        <ComboBox Margin="10" SelectionChanged="Values_Changed"  Name="Operator"></ComboBox>
+        <Slider Margin="10" Name="slValue" IsSnapToTickEnabled="True" TickFrequency="1" Minimum="0" Maximum="100"></Slider>
         <TextBox Text="{Binding ElementName=slValue, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Bottom" TextAlignment="Center" Width="40" />
         <DockPanel Height="auto" Width="auto" LastChildFill="True" Margin="10 20 10 0">
-            <Button Width="auto" DockPanel.Dock="Top" Name="Add" Click="Add_Click" IsEnabled="False">Add Rule</Button>
+            <Button Width="auto" DockPanel.Dock="Top" Name="Add" Click="Add_Click" IsEnabled="False" FontSize="18" Margin="10, 0, 10, 20">Add Rule</Button>
         </DockPanel>
     </StackPanel>
 </UserControl>

@@ -4,22 +4,22 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GoalSetting.Views"
-             mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             Width="800"
+             mc:Ignorable="d">
 
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
-            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         
         <!--Step 1-->
-        <StackPanel Grid.Row="0" Name="Step1" Visibility="Visible">
-            <TextBlock>Choose the domain of your new goal:</TextBlock>
+        <StackPanel Margin="10" Grid.Row="0" Name="Step1" Visibility="Visible">
+            <TextBlock FontSize="18">Choose the domain of your new goal</TextBlock>
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="auto"></RowDefinition>
-                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
                 </Grid.RowDefinitions>
 
                 <Grid.ColumnDefinitions>
@@ -28,38 +28,30 @@
                     <ColumnDefinition Width="*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
 
-                <Button Name="Emails" Grid.Row="0" Grid.Column="0" Margin="5" Click="Step_2_Email">Emails</Button>
-                <Button Name="Coding" Grid.Row="0" Grid.Column="1" Margin="5" Click="Step_2_Coding">Coding</Button>
-                <Button Name="Browsing" Grid.Row="0" Grid.Column="2" Margin="5" Click="Step_2_Browsing">Browsing</Button>
-                <Button Name="Meetings" Grid.Row="1" Grid.Column="0" Margin="5" Click="Step_2_Meetings">Meetings</Button>
-                <Button Name="Breaks" Grid.Row="1" Grid.Column="1" Margin="5" Click="Step_2_Breaks">Breaks</Button>
-                <Button Name="Focus" Grid.Row="1" Grid.Column="2" Margin="5" Click="Step_2_Focus">Focus</Button>
+                <Button Height="40" Name="Emails" Grid.Row="0" Grid.Column="0" Margin="5, 10, 5, 5" Click="Step_2_Email">Emails</Button>
+                <Button Height="40" Name="Coding" Grid.Row="0" Grid.Column="1" Margin="5, 10, 5, 5" Click="Step_2_Coding">Coding</Button>
+                <Button Height="40" Name="Browsing" Grid.Row="0" Grid.Column="2" Margin="5, 10, 5, 5" Click="Step_2_Browsing">Browsing</Button>
+                <Button Height="40" Name="Meetings" Grid.Row="1" Grid.Column="0" Margin="5, 10, 5, 10" Click="Step_2_Meetings">Meetings</Button>
+                <Button Height="40" Name="Breaks" Grid.Row="1" Grid.Column="1" Margin="5, 10, 5, 10" Click="Step_2_Breaks">Breaks</Button>
+                <Button Height="40" Name="Focus" Grid.Row="1" Grid.Column="2" Margin="5, 10, 5, 10" Click="Step_2_Focus">Focus</Button>
             </Grid>
         </StackPanel>
         
         <!--Step 2-->
-        <StackPanel Grid.Row="0" Name="Step2" Visibility="Collapsed">
+        <StackPanel Margin="10" Grid.Row="0" Name="Step2" Visibility="Collapsed">
         </StackPanel>
 
         <!--Step 3-->
-        <ContentControl Grid.Row="0" Name="Step3" Visibility="Collapsed">
-        </ContentControl>
-        
-        <!--Step 4-->
-        <ContentControl Grid.Row="0" Name="Step4" Visibility="Collapsed">
-            <StackPanel>
-                <TextBlock>Thanks for adding a new goal</TextBlock>
-                <Button Name="OK" Click="OK_Click">OK</Button>
-            </StackPanel>
+        <ContentControl Margin="10" Grid.Row="0" Name="Step3" Visibility="Collapsed">
         </ContentControl>
         
         <!--Not supported-->
-        <TextBlock Grid.Row="0" Name="NotYetSupported" Visibility="Collapsed">
+        <TextBlock Margin="15" Grid.Row="0" Name="NotYetSupported" Visibility="Collapsed" FontSize="16">
             This goal is not yet supported!
         </TextBlock>
 
-        <StackPanel Grid.Row="1">
-            <Button Name="Cancel" Click="Cancel_Click">Cancel</Button>
+        <StackPanel Margin="15, 10, 15, 10" Grid.Row="1">
+            <Button Height="40" Name="Cancel" Click="Cancel_Click">Cancel</Button>
         </StackPanel>
         
     </Grid>

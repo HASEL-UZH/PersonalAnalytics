@@ -93,6 +93,7 @@
       <HintPath>..\packages\System.Data.SQLite.Linq.1.0.104.0\lib\net45\System.Data.SQLite.Linq.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Security" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
@@ -124,6 +125,7 @@
     <Compile Include="Helpers\FeedbackHelper.cs" />
     <Compile Include="Helpers\FeedbackThumbs.cs" />
     <Compile Include="Helpers\FormatStringHelper.cs" />
+    <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\ProcessNameHelper.cs" />
     <Compile Include="Helpers\VersionHelper.cs" />
     <Compile Include="Helpers\VisHelper.cs" />

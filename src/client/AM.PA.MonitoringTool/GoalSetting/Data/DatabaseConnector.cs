@@ -25,6 +25,7 @@ namespace GoalSetting
         private const string Activity = "contextcategory";
         private const string Timespan = "timespan";
         private const string Timepoint = "timepoint";
+        private const string Time = "time";
         private const string Action = "action";
         private const string Goal = "goal";
         private const string Target = "target";
@@ -38,6 +39,7 @@ namespace GoalSetting
                                                             + Activity + " TEXT, "
                                                             + Timespan + " TEXT, "
                                                             + Timepoint + " TEXT, "
+                                                            + Time + " TEXT, "
                                                             + Action + " TEXT, "
                                                             + Goal + " TEXT, "
                                                             + Target + " TEXT, "
@@ -55,11 +57,12 @@ namespace GoalSetting
                                                             + "'{1}' AS " + Activity + ", "
                                                             + "'{2}' AS " + Timespan + ", "
                                                             + "'{3}' AS " + Timepoint + ", "
-                                                            + "'{4}' AS " + Action + ", "
-                                                            + "'{5}' AS " + Goal + ", "
-                                                            + "'{6}' AS " + Target + ", "
-                                                            + "'{7}' AS " + Operator + ", "
-                                                            + "'{8}' AS " + VisualizationEnabled;
+                                                            + "'{4}' AS " + Time + ", "
+                                                            + "'{5}' AS " + Action + ", "
+                                                            + "'{6}' AS " + Goal + ", "
+                                                            + "'{7}' AS " + Target + ", "
+                                                            + "'{8}' AS " + Operator + ", "
+                                                            + "'{9}' AS " + VisualizationEnabled;
 
         #region INSERT
 
@@ -73,7 +76,7 @@ namespace GoalSetting
                 foreach (PARule rule in rules)
                 {
                     string query = string.Empty;
-                    query += String.Format(INSERT_RULES_QUERY, (rule.Title == null ? "" : rule.Title), rule.Activity, rule.TimeSpan, rule.TimePoint, (rule.Action == null ? "" : rule.Action), rule.Rule.Goal, rule.Rule.TargetValue, rule.Rule.Operator, rule.IsVisualizationEnabled);
+                    query += String.Format(INSERT_RULES_QUERY, (rule.Title == null ? "" : rule.Title), rule.Activity, rule.TimeSpan, rule.TimePoint, rule.Time, (rule.Action == null ? "" : rule.Action), rule.Rule.Goal, rule.Rule.TargetValue, rule.Rule.Operator, rule.IsVisualizationEnabled);
                     Console.WriteLine(query);
                     Database.GetInstance().ExecuteDefaultQuery(query);
                 }
@@ -131,16 +134,18 @@ namespace GoalSetting
                         timePoint = (RuleTimePoint)Enum.Parse(typeof(RuleTimePoint), row[4].ToString());
                     }
 
-                    string action = row[5].ToString();
-                    Goal goal = (Goal)Enum.Parse(typeof(Goal), row[6].ToString());
+                    string time = row[5].ToString();
 
-                    string target = row[7].ToString();
-                    Operator op = (Operator)Enum.Parse(typeof(Operator), row[8].ToString());
+                    string action = row[6].ToString();
+                    Goal goal = (Goal)Enum.Parse(typeof(Goal), row[7].ToString());
 
-                    string visualizationEnabled = row[9].ToString();
+                    string target = row[8].ToString();
+                    Operator op = (Operator)Enum.Parse(typeof(Operator), row[9].ToString());
+
+                    string visualizationEnabled = row[10].ToString();
                     bool visualization = Boolean.Parse(visualizationEnabled);
 
-                    rules.Add(new PARule() { Title = title, Rule = new Rules.Rule { Goal = goal, Operator = op, TargetValue = target }, Activity = activity, TimeSpan = timeSpan, TimePoint = timePoint, IsVisualizationEnabled = visualization });
+                    rules.Add(new PARule() { Title = title, Rule = new Rules.Rule { Goal = goal, Operator = op, TargetValue = target }, Activity = activity, TimeSpan = timeSpan, TimePoint = timePoint, Time = time, IsVisualizationEnabled = visualization });
                 }
             }
             catch (Exception e)

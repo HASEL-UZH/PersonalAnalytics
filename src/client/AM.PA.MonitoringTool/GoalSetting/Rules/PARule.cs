@@ -5,6 +5,7 @@
 
 using GoalSetting.Model;
 using Shared.Data;
+using Shared.Helpers;
 using System;
 
 namespace GoalSetting.Rules
@@ -22,11 +23,49 @@ namespace GoalSetting.Rules
 
         public RuleTimePoint? TimePoint { get; set; }
 
+        public string Time { get; set; }
+
         public bool IsVisualizationEnabled { get; set; }
 
         public override string ToString()
         {
-            return "Goal: " + Rule.Goal + " " + Activity.ToString() + " " + Rule.Operator.ToString() + " " + Rule.TargetValue.ToString() + " (per " + TimeSpan.ToString() + ")";
+            string str = string.Empty;
+
+            switch (Rule.Goal)
+            {
+                case Goal.NumberOfEmailsInInbox:
+                    str += "The number of emails in my inbox ";
+                    str += "should be ";
+                    str += FormatStringHelper.GetDescription(Rule.Operator).ToLower() + " ";
+                    str += Rule.TargetValue + " ";
+                    if (TimePoint == RuleTimePoint.Timepoint)
+                    {
+                        str += "at " + Time + ".";
+                    }
+                    else
+                    {
+                        str += FormatStringHelper.GetDescription(TimePoint).ToLower() + ".";
+                    }
+                    break;
+
+                case Goal.NumberOfSwitchesTo:
+                    str += "I want to switch ";
+                    str += FormatStringHelper.GetDescription(Rule.Operator).ToLower() + " ";
+                    str += Rule.TargetValue + " ";
+                    str += "times to ";
+                    str += FormatStringHelper.GetDescription(Activity) + " ";
+                    str += "per " + FormatStringHelper.GetDescription(TimeSpan) + ".";
+                    break;
+
+                case Goal.TimeSpentOn:
+                    str += "I want to spend ";
+                    str += FormatStringHelper.GetDescription(Rule.Operator).ToLower() + " ";
+                    str += Rule.TargetTimeSpan;
+                    str += " on " + FormatStringHelper.GetDescription(Activity) + " ";
+                    str += "per " + FormatStringHelper.GetDescription(TimeSpan) + ".";
+                    break;
+            }
+            return str;
         }
 
         private Progress _progress = null;
@@ -50,7 +89,7 @@ namespace GoalSetting.Rules
             {
                 case Goal.TimeSpentOn:
                     double targetTime = Double.Parse(Rule.TargetValue) / 1000 / 60 / 60;
-                    double actualTime = Double.Parse(Progress.Time);
+                    double actualTime = string.IsNullOrEmpty(Progress.Time) ? 0.0 : Double.Parse(Progress.Time);
                     percentage = actualTime / targetTime;
                     break;
                 case Goal.NumberOfSwitchesTo:
@@ -134,7 +173,7 @@ namespace GoalSetting.Rules
 
         internal string GetProgressMessage()
         {
-            return Progress.Time + " hours / " + Progress.Switches + " switches";
+            return (string.IsNullOrEmpty(Progress.Time) ? "0" : Progress.Time) + " hours / " + Progress.Switches + " switches";
         }
     }
     
