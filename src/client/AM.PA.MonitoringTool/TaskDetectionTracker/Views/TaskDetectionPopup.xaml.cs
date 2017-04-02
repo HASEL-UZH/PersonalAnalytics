@@ -74,9 +74,8 @@ namespace TaskDetectionTracker.Views
             CanvasWidth = Math.Max(timeLineWidth, Settings.MinimumTimeLineWidth);
             
             RectItems = new ObservableCollection<TaskRectangle>();
-            GenerateRectangles();
-
             this.Loaded += TaskDetectionPopup_Loaded;
+            GenerateRectangles();
         }
 
         private void TaskDetectionPopup_Loaded(object sender, RoutedEventArgs e)
@@ -195,13 +194,15 @@ namespace TaskDetectionTracker.Views
                 }
 
                 bool isUserDefined = task.TaskDetectionCase == TaskDetectionCase.Missing ? true : false;
-                RectItems.Add(new TaskRectangle(task) { X = x, Width = width, Height = 30, ProcessRectangle = processRectangles, TaskName = task.TaskTypeValidated, Timestamp = task.End.ToShortTimeString(), IsUserDefined = isUserDefined });
+                TaskRectangle taskRectangle = new TaskRectangle(task) { X = x, Width = width, Height = 30, ProcessRectangle = processRectangles, TaskName = task.TaskTypeValidated, Timestamp = task.End.ToShortTimeString(), IsUserDefined = isUserDefined };
+                RectItems.Add(taskRectangle);
                 x += (width + TaskRectangle.TaskBoundaryWidth);
             }
 
+            StringToBrushConverter.UpdateColors(RectItems);
             DrawLegend();
         }
-
+        
         public void DrawLegend()
         {
             //draw legend
