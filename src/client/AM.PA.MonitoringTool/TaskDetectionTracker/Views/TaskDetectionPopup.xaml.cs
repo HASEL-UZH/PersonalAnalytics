@@ -15,6 +15,8 @@ using System.Windows.Input;
 using System.Windows.Shapes;
 using System.Windows.Controls;
 using System.Diagnostics;
+using TaskDetectionTracker.Views.Converters;
+using System.Windows.Media;
 
 namespace TaskDetectionTracker.Views
 {
@@ -73,6 +75,13 @@ namespace TaskDetectionTracker.Views
             
             RectItems = new ObservableCollection<TaskRectangle>();
             GenerateRectangles();
+
+            this.Loaded += TaskDetectionPopup_Loaded;
+        }
+
+        private void TaskDetectionPopup_Loaded(object sender, RoutedEventArgs e)
+        {
+            DrawLegend();
         }
 
         #region Handle PopUp Response (Reminder, avoid closing before validated, etc.)
@@ -188,6 +197,51 @@ namespace TaskDetectionTracker.Views
                 bool isUserDefined = task.TaskDetectionCase == TaskDetectionCase.Missing ? true : false;
                 RectItems.Add(new TaskRectangle(task) { X = x, Width = width, Height = 30, ProcessRectangle = processRectangles, TaskName = task.TaskTypeValidated, Timestamp = task.End.ToShortTimeString(), IsUserDefined = isUserDefined });
                 x += (width + TaskRectangle.TaskBoundaryWidth);
+            }
+
+            DrawLegend();
+        }
+
+        public void DrawLegend()
+        {
+            //draw legend
+            Legend.Children.Clear();
+            Legend.RowDefinitions.Clear();
+            int count = 0;
+            var usedColors = StringToBrushConverter.GetUsedColors();
+
+            var numberOfRowsNeeded = Math.Ceiling(usedColors.Keys.Count / 4.0);
+            for (int i = 0; i < numberOfRowsNeeded; i++)
+            {
+                Legend.RowDefinitions.Add(new RowDefinition());
+            }
+
+            foreach (String key in usedColors.Keys)
+            {
+                Brush legendColor;
+                usedColors.TryGetValue(key, out legendColor);
+                if (legendColor != null)
+                {
+                    StackPanel colorPanel = new StackPanel();
+                    colorPanel.Orientation = Orientation.Horizontal;
+                    colorPanel.Margin = new Thickness(5);
+
+                    Rectangle colorRectangle = new Rectangle();
+                    colorRectangle.Fill = legendColor;
+                    colorRectangle.Height = 20;
+                    colorRectangle.Width = 20;
+                    colorRectangle.Margin = new Thickness(0, 0, 5, 0);
+                    colorPanel.Children.Add(colorRectangle);
+                    
+                    TextBlock colorText = new TextBlock();
+                    colorText.Inlines.Add(key);
+                    colorPanel.Children.Add(colorText);
+
+                    colorPanel.SetValue(Grid.RowProperty, count / 4);
+                    colorPanel.SetValue(Grid.ColumnProperty, count % 4);
+                    Legend.Children.Add(colorPanel);
+                    count++;
+                }
             }
         }
 

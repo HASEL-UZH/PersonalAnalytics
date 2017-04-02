@@ -14,6 +14,7 @@ namespace TaskDetectionTracker.Views.Converters
    
     public class StringToBrushConverter : IValueConverter
     {
+        
         private static BrushConverter converter = new BrushConverter();
 
         private static Brush[] brushes = new Brush[]
@@ -32,6 +33,11 @@ namespace TaskDetectionTracker.Views.Converters
         
         private static Dictionary<string, Brush> colorMapper = new Dictionary<string, Brush>();
         
+        public static Dictionary<string, Brush> GetUsedColors()
+        {
+            return colorMapper;
+        }
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             Brush color;
