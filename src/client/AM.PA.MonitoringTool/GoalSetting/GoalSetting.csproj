@@ -59,6 +59,8 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Rules\PARule.cs" />
+    <Compile Include="Rules\PARuleActivity.cs" />
+    <Compile Include="Rules\PARuleEmail.cs" />
     <Compile Include="Rules\Rule.cs" />
     <Compile Include="Rules\RuleTimePoint.cs" />
     <Compile Include="Rules\RuleTimeSpan.cs" />

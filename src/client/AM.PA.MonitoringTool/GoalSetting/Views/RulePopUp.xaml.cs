@@ -87,14 +87,22 @@ namespace GoalSetting.Views
 
         private void Rule_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            PARule rule = (PARule) (sender as FrameworkElement).Tag;
-            if (rule.TimeSpan == RuleTimeSpan.Week || rule.TimeSpan == RuleTimeSpan.Month)
+            PARule rule = (PARule)(sender as FrameworkElement).Tag;
+
+            if (rule is PARuleEmail)
             {
                 GoalSettingManager.Instance.OpenRetrospection(VisType.Week);
             }
             else
             {
-                GoalSettingManager.Instance.OpenRetrospection(VisType.Day);
+                if ((rule as PARuleActivity).TimeSpan == RuleTimeSpan.Week || (rule as PARuleActivity).TimeSpan == RuleTimeSpan.Month)
+                {
+                    GoalSettingManager.Instance.OpenRetrospection(VisType.Week);
+                }
+                else
+                {
+                    GoalSettingManager.Instance.OpenRetrospection(VisType.Day);
+                }
             }
         }
         

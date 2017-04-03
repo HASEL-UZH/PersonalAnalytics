@@ -20,14 +20,14 @@ namespace GoalSetting.Views
     {
         private AddRule _parent;
         private bool _isRuleEditing = false;
-        private PARule _oldRule;
+        private PARuleEmail _oldRule;
 
         public EmailInbox(AddRule parent) : this()
         {
             this._parent = parent;
         }
 
-        public EmailInbox(PARule rule) : this()
+        public EmailInbox(PARuleEmail rule) : this()
         {
             this._oldRule = rule;
             this._isRuleEditing = true;
@@ -83,7 +83,7 @@ namespace GoalSetting.Views
                 time = EnterTime.Text;
             }
 
-            PARule newRule = new PARule { Title = title, Rule = rule, Activity = activity, TimePoint = timepoint, Time = time, TimeSpan = null, IsVisualizationEnabled = true };
+            PARuleEmail newRule = new PARuleEmail { Title = title, Rule = rule, TimePoint = timepoint, Time = time, IsVisualizationEnabled = true };
             this.Visibility = Visibility.Collapsed;
 
             if (!_isRuleEditing)

@@ -20,7 +20,7 @@ namespace GoalSetting.Views
 
         private AddRule _parent;
         private bool _isRuleEditing = false;
-        private PARule _oldRule;
+        private PARuleActivity _oldRule;
 
         private WorkFragmentation() {
             InitializeComponent();
@@ -30,7 +30,7 @@ namespace GoalSetting.Views
             Activity.ItemsSource = FormatStringHelper.GetDescriptions(typeof(ContextCategory));
         }
 
-        public WorkFragmentation(PARule rule) : this()
+        public WorkFragmentation(PARuleActivity rule) : this()
         {
             this._isRuleEditing = true;
             this._oldRule = rule;
@@ -72,7 +72,7 @@ namespace GoalSetting.Views
             ContextCategory activity = FormatStringHelper.GetValueFromDescription<ContextCategory>(Activity.SelectedItem.ToString());
             RuleTimeSpan timespan = FormatStringHelper.GetValueFromDescription<RuleTimeSpan>(Timespan.SelectedItem.ToString());
 
-            PARule newRule = new PARule { Title = title, Rule = rule, Activity = activity, TimeSpan = timespan, TimePoint = null, IsVisualizationEnabled = true };
+            PARuleActivity newRule = new PARuleActivity { Title = title, Rule = rule, Activity = activity, TimeSpan = timespan, IsVisualizationEnabled = true };
             this.Visibility = Visibility.Collapsed;
 
             if (!_isRuleEditing)

@@ -33,8 +33,7 @@
                     <DataGridTextColumn Header="Activity" Binding="{Binding Path=Activity}"></DataGridTextColumn>
                     <DataGridTextColumn Header="Operator" Binding="{Binding Path=Rule.Operator}"></DataGridTextColumn>
                     <DataGridTextColumn Header="Value" Binding="{Binding Path=Rule.TargetTimeSpan}"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Timespan" Binding="{Binding Path=TimeSpan}"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Timepoint" Binding="{Binding Path=TimePoint}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="When" Binding="{Binding Path=When}"></DataGridTextColumn>
                     <DataGridTextColumn Header="Action" Binding="{Binding Path=Action}"></DataGridTextColumn>
                     <DataGridTextColumn Header="Visualization" Binding="{Binding Path=IsVisualizationEnabled}"></DataGridTextColumn>
                 </DataGrid.Columns>

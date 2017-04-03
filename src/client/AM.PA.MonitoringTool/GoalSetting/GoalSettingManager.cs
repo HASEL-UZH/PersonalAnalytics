@@ -62,6 +62,11 @@ namespace GoalSetting
             _rules.Add(newRule);
         }
 
+        internal List<PARuleActivity> GetActivityRules()
+        {
+            return _rules.OfType<PARuleActivity>().ToList();
+        }
+
         /// <summary>
         /// Starts the goal setting manager. This method is called whenever the user clicks on 'Goal setting' in the context menu.
         /// </summary>
@@ -208,22 +213,22 @@ namespace GoalSetting
                 {
 
                     //We can only do that for rules that have a timespan
-                    if (rule.TimeSpan.HasValue)
+                    if ((rule as PARuleActivity).TimeSpan.HasValue)
                     {
                         //if we do not yet have the activities, we have to get them!
-                        if (!activitiesMap.ContainsKey(rule.TimeSpan.Value))
+                        if (!activitiesMap.ContainsKey((rule as PARuleActivity).TimeSpan.Value))
                         {
-                            activitiesMap.Add(rule.TimeSpan.Value, GetActivity(rule.TimeSpan.Value));
+                            activitiesMap.Add((rule as PARuleActivity).TimeSpan.Value, GetActivity((rule as PARuleActivity).TimeSpan.Value));
                         }
 
                         List<Activity> activities = null;
-                        activitiesMap.TryGetValue(rule.TimeSpan.Value, out activities);
+                        activitiesMap.TryGetValue((rule as PARuleActivity).TimeSpan.Value, out activities);
 
                         if (activities != null)
                         {
                             foreach (Activity activity in activities)
                             {
-                                if (activity.Category.Equals(rule.Activity.ToString()))
+                                if (activity.Category.Equals((rule as PARuleActivity).Activity.ToString()))
                                 {
                                     Logger.WriteToConsole("" + activity);
                                     Logger.WriteToConsole("" + rule);

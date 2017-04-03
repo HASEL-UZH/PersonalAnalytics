@@ -13,9 +13,9 @@ namespace GoalSetting.Visualizers
     internal class WeekVisualization : BaseVisualization, IVisualization
     {
         private DateTimeOffset _date;
-        private PARule _rule;
+        private PARuleActivity _rule;
 
-        public WeekVisualization(DateTimeOffset date, PARule rule)
+        public WeekVisualization(DateTimeOffset date, PARuleActivity rule)
         {
             Title = rule.ToString();
             this._rule = rule;

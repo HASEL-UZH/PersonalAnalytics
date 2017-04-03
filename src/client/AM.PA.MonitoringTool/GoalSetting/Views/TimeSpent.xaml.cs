@@ -20,7 +20,7 @@ namespace GoalSetting.Views
     public partial class TimeSpent : UserControl
     {
         private AddRule _parent;
-        private PARule _oldRule;
+        private PARuleActivity _oldRule;
         private bool _isRuleEditing = false;
 
         private TimeSpent()
@@ -33,7 +33,7 @@ namespace GoalSetting.Views
             TimeUnitComboBox.ItemsSource = FormatStringHelper.GetDescriptions(typeof(TimeUnit));
         }
 
-        public TimeSpent(PARule rule) : this()
+        public TimeSpent(PARuleActivity rule) : this()
         {
             this._oldRule = rule;
             this._isRuleEditing = true;
@@ -108,7 +108,7 @@ namespace GoalSetting.Views
             ContextCategory activity = FormatStringHelper.GetValueFromDescription<ContextCategory>(Activity.SelectedItem.ToString());
             RuleTimeSpan timespan = FormatStringHelper.GetValueFromDescription<RuleTimeSpan>(Timespan.SelectedItem.ToString());
 
-            PARule newRule = new PARule { Title = title, Rule = rule, Activity = activity, TimeSpan = timespan, TimePoint = null, IsVisualizationEnabled = true };
+            PARuleActivity newRule = new PARuleActivity { Title = title, Rule = rule, Activity = activity, TimeSpan = timespan, IsVisualizationEnabled = true };
             this.Visibility = Visibility.Collapsed;
 
             if (!_isRuleEditing)

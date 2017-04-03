@@ -34,7 +34,7 @@ namespace GoalSetting.Visualizers
 
         public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
         {
-            var rules = GoalSettingManager.Instance.GetRules();
+            var rules = GoalSettingManager.Instance.GetActivityRules();
 
             //For the daily visualization we ignore rules that are on weekly or monthly basis
             rules.RemoveAll(r => r.TimeSpan == Rules.RuleTimeSpan.Month || r.TimeSpan == Rules.RuleTimeSpan.Week);
@@ -52,7 +52,7 @@ namespace GoalSetting.Visualizers
 
         public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)
         {
-            var rules = GoalSettingManager.Instance.GetRules();
+            var rules = GoalSettingManager.Instance.GetActivityRules();
 
             //For the weekly visualization we only use rules that are on weekly or monthly basis
             rules = rules.Where(r => r.TimeSpan == Rules.RuleTimeSpan.Month || r.TimeSpan == Rules.RuleTimeSpan.Week).ToList();

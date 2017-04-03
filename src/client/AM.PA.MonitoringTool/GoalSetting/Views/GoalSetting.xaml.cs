@@ -163,15 +163,15 @@ namespace GoalSetting
             switch (rule.Rule.Goal)
             {
                 case Goal.NumberOfEmailsInInbox:
-                    controlToDisplay = new EmailInbox(rule);
+                    controlToDisplay = new EmailInbox(rule as PARuleEmail);
                     break;
 
                 case Goal.TimeSpentOn:
-                    controlToDisplay = new TimeSpent(rule);
+                    controlToDisplay = new TimeSpent(rule as PARuleActivity);
                     break;
 
                 case Goal.NumberOfSwitchesTo:
-                    controlToDisplay = new WorkFragmentation(rule);
+                    controlToDisplay = new WorkFragmentation(rule as PARuleActivity);
                     break;
             }
 

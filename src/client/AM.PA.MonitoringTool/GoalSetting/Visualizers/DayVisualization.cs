@@ -17,10 +17,10 @@ namespace GoalSetting.Visualizers
 {
     public class DayVisualization : BaseVisualization, IVisualization
     {
-        private PARule _rule;
+        private PARuleActivity _rule;
         private DateTimeOffset _date;
 
-        public DayVisualization(DateTimeOffset date, PARule rule)
+        public DayVisualization(DateTimeOffset date, PARuleActivity rule)
         {
             Title = rule.ToString();
             this._rule = rule;

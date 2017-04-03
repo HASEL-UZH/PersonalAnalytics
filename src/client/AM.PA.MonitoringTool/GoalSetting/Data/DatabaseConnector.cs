@@ -76,7 +76,16 @@ namespace GoalSetting
                 foreach (PARule rule in rules)
                 {
                     string query = string.Empty;
-                    query += String.Format(INSERT_RULES_QUERY, (rule.Title == null ? "" : rule.Title), rule.Activity, rule.TimeSpan, rule.TimePoint, rule.Time, (rule.Action == null ? "" : rule.Action), rule.Rule.Goal, rule.Rule.TargetValue, rule.Rule.Operator, rule.IsVisualizationEnabled);
+
+                    if (rule is PARuleActivity)
+                    {
+                        query += String.Format(INSERT_RULES_QUERY, (rule.Title == null ? "" : rule.Title), (rule as PARuleActivity).Activity, (rule as PARuleActivity).TimeSpan, "", "", (rule.Action == null ? "" : rule.Action), rule.Rule.Goal, rule.Rule.TargetValue, rule.Rule.Operator, rule.IsVisualizationEnabled);
+                    }
+                    else if (rule is PARuleEmail)
+                    {
+                        query += String.Format(INSERT_RULES_QUERY, (rule.Title == null ? "" : rule.Title), "", "", (rule as PARuleEmail).TimePoint, (rule as PARuleEmail).Time, (rule.Action == null ? "" : rule.Action), rule.Rule.Goal, rule.Rule.TargetValue, rule.Rule.Operator, rule.IsVisualizationEnabled);
+                    }
+
                     Console.WriteLine(query);
                     Database.GetInstance().ExecuteDefaultQuery(query);
                 }
@@ -120,7 +129,11 @@ namespace GoalSetting
                 foreach (DataRow row in table.Rows)
                 {
                     string title = row[1].ToString();
-                    ContextCategory activity = (ContextCategory)Enum.Parse(typeof(ContextCategory), row[2].ToString());
+
+                    ContextCategory? activity = null;
+                    if (!string.IsNullOrEmpty(row[2].ToString())) {
+                        activity = (ContextCategory)Enum.Parse(typeof(ContextCategory), row[2].ToString());
+                    }
 
                     RuleTimeSpan? timeSpan = null;
                     if (!string.IsNullOrEmpty(row[3].ToString()))
@@ -134,7 +147,11 @@ namespace GoalSetting
                         timePoint = (RuleTimePoint)Enum.Parse(typeof(RuleTimePoint), row[4].ToString());
                     }
 
-                    string time = row[5].ToString();
+                    string time = null;
+                    if (!string.IsNullOrEmpty(row[5].ToString()))
+                    {
+                        time = row[5].ToString();
+                    }
 
                     string action = row[6].ToString();
                     Goal goal = (Goal)Enum.Parse(typeof(Goal), row[7].ToString());
@@ -145,7 +162,14 @@ namespace GoalSetting
                     string visualizationEnabled = row[10].ToString();
                     bool visualization = Boolean.Parse(visualizationEnabled);
 
-                    rules.Add(new PARule() { Title = title, Rule = new Rules.Rule { Goal = goal, Operator = op, TargetValue = target }, Activity = activity, TimeSpan = timeSpan, TimePoint = timePoint, Time = time, IsVisualizationEnabled = visualization });
+                    if (timeSpan.HasValue)
+                    {
+                        rules.Add(new PARuleActivity() { Title = title, Rule = new Rules.Rule { Goal = goal, Operator = op, TargetValue = target }, Activity = activity.Value, TimeSpan = timeSpan, IsVisualizationEnabled = visualization });
+                    }
+                    else
+                    {
+                        rules.Add(new PARuleEmail() { Title = title, Rule = new Rules.Rule { Goal = goal, Operator = op, TargetValue = target }, TimePoint = timePoint, Time = time, IsVisualizationEnabled = visualization });
+                    }
                 }
             }
             catch (Exception e)
@@ -205,28 +229,35 @@ namespace GoalSetting
 
         internal static int GetLatestEmailInboxCount()
         {
-            var query = "Select time, inbox from emails order by time desc limit 1;";
-            var table = Database.GetInstance().ExecuteReadQuery(query);
+            if (Database.GetInstance().HasTable("emails"))
+            {
 
-            try
-            {
-                if (table != null && table.Rows.Count > 0)
+                var query = "Select time, inbox from emails order by time desc limit 1;";
+                var table = Database.GetInstance().ExecuteReadQuery(query);
+
+                try
                 {
-                    return int.Parse(table.Rows[0]["inbox"].ToString());
+                    if (table != null && table.Rows.Count > 0)
+                    {
+                        return int.Parse(table.Rows[0]["inbox"].ToString());
+                    }
+                    else
+                    {
+                        table.Dispose();
+                        return -1;
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    table.Dispose();
-                    return -1;
+                    Logger.WriteToLogFile(e);
                 }
-            }
-            catch (Exception e)
-            {
-                Logger.WriteToLogFile(e);
-            }
-            finally
-            {
-                table.Dispose();
+                finally
+                {
+                    if (table != null)
+                    {
+                        table.Dispose();
+                    }
+                }
             }
             return -1;
         }

@@ -104,9 +104,9 @@ namespace GoalSettingTests.Visualization
 
                 //Add goals
                 ObservableCollection<PARule> rules = new ObservableCollection<PARule>();
-                rules.Add(new PARule { Title = "Test Rule 1", IsVisualizationEnabled = true, Activity = ContextCategory.DevCode, TimeSpan = RuleTimeSpan.EveryDay, Time = "1 hour", Rule = new Rule { Operator = GoalSetting.Model.Operator.LessThan, Goal = GoalSetting.Model.Goal.TimeSpentOn, TargetValue = "" + TimeSpan.FromHours(1).TotalMilliseconds } });
-                rules.Add(new PARule { Title = "Test Rule 2", IsVisualizationEnabled = true, TimePoint = RuleTimePoint.End, Rule = new Rule { Operator = GoalSetting.Model.Operator.LessThan, Goal = GoalSetting.Model.Goal.NumberOfEmailsInInbox, TargetValue = "1" } });
-                rules.Add(new PARule { Title = "Test Rule 3", IsVisualizationEnabled = true, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.EveryDay, Rule = new Rule { Operator = GoalSetting.Model.Operator.LessThan, Goal = GoalSetting.Model.Goal.NumberOfSwitchesTo, TargetValue = "10" } });
+                rules.Add(new PARuleActivity { Title = "Test Rule 1", IsVisualizationEnabled = true, Activity = ContextCategory.DevCode, TimeSpan = RuleTimeSpan.EveryDay, Rule = new Rule { Operator = GoalSetting.Model.Operator.LessThan, Goal = GoalSetting.Model.Goal.TimeSpentOn, TargetValue = "" + TimeSpan.FromHours(1).TotalMilliseconds } });
+                rules.Add(new PARuleEmail { Title = "Test Rule 2", IsVisualizationEnabled = true, TimePoint = RuleTimePoint.End, Rule = new Rule { Operator = GoalSetting.Model.Operator.LessThan, Goal = GoalSetting.Model.Goal.NumberOfEmailsInInbox, TargetValue = "1" } });
+                rules.Add(new PARuleActivity { Title = "Test Rule 3", IsVisualizationEnabled = true, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.EveryDay, Rule = new Rule { Operator = GoalSetting.Model.Operator.LessThan, Goal = GoalSetting.Model.Goal.NumberOfSwitchesTo, TargetValue = "10" } });
 
                 MethodInfo saveRulesMethod = typeof(DatabaseConnector).GetMethod("SaveRules", BindingFlags.NonPublic | BindingFlags.Static);
                 if (saveRulesMethod != null)
