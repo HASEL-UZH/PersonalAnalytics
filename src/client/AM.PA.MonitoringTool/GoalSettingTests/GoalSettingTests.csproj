@@ -52,15 +52,28 @@
   <ItemGroup>
     <Compile Include="Data\DataHelperTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Visualization\TestVisualization.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GoalSetting\GoalSetting.csproj">
       <Project>{D4792DE4-9A01-47C9-B30D-B40DEE6C3450}</Project>
       <Name>GoalSetting</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MsOfficeTracker\MsOfficeTracker.csproj">
+      <Project>{82ed616d-1508-41c5-a72a-b6a4f7c9b7e6}</Project>
+      <Name>MsOfficeTracker</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Retrospection\Retrospection.csproj">
+      <Project>{ebd795e6-e7ad-49e4-a812-d2de29186c49}</Project>
+      <Name>Retrospection</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Shared\Shared.csproj">
       <Project>{2BBDFA6D-20DD-4A7B-893E-43C388382C9A}</Project>
       <Name>Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WindowsActivityTracker\WindowsActivityTracker.csproj">
+      <Project>{2b903556-4dd2-41ce-beac-3ddd045f717d}</Project>
+      <Name>WindowsActivityTracker</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

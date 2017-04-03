@@ -18,7 +18,7 @@ namespace Shared.Data
         [Description("reviewing")]
         DevReview,
 
-        [Description("DevVc")]
+        [Description("versioning control")]
         DevVc,
 
         [Description("email")]
