@@ -32,11 +32,15 @@ namespace GoalSetting.Visualizers
 
         public override string GetHtml()
         {
+            if (_rule.Rule.Goal == Goal.NumberOfEmailsInInbox)
+            {
+                return string.Empty;
+            }
+
             var html = string.Empty;
             var startOfWork = Database.GetInstance().GetUserWorkStart(DateTime.Now.Date);
             var endOfWork = DateTime.Now;
-
-            Console.WriteLine("Draw visualization from: " + startOfWork + " to " + endOfWork);
+            
             var activities = DatabaseConnector.GetActivitiesSinceAndBefore(startOfWork, endOfWork);
             activities = DataHelper.MergeSameActivities(activities, Settings.MinimumSwitchTime);
 
@@ -51,11 +55,12 @@ namespace GoalSetting.Visualizers
             
             //HTML
             html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "' style='align: center'></div>";
-            html += "<p style='text-align: center; font-size: 0.66em;'>Number of switches per time</p>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>" + GoalVisHelper.getHintText(_rule, VisType.Day) + "</p>";
 
             //JS
             html += "<script>";
 
+            //Calculate size of visualization
             html += "var actualHeight = document.getElementsByClassName('item Wide')[0].offsetHeight;";
             html += "var actualWidth = document.getElementsByClassName('item Wide')[0].offsetWidth;";
             html += "var margin = {top: 30, right: 30, bottom: 30, left: 40}, width = (actualWidth * 0.97)- margin.left - margin.right, height = (actualHeight * 0.73) - margin.top - margin.bottom;";
@@ -76,7 +81,7 @@ namespace GoalSetting.Visualizers
 
             //Prepare lines
             html += "var limit = " + _rule.Rule.TargetValue + ";";
-            html += "var valueLine1 = d3.svg.line().interpolate('step-after').x(function(d) {return x(d.start); }).y(function(d) { return y0(d.switch); });";
+            html += "var valueLine1 = d3.svg.line().interpolate('step-after').x(function(d) {return x(d.start); }).y(function(d) { return y0(" + GoalVisHelper.getDataPointName(_rule, VisType.Day) + "); });";
             
             //Prepare chart area
             html += "var svg = d3.select('#" + VisHelper.CreateChartHtmlTitle(Title) + "').append('svg').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');";
@@ -100,7 +105,7 @@ namespace GoalSetting.Visualizers
                 html += "x.domain( [d3.min(data, function(d) { return d.start; }), d3.max(data, function(d) { return d.end; }) ] );";
                 html += "var switchValues = data.map(function(o){return o.switch;}).filter(function(val) {return val !== null});";
                 html += "var timeValues = data.map(function(o){return o.time;}).filter(function(val) {return val !== null});";
-                html += "y0.domain([d3.min(switchValues) * 0.95, d3.max(data, function(d) {return Math.max(d.switch);}) * 1.01]);";
+                html += "y0.domain([d3.min(switchValues) * 0.95, d3.max(data, function(d) {return Math.max(" + GoalVisHelper.getDataPointName(_rule, VisType.Day) + ");}) * 1.01]);";
             }
             else
             {
@@ -109,53 +114,53 @@ namespace GoalSetting.Visualizers
             }
 
             //Draw lines and axes
-            html += "svg.append('path').style('stroke', '" + Shared.Settings.RetrospectionColorHex + "').attr('d', valueLine1(data.filter(function(d) {return d.switch <= limit;}))).attr('fill', 'none').attr('stroke-width', '3');";
-            html += "svg.append('path').style('stroke', 'red').attr('d', valueLine1(data.filter(function(d) {return d.switch >= limit;}))).attr('fill', 'none').attr('stroke-width', '3');";
+            html += "svg.append('path').style('stroke', '" + Shared.Settings.RetrospectionColorHex + "').attr('d', valueLine1(data.filter(function(d) {return " + GoalVisHelper.getDataPointName(_rule, VisType.Day) + " <= limit;}))).attr('fill', 'none').attr('stroke-width', '3');";
+            html += "svg.append('path').style('stroke', 'red').attr('d', valueLine1(data.filter(function(d) {return " + GoalVisHelper.getDataPointName(_rule, VisType.Day) + " >= limit;}))).attr('fill', 'none').attr('stroke-width', '3');";
             html += "xAxisYPosition = height;";
             html += "svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + xAxisYPosition + ')').call(xAxis);";
             html += "svg.append('g').attr('class', 'y axis').style('fill', 'black').call(yAxisLeft);";
             
             //Draw legend
-            html += "svg.append('text').attr('x', 0).attr('y', -10).style('text-anchor', 'middle').text('# Switches');";
+            html += "svg.append('text').attr('x', 0).attr('y', -10).style('text-anchor', 'middle').style('font-size', '0.5em').text('" + GoalVisHelper.getXAxisTitle(_rule, VisType.Day) + "');";
 
             //Draw hatched rectangles
-            html += @"svg.append('g')
-                    .attr('id', 'bars')
-                    .selectAll('rect')
-                    .data(data.filter(function(d){return d.switch <= limit;}))
-                    .enter()
-                    .append('rect')
-                    .attr({'x':function(d) {return x(d.start);},'y':function(d){ return y0(d.switch); } })
-					.style('fill', 'url(#success-pattern)')
-                    .attr('height', function(d) {return xAxisYPosition - y0(d.switch);})
-					.attr('width', function(d){ return x(d.end) - x(d.start); });";
+            html += "svg.append('g')";
+            html += ".attr('id', 'bars')";
+            html += ".selectAll('rect')";
+            html += ".data(data.filter(function(d){return " + GoalVisHelper.getDataPointName(_rule, VisType.Day) + " <= limit;}))";
+            html += ".enter()";
+            html += ".append('rect')";
+            html += ".attr({'x':function(d) {return x(d.start);},'y':function(d){ return y0(" + GoalVisHelper.getDataPointName(_rule, VisType.Day) + "); } })";
+            html += ".style('fill', 'url(#success-pattern)')";
+            html += ".attr('height', function(d) {return xAxisYPosition - y0(" + GoalVisHelper.getDataPointName(_rule, VisType.Day) + ");})";
+            html += ".attr('width', function(d){ return x(d.end) - x(d.start); });";
 
-            html += @"svg.append('g')
-                    .attr('id', 'bars')
-                    .selectAll('rect')
-                    .data(data.filter(function(d){return d.switch > limit;}))
-                    .enter()
-                    .append('rect')
-                    .attr({'x':function(d) {return x(d.start);},'y':function(d){ return y0(d.switch); } })
-					.style('fill', 'url(#error-pattern)')
-                    .attr('height', function(d) {return xAxisYPosition - y0(d.switch);})
-					.attr('width', function(d){ return x(d.end) - x(d.start); });";
+            html += "svg.append('g')";
+            html += ".attr('id', 'bars')";
+            html += ".selectAll('rect')";
+            html += ".data(data.filter(function(d){return " + GoalVisHelper.getDataPointName(_rule, VisType.Day) + " > limit;}))";
+            html += ".enter()";
+            html += ".append('rect')";
+            html += ".attr({'x':function(d) {return x(d.start);},'y':function(d){ return y0(" + GoalVisHelper.getDataPointName(_rule, VisType.Day) + "); } })";
+            html += ".style('fill', 'url(#error-pattern)')";
+            html += ".attr('height', function(d) {return xAxisYPosition - y0(" + GoalVisHelper.getDataPointName(_rule, VisType.Day) + ");})";
+            html += ".attr('width', function(d){ return x(d.end) - x(d.start); });";
 
             //Draw circle
-            html += @"svg.selectAll('circle')
-                    .data(data.filter(function(d) {return d.switch == limit; }))
-                    .enter().append('svg:circle')
-                    .attr('cx', function(d) { return x(d.start) })
-                    .attr('cy', function(d) { return y0(d.switch) })
-                    .attr('stroke-width', 'none')
-                    .attr('fill', 'orange')
-                    .attr('r', 5);";
+            html += "svg.selectAll('circle')";
+            html += ".data(data.filter(function(d) {return " + GoalVisHelper.getDataPointName(_rule, VisType.Day) + " == limit; }))";
+            html += ".enter().append('svg:circle')";
+            html += ".attr('cx', function(d) { return x(d.start) })";
+            html += ".attr('cy', function(d) { return y0(" + GoalVisHelper.getDataPointName(_rule, VisType.Day) + ") })";
+            html += ".attr('stroke-width', 'none')";
+            html += ".attr('fill', 'orange')";
+            html += ".attr('r', 5);";
 
             html += "</script>";
 
             return html;
         }
-
+        
         private List<TimelineDataPoint> GenerateData(List<ActivityContext> activities, ContextCategory targetActivity)
         {
             TimeSpan sumTime = TimeSpan.FromTicks(0);

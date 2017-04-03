@@ -19,12 +19,28 @@ namespace GoalSetting.Views
     public partial class EmailInbox : UserControl
     {
         private AddRule _parent;
-        
-        public EmailInbox(AddRule parent)
+        private bool _isRuleEditing = false;
+        private PARule _oldRule;
+
+        public EmailInbox(AddRule parent) : this()
+        {
+            this._parent = parent;
+        }
+
+        public EmailInbox(PARule rule) : this()
+        {
+            this._oldRule = rule;
+            this._isRuleEditing = true;
+            Title.Text = rule.Title;
+            Checkpoint.SelectedItem = FormatStringHelper.GetDescription(rule.TimePoint);
+            EnterTime.Text = rule.Time;
+            Operator.SelectedItem = FormatStringHelper.GetDescription(rule.Rule.Operator);
+            slValue.Value = double.Parse(rule.Rule.TargetValue);
+        }
+
+        private EmailInbox()
         {
             InitializeComponent();
-            this._parent = parent;
-
             Operator.ItemsSource = FormatStringHelper.GetDescriptions(typeof(Operator));
             Checkpoint.ItemsSource = FormatStringHelper.GetDescriptions(typeof(RuleTimePoint));
         }
@@ -68,10 +84,18 @@ namespace GoalSetting.Views
             }
 
             PARule newRule = new PARule { Title = title, Rule = rule, Activity = activity, TimePoint = timepoint, Time = time, TimeSpan = null, IsVisualizationEnabled = true };
-            GoalSettingManager.Instance.AddRule(newRule);
-
             this.Visibility = Visibility.Collapsed;
-            _parent.Close();
+
+            if (!_isRuleEditing)
+            {
+                GoalSettingManager.Instance.AddRule(newRule);
+                _parent.Close();
+            }
+            else
+            {
+                GoalSettingManager.Instance.EditRule(_oldRule, newRule);
+                (this.Parent as Window).Close();
+            }
         }
 
         private void ValuesUpdated()

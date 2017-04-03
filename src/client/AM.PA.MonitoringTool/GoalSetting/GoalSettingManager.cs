@@ -176,6 +176,12 @@ namespace GoalSetting
             return result;
         }
 
+        internal void EditRule(PARule oldRule, PARule newRule)
+        {
+            DeleteRule(oldRule);
+            AddRule(newRule);
+        }
+
         public delegate void OnOpenRetrospectionFromGoalSetting(VisType type);
         public event OnOpenRetrospectionFromGoalSetting OpenRetrospectionEvent;
 

@@ -19,17 +19,33 @@ namespace GoalSetting.Views
     {
 
         private AddRule _parent;
+        private bool _isRuleEditing = false;
+        private PARule _oldRule;
 
-        public WorkFragmentation(GoalDomain goalDomain, AddRule parent)
-        {
+        private WorkFragmentation() {
             InitializeComponent();
-
-            _parent = parent;
 
             Operator.ItemsSource = FormatStringHelper.GetDescriptions(typeof(Operator));
             Timespan.ItemsSource = FormatStringHelper.GetDescriptions(typeof(RuleTimeSpan));
             Activity.ItemsSource = FormatStringHelper.GetDescriptions(typeof(ContextCategory));
+        }
 
+        public WorkFragmentation(PARule rule) : this()
+        {
+            this._isRuleEditing = true;
+            this._oldRule = rule;
+
+            Title.Text = rule.Title;
+            Operator.SelectedItem = FormatStringHelper.GetDescription(rule.Rule.Operator);
+            slValue.Value = double.Parse(rule.Rule.TargetValue);
+            Timespan.SelectedItem = FormatStringHelper.GetDescription(rule.TimeSpan);
+            Activity.SelectedItem = FormatStringHelper.GetDescription(rule.Activity);
+        }
+
+        public WorkFragmentation(GoalDomain goalDomain, AddRule parent) : this()
+        {
+            this._parent = parent;
+            
             switch (goalDomain)
             {
                 case GoalDomain.Browsing:
@@ -57,9 +73,18 @@ namespace GoalSetting.Views
             RuleTimeSpan timespan = FormatStringHelper.GetValueFromDescription<RuleTimeSpan>(Timespan.SelectedItem.ToString());
 
             PARule newRule = new PARule { Title = title, Rule = rule, Activity = activity, TimeSpan = timespan, TimePoint = null, IsVisualizationEnabled = true };
-            GoalSettingManager.Instance.AddRule(newRule);
             this.Visibility = Visibility.Collapsed;
-            _parent.Close();
+
+            if (!_isRuleEditing)
+            {
+                GoalSettingManager.Instance.AddRule(newRule);
+                _parent.Close();
+            }
+            else
+            {
+                GoalSettingManager.Instance.EditRule(_oldRule, newRule);
+                (this.Parent as Window).Close();
+            }
         }
 
         private void Values_Changed(object sender, SelectionChangedEventArgs e)

@@ -68,6 +68,7 @@
     <Compile Include="Views\AddRule.xaml.cs">
       <DependentUpon>AddRule.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\DockPanelWithLastVisibleChildFill.cs" />
     <Compile Include="Views\EmailInbox.xaml.cs">
       <DependentUpon>EmailInbox.xaml</DependentUpon>
     </Compile>
@@ -85,6 +86,7 @@
       <DependentUpon>WorkFragmentation.xaml</DependentUpon>
     </Compile>
     <Compile Include="Visualizers\DayVisualization.cs" />
+    <Compile Include="Visualizers\GoalVisHelper.cs" />
     <Compile Include="Visualizers\GoalVisualizer.cs" />
     <Compile Include="Visualizers\WeekVisualization.cs" />
   </ItemGroup>

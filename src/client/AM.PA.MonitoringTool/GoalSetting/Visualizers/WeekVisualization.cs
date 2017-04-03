@@ -17,18 +17,33 @@ namespace GoalSetting.Visualizers
 
         public WeekVisualization(DateTimeOffset date, PARule rule)
         {
-            Title = "Goal: " + rule.Title;
+            Title = rule.ToString();
             this._rule = rule;
             this._date = date;
             IsEnabled = true;
-            Size = VisSize.Square;
+            Size = VisSize.Wide;
             Order = 0;
         }
 
         public override string GetHtml()
         {
             var html = string.Empty;
-            html += VisHelper.NotEnoughData();
+
+            // CSS
+            html += "<style type='text/css'>";
+            html += ".c3-line { stroke-width: 2px; }";
+            html += ".c3-grid text, c3.grid line { fill: black; }";
+            html += ".axis path, .axis line {fill: none; stroke: black; stroke-width: 1; shape-rendering: crispEdges;}";
+            html += "</style>";
+
+            //HTML
+            html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "' style='align: center'></div>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>" + GoalVisHelper.getHintText(_rule, VisType.Week) + "</p>";
+
+            //JS
+            html += "<script>";
+            html += "</script>";
+
             return html;
         }
     }

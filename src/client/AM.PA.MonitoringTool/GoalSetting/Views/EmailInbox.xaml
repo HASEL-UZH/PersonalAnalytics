@@ -9,17 +9,17 @@
     <StackPanel>
         <DockPanel LastChildFill="True" Margin="10">
             <TextBlock FontSize="18">Title:</TextBlock>
-            <TextBox Name="Title" Margin="10 0 0 0" MinWidth="200" TextChanged="Title_TextChanged"></TextBox>
+            <TextBox FontSize="18" Name="Title" Margin="10 0 0 0" MinWidth="200" TextChanged="Title_TextChanged"></TextBox>
         </DockPanel>
-        <DockPanel Margin="10">
-            <ComboBox Name="Checkpoint" SelectionChanged="Values_Changed"></ComboBox>
-            <TextBox Name="EnterTime" Visibility="Collapsed">00:00</TextBox>
-            <TextBlock Name="TimeHint" Visibility="Collapsed">24h format</TextBlock>
-        </DockPanel>
+        <local:DockPanelWithLastVisibleChildFill Margin="10">
+            <ComboBox Name="Checkpoint" MinWidth="250" FontSize="18" SelectionChanged="Values_Changed"></ComboBox>
+            <TextBox Name="EnterTime" FontSize="18" TextAlignment="Center" MinWidth="250" Margin="10 0 0 0" Visibility="Collapsed">00:00</TextBox>
+            <TextBlock Name="TimeHint" FontSize="18" MinWidth="250" Margin="10 0 0 0" Visibility="Collapsed">24h format</TextBlock>
+        </local:DockPanelWithLastVisibleChildFill>
         <TextBlock Margin="10" FontSize="18">the numbers of emails in my inbox should be</TextBlock>
-        <ComboBox Margin="10" SelectionChanged="Values_Changed"  Name="Operator"></ComboBox>
+        <ComboBox Margin="10" FontSize="18" SelectionChanged="Values_Changed"  Name="Operator"></ComboBox>
         <Slider Margin="10" Name="slValue" IsSnapToTickEnabled="True" TickFrequency="1" Minimum="0" Maximum="100"></Slider>
-        <TextBox Text="{Binding ElementName=slValue, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Bottom" TextAlignment="Center" Width="40" />
+        <TextBox Text="{Binding ElementName=slValue, Path=Value, UpdateSourceTrigger=PropertyChanged}" DockPanel.Dock="Bottom" FontSize="18" TextAlignment="Center" Width="40" />
         <DockPanel Height="auto" Width="auto" LastChildFill="True" Margin="10 20 10 0">
             <Button Width="auto" DockPanel.Dock="Top" Name="Add" Click="Add_Click" IsEnabled="False" FontSize="18" Margin="10, 0, 10, 20">Add Rule</Button>
         </DockPanel>

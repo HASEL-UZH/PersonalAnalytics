@@ -20,17 +20,51 @@ namespace GoalSetting.Views
     public partial class TimeSpent : UserControl
     {
         private AddRule _parent;
-        
-        public TimeSpent(GoalDomain goalDomain, AddRule parent)
+        private PARule _oldRule;
+        private bool _isRuleEditing = false;
+
+        private TimeSpent()
         {
             InitializeComponent();
-            
-            this._parent = parent;
 
             Operator.ItemsSource = FormatStringHelper.GetDescriptions(typeof(Operator));
             Timespan.ItemsSource = FormatStringHelper.GetDescriptions(typeof(RuleTimeSpan));
             Activity.ItemsSource = FormatStringHelper.GetDescriptions(typeof(ContextCategory));
-            TimeUnit.ItemsSource = FormatStringHelper.GetDescriptions(typeof(TimeUnit));
+            TimeUnitComboBox.ItemsSource = FormatStringHelper.GetDescriptions(typeof(TimeUnit));
+        }
+
+        public TimeSpent(PARule rule) : this()
+        {
+            this._oldRule = rule;
+            this._isRuleEditing = true;
+
+            Title.Text = rule.Title;
+            Operator.SelectedItem = FormatStringHelper.GetDescription(rule.Rule.Operator);
+            TimeSpan timespan = TimeSpan.FromMilliseconds(double.Parse(rule.Rule.TargetValue));
+            
+            if (timespan.TotalDays > 1)
+            {
+                slValue.Value = timespan.TotalDays;
+                TimeUnitComboBox.SelectedItem = FormatStringHelper.GetDescription(TimeUnit.Days);
+            }
+            else if (timespan.TotalHours > 1)
+            {
+                slValue.Value = timespan.TotalHours;
+                TimeUnitComboBox.SelectedItem = FormatStringHelper.GetDescription(TimeUnit.Hours);
+            }
+            else
+            {
+                slValue.Value = timespan.TotalMinutes;
+                TimeUnitComboBox.SelectedItem = FormatStringHelper.GetDescription(TimeUnit.Minutes);
+            }
+            
+            Activity.SelectedItem = FormatStringHelper.GetDescription(rule.Activity);
+            Timespan.SelectedItem = FormatStringHelper.GetDescription(rule.TimeSpan);
+        }
+
+        public TimeSpent(GoalDomain goalDomain, AddRule parent) : this()
+        {
+            this._parent = parent;
 
             switch (goalDomain)
             {
@@ -56,7 +90,7 @@ namespace GoalSetting.Views
 
             double targetValue = slValue.Value;
 
-            TimeUnit selectedTimeUnit = FormatStringHelper.GetValueFromDescription<TimeUnit>(TimeUnit.SelectedItem.ToString());
+            TimeUnit selectedTimeUnit = FormatStringHelper.GetValueFromDescription<TimeUnit>(TimeUnitComboBox.SelectedItem.ToString());
             switch (selectedTimeUnit)
             {
                 case Views.TimeUnit.Minutes:
@@ -69,16 +103,24 @@ namespace GoalSetting.Views
                     targetValue = TimeSpan.FromDays(targetValue).TotalMilliseconds;
                     break;
             }
-
-
+            
             Rule rule = new Rule { Goal = Goal.TimeSpentOn, Operator = op, TargetValue = targetValue.ToString() };
             ContextCategory activity = FormatStringHelper.GetValueFromDescription<ContextCategory>(Activity.SelectedItem.ToString());
             RuleTimeSpan timespan = FormatStringHelper.GetValueFromDescription<RuleTimeSpan>(Timespan.SelectedItem.ToString());
 
             PARule newRule = new PARule { Title = title, Rule = rule, Activity = activity, TimeSpan = timespan, TimePoint = null, IsVisualizationEnabled = true };
-            GoalSettingManager.Instance.AddRule(newRule);
             this.Visibility = Visibility.Collapsed;
-            _parent.Close();
+
+            if (!_isRuleEditing)
+            {
+                GoalSettingManager.Instance.AddRule(newRule);
+                _parent.Close();
+            }
+            else
+            {
+                GoalSettingManager.Instance.EditRule(_oldRule, newRule);
+                (this.Parent as Window).Close();
+            }
         }
 
         private void Values_Changed(object sender, SelectionChangedEventArgs e)
@@ -93,7 +135,7 @@ namespace GoalSetting.Views
 
         private void ValuesUpdated()
         {
-            if (Operator.SelectedIndex != -1 && Timespan.SelectedIndex != -1 && Activity.SelectedIndex != -1 && TimeUnit.SelectedIndex != -1 && !string.IsNullOrEmpty(Title.Text))
+            if (Operator.SelectedIndex != -1 && Timespan.SelectedIndex != -1 && Activity.SelectedIndex != -1 && TimeUnitComboBox.SelectedIndex != -1 && !string.IsNullOrEmpty(Title.Text))
             {
                 Add.IsEnabled = true;
             }

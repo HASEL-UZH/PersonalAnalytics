@@ -65,13 +65,16 @@
                 <Button Margin="5" Name="AddRule" Grid.Row="0" Grid.Column="2" Click="AddRule_Click">Add rule</Button>
                 <Button Margin="5" Name="EditRule" Grid.Row="1" Grid.Column="0" Click="EditRule_Click" IsEnabled="False">Edit selected rule</Button>
                 <Button Margin="5" Name="DeleteRule" Grid.Row="1" Grid.Column="1" Click="DeleteRule_Click" IsEnabled="False">Delete selected rule</Button>
+                <Button Margin="5" Name="OpenRetrospection" Grid.Row="1" Grid.Column="2" Click="OpenRetrospection_Click" IsEnabled="True">Open retrospection</Button>
             </Grid>
         </StackPanel>
 
         <StackPanel Grid.Row="2">
             <TextBlock FontSize="18" Margin="20, 40, 20, 0">Overview about your achievements</TextBlock>
+            <TextBlock Margin="20 10 0 20" Name="NoRulesText" Foreground="{x:Static paColors:Settings.DarkGrayColorBrush}" FontSize="18">At the moment you haven't defined any goals. Add new goals to earn achievements.</TextBlock>
+            
             <Border Margin="20, 0, 20, 0" Grid.Row="1" Background="White" BorderBrush="{x:Static paColors:Settings.GrayColorBrush}">
-                <StackPanel Name="RulesOverview" Margin="10 20 10 10" VerticalAlignment="Top">
+                <StackPanel Name="RulesOverview" Visibility="Collapsed" Margin="10 20 10 10" VerticalAlignment="Top">
                 </StackPanel>
             </Border>
         </StackPanel>

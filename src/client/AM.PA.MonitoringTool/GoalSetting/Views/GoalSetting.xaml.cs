@@ -12,6 +12,8 @@ using System.ComponentModel;
 using System.Windows.Media;
 using Shared.Helpers;
 using System.Windows.Documents;
+using GoalSetting.Views;
+using GoalSetting.Model;
 
 namespace GoalSetting
 {
@@ -50,6 +52,19 @@ namespace GoalSetting
 
         private void LoadRuleStatus()
         {
+            RulesOverview.Children.Clear();
+
+            if (_rules.Count > 0)
+            {
+                NoRulesText.Visibility = Visibility.Collapsed;
+                RulesOverview.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                NoRulesText.Visibility = Visibility.Visible;
+                RulesOverview.Visibility = Visibility.Collapsed;
+            }
+
             foreach (PARule rule in _rules)
             {
                 rule.CalculateProgressStatus();
@@ -107,6 +122,7 @@ namespace GoalSetting
         private void _rules_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             CheckRules.IsEnabled = _rules.Count > 0;
+            LoadRuleStatus();
         }
 
         private void CheckRules_Click(object sender, RoutedEventArgs e)
@@ -140,7 +156,39 @@ namespace GoalSetting
 
         private void EditRule_Click(object sender, RoutedEventArgs e)
         {
-            //TODO
+            PARule rule = (PARule)Rules.SelectedItem;
+            UserControl controlToDisplay = null;
+
+            switch (rule.Rule.Goal)
+            {
+                case Goal.NumberOfEmailsInInbox:
+                    controlToDisplay = new EmailInbox(rule);
+                    break;
+
+                case Goal.TimeSpentOn:
+                    controlToDisplay = new TimeSpent(rule);
+                    break;
+
+                case Goal.NumberOfSwitchesTo:
+                    controlToDisplay = new WorkFragmentation(rule);
+                    break;
+            }
+
+            if (controlToDisplay != null)
+            {
+                Window window = new Window
+                {
+                    Content = controlToDisplay,
+                    Title = "Edit: " + rule.ToString(),
+                    SizeToContent = SizeToContent.WidthAndHeight
+                };
+                window.ShowDialog();
+            }
+        }
+
+        private void OpenRetrospection_Click(object sender, RoutedEventArgs e)
+        {
+            GoalSettingManager.Instance.OpenRetrospection(Shared.VisType.Day);
         }
     }
 
