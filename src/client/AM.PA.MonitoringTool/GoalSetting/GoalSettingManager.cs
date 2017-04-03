@@ -17,6 +17,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
 using Shared.Events;
+using System.Diagnostics;
 
 namespace GoalSetting
 {
@@ -197,50 +198,64 @@ namespace GoalSetting
 
         Dictionary<RuleTimeSpan, List<Activity>> activitiesMap = new Dictionary<RuleTimeSpan, List<Activity>>();
 
-        public void CheckRules(ObservableCollection<PARule> rules)
+        public void CheckRules(ObservableCollection<PARule> rules, bool showPopup)
         {
-            
+
             foreach (PARule rule in rules)
             {
-                //We can only do that for rules that have a timespan
-                if (rule.TimeSpan.HasValue)
+                //time spent on or switches to activities
+                if (rule.Rule.Goal == Goal.NumberOfSwitchesTo || rule.Rule.Goal == Goal.TimeSpentOn)
                 {
-                    //if we do not yet have the activities, we have to get them!
-                    if (!activitiesMap.ContainsKey(rule.TimeSpan.Value))
-                    {
-                        activitiesMap.Add(rule.TimeSpan.Value, GetActivity(rule.TimeSpan.Value));
-                    }
 
-                    List<Activity> activities = null;
-                    activitiesMap.TryGetValue(rule.TimeSpan.Value, out activities);
-
-                    if (activities != null)
+                    //We can only do that for rules that have a timespan
+                    if (rule.TimeSpan.HasValue)
                     {
-                        foreach (Activity activity in activities)
+                        //if we do not yet have the activities, we have to get them!
+                        if (!activitiesMap.ContainsKey(rule.TimeSpan.Value))
                         {
-                            if (activity.Category.Equals(rule.Activity.ToString()))
-                            {
-                                Logger.WriteToConsole("" + activity);
-                                Logger.WriteToConsole("" + rule);
-                                rule.Compile();
+                            activitiesMap.Add(rule.TimeSpan.Value, GetActivity(rule.TimeSpan.Value));
+                        }
 
-                                //Store results in PARule
-                                rule.Progress.Success = rule.CompiledRule(activity);
-                                rule.Progress.Time = activity.GetTimeSpentInHours();
-                                rule.Progress.Switches = activity.NumberOfSwitchesTo;
-                                rule.CalculateProgressStatus();
+                        List<Activity> activities = null;
+                        activitiesMap.TryGetValue(rule.TimeSpan.Value, out activities);
+
+                        if (activities != null)
+                        {
+                            foreach (Activity activity in activities)
+                            {
+                                if (activity.Category.Equals(rule.Activity.ToString()))
+                                {
+                                    Logger.WriteToConsole("" + activity);
+                                    Logger.WriteToConsole("" + rule);
+                                    rule.Compile();
+
+                                    //Store results in PARule
+                                    rule.Progress.Success = rule.CompiledRule(activity);
+                                    rule.Progress.Time = activity.GetTimeSpentInHours();
+                                    rule.Progress.Switches = activity.NumberOfSwitchesTo;
+                                    rule.CalculateProgressStatus();
+                                }
                             }
                         }
                     }
                 }
+                //Emails
+                else if (rule.Rule.Goal == Goal.NumberOfEmailsInInbox)
+                {
+                    var inbox = DatabaseConnector.GetLatestEmailInboxCount();
+                    Trace.WriteLine("Inbox: " + inbox);
+                }
             }
 
-            Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            if (showPopup)
             {
-                var popup = new RulePopUp(rules);
-                popup.ShowDialog();
+
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+                {
+                    var popup = new RulePopUp(rules);
+                    popup.ShowDialog();
+                }));
             }
-            ));
 
         }
 

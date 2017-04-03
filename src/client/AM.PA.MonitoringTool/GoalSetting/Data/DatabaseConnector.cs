@@ -203,7 +203,34 @@ namespace GoalSetting
             return GetActivities(query);
         }
 
-        #endregion
+        internal static int GetLatestEmailInboxCount()
+        {
+            var query = "Select time, inbox from emails order by time desc limit 1;";
+            var table = Database.GetInstance().ExecuteReadQuery(query);
 
+            try
+            {
+                if (table != null && table.Rows.Count > 0)
+                {
+                    return int.Parse(table.Rows[0]["inbox"].ToString());
+                }
+                else
+                {
+                    table.Dispose();
+                    return -1;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+            finally
+            {
+                table.Dispose();
+            }
+            return -1;
+        }
+
+        #endregion
     }
 }

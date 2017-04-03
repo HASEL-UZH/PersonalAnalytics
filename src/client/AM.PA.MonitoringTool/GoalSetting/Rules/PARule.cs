@@ -12,7 +12,7 @@ namespace GoalSetting.Rules
 {
     public class PARule
     {
-        
+
         public string Title { get; set; }
 
         public Rule Rule { get; set; }
@@ -70,7 +70,7 @@ namespace GoalSetting.Rules
 
         private Progress _progress = null;
 
-        public Progress Progress { get { if (_progress == null) { _progress = new Progress(); } return _progress; } set { _progress = value;  } }
+        public Progress Progress { get { if (_progress == null) { _progress = new Progress(); } return _progress; } set { _progress = value; } }
 
         public string Action { get; set; }
 
@@ -98,7 +98,7 @@ namespace GoalSetting.Rules
                     percentage = actualSwitches / targetSwitches;
                     break;
             }
-            
+
             if (Rule.Operator == Operator.GreaterThan || Rule.Operator == Operator.GreaterThanOrEqual)
             {
                 if (percentage < 0.3)
@@ -121,7 +121,7 @@ namespace GoalSetting.Rules
                 {
                     Progress.Status = ProgressStatus.VeryHigh;
                 }
-                
+
             }
             else if (Rule.Operator == Operator.LessThan || Rule.Operator == Operator.LessThanOrEqual)
             {
@@ -173,7 +173,15 @@ namespace GoalSetting.Rules
 
         internal string GetProgressMessage()
         {
-            return (string.IsNullOrEmpty(Progress.Time) ? "0" : Progress.Time) + " hours / " + Progress.Switches + " switches";
+            switch (Rule.Goal) {
+                case Goal.NumberOfSwitchesTo:
+                case Goal.TimeSpentOn:
+                   return (string.IsNullOrEmpty(Progress.Time) ? "0" : Progress.Time) + " hours / " + Progress.Switches + " switches";
+                case Goal.NumberOfEmailsInInbox:
+                    return "not yet supported";
+                default:
+                    throw new ArgumentException(Rule.Goal + " is not supported!");
+            }
         }
     }
     

@@ -74,10 +74,28 @@ namespace GoalSettingTests.Visualization
                 //Add activity data
                 List<Tuple<string, string, DateTime>> activites = new List<Tuple<string, string, DateTime>>();
                 DateTime today = DateTime.Now;
-                activites.Add(Tuple.Create("Test Window", "devenv", new DateTime(today.Year, today.Month, today.Day, 9, 0, 0)));
-                activites.Add(Tuple.Create("Test Window", "chrome", new DateTime(today.Year, today.Month, today.Day, 10, 0, 0)));
-                activites.Add(Tuple.Create("Test Window", "devenv", new DateTime(today.Year, today.Month, today.Day, 11, 0, 0)));
-                activites.Add(Tuple.Create("Test Window", "devenv", new DateTime(today.Year, today.Month, today.Day, 11, 30, 0)));
+                
+                //10 minutes on Dev
+                activites.Add(Tuple.Create("Microsoft Visual Studio", "devenv", new DateTime(today.Year, today.Month, today.Day, 9, 0, 0)));
+                activites.Add(Tuple.Create("Microsoft Visual Studio", "devenv", new DateTime(today.Year, today.Month, today.Day, 9, 10, 0)));
+                activites.Add(Tuple.Create("IDLE", "IDLE", new DateTime(today.Year, today.Month, today.Day, 9, 10, 1)));
+
+                //20 minutes on Dev 
+                activites.Add(Tuple.Create("Microsoft Visual Studio", "devenv", new DateTime(today.Year, today.Month, today.Day, 9, 59, 59)));
+                activites.Add(Tuple.Create("Microsoft Visual Studio", "devenv", new DateTime(today.Year, today.Month, today.Day, 10, 19, 59)));
+                activites.Add(Tuple.Create("IDLE", "IDLE", new DateTime(today.Year, today.Month, today.Day, 10, 20, 0)));
+
+                //5 minutes on work unrelated browsing
+                activites.Add(Tuple.Create("www.20min.ch - News von Jetzt", "chrome", new DateTime(today.Year, today.Month, today.Day, 10, 21, 0)));
+                activites.Add(Tuple.Create("IDLE", "IDLE", new DateTime(today.Year, today.Month, today.Day, 10, 26, 0)));
+
+                //another 5 minutes on work unrelated browsing
+                activites.Add(Tuple.Create("www.20min.ch - News von Jetzt", "chrome", new DateTime(today.Year, today.Month, today.Day, 11, 21, 0)));
+                activites.Add(Tuple.Create("IDLE", "IDLE", new DateTime(today.Year, today.Month, today.Day, 11, 26, 0)));
+
+                //30 minutes on work related browsing
+                activites.Add(Tuple.Create("stackoverflow.com", "chrome", new DateTime(today.Year, today.Month, today.Day, 12, 21, 0)));
+                activites.Add(Tuple.Create("IDLE", "IDLE", new DateTime(today.Year, today.Month, today.Day, 12, 51, 0)));
 
                 foreach (Tuple<string, string, DateTime> activity in activites)
                 {
@@ -88,6 +106,7 @@ namespace GoalSettingTests.Visualization
                 ObservableCollection<PARule> rules = new ObservableCollection<PARule>();
                 rules.Add(new PARule { Title = "Test Rule 1", IsVisualizationEnabled = true, Activity = ContextCategory.DevCode, TimeSpan = RuleTimeSpan.EveryDay, Time = "1 hour", Rule = new Rule { Operator = GoalSetting.Model.Operator.LessThan, Goal = GoalSetting.Model.Goal.TimeSpentOn, TargetValue = "" + TimeSpan.FromHours(1).TotalMilliseconds } });
                 rules.Add(new PARule { Title = "Test Rule 2", IsVisualizationEnabled = true, TimePoint = RuleTimePoint.End, Rule = new Rule { Operator = GoalSetting.Model.Operator.LessThan, Goal = GoalSetting.Model.Goal.NumberOfEmailsInInbox, TargetValue = "1" } });
+                rules.Add(new PARule { Title = "Test Rule 3", IsVisualizationEnabled = true, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.EveryDay, Rule = new Rule { Operator = GoalSetting.Model.Operator.LessThan, Goal = GoalSetting.Model.Goal.NumberOfSwitchesTo, TargetValue = "10" } });
 
                 MethodInfo saveRulesMethod = typeof(DatabaseConnector).GetMethod("SaveRules", BindingFlags.NonPublic | BindingFlags.Static);
                 if (saveRulesMethod != null)
@@ -99,13 +118,13 @@ namespace GoalSettingTests.Visualization
                 List<Tuple<DateTime, int, int, int, int, int>> emails = new List<Tuple<DateTime, int, int, int, int, int>>();
                 DateTimeOffset tonight = DateTimeHelper.GetEndOfDay(DateTime.Now);
 
-                emails.Add(Tuple.Create(tonight.Date, 0, 7, 14, 21, 28));
-                emails.Add(Tuple.Create(tonight.Date.Subtract(TimeSpan.FromDays(1)), 1, 8, 15, 22, 29));
-                emails.Add(Tuple.Create(tonight.Date.Subtract(TimeSpan.FromDays(2)), 2, 9, 16, 23, 30));
-                emails.Add(Tuple.Create(tonight.Date.Subtract(TimeSpan.FromDays(3)), 3, 10, 17, 24, 31));
-                emails.Add(Tuple.Create(tonight.Date.Subtract(TimeSpan.FromDays(4)), 4, 11, 18, 25, 32));
-                emails.Add(Tuple.Create(tonight.Date.Subtract(TimeSpan.FromDays(5)), 5, 12, 19, 26, 33));
-                emails.Add(Tuple.Create(tonight.Date.Subtract(TimeSpan.FromDays(6)), 6, 13, 20, 27, 34));
+                emails.Add(Tuple.Create(tonight.Date, 6, 7, 14, 21, 28));
+                emails.Add(Tuple.Create(tonight.Date.Subtract(TimeSpan.FromDays(1)), 5, 8, 15, 22, 29));
+                emails.Add(Tuple.Create(tonight.Date.Subtract(TimeSpan.FromDays(2)), 4, 9, 16, 23, 30));
+                emails.Add(Tuple.Create(tonight.Date.Subtract(TimeSpan.FromDays(3)), 4, 10, 17, 24, 31));
+                emails.Add(Tuple.Create(tonight.Date.Subtract(TimeSpan.FromDays(4)), 2, 11, 18, 25, 32));
+                emails.Add(Tuple.Create(tonight.Date.Subtract(TimeSpan.FromDays(5)), 1, 12, 19, 26, 33));
+                emails.Add(Tuple.Create(tonight.Date.Subtract(TimeSpan.FromDays(6)), 0, 13, 20, 27, 34));
 
                 MethodInfo saveEmails = typeof(MsOfficeTracker.Data.Queries).GetMethod("SaveEmailsSnapshot", BindingFlags.NonPublic | BindingFlags.Static);
                 if (saveEmails != null)

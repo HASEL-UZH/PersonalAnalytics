@@ -67,6 +67,7 @@ namespace GoalSetting
 
             foreach (PARule rule in _rules)
             {
+                GoalSettingManager.Instance.CheckRules(_rules, false);
                 rule.CalculateProgressStatus();
 
                 StackPanel container = new StackPanel();
@@ -127,7 +128,7 @@ namespace GoalSetting
 
         private void CheckRules_Click(object sender, RoutedEventArgs e)
         {
-            GoalSettingManager.Instance.CheckRules(_rules);
+            GoalSettingManager.Instance.CheckRules(_rules, true);
         }
 
         private void SaveRules_Click(object sender, RoutedEventArgs e)
