@@ -20,6 +20,8 @@ namespace GoalSettingTests.Visualization
     public class TestVisualization
     {
 
+        private static readonly string _testDBName = "pa-test.dat";
+
         [TestMethod()]
         public void TestRetrospectionGoalSetting()
         {
@@ -30,10 +32,11 @@ namespace GoalSettingTests.Visualization
                 var field = typeof(Database).GetField("_databaseFileName", BindingFlags.Static | BindingFlags.NonPublic);
                 if (field != null)
                 {
-                    field.SetValue(null, "pa-test.dat");
-                    switchedToTestDB = field.GetValue(null).Equals("pa-test.dat");
+                    field.SetValue(null, _testDBName);
+                    switchedToTestDB = field.GetValue(null).Equals(_testDBName);
                 }
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 switchedToTestDB = false;
             }
@@ -41,7 +44,6 @@ namespace GoalSettingTests.Visualization
             //Execute the rest of the test case only if we have sucessfully switched to the test DB!
             if (switchedToTestDB)
             {
-
                 //Connect to database
                 Database.GetInstance().Connect();
 
