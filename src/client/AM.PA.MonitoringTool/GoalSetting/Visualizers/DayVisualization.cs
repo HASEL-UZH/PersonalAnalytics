@@ -80,7 +80,7 @@ namespace GoalSetting.Visualizers
             html += "var yAxisLeft = d3.svg.axis().scale(y0).orient('left').ticks(5);";
 
             //Prepare lines
-            html += "var limit = " + _rule.Rule.TargetValue + ";";
+            html += "var limit = " + GoalVisHelper.getLimitValue(_rule, VisType.Day) + ";";
             html += "var valueLine1 = d3.svg.line().interpolate('step-after').x(function(d) {return x(d.start); }).y(function(d) { return y0(" + GoalVisHelper.getDataPointName(_rule, VisType.Day) + "); });";
             
             //Prepare chart area
@@ -103,7 +103,7 @@ namespace GoalSetting.Visualizers
             if (dataPoints.Count > 0)
             {
                 html += "x.domain( [d3.min(data, function(d) { return d.start; }), d3.max(data, function(d) { return d.end; }) ] );";
-                html += "var switchValues = data.map(function(o){return o.switch;}).filter(function(val) {return val !== null});";
+                html += "var switchValues = data.map(function(d){return " + GoalVisHelper.getDataPointName(_rule, VisType.Day) + ";}).filter(function(val) {return val !== null});";
                 html += "var timeValues = data.map(function(o){return o.time;}).filter(function(val) {return val !== null});";
                 html += "y0.domain([d3.min(switchValues) * 0.95, d3.max(data, function(d) {return Math.max(" + GoalVisHelper.getDataPointName(_rule, VisType.Day) + ");}) * 1.01]);";
             }
@@ -114,7 +114,7 @@ namespace GoalSetting.Visualizers
             }
 
             //Draw lines and axes
-            html += "svg.append('path').style('stroke', '" + Shared.Settings.RetrospectionColorHex + "').attr('d', valueLine1(data.filter(function(d) {return " + GoalVisHelper.getDataPointName(_rule, VisType.Day) + " <= limit;}))).attr('fill', 'none').attr('stroke-width', '3');";
+            html += "svg.append('path').style('stroke', '" + Shared.Settings.RetrospectionColorHex + "').attr('d', valueLine1(data)).attr('fill', 'none').attr('stroke-width', '3');";
             html += "svg.append('path').style('stroke', 'red').attr('d', valueLine1(data.filter(function(d) {return " + GoalVisHelper.getDataPointName(_rule, VisType.Day) + " >= limit;}))).attr('fill', 'none').attr('stroke-width', '3');";
             html += "xAxisYPosition = height;";
             html += "svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + xAxisYPosition + ')').call(xAxis);";
@@ -220,7 +220,7 @@ namespace GoalSetting.Visualizers
 
             public override string ToString()
             {
-                return "{'start':'" + Start.ToString("HH:mm") + "', 'end': '" + End.ToString("HH:mm") + "', 'time': " + SumTime.Minutes + ", 'switch': " + SumSwitches + "}";
+                return "{'start':'" + Start.ToString("HH:mm") + "', 'end': '" + End.ToString("HH:mm") + "', 'time': " + SumTime.TotalMinutes + ", 'switch': " + SumSwitches + "}";
             }
         }
     }

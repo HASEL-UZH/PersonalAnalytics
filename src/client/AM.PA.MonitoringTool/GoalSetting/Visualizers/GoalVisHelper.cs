@@ -52,5 +52,16 @@ namespace GoalSetting.Visualizers
             }
         }
 
+        internal static string getLimitValue(PARuleActivity rule, VisType day)
+        {
+            if (rule.Rule.Goal == Goal.NumberOfSwitchesTo)
+            {
+                return rule.Rule.TargetValue;
+            }
+            else
+            {
+                return TimeSpan.FromMilliseconds(double.Parse(rule.Rule.TargetValue)).TotalMinutes.ToString();
+            }
+        }
     }
 }
