@@ -110,6 +110,18 @@ namespace GoalSettingTests.Visualization
                 activites.Add(Tuple.Create("stackoverflow.com", "chrome", new DateTime(today.Year, today.Month, today.Day, 7, 31, 1)));
                 activites.Add(Tuple.Create("stackoverflow.com", "chrome", new DateTime(today.Year, today.Month, today.Day, 7, 42, 1)));
 
+                //another 5 minutes on work unrelated browsing
+                activites.Add(Tuple.Create("www.20min.ch - News von Jetzt", "chrome", new DateTime(today.Year, today.Month, today.Day, 8, 21, 0)));
+                activites.Add(Tuple.Create("IDLE", "IDLE", new DateTime(today.Year, today.Month, today.Day, 8, 26, 0)));
+
+                //another 2 minutes on work unrelated browsing
+                activites.Add(Tuple.Create("www.20min.ch - News von Jetzt", "chrome", new DateTime(today.Year, today.Month, today.Day, 8, 27, 0)));
+                activites.Add(Tuple.Create("IDLE", "IDLE", new DateTime(today.Year, today.Month, today.Day, 8, 29, 0)));
+
+                //another 5 minutes on work unrelated browsing
+                activites.Add(Tuple.Create("www.20min.ch - News von Jetzt", "chrome", new DateTime(today.Year, today.Month, today.Day, 8, 31, 0)));
+                activites.Add(Tuple.Create("IDLE", "IDLE", new DateTime(today.Year, today.Month, today.Day, 8, 36, 0)));
+
                 foreach (Tuple<string, string, DateTime> activity in activites)
                 {
                     Database.GetInstance().ExecuteDefaultQuery("INSERT INTO windows_activity (time, window, process) VALUES (strftime('%Y-%m-%d %H:%M:%f', '" + activity.Item3.ToString("yyyy-MM-dd HH:mm:ss.FFF") + "', 'localtime'), " + Database.GetInstance().Q(activity.Item1) + ", " + Database.GetInstance().Q(activity.Item2) + ")");
