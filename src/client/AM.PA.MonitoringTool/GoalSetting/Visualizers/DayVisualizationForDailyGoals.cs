@@ -51,7 +51,7 @@ namespace GoalSetting.Visualizers
 
             //Prepare data
             html += "var parseTime = d3.time.format('%H:%M').parse;";
-            var dataPoints = GenerateData(activities, targetActivity);
+            var dataPoints = GenerateData(activities, targetActivity, startOfWork);
             html += GenerateJSData(dataPoints);
             html += "data.forEach(function(d) {d.start = parseTime(d.start); d.end = parseTime(d.end);});";
             
@@ -86,10 +86,10 @@ namespace GoalSetting.Visualizers
             //Prepare domain of axes
             if (dataPoints.Count > 0)
             {
-                html += "x.domain( [d3.min(data, function(d) { return d.start; }), d3.max(data, function(d) { return d.end; }) ] );";
+                html += "x.domain( [d3.min(data, function(d) { return d.start; }) , d3.max(data, function(d) { return d.end; }) ] );";
                 html += "var switchValues = data.map(function(d){return " + GoalVisHelper.getDataPointName(_rule, VisType.Day) + ";}).filter(function(val) {return val !== null});";
                 html += "var timeValues = data.map(function(o){return o.time;}).filter(function(val) {return val !== null});";
-                html += "y0.domain([d3.min(switchValues) * 0.95, d3.max(data, function(d) {return Math.max(" + GoalVisHelper.getDataPointName(_rule, VisType.Day) + ");}) * 1.01]);";
+                html += "y0.domain([0, d3.max(data, function(d) {return Math.max(" + GoalVisHelper.getDataPointName(_rule, VisType.Day) + ");}) * 1.01]);";
             }
             else
             {
@@ -145,7 +145,7 @@ namespace GoalSetting.Visualizers
             return html;
         }
         
-        private List<TimelineDataPoint> GenerateData(List<ActivityContext> activities, ContextCategory targetActivity)
+        private List<TimelineDataPoint> GenerateData(List<ActivityContext> activities, ContextCategory targetActivity, DateTime start)
         {
             TimeSpan sumTime = TimeSpan.FromTicks(0);
             int sumSwitches = 0;
@@ -180,6 +180,7 @@ namespace GoalSetting.Visualizers
             //if we have actual data points, add 1 more datapoint at the end of the list with the current data to ensure that the line is drawn until now.
             if (dataPoints.Count > 0)
             {
+                dataPoints.Insert(0, new TimelineDataPoint { Start = start, End = start, SumSwitches = 0, SumTime = TimeSpan.FromTicks(9) });
                 dataPoints.Add(new TimelineDataPoint { Start = DateTime.Now, End = DateTime.Now, SumTime = sumTime, SumSwitches = sumSwitches });
             }
 
