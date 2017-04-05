@@ -44,7 +44,14 @@ namespace GoalSetting.Visualizers
             {
                 if (rule.IsVisualizationEnabled)
                 {
-                    visualizations.Add(new DayVisualization(date, rule));
+                    if (rule.TimeSpan == Rules.RuleTimeSpan.Hour)
+                    {
+                        visualizations.Add(new DayVisualizationForHourlyGoals(date, rule));
+                    }
+                    else
+                    {
+                        visualizations.Add(new DayVisualizationForDailyGoals(date, rule));
+                    }
                 }
             }
             return visualizations;

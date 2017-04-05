@@ -88,6 +88,8 @@
       <DependentUpon>WorkFragmentation.xaml</DependentUpon>
     </Compile>
     <Compile Include="Visualizers\DayVisualization.cs" />
+    <Compile Include="Visualizers\DayVisualizationForDailyGoals.cs" />
+    <Compile Include="Visualizers\DayVisualizationForHourlyGoals.cs" />
     <Compile Include="Visualizers\GoalVisHelper.cs" />
     <Compile Include="Visualizers\GoalVisualizer.cs" />
     <Compile Include="Visualizers\WeekVisualization.cs" />

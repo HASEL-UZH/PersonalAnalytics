@@ -9,6 +9,9 @@ namespace GoalSetting.Rules
 {
     public enum RuleTimeSpan
     {
+        [Description("hour")]
+        Hour,
+
         [Description("day")]
         EveryDay,
 
