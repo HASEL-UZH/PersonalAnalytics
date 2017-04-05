@@ -76,8 +76,6 @@ namespace GoalSettingTests.Visualization
                 DateTime today = DateTime.Now;
 
                 //10 minutes on Dev
-                activites.Add(Tuple.Create("IDLE", "IDLE", new DateTime(today.Year, today.Month, today.Day, 1, 59, 59)));
-                activites.Add(Tuple.Create("Microsoft Visual Studio", "devenv", new DateTime(today.Year, today.Month, today.Day, 2, 0, 0)));
                 activites.Add(Tuple.Create("Microsoft Visual Studio", "devenv", new DateTime(today.Year, today.Month, today.Day, 2, 10, 0)));
                 activites.Add(Tuple.Create("IDLE", "IDLE", new DateTime(today.Year, today.Month, today.Day, 2, 10, 1)));
 
@@ -95,20 +93,20 @@ namespace GoalSettingTests.Visualization
                 activites.Add(Tuple.Create("IDLE", "IDLE", new DateTime(today.Year, today.Month, today.Day, 4, 26, 0)));
 
                 //30 minutes on work related browsing
-                activites.Add(Tuple.Create("stackoverflow.com", "chrome", new DateTime(today.Year, today.Month, today.Day, 5, 21, 0)));
+                activites.Add(Tuple.Create("www.20min.ch - News von Jetzt", "chrome", new DateTime(today.Year, today.Month, today.Day, 5, 21, 0)));
                 activites.Add(Tuple.Create("IDLE", "IDLE", new DateTime(today.Year, today.Month, today.Day, 5, 51, 0)));
 
                 //35 minutes on dev
                 activites.Add(Tuple.Create("Microsoft Visual Studio", "devenv", new DateTime(today.Year, today.Month, today.Day, 6, 0, 0)));
                 activites.Add(Tuple.Create("Microsoft Visual Studio", "devenv", new DateTime(today.Year, today.Month, today.Day, 6, 1, 0)));
-                activites.Add(Tuple.Create("stackoverflow.com", "chrome", new DateTime(today.Year, today.Month, today.Day, 6, 36, 1)));
-                activites.Add(Tuple.Create("stackoverflow.com", "chrome", new DateTime(today.Year, today.Month, today.Day, 6, 42, 1)));
+                activites.Add(Tuple.Create("www.20min.ch - News von Jetzt", "chrome", new DateTime(today.Year, today.Month, today.Day, 6, 36, 1)));
+                activites.Add(Tuple.Create("www.20min.ch - News von Jetzt", "chrome", new DateTime(today.Year, today.Month, today.Day, 6, 42, 1)));
 
                 //30 minutes on dev
                 activites.Add(Tuple.Create("Microsoft Visual Studio", "devenv", new DateTime(today.Year, today.Month, today.Day, 7, 0, 0)));
                 activites.Add(Tuple.Create("Microsoft Visual Studio", "devenv", new DateTime(today.Year, today.Month, today.Day, 7, 1, 0)));
-                activites.Add(Tuple.Create("stackoverflow.com", "chrome", new DateTime(today.Year, today.Month, today.Day, 7, 31, 1)));
-                activites.Add(Tuple.Create("stackoverflow.com", "chrome", new DateTime(today.Year, today.Month, today.Day, 7, 42, 1)));
+                activites.Add(Tuple.Create("www.20min.ch - News von Jetzt", "chrome", new DateTime(today.Year, today.Month, today.Day, 7, 31, 1)));
+                activites.Add(Tuple.Create("www.20min.ch - News von Jetzt", "chrome", new DateTime(today.Year, today.Month, today.Day, 7, 42, 1)));
 
                 //another 5 minutes on work unrelated browsing
                 activites.Add(Tuple.Create("www.20min.ch - News von Jetzt", "chrome", new DateTime(today.Year, today.Month, today.Day, 8, 21, 0)));

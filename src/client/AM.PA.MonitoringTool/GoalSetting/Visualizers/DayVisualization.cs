@@ -39,10 +39,8 @@ namespace GoalSetting.Visualizers
 
             var html = string.Empty;
             var startOfWork = Database.GetInstance().GetUserWorkStart(DateTime.Now.Date);
-            //var endOfWork = DateTime.Now;
             var endOfWork = DateTime.Now;
-            endOfWork = new DateTime(endOfWork.Year, endOfWork.Month, endOfWork.Day, 11, 0, 0);
-
+            
             var activities = DatabaseConnector.GetActivitiesSinceAndBefore(startOfWork, endOfWork);
             activities = DataHelper.MergeSameActivities(activities, Settings.MinimumSwitchTime);
 

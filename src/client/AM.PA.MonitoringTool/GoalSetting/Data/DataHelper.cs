@@ -13,7 +13,7 @@ namespace GoalSetting.Data
 {
     public class DataHelper
     {
-        public static List<ActivityContext> SetEndDateOfActivities(List<ActivityContext> activities)
+        public static List<ActivityContext> SetEndDateOfActivities(List<ActivityContext> activities, DateTime lastDate)
         {
             for (int i = 0; i < activities.Count; i++)
             {
@@ -23,7 +23,7 @@ namespace GoalSetting.Data
                 }
                 else
                 {
-                    activities.ElementAt(i).End = null;
+                    activities.ElementAt(i).End = lastDate;
                 }
             }
 
@@ -61,7 +61,9 @@ namespace GoalSetting.Data
             }
 
             result.Add(new ActivityContext { Activity = currentActivity.Activity, Start = currentStart, End = activities.Last().End });
-            
+
+            result = result.Where(a => a.Duration.TotalSeconds > minimumSwitchTimeInSeconds).ToList();
+
             return result;
         }
 

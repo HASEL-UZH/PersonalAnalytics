@@ -179,7 +179,7 @@ namespace GoalSetting
             return rules;
         }
 
-        private static List<ActivityContext> GetActivities(string query)
+        private static List<ActivityContext> GetActivities(string query, DateTime lastDate)
         {
             var activities = new List<ActivityContext>();
 
@@ -210,21 +210,21 @@ namespace GoalSetting
                 table.Dispose();
             }
 
-            activities = DataHelper.SetEndDateOfActivities(activities);
+            activities = DataHelper.SetEndDateOfActivities(activities, lastDate);
 
             return activities;
         }
 
         public static List<ActivityContext> GetActivitiesSince(DateTime date)
         {
-            var query = "SELECT * FROM " + Settings.ActivityTable + " WHERE Time > '" + date.ToString(Settings.DateFormat) + "';";
-            return GetActivities(query);
+            var query = "SELECT * FROM " + Settings.ActivityTable + " WHERE Time >= '" + date.ToString(Settings.DateFormat) + "';";
+            return GetActivities(query, DateTime.Now);
         }
 
         internal static List<ActivityContext> GetActivitiesSinceAndBefore(DateTime start, DateTime end)
         {
-            var query = "SELECT * FROM " + Settings.ActivityTable + " WHERE Time > '" + start.ToString(Settings.DateFormat) + "' AND Time < '" + end.ToString(Settings.DateFormat) + "';";
-            return GetActivities(query);
+            var query = "SELECT * FROM " + Settings.ActivityTable + " WHERE Time >= '" + start.ToString(Settings.DateFormat) + "' AND Time <= '" + end.ToString(Settings.DateFormat) + "';";
+            return GetActivities(query, end);
         }
 
         internal static int GetLatestEmailInboxCount()
