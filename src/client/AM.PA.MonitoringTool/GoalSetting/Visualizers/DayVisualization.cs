@@ -177,11 +177,22 @@ namespace GoalSetting.Visualizers
 
             foreach (var activity in activities)
             {
-                sumTime += activity.Duration;
                 sumSwitches += 1;
-                dataPoints.Add(new TimelineDataPoint { Start = activity.Start, End = activity.End.HasValue ? activity.End.Value : DateTime.Now, SumTime = sumTime, SumSwitches = sumSwitches });
-            }
 
+                //Iterate over each minute of the activity to generate a data point for each minute
+                var startDate = activity.Start;
+                var timeCountedInLoop = TimeSpan.FromMinutes(0);
+
+                while (startDate < activity.End)
+                {
+                    sumTime += TimeSpan.FromMinutes(1);
+                    timeCountedInLoop += TimeSpan.FromMinutes(1);
+                    dataPoints.Add(new TimelineDataPoint { Start = startDate, End = startDate.AddMinutes(1), SumTime = sumTime, SumSwitches = sumSwitches });
+                    startDate = startDate.AddMinutes(1);
+                }
+
+            }
+            
             //if we have actual data points, add 1 more datapoint at the end of the list with the current data to ensure that the line is drawn until now.
             if (dataPoints.Count > 0)
             {
