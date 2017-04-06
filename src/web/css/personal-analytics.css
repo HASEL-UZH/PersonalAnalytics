@@ -34,6 +34,13 @@ html {
     background: #fff;
 }
 
+.releases-section {
+    height: 100%;
+    padding-top: 150px;
+    text-align: center;
+    background: #fff;
+}
+
 .updates-section {
     height: 100%;
     padding-top: 300px;
