@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace GoalSetting.Model
 {
-    public enum Operator
+    public enum RuleOperator
     {
         [Description("exactly")]
         Equal,

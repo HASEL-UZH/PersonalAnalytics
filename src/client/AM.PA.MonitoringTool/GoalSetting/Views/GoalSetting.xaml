@@ -48,8 +48,8 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Button Margin="5, 5" Name="CheckRules" Grid.Row="0" Grid.Column="0" IsEnabled="False" Click="CheckRules_Click">Check rules</Button>
-                <Button Margin="5" Name="SaveRules" Grid.Row="0" Grid.Column="1" Content="Save rules" Click="SaveRules_Click">
+                <Button Margin="5, 5" Name="CheckRules" Grid.Row="0" Grid.Column="0" IsEnabled="False" Click="CheckRules_Click">Check goals</Button>
+                <Button Margin="5" Name="SaveRules" Grid.Row="0" Grid.Column="1" Content="Save goals" Click="SaveRules_Click">
                     <Button.Style>
                         <Style TargetType="{x:Type Button}">
                             <Setter Property="IsEnabled" Value="True"/>
@@ -61,9 +61,9 @@
                         </Style>
                     </Button.Style>
                 </Button>
-                <Button Margin="5" Name="AddRule" Grid.Row="0" Grid.Column="2" Click="AddRule_Click">Add rule</Button>
-                <Button Margin="5" Name="EditRule" Grid.Row="1" Grid.Column="0" Click="EditRule_Click" IsEnabled="False">Edit selected rule</Button>
-                <Button Margin="5" Name="DeleteRule" Grid.Row="1" Grid.Column="1" Click="DeleteRule_Click" IsEnabled="False">Delete selected rule</Button>
+                <Button Margin="5" Name="AddRule" Grid.Row="0" Grid.Column="2" Click="AddRule_Click">Add goal</Button>
+                <Button Margin="5" Name="EditRule" Grid.Row="1" Grid.Column="0" Click="EditRule_Click" IsEnabled="False">Edit selected goal</Button>
+                <Button Margin="5" Name="DeleteRule" Grid.Row="1" Grid.Column="1" Click="DeleteRule_Click" IsEnabled="False">Delete selected goal</Button>
                 <Button Margin="5" Name="OpenRetrospection" Grid.Row="1" Grid.Column="2" Click="OpenRetrospection_Click" IsEnabled="True">Open retrospection</Button>
             </Grid>
         </StackPanel>

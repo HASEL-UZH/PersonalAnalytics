@@ -4,13 +4,14 @@
 // Licensed under the MIT License.
 
 using GoalSetting.Model;
+using GoalSetting.Rules;
 using Shared.Data;
 using Shared.Helpers;
 using System;
 
-namespace GoalSetting.Rules
+namespace GoalSetting.Goals
 {
-    public class PARuleActivity : PARule
+    public class GoalActivity : Goal
     {
 
         public ContextCategory Activity { get; set; }
@@ -24,7 +25,7 @@ namespace GoalSetting.Rules
 
             switch (Rule.Goal)
             {
-                case Goal.NumberOfSwitchesTo:
+                case RuleGoal.NumberOfSwitchesTo:
                     str += "I want to switch ";
                     str += FormatStringHelper.GetDescription(Rule.Operator).ToLower() + " ";
                     str += Rule.TargetValue + " ";
@@ -33,7 +34,7 @@ namespace GoalSetting.Rules
                     str += "per " + FormatStringHelper.GetDescription(TimeSpan) + ".";
                     break;
 
-                case Goal.TimeSpentOn:
+                case RuleGoal.TimeSpentOn:
                     str += "I want to spend ";
                     str += FormatStringHelper.GetDescription(Rule.Operator).ToLower() + " ";
                     str += Rule.TargetTimeSpan;
@@ -60,19 +61,19 @@ namespace GoalSetting.Rules
 
             switch (Rule.Goal)
             {
-                case Goal.TimeSpentOn:
+                case RuleGoal.TimeSpentOn:
                     double targetTime = Double.Parse(Rule.TargetValue) / 1000 / 60 / 60;
                     double actualTime = string.IsNullOrEmpty(Progress.Time) ? 0.0 : Double.Parse(Progress.Time);
                     percentage = actualTime / targetTime;
                     break;
-                case Goal.NumberOfSwitchesTo:
+                case RuleGoal.NumberOfSwitchesTo:
                     double targetSwitches = Double.Parse(Rule.TargetValue);
                     double actualSwitches = Progress.Switches;
                     percentage = actualSwitches / targetSwitches;
                     break;
             }
 
-            if (Rule.Operator == Operator.GreaterThan || Rule.Operator == Operator.GreaterThanOrEqual)
+            if (Rule.Operator == RuleOperator.GreaterThan || Rule.Operator == RuleOperator.GreaterThanOrEqual)
             {
                 if (percentage < 0.3)
                 {
@@ -96,7 +97,7 @@ namespace GoalSetting.Rules
                 }
 
             }
-            else if (Rule.Operator == Operator.LessThan || Rule.Operator == Operator.LessThanOrEqual)
+            else if (Rule.Operator == RuleOperator.LessThan || Rule.Operator == RuleOperator.LessThanOrEqual)
             {
                 if (percentage < 0.9)
                 {

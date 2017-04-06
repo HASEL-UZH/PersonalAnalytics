@@ -4,21 +4,21 @@
 // Licensed under the MIT License.
 
 using System;
-using GoalSetting.Rules;
 using Shared;
 using Shared.Helpers;
+using GoalSetting.Goals;
 
 namespace GoalSetting.Visualizers
 {
     internal class WeekVisualization : BaseVisualization, IVisualization
     {
         private DateTimeOffset _date;
-        private PARuleActivity _rule;
+        private GoalActivity _goal;
 
-        public WeekVisualization(DateTimeOffset date, PARuleActivity rule)
+        public WeekVisualization(DateTimeOffset date, GoalActivity goal)
         {
-            Title = rule.ToString();
-            this._rule = rule;
+            Title = goal.ToString();
+            this._goal = goal;
             this._date = date;
             IsEnabled = true;
             Size = VisSize.Wide;
@@ -38,7 +38,7 @@ namespace GoalSetting.Visualizers
 
             //HTML
             html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "' style='align: center'></div>";
-            html += "<p style='text-align: center; font-size: 0.66em;'>" + GoalVisHelper.getHintText(_rule, VisType.Week) + "</p>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>" + GoalVisHelper.getHintText(_goal, VisType.Week) + "</p>";
 
             //JS
             html += "<script>";

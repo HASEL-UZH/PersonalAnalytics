@@ -6,9 +6,9 @@
 using System.Windows.Controls;
 using GoalSetting.Model;
 using Shared.Helpers;
-using GoalSetting.Rules;
 using Shared.Data;
 using System.Windows;
+using GoalSetting.Goals;
 
 namespace GoalSetting.Views
 {
@@ -18,46 +18,46 @@ namespace GoalSetting.Views
     public partial class WorkFragmentation : UserControl
     {
 
-        private AddRule _parent;
+        private AddGoal _parent;
         private bool _isRuleEditing = false;
-        private PARuleActivity _oldRule;
+        private GoalActivity _oldGoal;
 
         private WorkFragmentation() {
             InitializeComponent();
 
-            Operator.ItemsSource = FormatStringHelper.GetDescriptions(typeof(Operator));
+            Operator.ItemsSource = FormatStringHelper.GetDescriptions(typeof(RuleOperator));
             Timespan.ItemsSource = FormatStringHelper.GetDescriptions(typeof(RuleTimeSpan));
             Activity.ItemsSource = FormatStringHelper.GetDescriptions(typeof(ContextCategory));
         }
 
-        public WorkFragmentation(PARuleActivity rule) : this()
+        public WorkFragmentation(GoalActivity goal) : this()
         {
             this._isRuleEditing = true;
-            this._oldRule = rule;
+            this._oldGoal = goal;
 
-            Title.Text = rule.Title;
-            Operator.SelectedItem = FormatStringHelper.GetDescription(rule.Rule.Operator);
-            slValue.Value = double.Parse(rule.Rule.TargetValue);
-            Timespan.SelectedItem = FormatStringHelper.GetDescription(rule.TimeSpan);
-            Activity.SelectedItem = FormatStringHelper.GetDescription(rule.Activity);
+            Title.Text = goal.Title;
+            Operator.SelectedItem = FormatStringHelper.GetDescription(goal.Rule.Operator);
+            slValue.Value = double.Parse(goal.Rule.TargetValue);
+            Timespan.SelectedItem = FormatStringHelper.GetDescription(goal.TimeSpan);
+            Activity.SelectedItem = FormatStringHelper.GetDescription(goal.Activity);
         }
 
-        public WorkFragmentation(GoalDomain goalDomain, AddRule parent) : this()
+        public WorkFragmentation(RuleGoalDomain goalDomain, AddGoal parent) : this()
         {
             this._parent = parent;
             
             switch (goalDomain)
             {
-                case GoalDomain.Browsing:
+                case RuleGoalDomain.Browsing:
                     Activity.SelectedItem = FormatStringHelper.GetDescription(ContextCategory.WorkUnrelatedBrowsing);
                     break;
-                case GoalDomain.Coding:
+                case RuleGoalDomain.Coding:
                     Activity.SelectedItem = FormatStringHelper.GetDescription(ContextCategory.DevCode);
                     break;
-                case GoalDomain.Emails:
+                case RuleGoalDomain.Emails:
                     Activity.SelectedItem = FormatStringHelper.GetDescription(ContextCategory.Email);
                     break;
-                case GoalDomain.Meetings:
+                case RuleGoalDomain.Meetings:
                     Activity.SelectedItem = FormatStringHelper.GetDescription(ContextCategory.PlannedMeeting);
                     break;
             }
@@ -67,22 +67,22 @@ namespace GoalSetting.Views
         private void Add_Click(object sender, RoutedEventArgs e)
         {
             string title = Title.Text;
-            Operator op = FormatStringHelper.GetValueFromDescription<Operator>(Operator.SelectedItem.ToString());
-            Rule rule = new Rule { Goal = Goal.NumberOfSwitchesTo, Operator = op, TargetValue = slValue.Value.ToString()};
+            RuleOperator op = FormatStringHelper.GetValueFromDescription<RuleOperator>(Operator.SelectedItem.ToString());
+            Rule rule = new Rule { Goal = RuleGoal.NumberOfSwitchesTo, Operator = op, TargetValue = slValue.Value.ToString()};
             ContextCategory activity = FormatStringHelper.GetValueFromDescription<ContextCategory>(Activity.SelectedItem.ToString());
             RuleTimeSpan timespan = FormatStringHelper.GetValueFromDescription<RuleTimeSpan>(Timespan.SelectedItem.ToString());
 
-            PARuleActivity newRule = new PARuleActivity { Title = title, Rule = rule, Activity = activity, TimeSpan = timespan, IsVisualizationEnabled = true };
+            GoalActivity newRule = new GoalActivity { Title = title, Rule = rule, Activity = activity, TimeSpan = timespan, IsVisualizationEnabled = true };
             this.Visibility = Visibility.Collapsed;
 
             if (!_isRuleEditing)
             {
-                GoalSettingManager.Instance.AddRule(newRule);
+                GoalSettingManager.Instance.AddGoal(newRule);
                 _parent.Close();
             }
             else
             {
-                GoalSettingManager.Instance.EditRule(_oldRule, newRule);
+                GoalSettingManager.Instance.EditGoal(_oldGoal, newRule);
                 (this.Parent as Window).Close();
             }
         }

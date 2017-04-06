@@ -3,7 +3,7 @@
 // 
 // Licensed under the MIT License.
 
-using GoalSetting.Rules;
+using GoalSetting.Goals;
 using Shared;
 using System;
 
@@ -12,13 +12,13 @@ namespace GoalSetting.Visualizers
     public abstract class DayVisualization : BaseVisualization, IVisualization
     {
 
-        internal PARuleActivity _rule;
+        internal GoalActivity _goal;
         internal DateTimeOffset _date;
 
-        public DayVisualization(DateTimeOffset date, PARuleActivity rule)
+        public DayVisualization(DateTimeOffset date, GoalActivity goal)
         {
-            Title = rule.ToString();
-            this._rule = rule;
+            Title = goal.ToString();
+            this._goal = goal;
             this._date = date;
             IsEnabled = true;
             Size = VisSize.Wide;

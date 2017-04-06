@@ -50,25 +50,25 @@
     <Compile Include="Data\DataHelper.cs" />
     <Compile Include="GoalSettingManager.cs" />
     <Compile Include="Model\ActivityContext.cs" />
-    <Compile Include="Model\Goal.cs" />
-    <Compile Include="Model\GoalDomain.cs" />
-    <Compile Include="Model\Operator.cs" />
+    <Compile Include="Model\RuleGoal.cs" />
+    <Compile Include="Model\RuleGoalDomain.cs" />
+    <Compile Include="Model\RuleOperator.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Rules\PARule.cs" />
-    <Compile Include="Rules\PARuleActivity.cs" />
-    <Compile Include="Rules\PARuleEmail.cs" />
-    <Compile Include="Rules\Rule.cs" />
-    <Compile Include="Rules\RuleTimePoint.cs" />
-    <Compile Include="Rules\RuleTimeSpan.cs" />
-    <Compile Include="Rules\RuleEngine.cs" />
+    <Compile Include="Goals\Goal.cs" />
+    <Compile Include="Goals\GoalActivity.cs" />
+    <Compile Include="Goals\GoalEmail.cs" />
+    <Compile Include="Model\Rule.cs" />
+    <Compile Include="Model\RuleTimePoint.cs" />
+    <Compile Include="Model\RuleTimeSpan.cs" />
+    <Compile Include="Goals\RuleEngine.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Model\Activity.cs" />
-    <Compile Include="Views\AddRule.xaml.cs">
-      <DependentUpon>AddRule.xaml</DependentUpon>
+    <Compile Include="Views\AddGoal.xaml.cs">
+      <DependentUpon>AddGoal.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\DockPanelWithLastVisibleChildFill.cs" />
     <Compile Include="Views\EmailInbox.xaml.cs">
@@ -78,8 +78,8 @@
       <DependentUpon>GoalSetting.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Views\RulePopUp.xaml.cs">
-      <DependentUpon>RulePopUp.xaml</DependentUpon>
+    <Compile Include="Views\GoalsPopUp.xaml.cs">
+      <DependentUpon>GoalsPopUp.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TimeSpent.xaml.cs">
       <DependentUpon>TimeSpent.xaml</DependentUpon>
@@ -95,7 +95,7 @@
     <Compile Include="Visualizers\WeekVisualization.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Views\AddRule.xaml">
+    <Page Include="Views\AddGoal.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -107,7 +107,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\RulePopUp.xaml">
+    <Page Include="Views\GoalsPopUp.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

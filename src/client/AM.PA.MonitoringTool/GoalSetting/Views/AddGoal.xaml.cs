@@ -3,29 +3,29 @@
 // 
 // Licensed under the MIT License.
 
-using GoalSetting.Rules;
 using System.Collections.ObjectModel;
 using System.Windows.Controls;
 using System.Windows;
 using GoalSetting.Model;
+using GoalSetting.Goals;
 
 namespace GoalSetting.Views
 {
     /// <summary>
     /// Interaction logic for AddRule.xaml
     /// </summary>
-    public partial class AddRule : UserControl
+    public partial class AddGoal : UserControl
     {
-        private ObservableCollection<PARule> rules;
-        private GoalDomain selectedGoalDomain;
+        private ObservableCollection<Goal> goals;
+        private RuleGoalDomain selectedGoalDomain;
 
-        public AddRule(ObservableCollection<PARule> rules)
+        public AddGoal(ObservableCollection<Goal> goals)
         {
-            this.rules = rules;
+            this.goals = goals;
             InitializeComponent();
         }
 
-        private void Step_2(GoalDomain goalDomain) { 
+        private void Step_2(RuleGoalDomain goalDomain) { 
             Step1.Visibility = Visibility.Collapsed;
             selectedGoalDomain = goalDomain;
 
@@ -51,20 +51,20 @@ namespace GoalSetting.Views
 
             switch (goalDomain)
             {
-                case GoalDomain.Focus:
-                case GoalDomain.Break:
+                case RuleGoalDomain.Focus:
+                case RuleGoalDomain.Break:
                     NotYetSupported.Visibility = Visibility.Visible;
                     break;
 
-                case GoalDomain.Browsing:
-                case GoalDomain.Coding:
-                case GoalDomain.Meetings:
+                case RuleGoalDomain.Browsing:
+                case RuleGoalDomain.Coding:
+                case RuleGoalDomain.Meetings:
                     Step2.Children.Add(workFragmentationButton);
                     Step2.Children.Add(timeSpentButton);
                     Step2.Visibility = Visibility.Visible;
                     break;
 
-                case GoalDomain.Emails:
+                case RuleGoalDomain.Emails:
                     Step2.Children.Add(workFragmentationButton);
                     Step2.Children.Add(timeSpentButton);
                     Step2.Children.Add(emailsInboxButton);
@@ -97,32 +97,32 @@ namespace GoalSetting.Views
 
         private void Step_2_Email(object sender, RoutedEventArgs e)
         {
-            Step_2(GoalDomain.Emails);
+            Step_2(RuleGoalDomain.Emails);
         }
 
         private void Step_2_Coding(object sender, RoutedEventArgs e)
         {
-            Step_2(GoalDomain.Coding);
+            Step_2(RuleGoalDomain.Coding);
         }
 
         private void Step_2_Focus(object sender, RoutedEventArgs e)
         {
-            Step_2(GoalDomain.Focus);
+            Step_2(RuleGoalDomain.Focus);
         }
 
         private void Step_2_Browsing(object sender, RoutedEventArgs e)
         {
-            Step_2(GoalDomain.Browsing);
+            Step_2(RuleGoalDomain.Browsing);
         }
 
         private void Step_2_Breaks(object sender, RoutedEventArgs e)
         {
-            Step_2(GoalDomain.Break);
+            Step_2(RuleGoalDomain.Break);
         }
 
         private void Step_2_Meetings(object sender, RoutedEventArgs e)
         {
-            Step_2(GoalDomain.Meetings);
+            Step_2(RuleGoalDomain.Meetings);
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)

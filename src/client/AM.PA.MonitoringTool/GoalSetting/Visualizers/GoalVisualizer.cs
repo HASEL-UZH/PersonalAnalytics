@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using GoalSetting.Model;
 
 namespace GoalSetting.Visualizers
 {
@@ -34,23 +35,23 @@ namespace GoalSetting.Visualizers
 
         public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
         {
-            var rules = GoalSettingManager.Instance.GetActivityRules();
+            var goals = GoalSettingManager.Instance.GetActivityGoals();
 
             //For the daily visualization we ignore rules that are on weekly or monthly basis
-            rules.RemoveAll(r => r.TimeSpan == Rules.RuleTimeSpan.Month || r.TimeSpan == Rules.RuleTimeSpan.Week);
+            goals.RemoveAll(r => r.TimeSpan == RuleTimeSpan.Month || r.TimeSpan == RuleTimeSpan.Week);
 
             List<IVisualization> visualizations = new List<IVisualization>();
-            foreach (var rule in rules)
+            foreach (var goal in goals)
             {
-                if (rule.IsVisualizationEnabled)
+                if (goal.IsVisualizationEnabled)
                 {
-                    if (rule.TimeSpan == Rules.RuleTimeSpan.Hour)
+                    if (goal.TimeSpan == RuleTimeSpan.Hour)
                     {
-                        visualizations.Add(new DayVisualizationForHourlyGoals(date, rule));
+                        visualizations.Add(new DayVisualizationForHourlyGoals(date, goal));
                     }
                     else
                     {
-                        visualizations.Add(new DayVisualizationForDailyGoals(date, rule));
+                        visualizations.Add(new DayVisualizationForDailyGoals(date, goal));
                     }
                 }
             }
@@ -59,17 +60,17 @@ namespace GoalSetting.Visualizers
 
         public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)
         {
-            var rules = GoalSettingManager.Instance.GetActivityRules();
+            var goals = GoalSettingManager.Instance.GetActivityGoals();
 
             //For the weekly visualization we only use rules that are on weekly or monthly basis
-            rules = rules.Where(r => r.TimeSpan == Rules.RuleTimeSpan.Month || r.TimeSpan == Rules.RuleTimeSpan.Week).ToList();
+            goals = goals.Where(r => r.TimeSpan == RuleTimeSpan.Month || r.TimeSpan == RuleTimeSpan.Week).ToList();
 
             List<IVisualization> visualizations = new List<IVisualization>();
-            foreach (var rule in rules)
+            foreach (var goal in goals)
             {
-                if (rule.IsVisualizationEnabled)
+                if (goal.IsVisualizationEnabled)
                 {
-                    visualizations.Add(new WeekVisualization(date, rule));
+                    visualizations.Add(new WeekVisualization(date, goal));
                 }
             }
             return visualizations;

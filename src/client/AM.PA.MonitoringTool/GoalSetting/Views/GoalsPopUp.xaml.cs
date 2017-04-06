@@ -1,5 +1,4 @@
-﻿using GoalSetting.Rules;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
@@ -7,22 +6,24 @@ using System.Windows.Media;
 using System.Windows.Documents;
 using Shared;
 using Shared.Helpers;
+using GoalSetting.Goals;
+using GoalSetting.Model;
 
 namespace GoalSetting.Views
 {
     /// <summary>
     /// Interaction logic for RulePopUp.xaml
     /// </summary>
-    public partial class RulePopUp : Window
+    public partial class GoalsPopUp : Window
     {
-        private ObservableCollection<PARule> rules;
+        private ObservableCollection<Goal> goals;
 
-        public RulePopUp(ObservableCollection<PARule> rules)
+        public GoalsPopUp(ObservableCollection<Goal> goals)
         {
             InitializeComponent();
-            this.rules = rules;
+            this.goals = goals;
             AddHeaderPictures();
-            AddRules();
+            AddGoals();
         }
 
         internal void AddHeaderPictures()
@@ -31,12 +32,12 @@ namespace GoalSetting.Views
             Dashboard.Source = ImageHelper.BitmapToImageSource(Properties.Resources.dashboard);
         }
 
-        internal void AddRules()
+        internal void AddGoals()
         {
-            foreach (PARule rule in rules)
+            foreach (Goal goal in goals)
             {
                 StackPanel container = new StackPanel();
-                container.Tag = rule;
+                container.Tag = goal;
                 container.Background = new SolidColorBrush(Colors.LightGray);
                 container.Orientation = System.Windows.Controls.Orientation.Horizontal;
                 Thickness containerMargin = container.Margin;
@@ -47,7 +48,7 @@ namespace GoalSetting.Views
                 System.Windows.Controls.Image smiley = new System.Windows.Controls.Image();
                 smiley.Height = 25;
 
-                switch (rule.Progress.Status)
+                switch (goal.Progress.Status)
                 {
                     case ProgressStatus.VeryLow:
                         smiley.Source = ImageHelper.BitmapToImageSource(Properties.Resources.smiley_5);
@@ -68,9 +69,9 @@ namespace GoalSetting.Views
 
                 TextBlock text = new TextBlock();
                 text.VerticalAlignment = VerticalAlignment.Center;
-                text.Inlines.Add(rule.ToString());
+                text.Inlines.Add(goal.ToString());
                 text.Inlines.Add(new LineBreak());
-                text.Inlines.Add(rule.GetProgressMessage());
+                text.Inlines.Add(goal.GetProgressMessage());
 
                 Thickness margin = text.Margin;
                 margin.Left = 20;
@@ -87,15 +88,15 @@ namespace GoalSetting.Views
 
         private void Rule_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            PARule rule = (PARule)(sender as FrameworkElement).Tag;
+            Goal goal = (Goal)(sender as FrameworkElement).Tag;
 
-            if (rule is PARuleEmail)
+            if (goal is GoalEmail)
             {
                 GoalSettingManager.Instance.OpenRetrospection(VisType.Week);
             }
             else
             {
-                if ((rule as PARuleActivity).TimeSpan == RuleTimeSpan.Week || (rule as PARuleActivity).TimeSpan == RuleTimeSpan.Month)
+                if ((goal as GoalActivity).TimeSpan == RuleTimeSpan.Week || (goal as GoalActivity).TimeSpan == RuleTimeSpan.Month)
                 {
                     GoalSettingManager.Instance.OpenRetrospection(VisType.Week);
                 }

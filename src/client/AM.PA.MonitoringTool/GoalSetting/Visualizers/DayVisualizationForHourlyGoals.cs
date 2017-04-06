@@ -4,7 +4,6 @@
 // Licensed under the MIT License.
 
 using GoalSetting.Data;
-using GoalSetting.Rules;
 using Shared;
 using Shared.Data;
 using Shared.Helpers;
@@ -12,12 +11,13 @@ using System;
 using GoalSetting.Model;
 using System.Collections.Generic;
 using System.Linq;
+using GoalSetting.Goals;
 
 namespace GoalSetting.Visualizers
 {
     public class DayVisualizationForHourlyGoals : DayVisualization
     {
-        public DayVisualizationForHourlyGoals(DateTimeOffset date, PARuleActivity rule) : base(date, rule) { }
+        public DayVisualizationForHourlyGoals(DateTimeOffset date, GoalActivity goal) : base(date, goal) { }
 
         public override string GetHtml()
         {
@@ -26,10 +26,15 @@ namespace GoalSetting.Visualizers
             var startOfWork = Database.GetInstance().GetUserWorkStart(DateTime.Now.Date);
             var endOfWork = DateTime.Now;
 
+            if (endOfWork.Subtract(startOfWork).TotalMinutes <= 30)
+            {
+                return VisHelper.NotEnoughData();
+            }
+
             var activities = DatabaseConnector.GetActivitiesSinceAndBefore(startOfWork, endOfWork);
             activities = DataHelper.MergeSameActivities(activities, Settings.MinimumSwitchTime);
 
-            var targetActivity = _rule.Activity;
+            var targetActivity = _goal.Activity;
 
             // CSS
             html += "<style type='text/css'>";
@@ -40,7 +45,7 @@ namespace GoalSetting.Visualizers
 
             //HTML
             html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "' style='align: center'></div>";
-            html += "<p style='text-align: center; font-size: 0.66em;'>" + GoalVisHelper.getHintText(_rule, VisType.Day) + "</p>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>" + GoalVisHelper.getHintText(_goal, VisType.Day) + "</p>";
 
             //JS
             html += "<script>";
@@ -48,7 +53,7 @@ namespace GoalSetting.Visualizers
             var dataPoints = GenerateData(activities, targetActivity, startOfWork, endOfWork);
             html += GenerateJSData(dataPoints);
 
-            if (_rule.Rule.Goal == Goal.TimeSpentOn)
+            if (_goal.Rule.Goal == RuleGoal.TimeSpentOn)
             {
                 html += "var xData = ['belowLimitTime', 'aboveLimitTime'];";
             }
@@ -65,7 +70,7 @@ namespace GoalSetting.Visualizers
             
                     var y = d3.scale.linear().rangeRound([height, 0]);";
 
-            if (_rule.Rule.Goal == Goal.TimeSpentOn)
+            if (_goal.Rule.Goal == RuleGoal.TimeSpentOn)
             {
                 html += "var color = d3.scale.ordinal().domain(['belowLimitTime', 'aboveLimitTime']).range(['" + Shared.Settings.RetrospectionColorHex + "', 'red']);";
             }
@@ -122,7 +127,7 @@ namespace GoalSetting.Visualizers
                     })
                     .attr('width', x.rangeBand());";
 
-            html += "svg.append('text').attr('x', 0).attr('y', -10).style('text-anchor', 'middle').style('font-size', '0.5em').text('" + GoalVisHelper.getXAxisTitle(_rule, VisType.Day) + "');";
+            html += "svg.append('text').attr('x', 0).attr('y', -10).style('text-anchor', 'middle').style('font-size', '0.5em').text('" + GoalVisHelper.getXAxisTitle(_goal, VisType.Day) + "');";
             
             html += @"svg.append('g').attr('class', 'axis').attr('transform', 'translate(0,' + height + ')').call(xAxis);
                     svg.append('g').attr('class', 'axis').attr('transform', 'translate(' + width + ', height)').call(yAxis);";
@@ -183,12 +188,12 @@ namespace GoalSetting.Visualizers
                     }
                 }
                 
-                var timeOverLimit = timeSpent.Subtract(TimeSpan.FromMilliseconds(double.Parse(_rule.Rule.TargetValue)));
+                var timeOverLimit = timeSpent.Subtract(TimeSpan.FromMilliseconds(double.Parse(_goal.Rule.TargetValue)));
                 timeOverLimit = timeOverLimit.TotalMinutes >= 0 ? timeOverLimit : TimeSpan.FromMinutes(0);
                 var timeBelowLimit = timeSpent.Subtract(timeOverLimit);
 
 
-                var switchLimit = Int32.Parse(_rule.Rule.TargetValue);
+                var switchLimit = Int32.Parse(_goal.Rule.TargetValue);
 
                 var switchesBelowLimit = switches < switchLimit ? switches : switchLimit;
                 var switchesAboveLimit = switches > switchLimit ? switches - switchLimit : 0;

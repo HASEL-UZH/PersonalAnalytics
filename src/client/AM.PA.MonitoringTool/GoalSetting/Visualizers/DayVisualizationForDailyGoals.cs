@@ -5,19 +5,19 @@
 
 using Shared;
 using System;
-using GoalSetting.Rules;
 using Shared.Data;
 using GoalSetting.Data;
 using GoalSetting.Model;
 using System.Collections.Generic;
 using System.Linq;
 using Shared.Helpers;
+using GoalSetting.Goals;
 
 namespace GoalSetting.Visualizers
 {
     public class DayVisualizationForDailyGoals : DayVisualization
     {
-        public DayVisualizationForDailyGoals(DateTimeOffset date, PARuleActivity rule) : base(date, rule) { }
+        public DayVisualizationForDailyGoals(DateTimeOffset date, GoalActivity goal) : base(date, goal) { }
 
         public override string GetHtml()
         {
@@ -25,10 +25,15 @@ namespace GoalSetting.Visualizers
             var startOfWork = Database.GetInstance().GetUserWorkStart(DateTime.Now.Date);
             var endOfWork = DateTime.Now;
             
+            if (endOfWork.Subtract(startOfWork).TotalMinutes <= 30)
+            {
+                return VisHelper.NotEnoughData();
+            }
+
             var activities = DatabaseConnector.GetActivitiesSinceAndBefore(startOfWork, endOfWork);
             activities = DataHelper.MergeSameActivities(activities, Settings.MinimumSwitchTime);
 
-            var targetActivity = _rule.Activity;
+            var targetActivity = _goal.Activity;
 
             // CSS
             html += "<style type='text/css'>";
@@ -39,7 +44,7 @@ namespace GoalSetting.Visualizers
             
             //HTML
             html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "' style='align: center'></div>";
-            html += "<p style='text-align: center; font-size: 0.66em;'>" + GoalVisHelper.getHintText(_rule, VisType.Day) + "</p>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>" + GoalVisHelper.getHintText(_goal, VisType.Day) + "</p>";
 
             //JS
             html += "<script>";
@@ -64,8 +69,8 @@ namespace GoalSetting.Visualizers
             html += "var yAxisLeft = d3.svg.axis().scale(y0).orient('left').ticks(5);";
 
             //Prepare lines
-            html += "var limit = " + GoalVisHelper.getLimitValue(_rule, VisType.Day) + ";";
-            html += "var valueLine1 = d3.svg.line().interpolate('step-after').x(function(d) {return x(d.start); }).y(function(d) { return y0(" + GoalVisHelper.getDataPointName(_rule, VisType.Day) + "); });";
+            html += "var limit = " + GoalVisHelper.getLimitValue(_goal, VisType.Day) + ";";
+            html += "var valueLine1 = d3.svg.line().interpolate('step-after').x(function(d) {return x(d.start); }).y(function(d) { return y0(" + GoalVisHelper.getDataPointName(_goal, VisType.Day) + "); });";
             
             //Prepare chart area
             html += "var svg = d3.select('#" + VisHelper.CreateChartHtmlTitle(Title) + "').append('svg').attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');";
@@ -87,9 +92,9 @@ namespace GoalSetting.Visualizers
             if (dataPoints.Count > 0)
             {
                 html += "x.domain( [d3.min(data, function(d) { return d.start; }) , d3.max(data, function(d) { return d.end; }) ] );";
-                html += "var switchValues = data.map(function(d){return " + GoalVisHelper.getDataPointName(_rule, VisType.Day) + ";}).filter(function(val) {return val !== null});";
+                html += "var switchValues = data.map(function(d){return " + GoalVisHelper.getDataPointName(_goal, VisType.Day) + ";}).filter(function(val) {return val !== null});";
                 html += "var timeValues = data.map(function(o){return o.time;}).filter(function(val) {return val !== null});";
-                html += "y0.domain([0, d3.max(data, function(d) {return Math.max(" + GoalVisHelper.getDataPointName(_rule, VisType.Day) + ");}) * 1.01]);";
+                html += "y0.domain([0, d3.max(data, function(d) {return Math.max(" + GoalVisHelper.getDataPointName(_goal, VisType.Day) + ");}) * 1.01]);";
             }
             else
             {
@@ -99,43 +104,43 @@ namespace GoalSetting.Visualizers
 
             //Draw lines and axes
             html += "svg.append('path').style('stroke', '" + Shared.Settings.RetrospectionColorHex + "').attr('d', valueLine1(data)).attr('fill', 'none').attr('stroke-width', '3');";
-            html += "svg.append('path').style('stroke', 'red').attr('d', valueLine1(data.filter(function(d) {return " + GoalVisHelper.getDataPointName(_rule, VisType.Day) + " >= limit;}))).attr('fill', 'none').attr('stroke-width', '3');";
+            html += "svg.append('path').style('stroke', 'red').attr('d', valueLine1(data.filter(function(d) {return " + GoalVisHelper.getDataPointName(_goal, VisType.Day) + " >= limit;}))).attr('fill', 'none').attr('stroke-width', '3');";
             html += "xAxisYPosition = height;";
             html += "svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + xAxisYPosition + ')').call(xAxis);";
             html += "svg.append('g').attr('class', 'y axis').style('fill', 'black').call(yAxisLeft);";
             
             //Draw legend
-            html += "svg.append('text').attr('x', 0).attr('y', -10).style('text-anchor', 'middle').style('font-size', '0.5em').text('" + GoalVisHelper.getXAxisTitle(_rule, VisType.Day) + "');";
+            html += "svg.append('text').attr('x', 0).attr('y', -10).style('text-anchor', 'middle').style('font-size', '0.5em').text('" + GoalVisHelper.getXAxisTitle(_goal, VisType.Day) + "');";
 
             //Draw hatched rectangles
             html += "svg.append('g')";
             html += ".attr('id', 'bars')";
             html += ".selectAll('rect')";
-            html += ".data(data.filter(function(d){return " + GoalVisHelper.getDataPointName(_rule, VisType.Day) + " <= limit;}))";
+            html += ".data(data.filter(function(d){return " + GoalVisHelper.getDataPointName(_goal, VisType.Day) + " <= limit;}))";
             html += ".enter()";
             html += ".append('rect')";
-            html += ".attr({'x':function(d) {return x(d.start);},'y':function(d){ return y0(" + GoalVisHelper.getDataPointName(_rule, VisType.Day) + "); } })";
+            html += ".attr({'x':function(d) {return x(d.start);},'y':function(d){ return y0(" + GoalVisHelper.getDataPointName(_goal, VisType.Day) + "); } })";
             html += ".style('fill', 'url(#success-pattern)')";
-            html += ".attr('height', function(d) {return xAxisYPosition - y0(" + GoalVisHelper.getDataPointName(_rule, VisType.Day) + ");})";
+            html += ".attr('height', function(d) {return xAxisYPosition - y0(" + GoalVisHelper.getDataPointName(_goal, VisType.Day) + ");})";
             html += ".attr('width', function(d){ return x(d.end) - x(d.start); });";
 
             html += "svg.append('g')";
             html += ".attr('id', 'bars')";
             html += ".selectAll('rect')";
-            html += ".data(data.filter(function(d){return " + GoalVisHelper.getDataPointName(_rule, VisType.Day) + " > limit;}))";
+            html += ".data(data.filter(function(d){return " + GoalVisHelper.getDataPointName(_goal, VisType.Day) + " > limit;}))";
             html += ".enter()";
             html += ".append('rect')";
-            html += ".attr({'x':function(d) {return x(d.start);},'y':function(d){ return y0(" + GoalVisHelper.getDataPointName(_rule, VisType.Day) + "); } })";
+            html += ".attr({'x':function(d) {return x(d.start);},'y':function(d){ return y0(" + GoalVisHelper.getDataPointName(_goal, VisType.Day) + "); } })";
             html += ".style('fill', 'url(#error-pattern)')";
-            html += ".attr('height', function(d) {return xAxisYPosition - y0(" + GoalVisHelper.getDataPointName(_rule, VisType.Day) + ");})";
+            html += ".attr('height', function(d) {return xAxisYPosition - y0(" + GoalVisHelper.getDataPointName(_goal, VisType.Day) + ");})";
             html += ".attr('width', function(d){ return x(d.end) - x(d.start); });";
 
             //Draw circle
             html += "svg.selectAll('circle')";
-            html += ".data(data.filter(function(d) {return " + GoalVisHelper.getDataPointName(_rule, VisType.Day) + " == limit; }))";
+            html += ".data(data.filter(function(d) {return " + GoalVisHelper.getDataPointName(_goal, VisType.Day) + " == limit; }))";
             html += ".enter().append('svg:circle')";
             html += ".attr('cx', function(d) { return x(d.start) })";
-            html += ".attr('cy', function(d) { return y0(" + GoalVisHelper.getDataPointName(_rule, VisType.Day) + ") })";
+            html += ".attr('cy', function(d) { return y0(" + GoalVisHelper.getDataPointName(_goal, VisType.Day) + ") })";
             html += ".attr('stroke-width', 'none')";
             html += ".attr('fill', 'orange')";
             html += ".attr('r', 5);";

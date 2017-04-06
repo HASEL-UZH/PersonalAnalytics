@@ -3,8 +3,8 @@
 // 
 // Licensed under the MIT License.
 
+using GoalSetting.Goals;
 using GoalSetting.Model;
-using GoalSetting.Rules;
 using Shared;
 using Shared.Helpers;
 using System;
@@ -13,54 +13,54 @@ namespace GoalSetting.Visualizers
 {
     public class GoalVisHelper
     {
-        public static string getDataPointName(PARuleActivity _rule, VisType type)
+        public static string getDataPointName(GoalActivity goal, VisType type)
         {
-            switch (_rule.Rule.Goal)
+            switch (goal.Rule.Goal)
             {
-                case Goal.NumberOfSwitchesTo:
+                case RuleGoal.NumberOfSwitchesTo:
                     return "d.switch";
-                case Goal.TimeSpentOn:
+                case RuleGoal.TimeSpentOn:
                     return "d.time";
                 default:
-                    throw new ArgumentException(_rule.Rule.Goal + " is not a valid goal.");
+                    throw new ArgumentException(goal.Rule.Goal + " is not a valid goal.");
             }
         }
 
-        public static string getXAxisTitle(PARuleActivity _rule, VisType type)
+        public static string getXAxisTitle(GoalActivity goal, VisType type)
         {
-            switch (_rule.Rule.Goal)
+            switch (goal.Rule.Goal)
             {
-                case Goal.NumberOfSwitchesTo:
+                case RuleGoal.NumberOfSwitchesTo:
                     return "# Switches";
-                case Goal.TimeSpentOn:
+                case RuleGoal.TimeSpentOn:
                     return "Time spent";
                 default:
-                    throw new ArgumentException(_rule.Rule.Goal + " is not a valid goal.");
+                    throw new ArgumentException(goal.Rule.Goal + " is not a valid goal.");
             }
         }
 
-        public static string getHintText(PARuleActivity _rule, VisType type)
+        public static string getHintText(GoalActivity goal, VisType type)
         {
-            switch (_rule.Rule.Goal)
+            switch (goal.Rule.Goal)
             {
-                case Goal.NumberOfSwitchesTo:
+                case RuleGoal.NumberOfSwitchesTo:
                     return type == VisType.Day ? "Number of switches during today" : "Number of switches per day";
-                case Goal.TimeSpentOn:
-                    return type == VisType.Day ? "Time spent on " + FormatStringHelper.GetDescription(_rule.Activity) : "Time spent on " + FormatStringHelper.GetDescription(_rule.Activity) + " per day";
+                case RuleGoal.TimeSpentOn:
+                    return type == VisType.Day ? "Time spent on " + FormatStringHelper.GetDescription(goal.Activity) : "Time spent on " + FormatStringHelper.GetDescription(goal.Activity) + " per day";
                 default:
-                    throw new ArgumentException(_rule.Rule.Goal + " is not a valid goal.");
+                    throw new ArgumentException(goal.Rule.Goal + " is not a valid goal.");
             }
         }
 
-        internal static string getLimitValue(PARuleActivity rule, VisType day)
+        internal static string getLimitValue(GoalActivity goal, VisType day)
         {
-            if (rule.Rule.Goal == Goal.NumberOfSwitchesTo)
+            if (goal.Rule.Goal == RuleGoal.NumberOfSwitchesTo)
             {
-                return rule.Rule.TargetValue;
+                return goal.Rule.TargetValue;
             }
             else
             {
-                return TimeSpan.FromMilliseconds(double.Parse(rule.Rule.TargetValue)).TotalMinutes.ToString();
+                return TimeSpan.FromMilliseconds(double.Parse(goal.Rule.TargetValue)).TotalMinutes.ToString();
             }
         }
     }

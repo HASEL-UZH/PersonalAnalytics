@@ -4,7 +4,8 @@
 // Licensed under the MIT License.
 
 using GoalSetting;
-using GoalSetting.Rules;
+using GoalSetting.Goals;
+using GoalSetting.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shared.Data;
 using Shared.Helpers;
@@ -53,7 +54,7 @@ namespace GoalSettingTests.Visualization
                 Database.GetInstance().ExecuteDefaultQuery("DROP table emails;");
 
                 //Create tables
-                MethodInfo createGoalMethod = typeof(DatabaseConnector).GetMethod("CreateRulesTableIfNotExists", BindingFlags.NonPublic | BindingFlags.Static);
+                MethodInfo createGoalMethod = typeof(DatabaseConnector).GetMethod("CreateGoalsTableIfNotExists", BindingFlags.NonPublic | BindingFlags.Static);
                 if (createGoalMethod != null)
                 {
                     createGoalMethod.Invoke(null, new object[] { });
@@ -126,17 +127,17 @@ namespace GoalSettingTests.Visualization
                 }
 
                 //Add goals
-                ObservableCollection<PARule> rules = new ObservableCollection<PARule>();
-                rules.Add(new PARuleActivity { Title = "Test Rule 1", IsVisualizationEnabled = true, Activity = ContextCategory.DevCode, TimeSpan = RuleTimeSpan.EveryDay, Rule = new Rule { Operator = GoalSetting.Model.Operator.LessThan, Goal = GoalSetting.Model.Goal.TimeSpentOn, TargetValue = "" + TimeSpan.FromHours(1).TotalMilliseconds } });
-                rules.Add(new PARuleEmail { Title = "Test Rule 2", IsVisualizationEnabled = true, TimePoint = RuleTimePoint.End, Rule = new Rule { Operator = GoalSetting.Model.Operator.LessThan, Goal = GoalSetting.Model.Goal.NumberOfEmailsInInbox, TargetValue = "1" } });
-                rules.Add(new PARuleActivity { Title = "Test Rule 3", IsVisualizationEnabled = true, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.EveryDay, Rule = new Rule { Operator = GoalSetting.Model.Operator.LessThan, Goal = GoalSetting.Model.Goal.NumberOfSwitchesTo, TargetValue = "10" } });
-                rules.Add(new PARuleActivity { Title = "Test Rule 4", IsVisualizationEnabled = true, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.Hour, Rule = new Rule { Operator = GoalSetting.Model.Operator.LessThan, TargetValue = "" + TimeSpan.FromMinutes(10).TotalMilliseconds, Goal = GoalSetting.Model.Goal.TimeSpentOn } });
-                rules.Add(new PARuleActivity { Title = "Test Rule 5", IsVisualizationEnabled = true, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.Hour, Rule = new Rule { Operator = GoalSetting.Model.Operator.LessThanOrEqual, TargetValue = "1", Goal = GoalSetting.Model.Goal.NumberOfSwitchesTo } });
+                ObservableCollection<Goal> rules = new ObservableCollection<Goal>();
+                rules.Add(new GoalActivity { Title = "Test Rule 1", IsVisualizationEnabled = true, Activity = ContextCategory.DevCode, TimeSpan = RuleTimeSpan.EveryDay, Rule = new Rule { Operator = GoalSetting.Model.RuleOperator.LessThan, Goal = GoalSetting.Model.RuleGoal.TimeSpentOn, TargetValue = "" + TimeSpan.FromHours(1).TotalMilliseconds } });
+                rules.Add(new GoalEmail { Title = "Test Rule 2", IsVisualizationEnabled = true, TimePoint = RuleTimePoint.End, Rule = new Rule { Operator = GoalSetting.Model.RuleOperator.LessThan, Goal = GoalSetting.Model.RuleGoal.NumberOfEmailsInInbox, TargetValue = "1" } });
+                rules.Add(new GoalActivity { Title = "Test Rule 3", IsVisualizationEnabled = true, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.EveryDay, Rule = new Rule { Operator = GoalSetting.Model.RuleOperator.LessThan, Goal = GoalSetting.Model.RuleGoal.NumberOfSwitchesTo, TargetValue = "10" } });
+                rules.Add(new GoalActivity { Title = "Test Rule 4", IsVisualizationEnabled = true, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.Hour, Rule = new Rule { Operator = GoalSetting.Model.RuleOperator.LessThan, TargetValue = "" + TimeSpan.FromMinutes(10).TotalMilliseconds, Goal = GoalSetting.Model.RuleGoal.TimeSpentOn } });
+                rules.Add(new GoalActivity { Title = "Test Rule 5", IsVisualizationEnabled = true, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.Hour, Rule = new Rule { Operator = GoalSetting.Model.RuleOperator.LessThanOrEqual, TargetValue = "1", Goal = GoalSetting.Model.RuleGoal.NumberOfSwitchesTo } });
 
-                MethodInfo saveRulesMethod = typeof(DatabaseConnector).GetMethod("SaveRules", BindingFlags.NonPublic | BindingFlags.Static);
-                if (saveRulesMethod != null)
+                MethodInfo saveGoalsMethod = typeof(DatabaseConnector).GetMethod("SaveGoals", BindingFlags.NonPublic | BindingFlags.Static);
+                if (saveGoalsMethod != null)
                 {
-                    saveRulesMethod.Invoke(null, new object[] { rules });
+                    saveGoalsMethod.Invoke(null, new object[] { rules });
                 }
 
                 //Add email data

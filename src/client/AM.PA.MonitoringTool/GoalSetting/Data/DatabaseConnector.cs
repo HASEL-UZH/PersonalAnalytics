@@ -4,8 +4,8 @@
 // Licensed under the MIT License.
 
 using GoalSetting.Data;
+using GoalSetting.Goals;
 using GoalSetting.Model;
-using GoalSetting.Rules;
 using Shared;
 using Shared.Data;
 using System;
@@ -33,7 +33,7 @@ namespace GoalSetting
         private const string VisualizationEnabled = "visualizationEnabled";
 
         //CREATE Queries
-        private static readonly string CREATE_RULES_TABLE = "CREATE TABLE IF NOT EXISTS " + Settings.RuleTableName + " ("
+        private static readonly string CREATE_GOALS_TABLE = "CREATE TABLE IF NOT EXISTS " + Settings.GoalTableName + " ("
                                                             + ID + " INTEGER PRIMARY KEY, "
                                                             + Title + " TEXT, "
                                                             + Activity + " TEXT, "
@@ -48,10 +48,10 @@ namespace GoalSetting
 
 
         //SELECT Queries
-        private static readonly string GET_RULES_QUERY = "SELECT * FROM " + Settings.RuleTableName + ";";
+        private static readonly string GET_GOALS_QUERY = "SELECT * FROM " + Settings.GoalTableName + ";";
 
         //INSERT Queries
-        private static readonly string INSERT_RULES_QUERY = "INSERT INTO " + Settings.RuleTableName
+        private static readonly string INSERT_GOALS_QUERY = "INSERT INTO " + Settings.GoalTableName
                                                             + " SELECT null as " + ID + ", "
                                                             + "'{0}' AS " + Title + ", "
                                                             + "'{1}' AS " + Activity + ", "
@@ -66,24 +66,24 @@ namespace GoalSetting
 
         #region INSERT
 
-        internal static bool SaveRules(ObservableCollection<PARule> rules)
+        internal static bool SaveGoals(ObservableCollection<Goal> goals)
         {
             try
             {
-                //First delete all rules and then save the new rules
-                Database.GetInstance().ExecuteDefaultQuery("DELETE FROM " + Settings.RuleTableName + ";");
+                //First delete all goals and then save the new goals
+                Database.GetInstance().ExecuteDefaultQuery("DELETE FROM " + Settings.GoalTableName + ";");
 
-                foreach (PARule rule in rules)
+                foreach (Goal goal in goals)
                 {
                     string query = string.Empty;
 
-                    if (rule is PARuleActivity)
+                    if (goal is GoalActivity)
                     {
-                        query += String.Format(INSERT_RULES_QUERY, (rule.Title == null ? "" : rule.Title), (rule as PARuleActivity).Activity, (rule as PARuleActivity).TimeSpan, "", "", (rule.Action == null ? "" : rule.Action), rule.Rule.Goal, rule.Rule.TargetValue, rule.Rule.Operator, rule.IsVisualizationEnabled);
+                        query += String.Format(INSERT_GOALS_QUERY, (goal.Title == null ? "" : goal.Title), (goal as GoalActivity).Activity, (goal as GoalActivity).TimeSpan, "", "", (goal.Action == null ? "" : goal.Action), goal.Rule.Goal, goal.Rule.TargetValue, goal.Rule.Operator, goal.IsVisualizationEnabled);
                     }
-                    else if (rule is PARuleEmail)
+                    else if (goal is GoalEmail)
                     {
-                        query += String.Format(INSERT_RULES_QUERY, (rule.Title == null ? "" : rule.Title), "", "", (rule as PARuleEmail).TimePoint, (rule as PARuleEmail).Time, (rule.Action == null ? "" : rule.Action), rule.Rule.Goal, rule.Rule.TargetValue, rule.Rule.Operator, rule.IsVisualizationEnabled);
+                        query += String.Format(INSERT_GOALS_QUERY, (goal.Title == null ? "" : goal.Title), "", "", (goal as GoalEmail).TimePoint, (goal as GoalEmail).Time, (goal.Action == null ? "" : goal.Action), goal.Rule.Goal, goal.Rule.TargetValue, goal.Rule.Operator, goal.IsVisualizationEnabled);
                     }
 
                     Console.WriteLine(query);
@@ -102,11 +102,11 @@ namespace GoalSetting
 
         #region CREATE
 
-        internal static void CreateRulesTableIfNotExists()
+        internal static void CreateGoalsTableIfNotExists()
         {
             try
             {
-                Database.GetInstance().ExecuteDefaultQuery(CREATE_RULES_TABLE);
+                Database.GetInstance().ExecuteDefaultQuery(CREATE_GOALS_TABLE);
             }
             catch (Exception e)
             {
@@ -118,13 +118,13 @@ namespace GoalSetting
 
         #region SELECT
 
-        internal static ObservableCollection<PARule> GetStoredRules()
+        internal static ObservableCollection<Goal> GetStoredGoals()
         {
-            var rules = new ObservableCollection<PARule>();
+            var rules = new ObservableCollection<Goal>();
 
             try
             {
-                var table = Database.GetInstance().ExecuteReadQuery(GET_RULES_QUERY);
+                var table = Database.GetInstance().ExecuteReadQuery(GET_GOALS_QUERY);
 
                 foreach (DataRow row in table.Rows)
                 {
@@ -154,21 +154,21 @@ namespace GoalSetting
                     }
 
                     string action = row[6].ToString();
-                    Goal goal = (Goal)Enum.Parse(typeof(Goal), row[7].ToString());
+                    RuleGoal goal = (RuleGoal)Enum.Parse(typeof(RuleGoal), row[7].ToString());
 
                     string target = row[8].ToString();
-                    Operator op = (Operator)Enum.Parse(typeof(Operator), row[9].ToString());
+                    RuleOperator op = (RuleOperator)Enum.Parse(typeof(RuleOperator), row[9].ToString());
 
                     string visualizationEnabled = row[10].ToString();
                     bool visualization = Boolean.Parse(visualizationEnabled);
 
                     if (timeSpan.HasValue)
                     {
-                        rules.Add(new PARuleActivity() { Title = title, Rule = new Rules.Rule { Goal = goal, Operator = op, TargetValue = target }, Activity = activity.Value, TimeSpan = timeSpan, IsVisualizationEnabled = visualization });
+                        rules.Add(new GoalActivity() { Title = title, Rule = new Model.Rule { Goal = goal, Operator = op, TargetValue = target }, Activity = activity.Value, TimeSpan = timeSpan, IsVisualizationEnabled = visualization });
                     }
                     else
                     {
-                        rules.Add(new PARuleEmail() { Title = title, Rule = new Rules.Rule { Goal = goal, Operator = op, TargetValue = target }, TimePoint = timePoint, Time = time, IsVisualizationEnabled = visualization });
+                        rules.Add(new GoalEmail() { Title = title, Rule = new Model.Rule { Goal = goal, Operator = op, TargetValue = target }, TimePoint = timePoint, Time = time, IsVisualizationEnabled = visualization });
                     }
                 }
             }

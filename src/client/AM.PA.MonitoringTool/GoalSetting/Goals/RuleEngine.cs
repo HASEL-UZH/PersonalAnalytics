@@ -3,6 +3,7 @@
 // 
 // Licensed under the MIT License.
 
+using GoalSetting.Model;
 using System;
 using System.Linq.Expressions;
 

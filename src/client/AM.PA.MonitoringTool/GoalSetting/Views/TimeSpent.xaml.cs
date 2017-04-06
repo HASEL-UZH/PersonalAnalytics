@@ -6,11 +6,11 @@
 using System.Windows.Controls;
 using GoalSetting.Model;
 using Shared.Helpers;
-using GoalSetting.Rules;
 using Shared.Data;
 using System.Windows;
 using System.ComponentModel;
 using System;
+using GoalSetting.Goals;
 
 namespace GoalSetting.Views
 {
@@ -19,28 +19,28 @@ namespace GoalSetting.Views
     /// </summary>
     public partial class TimeSpent : UserControl
     {
-        private AddRule _parent;
-        private PARuleActivity _oldRule;
+        private AddGoal _parent;
+        private GoalActivity _oldGoal;
         private bool _isRuleEditing = false;
 
         private TimeSpent()
         {
             InitializeComponent();
 
-            Operator.ItemsSource = FormatStringHelper.GetDescriptions(typeof(Operator));
+            Operator.ItemsSource = FormatStringHelper.GetDescriptions(typeof(RuleOperator));
             Timespan.ItemsSource = FormatStringHelper.GetDescriptions(typeof(RuleTimeSpan));
             Activity.ItemsSource = FormatStringHelper.GetDescriptions(typeof(ContextCategory));
             TimeUnitComboBox.ItemsSource = FormatStringHelper.GetDescriptions(typeof(TimeUnit));
         }
 
-        public TimeSpent(PARuleActivity rule) : this()
+        public TimeSpent(GoalActivity goal) : this()
         {
-            this._oldRule = rule;
+            this._oldGoal = goal;
             this._isRuleEditing = true;
 
-            Title.Text = rule.Title;
-            Operator.SelectedItem = FormatStringHelper.GetDescription(rule.Rule.Operator);
-            TimeSpan timespan = TimeSpan.FromMilliseconds(double.Parse(rule.Rule.TargetValue));
+            Title.Text = goal.Title;
+            Operator.SelectedItem = FormatStringHelper.GetDescription(goal.Rule.Operator);
+            TimeSpan timespan = TimeSpan.FromMilliseconds(double.Parse(goal.Rule.TargetValue));
             
             if (timespan.TotalDays > 1)
             {
@@ -58,26 +58,26 @@ namespace GoalSetting.Views
                 TimeUnitComboBox.SelectedItem = FormatStringHelper.GetDescription(TimeUnit.Minutes);
             }
             
-            Activity.SelectedItem = FormatStringHelper.GetDescription(rule.Activity);
-            Timespan.SelectedItem = FormatStringHelper.GetDescription(rule.TimeSpan);
+            Activity.SelectedItem = FormatStringHelper.GetDescription(goal.Activity);
+            Timespan.SelectedItem = FormatStringHelper.GetDescription(goal.TimeSpan);
         }
 
-        public TimeSpent(GoalDomain goalDomain, AddRule parent) : this()
+        public TimeSpent(RuleGoalDomain goalDomain, AddGoal parent) : this()
         {
             this._parent = parent;
 
             switch (goalDomain)
             {
-                case GoalDomain.Browsing:
+                case RuleGoalDomain.Browsing:
                     Activity.SelectedItem = FormatStringHelper.GetDescription(ContextCategory.WorkUnrelatedBrowsing);
                     break;
-                case GoalDomain.Coding:
+                case RuleGoalDomain.Coding:
                     Activity.SelectedItem = FormatStringHelper.GetDescription(ContextCategory.DevCode);
                     break;
-                case GoalDomain.Emails:
+                case RuleGoalDomain.Emails:
                     Activity.SelectedItem = FormatStringHelper.GetDescription(ContextCategory.Email);
                     break;
-                case GoalDomain.Meetings:
+                case RuleGoalDomain.Meetings:
                     Activity.SelectedItem = FormatStringHelper.GetDescription(ContextCategory.PlannedMeeting);
                     break;
             }
@@ -86,39 +86,39 @@ namespace GoalSetting.Views
         private void Add_Click(object sender, RoutedEventArgs e)
         {
             string title = Title.Text;
-            Operator op = FormatStringHelper.GetValueFromDescription<Operator>(Operator.SelectedItem.ToString());
+            RuleOperator op = FormatStringHelper.GetValueFromDescription<RuleOperator>(Operator.SelectedItem.ToString());
 
             double targetValue = slValue.Value;
 
             TimeUnit selectedTimeUnit = FormatStringHelper.GetValueFromDescription<TimeUnit>(TimeUnitComboBox.SelectedItem.ToString());
             switch (selectedTimeUnit)
             {
-                case Views.TimeUnit.Minutes:
+                case TimeUnit.Minutes:
                     targetValue = TimeSpan.FromMinutes(targetValue).TotalMilliseconds;
                     break;
-                case Views.TimeUnit.Hours:
+                case TimeUnit.Hours:
                     targetValue = TimeSpan.FromHours(targetValue).TotalMilliseconds;
                     break;
-                case Views.TimeUnit.Days:
+                case TimeUnit.Days:
                     targetValue = TimeSpan.FromDays(targetValue).TotalMilliseconds;
                     break;
             }
             
-            Rule rule = new Rule { Goal = Goal.TimeSpentOn, Operator = op, TargetValue = targetValue.ToString() };
+            Rule rule = new Rule { Goal = RuleGoal.TimeSpentOn, Operator = op, TargetValue = targetValue.ToString() };
             ContextCategory activity = FormatStringHelper.GetValueFromDescription<ContextCategory>(Activity.SelectedItem.ToString());
             RuleTimeSpan timespan = FormatStringHelper.GetValueFromDescription<RuleTimeSpan>(Timespan.SelectedItem.ToString());
 
-            PARuleActivity newRule = new PARuleActivity { Title = title, Rule = rule, Activity = activity, TimeSpan = timespan, IsVisualizationEnabled = true };
+            GoalActivity newRule = new GoalActivity { Title = title, Rule = rule, Activity = activity, TimeSpan = timespan, IsVisualizationEnabled = true };
             this.Visibility = Visibility.Collapsed;
 
             if (!_isRuleEditing)
             {
-                GoalSettingManager.Instance.AddRule(newRule);
+                GoalSettingManager.Instance.AddGoal(newRule);
                 _parent.Close();
             }
             else
             {
-                GoalSettingManager.Instance.EditRule(_oldRule, newRule);
+                GoalSettingManager.Instance.EditGoal(_oldGoal, newRule);
                 (this.Parent as Window).Close();
             }
         }

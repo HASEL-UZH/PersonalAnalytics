@@ -3,11 +3,10 @@
 // 
 // Licensed under the MIT License.
 
+using GoalSetting.Goals;
 using GoalSetting.Model;
-using GoalSetting.Rules;
 using Shared.Data;
 using Shared.Helpers;
-using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -18,30 +17,30 @@ namespace GoalSetting.Views
     /// </summary>
     public partial class EmailInbox : UserControl
     {
-        private AddRule _parent;
+        private AddGoal _parent;
         private bool _isRuleEditing = false;
-        private PARuleEmail _oldRule;
+        private GoalEmail _oldGoal;
 
-        public EmailInbox(AddRule parent) : this()
+        public EmailInbox(AddGoal parent) : this()
         {
             this._parent = parent;
         }
 
-        public EmailInbox(PARuleEmail rule) : this()
+        public EmailInbox(GoalEmail goal) : this()
         {
-            this._oldRule = rule;
+            this._oldGoal = goal;
             this._isRuleEditing = true;
-            Title.Text = rule.Title;
-            Checkpoint.SelectedItem = FormatStringHelper.GetDescription(rule.TimePoint);
-            EnterTime.Text = rule.Time;
-            Operator.SelectedItem = FormatStringHelper.GetDescription(rule.Rule.Operator);
-            slValue.Value = double.Parse(rule.Rule.TargetValue);
+            Title.Text = goal.Title;
+            Checkpoint.SelectedItem = FormatStringHelper.GetDescription(goal.TimePoint);
+            EnterTime.Text = goal.Time;
+            Operator.SelectedItem = FormatStringHelper.GetDescription(goal.Rule.Operator);
+            slValue.Value = double.Parse(goal.Rule.TargetValue);
         }
 
         private EmailInbox()
         {
             InitializeComponent();
-            Operator.ItemsSource = FormatStringHelper.GetDescriptions(typeof(Operator));
+            Operator.ItemsSource = FormatStringHelper.GetDescriptions(typeof(RuleOperator));
             Checkpoint.ItemsSource = FormatStringHelper.GetDescriptions(typeof(RuleTimePoint));
         }
 
@@ -69,12 +68,11 @@ namespace GoalSetting.Views
         private void Add_Click(object sender, RoutedEventArgs e)
         {
             string title = Title.Text;
-            Operator op = FormatStringHelper.GetValueFromDescription<Operator>(Operator.SelectedItem.ToString());
+            RuleOperator op = FormatStringHelper.GetValueFromDescription<RuleOperator>(Operator.SelectedItem.ToString());
 
             double targetValue = slValue.Value;
 
-            Rule rule = new Rule { Goal = Goal.NumberOfEmailsInInbox, Operator = op, TargetValue = targetValue.ToString() };
-            ContextCategory activity = ContextCategory.Email;
+            Rule rule = new Rule { Goal = RuleGoal.NumberOfEmailsInInbox, Operator = op, TargetValue = targetValue.ToString() };
             RuleTimePoint timepoint = FormatStringHelper.GetValueFromDescription<RuleTimePoint>(Checkpoint.SelectedItem.ToString());
 
             string time = string.Empty;
@@ -83,17 +81,17 @@ namespace GoalSetting.Views
                 time = EnterTime.Text;
             }
 
-            PARuleEmail newRule = new PARuleEmail { Title = title, Rule = rule, TimePoint = timepoint, Time = time, IsVisualizationEnabled = true };
+            GoalEmail newRule = new GoalEmail { Title = title, Rule = rule, TimePoint = timepoint, Time = time, IsVisualizationEnabled = true };
             this.Visibility = Visibility.Collapsed;
 
             if (!_isRuleEditing)
             {
-                GoalSettingManager.Instance.AddRule(newRule);
+                GoalSettingManager.Instance.AddGoal(newRule);
                 _parent.Close();
             }
             else
             {
-                GoalSettingManager.Instance.EditRule(_oldRule, newRule);
+                GoalSettingManager.Instance.EditGoal(_oldGoal, newRule);
                 (this.Parent as Window).Close();
             }
         }
