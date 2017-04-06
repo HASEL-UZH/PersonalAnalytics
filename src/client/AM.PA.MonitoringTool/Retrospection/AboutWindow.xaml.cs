@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace Retrospection
@@ -43,6 +45,11 @@ namespace Retrospection
         private void Thomas_Clicked(object sender, MouseButtonEventArgs e)
         {
             Handler.GetInstance().SendFeedback();
+        }
+
+        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            Process.Start(e.Uri.ToString());
         }
 
         //private void CheckForUpdates_Clicked(object sender, RoutedEventArgs e)

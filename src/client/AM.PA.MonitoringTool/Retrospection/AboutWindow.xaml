@@ -35,6 +35,16 @@
                 <TextBlock Text="fritz@ifi.uzh.ch" TextDecorations="Underline" />
             </StackPanel>
 
+            <TextBlock Margin="0 0 0 5" Text="Releases:" TextWrapping="Wrap" FontWeight="Bold" />
+            <TextBlock Margin="0 0 0 30" TextWrapping="Wrap">
+                An overview about all releases of PersonalAnalytics, including detailed change logs, can be found on our Github page:
+                <Hyperlink 
+                NavigateUri="https://github.com/sealuzh/PersonalAnalytics/releases"
+                RequestNavigate="Hyperlink_RequestNavigate">
+            https://github.com/sealuzh/PersonalAnalytics/releases
+            </Hyperlink>
+            </TextBlock>
+            
             <TextBlock Margin="0 0 0 5" Text="Credits:" TextWrapping="Wrap" FontWeight="Bold" />
             <TextBlock Margin="0 0 0 30" Text="SQLite, JQuery, Masonry, D3.js, C3.js, HTML FilterTable, MousekeyHook, Hardcodet.NotifyIcon" TextWrapping="Wrap" />
 
