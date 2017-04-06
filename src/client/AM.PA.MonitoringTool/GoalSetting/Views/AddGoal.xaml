@@ -28,31 +28,15 @@
                     <ColumnDefinition Width="*"></ColumnDefinition>
                 </Grid.ColumnDefinitions>
 
-                <Button Height="40" Name="Emails" Grid.Row="0" Grid.Column="0" Margin="5, 10, 5, 5" Click="Step_2_Email">Emails</Button>
-                <Button Height="40" Name="Coding" Grid.Row="0" Grid.Column="1" Margin="5, 10, 5, 5" Click="Step_2_Coding">Coding</Button>
-                <Button Height="40" Name="Browsing" Grid.Row="0" Grid.Column="2" Margin="5, 10, 5, 5" Click="Step_2_Browsing">Browsing</Button>
-                <Button Height="40" Name="Meetings" Grid.Row="1" Grid.Column="0" Margin="5, 10, 5, 10" Click="Step_2_Meetings">Meetings</Button>
-                <Button Height="40" Name="Breaks" Grid.Row="1" Grid.Column="1" Margin="5, 10, 5, 10" Click="Step_2_Breaks">Breaks</Button>
-                <Button Height="40" Name="Focus" Grid.Row="1" Grid.Column="2" Margin="5, 10, 5, 10" Click="Step_2_Focus">Focus</Button>
+                <Button Height="40" Name="WorkFragmentation" Grid.Row="0" Grid.Column="0" Margin="5, 10, 5, 5" Click="WorkFragmentation_Click">Work Fragmentation</Button>
+                <Button Height="40" Name="TimeSpent" Grid.Row="0" Grid.Column="1" Margin="5, 10, 5, 5" Click="TimeSpent_Click">Time spent on specific activities</Button>
+                <Button Height="40" Name="Emails" Grid.Row="0" Grid.Column="2" Margin="5, 10, 5, 5" Click="Emails_Click">Emails</Button>
             </Grid>
         </StackPanel>
         
         <!--Step 2-->
-        <StackPanel Margin="10" Grid.Row="0" Name="Step2" Visibility="Collapsed">
-        </StackPanel>
-
-        <!--Step 3-->
-        <ContentControl Margin="10" Grid.Row="0" Name="Step3" Visibility="Collapsed">
+        <ContentControl Margin="10" Grid.Row="0" Name="Step2" Visibility="Collapsed">
         </ContentControl>
-        
-        <!--Not supported-->
-        <TextBlock Margin="15" Grid.Row="0" Name="NotYetSupported" Visibility="Collapsed" FontSize="16">
-            This goal is not yet supported!
-        </TextBlock>
-
-        <StackPanel Margin="15, 10, 15, 10" Grid.Row="1">
-            <Button Height="40" Name="Cancel" Click="Cancel_Click">Cancel</Button>
-        </StackPanel>
         
     </Grid>
     

@@ -42,26 +42,9 @@ namespace GoalSetting.Views
             Activity.SelectedItem = FormatStringHelper.GetDescription(goal.Activity);
         }
 
-        public WorkFragmentation(RuleGoalDomain goalDomain, AddGoal parent) : this()
+        public WorkFragmentation(AddGoal parent) : this()
         {
             this._parent = parent;
-            
-            switch (goalDomain)
-            {
-                case RuleGoalDomain.Browsing:
-                    Activity.SelectedItem = FormatStringHelper.GetDescription(ContextCategory.WorkUnrelatedBrowsing);
-                    break;
-                case RuleGoalDomain.Coding:
-                    Activity.SelectedItem = FormatStringHelper.GetDescription(ContextCategory.DevCode);
-                    break;
-                case RuleGoalDomain.Emails:
-                    Activity.SelectedItem = FormatStringHelper.GetDescription(ContextCategory.Email);
-                    break;
-                case RuleGoalDomain.Meetings:
-                    Activity.SelectedItem = FormatStringHelper.GetDescription(ContextCategory.PlannedMeeting);
-                    break;
-            }
-            
         }
 
         private void Add_Click(object sender, RoutedEventArgs e)

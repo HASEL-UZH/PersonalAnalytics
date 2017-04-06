@@ -51,7 +51,6 @@
     <Compile Include="GoalSettingManager.cs" />
     <Compile Include="Model\ActivityContext.cs" />
     <Compile Include="Model\RuleGoal.cs" />
-    <Compile Include="Model\RuleGoalDomain.cs" />
     <Compile Include="Model\RuleOperator.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

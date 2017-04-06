@@ -62,25 +62,9 @@ namespace GoalSetting.Views
             Timespan.SelectedItem = FormatStringHelper.GetDescription(goal.TimeSpan);
         }
 
-        public TimeSpent(RuleGoalDomain goalDomain, AddGoal parent) : this()
+        public TimeSpent(AddGoal parent) : this()
         {
             this._parent = parent;
-
-            switch (goalDomain)
-            {
-                case RuleGoalDomain.Browsing:
-                    Activity.SelectedItem = FormatStringHelper.GetDescription(ContextCategory.WorkUnrelatedBrowsing);
-                    break;
-                case RuleGoalDomain.Coding:
-                    Activity.SelectedItem = FormatStringHelper.GetDescription(ContextCategory.DevCode);
-                    break;
-                case RuleGoalDomain.Emails:
-                    Activity.SelectedItem = FormatStringHelper.GetDescription(ContextCategory.Email);
-                    break;
-                case RuleGoalDomain.Meetings:
-                    Activity.SelectedItem = FormatStringHelper.GetDescription(ContextCategory.PlannedMeeting);
-                    break;
-            }
         }
 
         private void Add_Click(object sender, RoutedEventArgs e)
