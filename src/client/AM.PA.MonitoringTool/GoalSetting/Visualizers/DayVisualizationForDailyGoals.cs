@@ -24,7 +24,15 @@ namespace GoalSetting.Visualizers
             var html = string.Empty;
             var startOfWork = Database.GetInstance().GetUserWorkStart(DateTime.Now.Date);
             var endOfWork = DateTime.Now;
-            
+            if (_goal.TimeSpan == RuleTimeSpan.Morning)
+            {
+                endOfWork = new DateTime(endOfWork.Year, endOfWork.Month, endOfWork.Day, 11, 0, 0, 0);
+            }
+            else if (_goal.TimeSpan == RuleTimeSpan.Afternoon)
+            {
+                startOfWork  = new DateTime(endOfWork.Year, endOfWork.Month, endOfWork.Day, 11, 0, 0, 0);
+            }
+
             if (endOfWork.Subtract(startOfWork).TotalMinutes <= 30)
             {
                 return VisHelper.NotEnoughData();
@@ -108,7 +116,8 @@ namespace GoalSetting.Visualizers
             html += "xAxisYPosition = height;";
             html += "svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + xAxisYPosition + ')').call(xAxis);";
             html += "svg.append('g').attr('class', 'y axis').style('fill', 'black').call(yAxisLeft);";
-            
+            html += "svg.append('line').style('stroke-dasharray', ('3, 3')).style('stroke', 'black').attr('x1', 0).attr('y1', y0(limit)).attr('x2', d3.max(data, function(d){return x(d.start);})).attr('y2', y0(limit));";
+
             //Draw legend
             html += "svg.append('text').attr('x', 0).attr('y', -10).style('text-anchor', 'middle').style('font-size', '0.5em').text('" + GoalVisHelper.getXAxisTitle(_goal, VisType.Day) + "');";
 

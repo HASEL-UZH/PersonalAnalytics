@@ -127,8 +127,12 @@ namespace GoalSetting.Visualizers
                     })
                     .attr('width', x.rangeBand());";
 
+            html += "var limit = " + GoalVisHelper.getLimitValue(_goal, VisType.Day) + ";";
+
             html += "svg.append('text').attr('x', 0).attr('y', -10).style('text-anchor', 'middle').style('font-size', '0.5em').text('" + GoalVisHelper.getXAxisTitle(_goal, VisType.Day) + "');";
-            
+
+            html += "svg.append('line').style('stroke-dasharray', ('3, 3')).style('stroke', 'black').attr('x1', 0).attr('y1', y(limit)).attr('x2', d3.max(data, function(d){return x(d.start);})).attr('y2', y(limit));";
+
             html += @"svg.append('g').attr('class', 'axis').attr('transform', 'translate(0,' + height + ')').call(xAxis);
                     svg.append('g').attr('class', 'axis').attr('transform', 'translate(' + width + ', height)').call(yAxis);";
 

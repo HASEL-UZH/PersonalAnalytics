@@ -40,6 +40,16 @@ namespace GoalSetting.Visualizers
             //For the daily visualization we ignore rules that are on weekly or monthly basis
             goals.RemoveAll(r => r.TimeSpan == RuleTimeSpan.Month || r.TimeSpan == RuleTimeSpan.Week);
 
+
+            //We use the following strategy to display visualizations for goals:
+            //Specific point in time --> Progress bar
+            //Hour --> bar chart
+            //Day --> line chart
+            //Specific day --> line chart (but ignore if it is not the specific day)
+            //Week --> Ignore
+            //Month --> Ignore
+            //Afternoon --> Ignore if visualization is displayed in the morning, otherweise line chart
+            //Morning --> line chart
             List<IVisualization> visualizations = new List<IVisualization>();
             foreach (var goal in goals)
             {
@@ -49,7 +59,25 @@ namespace GoalSetting.Visualizers
                     {
                         visualizations.Add(new DayVisualizationForHourlyGoals(date, goal));
                     }
-                    else
+                    else if (goal.TimeSpan == RuleTimeSpan.EveryDay)
+                    {
+                        visualizations.Add(new DayVisualizationForDailyGoals(date, goal));
+                    }
+                    else if ( (goal.TimeSpan == RuleTimeSpan.Monday && date.DayOfWeek == DayOfWeek.Monday) ||
+                              (goal.TimeSpan == RuleTimeSpan.Tuesday && date.DayOfWeek == DayOfWeek.Tuesday) ||
+                              (goal.TimeSpan == RuleTimeSpan.Wednesday && date.DayOfWeek == DayOfWeek.Wednesday) ||
+                              (goal.TimeSpan == RuleTimeSpan.Thursday && date.DayOfWeek == DayOfWeek.Thursday) ||
+                              (goal.TimeSpan == RuleTimeSpan.Friday && date.DayOfWeek == DayOfWeek.Friday) ||
+                              (goal.TimeSpan == RuleTimeSpan.Saturday && date.DayOfWeek == DayOfWeek.Saturday) ||
+                              (goal.TimeSpan == RuleTimeSpan.Sunday && date.DayOfWeek == DayOfWeek.Sunday))
+                    {
+                        visualizations.Add(new DayVisualizationForDailyGoals(date, goal));
+                    }
+                    else if (goal.TimeSpan == RuleTimeSpan.Morning)
+                    {
+                        visualizations.Add(new DayVisualizationForDailyGoals(date, goal));
+                    }
+                    else if (goal.TimeSpan == RuleTimeSpan.Afternoon && date.DateTime.Hour > 11)
                     {
                         visualizations.Add(new DayVisualizationForDailyGoals(date, goal));
                     }
