@@ -48,12 +48,12 @@ namespace GoalSetting
                                                             + Target + " TEXT, "
                                                             + Operator + " TEXT, "
                                                             + VisualizationEnabled + " TEXT, "
-                                                            + IsActive + " INTEGER, "                    
-                                                            + Created + " TEXT, "
-                                                            + Deleted + " TEXT);";
+                                                            + IsActive + " TEXT, "
+                                                            + Created + " DATETIME, "
+                                                            + Deleted + " DATETIME);";
 
         //SELECT Queries
-        private static readonly string GET_GOALS_QUERY = "SELECT * FROM " + Settings.GoalTableName + " WHERE isActive == 'True';";
+        private static readonly string GET_GOALS_QUERY = "SELECT " + ID + ", " + Title + ", " + Activity + ", " + Timespan + ", " + Timepoint + ", " + Time + ", " + Action + ", " + Goal + ", " + Target + ", " + Operator + ", " + VisualizationEnabled + " FROM " + Settings.GoalTableName + " WHERE isActive == 'True';";
 
         //INSERT Queries
         private static readonly string INSERT_GOALS_QUERY = "INSERT INTO " + Settings.GoalTableName + " VALUES ("
@@ -69,8 +69,8 @@ namespace GoalSetting
                                                             + "'{9}', "
                                                             + "'{10}', "
                                                             + "'{11}', "
-                                                            + "'{12}', "
-                                                            + "'{13}');";
+                                                            + "{12}, "
+                                                            + "{13});";
 
         //REMOVE Queries
         private static readonly string REMOVE_GOAL_QUERY = "UPDATE " + Settings.GoalTableName + " SET " + Deleted + " = '{0}', " + IsActive + " = '" + false + "' WHERE " + ID + " == '{1}';";
@@ -87,11 +87,11 @@ namespace GoalSetting
 
                 if (goal is GoalActivity)
                 {
-                    query += String.Format(INSERT_GOALS_QUERY, goal.ID, (goal.Title == null ? "" : goal.Title), (goal as GoalActivity).Activity, (goal as GoalActivity).TimeSpan, "", "", (goal.Action == null ? "" : goal.Action), goal.Rule.Goal, goal.Rule.TargetValue, goal.Rule.Operator, goal.IsVisualizationEnabled, true, DateTime.Now.ToString(Settings.DateFormat), "");
+                    query += String.Format(INSERT_GOALS_QUERY, goal.ID, (goal.Title == null ? "" : goal.Title), (goal as GoalActivity).Activity, (goal as GoalActivity).TimeSpan, "", "", (goal.Action == null ? "" : goal.Action), goal.Rule.Goal, goal.Rule.TargetValue, goal.Rule.Operator, goal.IsVisualizationEnabled, true, "'" + DateTime.Now.ToString(Settings.DateFormat) + "'", "null");
                 }
                 else if (goal is GoalEmail)
                 {
-                    query += String.Format(INSERT_GOALS_QUERY, goal.ID, (goal.Title == null ? "" : goal.Title), "", "", (goal as GoalEmail).TimePoint, (goal as GoalEmail).Time, (goal.Action == null ? "" : goal.Action), goal.Rule.Goal, goal.Rule.TargetValue, goal.Rule.Operator, goal.IsVisualizationEnabled, true, DateTime.Now.ToString(Settings.DateFormat), "");
+                    query += String.Format(INSERT_GOALS_QUERY, goal.ID, (goal.Title == null ? "" : goal.Title), "", "", (goal as GoalEmail).TimePoint, (goal as GoalEmail).Time, (goal.Action == null ? "" : goal.Action), goal.Rule.Goal, goal.Rule.TargetValue, goal.Rule.Operator, goal.IsVisualizationEnabled, true, "'" + DateTime.Now.ToString(Settings.DateFormat) + "'", "null");
                 }
 
                 Console.WriteLine(query);
