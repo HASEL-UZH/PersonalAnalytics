@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 using System.Windows.Controls;
 using System.Windows;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Windows.Media;
 using Shared.Helpers;
 using System.Windows.Documents;
@@ -20,23 +19,10 @@ namespace GoalSetting
     /// <summary>
     /// Interaction logic for GoalSetting.xaml
     /// </summary>
-    public partial class GoalSetting : UserControl, INotifyPropertyChanged
+    public partial class GoalSetting : UserControl
     {
         private ObservableCollection<Goal> _goals;
-        private bool _hasChanged = false;
-        
-        public bool HasChanged { get { return _hasChanged; } set { _hasChanged = value; NotifyPropertyChanged("HasChanged"); } }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void NotifyPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
+      
         public GoalSetting(ObservableCollection<Goal> goals)
         {
             InitializeComponent();
@@ -45,7 +31,6 @@ namespace GoalSetting
             Rules.ItemsSource = goals;
             _goals.CollectionChanged += _rules_CollectionChanged;
             CheckRules.IsEnabled = _goals.Count > 0;
-            SaveRules.DataContext = this;
 
             LoadGoalStatus();
         }
@@ -130,23 +115,16 @@ namespace GoalSetting
         {
             GoalSettingManager.Instance.CheckRules(_goals, true);
         }
-
-        private void SaveRules_Click(object sender, RoutedEventArgs e)
-        {
-            HasChanged = ! DatabaseConnector.SaveGoals(_goals);
-        }
-
+        
         private void AddRule_Click(object sender, RoutedEventArgs e)
         { 
             GoalSettingManager.Instance.AddNewGoal();
-            HasChanged = true;
         }
 
         private void DeleteRule_Click(object sender, RoutedEventArgs e)
         {
             Goal rule = (Goal) Rules.SelectedItem;
-            GoalSettingManager.Instance.DeleteRule(rule);
-            HasChanged = true;
+            GoalSettingManager.Instance.DeleteGoal(rule);
         }
 
         private void Rules_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)

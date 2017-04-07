@@ -60,6 +60,7 @@ namespace GoalSetting
         internal void AddGoal(Goal newGoal)
         {
             _goals.Add(newGoal);
+            DatabaseConnector.AddGoal(newGoal);
         }
 
         internal List<GoalActivity> GetActivityGoals()
@@ -96,10 +97,11 @@ namespace GoalSetting
             }
         }
 
-        internal void DeleteRule(Goal goal)
+        internal void DeleteGoal(Goal goal)
         {
             Logger.WriteToConsole("Delete: " + goal);
             _goals.Remove(goal);
+            DatabaseConnector.RemoveGoal(goal);
         }
 
         private List<Activity> GetActivity(RuleTimeSpan timespan)
@@ -184,7 +186,7 @@ namespace GoalSetting
 
         internal void EditGoal(Goal oldGoal, Goal newGoal)
         {
-            DeleteRule(oldGoal);
+            DeleteGoal(oldGoal);
             AddGoal(newGoal);
         }
 

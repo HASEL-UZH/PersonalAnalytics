@@ -10,6 +10,8 @@ namespace GoalSetting.Goals
 {
     public abstract class Goal
     {
+        public Guid ID { get; set; }
+
         public string Title { get; set; }
 
         public Rule Rule { get; set; }

@@ -31,10 +31,13 @@ namespace GoalSetting
         private const string Target = "target";
         private const string Operator = "operator";
         private const string VisualizationEnabled = "visualizationEnabled";
+        private const string IsActive = "isActive";
+        private const string Created = "created";
+        private const string Deleted = "deleted";
 
         //CREATE Queries
         private static readonly string CREATE_GOALS_TABLE = "CREATE TABLE IF NOT EXISTS " + Settings.GoalTableName + " ("
-                                                            + ID + " INTEGER PRIMARY KEY, "
+                                                            + ID + " TEXT PRIMARY KEY, "
                                                             + Title + " TEXT, "
                                                             + Activity + " TEXT, "
                                                             + Timespan + " TEXT, "
@@ -44,62 +47,82 @@ namespace GoalSetting
                                                             + Goal + " TEXT, "
                                                             + Target + " TEXT, "
                                                             + Operator + " TEXT, "
-                                                            + VisualizationEnabled + " TEXT);";
-
+                                                            + VisualizationEnabled + " TEXT, "
+                                                            + IsActive + " INTEGER, "                    
+                                                            + Created + " TEXT, "
+                                                            + Deleted + " TEXT);";
 
         //SELECT Queries
-        private static readonly string GET_GOALS_QUERY = "SELECT * FROM " + Settings.GoalTableName + ";";
+        private static readonly string GET_GOALS_QUERY = "SELECT * FROM " + Settings.GoalTableName + " WHERE isActive == 'True';";
 
         //INSERT Queries
-        private static readonly string INSERT_GOALS_QUERY = "INSERT INTO " + Settings.GoalTableName
-                                                            + " SELECT null as " + ID + ", "
-                                                            + "'{0}' AS " + Title + ", "
-                                                            + "'{1}' AS " + Activity + ", "
-                                                            + "'{2}' AS " + Timespan + ", "
-                                                            + "'{3}' AS " + Timepoint + ", "
-                                                            + "'{4}' AS " + Time + ", "
-                                                            + "'{5}' AS " + Action + ", "
-                                                            + "'{6}' AS " + Goal + ", "
-                                                            + "'{7}' AS " + Target + ", "
-                                                            + "'{8}' AS " + Operator + ", "
-                                                            + "'{9}' AS " + VisualizationEnabled;
+        private static readonly string INSERT_GOALS_QUERY = "INSERT INTO " + Settings.GoalTableName + " VALUES ("
+                                                            + "'{0}', "
+                                                            + "'{1}', "
+                                                            + "'{2}', "
+                                                            + "'{3}', "
+                                                            + "'{4}', "
+                                                            + "'{5}', "
+                                                            + "'{6}', "
+                                                            + "'{7}', "
+                                                            + "'{8}', "
+                                                            + "'{9}', "
+                                                            + "'{10}', "
+                                                            + "'{11}', "
+                                                            + "'{12}', "
+                                                            + "'{13}');";
 
-        #region INSERT
+        //REMOVE Queries
+        private static readonly string REMOVE_GOAL_QUERY = "UPDATE " + Settings.GoalTableName + " SET " + Deleted + " = '{0}', " + IsActive + " = '" + false + "' WHERE " + ID + " == '{1}';";
+        
+        #region Add
 
-        internal static bool SaveGoals(ObservableCollection<Goal> goals)
+        internal static void AddGoal(Goal goal)
         {
             try
             {
-                //First delete all goals and then save the new goals
-                Database.GetInstance().ExecuteDefaultQuery("DELETE FROM " + Settings.GoalTableName + ";");
+                string query = string.Empty;
 
-                foreach (Goal goal in goals)
+                goal.ID = Guid.NewGuid();
+
+                if (goal is GoalActivity)
                 {
-                    string query = string.Empty;
-
-                    if (goal is GoalActivity)
-                    {
-                        query += String.Format(INSERT_GOALS_QUERY, (goal.Title == null ? "" : goal.Title), (goal as GoalActivity).Activity, (goal as GoalActivity).TimeSpan, "", "", (goal.Action == null ? "" : goal.Action), goal.Rule.Goal, goal.Rule.TargetValue, goal.Rule.Operator, goal.IsVisualizationEnabled);
-                    }
-                    else if (goal is GoalEmail)
-                    {
-                        query += String.Format(INSERT_GOALS_QUERY, (goal.Title == null ? "" : goal.Title), "", "", (goal as GoalEmail).TimePoint, (goal as GoalEmail).Time, (goal.Action == null ? "" : goal.Action), goal.Rule.Goal, goal.Rule.TargetValue, goal.Rule.Operator, goal.IsVisualizationEnabled);
-                    }
-
-                    Console.WriteLine(query);
-                    Database.GetInstance().ExecuteDefaultQuery(query);
+                    query += String.Format(INSERT_GOALS_QUERY, goal.ID, (goal.Title == null ? "" : goal.Title), (goal as GoalActivity).Activity, (goal as GoalActivity).TimeSpan, "", "", (goal.Action == null ? "" : goal.Action), goal.Rule.Goal, goal.Rule.TargetValue, goal.Rule.Operator, goal.IsVisualizationEnabled, true, DateTime.Now.ToString(Settings.DateFormat), "");
                 }
+                else if (goal is GoalEmail)
+                {
+                    query += String.Format(INSERT_GOALS_QUERY, goal.ID, (goal.Title == null ? "" : goal.Title), "", "", (goal as GoalEmail).TimePoint, (goal as GoalEmail).Time, (goal.Action == null ? "" : goal.Action), goal.Rule.Goal, goal.Rule.TargetValue, goal.Rule.Operator, goal.IsVisualizationEnabled, true, DateTime.Now.ToString(Settings.DateFormat), "");
+                }
+
+                Console.WriteLine(query);
+                Database.GetInstance().ExecuteDefaultQuery(query);
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return false;
             }
-            return true;
         }
 
         #endregion
 
+        #region Remove
+
+        internal static void RemoveGoal(Goal goal)
+        {
+            try
+            {
+                var query = String.Format(REMOVE_GOAL_QUERY, DateTime.Now.ToString(Settings.DateFormat), goal.ID);
+                Console.WriteLine(query);
+                Database.GetInstance().ExecuteDefaultQuery(query);
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+        }
+
+        #endregion
+        
         #region CREATE
 
         internal static void CreateGoalsTableIfNotExists()
@@ -128,6 +151,8 @@ namespace GoalSetting
 
                 foreach (DataRow row in table.Rows)
                 {
+                    Guid id = Guid.Parse(row[0].ToString());
+
                     string title = row[1].ToString();
 
                     ContextCategory? activity = null;
@@ -164,11 +189,11 @@ namespace GoalSetting
 
                     if (timeSpan.HasValue)
                     {
-                        rules.Add(new GoalActivity() { Title = title, Rule = new Model.Rule { Goal = goal, Operator = op, TargetValue = target }, Activity = activity.Value, TimeSpan = timeSpan, IsVisualizationEnabled = visualization });
+                        rules.Add(new GoalActivity() { ID = id, Title = title, Rule = new Model.Rule { Goal = goal, Operator = op, TargetValue = target }, Activity = activity.Value, TimeSpan = timeSpan, IsVisualizationEnabled = visualization });
                     }
                     else
                     {
-                        rules.Add(new GoalEmail() { Title = title, Rule = new Model.Rule { Goal = goal, Operator = op, TargetValue = target }, TimePoint = timePoint, Time = time, IsVisualizationEnabled = visualization });
+                        rules.Add(new GoalEmail() { ID = id, Title = title, Rule = new Model.Rule { Goal = goal, Operator = op, TargetValue = target }, TimePoint = timePoint, Time = time, IsVisualizationEnabled = visualization });
                     }
                 }
             }
