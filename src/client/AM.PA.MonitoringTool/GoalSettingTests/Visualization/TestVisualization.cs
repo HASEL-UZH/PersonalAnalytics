@@ -128,16 +128,19 @@ namespace GoalSettingTests.Visualization
 
                 //Add goals
                 ObservableCollection<Goal> rules = new ObservableCollection<Goal>();
-                rules.Add(new GoalActivity { Title = "Test Rule 1", IsVisualizationEnabled = true, Activity = ContextCategory.DevCode, TimeSpan = RuleTimeSpan.EveryDay, Rule = new Rule { Operator = GoalSetting.Model.RuleOperator.LessThan, Goal = GoalSetting.Model.RuleGoal.TimeSpentOn, TargetValue = "" + TimeSpan.FromHours(1).TotalMilliseconds } });
-                rules.Add(new GoalEmail { Title = "Test Rule 2", IsVisualizationEnabled = true, TimePoint = RuleTimePoint.End, Rule = new Rule { Operator = GoalSetting.Model.RuleOperator.LessThan, Goal = GoalSetting.Model.RuleGoal.NumberOfEmailsInInbox, TargetValue = "1" } });
-                rules.Add(new GoalActivity { Title = "Test Rule 3", IsVisualizationEnabled = true, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.EveryDay, Rule = new Rule { Operator = GoalSetting.Model.RuleOperator.LessThan, Goal = GoalSetting.Model.RuleGoal.NumberOfSwitchesTo, TargetValue = "10" } });
-                rules.Add(new GoalActivity { Title = "Test Rule 4", IsVisualizationEnabled = true, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.Hour, Rule = new Rule { Operator = GoalSetting.Model.RuleOperator.LessThan, TargetValue = "" + TimeSpan.FromMinutes(10).TotalMilliseconds, Goal = GoalSetting.Model.RuleGoal.TimeSpentOn } });
-                rules.Add(new GoalActivity { Title = "Test Rule 5", IsVisualizationEnabled = true, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.Hour, Rule = new Rule { Operator = GoalSetting.Model.RuleOperator.LessThanOrEqual, TargetValue = "1", Goal = GoalSetting.Model.RuleGoal.NumberOfSwitchesTo } });
+                rules.Add(new GoalActivity { ID = new Guid(), Title = "Test Rule 1", IsVisualizationEnabled = true, Activity = ContextCategory.DevCode, TimeSpan = RuleTimeSpan.EveryDay, Rule = new Rule { Operator = GoalSetting.Model.RuleOperator.LessThan, Goal = GoalSetting.Model.RuleGoal.TimeSpentOn, TargetValue = "" + TimeSpan.FromHours(1).TotalMilliseconds } });
+                rules.Add(new GoalEmail { ID = new Guid(), Title = "Test Rule 2", IsVisualizationEnabled = true, TimePoint = RuleTimePoint.End, Rule = new Rule { Operator = GoalSetting.Model.RuleOperator.LessThan, Goal = GoalSetting.Model.RuleGoal.NumberOfEmailsInInbox, TargetValue = "1" } });
+                rules.Add(new GoalActivity { ID = new Guid(), Title = "Test Rule 3", IsVisualizationEnabled = true, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.EveryDay, Rule = new Rule { Operator = GoalSetting.Model.RuleOperator.LessThan, Goal = GoalSetting.Model.RuleGoal.NumberOfSwitchesTo, TargetValue = "10" } });
+                rules.Add(new GoalActivity { ID = new Guid(), Title = "Test Rule 4", IsVisualizationEnabled = true, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.Hour, Rule = new Rule { Operator = GoalSetting.Model.RuleOperator.LessThan, TargetValue = "" + TimeSpan.FromMinutes(10).TotalMilliseconds, Goal = GoalSetting.Model.RuleGoal.TimeSpentOn } });
+                rules.Add(new GoalActivity { ID = new Guid(), Title = "Test Rule 5", IsVisualizationEnabled = true, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.Hour, Rule = new Rule { Operator = GoalSetting.Model.RuleOperator.LessThanOrEqual, TargetValue = "1", Goal = GoalSetting.Model.RuleGoal.NumberOfSwitchesTo } });
 
-                MethodInfo saveGoalsMethod = typeof(DatabaseConnector).GetMethod("SaveGoals", BindingFlags.NonPublic | BindingFlags.Static);
+                MethodInfo saveGoalsMethod = typeof(DatabaseConnector).GetMethod("AddGoal", BindingFlags.NonPublic | BindingFlags.Static);
                 if (saveGoalsMethod != null)
                 {
-                    saveGoalsMethod.Invoke(null, new object[] { rules });
+                    foreach (Goal goal in rules)
+                    {
+                        saveGoalsMethod.Invoke(null, new object[] { goal });
+                    }
                 }
 
                 //Add email data
