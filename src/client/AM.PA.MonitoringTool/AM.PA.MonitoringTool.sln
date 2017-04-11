@@ -27,6 +27,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PolarTracker", "PolarTracke
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitbitTracker", "FitbitTracker\FitbitTracker.csproj", "{D7752ED4-6DD5-4953-8B5F-BBCE24136D1C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserInterruptibilityTracker", "UserInterruptibilityTracker\UserInterruptibilityTracker.csproj", "{546A008D-F0C1-44C2-9768-9360154BB456}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitbitTrackerTests", "FitbitTrackerTests\FitbitTrackerTests.csproj", "{5A61DDD2-DE30-40D8-BFFF-8EF238BA65A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -131,6 +135,22 @@ Global
 		{D7752ED4-6DD5-4953-8B5F-BBCE24136D1C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D7752ED4-6DD5-4953-8B5F-BBCE24136D1C}.Release|x86.ActiveCfg = Release|Any CPU
 		{D7752ED4-6DD5-4953-8B5F-BBCE24136D1C}.Release|x86.Build.0 = Release|Any CPU
+		{546A008D-F0C1-44C2-9768-9360154BB456}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{546A008D-F0C1-44C2-9768-9360154BB456}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{546A008D-F0C1-44C2-9768-9360154BB456}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{546A008D-F0C1-44C2-9768-9360154BB456}.Debug|x86.Build.0 = Debug|Any CPU
+		{546A008D-F0C1-44C2-9768-9360154BB456}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{546A008D-F0C1-44C2-9768-9360154BB456}.Release|Any CPU.Build.0 = Release|Any CPU
+		{546A008D-F0C1-44C2-9768-9360154BB456}.Release|x86.ActiveCfg = Release|Any CPU
+		{546A008D-F0C1-44C2-9768-9360154BB456}.Release|x86.Build.0 = Release|Any CPU
+		{5A61DDD2-DE30-40D8-BFFF-8EF238BA65A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A61DDD2-DE30-40D8-BFFF-8EF238BA65A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A61DDD2-DE30-40D8-BFFF-8EF238BA65A5}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5A61DDD2-DE30-40D8-BFFF-8EF238BA65A5}.Debug|x86.Build.0 = Debug|Any CPU
+		{5A61DDD2-DE30-40D8-BFFF-8EF238BA65A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A61DDD2-DE30-40D8-BFFF-8EF238BA65A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A61DDD2-DE30-40D8-BFFF-8EF238BA65A5}.Release|x86.ActiveCfg = Release|Any CPU
+		{5A61DDD2-DE30-40D8-BFFF-8EF238BA65A5}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
