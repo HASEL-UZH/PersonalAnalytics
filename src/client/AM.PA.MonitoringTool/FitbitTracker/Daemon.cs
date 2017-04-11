@@ -86,12 +86,16 @@ namespace FitbitTracker
 
         private void CheckIfSecretsAreAvailable()
         {
+            //Check if credentials are there. If not, we get them from the server.
+            //Also check if credentials are meaningful or just dummy credentials. We had
+            //incidents where we stored a, b, or c as dummy credentials. In this case, the
+            //following check should detect these dummy credentials and replace them with the real ones.
             if (SecretStorage.GetFibitFirstAuthorizationCode() == null ||
                 SecretStorage.GetFitbitClientID() == null ||
                 SecretStorage.GetFitbitClientSecret() == null ||
-                SecretStorage.GetFibitFirstAuthorizationCode().Length == 1 ||
-                SecretStorage.GetFitbitClientID().Length == 1 ||
-                SecretStorage.GetFitbitClientSecret().Length == 1)
+                SecretStorage.GetFibitFirstAuthorizationCode().Length <= 1 ||
+                SecretStorage.GetFitbitClientID().Length <= 1 ||
+                SecretStorage.GetFitbitClientSecret().Length <= 1)
             {
                 try
                 {
