@@ -86,7 +86,12 @@ namespace FitbitTracker
 
         private void CheckIfSecretsAreAvailable()
         {
-            if (SecretStorage.GetFibitFirstAuthorizationCode() == null || SecretStorage.GetFitbitClientID() == null || SecretStorage.GetFitbitClientSecret() == null)
+            if (SecretStorage.GetFibitFirstAuthorizationCode() == null ||
+                SecretStorage.GetFitbitClientID() == null ||
+                SecretStorage.GetFitbitClientSecret() == null ||
+                SecretStorage.GetFibitFirstAuthorizationCode().Length == 1 ||
+                SecretStorage.GetFitbitClientID().Length == 1 ||
+                SecretStorage.GetFitbitClientSecret().Length == 1)
             {
                 try
                 {
