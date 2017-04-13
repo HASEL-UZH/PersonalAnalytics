@@ -1,21 +1,20 @@
 ﻿// Created by Sebastian Mueller (smueller@ifi.uzh.ch) from the University of Zurich
-// Created: 2017-04-05
+// Created: 2017-03-27
 // 
 // Licensed under the MIT License.
 
-using GoalSetting.Goals;
-using Shared;
 using System;
+using Shared;
+using GoalSetting.Goals;
 
 namespace GoalSetting.Visualizers
 {
-    public abstract class DayVisualization : BaseVisualization, IVisualization
+    public abstract class PAVisualization : BaseVisualization, IVisualization
     {
+        protected DateTimeOffset _date;
+        protected GoalActivity _goal;
 
-        internal GoalActivity _goal;
-        internal DateTimeOffset _date;
-
-        public DayVisualization(DateTimeOffset date, GoalActivity goal)
+        public PAVisualization(DateTimeOffset date, GoalActivity goal)
         {
             Title = goal.ToString();
             this._goal = goal;

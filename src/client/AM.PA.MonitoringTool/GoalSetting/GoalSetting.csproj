@@ -86,12 +86,15 @@
     <Compile Include="Views\WorkFragmentation.xaml.cs">
       <DependentUpon>WorkFragmentation.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Visualizers\DayVisualization.cs" />
     <Compile Include="Visualizers\DayVisualizationForDailyGoals.cs" />
     <Compile Include="Visualizers\DayVisualizationForHourlyGoals.cs" />
     <Compile Include="Visualizers\GoalVisHelper.cs" />
     <Compile Include="Visualizers\GoalVisualizer.cs" />
-    <Compile Include="Visualizers\WeekVisualization.cs" />
+    <Compile Include="Visualizers\PAVisualization.cs" />
+    <Compile Include="Visualizers\WeekVisualizationForDailyGoal.cs" />
+    <Compile Include="Visualizers\WeekVisualizationForHourlyGoal.cs" />
+    <Compile Include="Visualizers\WeekVisualizationForSpecificDailyGoal.cs" />
+    <Compile Include="Visualizers\WeekVisualizationForWeeklyGoal.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="Views\AddGoal.xaml">

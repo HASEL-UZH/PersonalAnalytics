@@ -15,7 +15,7 @@ using GoalSetting.Goals;
 
 namespace GoalSetting.Visualizers
 {
-    public class DayVisualizationForHourlyGoals : DayVisualization
+    public class DayVisualizationForHourlyGoals : PAVisualization
     {
         public DayVisualizationForHourlyGoals(DateTimeOffset date, GoalActivity goal) : base(date, goal) { }
 
