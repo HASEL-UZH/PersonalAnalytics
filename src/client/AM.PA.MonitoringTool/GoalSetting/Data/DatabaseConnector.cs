@@ -34,8 +34,11 @@ namespace GoalSetting
         private const string IsActive = "isActive";
         private const string Created = "created";
         private const string Deleted = "deleted";
+        private const string TargetValue = "targetValue";
+        private const string ActualValue = "actualValue";
+        private const string Text = "text";
 
-        //CREATE Queries
+        //CREATE Goals
         private static readonly string CREATE_GOALS_TABLE = "CREATE TABLE IF NOT EXISTS " + Settings.GoalTableName + " ("
                                                             + ID + " TEXT PRIMARY KEY, "
                                                             + Title + " TEXT, "
@@ -51,6 +54,13 @@ namespace GoalSetting
                                                             + IsActive + " TEXT, "
                                                             + Created + " DATETIME, "
                                                             + Deleted + " DATETIME);";
+
+        //CREATE Achievements
+        private static readonly string CREATE_ACHIEVEMENTS_TABLE = "CREATE TABLE IF NOT EXISTS " + Settings.AchievementsTableName + " ("
+                                                            + ID + " TEXT PRIMARY KEY, "
+                                                            + TargetValue + " TEXT ,"
+                                                            + ActualValue + " TEXT ,"
+                                                            + Text + " TEXT);";
 
         //SELECT Queries
         private static readonly string GET_GOALS_QUERY = "SELECT " + ID + ", " + Title + ", " + Activity + ", " + Timespan + ", " + Timepoint + ", " + Time + ", " + Action + ", " + Goal + ", " + Target + ", " + Operator + ", " + VisualizationEnabled + " FROM " + Settings.GoalTableName + " WHERE isActive == 'True';";
@@ -130,6 +140,7 @@ namespace GoalSetting
             try
             {
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_GOALS_TABLE);
+                Database.GetInstance().ExecuteDefaultQuery(CREATE_ACHIEVEMENTS_TABLE);
             }
             catch (Exception e)
             {

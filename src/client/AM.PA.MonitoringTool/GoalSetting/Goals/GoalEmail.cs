@@ -5,6 +5,7 @@
 
 using Shared.Helpers;
 using GoalSetting.Model;
+using GoalSetting.Rules;
 
 namespace GoalSetting.Goals
 {
@@ -38,7 +39,7 @@ namespace GoalSetting.Goals
 
         public override void Compile()
         {
-            //TODO
+            CompiledRule = RuleEngine.CompileRule<Activity>(Rule);
         }
 
         public override void CalculateProgressStatus()

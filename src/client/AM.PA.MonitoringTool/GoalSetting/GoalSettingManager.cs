@@ -18,6 +18,7 @@ using System.Windows.Threading;
 using Shared.Events;
 using System.Diagnostics;
 using GoalSetting.Goals;
+using System.Timers;
 
 namespace GoalSetting
 {
@@ -26,6 +27,8 @@ namespace GoalSetting
         private ObservableCollection<Goal> _goals;
 
         private static GoalSettingManager instance;
+
+        private Timer _goalCheckerTimer;
 
         private GoalSettingManager() { }
 
@@ -76,6 +79,8 @@ namespace GoalSetting
             DatabaseConnector.CreateGoalsTableIfNotExists();
 
             _goals = DatabaseConnector.GetStoredGoals();
+
+            StartGoalCheckingTimer();
             
             Window window = new Window
             {
@@ -85,6 +90,25 @@ namespace GoalSetting
             };
             window.ShowDialog();
             
+        }
+
+        private void StartGoalCheckingTimer()
+        {
+            _goalCheckerTimer = new Timer();
+            _goalCheckerTimer.Elapsed += _goalCheckerTimer_Elapsed;
+            int currentMinute = DateTime.Now.Minute;
+            _goalCheckerTimer.Interval = currentMinute > 5 ? TimeSpan.FromMinutes(65 - currentMinute).TotalMilliseconds : TimeSpan.FromMinutes(5 - currentMinute).TotalMilliseconds;
+            Console.WriteLine("Set interval to: " + _goalCheckerTimer.Interval);
+            _goalCheckerTimer.Enabled = true;
+        }
+
+        private void _goalCheckerTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            foreach (var goal in GoalSettingManager.instance.GetGoals())
+            {
+                goal.CalculateProgressStatus();
+            }
+            _goalCheckerTimer.Interval = TimeSpan.FromHours(1).TotalMilliseconds;
         }
 
         public void OnNewTrackerEvent(object sender, TrackerEvents e)
@@ -204,7 +228,7 @@ namespace GoalSetting
         }
 
         Dictionary<RuleTimeSpan, List<Activity>> activitiesMap = new Dictionary<RuleTimeSpan, List<Activity>>();
-
+        
         public void CheckRules(ObservableCollection<Goal> goals, bool showPopup)
         {
 

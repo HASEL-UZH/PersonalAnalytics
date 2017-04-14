@@ -22,7 +22,8 @@ namespace GoalSetting.Model
 
         private string _target;
 
-        //That's milliseconds!
+        
+        //TARGET
         public string TargetValue { get { return _target; } set {
                 _target = value;
                 if (Goal == RuleGoal.TimeSpentOn)

@@ -36,12 +36,12 @@ namespace GoalSetting.Visualizers
             html += "var actualWidth = document.getElementsByClassName('item Wide')[0].offsetWidth;";
             html += "var margin = {top: 10, right: 30, bottom: 30, left: 30}, width = (actualWidth * 0.97)- margin.left - margin.right, height = (actualHeight * 0.73) - margin.top - margin.bottom;";
 
-            html += @"function gridData() {
+            html += @"function gridData(totalWidth) {
 	                    var data = new Array();
 	                    var xpos = 1;
 	                    var ypos = 1;
-	                    var width = 30;
-	                    var height = 30;
+	                    var width = totalWidth / 25;
+	                    var height = totalWidth / 25;
 	                    var click = 0;
 	                    var newValue = '';
                         var newType = 'Value';
@@ -104,7 +104,7 @@ namespace GoalSetting.Visualizers
 	            return data;
                 }";
 
-            html += "var gridData = gridData();";
+            html += "var gridData = gridData(width);";
             html += "console.log(gridData);";
 
             html += "var grid = d3.select('#" + VisHelper.CreateChartHtmlTitle(Title) + "').append('svg')";
