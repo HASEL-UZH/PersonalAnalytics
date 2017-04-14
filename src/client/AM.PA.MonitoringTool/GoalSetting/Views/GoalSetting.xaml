@@ -5,7 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GoalSetting"
              xmlns:paColors="clr-namespace:Shared;assembly=Shared"
-             Width="800"
              mc:Ignorable="d">
     <Grid>
         <Grid.RowDefinitions>
@@ -43,16 +42,15 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
-                    <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Button Margin="5, 5" Name="CheckRules" Grid.Row="1" Grid.Column="0" IsEnabled="False" Click="CheckRules_Click">Check goals</Button>
-                <Button Margin="5" Name="AddRule" Grid.Row="0" Grid.Column="0" Click="AddRule_Click">Add goal</Button>
-                <Button Margin="5" Name="EditRule" Grid.Row="0" Grid.Column="1" Click="EditRule_Click" IsEnabled="False">Edit selected goal</Button>
-                <Button Margin="5" Name="DeleteRule" Grid.Row="0" Grid.Column="2" Click="DeleteRule_Click" IsEnabled="False">Delete selected goal</Button>
-                <Button Margin="5" Name="OpenRetrospection" Grid.Row="1" Grid.Column="2" Click="OpenRetrospection_Click" IsEnabled="True">Open retrospection</Button>
+                <Button Margin="5, 5" Name="CheckRules" Grid.Row="0" Grid.Column="0" IsEnabled="False" Click="CheckRules_Click">Check goals</Button>
+                <Button Margin="5" Name="AddRule" Grid.Row="0" Grid.Column="1" Click="AddRule_Click">Add goal</Button>
+                <Button Margin="5" Name="EditRule" Grid.Row="0" Grid.Column="2" Click="EditRule_Click" IsEnabled="False">Edit selected goal</Button>
+                <Button Margin="5" Name="DeleteRule" Grid.Row="0" Grid.Column="3" Click="DeleteRule_Click" IsEnabled="False">Delete selected goal</Button>
             </Grid>
         </StackPanel>
 

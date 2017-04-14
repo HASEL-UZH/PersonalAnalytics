@@ -23,12 +23,12 @@ namespace GoalSetting
     {
         private ObservableCollection<Goal> _goals;
       
-        public GoalSetting(ObservableCollection<Goal> goals)
+        public GoalSetting()
         {
             InitializeComponent();
-            this._goals = goals;
+            this._goals = new ObservableCollection<Goal>(GoalSettingManager.Instance.GetGoals());
             Rules.SelectionMode = DataGridSelectionMode.Single;
-            Rules.ItemsSource = goals;
+            Rules.ItemsSource = _goals;
             _goals.CollectionChanged += _rules_CollectionChanged;
             CheckRules.IsEnabled = _goals.Count > 0;
 

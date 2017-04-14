@@ -248,5 +248,40 @@ namespace Retrospection
         }
 
         #endregion
+
+        #region GoalSetting
+        private void SwitchToGoalSetting_Click(object sender, RoutedEventArgs e)
+        {
+            GoalSettingContainer.Visibility = Visibility.Visible;
+            wbWinForms.Visibility = Visibility.Collapsed;
+
+            LeaveGoalSetting.Visibility = Visibility.Visible;
+            SwitchToGoalSetting.Visibility = Visibility.Collapsed;
+            
+            SwitchToDayButton.Visibility = Visibility.Collapsed;
+            SwitchToWeekButton.Visibility = Visibility.Collapsed;
+            TodayButton.Visibility = Visibility.Collapsed;
+            MinusOneButton.Visibility = Visibility.Collapsed;
+            DatePicker.Visibility = Visibility.Collapsed;
+            PlusOneButton.Visibility = Visibility.Collapsed;
+        }
+
+        private void LeaveGoalSetting_Click(object sender, RoutedEventArgs e)
+        {
+            GoalSettingContainer.Visibility = Visibility.Collapsed;
+            wbWinForms.Visibility = Visibility.Visible;
+
+            SwitchToGoalSetting.Visibility = Visibility.Visible;
+            LeaveGoalSetting.Visibility = Visibility.Collapsed;
+
+            SwitchToDayButton.Visibility = Visibility.Visible;
+            SwitchToWeekButton.Visibility = Visibility.Visible;
+            TodayButton.Visibility = Visibility.Visible;
+            MinusOneButton.Visibility = Visibility.Visible;
+            DatePicker.Visibility = Visibility.Visible;
+            PlusOneButton.Visibility = Visibility.Visible;
+        }
+        #endregion
+
     }
 }

@@ -53,9 +53,7 @@ namespace GoalSetting.Visualizers
                                     if (column != 0) {
                                         newValue = column - 1;
                                     }
-                                }
-
-                                else if (column == 0) {
+                                } else if (column == 0) {
                                     if (row == 1) {
                                         newValue = 'Mo';
                                     }

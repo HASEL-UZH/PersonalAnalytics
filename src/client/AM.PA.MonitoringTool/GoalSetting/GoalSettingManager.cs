@@ -81,15 +81,6 @@ namespace GoalSetting
             _goals = DatabaseConnector.GetStoredGoals();
 
             StartGoalCheckingTimer();
-            
-            Window window = new Window
-            {
-                Title = "Goal Setting Dashboard",
-                Content = new GoalSetting(_goals),
-                SizeToContent = SizeToContent.WidthAndHeight
-            };
-            window.ShowDialog();
-            
         }
 
         private void StartGoalCheckingTimer()
@@ -290,5 +281,15 @@ namespace GoalSetting
 
         }
 
+        public void OpenMainWindow()
+        {
+            Window window = new Window
+            {
+                Title = "Goal Setting Dashboard",
+                Content = new GoalSetting(),
+                SizeToContent = SizeToContent.WidthAndHeight
+            };
+            window.ShowDialog();
+        }
     }
 }

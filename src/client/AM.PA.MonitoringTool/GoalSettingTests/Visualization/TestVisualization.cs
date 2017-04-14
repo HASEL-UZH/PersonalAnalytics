@@ -166,9 +166,10 @@ namespace GoalSettingTests.Visualization
 
                 Retrospection.Handler.GetInstance().Start(new List<Shared.ITracker>() { new GoalSetting.Visualizers.GoalVisualizer() }, "test version");
                 GoalSettingManager.Instance.Start();
+                GoalSettingManager.Instance.OpenMainWindow();
             }
         }
-
+        
     }
-    
+
 }
