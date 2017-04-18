@@ -55,8 +55,7 @@ namespace PersonalAnalytics
 
         /// <summary>
         /// Register trackers for the TrackerManager (i.e. monitoring tool)
-        /// (add a new tracker here to make it being integrated into the monitoring tool
-        /// and retrospection)
+        /// (add a new tracker here to make it being integrated into the monitoring tool and retrospection)
         /// </summary>
         public List<ITracker> RegisterTrackers()
         {
@@ -78,7 +77,7 @@ namespace PersonalAnalytics
             
 #endif
 
-            return _trackers; // return trackers for retrospection
+            return _trackers;
         }
 
         /// <summary>

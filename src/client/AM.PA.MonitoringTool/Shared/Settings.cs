@@ -19,7 +19,8 @@ namespace Shared
          * version 3 - update focus_state table in FlowTracker (2017-01-12)
          */
         public const int DatabaseVersion = 3; // !!! update when existing database table changes (have a look at PerformDatabaseUpdatesIfNecessary() for details)
-        public const bool IsFeedbackEnabled = true;
+
+        public static bool IsFeedbackEnabled = true; // can be overwritten when starting retrospection
 
 #if PilotMSR
         public const bool IsUploadEnabled = true;
