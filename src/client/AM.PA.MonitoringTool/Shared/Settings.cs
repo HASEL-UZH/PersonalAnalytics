@@ -20,20 +20,18 @@ namespace Shared
          */
         public const int DatabaseVersion = 3; // !!! update when existing database table changes (have a look at PerformDatabaseUpdatesIfNecessary() for details)
 
-        public static bool IsFeedbackEnabled = true; // can be overwritten when starting retrospection
-
 #if Pilot_MSR
         public const bool IsUploadEnabled = true;
         public const bool IsUploadReminderEnabled = true;
-        public const bool IsFeedbackEnabled = false;
+        public static bool IsFeedbackEnabled = false; // can be overwritten when starting the retrospection
 #elif Pilot_TaskDetection_March17
         public const bool IsUploadEnabled = false;
         public const bool IsUploadReminderEnabled = false;
-        public const bool IsFeedbackEnabled = false;
+        public static bool IsFeedbackEnabled = false; // can be overwritten when starting the retrospection
 #else
         public const bool IsUploadEnabled = false;
         public const bool IsUploadReminderEnabled = false;
-        public const bool IsFeedbackEnabled = false;
+        public static bool IsFeedbackEnabled = true; // can be overwritten when starting the retrospection
 #endif
 
         public static bool AnonymizeSensitiveData = false;

@@ -65,7 +65,7 @@ namespace Retrospection
             _publishedAppVersion = appVersion;
             _hideFeedback = hideFeedback;
             _hideAbout = hideAbout;
-            if (hideFeedback) Settings.IsFeedbackEnabled = false;
+            if (hideFeedback) Shared.Settings.IsFeedbackEnabled = false;
 
             IsRunning = true;
         }
