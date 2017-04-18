@@ -132,7 +132,7 @@ namespace Retrospection
 
         private string CreateNavigateUri(string parameters)
         {
-            return "http://localhost:" + Settings.Port + "/" + parameters;
+            return "http://localhost:" + Shared.Settings.Port + "/" + parameters;
         }
 
         public bool OpenRetrospection()

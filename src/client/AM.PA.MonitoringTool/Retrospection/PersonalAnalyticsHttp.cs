@@ -54,7 +54,7 @@ namespace Retrospection
         {
             if (_server != null)
             {
-                _server.Start(Settings.Port, true); // true -> IPAddress.Loopback (loopback address (localhost / 127.0.0.1)) 
+                _server.Start(Shared.Settings.Port, true); // true -> IPAddress.Loopback (loopback address (localhost / 127.0.0.1)) 
             }
         }
 

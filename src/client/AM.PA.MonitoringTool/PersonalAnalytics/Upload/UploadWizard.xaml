@@ -52,7 +52,21 @@
                 </TextBlock>
             </StackPanel>
 
-            <Button Content="Next" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="InsertInfosNext_Clicked" Margin="20" Width="100" Height="30" />
+            
+            <Grid Margin="20" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                
+                <Button Grid.Row="0" Grid.Column="0" x:Name="QuickUploadEnabled" IsEnabled="false" Content="Quick Upload with previous settings" Click="QuickUploadNext_Clicked" Width="250" Background="Gray" Height="30" />
+                <Button Grid.Row="0" Grid.Column="1" Content="Next" Margin="20 0 0 0" Click="InsertInfosNext_Clicked" Width="100" Height="30" />
+                <TextBlock Grid.Row="1" Grid.ColumnSpan="2" x:Name="tbOneClickUploadSettingsTxt" Margin="0" Foreground="Gray" />
+            </Grid>
         </Grid>
 
         <!-- Step 2: Details -->

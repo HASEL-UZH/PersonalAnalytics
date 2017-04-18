@@ -22,12 +22,18 @@ namespace Shared
 
         public static bool IsFeedbackEnabled = true; // can be overwritten when starting retrospection
 
-#if PilotMSR
+#if Pilot_MSR
         public const bool IsUploadEnabled = true;
         public const bool IsUploadReminderEnabled = true;
+        public const bool IsFeedbackEnabled = false;
+#elif Pilot_TaskDetection_March17
+        public const bool IsUploadEnabled = false;
+        public const bool IsUploadReminderEnabled = false;
+        public const bool IsFeedbackEnabled = false;
 #else
         public const bool IsUploadEnabled = false;
         public const bool IsUploadReminderEnabled = false;
+        public const bool IsFeedbackEnabled = false;
 #endif
 
         public static bool AnonymizeSensitiveData = false;

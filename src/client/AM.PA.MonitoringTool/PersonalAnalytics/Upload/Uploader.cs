@@ -11,6 +11,7 @@ using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Security.AccessControl;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace PersonalAnalytics.Upload
@@ -21,6 +22,7 @@ namespace PersonalAnalytics.Upload
         private const string _errorTitle = "Upload Wizard: An error occurred";
         private string _participantId;
         private const string _additionalInfoFilePath = "additional_info.txt";
+        internal const string _prefix = "upload";
 
         internal bool ValidateParticipantId(string participantId)
         {
@@ -244,6 +246,31 @@ namespace PersonalAnalytics.Upload
         internal string GetAdditionalInfoFilePath()
         {
             return Path.Combine(Settings.ExportFilePath, _additionalInfoFilePath);
+        }
+
+        internal bool RunQuickUpload()
+        {
+            try
+            {
+                var obfuscateMeetingTitles = Database.GetInstance().GetSettingsBool(_prefix + "RBObfuscateMeetingTitles", false);
+                var obfuscateWindowTitles = Database.GetInstance().GetSettingsBool(_prefix + "RBObfuscateWindowTitles", false);
+
+                var anonymizedDbFilePath = AnonymizeCollectedData(obfuscateMeetingTitles, obfuscateWindowTitles);
+                if (string.IsNullOrEmpty(anonymizedDbFilePath)) throw new Exception("An error occured when anonymizing the collected data.");
+
+                var _localZipFilePath = CreateUploadZip(anonymizedDbFilePath);
+                if (string.IsNullOrEmpty(_localZipFilePath)) throw new Exception("An error occured when preparing the data (zip-file) for the upload.");
+
+                var _uploadZipFileName = UploadZip(_localZipFilePath);
+                if (string.IsNullOrEmpty(_uploadZipFileName)) throw new Exception("An error occured when uploading the data (zip-file).");
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                AskToSendErrorMessage(e, "RunQuickUpload", e.Message);
+                return false;
+            }
         }
     }
 }

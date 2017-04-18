@@ -185,12 +185,12 @@ namespace UserEfficiencyTracker.Data
             var date = DateTime.MinValue;
 
             var query = "SELECT date FROM ( "
-                        + "SELECT date(time) as 'date', count(*) as 'sumInSec' "
+                        + "SELECT date(time) as 'date' "
                         + "FROM windows_activity "
                         + "WHERE process <> 'IDLE' AND date(time) <> " + Database.GetInstance().QDate(DateTime.Now) + " " // not today
                         + "GROUP BY date(time) "
                         + "ORDER BY date(time) DESC "
-                        + ") WHERE sumInSec > 600 " // worked for min 10 minutes
+                        + ") "
                         + "LIMIT 1;";
 
             var table = Database.GetInstance().ExecuteReadQuery(query);
