@@ -3,6 +3,7 @@
 // 
 // Licensed under the MIT License.
 
+using GoalSetting.Model;
 using System;
 using System.Linq.Expressions;
 
@@ -12,13 +13,13 @@ namespace GoalSetting.Rules
     {
         public static Func<T, bool> CompileRule<T>(Rule r)
         {
-            var paramUser = Expression.Parameter(typeof(Activity));
-            Expression expr = BuildExpr<T>(r, paramUser);
+            var param = Expression.Parameter(typeof(T));
+            Expression expr = BuildExpr<T>(r, param);
             // build a lambda function Activity->bool and compile it
-            return Expression.Lambda<Func<T, bool>>(expr, paramUser).Compile();
+            return Expression.Lambda<Func<T, bool>>(expr, param).Compile();
         }
 
-        static Expression BuildExpr<T>(Rule r, ParameterExpression param)
+        internal static Expression BuildExpr<T>(Rule r, ParameterExpression param)
         {
             var left = MemberExpression.Property(param, r.GoalString);
             var tProp = typeof(T).GetProperty(r.GoalString).PropertyType;

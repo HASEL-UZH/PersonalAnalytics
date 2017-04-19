@@ -3,12 +3,13 @@
 // 
 // Licensed under the MIT License.
 
-using System;
 using Shared.Helpers;
+using GoalSetting.Model;
+using GoalSetting.Rules;
 
-namespace GoalSetting.Rules
+namespace GoalSetting.Goals
 {
-    public class PARuleEmail : PARule
+    public class GoalEmail : Goal
     {
         private RuleTimePoint? _timePoint;
         public RuleTimePoint? TimePoint { get { return _timePoint; } set { _timePoint = value; base.When = _timePoint.ToString(); } }
@@ -38,7 +39,7 @@ namespace GoalSetting.Rules
 
         public override void Compile()
         {
-            //TODO
+            CompiledRule = RuleEngine.CompileRule<Activity>(Rule);
         }
 
         public override void CalculateProgressStatus()

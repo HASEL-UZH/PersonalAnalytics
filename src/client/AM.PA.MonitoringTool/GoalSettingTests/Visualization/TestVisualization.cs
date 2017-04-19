@@ -4,7 +4,8 @@
 // Licensed under the MIT License.
 
 using GoalSetting;
-using GoalSetting.Rules;
+using GoalSetting.Goals;
+using GoalSetting.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shared.Data;
 using Shared.Helpers;
@@ -53,7 +54,7 @@ namespace GoalSettingTests.Visualization
                 Database.GetInstance().ExecuteDefaultQuery("DROP table emails;");
 
                 //Create tables
-                MethodInfo createGoalMethod = typeof(DatabaseConnector).GetMethod("CreateRulesTableIfNotExists", BindingFlags.NonPublic | BindingFlags.Static);
+                MethodInfo createGoalMethod = typeof(DatabaseConnector).GetMethod("CreateGoalsTableIfNotExists", BindingFlags.NonPublic | BindingFlags.Static);
                 if (createGoalMethod != null)
                 {
                     createGoalMethod.Invoke(null, new object[] { });
@@ -76,8 +77,6 @@ namespace GoalSettingTests.Visualization
                 DateTime today = DateTime.Now;
 
                 //10 minutes on Dev
-                activites.Add(Tuple.Create("IDLE", "IDLE", new DateTime(today.Year, today.Month, today.Day, 1, 59, 59)));
-                activites.Add(Tuple.Create("Microsoft Visual Studio", "devenv", new DateTime(today.Year, today.Month, today.Day, 2, 0, 0)));
                 activites.Add(Tuple.Create("Microsoft Visual Studio", "devenv", new DateTime(today.Year, today.Month, today.Day, 2, 10, 0)));
                 activites.Add(Tuple.Create("IDLE", "IDLE", new DateTime(today.Year, today.Month, today.Day, 2, 10, 1)));
 
@@ -95,20 +94,20 @@ namespace GoalSettingTests.Visualization
                 activites.Add(Tuple.Create("IDLE", "IDLE", new DateTime(today.Year, today.Month, today.Day, 4, 26, 0)));
 
                 //30 minutes on work related browsing
-                activites.Add(Tuple.Create("stackoverflow.com", "chrome", new DateTime(today.Year, today.Month, today.Day, 5, 21, 0)));
+                activites.Add(Tuple.Create("www.20min.ch - News von Jetzt", "chrome", new DateTime(today.Year, today.Month, today.Day, 5, 21, 0)));
                 activites.Add(Tuple.Create("IDLE", "IDLE", new DateTime(today.Year, today.Month, today.Day, 5, 51, 0)));
 
                 //35 minutes on dev
                 activites.Add(Tuple.Create("Microsoft Visual Studio", "devenv", new DateTime(today.Year, today.Month, today.Day, 6, 0, 0)));
                 activites.Add(Tuple.Create("Microsoft Visual Studio", "devenv", new DateTime(today.Year, today.Month, today.Day, 6, 1, 0)));
-                activites.Add(Tuple.Create("stackoverflow.com", "chrome", new DateTime(today.Year, today.Month, today.Day, 6, 36, 1)));
-                activites.Add(Tuple.Create("stackoverflow.com", "chrome", new DateTime(today.Year, today.Month, today.Day, 6, 42, 1)));
+                activites.Add(Tuple.Create("www.20min.ch - News von Jetzt", "chrome", new DateTime(today.Year, today.Month, today.Day, 6, 36, 1)));
+                activites.Add(Tuple.Create("www.20min.ch - News von Jetzt", "chrome", new DateTime(today.Year, today.Month, today.Day, 6, 42, 1)));
 
                 //30 minutes on dev
                 activites.Add(Tuple.Create("Microsoft Visual Studio", "devenv", new DateTime(today.Year, today.Month, today.Day, 7, 0, 0)));
                 activites.Add(Tuple.Create("Microsoft Visual Studio", "devenv", new DateTime(today.Year, today.Month, today.Day, 7, 1, 0)));
-                activites.Add(Tuple.Create("stackoverflow.com", "chrome", new DateTime(today.Year, today.Month, today.Day, 7, 31, 1)));
-                activites.Add(Tuple.Create("stackoverflow.com", "chrome", new DateTime(today.Year, today.Month, today.Day, 7, 42, 1)));
+                activites.Add(Tuple.Create("www.20min.ch - News von Jetzt", "chrome", new DateTime(today.Year, today.Month, today.Day, 7, 31, 1)));
+                activites.Add(Tuple.Create("www.20min.ch - News von Jetzt", "chrome", new DateTime(today.Year, today.Month, today.Day, 7, 42, 1)));
 
                 //another 5 minutes on work unrelated browsing
                 activites.Add(Tuple.Create("www.20min.ch - News von Jetzt", "chrome", new DateTime(today.Year, today.Month, today.Day, 8, 21, 0)));
@@ -128,15 +127,20 @@ namespace GoalSettingTests.Visualization
                 }
 
                 //Add goals
-                ObservableCollection<PARule> rules = new ObservableCollection<PARule>();
-                rules.Add(new PARuleActivity { Title = "Test Rule 1", IsVisualizationEnabled = true, Activity = ContextCategory.DevCode, TimeSpan = RuleTimeSpan.EveryDay, Rule = new Rule { Operator = GoalSetting.Model.Operator.LessThan, Goal = GoalSetting.Model.Goal.TimeSpentOn, TargetValue = "" + TimeSpan.FromHours(1).TotalMilliseconds } });
-                rules.Add(new PARuleEmail { Title = "Test Rule 2", IsVisualizationEnabled = true, TimePoint = RuleTimePoint.End, Rule = new Rule { Operator = GoalSetting.Model.Operator.LessThan, Goal = GoalSetting.Model.Goal.NumberOfEmailsInInbox, TargetValue = "1" } });
-                rules.Add(new PARuleActivity { Title = "Test Rule 3", IsVisualizationEnabled = true, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.EveryDay, Rule = new Rule { Operator = GoalSetting.Model.Operator.LessThan, Goal = GoalSetting.Model.Goal.NumberOfSwitchesTo, TargetValue = "10" } });
+                ObservableCollection<Goal> rules = new ObservableCollection<Goal>();
+                rules.Add(new GoalActivity { ID = new Guid(), Title = "Test Rule 1", IsVisualizationEnabled = true, Activity = ContextCategory.DevCode, TimeSpan = RuleTimeSpan.EveryDay, Rule = new Rule { Operator = GoalSetting.Model.RuleOperator.LessThan, Goal = GoalSetting.Model.RuleGoal.TimeSpentOn, TargetValue = "" + TimeSpan.FromHours(1).TotalMilliseconds } });
+                rules.Add(new GoalEmail { ID = new Guid(), Title = "Test Rule 2", IsVisualizationEnabled = true, TimePoint = RuleTimePoint.End, Rule = new Rule { Operator = GoalSetting.Model.RuleOperator.LessThan, Goal = GoalSetting.Model.RuleGoal.NumberOfEmailsInInbox, TargetValue = "1" } });
+                rules.Add(new GoalActivity { ID = new Guid(), Title = "Test Rule 3", IsVisualizationEnabled = true, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.EveryDay, Rule = new Rule { Operator = GoalSetting.Model.RuleOperator.LessThan, Goal = GoalSetting.Model.RuleGoal.NumberOfSwitchesTo, TargetValue = "10" } });
+                rules.Add(new GoalActivity { ID = new Guid(), Title = "Test Rule 4", IsVisualizationEnabled = true, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.Hour, Rule = new Rule { Operator = GoalSetting.Model.RuleOperator.LessThan, TargetValue = "" + TimeSpan.FromMinutes(10).TotalMilliseconds, Goal = GoalSetting.Model.RuleGoal.TimeSpentOn } });
+                rules.Add(new GoalActivity { ID = new Guid(), Title = "Test Rule 5", IsVisualizationEnabled = true, Activity = ContextCategory.WorkUnrelatedBrowsing, TimeSpan = RuleTimeSpan.Hour, Rule = new Rule { Operator = GoalSetting.Model.RuleOperator.LessThanOrEqual, TargetValue = "1", Goal = GoalSetting.Model.RuleGoal.NumberOfSwitchesTo } });
 
-                MethodInfo saveRulesMethod = typeof(DatabaseConnector).GetMethod("SaveRules", BindingFlags.NonPublic | BindingFlags.Static);
-                if (saveRulesMethod != null)
+                MethodInfo saveGoalsMethod = typeof(DatabaseConnector).GetMethod("AddGoal", BindingFlags.NonPublic | BindingFlags.Static);
+                if (saveGoalsMethod != null)
                 {
-                    saveRulesMethod.Invoke(null, new object[] { rules });
+                    foreach (Goal goal in rules)
+                    {
+                        saveGoalsMethod.Invoke(null, new object[] { goal });
+                    }
                 }
 
                 //Add email data
@@ -162,9 +166,10 @@ namespace GoalSettingTests.Visualization
 
                 Retrospection.Handler.GetInstance().Start(new List<Shared.ITracker>() { new GoalSetting.Visualizers.GoalVisualizer() }, "test version");
                 GoalSettingManager.Instance.Start();
+                GoalSettingManager.Instance.OpenMainWindow();
             }
         }
-
+        
     }
-    
+
 }

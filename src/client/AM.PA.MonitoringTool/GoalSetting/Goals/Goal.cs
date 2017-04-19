@@ -3,12 +3,15 @@
 // 
 // Licensed under the MIT License.
 
+using GoalSetting.Model;
 using System;
 
-namespace GoalSetting.Rules
+namespace GoalSetting.Goals
 {
-    public abstract class PARule
+    public abstract class Goal
     {
+        public Guid ID { get; set; }
+
         public string Title { get; set; }
 
         public Rule Rule { get; set; }

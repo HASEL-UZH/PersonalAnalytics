@@ -5,56 +5,41 @@
 
 using System.Collections.ObjectModel;
 using System.Windows.Controls;
-using GoalSetting.Rules;
 using System.Windows;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Windows.Media;
 using Shared.Helpers;
 using System.Windows.Documents;
 using GoalSetting.Views;
 using GoalSetting.Model;
+using GoalSetting.Goals;
 
 namespace GoalSetting
 {
     /// <summary>
     /// Interaction logic for GoalSetting.xaml
     /// </summary>
-    public partial class GoalSetting : UserControl, INotifyPropertyChanged
+    public partial class GoalSetting : UserControl
     {
-        private ObservableCollection<PARule> _rules;
-        private bool _hasChanged = false;
-        
-        public bool HasChanged { get { return _hasChanged; } set { _hasChanged = value; NotifyPropertyChanged("HasChanged"); } }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void NotifyPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
-
-        public GoalSetting(ObservableCollection<PARule> rules)
+        private ObservableCollection<Goal> _goals;
+      
+        public GoalSetting()
         {
             InitializeComponent();
-            this._rules = rules;
+            this._goals = new ObservableCollection<Goal>(GoalSettingManager.Instance.GetGoals());
             Rules.SelectionMode = DataGridSelectionMode.Single;
-            Rules.ItemsSource = rules;
-            _rules.CollectionChanged += _rules_CollectionChanged;
-            CheckRules.IsEnabled = _rules.Count > 0;
-            SaveRules.DataContext = this;
+            Rules.ItemsSource = _goals;
+            _goals.CollectionChanged += _rules_CollectionChanged;
+            CheckRules.IsEnabled = _goals.Count > 0;
 
-            LoadRuleStatus();
+            LoadGoalStatus();
         }
 
-        private void LoadRuleStatus()
+        private void LoadGoalStatus()
         {
             RulesOverview.Children.Clear();
 
-            if (_rules.Count > 0)
+            if (_goals.Count > 0)
             {
                 NoRulesText.Visibility = Visibility.Collapsed;
                 RulesOverview.Visibility = Visibility.Visible;
@@ -65,13 +50,13 @@ namespace GoalSetting
                 RulesOverview.Visibility = Visibility.Collapsed;
             }
 
-            foreach (PARule rule in _rules)
+            foreach (Goal goal in _goals)
             {
-                GoalSettingManager.Instance.CheckRules(_rules, false);
-                rule.CalculateProgressStatus();
+                GoalSettingManager.Instance.CheckRules(_goals, false);
+                goal.CalculateProgressStatus();
 
                 StackPanel container = new StackPanel();
-                container.Tag = rule;
+                container.Tag = goal;
                 container.Background = new SolidColorBrush(Colors.LightGray);
                 container.Orientation = Orientation.Horizontal;
                 Thickness containerMargin = container.Margin;
@@ -83,7 +68,7 @@ namespace GoalSetting
                 smiley.Margin = new Thickness(10, 0, 10, 0);
                 smiley.Height = 40;
 
-                switch (rule.Progress.Status)
+                switch (goal.Progress.Status)
                 {
                     case ProgressStatus.VeryLow:
                         smiley.Source = ImageHelper.BitmapToImageSource(Properties.Resources.smiley_5);
@@ -105,9 +90,9 @@ namespace GoalSetting
                 TextBlock text = new TextBlock();
                 text.FontSize = 18;
                 text.VerticalAlignment = VerticalAlignment.Center;
-                text.Inlines.Add(rule.ToString());
+                text.Inlines.Add(goal.ToString());
                 text.Inlines.Add(new LineBreak());
-                text.Inlines.Add(rule.GetProgressMessage());
+                text.Inlines.Add(goal.GetProgressMessage());
 
                 Thickness margin = text.Margin;
                 margin.Left = 20;
@@ -122,31 +107,24 @@ namespace GoalSetting
 
         private void _rules_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            CheckRules.IsEnabled = _rules.Count > 0;
-            LoadRuleStatus();
+            CheckRules.IsEnabled = _goals.Count > 0;
+            LoadGoalStatus();
         }
 
         private void CheckRules_Click(object sender, RoutedEventArgs e)
         {
-            GoalSettingManager.Instance.CheckRules(_rules, true);
+            GoalSettingManager.Instance.CheckRules(_goals, true);
         }
-
-        private void SaveRules_Click(object sender, RoutedEventArgs e)
-        {
-            HasChanged = ! DatabaseConnector.SaveRules(_rules);
-        }
-
+        
         private void AddRule_Click(object sender, RoutedEventArgs e)
         { 
-            GoalSettingManager.Instance.AddNewRule();
-            HasChanged = true;
+            GoalSettingManager.Instance.AddNewGoal();
         }
 
         private void DeleteRule_Click(object sender, RoutedEventArgs e)
         {
-            PARule rule = (PARule) Rules.SelectedItem;
-            GoalSettingManager.Instance.DeleteRule(rule);
-            HasChanged = true;
+            Goal rule = (Goal) Rules.SelectedItem;
+            GoalSettingManager.Instance.DeleteGoal(rule);
         }
 
         private void Rules_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
@@ -157,21 +135,21 @@ namespace GoalSetting
 
         private void EditRule_Click(object sender, RoutedEventArgs e)
         {
-            PARule rule = (PARule)Rules.SelectedItem;
+            Goal rule = (Goal)Rules.SelectedItem;
             UserControl controlToDisplay = null;
 
             switch (rule.Rule.Goal)
             {
-                case Goal.NumberOfEmailsInInbox:
-                    controlToDisplay = new EmailInbox(rule as PARuleEmail);
+                case RuleGoal.NumberOfEmailsInInbox:
+                    controlToDisplay = new EmailInbox(rule as GoalEmail);
                     break;
 
-                case Goal.TimeSpentOn:
-                    controlToDisplay = new TimeSpent(rule as PARuleActivity);
+                case RuleGoal.TimeSpentOn:
+                    controlToDisplay = new TimeSpent(rule as GoalActivity);
                     break;
 
-                case Goal.NumberOfSwitchesTo:
-                    controlToDisplay = new WorkFragmentation(rule as PARuleActivity);
+                case RuleGoal.NumberOfSwitchesTo:
+                    controlToDisplay = new WorkFragmentation(rule as GoalActivity);
                     break;
             }
 

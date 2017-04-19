@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Retrospection"
+        xmlns:goals="clr-namespace:GoalSetting;assembly=GoalSetting"
         xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:paColors="clr-namespace:Shared;assembly=Shared"
@@ -40,6 +41,9 @@
                     </Style>
                 </StackPanel.Resources>
 
+                <Button x:Name="LeaveGoalSetting" Content="Leave Goal Setting" Click="LeaveGoalSetting_Click" Visibility="Collapsed" VerticalAlignment="Center" />
+                <Button x:Name="SwitchToGoalSetting" Content="Goal Setting" Click="SwitchToGoalSetting_Click" VerticalAlignment="Center" />
+                <Line Stroke="White" X1="0" Y1="31" X2="0" Y2="9" Margin="10 0 10 0" />
                 <Button x:Name="SwitchToWeekButton" Content="Switch to Weekly Retrospection" Click="SwitchToWeek_Clicked" VerticalAlignment="Center" />
                 <Button x:Name="SwitchToDayButton" Content="Switch to Daily Retrospection" Click="SwitchToDay_Clicked" VerticalAlignment="Center" />
                 
@@ -65,6 +69,10 @@
             </StackPanel>
         </Border>
 
+        <ContentControl x:Name="GoalSettingContainer" Visibility="Collapsed" Grid.Row="1">
+            <goals:GoalSetting></goals:GoalSetting>
+        </ContentControl>
+        
         <Grid Background="{x:Static paColors:Settings.GrayColorBrush}" Grid.Row="3">
             <Grid.Resources>
                 <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">

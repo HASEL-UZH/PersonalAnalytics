@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using GoalSetting.Model;
 
 namespace GoalSetting.Visualizers
 {
@@ -34,17 +35,52 @@ namespace GoalSetting.Visualizers
 
         public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
         {
-            var rules = GoalSettingManager.Instance.GetActivityRules();
+            var goals = GoalSettingManager.Instance.GetActivityGoals();
 
             //For the daily visualization we ignore rules that are on weekly or monthly basis
-            rules.RemoveAll(r => r.TimeSpan == Rules.RuleTimeSpan.Month || r.TimeSpan == Rules.RuleTimeSpan.Week);
+            goals.RemoveAll(r => r.TimeSpan == RuleTimeSpan.Month || r.TimeSpan == RuleTimeSpan.Week);
 
+
+            //We use the following strategy to display visualizations for goals:
+            //Specific point in time --> Progress bar
+            //Hour --> bar chart
+            //Day --> line chart
+            //Specific day --> line chart (but ignore if it is not the specific day)
+            //Week --> Ignore
+            //Month --> Ignore
+            //Afternoon --> Ignore if visualization is displayed in the morning, otherweise line chart
+            //Morning --> line chart
             List<IVisualization> visualizations = new List<IVisualization>();
-            foreach (var rule in rules)
+            foreach (var goal in goals)
             {
-                if (rule.IsVisualizationEnabled)
+                if (goal.IsVisualizationEnabled)
                 {
-                    visualizations.Add(new DayVisualization(date, rule));
+                    if (goal.TimeSpan == RuleTimeSpan.Hour)
+                    {
+                        visualizations.Add(new DayVisualizationForHourlyGoals(date, goal));
+                    }
+                    else if (goal.TimeSpan == RuleTimeSpan.EveryDay)
+                    {
+                        visualizations.Add(new DayVisualizationForDailyGoals(date, goal));
+                    }
+                    else if ( (goal.TimeSpan == RuleTimeSpan.Monday && date.DayOfWeek == DayOfWeek.Monday) ||
+                              (goal.TimeSpan == RuleTimeSpan.Tuesday && date.DayOfWeek == DayOfWeek.Tuesday) ||
+                              (goal.TimeSpan == RuleTimeSpan.Wednesday && date.DayOfWeek == DayOfWeek.Wednesday) ||
+                              (goal.TimeSpan == RuleTimeSpan.Thursday && date.DayOfWeek == DayOfWeek.Thursday) ||
+                              (goal.TimeSpan == RuleTimeSpan.Friday && date.DayOfWeek == DayOfWeek.Friday) ||
+                              (goal.TimeSpan == RuleTimeSpan.Saturday && date.DayOfWeek == DayOfWeek.Saturday) ||
+                              (goal.TimeSpan == RuleTimeSpan.Sunday && date.DayOfWeek == DayOfWeek.Sunday))
+                    {
+                        visualizations.Add(new DayVisualizationForDailyGoals(date, goal));
+                    }
+                    else if (goal.TimeSpan == RuleTimeSpan.Morning)
+                    {
+                        visualizations.Add(new DayVisualizationForDailyGoals(date, goal));
+                    }
+                    else if (goal.TimeSpan == RuleTimeSpan.Afternoon && date.DateTime.Hour > 11)
+                    {
+                        visualizations.Add(new DayVisualizationForDailyGoals(date, goal));
+                    }
                 }
             }
             return visualizations;
@@ -52,17 +88,33 @@ namespace GoalSetting.Visualizers
 
         public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)
         {
-            var rules = GoalSettingManager.Instance.GetActivityRules();
-
-            //For the weekly visualization we only use rules that are on weekly or monthly basis
-            rules = rules.Where(r => r.TimeSpan == Rules.RuleTimeSpan.Month || r.TimeSpan == Rules.RuleTimeSpan.Week).ToList();
-
+            var goals = GoalSettingManager.Instance.GetActivityGoals();
+            
             List<IVisualization> visualizations = new List<IVisualization>();
-            foreach (var rule in rules)
+            foreach (var goal in goals)
             {
-                if (rule.IsVisualizationEnabled)
+                if (goal.IsVisualizationEnabled)
                 {
-                    visualizations.Add(new WeekVisualization(date, rule));
+                    if (goal.TimeSpan == RuleTimeSpan.Hour || goal.TimeSpan == RuleTimeSpan.Afternoon || goal.TimeSpan == RuleTimeSpan.Morning)
+                    {
+                        visualizations.Add(new WeekVisualizationForHourlyGoal(date, goal));
+                    }
+
+                    if (goal.TimeSpan == RuleTimeSpan.Week || goal.TimeSpan == RuleTimeSpan.Month)
+                    {
+                        visualizations.Add(new WeekVisualizationForWeeklyGoal(date, goal));
+                    }
+
+                    if (goal.TimeSpan == RuleTimeSpan.EveryDay)
+                    {
+                        visualizations.Add(new WeekVisualizationForDailyGoal(date, goal));
+                    }
+
+                    if (goal.TimeSpan == RuleTimeSpan.Monday || goal.TimeSpan == RuleTimeSpan.Tuesday || goal.TimeSpan == RuleTimeSpan.Wednesday || goal.TimeSpan == RuleTimeSpan.Thursday ||
+                        goal.TimeSpan == RuleTimeSpan.Friday || goal.TimeSpan == RuleTimeSpan.Saturday || goal.TimeSpan == RuleTimeSpan.Sunday)
+                    {
+                        visualizations.Add(new WeekVisualizationForSpecificDailyGoal(date, goal));
+                    }
                 }
             }
             return visualizations;

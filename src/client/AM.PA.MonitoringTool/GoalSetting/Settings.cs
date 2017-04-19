@@ -12,6 +12,7 @@ namespace GoalSetting
         internal static readonly int MinimumSwitchTime = 10; //in seconds
         internal static readonly string DateFormat = "yyyy-MM-dd HH:mm:ss.fff";
         internal static readonly string TimeFormat = "HH:mm:ss";
-        internal static readonly string RuleTableName = "goals";
+        internal static readonly string GoalTableName = "goals";
+        internal static readonly string AchievementsTableName = "achievements";
     }
 }

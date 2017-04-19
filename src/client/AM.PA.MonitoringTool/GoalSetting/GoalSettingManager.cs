@@ -5,7 +5,6 @@
 
 using GoalSetting.Data;
 using GoalSetting.Model;
-using GoalSetting.Rules;
 using GoalSetting.Views;
 using Shared;
 using Shared.Data;
@@ -18,14 +17,18 @@ using System.Windows;
 using System.Windows.Threading;
 using Shared.Events;
 using System.Diagnostics;
+using GoalSetting.Goals;
+using System.Timers;
 
 namespace GoalSetting
 {
     public class GoalSettingManager
     {
-        private ObservableCollection<PARule> _rules;
+        private ObservableCollection<Goal> _goals;
 
         private static GoalSettingManager instance;
+
+        private Timer _goalCheckerTimer;
 
         private GoalSettingManager() { }
 
@@ -41,30 +44,31 @@ namespace GoalSetting
             }
         }
 
-        internal List<PARule> GetRules()
+        internal List<Goal> GetGoals()
         {
-            return _rules.ToList();
+            return _goals.ToList();
         }
 
-        internal void AddNewRule()
+        internal void AddNewGoal()
         {
             Window window = new Window
             {
                 Title = "Goal Setting Dashboard",
-                Content = new AddRule(_rules),
+                Content = new AddGoal(_goals),
                 SizeToContent = SizeToContent.WidthAndHeight
             };
             window.ShowDialog();
         }
 
-        internal void AddRule(PARule newRule)
+        internal void AddGoal(Goal newGoal)
         {
-            _rules.Add(newRule);
+            _goals.Add(newGoal);
+            DatabaseConnector.AddGoal(newGoal);
         }
 
-        internal List<PARuleActivity> GetActivityRules()
+        internal List<GoalActivity> GetActivityGoals()
         {
-            return _rules.OfType<PARuleActivity>().ToList();
+            return _goals.OfType<GoalActivity>().ToList();
         }
 
         /// <summary>
@@ -72,18 +76,30 @@ namespace GoalSetting
         /// </summary>
         public void Start()
         {
-            DatabaseConnector.CreateRulesTableIfNotExists();
+            DatabaseConnector.CreateGoalsTableIfNotExists();
 
-            _rules = DatabaseConnector.GetStoredRules();
-            
-            Window window = new Window
+            _goals = DatabaseConnector.GetStoredGoals();
+
+            StartGoalCheckingTimer();
+        }
+
+        private void StartGoalCheckingTimer()
+        {
+            _goalCheckerTimer = new Timer();
+            _goalCheckerTimer.Elapsed += _goalCheckerTimer_Elapsed;
+            int currentMinute = DateTime.Now.Minute;
+            _goalCheckerTimer.Interval = currentMinute > 5 ? TimeSpan.FromMinutes(65 - currentMinute).TotalMilliseconds : TimeSpan.FromMinutes(5 - currentMinute).TotalMilliseconds;
+            Console.WriteLine("Set interval to: " + _goalCheckerTimer.Interval);
+            _goalCheckerTimer.Enabled = true;
+        }
+
+        private void _goalCheckerTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            foreach (var goal in GoalSettingManager.instance.GetGoals())
             {
-                Title = "Goal Setting Dashboard",
-                Content = new GoalSetting(_rules),
-                SizeToContent = SizeToContent.WidthAndHeight
-            };
-            window.ShowDialog();
-            
+                goal.CalculateProgressStatus();
+            }
+            _goalCheckerTimer.Interval = TimeSpan.FromHours(1).TotalMilliseconds;
         }
 
         public void OnNewTrackerEvent(object sender, TrackerEvents e)
@@ -96,10 +112,11 @@ namespace GoalSetting
             }
         }
 
-        internal void DeleteRule(PARule rule)
+        internal void DeleteGoal(Goal goal)
         {
-            Logger.WriteToConsole("Delete: " + rule);
-            _rules.Remove(rule);
+            Logger.WriteToConsole("Delete: " + goal);
+            _goals.Remove(goal);
+            DatabaseConnector.RemoveGoal(goal);
         }
 
         private List<Activity> GetActivity(RuleTimeSpan timespan)
@@ -182,10 +199,10 @@ namespace GoalSetting
             return result;
         }
 
-        internal void EditRule(PARule oldRule, PARule newRule)
+        internal void EditGoal(Goal oldGoal, Goal newGoal)
         {
-            DeleteRule(oldRule);
-            AddRule(newRule);
+            DeleteGoal(oldGoal);
+            AddGoal(newGoal);
         }
 
         public delegate void OnOpenRetrospectionFromGoalSetting(VisType type);
@@ -202,50 +219,50 @@ namespace GoalSetting
         }
 
         Dictionary<RuleTimeSpan, List<Activity>> activitiesMap = new Dictionary<RuleTimeSpan, List<Activity>>();
-
-        public void CheckRules(ObservableCollection<PARule> rules, bool showPopup)
+        
+        public void CheckRules(ObservableCollection<Goal> goals, bool showPopup)
         {
 
-            foreach (PARule rule in rules)
+            foreach (Goal goal in goals)
             {
                 //time spent on or switches to activities
-                if (rule.Rule.Goal == Goal.NumberOfSwitchesTo || rule.Rule.Goal == Goal.TimeSpentOn)
+                if (goal.Rule.Goal == RuleGoal.NumberOfSwitchesTo || goal.Rule.Goal == RuleGoal.TimeSpentOn)
                 {
 
                     //We can only do that for rules that have a timespan
-                    if ((rule as PARuleActivity).TimeSpan.HasValue)
+                    if ((goal as GoalActivity).TimeSpan.HasValue)
                     {
                         //if we do not yet have the activities, we have to get them!
-                        if (!activitiesMap.ContainsKey((rule as PARuleActivity).TimeSpan.Value))
+                        if (!activitiesMap.ContainsKey((goal as GoalActivity).TimeSpan.Value))
                         {
-                            activitiesMap.Add((rule as PARuleActivity).TimeSpan.Value, GetActivity((rule as PARuleActivity).TimeSpan.Value));
+                            activitiesMap.Add((goal as GoalActivity).TimeSpan.Value, GetActivity((goal as GoalActivity).TimeSpan.Value));
                         }
 
                         List<Activity> activities = null;
-                        activitiesMap.TryGetValue((rule as PARuleActivity).TimeSpan.Value, out activities);
+                        activitiesMap.TryGetValue((goal as GoalActivity).TimeSpan.Value, out activities);
 
                         if (activities != null)
                         {
                             foreach (Activity activity in activities)
                             {
-                                if (activity.Category.Equals((rule as PARuleActivity).Activity.ToString()))
+                                if (activity.Category.Equals((goal as GoalActivity).Activity.ToString()))
                                 {
                                     Logger.WriteToConsole("" + activity);
-                                    Logger.WriteToConsole("" + rule);
-                                    rule.Compile();
+                                    Logger.WriteToConsole("" + goal);
+                                    goal.Compile();
 
                                     //Store results in PARule
-                                    rule.Progress.Success = rule.CompiledRule(activity);
-                                    rule.Progress.Time = activity.GetTimeSpentInHours();
-                                    rule.Progress.Switches = activity.NumberOfSwitchesTo;
-                                    rule.CalculateProgressStatus();
+                                    goal.Progress.Success = goal.CompiledRule(activity);
+                                    goal.Progress.Time = activity.GetTimeSpentInHours();
+                                    goal.Progress.Switches = activity.NumberOfSwitchesTo;
+                                    goal.CalculateProgressStatus();
                                 }
                             }
                         }
                     }
                 }
                 //Emails
-                else if (rule.Rule.Goal == Goal.NumberOfEmailsInInbox)
+                else if (goal.Rule.Goal == RuleGoal.NumberOfEmailsInInbox)
                 {
                     var inbox = DatabaseConnector.GetLatestEmailInboxCount();
                     Trace.WriteLine("Inbox: " + inbox);
@@ -257,12 +274,22 @@ namespace GoalSetting
 
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
                 {
-                    var popup = new RulePopUp(rules);
+                    var popup = new GoalsPopUp(goals);
                     popup.ShowDialog();
                 }));
             }
 
         }
 
+        public void OpenMainWindow()
+        {
+            Window window = new Window
+            {
+                Title = "Goal Setting Dashboard",
+                Content = new GoalSetting(),
+                SizeToContent = SizeToContent.WidthAndHeight
+            };
+            window.ShowDialog();
+        }
     }
 }

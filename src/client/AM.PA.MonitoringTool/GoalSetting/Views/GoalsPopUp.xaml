@@ -1,4 +1,4 @@
-﻿<Window x:Class="GoalSetting.Views.RulePopUp"
+﻿<Window x:Class="GoalSetting.Views.GoalsPopUp"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:paColors="clr-namespace:Shared;assembly=Shared"

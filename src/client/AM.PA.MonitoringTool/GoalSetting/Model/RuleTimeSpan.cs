@@ -5,10 +5,13 @@
 
 using System.ComponentModel;
 
-namespace GoalSetting.Rules
+namespace GoalSetting.Model
 {
     public enum RuleTimeSpan
     {
+        [Description("hour")]
+        Hour,
+
         [Description("day")]
         EveryDay,
 

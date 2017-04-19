@@ -1,29 +1,18 @@
 ﻿// Created by Sebastian Mueller (smueller@ifi.uzh.ch) from the University of Zurich
-// Created: 2017-03-27
+// Created: 2017-04-12
 // 
 // Licensed under the MIT License.
 
 using System;
-using GoalSetting.Rules;
-using Shared;
+using GoalSetting.Goals;
 using Shared.Helpers;
+using Shared;
 
 namespace GoalSetting.Visualizers
 {
-    internal class WeekVisualization : BaseVisualization, IVisualization
+    internal class WeekVisualizationForSpecificDailyGoal : PAVisualization
     {
-        private DateTimeOffset _date;
-        private PARuleActivity _rule;
-
-        public WeekVisualization(DateTimeOffset date, PARuleActivity rule)
-        {
-            Title = rule.ToString();
-            this._rule = rule;
-            this._date = date;
-            IsEnabled = true;
-            Size = VisSize.Wide;
-            Order = 0;
-        }
+        public WeekVisualizationForSpecificDailyGoal(DateTimeOffset date, GoalActivity goal) : base(date, goal) { }
 
         public override string GetHtml()
         {
@@ -38,11 +27,7 @@ namespace GoalSetting.Visualizers
 
             //HTML
             html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "' style='align: center'></div>";
-            html += "<p style='text-align: center; font-size: 0.66em;'>" + GoalVisHelper.getHintText(_rule, VisType.Week) + "</p>";
-
-            //JS
-            html += "<script>";
-            html += "</script>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>" + GoalVisHelper.getHintText(_goal, VisType.Day) + "</p>";
 
             return html;
         }
