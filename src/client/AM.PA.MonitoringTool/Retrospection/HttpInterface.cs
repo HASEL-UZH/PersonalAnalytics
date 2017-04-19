@@ -60,7 +60,7 @@ namespace Retrospection
         {
             _exitThread = true;
 
-            if (_listener.Server != null)
+            if (_listener != null && _listener.Server != null)
             {
                 if (_listener.Server.Connected)
                 {
