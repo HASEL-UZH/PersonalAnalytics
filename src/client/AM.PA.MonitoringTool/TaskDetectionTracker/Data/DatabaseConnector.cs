@@ -16,8 +16,8 @@ namespace TaskDetectionTracker.Data
     {
         internal static void CreateTaskDetectionValidationTable()
         {
-            Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Sessions + " (sessionId INTEGER PRIMARY KEY, time TEXT, session_start TEXT, session_end TEXT, timePopUpResponded TEXT, comments TEXT);");
-            Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Validations + " (id INTEGER PRIMARY KEY, sessionId INTEGER, time TEXT, task_start TEXT, task_end TEXT, task_detection_case TEXT, task_type_proposed TEXT, task_type_validated TEXT);");
+            Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Sessions + " (sessionId INTEGER PRIMARY KEY, time DATETIME, session_start DATETIME, session_end DATETIME, timePopUpResponded DATETIME, comments TEXT);");
+            Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Validations + " (id INTEGER PRIMARY KEY, sessionId INTEGER, time DATETIME, task_start DATETIME, task_end DATETIME, task_detection_case TEXT, task_type_proposed TEXT, task_type_validated TEXT);");
         }
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace TaskDetectionTracker.Data
 
             try
             {
-                string query = "Select time, window, process from windows_activity where " + "(" + " STRFTIME('%s', DATE(time)) between STRFTIME('%s', DATE('" + from.ToString("u") + "')) and STRFTIME('%s', DATE('" + to.ToString("u") + "')) "+ " ) ";
+                string query = "Select time, window, process from windows_activity where " + "(" + " STRFTIME('%s', DATETIME(time)) between STRFTIME('%s', DATETIME('" + from.ToString("u") + "')) and STRFTIME('%s', DATETIME('" + to.ToString("u") + "')) "+ " ) ";
                 var table = Database.GetInstance().ExecuteReadQuery(query);
                 foreach (DataRow row in table.Rows)
                 {

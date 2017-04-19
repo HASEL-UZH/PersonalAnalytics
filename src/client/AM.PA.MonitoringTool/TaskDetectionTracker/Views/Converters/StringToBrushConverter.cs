@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -14,6 +15,7 @@ namespace TaskDetectionTracker.Views.Converters
    
     public class StringToBrushConverter : IValueConverter
     {
+        
         private static BrushConverter converter = new BrushConverter();
 
         private static Brush[] brushes = new Brush[]
@@ -32,6 +34,11 @@ namespace TaskDetectionTracker.Views.Converters
         
         private static Dictionary<string, Brush> colorMapper = new Dictionary<string, Brush>();
         
+        public static Dictionary<string, Brush> GetUsedColors()
+        {
+            return colorMapper;
+        }
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             Brush color;
@@ -47,6 +54,38 @@ namespace TaskDetectionTracker.Views.Converters
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
+        }
+
+        internal static void UpdateColors(ObservableCollection<TaskRectangle> rectItems)
+        {
+            List<String> usedNames = new List<string>();
+
+            foreach (TaskRectangle task in rectItems)
+            {
+                if (!usedNames.Contains(task.TaskName))
+                {
+                    usedNames.Add(task.TaskName);
+                }
+                foreach (ProcessRectangle process in task.ProcessRectangle)
+                {
+                    if (!usedNames.Contains(process.ProcessName))
+                    {
+                        usedNames.Add(process.ProcessName);
+                    }
+                }
+            }
+
+            try
+            {
+                foreach (String key in colorMapper.Keys)
+                {
+                    if (!usedNames.Contains(key))
+                    {
+                        colorMapper.Remove(key);
+                    }
+                }
+            }
+            catch (Exception e) { }
         }
     }
 }

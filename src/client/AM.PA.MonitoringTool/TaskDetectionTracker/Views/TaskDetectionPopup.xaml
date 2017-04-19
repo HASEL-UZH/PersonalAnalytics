@@ -83,6 +83,7 @@
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
@@ -202,12 +203,24 @@
                 </Grid>
             </ScrollViewer>
 
-            <StackPanel Orientation="Vertical" Grid.Row="3" VerticalAlignment="Bottom">
+            <StackPanel Orientation="Vertical" Grid.Row="3">
+                <TextBlock FontSize="18" Margin="10 20 10 10">Legend</TextBlock>
+                <Grid Name="Legend">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                </Grid>
+            </StackPanel>
+            
+            <StackPanel Orientation="Vertical" Grid.Row="4" VerticalAlignment="Bottom">
                 <TextBlock Grid.Row="0" FontSize="16">Space for comments about the task detection (possible issues, questions you have, things you noticed, etc.):</TextBlock>
                 <TextBox Name="Comments" Height="60" Grid.Row="1"></TextBox>
             </StackPanel>
             
-            <Button Grid.Row="4" HorizontalAlignment="Right" Name="Save" IsEnabled="{Binding ValidationComplete, UpdateSourceTrigger=PropertyChanged}" Click="Save_Click" Content="Accept Task Detection (Save)" Margin="0 10 0 0" Height="30" Width="200" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}"/>
+            <Button Grid.Row="5" HorizontalAlignment="Right" Name="Save" IsEnabled="{Binding ValidationComplete, UpdateSourceTrigger=PropertyChanged}" Click="Save_Click" Content="Accept Task Detection (Save)" Margin="0 10 0 0" Height="30" Width="200" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}"/>
         </Grid>
     </Grid>
 </Window>

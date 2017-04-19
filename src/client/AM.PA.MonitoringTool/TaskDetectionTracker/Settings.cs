@@ -25,5 +25,7 @@ namespace TaskDetectionTracker
         public static TimeSpan MaximumValidationInterval = TimeSpan.FromHours(3); 
 
         public const int MinimumProcessTimeInSeconds = 10;
+        public const int MinimumProcessWidth = 50;
+        public const int MinimumTimeLineWidth = 3000;
     }
 }
