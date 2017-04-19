@@ -8,7 +8,7 @@ using GoalSetting.Goals;
 using Shared;
 using Shared.Helpers;
 
-namespace GoalSetting.Visualizers
+namespace GoalSetting.Visualizers.Week
 {
     public class WeekVisualizationForHourlyGoal : PAVisualization
     {

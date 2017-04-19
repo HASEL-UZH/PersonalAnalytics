@@ -14,16 +14,24 @@ namespace GoalSetting.Visualizers
         protected DateTimeOffset _date;
         protected GoalActivity _goal;
 
-        public PAVisualization(DateTimeOffset date, GoalActivity goal)
+        public PAVisualization(DateTimeOffset date)
         {
-            Title = goal.ToString();
-            this._goal = goal;
             this._date = date;
             IsEnabled = true;
             Size = VisSize.Wide;
             Order = 0;
         }
 
+        public PAVisualization(DateTimeOffset date, GoalActivity goal)
+        {
+            this._goal = goal;
+            this._date = date;
+            Title = goal.ToString();
+            IsEnabled = true;
+            Size = VisSize.Wide;
+            Order = 0;
+        }
+        
         public abstract override string GetHtml();
 
     }

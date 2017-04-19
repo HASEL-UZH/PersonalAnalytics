@@ -1,18 +1,18 @@
 ﻿// Created by Sebastian Mueller (smueller@ifi.uzh.ch) from the University of Zurich
-// Created: 2017-04-12
+// Created: 2017-03-27
 // 
 // Licensed under the MIT License.
 
 using System;
 using GoalSetting.Goals;
-using Shared;
 using Shared.Helpers;
+using Shared;
 
-namespace GoalSetting.Visualizers
+namespace GoalSetting.Visualizers.Week
 {
-    internal class WeekVisualizationForWeeklyGoal : PAVisualization
+    internal class WeekVisualizationForDailyGoal : PAVisualization
     {
-        public WeekVisualizationForWeeklyGoal(DateTimeOffset date, GoalActivity goal) : base(date, goal) { }
+        public WeekVisualizationForDailyGoal(DateTimeOffset date, GoalActivity goal) : base(date, goal) { }
 
         public override string GetHtml()
         {

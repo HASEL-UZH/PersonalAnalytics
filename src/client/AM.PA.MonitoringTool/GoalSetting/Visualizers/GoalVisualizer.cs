@@ -7,9 +7,11 @@ using Shared;
 using Shared.Helpers;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using GoalSetting.Model;
+using GoalSetting.Visualizers.Day;
+using GoalSetting.Visualizers.Week;
+using GoalSetting.Visualizers.Summary;
 
 namespace GoalSetting.Visualizers
 {
@@ -39,8 +41,7 @@ namespace GoalSetting.Visualizers
 
             //For the daily visualization we ignore rules that are on weekly or monthly basis
             goals.RemoveAll(r => r.TimeSpan == RuleTimeSpan.Month || r.TimeSpan == RuleTimeSpan.Week);
-
-
+            
             //We use the following strategy to display visualizations for goals:
             //Specific point in time --> Progress bar
             //Hour --> bar chart
@@ -83,6 +84,10 @@ namespace GoalSetting.Visualizers
                     }
                 }
             }
+
+            //Add summary visualization
+            visualizations.Add(new GoalSummaryVisualization(date));
+
             return visualizations;
         }
 
@@ -117,6 +122,10 @@ namespace GoalSetting.Visualizers
                     }
                 }
             }
+
+            //Add summary visualization
+            visualizations.Add(new GoalSummaryVisualization(date));
+
             return visualizations;
         }
     }

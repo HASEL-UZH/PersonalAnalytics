@@ -5,14 +5,16 @@
 
 using System;
 using GoalSetting.Goals;
-using Shared.Helpers;
 using Shared;
+using Shared.Helpers;
 
-namespace GoalSetting.Visualizers
+namespace GoalSetting.Visualizers.Week
 {
-    internal class WeekVisualizationForSpecificDailyGoal : PAVisualization
+    internal class WeekVisualizationForWeeklyGoal : PAVisualization
     {
-        public WeekVisualizationForSpecificDailyGoal(DateTimeOffset date, GoalActivity goal) : base(date, goal) { }
+        public WeekVisualizationForWeeklyGoal(DateTimeOffset date, GoalActivity goal) : base(date, goal) {
+            Order = Int32.MinValue;
+        }
 
         public override string GetHtml()
         {

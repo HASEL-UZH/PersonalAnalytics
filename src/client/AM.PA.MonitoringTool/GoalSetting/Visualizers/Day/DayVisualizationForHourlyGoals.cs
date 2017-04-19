@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GoalSetting.Goals;
 
-namespace GoalSetting.Visualizers
+namespace GoalSetting.Visualizers.Day
 {
     public class DayVisualizationForHourlyGoals : PAVisualization
     {
