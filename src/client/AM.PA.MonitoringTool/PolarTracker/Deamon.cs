@@ -33,6 +33,7 @@ namespace PolarTracker
         private bool _isConnectedToBluetoothDevice = false;
         private ChooseBluetoothDevice _chooser;
         private bool _wasFirstStart = true;
+        private bool _isPAPaused = false;
 
         #region ITracker Stuff
 
@@ -82,6 +83,7 @@ namespace PolarTracker
 
         public override async void Start()
         {
+            _isPAPaused = false;
             string storedDeviceName = Database.GetInstance().GetSettingsString(Settings.HEARTRATE_TRACKER_ID_SETTING, string.Empty);
             if (storedDeviceName.Equals(string.Empty))
             {
@@ -141,6 +143,7 @@ namespace PolarTracker
 
         public override async void Stop()
         {
+            _isPAPaused = true;
             try
             {
                 Connector.Instance.ValueChangeCompleted -= OnNewHeartrateMeasurement;
@@ -200,12 +203,12 @@ namespace PolarTracker
             Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, polarTrackerEnabled.Value);
             Database.GetInstance().LogInfo("The participant updated the setting '" + Settings.TRACKER_ENEABLED_SETTING + "' to " + polarTrackerEnabled.Value);
 
-            if (polarTrackerEnabled.Value && IsRunning)
+            if (polarTrackerEnabled.Value && _isPAPaused)
             {
                 CreateDatabaseTablesIfNotExist();
                 Start();
             }
-            else if (!polarTrackerEnabled.Value && IsRunning)
+            else if (!polarTrackerEnabled.Value && _isPAPaused)
             {
                 Stop();
             }
