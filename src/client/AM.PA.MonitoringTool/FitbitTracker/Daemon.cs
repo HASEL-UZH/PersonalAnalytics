@@ -21,6 +21,7 @@ namespace FitbitTracker
     {
         private Window _browserWindow;
         private Timer _fitbitTimer;
+        private bool _isPApaused = false;
 
         public Deamon()
         {
@@ -64,6 +65,7 @@ namespace FitbitTracker
 
         public override void Start()
         {
+            _isPApaused = false;
             try
             {
                 FitbitConnector.RefreshTokenFail += FitbitConnector_RefreshTokenFail;
@@ -173,12 +175,12 @@ namespace FitbitTracker
             Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, fibtitTrackerEnabled.Value);
             Database.GetInstance().LogInfo("The participant updated the setting '" + Settings.TRACKER_ENEABLED_SETTING + "' to " + fibtitTrackerEnabled.Value);
 
-            if (fibtitTrackerEnabled.Value && IsRunning)
+            if (fibtitTrackerEnabled.Value && !_isPApaused)
             {
                 CreateDatabaseTablesIfNotExist();
                 Start();
             }
-            else if (!fibtitTrackerEnabled.Value && IsRunning)
+            else if (!fibtitTrackerEnabled.Value && !_isPApaused)
             {
                 Stop();
             }
@@ -333,6 +335,7 @@ namespace FitbitTracker
 
         public override void Stop()
         {
+            _isPApaused = true;
             if (_fitbitTimer != null)
             {
                 _fitbitTimer.Enabled = false;
