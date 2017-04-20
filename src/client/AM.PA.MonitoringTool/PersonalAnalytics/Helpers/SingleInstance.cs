@@ -26,6 +26,7 @@ namespace PersonalAnalytics.Helpers
     using System.Security;
     using System.Runtime.InteropServices;
     using System.ComponentModel;
+    using Shared;
 
     internal enum WM
     {
@@ -280,18 +281,36 @@ namespace PersonalAnalytics.Helpers
 
             string channelName = String.Concat(applicationIdentifier, Delimiter, ChannelNameSuffix);
 
-            // Create mutex based on unique application Id to check if this is the first instance of the application. 
+            // Create mutex based on unique application Id to check if this is the first instance of the application.
+            //Added exception handling based on the ideas in this code snippet: https://searchcode.com/codesearch/view/28793422/
             bool firstInstance;
+
             singleInstanceMutex = new Mutex(true, applicationIdentifier, out firstInstance);
             if (firstInstance)
-            {
-                CreateRemoteService(channelName);
-            }
-            else
-            {
-                SignalFirstInstance(channelName, commandLineArgs);
+            { 
+                try
+                {
+                    CreateRemoteService(channelName);
+                }
+                catch (RemotingException e)
+                {
+                    Logger.WriteToLogFile(e);
+                    firstInstance = false;
+                }
             }
 
+            if (!firstInstance)
+            {
+                try
+                {
+                    SignalFirstInstance(channelName, commandLineArgs);
+                }
+                catch (Exception e)
+                {
+                    Logger.WriteToLogFile(e);
+                    firstInstance = false;
+                }
+            }
             return firstInstance;
         }
 
