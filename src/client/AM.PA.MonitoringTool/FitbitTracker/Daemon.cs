@@ -183,7 +183,7 @@ namespace FitbitTracker
             if (fibtitTrackerEnabled.Value && !_isPApaused)
             {
                 CreateDatabaseTablesIfNotExist();
-                InternalStop();
+                InternalStart();
             }
             else if (!fibtitTrackerEnabled.Value && !_isPApaused && IsRunning)
             {
