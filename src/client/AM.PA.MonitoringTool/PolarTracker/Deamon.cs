@@ -81,9 +81,8 @@ namespace PolarTracker
             return Database.GetInstance().GetSettingsBool(Settings.TRACKER_ENEABLED_SETTING, Settings.IsEnabledByDefault);
         }
 
-        public override async void Start()
+        public async void InternalStart()
         {
-            _isPAPaused = false;
             string storedDeviceName = Database.GetInstance().GetSettingsString(Settings.HEARTRATE_TRACKER_ID_SETTING, string.Empty);
             if (storedDeviceName.Equals(string.Empty))
             {
@@ -138,12 +137,17 @@ namespace PolarTracker
                     Logger.WriteToLogFile(e);
                 }
             }
-            
+
         }
 
-        public override async void Stop()
+        public override void Start()
         {
-            _isPAPaused = true;
+            _isPAPaused = false;
+            InternalStart();
+        }
+
+        public async void InternalStop()
+        {
             try
             {
                 Connector.Instance.ValueChangeCompleted -= OnNewHeartrateMeasurement;
@@ -163,6 +167,12 @@ namespace PolarTracker
             {
                 Logger.WriteToLogFile(e);
             }
+        }
+
+        public override void Stop()
+        {
+            _isPAPaused = true;
+            InternalStop();
         }
 
         void OnTrackerDisabled() 
@@ -206,11 +216,11 @@ namespace PolarTracker
             if (polarTrackerEnabled.Value && _isPAPaused)
             {
                 CreateDatabaseTablesIfNotExist();
-                Start();
+                InternalStart();
             }
-            else if (!polarTrackerEnabled.Value && _isPAPaused)
+            else if (!polarTrackerEnabled.Value && _isPAPaused && IsRunning)
             {
-                Stop();
+                InternalStop();
             }
             else
             {
