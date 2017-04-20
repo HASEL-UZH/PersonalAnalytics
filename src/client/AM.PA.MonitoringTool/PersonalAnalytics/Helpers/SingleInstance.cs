@@ -280,16 +280,40 @@ namespace PersonalAnalytics.Helpers
 
             string channelName = String.Concat(applicationIdentifier, Delimiter, ChannelNameSuffix);
 
-            // Create mutex based on unique application Id to check if this is the first instance of the application. 
+            // Create mutex based on unique application Id to check if this is the first instance of the application.
+            //Added exception handling based on the ideas in this code snippet: https://searchcode.com/codesearch/view/28793422/
             bool firstInstance;
-            singleInstanceMutex = new Mutex(true, applicationIdentifier, out firstInstance);
-            if (firstInstance)
+
+            try
             {
-                CreateRemoteService(channelName);
+                singleInstanceMutex = new Mutex(true, applicationIdentifier, out firstInstance);
+                if (firstInstance)
+                {
+                    try
+                    {
+                        CreateRemoteService(channelName);
+                    }
+                    catch (RemotingException)
+                    {
+                        firstInstance = false;
+                    }
+                }
+
+                if (!firstInstance)
+                {
+                    try
+                    {
+                        SignalFirstInstance(channelName, commandLineArgs);
+                    }
+                    catch (Exception)
+                    {
+                        firstInstance = true;
+                    }
+                }
             }
-            else
+            catch (Exception)
             {
-                SignalFirstInstance(channelName, commandLineArgs);
+                firstInstance = false;
             }
 
             return firstInstance;
