@@ -63,9 +63,8 @@ namespace FitbitTracker
 
         public override bool IsFirstStart { get { return !Database.GetInstance().HasSetting(Settings.TRACKER_ENEABLED_SETTING); } }
 
-        public override void Start()
+        public void InternalStart()
         {
-            _isPApaused = false;
             try
             {
                 FitbitConnector.RefreshTokenFail += FitbitConnector_RefreshTokenFail;
@@ -84,6 +83,12 @@ namespace FitbitTracker
             {
                 Logger.WriteToLogFile(e);
             }
+        }
+
+        public override void Start()
+        {
+            _isPApaused = false;
+            InternalStart();
         }
 
         private void CheckIfSecretsAreAvailable()
@@ -187,11 +192,11 @@ namespace FitbitTracker
             if (fibtitTrackerEnabled.Value && !_isPApaused)
             {
                 CreateDatabaseTablesIfNotExist();
-                Start();
+                InternalStop();
             }
-            else if (!fibtitTrackerEnabled.Value && !_isPApaused)
+            else if (!fibtitTrackerEnabled.Value && !_isPApaused && IsRunning)
             {
-                Stop();
+                InternalStop();
             }
             else
             {
@@ -342,14 +347,19 @@ namespace FitbitTracker
             }
         }
 
-        public override void Stop()
+        public void InternalStop()
         {
-            _isPApaused = true;
             if (_fitbitTimer != null)
             {
                 _fitbitTimer.Enabled = false;
             }
             IsRunning = false;
+        }
+
+        public override void Stop()
+        {
+            _isPApaused = true;
+            InternalStop();
         }
 
         public override void UpdateDatabaseTables(int version)
