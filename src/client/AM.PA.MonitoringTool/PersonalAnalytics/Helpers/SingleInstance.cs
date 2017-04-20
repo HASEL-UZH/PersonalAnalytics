@@ -317,7 +317,7 @@ namespace PersonalAnalytics.Helpers
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                firstInstance = true;
+                firstInstance = false;
             }
 
             return firstInstance;
