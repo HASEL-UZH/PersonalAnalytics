@@ -307,7 +307,7 @@ namespace PersonalAnalytics.Helpers
                     }
                     catch (Exception)
                     {
-                        firstInstance = true;
+                        firstInstance = false;
                     }
                 }
             }
