@@ -21,6 +21,7 @@ namespace FitbitTracker
     {
         private Window _browserWindow;
         private Timer _fitbitTimer;
+        private bool _isPApaused = false;
 
         public Deamon()
         {
@@ -62,7 +63,7 @@ namespace FitbitTracker
 
         public override bool IsFirstStart { get { return !Database.GetInstance().HasSetting(Settings.TRACKER_ENEABLED_SETTING); } }
 
-        public override void Start()
+        public void InternalStart()
         {
             try
             {
@@ -82,6 +83,12 @@ namespace FitbitTracker
             {
                 Logger.WriteToLogFile(e);
             }
+        }
+
+        public override void Start()
+        {
+            _isPApaused = false;
+            InternalStart();
         }
 
         private void CheckIfSecretsAreAvailable()
@@ -182,14 +189,14 @@ namespace FitbitTracker
             Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, fibtitTrackerEnabled.Value);
             Database.GetInstance().LogInfo("The participant updated the setting '" + Settings.TRACKER_ENEABLED_SETTING + "' to " + fibtitTrackerEnabled.Value);
 
-            if (fibtitTrackerEnabled.Value && IsRunning)
+            if (fibtitTrackerEnabled.Value && !_isPApaused)
             {
                 CreateDatabaseTablesIfNotExist();
-                Start();
+                InternalStart();
             }
-            else if (!fibtitTrackerEnabled.Value && IsRunning)
+            else if (!fibtitTrackerEnabled.Value && !_isPApaused && IsRunning)
             {
-                Stop();
+                InternalStop();
             }
             else
             {
@@ -340,13 +347,19 @@ namespace FitbitTracker
             }
         }
 
-        public override void Stop()
+        public void InternalStop()
         {
             if (_fitbitTimer != null)
             {
                 _fitbitTimer.Enabled = false;
             }
             IsRunning = false;
+        }
+
+        public override void Stop()
+        {
+            _isPApaused = true;
+            InternalStop();
         }
 
         public override void UpdateDatabaseTables(int version)
