@@ -26,6 +26,7 @@ namespace PersonalAnalytics.Helpers
     using System.Security;
     using System.Runtime.InteropServices;
     using System.ComponentModel;
+    using Shared;
 
     internal enum WM
     {
@@ -293,8 +294,9 @@ namespace PersonalAnalytics.Helpers
                     {
                         CreateRemoteService(channelName);
                     }
-                    catch (RemotingException)
+                    catch (RemotingException e)
                     {
+                        Logger.WriteToLogFile(e);
                         firstInstance = false;
                     }
                 }
@@ -305,14 +307,16 @@ namespace PersonalAnalytics.Helpers
                     {
                         SignalFirstInstance(channelName, commandLineArgs);
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
+                        Logger.WriteToLogFile(e);
                         firstInstance = true;
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Logger.WriteToLogFile(e);
                 firstInstance = true;
             }
 
