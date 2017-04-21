@@ -842,30 +842,11 @@ namespace PersonalAnalytics
 
                         // the only way the restart with a click once work and IsNetworkDeployed is not false after the restart is
                         // the following (according to this: http://blachniet.com/blog/how-not-to-restart-a-clickonce-application/)
+                        // and https://robrelyea.wordpress.com/2007/07/24/application-restart-for-wpf/
 
                         Stop(false); // stop the application (restart stuff below)
-
-                        //System.Windows.Forms.Application.Restart(); // other way might be: Process.Start(App.AppPath);
-                        // Environment.Exit(0); 
-
-                        //System.Diagnostics.Process.Start(System.Reflection.Assembly.GetExecutingAssembly().Location);
-                        //Application.Exit();
-
-                        //var ApplicationEntryPoint = ApplicationDeployment.CurrentDeployment.UpdatedApplicationFullName;
-                        //Process.Start(ApplicationEntryPoint);
-                        //App.Current.Shutdown();
-
-
                         System.Windows.Forms.Application.Restart();
-                        //Application.Current.Shutdown();
-
-
-
-                        //var info2 = new System.Diagnostics.ProcessStartInfo(System.Reflection.Assembly.GetExecutingAssembly().Location);
-                        //Process.Start(info2);
-
-                        //Process.Start(App.Current.app);
-                        //ShutdownApplication();
+                        Application.Current.Shutdown();
                     }
                     catch (DeploymentDownloadException dde)
                     {
