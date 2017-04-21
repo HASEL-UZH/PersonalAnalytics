@@ -857,7 +857,9 @@ namespace PersonalAnalytics
 
 
                         System.Windows.Forms.Application.Restart();
-                        Application.Current.Shutdown();
+                        //Application.Current.Shutdown();
+
+
 
                         //var info2 = new System.Diagnostics.ProcessStartInfo(System.Reflection.Assembly.GetExecutingAssembly().Location);
                         //Process.Start(info2);
