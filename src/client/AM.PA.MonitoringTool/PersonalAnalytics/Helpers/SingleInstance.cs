@@ -354,6 +354,9 @@ namespace PersonalAnalytics.Helpers
         private static IList<string> GetCommandLineArgs(string uniqueApplicationName)
         {
             string[] args = null;
+
+            Logger.WriteToLogFile(new Exception("AppDomain.CurrentDomain.ActivationContext: " + AppDomain.CurrentDomain.ActivationContext.ToString()));
+
             if (AppDomain.CurrentDomain.ActivationContext == null)
             {
                 // The application was not clickonce deployed, get args from standard API's
