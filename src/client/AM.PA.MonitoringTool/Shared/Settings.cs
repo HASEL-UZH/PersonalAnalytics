@@ -20,18 +20,27 @@ namespace Shared
          */
         public const int DatabaseVersion = 3; // !!! update when existing database table changes (have a look at PerformDatabaseUpdatesIfNecessary() for details)
 
-#if Pilot_MSR
+
+#if Dev
+        public const bool IsUploadEnabled = false;
+        public const bool IsUploadReminderEnabled = false;
+        public static bool IsFeedbackEnabled = true; // can be overwritten when starting the retrospection
+        private const int _checkForToolUpdatesIntervalInMins = 5;
+#elif Pilot_MSR
         public const bool IsUploadEnabled = true;
         public const bool IsUploadReminderEnabled = true;
         public static bool IsFeedbackEnabled = false; // can be overwritten when starting the retrospection
+        private const int _checkForToolUpdatesIntervalInMins = 6 * 60;
 #elif Pilot_TaskDetection_March17
         public const bool IsUploadEnabled = false;
         public const bool IsUploadReminderEnabled = false;
         public static bool IsFeedbackEnabled = false; // can be overwritten when starting the retrospection
+        private const int _checkForToolUpdatesIntervalInMins = 6 * 60;
 #else
         public const bool IsUploadEnabled = false;
         public const bool IsUploadReminderEnabled = false;
         public static bool IsFeedbackEnabled = true; // can be overwritten when starting the retrospection
+        private const int _checkForToolUpdatesIntervalInMins = 6 * 60;
 #endif
 
         public static bool AnonymizeSensitiveData = false;
@@ -48,7 +57,7 @@ namespace Shared
         public const string MeetingsTable = "meetings";  // used for the retrospection
 
         public static TimeSpan CheckForStudyDataSharedReminderInterval = TimeSpan.FromHours(4); // every 4 hours, check if we should remind the user to share study data
-        public static TimeSpan CheckForToolUpdatesInterval = TimeSpan.FromMinutes(1); // every 15 minutes, check if there is an update available. Only in dev branch. On all other branches, the default is 6 hours.
+        public static TimeSpan CheckForToolUpdatesInterval = TimeSpan.FromMinutes(_checkForToolUpdatesIntervalInMins); // every x minutes, check if there is an update available
         public static TimeSpan TooltipIconUpdateInterval = TimeSpan.FromSeconds(20); // every 20 seconds, update the tasktray icon tool tip
         public static TimeSpan RemindToResumeToolInterval = TimeSpan.FromMinutes(30); // every 30 minutes, check if the tool is still paused, if yes: remind the user
 
@@ -77,13 +86,13 @@ namespace Shared
 
         ////////////////////////////////////////////////////////////
         // contact emails
-        #if PilotMSR
+#if PilotMSR
         public const string EmailAddress1 = "tzimmer@microsoft.com"; // main email address
         public const string EmailAddress2 = "ameyer@ifi.uzh.ch";
-        #else
+#else
         public const string EmailAddress1 = "ameyer@ifi.uzh.ch"; // main email address
         public static string EmailAddress2 = string.Empty;
-        #endif
+#endif
 
 
         ////////////////////////////////////////////////////////////
