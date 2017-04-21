@@ -285,32 +285,41 @@ namespace PersonalAnalytics.Helpers
             //Added exception handling based on the ideas in this code snippet: https://searchcode.com/codesearch/view/28793422/
             bool firstInstance;
 
-            singleInstanceMutex = new Mutex(true, applicationIdentifier, out firstInstance);
-            if (firstInstance)
-            { 
-                try
+            try
+            {
+                singleInstanceMutex = new Mutex(true, applicationIdentifier, out firstInstance);
+                if (firstInstance)
                 {
-                    CreateRemoteService(channelName);
+                    try
+                    {
+                        CreateRemoteService(channelName);
+                    }
+                    catch (RemotingException e)
+                    {
+                        Logger.WriteToLogFile(e);
+                        firstInstance = false;
+                    }
                 }
-                catch (RemotingException e)
+
+                if (!firstInstance)
                 {
-                    Logger.WriteToLogFile(e);
-                    firstInstance = false;
+                    try
+                    {
+                        SignalFirstInstance(channelName, commandLineArgs);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.WriteToLogFile(e);
+                        firstInstance = true;
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+                firstInstance = true;
             }
 
-            if (!firstInstance)
-            {
-                try
-                {
-                    SignalFirstInstance(channelName, commandLineArgs);
-                }
-                catch (Exception e)
-                {
-                    Logger.WriteToLogFile(e);
-                    firstInstance = false;
-                }
-            }
             return firstInstance;
         }
 
