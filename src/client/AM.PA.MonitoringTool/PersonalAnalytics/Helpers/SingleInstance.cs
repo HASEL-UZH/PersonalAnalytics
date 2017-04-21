@@ -441,7 +441,7 @@ namespace PersonalAnalytics.Helpers
             // the second instance should just exit
             if (firstInstanceRemoteServiceReference != null)
             {
-                Logger.WriteToLogFile(new Exception(args[0])); // TODO: temp
+                if (args.Count > 0) Logger.WriteToLogFile(new Exception(args[0])); // TODO: temp
 
                 // Invoke a method of the remote service exposed by the first instance passing on the command line
                 // arguments and causing the first instance to activate itself
