@@ -844,16 +844,20 @@ namespace PersonalAnalytics
                         // the following (according to this: http://blachniet.com/blog/how-not-to-restart-a-clickonce-application/)
 
                         Stop(false); // stop the application (restart stuff below)
-                        //System.Windows.Forms.Application.Restart(); // other way might be: Process.Start(App.AppPath);
 
+                        //System.Windows.Forms.Application.Restart(); // other way might be: Process.Start(App.AppPath);
+                        // Environment.Exit(0); 
 
                         //System.Diagnostics.Process.Start(System.Reflection.Assembly.GetExecutingAssembly().Location);
                         //Application.Exit();
 
+                        //var ApplicationEntryPoint = ApplicationDeployment.CurrentDeployment.UpdatedApplicationFullName;
+                        //Process.Start(ApplicationEntryPoint);
+                        //App.Current.Shutdown();
 
-                        var ApplicationEntryPoint = ApplicationDeployment.CurrentDeployment.UpdatedApplicationFullName;
-                        Process.Start(ApplicationEntryPoint);
-                        App.Current.Shutdown();
+
+                        System.Windows.Forms.Application.Restart();
+                        Application.Current.Shutdown();
 
                         //var info2 = new System.Diagnostics.ProcessStartInfo(System.Reflection.Assembly.GetExecutingAssembly().Location);
                         //Process.Start(info2);
