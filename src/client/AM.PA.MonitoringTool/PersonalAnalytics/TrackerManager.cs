@@ -774,7 +774,6 @@ namespace PersonalAnalytics
             try
             {
                 info = ad.CheckForDetailedUpdate();
-
             }
             catch (DeploymentDownloadException dde)
             {
@@ -845,7 +844,17 @@ namespace PersonalAnalytics
                         // the following (according to this: http://blachniet.com/blog/how-not-to-restart-a-clickonce-application/)
 
                         Stop(false); // stop the application (restart stuff below)
-                        System.Windows.Forms.Application.Restart(); // other way might be: Process.Start(App.AppPath);
+                        //System.Windows.Forms.Application.Restart(); // other way might be: Process.Start(App.AppPath);
+
+
+                        //System.Diagnostics.Process.Start(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                        //Application.Exit();
+
+
+                        var info2 = new System.Diagnostics.ProcessStartInfo(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                        Process.Start(info2);
+
+                        //Process.Start(App.Current.app);
                         ShutdownApplication();
                     }
                     catch (DeploymentDownloadException dde)
