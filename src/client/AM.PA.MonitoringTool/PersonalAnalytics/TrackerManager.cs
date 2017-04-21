@@ -851,11 +851,15 @@ namespace PersonalAnalytics
                         //Application.Exit();
 
 
-                        var info2 = new System.Diagnostics.ProcessStartInfo(System.Reflection.Assembly.GetExecutingAssembly().Location);
-                        Process.Start(info2);
+                        var ApplicationEntryPoint = ApplicationDeployment.CurrentDeployment.UpdatedApplicationFullName;
+                        Process.Start(ApplicationEntryPoint);
+                        App.Current.Shutdown();
+
+                        //var info2 = new System.Diagnostics.ProcessStartInfo(System.Reflection.Assembly.GetExecutingAssembly().Location);
+                        //Process.Start(info2);
 
                         //Process.Start(App.Current.app);
-                        ShutdownApplication();
+                        //ShutdownApplication();
                     }
                     catch (DeploymentDownloadException dde)
                     {
@@ -871,7 +875,7 @@ namespace PersonalAnalytics
             }
         }
 
-#region Check for Internet Connection
+        #region Check for Internet Connection
 
         [DllImport("wininet.dll")]
         private extern static bool InternetGetConnectedState(out int description, int reservedValue);
@@ -882,7 +886,7 @@ namespace PersonalAnalytics
             return InternetGetConnectedState(out description, 0);
         }
 
-#endregion
+        #endregion
 
         /// <summary>
         /// Shutdown the application only if the state is saved, database disconnected, etc.
