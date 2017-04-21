@@ -847,7 +847,7 @@ namespace PersonalAnalytics
 
                         Stop(false); // stop the application (restart stuff below)
                         System.Windows.Forms.Application.Restart(); // other way might be: Process.Start(App.AppPath);
-                        ShutdownApplication();
+                        Application.Current.Shutdown();
                     }
                     catch (DeploymentDownloadException dde)
                     {
