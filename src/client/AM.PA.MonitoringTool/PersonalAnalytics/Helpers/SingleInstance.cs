@@ -274,7 +274,7 @@ namespace PersonalAnalytics.Helpers
         /// <returns>True if this is the first instance of the application.</returns>
         public static bool InitializeAsFirstInstance(string uniqueName)
         {
-            Logger.WriteToLogFile(new Exception("UniqueName=" + uniqueName)); // TODO: temp logging
+            //Logger.WriteToLogFile(new Exception("UniqueName=" + uniqueName)); // TODO: temp logging
 
             commandLineArgs = GetCommandLineArgs(uniqueName);
 
@@ -355,7 +355,7 @@ namespace PersonalAnalytics.Helpers
         {
             string[] args = null;
 
-            Logger.WriteToLogFile(new Exception("AppDomain.CurrentDomain.ActivationContext: " + AppDomain.CurrentDomain.ActivationContext.ToString()));
+            //Logger.WriteToLogFile(new Exception("AppDomain.CurrentDomain.ActivationContext: " + AppDomain.CurrentDomain.ActivationContext.ToString()));
 
             if (AppDomain.CurrentDomain.ActivationContext == null)
             {
@@ -382,8 +382,8 @@ namespace PersonalAnalytics.Helpers
                             args = NativeMethods.CommandLineToArgvW(reader.ReadToEnd());
                         }
 
-                        Logger.WriteToLogFile(new Exception("Path to cmdline.txt" + cmdLinePath)); // TODO: temp
-                        //File.Delete(cmdLinePath); // TODO: temporarily disabled
+                        //Logger.WriteToLogFile(new Exception("Path to cmdline.txt" + cmdLinePath)); // TODO: temp
+                        File.Delete(cmdLinePath); // TODO: temporarily disabled
                     }
                     catch (IOException)
                     {
@@ -447,8 +447,8 @@ namespace PersonalAnalytics.Helpers
             // the second instance should just exit
             if (firstInstanceRemoteServiceReference != null)
             {
-                if (args.Count > 0) Logger.WriteToLogFile(new Exception("args: " + args[0])); // TODO: temp
-                else Logger.WriteToLogFile(new Exception("was in firstInstanceRemoteServiceReference, but args was empty")); //TODO: temp
+                //if (args.Count > 0) Logger.WriteToLogFile(new Exception("args: " + args[0])); // TODO: temp
+                //else Logger.WriteToLogFile(new Exception("was in firstInstanceRemoteServiceReference, but args was empty")); //TODO: temp
 
                 // Invoke a method of the remote service exposed by the first instance passing on the command line
                 // arguments and causing the first instance to activate itself
