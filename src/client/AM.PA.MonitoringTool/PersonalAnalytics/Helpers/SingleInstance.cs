@@ -274,8 +274,6 @@ namespace PersonalAnalytics.Helpers
         /// <returns>True if this is the first instance of the application.</returns>
         public static bool InitializeAsFirstInstance(string uniqueName)
         {
-            //Logger.WriteToLogFile(new Exception("UniqueName=" + uniqueName)); // TODO: temp logging
-
             commandLineArgs = GetCommandLineArgs(uniqueName);
 
             // Build unique application Id and the IPC channel name.
@@ -283,46 +281,67 @@ namespace PersonalAnalytics.Helpers
 
             string channelName = String.Concat(applicationIdentifier, Delimiter, ChannelNameSuffix);
 
-            // Create mutex based on unique application Id to check if this is the first instance of the application.
-            //Added exception handling based on the ideas in this code snippet: https://searchcode.com/codesearch/view/28793422/
+            // Create mutex based on unique application Id to check if this is the first instance of the application. 
             bool firstInstance;
-
-            try
+            singleInstanceMutex = new Mutex(true, applicationIdentifier, out firstInstance);
+            if (firstInstance)
             {
-                singleInstanceMutex = new Mutex(true, applicationIdentifier, out firstInstance);
-                if (firstInstance)
-                {
-                    try
-                    {
-                        CreateRemoteService(channelName);
-                    }
-                    catch (RemotingException e)
-                    {
-                        Logger.WriteToLogFile(e);
-                        firstInstance = false;
-                    }
-                }
-
-                if (!firstInstance)
-                {
-                    try
-                    {
-                        SignalFirstInstance(channelName, commandLineArgs);
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.WriteToLogFile(e);
-                        firstInstance = true;
-                    }
-                }
+                CreateRemoteService(channelName);
             }
-            catch (Exception e)
+            else
             {
-                Logger.WriteToLogFile(e);
-                firstInstance = true;
+                SignalFirstInstance(channelName, commandLineArgs);
             }
 
             return firstInstance;
+
+            //commandLineArgs = GetCommandLineArgs(uniqueName);
+
+            //// Build unique application Id and the IPC channel name.
+            //string applicationIdentifier = uniqueName + Environment.UserName;
+
+            //string channelName = String.Concat(applicationIdentifier, Delimiter, ChannelNameSuffix);
+
+            //// Create mutex based on unique application Id to check if this is the first instance of the application.
+            ////Added exception handling based on the ideas in this code snippet: https://searchcode.com/codesearch/view/28793422/
+            //bool firstInstance;
+
+            //try
+            //{
+            //    singleInstanceMutex = new Mutex(true, applicationIdentifier, out firstInstance);
+            //    if (firstInstance)
+            //    {
+            //        try
+            //        {
+            //            CreateRemoteService(channelName);
+            //        }
+            //        catch (RemotingException e)
+            //        {
+            //            Logger.WriteToLogFile(e);
+            //            firstInstance = false;
+            //        }
+            //    }
+
+            //    if (!firstInstance)
+            //    {
+            //        try
+            //        {
+            //            SignalFirstInstance(channelName, commandLineArgs);
+            //        }
+            //        catch (Exception e)
+            //        {
+            //            //Logger.WriteToLogFile(e);
+            //            firstInstance = true;
+            //        }
+            //    }
+            //}
+            //catch (Exception e)
+            //{
+            //    Logger.WriteToLogFile(e);
+            //    firstInstance = true;
+            //}
+
+            //return firstInstance;
         }
 
         /// <summary>
