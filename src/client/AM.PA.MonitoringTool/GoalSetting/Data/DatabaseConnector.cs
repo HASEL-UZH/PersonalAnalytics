@@ -36,7 +36,10 @@ namespace GoalSetting
         private const string Deleted = "deleted";
         private const string TargetValue = "targetValue";
         private const string ActualValue = "actualValue";
-        private const string Text = "text";
+        private const string Success = "success";
+        private const string TimeChecked = "timeChecked";
+        private const string TimeSaved = "timeSaved";
+        private const string GoalID = "goalID";
 
         //CREATE Goals
         private static readonly string CREATE_GOALS_TABLE = "CREATE TABLE IF NOT EXISTS " + Settings.GoalTableName + " ("
@@ -54,13 +57,16 @@ namespace GoalSetting
                                                             + IsActive + " TEXT, "
                                                             + Created + " DATETIME, "
                                                             + Deleted + " DATETIME);";
-
+        
         //CREATE Achievements
         private static readonly string CREATE_ACHIEVEMENTS_TABLE = "CREATE TABLE IF NOT EXISTS " + Settings.AchievementsTableName + " ("
                                                             + ID + " TEXT PRIMARY KEY, "
+                                                            + TimeChecked + " DATETIME, "
+                                                            + TimeSaved +  " DATETIME, "
+                                                            + GoalID + " TEXT, "
                                                             + TargetValue + " TEXT ,"
                                                             + ActualValue + " TEXT ,"
-                                                            + Text + " TEXT);";
+                                                            + Success + " TEXT);";
 
         //SELECT Queries
         private static readonly string GET_GOALS_QUERY = "SELECT " + ID + ", " + Title + ", " + Activity + ", " + Timespan + ", " + Timepoint + ", " + Time + ", " + Action + ", " + Goal + ", " + Target + ", " + Operator + ", " + VisualizationEnabled + " FROM " + Settings.GoalTableName + " WHERE isActive == 'True';";
