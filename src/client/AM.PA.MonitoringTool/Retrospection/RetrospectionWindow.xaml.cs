@@ -274,8 +274,17 @@ namespace Retrospection
             SwitchToGoalSetting.Visibility = Visibility.Visible;
             LeaveGoalSetting.Visibility = Visibility.Collapsed;
 
-            SwitchToDayButton.Visibility = Visibility.Visible;
-            SwitchToWeekButton.Visibility = Visibility.Visible;
+            switch (_currentVisType)
+            {
+                case VisType.Day:
+                    SwitchToWeekButton.Visibility = Visibility.Visible;
+                    break;
+
+                case VisType.Week:
+                    SwitchToDayButton.Visibility = Visibility.Visible;
+                    break;
+            }
+
             TodayButton.Visibility = Visibility.Visible;
             MinusOneButton.Visibility = Visibility.Visible;
             DatePicker.Visibility = Visibility.Visible;
