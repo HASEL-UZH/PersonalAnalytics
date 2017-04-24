@@ -96,5 +96,10 @@ namespace GoalSetting.Goals
 
             return "You have " + inbox + " emails right now. You should have " + Math.Abs(inbox - target) + (inbox > target ? " less " : " more ") + " emails.";
         }
+
+        public override bool IsStillReachable()
+        {
+            return true;
+        }
     }
 }

@@ -33,7 +33,8 @@ namespace GoalSetting.Goals
         public abstract void CalculateProgressStatus(bool persist);
 
         public abstract string GetProgressMessage();
-        
+
+        public abstract bool IsStillReachable();   
     }
     
     public class Progress

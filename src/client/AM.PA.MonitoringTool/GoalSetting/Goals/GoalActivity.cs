@@ -167,5 +167,22 @@ namespace GoalSetting.Goals
                 }
             }
         }
+
+        public override bool IsStillReachable()
+        {
+            switch (Rule.Operator)
+            {
+                case RuleOperator.Equal:
+                case RuleOperator.NotEqual:
+                case RuleOperator.GreaterThan:
+                case RuleOperator.GreaterThanOrEqual:
+                    return Progress.Target <= Progress.Actual;
+                case RuleOperator.LessThan:
+                case RuleOperator.LessThanOrEqual:
+                    return Progress.Target > Progress.Actual;
+                default:
+                    throw new ArgumentException(Rule.Operator + " not known!");
+            }
+        }
     }
 }

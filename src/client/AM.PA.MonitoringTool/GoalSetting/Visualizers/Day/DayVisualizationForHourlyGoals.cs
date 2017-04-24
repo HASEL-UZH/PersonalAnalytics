@@ -45,7 +45,7 @@ namespace GoalSetting.Visualizers.Day
 
             //HTML
             html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "' style='align: center'></div>";
-            html += "<p style='text-align: center; font-size: 0.66em;'>" + GoalVisHelper.getHintText(_goal, VisType.Day) + "</p>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>" + GoalVisHelper.GetHintText(_goal, VisType.Day) + "</p>";
 
             //JS
             html += "<script>";
@@ -127,9 +127,9 @@ namespace GoalSetting.Visualizers.Day
                     })
                     .attr('width', x.rangeBand());";
 
-            html += "var limit = " + GoalVisHelper.getLimitValue(_goal, VisType.Day) + ";";
+            html += "var limit = " + GoalVisHelper.GetLimitValue(_goal, VisType.Day) + ";";
 
-            html += "svg.append('text').attr('x', 0).attr('y', -10).style('text-anchor', 'middle').style('font-size', '0.5em').text('" + GoalVisHelper.getXAxisTitle(_goal, VisType.Day) + "');";
+            html += "svg.append('text').attr('x', 0).attr('y', -10).style('text-anchor', 'middle').style('font-size', '0.5em').text('" + GoalVisHelper.GetXAxisTitle(_goal, VisType.Day) + "');";
 
             html += "svg.append('line').style('stroke-dasharray', ('3, 3')).style('stroke', 'black').attr('x1', 0).attr('y1', y(limit)).attr('x2', d3.max(data, function(d){return x(d.start);})).attr('y2', y(limit));";
 
