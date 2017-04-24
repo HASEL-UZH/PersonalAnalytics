@@ -52,7 +52,7 @@ namespace GoalSetting
 
             foreach (Goal goal in _goals)
             {
-                goal.CalculateProgressStatus();
+                goal.CalculateProgressStatus(false);
                 
                 StackPanel container = new StackPanel();
                 container.Tag = goal;
@@ -114,7 +114,7 @@ namespace GoalSetting
         {
             foreach (var goal in GoalSettingManager.Instance.GetGoals())
             {
-                goal.CalculateProgressStatus();
+                goal.CalculateProgressStatus(false);
             }
         }
         

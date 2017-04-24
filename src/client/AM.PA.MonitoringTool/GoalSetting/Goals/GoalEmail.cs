@@ -43,10 +43,12 @@ namespace GoalSetting.Goals
             CompiledRule = RuleEngine.CompileRule<Activity>(Rule);
         }
 
-        public override void CalculateProgressStatus()
+        public override void CalculateProgressStatus(bool persist)
         {
             double actual = DatabaseConnector.GetLatestEmailInboxCount();
             double target = Double.Parse(this.Rule.TargetValue);
+            Progress.Actual = actual;
+            Progress.Target = target;
             double percentage = actual / target;
 
             if (actual == target)
@@ -74,6 +76,11 @@ namespace GoalSetting.Goals
                 {
                     Progress.Status = ProgressStatus.VeryLow;
                 }
+            }
+
+            if (persist)
+            {
+                DatabaseConnector.SaveAchievement(this, DateTime.Now);
             }
         }
 

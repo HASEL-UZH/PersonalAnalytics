@@ -30,7 +30,7 @@ namespace GoalSetting.Goals
 
         public abstract void Compile();
 
-        public abstract void CalculateProgressStatus();
+        public abstract void CalculateProgressStatus(bool persist);
 
         public abstract string GetProgressMessage();
         
@@ -42,6 +42,8 @@ namespace GoalSetting.Goals
         public bool? Success { get; set; }
         public string Time { get; set; }
         public int Switches { get; set; }
+        public double Actual { get; set; }
+        public double Target { get; set; }
     }
 
     public enum ProgressStatus

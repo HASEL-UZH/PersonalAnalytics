@@ -87,7 +87,7 @@ namespace GoalSetting
         {
             foreach (var goal in GoalSettingManager.Instance.GetGoals())
             {
-                goal.CalculateProgressStatus();
+                goal.CalculateProgressStatus(true);
             }
             _goalCheckerTimer.Interval = TimeSpan.FromHours(1).TotalMilliseconds;
         }

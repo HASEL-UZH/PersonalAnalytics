@@ -56,7 +56,7 @@ namespace GoalSetting.Goals
             return (string.IsNullOrEmpty(Progress.Time) ? "0" : Progress.Time) + " hours / " + Progress.Switches + " switches";
         }
 
-        public override void CalculateProgressStatus()
+        public override void CalculateProgressStatus(bool persist)
         {
             var activities = GoalSettingManager.Instance.GetActivitiesPerTimeSpan(this.TimeSpan.Value);
             var activity = activities.Where(a => a.Category.Equals(this.Activity.ToString())).First();
@@ -84,6 +84,8 @@ namespace GoalSetting.Goals
                     break;
             }
 
+            Progress.Actual = actual;
+            Progress.Target = target;
             double percentage = actual / target;
 
             if (Rule.Operator == RuleOperator.GreaterThan || Rule.Operator == RuleOperator.GreaterThanOrEqual)
@@ -154,6 +156,14 @@ namespace GoalSetting.Goals
                 else
                 {
                     Progress.Status = ProgressStatus.VeryLow;
+                }
+            }
+
+            if (persist)
+            {
+                if (persist)
+                {
+                    DatabaseConnector.SaveAchievement(this, DateTime.Now);
                 }
             }
         }

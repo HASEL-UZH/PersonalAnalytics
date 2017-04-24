@@ -60,7 +60,7 @@ namespace GoalSetting
         
         //CREATE Achievements
         private static readonly string CREATE_ACHIEVEMENTS_TABLE = "CREATE TABLE IF NOT EXISTS " + Settings.AchievementsTableName + " ("
-                                                            + ID + " TEXT PRIMARY KEY, "
+                                                            + ID + " INTEGER PRIMARY KEY, "
                                                             + TimeChecked + " DATETIME, "
                                                             + TimeSaved +  " DATETIME, "
                                                             + GoalID + " TEXT, "
@@ -88,6 +88,15 @@ namespace GoalSetting
                                                             + "{12}, "
                                                             + "{13});";
 
+        //SAVE Achievements query
+        private static readonly string SAVE_ACHIEVEMENTS_QUERY = "INSERT INTO " + Settings.AchievementsTableName + " (" + TimeChecked +", " + TimeSaved + ", " + GoalID + ", " + TargetValue + ", " + ActualValue + ", " + Success + ") VALUES ("
+                                                                + "'{0}', "
+                                                                + "'{1}', "
+                                                                + "'{2}', "
+                                                                + "'{3}', "
+                                                                + "'{4}', "
+                                                                + "'{5}');";
+
         //REMOVE Queries
         private static readonly string REMOVE_GOAL_QUERY = "UPDATE " + Settings.GoalTableName + " SET " + Deleted + " = '{0}', " + IsActive + " = '" + false + "' WHERE " + ID + " == '{1}';";
         
@@ -109,8 +118,20 @@ namespace GoalSetting
                 {
                     query += String.Format(INSERT_GOALS_QUERY, goal.ID, (goal.Title == null ? "" : goal.Title), "", "", (goal as GoalEmail).TimePoint, (goal as GoalEmail).Time, (goal.Action == null ? "" : goal.Action), goal.Rule.Goal, goal.Rule.TargetValue, goal.Rule.Operator, goal.IsVisualizationEnabled, true, "'" + DateTime.Now.ToString(Settings.DateFormat) + "'", "null");
                 }
+                Database.GetInstance().ExecuteDefaultQuery(query);
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+        }
 
-                Console.WriteLine(query);
+        internal static void SaveAchievement(Goal goal, DateTime checkedTime)
+        {
+            try
+            {
+                string query = string.Empty;
+                query += String.Format(SAVE_ACHIEVEMENTS_QUERY, checkedTime.ToString(Settings.TimeFormat), DateTime.Now.ToString(Settings.TimeFormat), goal.ID, goal.Progress.Target, goal.Progress.Actual, goal.Progress.Success);
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }
             catch (Exception e)
