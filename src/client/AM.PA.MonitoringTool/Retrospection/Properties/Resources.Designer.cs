@@ -63,6 +63,16 @@ namespace Retrospection.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] bullet_js {
+            get {
+                object obj = ResourceManager.GetObject("bullet_js", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] c3_min_css {
             get {
                 object obj = ResourceManager.GetObject("c3_min_css", resourceCulture);
@@ -137,7 +147,7 @@ namespace Retrospection.Properties {
         ///&lt;meta http-equiv=&quot;pragma&quot; content=&quot;no-cache&quot;/&gt; 
         ///&lt;meta http-equiv=&quot;expires&quot; content=&quot;-1&quot;/&gt; 
         ///
-        ///&lt;meta http-equiv=&quot;X [rest of string was truncated]&quot;;.
+        ///&lt;me [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string personalanalytics_html {
             get {

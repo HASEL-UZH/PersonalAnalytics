@@ -145,6 +145,7 @@
     <None Include="Properties\thumbDownGray_png" />
     <None Include="Properties\thumbUpBlue_png" />
     <None Include="Properties\thumbUpGray_png" />
+    <None Include="Resources\bullet_js" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

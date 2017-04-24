@@ -85,16 +85,18 @@ namespace GoalSetting.Visualizers
                 }
             }
 
-            //Add summary visualization
-            visualizations.Add(new GoalSummaryVisualization(date));
-
+            //Add summary visualization if it's today
+            if (date.Date == DateTime.Today)
+            {
+                visualizations.Add(new GoalSummaryVisualization(date));
+            }
             return visualizations;
         }
 
         public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)
         {
             var goals = GoalSettingManager.Instance.GetActivityGoals();
-            
+
             List<IVisualization> visualizations = new List<IVisualization>();
             foreach (var goal in goals)
             {
@@ -124,8 +126,10 @@ namespace GoalSetting.Visualizers
             }
 
             //Add summary visualization
-            visualizations.Add(new GoalSummaryVisualization(date));
-
+            if (date.Date == DateTime.Today)
+            {
+                visualizations.Add(new GoalSummaryVisualization(date));
+            }
             return visualizations;
         }
     }

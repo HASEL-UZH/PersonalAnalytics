@@ -35,6 +35,7 @@ namespace Retrospection
             _server.AddHandler("c3.min.css", OnStylesheets); // load css for c3 js framework
             _server.AddHandler("d3.timeline.js", OnResource); // load d3 timeline js framework
             _server.AddHandler("masonry.pkgd.min.js", OnResource); // load masonry grid layout js framework
+            _server.AddHandler("bullet.js", OnResource); //load bullet chart
             _server.AddHandler("tablefilter.js", OnResource); // load css
             _server.AddHandler("tablefilter.css", OnStylesheets); // load css
             _server.AddHandler("thumbUpBlue.png", OnResource); // load image
