@@ -92,7 +92,7 @@ namespace GoalSetting.Visualizers.Summary
             html += ".text(function(d) { return d.subtitle; });";
 
             html += "title.append('svg:image')";
-            html += ".attr('transform', 'translate(-80, -9)')";
+            html += ".attr('transform', 'translate(' + height * -3.5 + ',' + height / -2 + ')')";
             html += ".attr('xlink:href', function(d) {return d.image;})";
             html += ".attr('width', height)";
             html += ".attr('height', height);";
