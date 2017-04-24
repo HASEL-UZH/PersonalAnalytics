@@ -3,22 +3,20 @@
 // 
 // Licensed under the MIT License.
 
-using GoalSetting.Data;
-using GoalSetting.Model;
 using GoalSetting.Views;
 using Shared;
 using Shared.Data;
-using Shared.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
-using System.Windows.Threading;
 using Shared.Events;
-using System.Diagnostics;
 using GoalSetting.Goals;
 using System.Timers;
+using GoalSetting.Model;
+using Shared.Helpers;
+using GoalSetting.Data;
 
 namespace GoalSetting
 {
@@ -44,9 +42,82 @@ namespace GoalSetting
             }
         }
 
+        #region Goal List
+
         internal List<Goal> GetGoals()
         {
             return _goals.ToList();
+        }
+        
+        internal List<GoalActivity> GetActivityGoals()
+        {
+            return _goals.OfType<GoalActivity>().ToList();
+        }
+
+        internal List<GoalEmail> GetEmailGoals()
+        {
+            return _goals.OfType<GoalEmail>().ToList();
+        }
+
+        #endregion Goal List
+
+        /// <summary>
+        /// Starts the goal setting manager. This method is called whenever the user clicks on 'Goal setting' in the context menu.
+        /// </summary>
+        public void Start()
+        {
+            DatabaseConnector.CreateGoalsTableIfNotExists();
+
+            _goals = DatabaseConnector.GetStoredGoals();
+
+            StartGoalCheckingTimer();
+        }
+
+        #region Goal Checking Timer
+        private void StartGoalCheckingTimer()
+        {
+            _goalCheckerTimer = new Timer();
+            _goalCheckerTimer.Elapsed += _goalCheckerTimer_Elapsed;
+            int currentMinute = DateTime.Now.Minute;
+            _goalCheckerTimer.Interval = currentMinute > 2 ? TimeSpan.FromMinutes(62 - currentMinute).TotalMilliseconds : TimeSpan.FromMinutes(2 - currentMinute).TotalMilliseconds;
+            _goalCheckerTimer.Enabled = true;
+        }
+
+        private void _goalCheckerTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            foreach (var goal in GoalSettingManager.Instance.GetGoals())
+            {
+                goal.CalculateProgressStatus();
+            }
+            _goalCheckerTimer.Interval = TimeSpan.FromHours(1).TotalMilliseconds;
+        }
+        #endregion Goal Checking Timer
+
+        #region Events
+        public void OnNewTrackerEvent(object sender, TrackerEvents e)
+        {
+            if (e is ActivitySwitchEvent)
+            {
+                var dto = new ContextDto { Context = new ContextInfos { ProgramInUse = (e as ActivitySwitchEvent).NewProcessName, WindowTitle = (e as ActivitySwitchEvent).NewWindowTitle } };
+                ContextCategory activity = ContextMapper.GetContextCategory(dto);
+                Console.WriteLine("New activity: " + activity);
+            }
+        }
+        #endregion
+
+        #region Manipulate Goals
+
+        internal void DeleteGoal(Goal goal)
+        {
+            Logger.WriteToConsole("Delete: " + goal);
+            _goals.Remove(goal);
+            DatabaseConnector.RemoveGoal(goal);
+        }
+
+        internal void EditGoal(Goal oldGoal, Goal newGoal)
+        {
+            DeleteGoal(oldGoal);
+            AddGoal(newGoal);
         }
 
         internal void AddNewGoal()
@@ -66,60 +137,33 @@ namespace GoalSetting
             DatabaseConnector.AddGoal(newGoal);
         }
 
-        internal List<GoalActivity> GetActivityGoals()
+        #endregion Manipulate Goals
+
+        #region Retrospection
+        public delegate void OnOpenRetrospectionFromGoalSetting(VisType type);
+        public event OnOpenRetrospectionFromGoalSetting OpenRetrospectionEvent;
+
+        internal void OpenRetrospection(VisType type)
         {
-            return _goals.OfType<GoalActivity>().ToList();
+            OpenRetrospectionEvent?.Invoke(type);
         }
+        #endregion Retrospection
 
-        /// <summary>
-        /// Starts the goal setting manager. This method is called whenever the user clicks on 'Goal setting' in the context menu.
-        /// </summary>
-        public void Start()
+        #region UI
+        public void OpenMainWindow()
         {
-            DatabaseConnector.CreateGoalsTableIfNotExists();
-
-            _goals = DatabaseConnector.GetStoredGoals();
-
-            StartGoalCheckingTimer();
-        }
-
-        private void StartGoalCheckingTimer()
-        {
-            _goalCheckerTimer = new Timer();
-            _goalCheckerTimer.Elapsed += _goalCheckerTimer_Elapsed;
-            int currentMinute = DateTime.Now.Minute;
-            _goalCheckerTimer.Interval = currentMinute > 5 ? TimeSpan.FromMinutes(65 - currentMinute).TotalMilliseconds : TimeSpan.FromMinutes(5 - currentMinute).TotalMilliseconds;
-            Console.WriteLine("Set interval to: " + _goalCheckerTimer.Interval);
-            _goalCheckerTimer.Enabled = true;
-        }
-
-        private void _goalCheckerTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            foreach (var goal in GoalSettingManager.instance.GetGoals())
+            Window window = new Window
             {
-                goal.CalculateProgressStatus();
-            }
-            _goalCheckerTimer.Interval = TimeSpan.FromHours(1).TotalMilliseconds;
+                Title = "Goal Setting Dashboard",
+                Content = new GoalSetting(),
+                SizeToContent = SizeToContent.WidthAndHeight
+            };
+            window.ShowDialog();
         }
+        #endregion
 
-        public void OnNewTrackerEvent(object sender, TrackerEvents e)
-        {
-            if (e is ActivitySwitchEvent)
-            {
-                var dto = new ContextDto { Context = new ContextInfos { ProgramInUse = (e as ActivitySwitchEvent).NewProcessName, WindowTitle = (e as ActivitySwitchEvent).NewWindowTitle } };
-                ContextCategory activity = ContextMapper.GetContextCategory(dto);
-                Console.WriteLine("New activity: " + activity);
-            }
-        }
-
-        internal void DeleteGoal(Goal goal)
-        {
-            Logger.WriteToConsole("Delete: " + goal);
-            _goals.Remove(goal);
-            DatabaseConnector.RemoveGoal(goal);
-        }
-
-        private List<Activity> GetActivity(RuleTimeSpan timespan)
+        #region Activities
+        public List<Activity> GetActivitiesPerTimeSpan(RuleTimeSpan timespan)
         {
             List<ActivityContext> activities = new List<ActivityContext>();
 
@@ -198,98 +242,8 @@ namespace GoalSetting
             }
             return result;
         }
+        #endregion
 
-        internal void EditGoal(Goal oldGoal, Goal newGoal)
-        {
-            DeleteGoal(oldGoal);
-            AddGoal(newGoal);
-        }
-
-        public delegate void OnOpenRetrospectionFromGoalSetting(VisType type);
-        public event OnOpenRetrospectionFromGoalSetting OpenRetrospectionEvent;
-
-        internal void OpenRetrospection(VisType type)
-        {
-            OpenRetrospectionEvent?.Invoke(type);
-        }
-
-        internal void DeleteCachedResults()
-        {
-            activitiesMap.Clear();
-        }
-
-        Dictionary<RuleTimeSpan, List<Activity>> activitiesMap = new Dictionary<RuleTimeSpan, List<Activity>>();
-        
-        public void CheckRules(ObservableCollection<Goal> goals, bool showPopup)
-        {
-
-            foreach (Goal goal in goals)
-            {
-                //time spent on or switches to activities
-                if (goal.Rule.Goal == RuleGoal.NumberOfSwitchesTo || goal.Rule.Goal == RuleGoal.TimeSpentOn)
-                {
-
-                    //We can only do that for rules that have a timespan
-                    if ((goal as GoalActivity).TimeSpan.HasValue)
-                    {
-                        //if we do not yet have the activities, we have to get them!
-                        if (!activitiesMap.ContainsKey((goal as GoalActivity).TimeSpan.Value))
-                        {
-                            activitiesMap.Add((goal as GoalActivity).TimeSpan.Value, GetActivity((goal as GoalActivity).TimeSpan.Value));
-                        }
-
-                        List<Activity> activities = null;
-                        activitiesMap.TryGetValue((goal as GoalActivity).TimeSpan.Value, out activities);
-
-                        if (activities != null)
-                        {
-                            foreach (Activity activity in activities)
-                            {
-                                if (activity.Category.Equals((goal as GoalActivity).Activity.ToString()))
-                                {
-                                    Logger.WriteToConsole("" + activity);
-                                    Logger.WriteToConsole("" + goal);
-                                    goal.Compile();
-
-                                    //Store results in PARule
-                                    goal.Progress.Success = goal.CompiledRule(activity);
-                                    goal.Progress.Time = activity.GetTimeSpentInHours();
-                                    goal.Progress.Switches = activity.NumberOfSwitchesTo;
-                                    goal.CalculateProgressStatus();
-                                }
-                            }
-                        }
-                    }
-                }
-                //Emails
-                else if (goal.Rule.Goal == RuleGoal.NumberOfEmailsInInbox)
-                {
-                    var inbox = DatabaseConnector.GetLatestEmailInboxCount();
-                    Trace.WriteLine("Inbox: " + inbox);
-                }
-            }
-
-            if (showPopup)
-            {
-
-                Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
-                {
-                    var popup = new GoalsPopUp(goals);
-                    popup.ShowDialog();
-                }));
-            }
-
-        }
-
-        public void OpenMainWindow()
-        {
-            Window window = new Window
-            {
-                Title = "Goal Setting Dashboard",
-                Content = new GoalSetting(),
-                SizeToContent = SizeToContent.WidthAndHeight
-            };
-            window.ShowDialog();
-        }
     }
+
 }

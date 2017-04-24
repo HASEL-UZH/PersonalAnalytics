@@ -128,7 +128,6 @@ namespace GoalSetting.Views
         private void Close_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             this.Close();
-            GoalSettingManager.Instance.DeleteCachedResults();
         }
 
         private void Dashboard_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)

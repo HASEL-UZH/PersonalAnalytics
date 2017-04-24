@@ -8,6 +8,7 @@ using GoalSetting.Rules;
 using Shared.Data;
 using Shared.Helpers;
 using System;
+using System.Linq;
 
 namespace GoalSetting.Goals
 {
@@ -57,21 +58,33 @@ namespace GoalSetting.Goals
 
         public override void CalculateProgressStatus()
         {
-            double percentage = Double.NaN;
+            var activities = GoalSettingManager.Instance.GetActivitiesPerTimeSpan(this.TimeSpan.Value);
+            var activity = activities.Where(a => a.Category.Equals(this.Activity.ToString())).First();
+
+            if (activity != null)
+            {
+                this.Compile();
+                this.Progress.Success = this.CompiledRule(activity);
+                this.Progress.Time = activity.GetTimeSpentInHours();
+                this.Progress.Switches = activity.NumberOfSwitchesTo;
+            }
+
+            double target = Double.NaN;
+            double actual = Double.NaN;
 
             switch (Rule.Goal)
             {
                 case RuleGoal.TimeSpentOn:
-                    double targetTime = Double.Parse(Rule.TargetValue) / 1000 / 60 / 60;
-                    double actualTime = string.IsNullOrEmpty(Progress.Time) ? 0.0 : Double.Parse(Progress.Time);
-                    percentage = actualTime / targetTime;
+                    target = Double.Parse(Rule.TargetValue) / 1000 / 60 / 60;
+                    actual = string.IsNullOrEmpty(Progress.Time) ? 0.0 : Double.Parse(Progress.Time);
                     break;
                 case RuleGoal.NumberOfSwitchesTo:
-                    double targetSwitches = Double.Parse(Rule.TargetValue);
-                    double actualSwitches = Progress.Switches;
-                    percentage = actualSwitches / targetSwitches;
+                    target = Double.Parse(Rule.TargetValue);
+                    actual = Progress.Switches;
                     break;
             }
+
+            double percentage = actual / target;
 
             if (Rule.Operator == RuleOperator.GreaterThan || Rule.Operator == RuleOperator.GreaterThanOrEqual)
             {
@@ -144,6 +157,5 @@ namespace GoalSetting.Goals
                 }
             }
         }
-
     }
 }

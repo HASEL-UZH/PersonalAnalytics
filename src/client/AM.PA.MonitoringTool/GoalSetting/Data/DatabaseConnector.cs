@@ -268,7 +268,7 @@ namespace GoalSetting
             var query = "SELECT * FROM " + Settings.ActivityTable + " WHERE Time >= '" + start.ToString(Settings.DateFormat) + "' AND Time <= '" + end.ToString(Settings.DateFormat) + "';";
             return GetActivities(query, end);
         }
-
+        
         internal static int GetLatestEmailInboxCount()
         {
             if (Database.GetInstance().HasTable("emails"))

@@ -52,9 +52,8 @@ namespace GoalSetting
 
             foreach (Goal goal in _goals)
             {
-                GoalSettingManager.Instance.CheckRules(_goals, false);
                 goal.CalculateProgressStatus();
-
+                
                 StackPanel container = new StackPanel();
                 container.Tag = goal;
                 container.Background = new SolidColorBrush(Colors.LightGray);
@@ -113,7 +112,10 @@ namespace GoalSetting
 
         private void CheckRules_Click(object sender, RoutedEventArgs e)
         {
-            GoalSettingManager.Instance.CheckRules(_goals, true);
+            foreach (var goal in GoalSettingManager.Instance.GetGoals())
+            {
+                goal.CalculateProgressStatus();
+            }
         }
         
         private void AddRule_Click(object sender, RoutedEventArgs e)
@@ -165,10 +167,6 @@ namespace GoalSetting
             }
         }
 
-        private void OpenRetrospection_Click(object sender, RoutedEventArgs e)
-        {
-            GoalSettingManager.Instance.OpenRetrospection(Shared.VisType.Day);
-        }
     }
 
 }

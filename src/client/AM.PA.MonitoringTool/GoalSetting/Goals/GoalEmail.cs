@@ -6,6 +6,7 @@
 using Shared.Helpers;
 using GoalSetting.Model;
 using GoalSetting.Rules;
+using System;
 
 namespace GoalSetting.Goals
 {
@@ -44,12 +45,49 @@ namespace GoalSetting.Goals
 
         public override void CalculateProgressStatus()
         {
-           //TODO
+            double actual = DatabaseConnector.GetLatestEmailInboxCount();
+            double target = Double.Parse(this.Rule.TargetValue);
+            double percentage = actual / target;
+
+            if (actual == target)
+            {
+                Progress.Status = ProgressStatus.VeryHigh;
+                Progress.Success = true;
+            }
+            else
+            {
+                Progress.Success = false;
+                
+                if (percentage >= 0.75 && percentage <= 1.25)
+                {
+                    Progress.Status = ProgressStatus.High;
+                }
+                else if (percentage >= 0.5 && percentage <= 1.5)
+                {
+                    Progress.Status = ProgressStatus.Average;
+                }
+                else if (percentage >= 0.25 && percentage <= 1.75)
+                {
+                    Progress.Status = ProgressStatus.Low;
+                }
+                else
+                {
+                    Progress.Status = ProgressStatus.VeryLow;
+                }
+            }
         }
 
         public override string GetProgressMessage()
         {
-            return "Not yet supported";
+            var inbox = DatabaseConnector.GetLatestEmailInboxCount();
+            double target = Double.Parse(this.Rule.TargetValue);
+
+            if (inbox == target)
+            {
+                return "You have " + inbox + " emails right now. You have reached your goal!";
+            }
+
+            return "You have " + inbox + " emails right now. You should have " + Math.Abs(inbox - target) + (inbox > target ? " less " : " more ") + " emails.";
         }
     }
 }
