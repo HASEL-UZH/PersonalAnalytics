@@ -13,6 +13,8 @@ using System.Windows.Documents;
 using GoalSetting.Views;
 using GoalSetting.Model;
 using GoalSetting.Goals;
+using System.Windows.Threading;
+using System;
 
 namespace GoalSetting
 {
@@ -26,7 +28,7 @@ namespace GoalSetting
         public GoalSetting()
         {
             InitializeComponent();
-            this._goals = new ObservableCollection<Goal>(GoalSettingManager.Instance.GetGoals());
+            this._goals = GoalSettingManager.Instance.GetGoals();
             Rules.SelectionMode = DataGridSelectionMode.Single;
             Rules.ItemsSource = _goals;
             _goals.CollectionChanged += _rules_CollectionChanged;
@@ -116,6 +118,11 @@ namespace GoalSetting
             {
                 goal.CalculateProgressStatus(false);
             }
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            {
+                var popup = new GoalsPopUp(_goals);
+                popup.ShowDialog();
+            }));
         }
         
         private void AddRule_Click(object sender, RoutedEventArgs e)

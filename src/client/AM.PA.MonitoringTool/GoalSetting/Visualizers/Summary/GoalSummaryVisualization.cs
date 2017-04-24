@@ -6,7 +6,7 @@
 using System;
 using Shared.Helpers;
 using GoalSetting.Goals;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace GoalSetting.Visualizers.Summary
 {
@@ -102,7 +102,7 @@ namespace GoalSetting.Visualizers.Summary
             return html;
         }
 
-        public string GenerateData(List<Goal> goals)
+        public string GenerateData(ObservableCollection<Goal> goals)
         {
             string data = string.Empty;
 

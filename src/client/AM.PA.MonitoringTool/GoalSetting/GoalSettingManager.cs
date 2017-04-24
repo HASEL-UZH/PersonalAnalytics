@@ -44,9 +44,9 @@ namespace GoalSetting
 
         #region Goal List
 
-        internal List<Goal> GetGoals()
+        internal ObservableCollection<Goal> GetGoals()
         {
-            return _goals.ToList();
+            return _goals;
         }
         
         internal List<GoalActivity> GetActivityGoals()

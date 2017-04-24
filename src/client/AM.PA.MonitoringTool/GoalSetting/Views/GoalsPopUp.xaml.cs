@@ -45,7 +45,7 @@ namespace GoalSetting.Views
                 containerMargin.Bottom = 10;
                 container.Margin = containerMargin;
 
-                System.Windows.Controls.Image smiley = new System.Windows.Controls.Image();
+                Image smiley = new Image();
                 smiley.Height = 25;
 
                 switch (goal.Progress.Status)
@@ -119,8 +119,8 @@ namespace GoalSetting.Views
                 }
             }
 
-            this.Left = mainScreen.WorkingArea.Right - this.Width;
-            this.Top = mainScreen.WorkingArea.Bottom - this.Height;
+            this.Left = mainScreen.Bounds.Right - this.Width;
+            this.Top = mainScreen.Bounds.Bottom - ((goals.Count * 52) + 60);
 
             return base.ShowDialog();
         }
