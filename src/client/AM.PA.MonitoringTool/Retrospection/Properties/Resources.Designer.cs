@@ -158,6 +158,56 @@ namespace Retrospection.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] smiley1_png {
+            get {
+                object obj = ResourceManager.GetObject("smiley1_png", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] smiley2_png {
+            get {
+                object obj = ResourceManager.GetObject("smiley2_png", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] smiley3_png {
+            get {
+                object obj = ResourceManager.GetObject("smiley3_png", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] smiley4_png {
+            get {
+                object obj = ResourceManager.GetObject("smiley4_png", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] smiley5_png {
+            get {
+                object obj = ResourceManager.GetObject("smiley5_png", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] styles_css {
             get {
                 object obj = ResourceManager.GetObject("styles_css", resourceCulture);

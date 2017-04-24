@@ -42,6 +42,11 @@ namespace Retrospection
             _server.AddHandler("thumbDownGray.png", OnResource); // load image
             _server.AddHandler("thumbUpGray.png", OnResource); // load image
             _server.AddHandler("thumbDownBlue.png", OnResource); // load image
+            _server.AddHandler("smiley1.png", OnResource); //load image
+            _server.AddHandler("smiley2.png", OnResource); //load image
+            _server.AddHandler("smiley3.png", OnResource); //load image
+            _server.AddHandler("smiley4.png", OnResource); //load image
+            _server.AddHandler("smiley5.png", OnResource); //load image
             _server.AddHandler("styles.css", OnStylesheets); // load css
 
             try

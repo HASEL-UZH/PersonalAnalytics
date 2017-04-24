@@ -138,6 +138,11 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <None Include="Properties\smiley1_png" />
+    <None Include="Properties\smiley2_png" />
+    <None Include="Properties\smiley3_png" />
+    <None Include="Properties\smiley4_png" />
+    <None Include="Properties\smiley5_png" />
     <None Include="Properties\styles_css" />
     <None Include="Properties\tablefilter_css" />
     <None Include="Properties\tablefilter_js" />

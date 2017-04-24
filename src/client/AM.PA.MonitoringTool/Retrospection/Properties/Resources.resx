@@ -142,6 +142,21 @@
   <data name="personalanalytics_html" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>personalanalytics.html;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
+  <data name="smiley1_png" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>smiley1_png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="smiley2_png" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>smiley2_png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="smiley3_png" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>smiley3_png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="smiley4_png" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>smiley4_png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="smiley5_png" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>smiley5_png;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="styles_css" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>styles_css;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>

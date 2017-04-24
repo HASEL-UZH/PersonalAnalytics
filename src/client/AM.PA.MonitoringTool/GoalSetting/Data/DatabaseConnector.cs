@@ -325,6 +325,120 @@ namespace GoalSetting
             return -1;
         }
 
+        internal static double GetAverageGoalValue(Goal goal)
+        {
+            try
+            {
+                string query = string.Empty;
+
+                switch (goal.Rule.Goal)
+                {
+                    case RuleGoal.NumberOfEmailsInInbox:
+                        query = "SELECT avg(inbox) from emails";
+                        break;
+
+                    case RuleGoal.NumberOfSwitchesTo:
+                    case RuleGoal.TimeSpentOn:
+                        query = "SELECT avg(actualValue)from achievements where goalid == '" + goal.ID + "'";
+                        break;
+                }
+                var table = Database.GetInstance().ExecuteReadQuery(query);
+                if (table != null && table.Rows.Count > 0)
+                {
+                    if (string.IsNullOrEmpty(table.Rows[0][0].ToString()))
+                    {
+                        return 0;
+                    }
+                    return double.Parse(table.Rows[0][0].ToString());
+                }
+                else
+                {
+                    table.Dispose();
+                    return 0;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+            return 0;
+        }
+
+        internal static double GetMaxGoalValue(Goal goal)
+        {
+            try
+            {
+                string query = string.Empty;
+
+                switch (goal.Rule.Goal)
+                {
+                    case RuleGoal.NumberOfEmailsInInbox:
+                        query = "SELECT max(inbox) from emails";
+                        break;
+                    case RuleGoal.NumberOfSwitchesTo:
+                    case RuleGoal.TimeSpentOn:
+                        query = "SELECT max(actualValue)from achievements where goalid == '" + goal.ID + "'";
+                        break;
+                }
+                var table = Database.GetInstance().ExecuteReadQuery(query);
+                if (table != null && table.Rows.Count > 0)
+                {
+                    if (string.IsNullOrEmpty(table.Rows[0][0].ToString()))
+                    {
+                        return 0;
+                    }
+                    return double.Parse(table.Rows[0][0].ToString());
+                }
+                else
+                {
+                    table.Dispose();
+                    return 0;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+            return 0;
+        }
+
+        internal static double GetMinGoalValue(Goal goal)
+        {
+            try
+            {
+                string query = string.Empty;
+
+                switch (goal.Rule.Goal)
+                {
+                    case RuleGoal.NumberOfEmailsInInbox:
+                        query = "SELECT min(inbox) from emails";
+                        break;
+                    case RuleGoal.NumberOfSwitchesTo:
+                    case RuleGoal.TimeSpentOn:
+                        query = "SELECT min(actualValue)from achievements where goalid == '" + goal.ID + "'";
+                        break;
+                }
+                var table = Database.GetInstance().ExecuteReadQuery(query);
+                if (table != null && table.Rows.Count > 0)
+                {
+                    if (string.IsNullOrEmpty(table.Rows[0][0].ToString())) { 
+                        return 0;
+                    }
+                    return double.Parse(table.Rows[0][0].ToString());
+                }
+                else
+                {
+                    table.Dispose();
+                    return 0;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+            return 0;
+        }
+
         #endregion
     }
 }

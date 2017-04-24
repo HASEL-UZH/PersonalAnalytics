@@ -5,6 +5,8 @@
 
 using System;
 using Shared.Helpers;
+using GoalSetting.Goals;
+using System.Collections.Generic;
 
 namespace GoalSetting.Visualizers.Summary
 {
@@ -17,15 +19,22 @@ namespace GoalSetting.Visualizers.Summary
 
         public override string GetHtml()
         {
-            int numberOfItems = 3;
+            var goals = GoalSettingManager.Instance.GetGoals();
+            int numberOfItems = goals.Count;
 
             var html = string.Empty;
+
+            if (goals.Count <= 0)
+            {
+                html += VisHelper.NotEnoughData();
+                return html;
+            }
 
             // CSS
             html += "<style type='text/css'>";
             
             html += @".bullet { font: 10px sans-serif;}
-            .marker {stroke: #000; stroke-width: 2px; }
+            .marker {stroke: #F00; stroke-width: 2px; }
             .tick line {stroke: #666; stroke-width: .5px; }
             .range.s0 {fill: #eee; }
             .range.s1 {fill: #ddd; }
@@ -38,21 +47,20 @@ namespace GoalSetting.Visualizers.Summary
 
             //HTML
             html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "' style='align: center'></div>";
-            html += "<p style='text-align: center; font-size: 0.66em;'>" + "Goal Summary" + "</p>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>" + "Goal Summary (blue: actual value, red: target value, bars: min, average, max)" + "</p>";
 
             //JS
             html += "<script src='bullet.js'></script>";
             html += "<script>";
 
-            html += GenerateData(numberOfItems);
-
-            //Calculate size of visualization
+            html += GenerateData(goals);
+            
             html += "var actualHeight = document.getElementsByClassName('item Wide')[0].offsetHeight;";
             html += "var actualWidth = document.getElementsByClassName('item Wide')[0].offsetWidth;";
             html += "var margin = {top: 5, right: 40, bottom: 20, left: 120}, totalWidth = (actualWidth * 0.97)- margin.left - margin.right, totalHeight = (actualHeight * 0.73) - margin.top - margin.bottom;";
 
             html += "width = totalWidth,";
-            html += "height = totalWidth / (6 * " + numberOfItems + ");";
+            html += "height = totalWidth / (6 * " + goals.Count + ");";
 
             html += "d3.select('#" + VisHelper.CreateChartHtmlTitle(Title) + "').attr('height', totalHeight);";
 
@@ -83,26 +91,66 @@ namespace GoalSetting.Visualizers.Summary
             html += ".attr('dy', '1em')";
             html += ".text(function(d) { return d.subtitle; });";
 
+            html += "title.append('svg:image')";
+            html += ".attr('transform', 'translate(-80, -9)')";
+            html += ".attr('xlink:href', function(d) {return d.image;})";
+            html += ".attr('width', height)";
+            html += ".attr('height', height);";
+
             html += "</script>";
 
             return html;
         }
 
-        public string GenerateData(int n)
+        public string GenerateData(List<Goal> goals)
         {
             string data = string.Empty;
 
             data += "var data = [";
-
-
-            for (int i = 0; i < n; i++)
+            
+            foreach (Goal goal in goals)
             {
+                goal.CalculateProgressStatus(false);
                 data += "{";
-                data += "'title':'CPU " + n + " Load',";
-                data += "'subtitle':'GHz',";
-                data += "'ranges':[1500,2250,3000],";
-                data += "'measures':[2200],";
-                data += "'markers':[2500]";
+                data += "'title':'" + goal.Title + "',";
+
+                switch (goal.Rule.Goal)
+                {
+                    case Model.RuleGoal.NumberOfEmailsInInbox:
+                        data += "'subtitle':'# Emails',";
+                        break;
+
+                    case Model.RuleGoal.NumberOfSwitchesTo:
+                        data += "'subtitle':'# Switches',";
+                        break;
+
+                    case Model.RuleGoal.TimeSpentOn:
+                        data += "'subtitle':'Time (h)',";
+                        break;
+                }
+
+                switch (goal.Progress.Status)
+                {
+                    case ProgressStatus.VeryLow:
+                        data += "'image':'smiley5.png',";
+                        break;
+                    case ProgressStatus.Low:
+                        data += "'image':'smiley4.png',";
+                        break;
+                    case ProgressStatus.Average:
+                        data += "'image':'smiley3.png',";
+                        break;
+                    case ProgressStatus.High:
+                        data += "'image':'smiley2.png',";
+                        break;
+                    case ProgressStatus.VeryHigh:
+                        data += "'image':'smiley1.png',";
+                        break;
+                }
+                
+                data += "'ranges':[" + DatabaseConnector.GetMinGoalValue(goal) + "," + DatabaseConnector.GetAverageGoalValue(goal) + "," + DatabaseConnector.GetMaxGoalValue(goal) + "],";
+                data += "'measures':[" + goal.Progress.Actual + "],";
+                data += "'markers':[" + goal.Progress.Target + "]";
                 data += "}";
                 data += ",";
             }
