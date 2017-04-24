@@ -79,7 +79,7 @@ namespace GoalSetting
             _goalCheckerTimer = new Timer();
             _goalCheckerTimer.Elapsed += _goalCheckerTimer_Elapsed;
             int currentMinute = DateTime.Now.Minute;
-            _goalCheckerTimer.Interval = currentMinute > 2 ? TimeSpan.FromMinutes(62 - currentMinute).TotalMilliseconds : TimeSpan.FromMinutes(2 - currentMinute).TotalMilliseconds;
+            _goalCheckerTimer.Interval = currentMinute > 2 ? TimeSpan.FromMinutes(62 - currentMinute).TotalMilliseconds : TimeSpan.FromMinutes(2 - currentMinute).TotalMilliseconds + 1;
             _goalCheckerTimer.Enabled = true;
         }
 
