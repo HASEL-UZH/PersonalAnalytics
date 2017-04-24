@@ -6,7 +6,6 @@
 using GoalSetting.Goals;
 using GoalSetting.Model;
 using Shared;
-using Shared.Helpers;
 using System;
 
 namespace GoalSetting.Visualizers

@@ -13,11 +13,21 @@ namespace GoalSetting.Goals
     public class GoalEmail : Goal
     {
         private RuleTimePoint? _timePoint;
+        /// <summary>
+        /// Each GoalEmail is checked at a specific point in time, e.g. at the end of the workday or at a specific time. This property stores this point in time.
+        /// </summary>
         public RuleTimePoint? TimePoint { get { return _timePoint; } set { _timePoint = value; base.When = _timePoint.ToString(); } }
 
         private string _time;
+        /// <summary>
+        /// A string representation of the 'TimePoint' property.
+        /// </summary>
         public string Time { get { return _time; } set { _time = value; if (!_timePoint.HasValue) { base.When = _time; } } }
 
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             string str = string.Empty;
@@ -38,11 +48,19 @@ namespace GoalSetting.Goals
             return str;
         }
 
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <returns></returns>
         public override void Compile()
         {
             CompiledRule = RuleEngine.CompileRule<Activity>(Rule);
         }
 
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <returns></returns>
         public override void CalculateProgressStatus(bool persist)
         {
             double actual = DatabaseConnector.GetLatestEmailInboxCount();
@@ -84,6 +102,10 @@ namespace GoalSetting.Goals
             }
         }
 
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <returns></returns>
         public override string GetProgressMessage()
         {
             var inbox = DatabaseConnector.GetLatestEmailInboxCount();
@@ -97,6 +119,10 @@ namespace GoalSetting.Goals
             return "You have " + inbox + " emails right now. You should have " + Math.Abs(inbox - target) + (inbox > target ? " less " : " more ") + " emails.";
         }
 
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <returns></returns>
         public override bool IsStillReachable()
         {
             return true;

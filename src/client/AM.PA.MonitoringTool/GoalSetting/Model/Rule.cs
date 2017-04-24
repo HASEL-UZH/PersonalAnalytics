@@ -12,18 +12,19 @@ namespace GoalSetting.Model
         //GOAL
         public RuleGoal Goal { get; set; }
 
+        //GOAL (string representation)
         public string GoalString { get { return Goal.ToString(); } }
 
 
         //OPERATOR
         public RuleOperator Operator { get; set; }
 
+        //OPERATOR (string representation)
         public string OperatorString { get { return Operator.ToString();  } }
-
-        private string _target;
-
         
-        //TARGET
+        private string _target;
+    
+        //TARGET (string representation)    
         public string TargetValue { get { return _target; } set {
                 _target = value;
                 if (Goal == RuleGoal.TimeSpentOn)
@@ -72,6 +73,7 @@ namespace GoalSetting.Model
 
         private string _timespan;
 
+        //TARGET TIMESPAN (string representation)
         public string TargetTimeSpan { get { return _timespan; } }
     }
 }

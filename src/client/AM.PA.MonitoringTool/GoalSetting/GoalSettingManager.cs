@@ -44,16 +44,28 @@ namespace GoalSetting
 
         #region Goal List
 
+        /// <summary>
+        /// Returns all goals that are known
+        /// </summary>
+        /// <returns></returns>
         internal ObservableCollection<Goal> GetGoals()
         {
             return _goals;
         }
         
+        /// <summary>
+        /// Returns all GoalActivity goals
+        /// </summary>
+        /// <returns></returns>
         internal List<GoalActivity> GetActivityGoals()
         {
             return _goals.OfType<GoalActivity>().ToList();
         }
 
+        /// <summary>
+        /// REturns all GoalEmail goals
+        /// </summary>
+        /// <returns></returns>
         internal List<GoalEmail> GetEmailGoals()
         {
             return _goals.OfType<GoalEmail>().ToList();
@@ -74,26 +86,48 @@ namespace GoalSetting
         }
 
         #region Goal Checking Timer
+
+        /// <summary>
+        /// Starts a timer that should be triggered every 30 minutes. First at xx:32 or xx:02, whatever is closer.
+        /// </summary>
         private void StartGoalCheckingTimer()
         {
             _goalCheckerTimer = new Timer();
             _goalCheckerTimer.Elapsed += _goalCheckerTimer_Elapsed;
             int currentMinute = DateTime.Now.Minute;
-            _goalCheckerTimer.Interval = currentMinute > 2 ? TimeSpan.FromMinutes(62 - currentMinute).TotalMilliseconds : TimeSpan.FromMinutes(2 - currentMinute).TotalMilliseconds + 1;
+
+            //xx:02
+            double interval1 = currentMinute > 2 ? TimeSpan.FromMinutes(62 - currentMinute).TotalMilliseconds : TimeSpan.FromMinutes(2 - currentMinute).TotalMilliseconds + 1;
+            //xx:32
+            double interval2 = currentMinute > 32 ? TimeSpan.FromMinutes(32 - currentMinute).TotalMilliseconds : TimeSpan.FromMinutes(32 - currentMinute).TotalMilliseconds + 1;
+
+            _goalCheckerTimer.Interval = interval1 < 0 ? interval2 : interval1;
             _goalCheckerTimer.Enabled = true;
         }
 
+        /// <summary>
+        /// Called when the timer that checks goal every 30 minutes is trigger. This method then calculates the progress of each goal and starts a new timer.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void _goalCheckerTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             foreach (var goal in GoalSettingManager.Instance.GetGoals())
             {
                 goal.CalculateProgressStatus(true);
             }
-            _goalCheckerTimer.Interval = TimeSpan.FromHours(1).TotalMilliseconds;
+            _goalCheckerTimer.Interval = TimeSpan.FromMinutes(30).TotalMilliseconds;
         }
+        
         #endregion Goal Checking Timer
 
         #region Events
+        /// <summary>
+        /// Called when retrospection forwards new events from other trackers. This method then checks whether it is an ActivitSwitchEvent.
+        /// TODO: we have to define what happens then an define actions!
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void OnNewTrackerEvent(object sender, TrackerEvents e)
         {
             if (e is ActivitySwitchEvent)
@@ -107,6 +141,11 @@ namespace GoalSetting
 
         #region Manipulate Goals
 
+        /// <summary>
+        /// Deletes a goal. Actually in this case, the goal is marked as inactive in the database.
+        /// We do it like that to keep track of all the goals a user has every defined.
+        /// </summary>
+        /// <param name="goal"></param>
         internal void DeleteGoal(Goal goal)
         {
             Logger.WriteToConsole("Delete: " + goal);
@@ -114,23 +153,22 @@ namespace GoalSetting
             DatabaseConnector.RemoveGoal(goal);
         }
 
+        /// <summary>
+        /// Edits a goal. In this case, the original goal is marked as inactive in the database and a new goal is added.
+        /// We do it like that to keep track of all the goals a user has every defined.
+        /// </summary>
+        /// <param name="oldGoal"></param>
+        /// <param name="newGoal"></param>
         internal void EditGoal(Goal oldGoal, Goal newGoal)
         {
             DeleteGoal(oldGoal);
             AddGoal(newGoal);
         }
-
-        internal void AddNewGoal()
-        {
-            Window window = new Window
-            {
-                Title = "Goal Setting Dashboard",
-                Content = new AddGoal(_goals),
-                SizeToContent = SizeToContent.WidthAndHeight
-            };
-            window.ShowDialog();
-        }
-
+        
+        /// <summary>
+        /// Adds a new goal to the database
+        /// </summary>
+        /// <param name="newGoal"></param>
         internal void AddGoal(Goal newGoal)
         {
             _goals.Add(newGoal);
@@ -143,6 +181,10 @@ namespace GoalSetting
         public delegate void OnOpenRetrospectionFromGoalSetting(VisType type);
         public event OnOpenRetrospectionFromGoalSetting OpenRetrospectionEvent;
 
+        /// <summary>
+        /// Opens the retrospection from the goal setting main UI
+        /// </summary>
+        /// <param name="type"></param>
         internal void OpenRetrospection(VisType type)
         {
             OpenRetrospectionEvent?.Invoke(type);
@@ -150,6 +192,9 @@ namespace GoalSetting
         #endregion Retrospection
 
         #region UI
+        /// <summary>
+        /// Opens the Main Window if the goal setting is nôt started within the retrospection
+        /// </summary>
         public void OpenMainWindow()
         {
             Window window = new Window
@@ -160,9 +205,28 @@ namespace GoalSetting
             };
             window.ShowDialog();
         }
+
+        /// <summary>
+        /// Starts a UI that allows users to add a new goal
+        /// </summary>
+        internal void AddNewGoal()
+        {
+            Window window = new Window
+            {
+                Title = "Goal Setting Dashboard",
+                Content = new AddGoal(_goals),
+                SizeToContent = SizeToContent.WidthAndHeight
+            };
+            window.ShowDialog();
+        }
         #endregion
 
         #region Activities
+        /// <summary>
+        /// Returns all activities for a specific timespan. Also some postprocessing is done, such as merging activities.
+        /// </summary>
+        /// <param name="timespan"></param>
+        /// <returns></returns>
         public List<Activity> GetActivitiesPerTimeSpan(RuleTimeSpan timespan)
         {
             List<ActivityContext> activities = new List<ActivityContext>();
@@ -225,7 +289,7 @@ namespace GoalSetting
                     break;
             }
 
-            activities = DataHelper.MergeSameActivities(activities, Settings.MinimumSwitchTime);
+            activities = DataHelper.MergeSameActivities(activities, Settings.MinimumSwitchTimeInSeconds);
 
             List<Activity> result = new List<Activity>();
 

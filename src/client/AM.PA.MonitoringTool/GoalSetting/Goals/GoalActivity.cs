@@ -14,12 +14,21 @@ namespace GoalSetting.Goals
 {
     public class GoalActivity : Goal
     {
-
+        /// <summary>
+        /// Each GoalActivity is associated with a specific activity that is stored in this property
+        /// </summary>
         public ContextCategory Activity { get; set; }
 
         private RuleTimeSpan? _timeSpan;
+        /// <summary>
+        /// Each GoalActivity can be defined for various time spans, e.g. hours, days, weeks or months. This property stores this time span. 
+        /// </summary>
         public RuleTimeSpan? TimeSpan { get { return _timeSpan; } set { _timeSpan = value; base.When = _timeSpan.ToString(); } }
 
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             string str = string.Empty;
@@ -46,16 +55,28 @@ namespace GoalSetting.Goals
             return str;
         }
 
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <returns></returns>
         public override void Compile()
         {
             CompiledRule = RuleEngine.CompileRule<Activity>(Rule);
         }
 
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <returns></returns>
         public override string GetProgressMessage()
         {
             return (string.IsNullOrEmpty(Progress.Time) ? "0" : Progress.Time) + " hours / " + Progress.Switches + " switches";
         }
 
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <returns></returns>
         public override void CalculateProgressStatus(bool persist)
         {
             var activities = GoalSettingManager.Instance.GetActivitiesPerTimeSpan(this.TimeSpan.Value);
@@ -168,6 +189,10 @@ namespace GoalSetting.Goals
             }
         }
 
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <returns></returns>
         public override bool IsStillReachable()
         {
             switch (Rule.Operator)

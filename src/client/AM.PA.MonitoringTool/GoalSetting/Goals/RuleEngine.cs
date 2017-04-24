@@ -11,6 +11,12 @@ namespace GoalSetting.Rules
 {
     public class RuleEngine
     {
+        /// <summary>
+        /// Compiles the rules
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="r"></param>
+        /// <returns></returns>
         public static Func<T, bool> CompileRule<T>(Rule r)
         {
             var param = Expression.Parameter(typeof(T));

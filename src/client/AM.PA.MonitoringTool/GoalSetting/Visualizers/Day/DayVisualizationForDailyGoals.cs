@@ -39,7 +39,7 @@ namespace GoalSetting.Visualizers.Day
             }
 
             var activities = DatabaseConnector.GetActivitiesSinceAndBefore(startOfWork, endOfWork);
-            activities = DataHelper.MergeSameActivities(activities, Settings.MinimumSwitchTime);
+            activities = DataHelper.MergeSameActivities(activities, Settings.MinimumSwitchTimeInSeconds);
 
             var targetActivity = _goal.Activity;
 

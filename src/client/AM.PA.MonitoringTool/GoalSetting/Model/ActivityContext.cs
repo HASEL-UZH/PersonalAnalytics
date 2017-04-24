@@ -11,12 +11,24 @@ namespace GoalSetting.Model
 {
     public class ActivityContext
     {
+        /// <summary>
+        /// Start of this activity
+        /// </summary>
         public DateTime Start { get; set; }
 
+        /// <summary>
+        /// End of this activity
+        /// </summary>
         public DateTime? End { get; set; }
 
+        /// <summary>
+        /// Type of activity
+        /// </summary>
         public ContextCategory Activity { get; set; }
 
+        /// <summary>
+        /// Duration. Difference beetween start and end.
+        /// </summary>
         public TimeSpan Duration
         {
             get
@@ -25,11 +37,19 @@ namespace GoalSetting.Model
             }
         }
 
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return End.HasValue ? Activity + " from " + Start.ToString(Settings.DateFormat) + " to " + End.Value.ToString(Settings.DateFormat) : Activity + " from " + Start.ToString(Settings.DateFormat) + " to " + "N/A";
         }
 
+        /// <summary>
+        /// Returns true if the activity type (e.g. DevCode) is the same
+        /// </summary>
+        /// <returns></returns>
         public override bool Equals(object obj)
         {
             if (! (obj is ActivityContext))
@@ -41,6 +61,10 @@ namespace GoalSetting.Model
             }
         }
 
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             return 13 * Activity.GetHashCode();

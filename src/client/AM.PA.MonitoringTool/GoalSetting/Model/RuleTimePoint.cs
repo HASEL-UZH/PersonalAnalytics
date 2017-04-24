@@ -7,6 +7,9 @@ using System.ComponentModel;
 
 namespace GoalSetting.Model
 {
+    /// <summary>
+    /// Defines when a GoalEmail should be checked
+    /// </summary>
     public enum RuleTimePoint
     {
         [Description("At the start of the day")]

@@ -68,10 +68,10 @@ namespace GoalSetting
                                                             + ActualValue + " TEXT ,"
                                                             + Success + " TEXT);";
 
-        //SELECT Queries
+        //SELECT Goals
         private static readonly string GET_GOALS_QUERY = "SELECT " + ID + ", " + Title + ", " + Activity + ", " + Timespan + ", " + Timepoint + ", " + Time + ", " + Action + ", " + Goal + ", " + Target + ", " + Operator + ", " + VisualizationEnabled + " FROM " + Settings.GoalTableName + " WHERE isActive == 'True';";
 
-        //INSERT Queries
+        //INSERT Goals
         private static readonly string INSERT_GOALS_QUERY = "INSERT INTO " + Settings.GoalTableName + " VALUES ("
                                                             + "'{0}', "
                                                             + "'{1}', "
@@ -88,7 +88,7 @@ namespace GoalSetting
                                                             + "{12}, "
                                                             + "{13});";
 
-        //SAVE Achievements query
+        //INSERT Achievements
         private static readonly string SAVE_ACHIEVEMENTS_QUERY = "INSERT INTO " + Settings.AchievementsTableName + " (" + TimeChecked +", " + TimeSaved + ", " + GoalID + ", " + TargetValue + ", " + ActualValue + ", " + Success + ") VALUES ("
                                                                 + "'{0}', "
                                                                 + "'{1}', "
@@ -97,11 +97,15 @@ namespace GoalSetting
                                                                 + "'{4}', "
                                                                 + "'{5}');";
 
-        //REMOVE Queries
+        //REMOVE Goals
         private static readonly string REMOVE_GOAL_QUERY = "UPDATE " + Settings.GoalTableName + " SET " + Deleted + " = '{0}', " + IsActive + " = '" + false + "' WHERE " + ID + " == '{1}';";
         
         #region Add
 
+        /// <summary>
+        /// Adds a new goal to the database
+        /// </summary>
+        /// <param name="goal"></param>
         internal static void AddGoal(Goal goal)
         {
             try
@@ -126,6 +130,11 @@ namespace GoalSetting
             }
         }
 
+        /// <summary>
+        /// Saves an achievement to the database
+        /// </summary>
+        /// <param name="goal"></param>
+        /// <param name="checkedTime"></param>
         internal static void SaveAchievement(Goal goal, DateTime checkedTime)
         {
             try
@@ -144,6 +153,10 @@ namespace GoalSetting
 
         #region Remove
 
+        /// <summary>
+        /// Removes a goal. To remove a goal, the goal is marked as inactive in the database
+        /// </summary>
+        /// <param name="goal"></param>
         internal static void RemoveGoal(Goal goal)
         {
             try
@@ -160,8 +173,11 @@ namespace GoalSetting
 
         #endregion
         
-        #region CREATE
+        #region Create
 
+        /// <summary>
+        /// Creates all the tables that are needed for this tracker if the tables do not exist
+        /// </summary>
         internal static void CreateGoalsTableIfNotExists()
         {
             try
@@ -177,8 +193,12 @@ namespace GoalSetting
 
         #endregion
 
-        #region SELECT
+        #region Select
 
+        /// <summary>
+        /// Retrieves all the active goals from the database and returns a list of these goals
+        /// </summary>
+        /// <returns></returns>
         internal static ObservableCollection<Goal> GetStoredGoals()
         {
             var rules = new ObservableCollection<Goal>();
@@ -242,11 +262,16 @@ namespace GoalSetting
             return rules;
         }
 
+        /// <summary>
+        /// Returns a list of all activities in the database before that occured before the data passed in the parameter
+        /// </summary>
+        /// <param name="query"></param>
+        /// <param name="lastDate"></param>
+        /// <returns></returns>
         private static List<ActivityContext> GetActivities(string query, DateTime lastDate)
         {
             var activities = new List<ActivityContext>();
 
-            Logger.WriteToConsole(query);
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
             try
@@ -278,24 +303,39 @@ namespace GoalSetting
             return activities;
         }
 
+        /// <summary>
+        /// Returns a list of all activities in the database that occured since the date passed in the parameter
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
         public static List<ActivityContext> GetActivitiesSince(DateTime date)
         {
             var query = "SELECT * FROM " + Settings.ActivityTable + " WHERE Time >= '" + date.ToString(Settings.DateFormat) + "';";
             return GetActivities(query, DateTime.Now);
         }
 
+        /// <summary>
+        /// Returns a list of all activities in the database that occured since the date passed in the first parameter and before the date passed in the second parameter
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <returns></returns>
         internal static List<ActivityContext> GetActivitiesSinceAndBefore(DateTime start, DateTime end)
         {
             var query = "SELECT * FROM " + Settings.ActivityTable + " WHERE Time >= '" + start.ToString(Settings.DateFormat) + "' AND Time <= '" + end.ToString(Settings.DateFormat) + "';";
             return GetActivities(query, end);
         }
         
+        /// <summary>
+        /// Returns the number of emails in the inbox. The latest entry in the database is checked
+        /// </summary>
+        /// <returns></returns>
         internal static int GetLatestEmailInboxCount()
         {
-            if (Database.GetInstance().HasTable("emails"))
+            if (Database.GetInstance().HasTable(Settings.EmailsTable))
             {
 
-                var query = "Select time, inbox from emails order by time desc limit 1;";
+                var query = "Select time, inbox from " + Settings.EmailsTable + " order by time desc limit 1;";
                 var table = Database.GetInstance().ExecuteReadQuery(query);
 
                 try
@@ -325,6 +365,12 @@ namespace GoalSetting
             return -1;
         }
 
+        /// <summary>
+        /// Returns the average achieved value for a given goal. For email goals, the average number of emails in the inbox is returned. For activity goals,
+        /// the average number of time spent respectively number of switches to an activity is returned. For this goal, all achievement entries are considered.
+        /// </summary>
+        /// <param name="goal"></param>
+        /// <returns></returns>
         internal static double GetAverageGoalValue(Goal goal)
         {
             try
@@ -334,12 +380,12 @@ namespace GoalSetting
                 switch (goal.Rule.Goal)
                 {
                     case RuleGoal.NumberOfEmailsInInbox:
-                        query = "SELECT avg(inbox) from emails";
+                        query = "SELECT avg(inbox) from " + Settings.EmailsTable;
                         break;
 
                     case RuleGoal.NumberOfSwitchesTo:
                     case RuleGoal.TimeSpentOn:
-                        query = "SELECT avg(actualValue)from achievements where goalid == '" + goal.ID + "'";
+                        query = "SELECT avg(actualValue)from " + Settings.AchievementsTableName + " where goalid == '" + goal.ID + "'";
                         break;
                 }
                 var table = Database.GetInstance().ExecuteReadQuery(query);
@@ -364,6 +410,12 @@ namespace GoalSetting
             return 0;
         }
 
+        /// <summary>
+        /// Returns the maximum achieved value for a given goal. For email goals, the average number of emails in the inbox is returned. For activity goals,
+        /// the average number of time spent respectively number of switches to an activity is returned. For this goal, all achievement entries are considered.
+        /// </summary>
+        /// <param name="goal"></param>
+        /// <returns></returns>
         internal static double GetMaxGoalValue(Goal goal)
         {
             try
@@ -373,11 +425,11 @@ namespace GoalSetting
                 switch (goal.Rule.Goal)
                 {
                     case RuleGoal.NumberOfEmailsInInbox:
-                        query = "SELECT max(inbox) from emails";
+                        query = "SELECT max(inbox) from " + Settings.EmailsTable;
                         break;
                     case RuleGoal.NumberOfSwitchesTo:
                     case RuleGoal.TimeSpentOn:
-                        query = "SELECT max(actualValue)from achievements where goalid == '" + goal.ID + "'";
+                        query = "SELECT max(actualValue) from " + Settings.AchievementsTableName + " where goalid == '" + goal.ID + "'";
                         break;
                 }
                 var table = Database.GetInstance().ExecuteReadQuery(query);
@@ -402,6 +454,12 @@ namespace GoalSetting
             return 0;
         }
 
+        /// <summary>
+        /// Returns the minumum achieved value for a given goal. For email goals, the average number of emails in the inbox is returned. For activity goals,
+        /// the average number of time spent respectively number of switches to an activity is returned. For this goal, all achievement entries are considered.
+        /// </summary>
+        /// <param name="goal"></param>
+        /// <returns></returns>
         internal static double GetMinGoalValue(Goal goal)
         {
             try
@@ -411,11 +469,11 @@ namespace GoalSetting
                 switch (goal.Rule.Goal)
                 {
                     case RuleGoal.NumberOfEmailsInInbox:
-                        query = "SELECT min(inbox) from emails";
+                        query = "SELECT min(inbox) from " + Settings.EmailsTable;
                         break;
                     case RuleGoal.NumberOfSwitchesTo:
                     case RuleGoal.TimeSpentOn:
-                        query = "SELECT min(actualValue)from achievements where goalid == '" + goal.ID + "'";
+                        query = "SELECT min(actualValue)from " + Settings.AchievementsTableName + " where goalid == '" + goal.ID + "'";
                         break;
                 }
                 var table = Database.GetInstance().ExecuteReadQuery(query);

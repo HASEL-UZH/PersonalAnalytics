@@ -7,6 +7,9 @@ using System.ComponentModel;
 
 namespace GoalSetting.Model
 {
+    /// <summary>
+    /// Defines when a GoalActivity should be checked.
+    /// </summary>
     public enum RuleTimeSpan
     {
         [Description("hour")]

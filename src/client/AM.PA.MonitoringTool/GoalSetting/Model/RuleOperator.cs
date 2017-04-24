@@ -7,6 +7,9 @@ using System.ComponentModel;
 
 namespace GoalSetting.Model
 {
+    /// <summary>
+    /// Used in the Goal class as operator in the Rule Engine
+    /// </summary>
     public enum RuleOperator
     {
         [Description("exactly")]
