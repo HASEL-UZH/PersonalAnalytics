@@ -45,7 +45,7 @@ namespace GoalSetting.Visualizers
                 switch (goal.Rule.Goal)
                 {
                     case RuleGoal.NumberOfSwitchesTo:
-                        return "Congratulations, you reached your goal! You switched " + goal.Progress.Actual + " to this activity.";
+                        return "Congratulations, you reached your goal! You switched " + goal.Progress.Actual + " times to this activity.";
                     case RuleGoal.TimeSpentOn:
                         return "Congratulations, you reached your goal! You spent " + goal.Progress.Actual + " hours on this activity.";
                     case RuleGoal.NumberOfEmailsInInbox:
