@@ -448,15 +448,15 @@ namespace FitbitTracker.Data
                 string query = String.Empty;
                 DateTime insert = DateTime.Now;
 
-                query += String.Format(UPDATE_SLEEP_SUMMARY_QUERY, "'" + insert + "'", "'" + sleepData.Sleep[0].DateOfSleep.ToString(Settings.FORMAT_DAY) + "'", summary.TotalMinutesAsleep, summary.TotalSleepRecords, summary.TotalTimeInBed);
+                query += String.Format(UPDATE_SLEEP_SUMMARY_QUERY, "'" + insert.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + sleepData.Sleep[0].DateOfSleep.ToString(Settings.FORMAT_DAY) + "'", summary.TotalMinutesAsleep, summary.TotalSleepRecords, summary.TotalTimeInBed);
                 Database.GetInstance().ExecuteDefaultQuery(query);
 
                 query = String.Empty;
-                query += String.Format(INSERT_OR_IGNORE_SLEEP_SUMMARY_QUERY, "'" + insert + "'", "'" + sleepData.Sleep[0].DateOfSleep.ToString(Settings.FORMAT_DAY) + "'", summary.TotalMinutesAsleep, summary.TotalSleepRecords, summary.TotalTimeInBed);
+                query += String.Format(INSERT_OR_IGNORE_SLEEP_SUMMARY_QUERY, "'" + insert.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + sleepData.Sleep[0].DateOfSleep.ToString(Settings.FORMAT_DAY) + "'", summary.TotalMinutesAsleep, summary.TotalSleepRecords, summary.TotalTimeInBed);
                 Database.GetInstance().ExecuteDefaultQuery(query);
 
                 //GET ID of previous insert
-                string idquery = "SELECT * FROM " + Settings.SLEEP_SUMMARY_TABLE_NAME + " WHERE " + SAVE_TIME + " = '" + insert + "';";
+                string idquery = "SELECT * FROM " + Settings.SLEEP_SUMMARY_TABLE_NAME + " WHERE " + SAVE_TIME + " = '" + insert.ToString(Settings.FORMAT_DAY_AND_TIME) + "';";
                 var table = Database.GetInstance().ExecuteReadQuery(idquery);
 
                 string id = "";
@@ -470,7 +470,7 @@ namespace FitbitTracker.Data
                     if (!DoesSleepLogAlreadyExists(log.LogID))
                     {
                         string sleepQuery = String.Empty;
-                        sleepQuery += String.Format(INSERT_SLEEP_QUERY, id, "'" + DateTime.Now + "'", log.AwakeCount, log.AwakeDuration, "'" + log.DateOfSleep.ToString(Settings.FORMAT_DAY) + "'", log.Duration, log.Efficiency, log.IsMainSleep ? 1 : 0, log.LogID, log.MinutesAfterWakeup, log.MinutesAsleep, log.MinutesAwake, ReplaceNaNValues(log.MinutesToFallAsleep), log.RestlessCount, log.RestlessDuration, "'" + log.StartTime.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", log.TimeInBed);
+                        sleepQuery += String.Format(INSERT_SLEEP_QUERY, id, "'" + DateTime.Now.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", log.AwakeCount, log.AwakeDuration, "'" + log.DateOfSleep.ToString(Settings.FORMAT_DAY) + "'", log.Duration, log.Efficiency, log.IsMainSleep ? 1 : 0, log.LogID, log.MinutesAfterWakeup, log.MinutesAsleep, log.MinutesAwake, ReplaceNaNValues(log.MinutesToFallAsleep), log.RestlessCount, log.RestlessDuration, "'" + log.StartTime.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", log.TimeInBed);
                         Database.GetInstance().ExecuteDefaultQuery(sleepQuery);
                     }
                     if (Settings.IsDetailedCollectionEnabled)
