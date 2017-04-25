@@ -119,6 +119,11 @@ namespace Retrospection
             }
         }
 
+        public System.Windows.Forms.WebBrowser GetWebBrowser()
+        {
+            return webBrowser;
+        }
+
         /// <summary>
         /// Update the window title according to the website header
         /// </summary>

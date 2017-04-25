@@ -457,6 +457,10 @@ namespace PersonalAnalytics
             var m7 = new System.Windows.Controls.MenuItem { Header = "Shutdown Tracker" };
             m7.Click += (o, i) => Stop(true);
             TaskbarIcon.ContextMenu.Items.Add(m7);
+
+            var m9 = new MenuItem { Header = "Goal Setting" };
+            m9.Click += (o, i) => Retrospection.Handler.GetInstance().OpenGoalSetting();
+            TaskbarIcon.ContextMenu.Items.Add(m9);
             
             // Styling
             //var converter = new System.Windows.Media.BrushConverter();

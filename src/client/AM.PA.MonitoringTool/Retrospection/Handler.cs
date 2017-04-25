@@ -85,7 +85,11 @@ namespace Retrospection
 
         private void OpenRetrospectionFromGoalSetting(VisType type)
         {
-            OpenRetrospection(type);
+            CloseGoalSetting();
+            if (_retrospection == null)
+            {
+                OpenRetrospection();
+            }
         }
 
         private void StartHttpServer()
@@ -153,6 +157,28 @@ namespace Retrospection
             return "http://localhost:" + Settings.Port + "/" + parameters;
         }
 
+        public void OpenGoalSetting()
+        {
+            OpenRetrospection();
+            
+            System.Windows.Forms.WebBrowserNavigatedEventHandler handler = null;
+            handler = delegate (object sender, System.Windows.Forms.WebBrowserNavigatedEventArgs args)
+            {
+                _retrospection.OpenGoalSetting();
+                _retrospection.GetWebBrowser().Navigated -= handler;
+            };
+
+            _retrospection.GetWebBrowser().Navigated += handler;
+        }
+
+        public void CloseGoalSetting()
+        {
+            if (_retrospection != null)
+            {
+                _retrospection.CloseGoalSetting();
+            }
+        }
+
         public bool OpenRetrospection(VisType type = VisType.Day)
         {
             try
@@ -177,9 +203,9 @@ namespace Retrospection
                     _retrospection.Focus();
                     _retrospection.Show();
                 }
-
+                CloseGoalSetting();
                 return true;
-            }
+            }            
             catch
             {
                 return false;
