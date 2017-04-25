@@ -140,7 +140,7 @@ namespace GoalSetting
             try
             {
                 string query = string.Empty;
-                query += String.Format(SAVE_ACHIEVEMENTS_QUERY, checkedTime.ToString(Settings.TimeFormat), DateTime.Now.ToString(Settings.TimeFormat), goal.ID, goal.Progress.Target, goal.Progress.Actual, goal.Progress.Success);
+                query += String.Format(SAVE_ACHIEVEMENTS_QUERY, checkedTime.ToString(Settings.DateFormat), DateTime.Now.ToString(Settings.DateFormat), goal.ID, goal.Progress.Target, goal.Progress.Actual, goal.Progress.Success);
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }
             catch (Exception e)
