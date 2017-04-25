@@ -25,7 +25,7 @@
         </DockPanel>
 
         <DockPanel Margin="10" LastChildFill="True">
-            <TextBlock FontSize="18">on</TextBlock>
+            <TextBlock FontSize="18">to</TextBlock>
             <ComboBox SelectionChanged="Values_Changed" Margin="10 0 0 0" FontSize="18" Name="Activity"></ComboBox>
         </DockPanel>
 

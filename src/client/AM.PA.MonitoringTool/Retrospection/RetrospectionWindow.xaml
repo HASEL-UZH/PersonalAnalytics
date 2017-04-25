@@ -41,13 +41,13 @@
                     </Style>
                 </StackPanel.Resources>
 
-                <Button x:Name="LeaveGoalSetting" Content="Leave Goal Setting" Click="LeaveGoalSetting_Click" Visibility="Collapsed" VerticalAlignment="Center" />
-                <Button x:Name="SwitchToGoalSetting" Content="Goal Setting" Click="SwitchToGoalSetting_Click" VerticalAlignment="Center" />
-                <Line Stroke="White" X1="0" Y1="31" X2="0" Y2="9" Margin="10 0 10 0" />
+                <Button x:Name="LeaveGoalSetting" Content="Switch to Retrospection" Click="LeaveGoalSetting_Click" Margin="0 0 10 0" Visibility="Collapsed" VerticalAlignment="Center" />
+                <Button x:Name="SwitchToGoalSetting" Content="Goal Setting" Click="SwitchToGoalSetting_Click" Margin="0 0 10 0" VerticalAlignment="Center" />
+                <Line x:Name="RetrospectionLine" Stroke="White" X1="0" Y1="31" X2="0" Y2="9" Margin="0 0 10 0" />
                 <Button x:Name="SwitchToWeekButton" Content="Switch to Weekly Retrospection" Click="SwitchToWeek_Clicked" VerticalAlignment="Center" />
                 <Button x:Name="SwitchToDayButton" Content="Switch to Daily Retrospection" Click="SwitchToDay_Clicked" VerticalAlignment="Center" />
                 
-                <Line Stroke="White" X1="0" Y1="31" X2="0" Y2="9" Margin="10 0 10 0" />
+                <Line x:Name="GoalSettingLine" Stroke="White" X1="0" Y1="31" X2="0" Y2="9" Margin="10 0 10 0" />
                 
                 <Button x:Name="TodayButton" Content="Today" Click="Today_Clicked" VerticalAlignment="Center" Margin="0 0 10 0" />
                 <Button x:Name="MinusOneButton" Content="&lt;" Click="MinusOne_Clicked" VerticalAlignment="Center" Margin="0 0 4 0" />
