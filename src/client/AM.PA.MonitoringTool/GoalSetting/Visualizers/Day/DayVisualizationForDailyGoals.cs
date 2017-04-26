@@ -144,16 +144,6 @@ namespace GoalSetting.Visualizers.Day
             html += ".attr('height', function(d) {return xAxisYPosition - y0(" + GoalVisHelper.GetDataPointName(_goal, VisType.Day) + ");})";
             html += ".attr('width', function(d){ return x(d.end) - x(d.start); });";
 
-            //Draw circle
-            html += "svg.selectAll('circle')";
-            html += ".data(data.filter(function(d) {return " + GoalVisHelper.GetDataPointName(_goal, VisType.Day) + " == limit; }))";
-            html += ".enter().append('svg:circle')";
-            html += ".attr('cx', function(d) { return x(d.start) })";
-            html += ".attr('cy', function(d) { return y0(" + GoalVisHelper.GetDataPointName(_goal, VisType.Day) + ") })";
-            html += ".attr('stroke-width', 'none')";
-            html += ".attr('fill', 'orange')";
-            html += ".attr('r', 5);";
-
             html += "</script>";
 
             return html;
