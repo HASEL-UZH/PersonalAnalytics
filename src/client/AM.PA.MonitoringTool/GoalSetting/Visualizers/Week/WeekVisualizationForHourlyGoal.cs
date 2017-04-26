@@ -17,10 +17,15 @@ namespace GoalSetting.Visualizers.Week
     {
         public WeekVisualizationForHourlyGoal(DateTimeOffset date, GoalActivity goal) : base(date, goal) { }
 
+        int numberSuccess = 0;
+        int numberTries = 0;
+
         public override string GetHtml()
         {
             var html = string.Empty;
-            
+
+            var dataString = GenerateData();
+
             // CSS
             html += "<style type='text/css'>";
             html += ".c3-line { stroke-width: 2px; }";
@@ -30,7 +35,7 @@ namespace GoalSetting.Visualizers.Week
 
             //HTML
             html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "' style='align: center'></div>";
-            html += "<p style='text-align: center; font-size: 0.66em;'>" + GoalVisHelper.GetHintText(_goal, VisType.Week) + "</p>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>You achieved your goal in " + numberSuccess + " of " + numberTries + " cases.</p>";
 
             //JS
             html += "<script>";
@@ -38,9 +43,8 @@ namespace GoalSetting.Visualizers.Week
             html += "var actualHeight = document.getElementsByClassName('item Wide')[0].offsetHeight;";
             html += "var actualWidth = document.getElementsByClassName('item Wide')[0].offsetWidth;";
             html += "var margin = {top: 10, right: 30, bottom: 30, left: 30}, width = (actualWidth * 0.97)- margin.left - margin.right, height = (actualHeight * 0.73) - margin.top - margin.bottom;";
-            
-            html += GenerateData();
-            html += "console.log(gridData);";
+
+            html += dataString;
 
             html += "var grid = d3.select('#" + VisHelper.CreateChartHtmlTitle(Title) + "').append('svg')";
             html += @".attr('width', width + margin.left + margin.right).attr('height', height + margin.top + margin.bottom)
@@ -60,18 +64,17 @@ namespace GoalSetting.Visualizers.Week
             html += ".attr('width', (width / 25))";
             html += ".attr('height', (height / 8))";
             html += @".style('fill', function(d) {
-                if (d.type === 'Title') {
-                    return '#999';
-                } else if (d.hasValue === 'False') {
+                if (d.type === 'Title') {";
+            html += "return '" + Shared.Settings.GrayColorHex + "';";
+            html += @"} else if (d.hasValue === 'False') {
                     return '#fff';
                 } else {
-                    if (d.success === 'True') {
-                        return '#0F0';
-                    }
-                    return '#F00';
-                }
-                return '#fff';})";
-            html += ".style('stroke', '#222');";
+                    if (d.success === 'True') {";
+            html += "return '" + Shared.Settings.RetrospectionColorHex + "';";
+            html += "}";
+            html += "return 'red';}";
+            html += "return '#fff';})";
+            html += ".style('stroke', '" + Shared.Settings.GrayColorHex + "');";
 
             html += "var text = row.selectAll('.label')";
             html += ".data(function(d) { return d; })";
@@ -80,6 +83,7 @@ namespace GoalSetting.Visualizers.Week
             html += ".attr('y', function(d) { return (d.y * (height / 8)) + ((height / 8) / 2); })";
             html += ".attr('text-anchor', 'middle')";
             html += ".attr('dy', '.35em')";
+            html += ".attr('stroke', function(d) { if (d.type === 'Title') { return 'black';} return 'white';})";
             html += ".text(function(d) { return d.value });";
 
             html += "</script>";
@@ -159,9 +163,14 @@ namespace GoalSetting.Visualizers.Week
                         }
                         else
                         {
+                            numberTries++;
                             Tuple<string, bool> values = GetValue(dateToCheck, dateToCheckEnd);
                             newValue = values.Item1;
                             success = values.Item2;
+                            if (success)
+                            {
+                                numberSuccess++;
+                            }
                             hasValue = true;
                         }
                     }

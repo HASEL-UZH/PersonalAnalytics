@@ -85,6 +85,9 @@ namespace GoalSetting.Visualizers
                 }
             }
 
+            var emailGoals = GoalSettingManager.Instance.GetEmailGoals();
+            //TODO: email goal visualizations
+
             //Add summary visualization if it's today
             if (date.Date == DateTime.Today)
             {
@@ -124,6 +127,9 @@ namespace GoalSetting.Visualizers
                     }
                 }
             }
+
+            var emailGoals = GoalSettingManager.Instance.GetEmailGoals();
+            //TODO: email goal visualizations
 
             //Add summary visualization
             if (date.Date == DateTime.Today)

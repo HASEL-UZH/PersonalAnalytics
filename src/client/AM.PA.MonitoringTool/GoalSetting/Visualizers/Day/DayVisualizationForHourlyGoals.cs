@@ -195,8 +195,7 @@ namespace GoalSetting.Visualizers.Day
                 var timeOverLimit = timeSpent.Subtract(TimeSpan.FromMilliseconds(double.Parse(_goal.Rule.TargetValue)));
                 timeOverLimit = timeOverLimit.TotalMinutes >= 0 ? timeOverLimit : TimeSpan.FromMinutes(0);
                 var timeBelowLimit = timeSpent.Subtract(timeOverLimit);
-
-
+                
                 var switchLimit = Int32.Parse(_goal.Rule.TargetValue);
 
                 var switchesBelowLimit = switches < switchLimit ? switches : switchLimit;
