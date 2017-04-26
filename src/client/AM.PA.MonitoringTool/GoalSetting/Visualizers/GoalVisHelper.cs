@@ -73,7 +73,15 @@ namespace GoalSetting.Visualizers
                 }
                 else
                 {
-                    return "Unfortunately, you missed your goal this time.";
+                    switch (goal.Rule.Goal)
+                    {
+                        case RuleGoal.NumberOfSwitchesTo:
+                            return "Unfortunately, you missed your goal this time. You switched " + (goal.Progress.Actual - goal.Progress.Target) + " (+" + (goal.Progress.Actual / goal.Progress.Target * 100).ToString("N2") + "%) more than your goal.";
+                        case RuleGoal.TimeSpentOn:
+                            return "Unfortunately, you missed your goal this time. You spent " + TimeSpan.FromMilliseconds(goal.Progress.Actual - goal.Progress.Target).TotalMinutes + " (+" + (goal.Progress.Actual / goal.Progress.Target * 100).ToString("N2") + "%) minutes more than your goal on this activity.";
+                        default:
+                            throw new ArgumentException(goal + " is not recognized!");
+                    }
                 }
             }
             else
