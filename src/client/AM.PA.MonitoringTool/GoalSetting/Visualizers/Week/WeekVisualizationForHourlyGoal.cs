@@ -10,6 +10,7 @@ using Shared;
 using Shared.Helpers;
 using GoalSetting.Data;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace GoalSetting.Visualizers.Week
 {
@@ -17,12 +18,18 @@ namespace GoalSetting.Visualizers.Week
     {
         public WeekVisualizationForHourlyGoal(DateTimeOffset date, GoalActivity goal) : base(date, goal) { }
 
-        int numberSuccess = 0;
-        int numberTries = 0;
-
+        double numberSuccess = 0;
+        double numberTries = 0;
+        List<ActivityContext> allActivities = null;
         public override string GetHtml()
         {
             var html = string.Empty;
+
+            var startOfWork = DateTimeHelper.GetFirstDayOfWeek_Iso8801(_date).DateTime;
+            var endOfWork = DateTime.Now;
+            allActivities = DatabaseConnector.GetActivitiesSinceAndBefore(startOfWork, endOfWork);
+            allActivities = DataHelper.MergeSameActivities(allActivities, Settings.MinimumSwitchTimeInSeconds);
+            allActivities = allActivities.Where(a => a.Activity.Equals(base._goal.Activity)).ToList();
 
             var dataString = GenerateData();
 
@@ -35,7 +42,7 @@ namespace GoalSetting.Visualizers.Week
 
             //HTML
             html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "' style='align: center'></div>";
-            html += "<p style='text-align: center; font-size: 0.66em;'>You achieved your goal in " + numberSuccess + " of " + numberTries + " cases.</p>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>You achieved your goal in " + numberSuccess + " of " + numberTries + " (" + (numberSuccess / numberTries * 100.0).ToString("N2") + "%) cases.</p>";
 
             //JS
             html += "<script>";
@@ -202,13 +209,37 @@ namespace GoalSetting.Visualizers.Week
 
         private Tuple<string, bool> GetValue(DateTimeOffset start, DateTimeOffset end)
         {
-            var activities = DatabaseConnector.GetActivitiesSinceAndBefore(start.DateTime, end.DateTime);
-            activities = DataHelper.MergeSameActivities(activities, Settings.MinimumSwitchTimeInSeconds);
-            activities = activities.Where(a => a.Activity.Equals(base._goal.Activity)).ToList();
+            var activities = new List<ActivityContext>();
+            foreach (var activity in allActivities)
+            {
+                var timeNextDay = new DateTime(end.Year, end.Month, end.Day + 1, 4, 0, 0);
+                var timePreviousDay = new DateTime(start.Year, start.Month, start.Day - 1, 23, 59, 59);
+                if (activity.End > timeNextDay || activity.Start < timePreviousDay)
+                {
+                    continue;
+                }
+
+                if (activity.Start > start && activity.End < end)
+                {
+                    activities.Add(activity);
+                }
+                else if (activity.Start < start && activity.End > start && activity.End < end)
+                {
+                    activities.Add(new ActivityContext { Start = start.DateTime, End = activity.End, Activity = activity.Activity});
+                }
+                else if (activity.Start > start && activity.Start < end && activity.End > end)
+                {
+                    activities.Add(new ActivityContext { Start = activity.Start, End = end.DateTime, Activity = activity.Activity });
+                }
+                else if (activity.Start < start && activity.End > end)
+                {
+                    activities.Add(new ActivityContext { Start = start.DateTime, End = end.DateTime, Activity = activity.Activity });
+                }
+            }
             
             if (activities.Count < 1)
             {
-                return Tuple.Create<string, bool>("", false);
+                return Tuple.Create<string, bool>("0", true);
             }
 
             switch (base._goal.Rule.Goal)
