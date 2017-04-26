@@ -48,7 +48,7 @@ namespace GoalSetting
         /// Returns all goals that are known
         /// </summary>
         /// <returns></returns>
-        internal ObservableCollection<Goal> GetGoals()
+        public ObservableCollection<Goal> GetGoals()
         {
             return _goals;
         }

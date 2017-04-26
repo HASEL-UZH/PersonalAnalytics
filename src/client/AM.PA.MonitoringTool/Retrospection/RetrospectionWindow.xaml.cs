@@ -255,8 +255,13 @@ namespace Retrospection
         #endregion
 
         #region GoalSetting
+
+        private bool haveGoalsChanged = false;
+
         public void OpenGoalSetting()
         {
+            GoalSetting.GoalSettingManager.Instance.GetGoals().CollectionChanged += GoalsChanged;
+            haveGoalsChanged = false;
             GoalSettingContainer.Visibility = Visibility.Visible;
             wbWinForms.Visibility = Visibility.Collapsed;
 
@@ -273,6 +278,11 @@ namespace Retrospection
             RetrospectionLine.Visibility = Visibility.Collapsed;
         }
 
+        private void GoalsChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            haveGoalsChanged = true;
+        }
+
         private void SwitchToGoalSetting_Click(object sender, RoutedEventArgs e)
         {
             OpenGoalSetting();
@@ -280,6 +290,7 @@ namespace Retrospection
 
         public void CloseGoalSetting()
         {
+            GoalSetting.GoalSettingManager.Instance.GetGoals().CollectionChanged -= GoalsChanged;
             GoalSettingContainer.Visibility = Visibility.Collapsed;
             wbWinForms.Visibility = Visibility.Visible;
 
@@ -303,6 +314,10 @@ namespace Retrospection
             PlusOneButton.Visibility = Visibility.Visible;
             GoalSettingLine.Visibility = Visibility.Visible;
             RetrospectionLine.Visibility = Visibility.Visible;
+            if (haveGoalsChanged)
+            {
+                ForceRefreshWindow();
+            }
         }
 
         private void LeaveGoalSetting_Click(object sender, RoutedEventArgs e)
