@@ -58,7 +58,7 @@ namespace GoalSetting
                 
                 StackPanel container = new StackPanel();
                 container.Tag = goal;
-                container.Background = new SolidColorBrush(Colors.LightGray);
+                container.Background = Shared.Settings.GrayColorBrush;
                 container.Orientation = Orientation.Horizontal;
                 Thickness containerMargin = container.Margin;
                 container.Height = 60;

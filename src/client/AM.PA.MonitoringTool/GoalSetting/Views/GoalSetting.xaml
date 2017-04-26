@@ -6,7 +6,8 @@
              xmlns:local="clr-namespace:GoalSetting"
              xmlns:paColors="clr-namespace:Shared;assembly=Shared"
              mc:Ignorable="d">
-    <Grid>
+    
+    <Grid Background="{x:Static paColors:Settings.GrayColorBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
@@ -14,7 +15,7 @@
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0">
             <TextBlock FontSize="18" Margin="20, 10, 20, 10">Overview about your defined goals</TextBlock>
-            <DataGrid Name="Rules" Margin="20, 10, 20, 10" HeadersVisibility="Column" BorderBrush="Black" BorderThickness="0" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ColumnWidth="*" SelectedCellsChanged="Rules_SelectedCellsChanged" GridLinesVisibility="None">
+            <DataGrid Name="Rules" Background="{x:Static paColors:Settings.GrayColorBrush}" Margin="20, 10, 20, 10" HeadersVisibility="Column" BorderBrush="Black" BorderThickness="0" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ColumnWidth="*" SelectedCellsChanged="Rules_SelectedCellsChanged" GridLinesVisibility="None">
                 <DataGrid.Resources>
                     <Style TargetType="{x:Type DataGridColumnHeader}">
                         <Setter Property="Foreground" Value="{x:Static paColors:Settings.RetrospectionColorBrush}"></Setter>
@@ -57,8 +58,8 @@
         <StackPanel Grid.Row="2">
             <TextBlock FontSize="18" Margin="20, 40, 20, 0">Overview about your achievements</TextBlock>
             <TextBlock Margin="20 10 0 20" Name="NoRulesText" Foreground="{x:Static paColors:Settings.DarkGrayColorBrush}" FontSize="18">At the moment you haven't defined any goals. Add new goals to earn achievements.</TextBlock>
-            
-            <Border Margin="20, 0, 20, 0" Grid.Row="1" Background="White" BorderBrush="{x:Static paColors:Settings.GrayColorBrush}">
+
+            <Border Margin="20, 0, 20, 0" Grid.Row="1" Background="{x:Static paColors:Settings.GrayColorBrush}" BorderBrush="{x:Static paColors:Settings.GrayColorBrush}">
                 <StackPanel Name="RulesOverview" Visibility="Collapsed" Margin="10 20 10 10" VerticalAlignment="Top">
                 </StackPanel>
             </Border>

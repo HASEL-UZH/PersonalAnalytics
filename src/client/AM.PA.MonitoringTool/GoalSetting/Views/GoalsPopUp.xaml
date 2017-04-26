@@ -5,7 +5,7 @@
         SizeToContent="Height" Height="300" Width="500"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent">
 
-    <Grid RenderTransformOrigin="0,1" >
+    <Grid Background="{x:Static paColors:Settings.GrayColorBrush}" RenderTransformOrigin="0,1" >
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>

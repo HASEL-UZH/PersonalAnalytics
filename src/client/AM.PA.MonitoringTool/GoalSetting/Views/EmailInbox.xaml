@@ -4,9 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:GoalSetting.Views"
+             xmlns:paColors="clr-namespace:Shared;assembly=Shared"
              mc:Ignorable="d">
-    
-    <StackPanel>
+
+    <StackPanel Background="{x:Static paColors:Settings.GrayColorBrush}">
         <DockPanel LastChildFill="True" Margin="10">
             <TextBlock FontSize="18">Title:</TextBlock>
             <TextBox FontSize="18" Name="Title" Margin="10 0 0 0" MinWidth="200" TextChanged="Title_TextChanged"></TextBox>
