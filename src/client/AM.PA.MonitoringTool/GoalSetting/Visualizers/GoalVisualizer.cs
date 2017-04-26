@@ -120,10 +120,15 @@ namespace GoalSetting.Visualizers
                         visualizations.Add(new WeekVisualizationForDailyGoal(date, goal));
                     }
 
-                    if (goal.TimeSpan == RuleTimeSpan.Monday || goal.TimeSpan == RuleTimeSpan.Tuesday || goal.TimeSpan == RuleTimeSpan.Wednesday || goal.TimeSpan == RuleTimeSpan.Thursday ||
-                        goal.TimeSpan == RuleTimeSpan.Friday || goal.TimeSpan == RuleTimeSpan.Saturday || goal.TimeSpan == RuleTimeSpan.Sunday)
+                    if ((goal.TimeSpan == RuleTimeSpan.Monday && date.DayOfWeek == DayOfWeek.Monday) ||
+                        (goal.TimeSpan == RuleTimeSpan.Tuesday && date.DayOfWeek == DayOfWeek.Tuesday) ||
+                        (goal.TimeSpan == RuleTimeSpan.Wednesday && date.DayOfWeek == DayOfWeek.Wednesday) ||
+                        (goal.TimeSpan == RuleTimeSpan.Thursday && date.DayOfWeek == DayOfWeek.Thursday) ||
+                        (goal.TimeSpan == RuleTimeSpan.Friday && date.DayOfWeek == DayOfWeek.Friday) ||
+                        (goal.TimeSpan == RuleTimeSpan.Saturday && date.DayOfWeek == DayOfWeek.Saturday) ||
+                        (goal.TimeSpan == RuleTimeSpan.Sunday && date.DayOfWeek == DayOfWeek.Sunday))
                     {
-                        visualizations.Add(new WeekVisualizationForSpecificDailyGoal(date, goal));
+                        visualizations.Add(new WeekVisualizationForDailyGoal(date, goal));
                     }
                 }
             }

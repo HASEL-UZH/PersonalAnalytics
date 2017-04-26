@@ -94,7 +94,6 @@
     <Compile Include="Visualizers\PAVisualization.cs" />
     <Compile Include="Visualizers\Week\WeekVisualizationForDailyGoal.cs" />
     <Compile Include="Visualizers\Week\WeekVisualizationForHourlyGoal.cs" />
-    <Compile Include="Visualizers\Week\WeekVisualizationForSpecificDailyGoal.cs" />
     <Compile Include="Visualizers\Week\WeekVisualizationForWeeklyGoal.cs" />
   </ItemGroup>
   <ItemGroup>
