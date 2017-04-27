@@ -24,13 +24,12 @@ namespace GoalSetting
     public partial class GoalSetting : UserControl
     {
         private ObservableCollection<Goal> _goals;
-      
+        private Goal _selectedGoal = null;
+
         public GoalSetting()
         {
             InitializeComponent();
             this._goals = GoalSettingManager.Instance.GetGoals();
-            Rules.SelectionMode = DataGridSelectionMode.Single;
-            Rules.ItemsSource = _goals;
             _goals.CollectionChanged += _rules_CollectionChanged;
             CheckRules.IsEnabled = _goals.Count > 0;
 
@@ -57,6 +56,7 @@ namespace GoalSetting
                 goal.CalculateProgressStatus(false);
                 
                 StackPanel container = new StackPanel();
+                container.MouseLeftButtonDown += Container_MouseLeftButtonDown;
                 container.Tag = goal;
                 container.Background = Shared.Settings.GrayColorBrush;
                 container.Orientation = Orientation.Horizontal;
@@ -106,6 +106,13 @@ namespace GoalSetting
             }
         }
 
+        private void Container_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            _selectedGoal = (Goal) (sender as StackPanel).Tag;
+            EditRule.IsEnabled = true;
+            DeleteRule.IsEnabled = true;
+        }
+
         private void _rules_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             CheckRules.IsEnabled = _goals.Count > 0;
@@ -132,46 +139,50 @@ namespace GoalSetting
 
         private void DeleteRule_Click(object sender, RoutedEventArgs e)
         {
-            Goal rule = (Goal) Rules.SelectedItem;
-            GoalSettingManager.Instance.DeleteGoal(rule);
-        }
-
-        private void Rules_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
-        {
-            DeleteRule.IsEnabled = Rules.SelectedCells.Count > 0;
-            EditRule.IsEnabled = Rules.SelectedCells.Count > 0;
+            if (_selectedGoal != null)
+            {
+                GoalSettingManager.Instance.DeleteGoal(_selectedGoal);
+            }
+            _selectedGoal = null;
+            EditRule.IsEnabled = false;
+            DeleteRule.IsEnabled = false;
         }
 
         private void EditRule_Click(object sender, RoutedEventArgs e)
         {
-            Goal rule = (Goal)Rules.SelectedItem;
-            UserControl controlToDisplay = null;
-
-            switch (rule.Rule.Goal)
+            if (_selectedGoal != null)
             {
-                case RuleGoal.NumberOfEmailsInInbox:
-                    controlToDisplay = new EmailInbox(rule as GoalEmail);
-                    break;
+                UserControl controlToDisplay = null;
 
-                case RuleGoal.TimeSpentOn:
-                    controlToDisplay = new TimeSpent(rule as GoalActivity);
-                    break;
-
-                case RuleGoal.NumberOfSwitchesTo:
-                    controlToDisplay = new WorkFragmentation(rule as GoalActivity);
-                    break;
-            }
-
-            if (controlToDisplay != null)
-            {
-                Window window = new Window
+                switch (_selectedGoal.Rule.Goal)
                 {
-                    Content = controlToDisplay,
-                    Title = "Edit: " + rule.ToString(),
-                    SizeToContent = SizeToContent.WidthAndHeight
-                };
-                window.ShowDialog();
+                    case RuleGoal.NumberOfEmailsInInbox:
+                        controlToDisplay = new EmailInbox(_selectedGoal as GoalEmail);
+                        break;
+
+                    case RuleGoal.TimeSpentOn:
+                        controlToDisplay = new TimeSpent(_selectedGoal as GoalActivity);
+                        break;
+
+                    case RuleGoal.NumberOfSwitchesTo:
+                        controlToDisplay = new WorkFragmentation(_selectedGoal as GoalActivity);
+                        break;
+                }
+
+                if (controlToDisplay != null)
+                {
+                    Window window = new Window
+                    {
+                        Content = controlToDisplay,
+                        Title = "Edit: " + _selectedGoal.ToString(),
+                        SizeToContent = SizeToContent.WidthAndHeight
+                    };
+                    window.ShowDialog();
+                }
             }
+            _selectedGoal = null;
+            EditRule.IsEnabled = false;
+            DeleteRule.IsEnabled = false;
         }
 
     }

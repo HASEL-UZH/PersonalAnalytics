@@ -11,33 +11,21 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
-            <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
+
         <StackPanel Grid.Row="0">
-            <TextBlock FontSize="18" Margin="20, 10, 20, 10">Overview about your defined goals</TextBlock>
-            <DataGrid Name="Rules" Background="{x:Static paColors:Settings.GrayColorBrush}" Margin="20, 10, 20, 10" HeadersVisibility="Column" BorderBrush="Black" BorderThickness="0" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" ColumnWidth="*" SelectedCellsChanged="Rules_SelectedCellsChanged" GridLinesVisibility="None">
-                <DataGrid.Resources>
-                    <Style TargetType="{x:Type DataGridColumnHeader}">
-                        <Setter Property="Foreground" Value="{x:Static paColors:Settings.RetrospectionColorBrush}"></Setter>
-                        <Setter Property="Background" Value="Transparent"></Setter>
-                        <Setter Property="BorderThickness" Value="0"></Setter>
-                    </Style>
-                    <Style TargetType="{x:Type DataGridRow}">
-                        <Setter Property="Background" Value="Transparent"></Setter>
-                        <Setter Property="BorderThickness" Value="0"></Setter>
-                    </Style>
-                </DataGrid.Resources>
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Title" Binding="{Binding Path=Title}"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Goal" Binding="{Binding Path=Rule.Goal}"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Activity" Binding="{Binding Path=Activity}"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Operator" Binding="{Binding Path=Rule.Operator}"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Value" Binding="{Binding Path=Rule.TargetTimeSpan}"></DataGridTextColumn>
-                    <DataGridTextColumn Header="When" Binding="{Binding Path=When}"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Action" Binding="{Binding Path=Action}"></DataGridTextColumn>
-                    <DataGridTextColumn Header="Visualization" Binding="{Binding Path=IsVisualizationEnabled}"></DataGridTextColumn>
-                </DataGrid.Columns>
-            </DataGrid>
+            <TextBlock FontSize="18" Margin="20, 10, 20, 0">Overview about your goals</TextBlock>
+            <TextBlock Margin="20 10 0 20" Name="NoRulesText" Foreground="{x:Static paColors:Settings.DarkGrayColorBrush}" FontSize="18">At the moment you haven't defined any goals. Add new goals to earn achievements.</TextBlock>
+
+            <Border Margin="20, 0, 20, 0" Grid.Row="1" Background="{x:Static paColors:Settings.GrayColorBrush}" BorderBrush="{x:Static paColors:Settings.GrayColorBrush}">
+                <ScrollViewer>
+                <StackPanel Name="RulesOverview" Visibility="Collapsed" Margin="10 20 10 10" VerticalAlignment="Top">
+                </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1">
             <Grid Grid.Row="1" Margin="20, 0, 20, 0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -55,14 +43,5 @@
             </Grid>
         </StackPanel>
 
-        <StackPanel Grid.Row="2">
-            <TextBlock FontSize="18" Margin="20, 40, 20, 0">Overview about your achievements</TextBlock>
-            <TextBlock Margin="20 10 0 20" Name="NoRulesText" Foreground="{x:Static paColors:Settings.DarkGrayColorBrush}" FontSize="18">At the moment you haven't defined any goals. Add new goals to earn achievements.</TextBlock>
-
-            <Border Margin="20, 0, 20, 0" Grid.Row="1" Background="{x:Static paColors:Settings.GrayColorBrush}" BorderBrush="{x:Static paColors:Settings.GrayColorBrush}">
-                <StackPanel Name="RulesOverview" Visibility="Collapsed" Margin="10 20 10 10" VerticalAlignment="Top">
-                </StackPanel>
-            </Border>
-        </StackPanel>
     </Grid>
 </UserControl>
