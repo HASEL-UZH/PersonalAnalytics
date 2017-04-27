@@ -32,14 +32,13 @@ namespace GoalSetting.Visualizers.Summary
 
             // CSS
             html += "<style type='text/css'>";
-            
-            html += @".bullet { font: 10px sans-serif;}
-            .marker {stroke: #F00; stroke-width: 2px; }
-            .tick line {stroke: #666; stroke-width: .5px; }
+
+            html += @".bullet { font: 10px sans-serif;}";
+            html += ".marker {stroke: " + Shared.Settings.RetrospectionColorHex + "; stroke-width: 2px; }";
+            html += @".tick line {stroke: #666; stroke-width: .5px; }
             .range.s0 {fill: #eee; }
             .range.s1 {fill: #ddd; }
             .range.s2 {fill: #ccc; }
-            .measure.s0 {fill: steelblue;}
             .title {font - size: 14px; font - weight: bold; }
             .subtitle {fill: #999; }";
             
@@ -81,7 +80,11 @@ namespace GoalSetting.Visualizers.Summary
                     .append('g')
                     .attr('transform', 'translate(' + (margin.left * 0.7) + ',' + margin.top + ')')
                     .call(chart);";
-            
+
+            html += "d3.selectAll('.measure.s0')";
+            html += ".data(data)";
+            html += ".style('fill', function(d) { return d.bg; });";
+
             html += "var title = svg.append('g')";
             html += ".style('text-anchor', 'end')";
             html += ".attr('transform', 'translate(-6,' + height / 2 + ')');";
@@ -137,18 +140,23 @@ namespace GoalSetting.Visualizers.Summary
                 {
                     case ProgressStatus.VeryLow:
                         data += "'image':'smiley5.png',";
+                        data += "'bg':'#C1272D',";
                         break;
                     case ProgressStatus.Low:
                         data += "'image':'smiley4.png',";
+                        data += "'bg':'#F7931E',";
                         break;
                     case ProgressStatus.Average:
                         data += "'image':'smiley3.png',";
+                        data += "'bg':'#A3A3A3',";
                         break;
                     case ProgressStatus.High:
                         data += "'image':'smiley2.png',";
+                        data += "'bg':'#B9D11F',";
                         break;
                     case ProgressStatus.VeryHigh:
                         data += "'image':'smiley1.png',";
+                        data += "'bg':'#39B54A',";
                         break;
                 }
                 
