@@ -64,7 +64,7 @@ namespace GoalSetting.Visualizers.Summary
 
             html += "width = totalWidth,";
             //height of each bullet chart
-            html += "height = 40;";
+            html += "height = 35;";
 
             html += "d3.select('#" + VisHelper.CreateChartHtmlTitle(Title) + "').attr('height', totalHeight);";
 
