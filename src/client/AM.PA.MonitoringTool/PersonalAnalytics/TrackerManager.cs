@@ -434,6 +434,10 @@ namespace PersonalAnalytics
             m1.Click += (o, i) => Retrospection.Handler.GetInstance().OpenRetrospection();
             TaskbarIcon.ContextMenu.Items.Add(m1);
 
+            var m9 = new MenuItem { Header = "Show Goal Setting" };
+            m9.Click += (o, i) => Retrospection.Handler.GetInstance().OpenGoalSetting();
+            TaskbarIcon.ContextMenu.Items.Add(m9);
+
 #if DEBUG
             var m5 = new System.Windows.Controls.MenuItem { Header = "Show Retrospection (in browser)" };
             m5.Click += (o, i) => Retrospection.Handler.GetInstance().OpenRetrospectionInBrowser();
@@ -457,10 +461,6 @@ namespace PersonalAnalytics
             var m7 = new System.Windows.Controls.MenuItem { Header = "Shutdown Tracker" };
             m7.Click += (o, i) => Stop(true);
             TaskbarIcon.ContextMenu.Items.Add(m7);
-
-            var m9 = new MenuItem { Header = "Goal Setting" };
-            m9.Click += (o, i) => Retrospection.Handler.GetInstance().OpenGoalSetting();
-            TaskbarIcon.ContextMenu.Items.Add(m9);
             
             // Styling
             //var converter = new System.Windows.Media.BrushConverter();
