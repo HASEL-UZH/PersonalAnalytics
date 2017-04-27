@@ -7,6 +7,7 @@ using System;
 using Shared.Helpers;
 using GoalSetting.Goals;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace GoalSetting.Visualizers.Summary
 {
@@ -44,15 +45,22 @@ namespace GoalSetting.Visualizers.Summary
             
             html += "</style>";
 
+            var dataHTMLString = GenerateData(goals);
+
+            int numberUndecided = goals.Where(g => !g.Progress.Success.HasValue).ToList().Count;
+            var decidedGoals = goals.Where(g => g.Progress.Success.HasValue).ToList();
+            int numberMissedGoals = decidedGoals.Where(g => !g.Progress.Success.Value).ToList().Count;
+            int numberAchievedGoals = decidedGoals.Where(g => g.Progress.Success.Value).ToList().Count;
+            
             //HTML
             html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "' style='align: center'></div>";
-            html += "<p style='text-align: center; font-size: 0.66em;'>" + "Goal Summary (blue: actual value, red: target value, bars: min, average, max)" + "</p>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>" + "Goal Summary (achieved: " + numberAchievedGoals + ", missed: " + numberMissedGoals + ", undecided: " + numberUndecided + ")" + "</p>";
 
             //JS
             html += "<script src='bullet.js'></script>";
             html += "<script>";
 
-            html += GenerateData(goals);
+            html += dataHTMLString;
             
             html += "var actualHeight = document.getElementsByClassName('item Wide')[0].offsetHeight;";
             html += "var actualWidth = document.getElementsByClassName('item Wide')[0].offsetWidth;";
