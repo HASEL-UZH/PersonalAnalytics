@@ -6,11 +6,11 @@
 using System;
 using GoalSetting.Goals;
 using GoalSetting.Model;
-using Shared;
 using Shared.Helpers;
 using GoalSetting.Data;
 using System.Linq;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace GoalSetting.Visualizers.Week
 {
@@ -121,38 +121,38 @@ namespace GoalSetting.Visualizers.Week
                     {
                         if (column != 0)
                         {
-                            newValue = "" + (column - 1);
+                            newValue = DateTimeExtensions.ToHourString(new DateTime(2017, 1, 1, column - 1, 0, 0), CultureInfo.CurrentCulture);
                         }
                     }
                     else if (column == 0)
                     {
                         if (row == 1)
                         {
-                            newValue = "Mo";
+                            newValue = DateTimeFormatInfo.CurrentInfo.GetAbbreviatedDayName(DayOfWeek.Monday);
                         }
                         if (row == 2)
                         {
-                            newValue = "Di";
+                            newValue = DateTimeFormatInfo.CurrentInfo.GetAbbreviatedDayName(DayOfWeek.Tuesday);
                         }
                         if (row == 3)
                         {
-                            newValue = "Mi";
+                            newValue = DateTimeFormatInfo.CurrentInfo.GetAbbreviatedDayName(DayOfWeek.Wednesday);
                         }
                         if (row == 4)
                         {
-                            newValue = "Do";
+                            newValue = DateTimeFormatInfo.CurrentInfo.GetAbbreviatedDayName(DayOfWeek.Thursday);
                         }
                         if (row == 5)
                         {
-                            newValue = "Fr";
+                            newValue = DateTimeFormatInfo.CurrentInfo.GetAbbreviatedDayName(DayOfWeek.Friday);
                         }
                         if (row == 6)
                         {
-                            newValue = "Sa";
+                            newValue = DateTimeFormatInfo.CurrentInfo.GetAbbreviatedDayName(DayOfWeek.Saturday);
                         }
                         if (row == 7)
                         {
-                            newValue = "So";
+                            newValue = DateTimeFormatInfo.CurrentInfo.GetAbbreviatedDayName(DayOfWeek.Sunday);
                         }
                     }
                     else

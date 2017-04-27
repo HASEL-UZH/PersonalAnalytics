@@ -121,6 +121,7 @@
     <Compile Include="Data\RemoteDataHandler.cs" />
     <Compile Include="Dict.cs" />
     <Compile Include="Events\ActivitySwitchEvent.cs" />
+    <Compile Include="Helpers\DateTimeExtensions.cs" />
     <Compile Include="Helpers\DateTimeHelper.cs" />
     <Compile Include="Helpers\FeedbackHelper.cs" />
     <Compile Include="Helpers\FeedbackThumbs.cs" />
