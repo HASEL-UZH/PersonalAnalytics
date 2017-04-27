@@ -59,8 +59,12 @@ namespace GoalSetting.Visualizers.Summary
             html += "var actualWidth = document.getElementsByClassName('item Wide')[0].offsetWidth;";
             html += "var margin = {top: 5, right: 40, bottom: 20, left: 120}, totalWidth = (actualWidth * 0.97)- margin.left - margin.right, totalHeight = (actualHeight * 0.73) - margin.top - margin.bottom;";
 
+            //Add scroll bar if the visualization is too long
+            html += "document.getElementById('" + VisHelper.CreateChartHtmlTitle(Title) + "').parentNode.style['overflow-y'] = 'scroll';";
+
             html += "width = totalWidth,";
-            html += "height = totalWidth / (6 * " + goals.Count + ");";
+            //height of each bullet chart
+            html += "height = 40;";
 
             html += "d3.select('#" + VisHelper.CreateChartHtmlTitle(Title) + "').attr('height', totalHeight);";
 
@@ -75,7 +79,7 @@ namespace GoalSetting.Visualizers.Summary
                     .attr('width', width + margin.left + margin.right)
                     .attr('height', height + margin.top + margin.bottom)
                     .append('g')
-                    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+                    .attr('transform', 'translate(' + (margin.left * 0.7) + ',' + margin.top + ')')
                     .call(chart);";
             
             html += "var title = svg.append('g')";
@@ -92,7 +96,7 @@ namespace GoalSetting.Visualizers.Summary
             html += ".text(function(d) { return d.subtitle; });";
 
             html += "title.append('svg:image')";
-            html += ".attr('transform', 'translate(' + height * -3.5 + ',' + height / -2 + ')')";
+            html += ".attr('transform', 'translate(' + width * 1.05 + ',' + height / -2 + ')')";
             html += ".attr('xlink:href', function(d) {return d.image;})";
             html += ".attr('width', height)";
             html += ".attr('height', height);";
