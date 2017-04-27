@@ -70,11 +70,11 @@ namespace GoalSetting.Visualizers.Week
 
             if (_goal.Rule.Goal == RuleGoal.TimeSpentOn)
             {
-                html += "var color = d3.scale.ordinal().domain(['belowLimitTime', 'aboveLimitTime']).range(['" + Shared.Settings.RetrospectionColorHex + "', 'red']);";
+                html += "var color = d3.scale.ordinal().domain(['belowLimitTime', 'aboveLimitTime']).range(['" + GoalVisHelper.GetVeryHighColor() + "', '" + GoalVisHelper.GetVeryLowColor() + "']);";
             }
             else
             {
-                html += "var color = d3.scale.ordinal().domain(['belowLimitSwitches', 'aboveLimitSwitches']).range(['" + Shared.Settings.RetrospectionColorHex + "', 'red']);";
+                html += "var color = d3.scale.ordinal().domain(['belowLimitSwitches', 'aboveLimitSwitches']).range(['" + GoalVisHelper.GetVeryHighColor() + "', '" + GoalVisHelper.GetVeryLowColor() + "']);";
             }
 
             html += @"var xAxis = d3.svg.axis().scale(x).orient('bottom');
@@ -129,7 +129,7 @@ namespace GoalSetting.Visualizers.Week
 
             html += "svg.append('text').attr('x', 0).attr('y', -10).style('text-anchor', 'middle').style('font-size', '0.5em').text('Time spent (h)');";
 
-            html += "svg.append('line').style('stroke-dasharray', ('3, 3')).style('stroke', 'black').attr('x1', 0).attr('y1', y(limit)).attr('x2', d3.max(data, function(d){return x(d.start);})).attr('y2', y(limit));";
+            html += "svg.append('line').style('stroke-dasharray', ('3, 3')).style('stroke', '" + Shared.Settings.RetrospectionColorHex + "').attr('x1', 0).attr('y1', y(limit)).attr('x2', d3.max(data, function(d){return x(d.start);})).attr('y2', y(limit));";
 
             html += @"svg.append('g').attr('class', 'axis').attr('transform', 'translate(0,' + height + ')').call(xAxis);
                     svg.append('g').attr('class', 'axis').attr('transform', 'translate(' + width + ', height)').call(yAxis);";

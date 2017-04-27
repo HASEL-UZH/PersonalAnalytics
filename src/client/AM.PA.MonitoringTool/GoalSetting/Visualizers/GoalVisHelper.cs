@@ -49,5 +49,30 @@ namespace GoalSetting.Visualizers
                 return TimeSpan.FromMilliseconds(double.Parse(goal.Rule.TargetValue)).TotalMinutes.ToString();
             }
         }
+
+        public static string GetVeryHighColor()
+        {
+            return "#39B54A";
+        }
+
+        public static string GetHighColor()
+        {
+            return "#B9D11F";
+        }
+
+        public static string GetAverageColor()
+        {
+            return "#A3A3A3";
+        }
+
+        public static string GetLowColor()
+        {
+            return "#F7931E";
+        }
+
+        public static string GetVeryLowColor()
+        {
+            return "#C1272D";
+        }
     }
 }

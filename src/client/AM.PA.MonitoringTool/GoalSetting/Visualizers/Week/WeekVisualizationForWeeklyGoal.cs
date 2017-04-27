@@ -84,13 +84,13 @@ namespace GoalSetting.Visualizers.Week
                     .append('pattern')
                     .attr({ id: 'success-pattern', width: '8', height: '8', patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(60)'})
 	                .append('rect')
-                    .attr({ width: '4', height: '8', transform: 'translate(0,0)', opacity: '0.25', fill: '" + Shared.Settings.RetrospectionColorHex + "' });";
+                    .attr({ width: '4', height: '8', transform: 'translate(0,0)', opacity: '0.25', fill: '" + GoalVisHelper.GetVeryHighColor() + "' });";
 
             html += @"var pattern = svg.append('defs')
                     .append('pattern')
                     .attr({ id: 'error-pattern', width: '8', height: '8', patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(60)'})
 	                .append('rect')
-                    .attr({ width: '4', height: '8', transform: 'translate(0,0)', opacity: '0.25', fill: 'red' });";
+                    .attr({ width: '4', height: '8', transform: 'translate(0,0)', opacity: '0.25', fill: '" + GoalVisHelper.GetVeryLowColor() + "' });";
 
             //Prepare domain of axes
             if (dataPoints.Count > 0)
@@ -107,12 +107,12 @@ namespace GoalSetting.Visualizers.Week
             }
 
             //Draw lines and axes
-            html += "svg.append('path').style('stroke', '" + Shared.Settings.RetrospectionColorHex + "').attr('d', valueLine1(data)).attr('fill', 'none').attr('stroke-width', '3');";
-            html += "svg.append('path').style('stroke', 'red').attr('d', valueLine1(data.filter(function(d) {return " + GoalVisHelper.GetDataPointName(_goal, VisType.Day) + " >= limit;}))).attr('fill', 'none').attr('stroke-width', '3');";
+            html += "svg.append('path').style('stroke', '" + GoalVisHelper.GetVeryHighColor() + "').attr('d', valueLine1(data)).attr('fill', 'none').attr('stroke-width', '3');";
+            html += "svg.append('path').style('stroke', '" + GoalVisHelper.GetVeryLowColor() + "').attr('d', valueLine1(data.filter(function(d) {return " + GoalVisHelper.GetDataPointName(_goal, VisType.Day) + " >= limit;}))).attr('fill', 'none').attr('stroke-width', '3');";
             html += "xAxisYPosition = height;";
             html += "svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + xAxisYPosition + ')').call(xAxis);";
             html += "svg.append('g').attr('class', 'y axis').style('fill', 'black').call(yAxisLeft);";
-            html += "svg.append('line').style('stroke-dasharray', ('3, 3')).style('stroke', 'black').attr('x1', 0).attr('y1', y0(limit)).attr('x2', d3.max(data, function(d){return x(d.start);})).attr('y2', y0(limit));";
+            html += "svg.append('line').style('stroke-dasharray', ('3, 3')).style('stroke', '" + Shared.Settings.RetrospectionColorHex + "').attr('x1', 0).attr('y1', y0(limit)).attr('x2', d3.max(data, function(d){return x(d.start);})).attr('y2', y0(limit));";
 
             //Draw legend
             html += "svg.append('text').attr('x', 0).attr('y', -10).style('text-anchor', 'middle').style('font-size', '0.5em').text('" + GoalVisHelper.GetXAxisTitle(_goal, VisType.Day) + "');";

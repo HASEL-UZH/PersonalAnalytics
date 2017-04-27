@@ -77,10 +77,10 @@ namespace GoalSetting.Visualizers.Week
                     return '#fff';
                 } else {
                     if (d.success === 'True') {";
-            html += "return '" + Shared.Settings.RetrospectionColorHex + "';";
+            html += "return '" + GoalVisHelper.GetVeryHighColor() + "';";
             html += "}";
-            html += "return 'red';}";
-            html += "return '#fff';})";
+            html += "return '" + GoalVisHelper.GetVeryLowColor() + "';}";
+            html += "return 'white';})";
             html += ".style('stroke', '" + Shared.Settings.GrayColorHex + "');";
 
             html += "var text = row.selectAll('.label')";

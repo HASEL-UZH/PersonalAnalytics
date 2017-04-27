@@ -148,23 +148,23 @@ namespace GoalSetting.Visualizers.Summary
                 {
                     case ProgressStatus.VeryLow:
                         data += "'image':'smiley5.png',";
-                        data += "'bg':'#C1272D',";
+                        data += "'bg':'" + GoalVisHelper.GetVeryLowColor() + "',";
                         break;
                     case ProgressStatus.Low:
                         data += "'image':'smiley4.png',";
-                        data += "'bg':'#F7931E',";
+                        data += "'bg':'" + GoalVisHelper.GetLowColor() + "',";
                         break;
                     case ProgressStatus.Average:
                         data += "'image':'smiley3.png',";
-                        data += "'bg':'#A3A3A3',";
+                        data += "'bg':'" + GoalVisHelper.GetAverageColor() + "',";
                         break;
                     case ProgressStatus.High:
                         data += "'image':'smiley2.png',";
-                        data += "'bg':'#B9D11F',";
+                        data += "'bg':'" + GoalVisHelper.GetHighColor() + "',";
                         break;
                     case ProgressStatus.VeryHigh:
                         data += "'image':'smiley1.png',";
-                        data += "'bg':'#39B54A',";
+                        data += "'bg':'" + GoalVisHelper.GetVeryHighColor() + "',";
                         break;
                 }
                 
