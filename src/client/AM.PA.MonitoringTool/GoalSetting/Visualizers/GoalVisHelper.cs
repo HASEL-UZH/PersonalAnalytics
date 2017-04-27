@@ -37,59 +37,7 @@ namespace GoalSetting.Visualizers
                     throw new ArgumentException(goal.Rule.Goal + " is not a valid goal.");
             }
         }
-
-        public static string GetHintText(GoalActivity goal, VisType type)
-        {
-            if (type == VisType.Day)
-            {
-                if (goal.Progress.Success.HasValue && goal.Progress.Success.Value)
-                {
-                    switch (goal.Rule.Goal)
-                    {
-                        case RuleGoal.NumberOfSwitchesTo:
-                            return "Congratulations, you reached your goal! You switched " + goal.Progress.Actual + " times to this activity.";
-                        case RuleGoal.TimeSpentOn:
-                            return "Congratulations, you reached your goal! You spent " + goal.Progress.Actual + " hours on this activity.";
-                        case RuleGoal.NumberOfEmailsInInbox:
-                            return "Congratulations, you reached your goal! You have " + goal.Progress.Actual + " emails in your inbox.";
-                        default:
-                            throw new ArgumentException(goal + " is not recognized!");
-                    }
-                }
-                else if (goal.IsStillReachable())
-                {
-                    switch (goal.Rule.Goal)
-                    {
-                        case RuleGoal.NumberOfSwitchesTo:
-                            return "You have not yet reached your goal. However, you cann still reach it. You switched to this activity " + goal.Progress.Actual + " of " + goal.Progress.Target + " times.";
-                        case RuleGoal.TimeSpentOn:
-                            return "You have not yet reached your goal. However, you can still reach it. You spent " + goal.Progress.Actual + " of " + goal.Progress.Target + " hours and this activity.";
-                        case RuleGoal.NumberOfEmailsInInbox:
-                            double difference = goal.Progress.Target - goal.Progress.Actual;
-                            return "You have not yet reached your goal. However, you can still reach it. You need " + difference + (difference < 0 ? "less" : "more") + " emails in your inbox.";
-                        default:
-                            throw new ArgumentException(goal + " is not recognized!");
-                    }
-                }
-                else
-                {
-                    switch (goal.Rule.Goal)
-                    {
-                        case RuleGoal.NumberOfSwitchesTo:
-                            return "Unfortunately, you missed your goal this time. You switched " + (goal.Progress.Actual - goal.Progress.Target) + " (+" + (goal.Progress.Actual / goal.Progress.Target * 100).ToString("N2") + "%) more than your goal.";
-                        case RuleGoal.TimeSpentOn:
-                            return "Unfortunately, you missed your goal this time. You spent " + TimeSpan.FromMilliseconds(goal.Progress.Actual - goal.Progress.Target).TotalMinutes + " (+" + (goal.Progress.Actual / goal.Progress.Target * 100).ToString("N2") + "%) minutes more than your goal on this activity.";
-                        default:
-                            throw new ArgumentException(goal + " is not recognized!");
-                    }
-                }
-            }
-            else
-            {
-                return "Not yet any hint text";
-            }
-        }
-
+        
         internal static string GetLimitValue(GoalActivity goal, VisType day)
         {
             if (goal.Rule.Goal == RuleGoal.NumberOfSwitchesTo)

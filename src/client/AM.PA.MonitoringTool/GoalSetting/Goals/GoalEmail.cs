@@ -111,12 +111,15 @@ namespace GoalSetting.Goals
             var inbox = DatabaseConnector.GetLatestEmailInboxCount();
             double target = Double.Parse(this.Rule.TargetValue);
 
-            if (inbox == target)
+            if (Progress.Success.HasValue && Progress.Success.Value)
             {
-                return "You have " + inbox + " emails right now. You have reached your goal!";
+                return "Congratulations, you reached your goal! You have " + Progress.Actual + " emails in your inbox.";
             }
-
-            return "You have " + inbox + " emails right now. You should have " + Math.Abs(inbox - target) + (inbox > target ? " less " : " more ") + " emails.";
+            else if (IsStillReachable())
+            {
+                return "You have " + inbox + " emails right now. You should have " + Math.Abs(inbox - target) + (inbox > target ? " less " : " more ") + " emails.";
+            }
+            return "Unknown progress towards this goal";
         }
 
         /// <summary>

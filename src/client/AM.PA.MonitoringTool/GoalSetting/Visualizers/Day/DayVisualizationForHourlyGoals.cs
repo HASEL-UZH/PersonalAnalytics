@@ -45,7 +45,7 @@ namespace GoalSetting.Visualizers.Day
 
             //HTML
             html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "' style='align: center'></div>";
-            html += "<p style='text-align: center; font-size: 0.66em;'>" + GoalVisHelper.GetHintText(_goal, VisType.Day) + "</p>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>" + _goal.GetProgressMessage() + "</p>";
 
             //JS
             html += "<script>";

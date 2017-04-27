@@ -29,7 +29,7 @@ namespace GoalSetting.Visualizers.Week
             var endOfWork = DateTime.Now;
             allActivities = DatabaseConnector.GetActivitiesSinceAndBefore(startOfWork, endOfWork);
             allActivities = DataHelper.MergeSameActivities(allActivities, Settings.MinimumSwitchTimeInSeconds);
-            allActivities = allActivities.Where(a => a.Activity.Equals(base._goal.Activity)).ToList();
+            allActivities = allActivities.Where(a => a.Activity.Equals(_goal.Activity)).ToList();
 
             var dataString = GenerateData();
 
@@ -157,7 +157,7 @@ namespace GoalSetting.Visualizers.Week
                     }
                     else
                     {
-                        var firstDayOfWeek = DateTimeHelper.GetFirstDayOfWeek_Iso8801(base._date);
+                        var firstDayOfWeek = DateTimeHelper.GetFirstDayOfWeek_Iso8801(_date);
                         firstDayOfWeek = new DateTime(firstDayOfWeek.Year, firstDayOfWeek.Month, firstDayOfWeek.Day, column - 1, 0, 0, 0);
                         var dateToCheck = firstDayOfWeek.AddDays(row - 1);
                         var dateToCheckEnd = dateToCheck.AddMinutes(59);
@@ -242,14 +242,14 @@ namespace GoalSetting.Visualizers.Week
                 return Tuple.Create<string, bool>("0", true);
             }
 
-            switch (base._goal.Rule.Goal)
+            switch (_goal.Rule.Goal)
             {
                 case RuleGoal.NumberOfSwitchesTo:
-                    int numberOfSwitches = DataHelper.GetNumberOfSwitchesToActivity(activities, base._goal.Activity);
-                    return Tuple.Create<string, bool>("" + numberOfSwitches, DataHelper.SuccessRule(base._goal.Rule, numberOfSwitches));
+                    int numberOfSwitches = DataHelper.GetNumberOfSwitchesToActivity(activities, _goal.Activity);
+                    return Tuple.Create<string, bool>("" + numberOfSwitches, DataHelper.SuccessRule(_goal.Rule, numberOfSwitches));
                 case RuleGoal.TimeSpentOn:
-                    double timeSpentOn = DataHelper.GetTotalTimeSpentOnActivity(activities, base._goal.Activity).TotalMilliseconds;
-                    return Tuple.Create<string, bool>(DataHelper.GetTotalTimeSpentOnActivity(activities, base._goal.Activity).TotalMinutes.ToString("N0"), DataHelper.SuccessRule(base._goal.Rule, timeSpentOn));
+                    double timeSpentOn = DataHelper.GetTotalTimeSpentOnActivity(activities, _goal.Activity).TotalMilliseconds;
+                    return Tuple.Create<string, bool>(DataHelper.GetTotalTimeSpentOnActivity(activities, _goal.Activity).TotalMinutes.ToString("N0"), DataHelper.SuccessRule(_goal.Rule, timeSpentOn));
             }
             return Tuple.Create<string, bool>("", false);
         }

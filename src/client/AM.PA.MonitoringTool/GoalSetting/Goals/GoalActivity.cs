@@ -70,7 +70,41 @@ namespace GoalSetting.Goals
         /// <returns></returns>
         public override string GetProgressMessage()
         {
-            return (string.IsNullOrEmpty(Progress.Time) ? "0" : Progress.Time) + " hours / " + Progress.Switches + " switches";
+
+            if (Progress.Success.HasValue && Progress.Success.Value)
+            {
+                if (Rule.Goal == RuleGoal.NumberOfSwitchesTo)
+                {
+                    return "Congratulations, you reached your goal! You switched " + Progress.Actual + " times to this activity.";
+                }
+                else if (Rule.Goal == RuleGoal.TimeSpentOn)
+                {
+                    return "Congratulations, you reached your goal! You spent " + Progress.Actual + " hours on this activity.";
+                }
+            }
+            else if (IsStillReachable())
+            {
+                if (Rule.Goal == RuleGoal.NumberOfSwitchesTo)
+                {
+                    return "You have not yet reached your goal. However, you cann still reach it. You switched to this activity " + Progress.Actual + " of " + Progress.Target + " times.";
+                }
+                else if (Rule.Goal == RuleGoal.TimeSpentOn)
+                {
+                    return "You have not yet reached your goal. However, you can still reach it. You spent " + Progress.Actual + " of " + Progress.Target + " hours and this activity.";
+                }
+            }
+            else
+            {
+                if (Rule.Goal == RuleGoal.NumberOfSwitchesTo)
+                {
+                    return "Unfortunately, you missed your goal this time. You switched " + Math.Abs(Progress.Actual - Progress.Target) + " (+" + (Progress.Actual / Progress.Target * 100).ToString("N0") + "%) more than your goal.";
+                }
+                else if (Rule.Goal == RuleGoal.TimeSpentOn)
+                {
+                    return "Unfortunately, you missed your goal this time. You spent " + Math.Abs(Progress.Actual - Progress.Target).ToString("N2") + " (+" + (Progress.Actual / Progress.Target * 100).ToString("N0") + "%) hours more than your goal on this activity.";
+                }
+            }
+            return "Unknown progress towards this goal";
         }
 
         /// <summary>
@@ -96,7 +130,7 @@ namespace GoalSetting.Goals
             switch (Rule.Goal)
             {
                 case RuleGoal.TimeSpentOn:
-                    target = Double.Parse(Rule.TargetValue) / 1000 / 60 / 60;
+                    target = System.TimeSpan.FromMilliseconds(Double.Parse(Rule.TargetValue)).TotalHours;
                     actual = string.IsNullOrEmpty(Progress.Time) ? 0.0 : Double.Parse(Progress.Time);
                     break;
                 case RuleGoal.NumberOfSwitchesTo:
