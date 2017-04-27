@@ -108,7 +108,13 @@ namespace GoalSetting
 
         private void Container_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+            foreach (StackPanel sp in RulesOverview.Children)
+            {
+                sp.Background = Shared.Settings.GrayColorBrush;
+            }
+
             _selectedGoal = (Goal) (sender as StackPanel).Tag;
+            (sender as StackPanel).Background = Shared.Settings.DarkGrayColorBrush;
             EditRule.IsEnabled = true;
             DeleteRule.IsEnabled = true;
         }

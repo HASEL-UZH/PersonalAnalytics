@@ -11,21 +11,18 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0">
-            <TextBlock FontSize="18" Margin="20, 10, 20, 0">Overview about your goals</TextBlock>
-            <TextBlock Margin="20 10 0 20" Name="NoRulesText" Foreground="{x:Static paColors:Settings.DarkGrayColorBrush}" FontSize="18">At the moment you haven't defined any goals. Add new goals to earn achievements.</TextBlock>
+        <TextBlock Grid.Row="0" FontSize="18" Margin="20, 10, 20, 0">Overview about your goals</TextBlock>
+        <TextBlock Grid.Row="1" Margin="20 10 0 20" Name="NoRulesText" Foreground="{x:Static paColors:Settings.DarkGrayColorBrush}" FontSize="18">At the moment you haven't defined any goals. Add new goals to earn achievements.</TextBlock>
 
-            <Border Margin="20, 0, 20, 0" Grid.Row="1" Background="{x:Static paColors:Settings.GrayColorBrush}" BorderBrush="{x:Static paColors:Settings.GrayColorBrush}">
-                <ScrollViewer>
-                <StackPanel Name="RulesOverview" Visibility="Collapsed" Margin="10 20 10 10" VerticalAlignment="Top">
-                </StackPanel>
-                </ScrollViewer>
-            </Border>
-        </StackPanel>
-
-        <StackPanel Grid.Row="1">
+        <ScrollViewer Grid.Row="2" CanContentScroll="True" Margin="20, 0, 20, 0" ScrollViewer.VerticalScrollBarVisibility="Visible" Background="{x:Static paColors:Settings.GrayColorBrush}" BorderBrush="{x:Static paColors:Settings.GrayColorBrush}">
+            <StackPanel Name="RulesOverview" Visibility="Collapsed" Margin="10 20 10 10" VerticalAlignment="Top"></StackPanel>
+        </ScrollViewer>
+        
+        <StackPanel Grid.Row="3">
             <Grid Grid.Row="1" Margin="20, 0, 20, 0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
