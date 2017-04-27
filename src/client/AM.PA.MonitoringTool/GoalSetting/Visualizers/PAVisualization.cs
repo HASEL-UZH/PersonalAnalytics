@@ -26,7 +26,7 @@ namespace GoalSetting.Visualizers
         {
             this._goal = goal;
             this._date = date;
-            Title = goal.ToString();
+            Title = goal.Title + ": " + goal.ToString();
             IsEnabled = true;
             Size = VisSize.Wide;
             Order = 0;
