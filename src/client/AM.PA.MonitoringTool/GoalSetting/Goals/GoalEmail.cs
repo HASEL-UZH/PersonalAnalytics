@@ -113,7 +113,7 @@ namespace GoalSetting.Goals
 
             if (Progress.Success.HasValue && Progress.Success.Value)
             {
-                return "Congratulations, you reached your goal! You have " + Progress.Actual + " emails in your inbox.";
+                return "You're on a good track to reach your goal. You currently have " + Progress.Actual + " emails in your inbox.";
             }
             else if (IsStillReachable())
             {
@@ -129,6 +129,25 @@ namespace GoalSetting.Goals
         public override bool IsStillReachable()
         {
             return true;
+        }
+
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <returns></returns>
+        public override string GetAchievementMessage()
+        {
+            var inbox = DatabaseConnector.GetLatestEmailInboxCount();
+            double target = Double.Parse(this.Rule.TargetValue);
+
+            if (Progress.Success.HasValue && Progress.Success.Value)
+            {
+                return "Congratulations, you reached your goal! You have " + Progress.Actual + " emails in your inbox.";
+            }
+            else
+            {
+                return "Unfortunately, you have missed your goal. You have " + inbox + " emails right now. You should have " + Math.Abs(inbox - target) + (inbox > target ? " less " : " more ") + " emails.";
+            }
         }
     }
 }

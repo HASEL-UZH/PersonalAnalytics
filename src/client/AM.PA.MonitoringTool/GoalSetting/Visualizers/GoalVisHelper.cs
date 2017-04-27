@@ -38,15 +38,33 @@ namespace GoalSetting.Visualizers
             }
         }
         
-        internal static string GetLimitValue(GoalActivity goal, VisType day)
+        internal static string GetLimitValue(GoalActivity goal, VisType visType)
         {
-            if (goal.Rule.Goal == RuleGoal.NumberOfSwitchesTo)
+            if (visType == VisType.Day)
             {
-                return goal.Rule.TargetValue;
+                if (goal.Rule.Goal == RuleGoal.NumberOfSwitchesTo)
+                {
+                    return goal.Rule.TargetValue;
+                }
+                else
+                {
+                    return TimeSpan.FromMilliseconds(double.Parse(goal.Rule.TargetValue)).TotalMinutes.ToString();
+                }
+            }
+            else if (visType == VisType.Week)
+            {
+                if (goal.Rule.Goal == RuleGoal.NumberOfSwitchesTo)
+                {
+                    return goal.Rule.TargetValue;
+                }
+                else
+                {
+                    return TimeSpan.FromMilliseconds(double.Parse(goal.Rule.TargetValue)).TotalHours.ToString();
+                }
             }
             else
             {
-                return TimeSpan.FromMilliseconds(double.Parse(goal.Rule.TargetValue)).TotalMinutes.ToString();
+                return "0";
             }
         }
 

@@ -42,6 +42,33 @@ namespace GoalSetting.Visualizers.Day
             activities = DataHelper.MergeSameActivities(activities, Settings.MinimumSwitchTimeInSeconds);
 
             var targetActivity = _goal.Activity;
+            
+            string color1 = string.Empty;
+            string color2 = string.Empty;
+            string pattern1 = string.Empty;
+            string pattern2 = string.Empty;
+
+            switch (_goal.Rule.Operator)
+            {
+                case RuleOperator.Equal:
+                    color1 = GoalVisHelper.GetVeryLowColor();
+                    color2 = GoalVisHelper.GetVeryLowColor();
+                    pattern1 = "#error-pattern";
+                    pattern2 = "#error-pattern";
+                    break;
+                case RuleOperator.LessThan:
+                    color1 = GoalVisHelper.GetVeryHighColor();
+                    color2 = GoalVisHelper.GetVeryLowColor();
+                    pattern1 = "#success-pattern";
+                    pattern2 = "#error-pattern";
+                    break;
+                case RuleOperator.GreaterThan:
+                    color1 = GoalVisHelper.GetVeryLowColor();
+                    color2 = GoalVisHelper.GetVeryHighColor();
+                    pattern1 = "#error-pattern";
+                    pattern2 = "#success-pattern";
+                    break;
+            }
 
             // CSS
             html += "<style type='text/css'>";
@@ -52,7 +79,7 @@ namespace GoalSetting.Visualizers.Day
             
             //HTML
             html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "' style='align: center'></div>";
-            html += "<p style='text-align: center; font-size: 0.66em;'>" + _goal.GetProgressMessage() + "</p>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>" + (_date.Date == DateTime.Today ? _goal.GetProgressMessage() : _goal.GetAchievementMessage()) + "</p>";
 
             //JS
             html += "<script>";
@@ -111,8 +138,8 @@ namespace GoalSetting.Visualizers.Day
             }
 
             //Draw lines and axes
-            html += "svg.append('path').style('stroke', '" + GoalVisHelper.GetVeryHighColor() + "').attr('d', valueLine1(data)).attr('fill', 'none').attr('stroke-width', '3');";
-            html += "svg.append('path').style('stroke', '" + GoalVisHelper.GetVeryLowColor() + "').attr('d', valueLine1(data.filter(function(d) {return " + GoalVisHelper.GetDataPointName(_goal, VisType.Day) + " >= limit;}))).attr('fill', 'none').attr('stroke-width', '3');";
+            html += "svg.append('path').style('stroke', '" + color1 + "').attr('d', valueLine1(data)).attr('fill', 'none').attr('stroke-width', '3');";
+            html += "svg.append('path').style('stroke', '" + color2 + "').attr('d', valueLine1(data.filter(function(d) {return " + GoalVisHelper.GetDataPointName(_goal, VisType.Day) + " >= limit;}))).attr('fill', 'none').attr('stroke-width', '3');";
             html += "xAxisYPosition = height;";
             html += "svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + xAxisYPosition + ')').call(xAxis);";
             html += "svg.append('g').attr('class', 'y axis').style('fill', 'black').call(yAxisLeft);";
@@ -129,7 +156,7 @@ namespace GoalSetting.Visualizers.Day
             html += ".enter()";
             html += ".append('rect')";
             html += ".attr({'x':function(d) {return x(d.start);},'y':function(d){ return y0(" + GoalVisHelper.GetDataPointName(_goal, VisType.Day) + "); } })";
-            html += ".style('fill', 'url(#success-pattern)')";
+            html += ".style('fill', 'url(" + pattern1 + ")')";
             html += ".attr('height', function(d) {return xAxisYPosition - y0(" + GoalVisHelper.GetDataPointName(_goal, VisType.Day) + ");})";
             html += ".attr('width', function(d){ return x(d.end) - x(d.start); });";
 
@@ -140,7 +167,7 @@ namespace GoalSetting.Visualizers.Day
             html += ".enter()";
             html += ".append('rect')";
             html += ".attr({'x':function(d) {return x(d.start);},'y':function(d){ return y0(" + GoalVisHelper.GetDataPointName(_goal, VisType.Day) + "); } })";
-            html += ".style('fill', 'url(#error-pattern)')";
+            html += ".style('fill', 'url(" + pattern2 + ")')";
             html += ".attr('height', function(d) {return xAxisYPosition - y0(" + GoalVisHelper.GetDataPointName(_goal, VisType.Day) + ");})";
             html += ".attr('width', function(d){ return x(d.end) - x(d.start); });";
 

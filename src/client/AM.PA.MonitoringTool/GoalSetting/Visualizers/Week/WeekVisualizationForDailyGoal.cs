@@ -68,13 +68,32 @@ namespace GoalSetting.Visualizers.Week
             
                     var y = d3.scale.linear().rangeRound([height, 0]);";
 
+            string color1 = string.Empty;
+            string color2 = string.Empty;
+
+            switch (_goal.Rule.Operator)
+            {
+                case RuleOperator.Equal:
+                    color1 = GoalVisHelper.GetVeryLowColor();
+                    color2 = GoalVisHelper.GetVeryLowColor();
+                    break;
+                case RuleOperator.LessThan:
+                    color1 = GoalVisHelper.GetVeryHighColor();
+                    color2 = GoalVisHelper.GetVeryLowColor();
+                    break;
+                case RuleOperator.GreaterThan:
+                    color1 = GoalVisHelper.GetVeryLowColor();
+                    color2 = GoalVisHelper.GetVeryHighColor();
+                    break;
+            }
+
             if (_goal.Rule.Goal == RuleGoal.TimeSpentOn)
             {
-                html += "var color = d3.scale.ordinal().domain(['belowLimitTime', 'aboveLimitTime']).range(['" + GoalVisHelper.GetVeryHighColor() + "', '" + GoalVisHelper.GetVeryLowColor() + "']);";
+                html += "var color = d3.scale.ordinal().domain(['belowLimitTime', 'aboveLimitTime']).range(['" + color1 + "', '" + color2 + "']);";
             }
             else
             {
-                html += "var color = d3.scale.ordinal().domain(['belowLimitSwitches', 'aboveLimitSwitches']).range(['" + GoalVisHelper.GetVeryHighColor() + "', '" + GoalVisHelper.GetVeryLowColor() + "']);";
+                html += "var color = d3.scale.ordinal().domain(['belowLimitSwitches', 'aboveLimitSwitches']).range(['" + color1 + "', '" + color2 + "']);";
             }
 
             html += @"var xAxis = d3.svg.axis().scale(x).orient('bottom');
@@ -125,7 +144,7 @@ namespace GoalSetting.Visualizers.Week
                     })
                     .attr('width', x.rangeBand());";
 
-            html += "var limit = " + GoalVisHelper.GetLimitValue(_goal, VisType.Day) + ";";
+            html += "var limit = " + GoalVisHelper.GetLimitValue(_goal, VisType.Week) + ";";
 
             html += "svg.append('text').attr('x', 0).attr('y', -10).style('text-anchor', 'middle').style('font-size', '0.5em').text('Time spent (h)');";
 
@@ -199,12 +218,23 @@ namespace GoalSetting.Visualizers.Week
                     //Switch
                     if (switches > limitSwitch)
                     {
+                        if (_goal.Rule.Operator == RuleOperator.GreaterThan)
+                        {
+                            numberSuccess++;
+                        }
                         aboveSwitchLimit = switches - limitSwitch;
                         belowSwitchLimit = switches;
                     }
                     else
                     {
-                        numberSuccess++;
+                        if (_goal.Rule.Operator == RuleOperator.LessThan && switches < limitSwitch)
+                        {
+                            numberSuccess++;
+                        }
+                        if (_goal.Rule.Operator == RuleOperator.Equal && switches == limitSwitch)
+                        {
+                            numberSuccess++;
+                        }
                         aboveSwitchLimit = 0;
                         belowSwitchLimit = limitSwitch;
                     }
@@ -216,12 +246,23 @@ namespace GoalSetting.Visualizers.Week
                     //Time
                     if (timeSpent > limitTime)
                     {
+                        if (_goal.Rule.Operator == RuleOperator.GreaterThan)
+                        {
+                            numberSuccess++;
+                        }
                         aboveTimeLimit = timeSpent - limitTime;
                         belowTimeLimit = limitTime;
                     }
-                    else
+                    else 
                     {
-                        numberSuccess++;
+                        if (_goal.Rule.Operator == RuleOperator.LessThan && switches < limitSwitch)
+                        {
+                            numberSuccess++;
+                        }
+                        if (_goal.Rule.Operator == RuleOperator.Equal && switches == limitSwitch)
+                        {
+                            numberSuccess++;
+                        }
                         aboveTimeLimit = TimeSpan.FromMilliseconds(0);
                         belowTimeLimit = timeSpent;
                     }

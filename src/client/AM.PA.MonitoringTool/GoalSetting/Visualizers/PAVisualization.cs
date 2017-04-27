@@ -30,6 +30,7 @@ namespace GoalSetting.Visualizers
             IsEnabled = true;
             Size = VisSize.Wide;
             Order = 0;
+            goal.CalculateProgressStatus(false);
         }
         
         public abstract override string GetHtml();

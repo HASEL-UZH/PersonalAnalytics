@@ -15,8 +15,8 @@ namespace GoalSetting.Model
         [Description("exactly")]
         Equal,
 
-        [Description("not")]
-        NotEqual,
+//        [Description("not")]
+//        NotEqual,
 
         [Description("more than")]
         GreaterThan,
@@ -24,10 +24,10 @@ namespace GoalSetting.Model
         [Description("less than")]
         LessThan,
 
-        [Description("more than or exactly")]
-        GreaterThanOrEqual,
+//        [Description("more than or exactly")]
+//        GreaterThanOrEqual,
 
-        [Description("less than or exactly")]
-        LessThanOrEqual
+//        [Description("less than or exactly")]
+//        LessThanOrEqual
     }
 }

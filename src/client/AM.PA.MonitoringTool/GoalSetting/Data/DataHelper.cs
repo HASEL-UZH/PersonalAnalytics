@@ -102,34 +102,7 @@ namespace GoalSetting.Data
             double milliSeconds = activities.Where(a => a.Activity.Equals(activity)).Sum(a => a.Duration.TotalMilliseconds);
             return TimeSpan.FromMilliseconds(milliSeconds);
         }
-
-        internal static bool SuccessRule(Rule rule, double value)
-        {
-            var target = double.Parse(rule.TargetValue);
-            switch (rule.Operator)
-            {
-                case RuleOperator.Equal:
-                    return value == target;
-
-                case RuleOperator.NotEqual:
-                    return value != target;
-
-                case RuleOperator.GreaterThan:
-                    return value > target;
-
-                case RuleOperator.GreaterThanOrEqual:
-                    return value >= target;
-
-                case RuleOperator.LessThan:
-                    return value < target;
-
-                case RuleOperator.LessThanOrEqual:
-                    return value <= target;
-
-                default:
-                    throw new ArgumentException(rule.Operator + " not known!");
-            }
-        }
+        
     }
 
 }

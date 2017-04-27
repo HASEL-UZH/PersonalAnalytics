@@ -61,7 +61,7 @@ namespace GoalSetting.Visualizers.Week
             html += ".data(gridData)";
             html += ".enter().append('g')";
             html += ".attr('class', 'row');";
-
+            
             html += "var column = row.selectAll('.square')";
             html += ".data(function(d) { return d; })";
             html += ".enter().append('rect')";
@@ -239,19 +239,34 @@ namespace GoalSetting.Visualizers.Week
             
             if (activities.Count < 1)
             {
-                return Tuple.Create<string, bool>("0", true);
+                return Tuple.Create<string, bool>("0", IsSuccess(0, _goal.Rule.Operator, _goal.Progress.Target));
             }
 
             switch (_goal.Rule.Goal)
             {
                 case RuleGoal.NumberOfSwitchesTo:
                     int numberOfSwitches = DataHelper.GetNumberOfSwitchesToActivity(activities, _goal.Activity);
-                    return Tuple.Create<string, bool>("" + numberOfSwitches, DataHelper.SuccessRule(_goal.Rule, numberOfSwitches));
+                    return Tuple.Create<string, bool>("" + numberOfSwitches, IsSuccess(numberOfSwitches, _goal.Rule.Operator, double.Parse(_goal.Rule.TargetValue)));
                 case RuleGoal.TimeSpentOn:
                     double timeSpentOn = DataHelper.GetTotalTimeSpentOnActivity(activities, _goal.Activity).TotalMilliseconds;
-                    return Tuple.Create<string, bool>(DataHelper.GetTotalTimeSpentOnActivity(activities, _goal.Activity).TotalMinutes.ToString("N0"), DataHelper.SuccessRule(_goal.Rule, timeSpentOn));
+                    return Tuple.Create<string, bool>(DataHelper.GetTotalTimeSpentOnActivity(activities, _goal.Activity).TotalMinutes.ToString("N0"), IsSuccess((int) timeSpentOn, _goal.Rule.Operator, double.Parse(_goal.Rule.TargetValue)));
             }
             return Tuple.Create<string, bool>("", false);
+        }
+
+        private bool IsSuccess(int value, RuleOperator op, double target)
+        {
+            switch (op)
+            {
+                case RuleOperator.Equal:
+                    return value == target;
+                case RuleOperator.GreaterThan:
+                    return value > target;
+                case RuleOperator.LessThan:
+                    return value < target;
+                default:
+                    throw new ArgumentException(op + " not known!");
+            }
         }
     }
 }

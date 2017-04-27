@@ -19,6 +19,9 @@ namespace GoalSetting.Visualizers.Day
     {
         public DayVisualizationForHourlyGoals(DateTimeOffset date, GoalActivity goal) : base(date, goal) { }
 
+        int numberSuccess = 0;
+        int numberTries = 0;
+
         public override string GetHtml()
         {
 
@@ -36,6 +39,8 @@ namespace GoalSetting.Visualizers.Day
 
             var targetActivity = _goal.Activity;
 
+            var dataStringJS = GenerateData(activities, targetActivity, startOfWork, endOfWork);
+
             // CSS
             html += "<style type='text/css'>";
             html += ".c3-line { stroke-width: 2px; }";
@@ -45,12 +50,12 @@ namespace GoalSetting.Visualizers.Day
 
             //HTML
             html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "' style='align: center'></div>";
-            html += "<p style='text-align: center; font-size: 0.66em;'>" + _goal.GetProgressMessage() + "</p>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>You achieved your goal in " + numberSuccess + " of " + numberTries + " (" + (numberSuccess / numberTries * 100.0).ToString("N2") + "%) cases.</p>";
 
             //JS
             html += "<script>";
 
-            var dataPoints = GenerateData(activities, targetActivity, startOfWork, endOfWork);
+            var dataPoints = dataStringJS;
             html += GenerateJSData(dataPoints);
 
             if (_goal.Rule.Goal == RuleGoal.TimeSpentOn)
@@ -70,13 +75,32 @@ namespace GoalSetting.Visualizers.Day
             
                     var y = d3.scale.linear().rangeRound([height, 0]);";
 
+            string color1 = string.Empty;
+            string color2 = string.Empty;
+            
+            switch (_goal.Rule.Operator)
+            {
+                case RuleOperator.Equal:
+                    color1 = GoalVisHelper.GetVeryLowColor();
+                    color2 = GoalVisHelper.GetVeryLowColor();
+                    break;
+                case RuleOperator.LessThan:
+                    color1 = GoalVisHelper.GetVeryHighColor();
+                    color2 = GoalVisHelper.GetVeryLowColor();
+                    break;
+                case RuleOperator.GreaterThan:
+                    color1 = GoalVisHelper.GetVeryLowColor();
+                    color2 = GoalVisHelper.GetVeryHighColor();
+                    break;
+            }
+            
             if (_goal.Rule.Goal == RuleGoal.TimeSpentOn)
             {
-                html += "var color = d3.scale.ordinal().domain(['belowLimitTime', 'aboveLimitTime']).range(['" + GoalVisHelper.GetVeryHighColor() + "', '" + GoalVisHelper.GetVeryLowColor() + "']);";
+                html += "var color = d3.scale.ordinal().domain(['belowLimitTime', 'aboveLimitTime']).range(['" + color1 + "', '" + color2 + "']);";
             }
             else
             {
-                html += "var color = d3.scale.ordinal().domain(['belowLimitSwitches', 'aboveLimitSwitches']).range(['" + GoalVisHelper.GetVeryHighColor() + "', '" + GoalVisHelper.GetVeryLowColor() + "']);";
+                html += "var color = d3.scale.ordinal().domain(['belowLimitSwitches', 'aboveLimitSwitches']).range(['" + color1 + "', '" + color2 + "']);";
             }
 
             html += @"var xAxis = d3.svg.axis().scale(x).orient('bottom');
@@ -172,7 +196,9 @@ namespace GoalSetting.Visualizers.Day
             //Iterate over each hour
             while (endDate.Hour != startDate.Hour)
             {
-                var hourActivities = activities.Where(a => a.Start.Hour == startDate.Hour).ToList();
+                numberTries++;
+
+                var hourActivities = activities.Where(a => a.Start.Hour == startDate.Hour || a.End.Value.Hour == startDate.Hour || ( (a.Start.Hour < startDate.Hour) && (a.End.Value.Hour > startDate.Hour) ) ).ToList();
 
                 var switches = 0;
                 var timeSpent = TimeSpan.FromMinutes(0);
@@ -180,15 +206,22 @@ namespace GoalSetting.Visualizers.Day
                 {
                     switches += 1;
 
-                    if (activity.End.Value.Hour == start.Hour)
-                    {
-                        var durationInThisHour = startDate.AddHours(1).Subtract(activity.Start);
-                        activity.Start = activity.Start.AddHours(1);
-                        timeSpent += durationInThisHour;
-                    }
-                    else if (activity.End.Value.Hour > start.Hour)
+                    if (activity.End.Value.Hour == startDate.Hour && activity.Start.Hour == startDate.Hour)
                     {
                         timeSpent += activity.Duration;
+                    }
+                    else if (activity.End.Value.Hour == startDate.Hour && activity.Start.Hour < startDate.Hour)
+                    {
+                        timeSpent += TimeSpan.FromMinutes(activity.End.Value.Minute);
+                    }
+                    else if (activity.End.Value.Hour > startDate.Hour && activity.Start.Hour == startDate.Hour)
+                    {
+                        timeSpent += TimeSpan.FromMinutes(60 - activity.Start.Minute);
+                    }
+                    else if (activity.End.Value.Hour > startDate.Hour && activity.Start.Hour < startDate.Hour)
+                    {
+                        timeSpent += TimeSpan.FromHours(1);
+                        switches -= 1;
                     }
                 }
                 
@@ -202,6 +235,22 @@ namespace GoalSetting.Visualizers.Day
                 var switchesAboveLimit = switches > switchLimit ? switches - switchLimit : 0;
                 
                 dataPoints.Add(new TimelineDataPoint { Start = new DateTime(startDate.Year, startDate.Month, startDate.Day, startDate.Hour, 0, 0, 0), End = new DateTime(startDate.Year, startDate.Month, startDate.Day, startDate.Hour, 59, 59, 999), TotalSwitches = switches, TotalTime = timeSpent, BelowLimitTime = timeBelowLimit, AboveLimitTime = timeOverLimit, AboveLimitSwitches = switchesAboveLimit, BelowLimitSwitches = switchesBelowLimit });
+                
+                var actual = _goal.Rule.Goal == RuleGoal.NumberOfSwitchesTo ? switches : timeSpent.TotalMilliseconds;
+                var target = double.Parse(_goal.Rule.TargetValue);
+
+                if (_goal.Rule.Operator == RuleOperator.Equal && actual == target)
+                {
+                    numberSuccess++;
+                }
+                if (_goal.Rule.Operator == RuleOperator.GreaterThan && actual > target)
+                {
+                    numberSuccess++;
+                }
+                if (_goal.Rule.Operator == RuleOperator.LessThan && actual < target)
+                {
+                    numberSuccess++;
+                }
 
                 startDate = startDate.AddHours(1);
             }

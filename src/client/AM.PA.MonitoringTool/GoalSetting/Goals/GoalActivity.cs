@@ -70,23 +70,24 @@ namespace GoalSetting.Goals
         /// <returns></returns>
         public override string GetProgressMessage()
         {
+            CalculateProgressStatus(false);
 
             if (Progress.Success.HasValue && Progress.Success.Value)
             {
                 if (Rule.Goal == RuleGoal.NumberOfSwitchesTo)
                 {
-                    return "Congratulations, you reached your goal! You switched " + Progress.Actual + " times to this activity.";
+                    return "You're on a good track to reach your goal! You switched " + Progress.Actual + " times to this activity so far.";
                 }
                 else if (Rule.Goal == RuleGoal.TimeSpentOn)
                 {
-                    return "Congratulations, you reached your goal! You spent " + Progress.Actual + " hours on this activity.";
+                    return "You're on a good track to reach your goal! You spent " + Progress.Actual + " hours on this activity so far.";
                 }
             }
             else if (IsStillReachable())
             {
                 if (Rule.Goal == RuleGoal.NumberOfSwitchesTo)
                 {
-                    return "You have not yet reached your goal. However, you cann still reach it. You switched to this activity " + Progress.Actual + " of " + Progress.Target + " times.";
+                    return "You have not yet reached your goal. However, you can still reach it. You switched to this activity " + Progress.Actual + " of " + Progress.Target + " times.";
                 }
                 else if (Rule.Goal == RuleGoal.TimeSpentOn)
                 {
@@ -97,11 +98,31 @@ namespace GoalSetting.Goals
             {
                 if (Rule.Goal == RuleGoal.NumberOfSwitchesTo)
                 {
-                    return "Unfortunately, you missed your goal this time. You switched " + Math.Abs(Progress.Actual - Progress.Target) + " (+" + (Progress.Actual / Progress.Target * 100).ToString("N0") + "%) more than your goal.";
+                    switch (Rule.Operator)
+                    {
+                        case RuleOperator.Equal:
+                            return "Unfortunately, you missed your goal this time. You switched " + Progress.Actual + " times while you wanted to switch " + Progress.Target + " times.";
+
+                        case RuleOperator.GreaterThan:
+                            return "Unfortunately, you missed your goal this time. You switched " + (Progress.Target - Progress.Actual) + " (+" + ( (Progress.Target - Progress.Actual) / Progress.Target * 100).ToString("N0") + "%) less than your goal.";
+
+                        case RuleOperator.LessThan:
+                            return "Unfortunately, you missed your goal this time. You switched " + (Progress.Actual - Progress.Target) + " (+" + (Progress.Actual / Progress.Target * 100).ToString("N0") + "%) more than your goal.";
+                    }
                 }
                 else if (Rule.Goal == RuleGoal.TimeSpentOn)
                 {
-                    return "Unfortunately, you missed your goal this time. You spent " + Math.Abs(Progress.Actual - Progress.Target).ToString("N2") + " (+" + (Progress.Actual / Progress.Target * 100).ToString("N0") + "%) hours more than your goal on this activity.";
+                    switch (Rule.Operator)
+                    {
+                        case RuleOperator.Equal:
+                            return "Unfortunately, you missed your goal this time. You spent " + Progress.Actual.ToString("N2") + " hours on this activity while you wanted to spend " + Progress.Target.ToString("N2") + " hours.";
+
+                        case RuleOperator.GreaterThan:
+                            return "Unfortunately, you missed your goal this time. You spent " + (Progress.Target - Progress.Actual).ToString("N2") + " (+" + ( (Progress.Target - Progress.Actual) / Progress.Target * 100).ToString("N0") + "%) hours less than your goal on this activity.";
+
+                        case RuleOperator.LessThan:
+                            return "Unfortunately, you missed your goal this time. You spent " + (Progress.Actual - Progress.Target).ToString("N2") + " (+" + (Progress.Actual / Progress.Target * 100).ToString("N0") + "%) hours more than your goal on this activity.";
+                    }
                 }
             }
             return "Unknown progress towards this goal";
@@ -143,7 +164,7 @@ namespace GoalSetting.Goals
             Progress.Target = target;
             double percentage = actual / target;
 
-            if (Rule.Operator == RuleOperator.GreaterThan || Rule.Operator == RuleOperator.GreaterThanOrEqual)
+            if (Rule.Operator == RuleOperator.GreaterThan)
             {
                 if (percentage < 0.3)
                 {
@@ -167,7 +188,7 @@ namespace GoalSetting.Goals
                 }
 
             }
-            else if (Rule.Operator == RuleOperator.LessThan || Rule.Operator == RuleOperator.LessThanOrEqual)
+            else if (Rule.Operator == RuleOperator.LessThan)
             {
                 if (percentage < 0.9)
                 {
@@ -232,16 +253,67 @@ namespace GoalSetting.Goals
             switch (Rule.Operator)
             {
                 case RuleOperator.Equal:
-                case RuleOperator.NotEqual:
+                    return Progress.Target > Progress.Actual;
                 case RuleOperator.GreaterThan:
-                case RuleOperator.GreaterThanOrEqual:
                     return Progress.Target <= Progress.Actual;
                 case RuleOperator.LessThan:
-                case RuleOperator.LessThanOrEqual:
                     return Progress.Target > Progress.Actual;
                 default:
                     throw new ArgumentException(Rule.Operator + " not known!");
             }
+        }
+
+        /// <summary>
+        /// <inheritdoc />
+        /// </summary>
+        /// <returns></returns>
+        public override string GetAchievementMessage()
+        {
+            CalculateProgressStatus(false);
+
+            if (Progress.Success.HasValue && Progress.Success.Value)
+            {
+                if (Rule.Goal == RuleGoal.NumberOfSwitchesTo)
+                {
+                    return "Congratulations, you reached your goal! You switched " + Progress.Actual + " times to this activity.";
+                }
+                else if (Rule.Goal == RuleGoal.TimeSpentOn)
+                {
+                    return "Congratulations, you reached your goal! You spent " + Progress.Actual + " hours on this activity.";
+                }
+            }
+            else
+            {
+                if (Rule.Goal == RuleGoal.NumberOfSwitchesTo)
+                {
+                    switch (Rule.Operator)
+                    {
+                        case RuleOperator.Equal:
+                            return "Unfortunately, you missed your goal this time. You switched " + Progress.Actual + " times while you wanted to switch " + Progress.Target + " times.";
+
+                        case RuleOperator.GreaterThan:
+                            return "Unfortunately, you missed your goal this time. You switched " + (Progress.Target - Progress.Actual) + " (+" + ((Progress.Target - Progress.Actual) / Progress.Target * 100).ToString("N0") + "%) less than your goal.";
+
+                        case RuleOperator.LessThan:
+                            return "Unfortunately, you missed your goal this time. You switched " + (Progress.Actual - Progress.Target) + " (+" + (Progress.Actual / Progress.Target * 100).ToString("N0") + "%) more than your goal.";
+                    }
+                }
+                else if (Rule.Goal == RuleGoal.TimeSpentOn)
+                {
+                    switch (Rule.Operator)
+                    {
+                        case RuleOperator.Equal:
+                            return "Unfortunately, you missed your goal this time. You spent " + Progress.Actual.ToString("N2") + " hours on this activity while you wanted to spend " + Progress.Target.ToString("N2") + " hours.";
+
+                        case RuleOperator.GreaterThan:
+                            return "Unfortunately, you missed your goal this time. You spent " + (Progress.Target - Progress.Actual).ToString("N2") + " (+" + ((Progress.Target - Progress.Actual) / Progress.Target * 100).ToString("N0") + "%) hours less than your goal on this activity.";
+
+                        case RuleOperator.LessThan:
+                            return "Unfortunately, you missed your goal this time. You spent " + (Progress.Actual - Progress.Target).ToString("N2") + " (+" + (Progress.Actual / Progress.Target * 100).ToString("N0") + "%) hours more than your goal on this activity.";
+                    }
+                }
+            }
+            return "Unknown progress towards this goal";
         }
     }
 }

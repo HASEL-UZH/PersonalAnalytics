@@ -71,6 +71,12 @@ namespace GoalSetting.Goals
         public abstract string GetProgressMessage();
 
         /// <summary>
+        /// Returns a message that describes whether a user has reached the goal in the past.
+        /// </summary>
+        /// <returns></returns>
+        public abstract string GetAchievementMessage();
+
+        /// <summary>
         /// Indicates whether an user can still reach this goal.
         /// </summary>
         /// <returns></returns>
