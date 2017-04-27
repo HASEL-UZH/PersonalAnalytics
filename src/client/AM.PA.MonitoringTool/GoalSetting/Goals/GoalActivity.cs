@@ -255,7 +255,7 @@ namespace GoalSetting.Goals
                 case RuleOperator.Equal:
                     return Progress.Target > Progress.Actual;
                 case RuleOperator.GreaterThan:
-                    return Progress.Target <= Progress.Actual;
+                    return true;
                 case RuleOperator.LessThan:
                     return Progress.Target > Progress.Actual;
                 default:
