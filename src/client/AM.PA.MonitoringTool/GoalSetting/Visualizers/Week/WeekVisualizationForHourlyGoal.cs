@@ -163,22 +163,41 @@ namespace GoalSetting.Visualizers.Week
                         var dateToCheckEnd = dateToCheck.AddMinutes(59);
                         dateToCheckEnd = dateToCheckEnd.AddSeconds(59);
 
-                        if (dateToCheck > DateTime.Now)
+                        if (_goal.TimeSpan == RuleTimeSpan.Afternoon)
                         {
-                            newValue = "";
-                            hasValue = false;
+                            if (dateToCheck > DateTime.Now || dateToCheck.Hour < 13)
+                            {
+                                newValue = "";
+                                hasValue = false;
+                            }
+                            else
+                            {
+                                CalculateValue(out newValue, out success, out hasValue, dateToCheck, dateToCheckEnd);
+                            }
+                        }
+                        else if (_goal.TimeSpan == RuleTimeSpan.Morning)
+                        {
+                            if (dateToCheck > DateTime.Now || dateToCheck.Hour > 13)
+                            {
+                                newValue = "";
+                                hasValue = false;
+                            }
+                            else
+                            {
+                                CalculateValue(out newValue, out success, out hasValue, dateToCheck, dateToCheckEnd);
+                            }
                         }
                         else
                         {
-                            numberTries++;
-                            Tuple<string, bool> values = GetValue(dateToCheck, dateToCheckEnd);
-                            newValue = values.Item1;
-                            success = values.Item2;
-                            if (success)
+                            if (dateToCheck > DateTime.Now)
                             {
-                                numberSuccess++;
+                                newValue = "";
+                                hasValue = false;
                             }
-                            hasValue = true;
+                            else
+                            {
+                                CalculateValue(out newValue, out success, out hasValue, dateToCheck, dateToCheckEnd);
+                            }
                         }
                     }
 
@@ -205,6 +224,19 @@ namespace GoalSetting.Visualizers.Week
             html += "];";
             
             return html;
+        }
+
+        private void CalculateValue(out string newValue, out bool success, out bool hasValue, DateTimeOffset dateToCheck, DateTimeOffset dateToCheckEnd)
+        {
+            numberTries++;
+            Tuple<string, bool> values = GetValue(dateToCheck, dateToCheckEnd);
+            newValue = values.Item1;
+            success = values.Item2;
+            if (success)
+            {
+                numberSuccess++;
+            }
+            hasValue = true;
         }
 
         private Tuple<string, bool> GetValue(DateTimeOffset start, DateTimeOffset end)
