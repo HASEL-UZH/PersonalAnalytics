@@ -64,34 +64,7 @@ namespace GoalSetting.Visualizers.Week
             //Prepare axis
             html += "var xAxis = d3.svg.axis().scale(x).orient('bottom').tickFormat(d3.time.format('%a (%H:%M)')).ticks(4);";
             html += "var yAxisLeft = d3.svg.axis().scale(y0).orient('left').ticks(5);";
-
-            string color1 = string.Empty;
-            string color2 = string.Empty;
-            string pattern1 = string.Empty;
-            string pattern2 = string.Empty;
-
-            switch (_goal.Rule.Operator)
-            {
-                case RuleOperator.Equal:
-                    color1 = GoalVisHelper.GetVeryLowColor();
-                    color2 = GoalVisHelper.GetVeryLowColor();
-                    pattern1 = "#error-pattern";
-                    pattern2 = "#error-pattern";
-                    break;
-                case RuleOperator.LessThan:
-                    color1 = GoalVisHelper.GetVeryHighColor();
-                    color2 = GoalVisHelper.GetVeryLowColor();
-                    pattern1 = "#success-pattern";
-                    pattern2 = "#error-pattern";
-                    break;
-                case RuleOperator.GreaterThan:
-                    color1 = GoalVisHelper.GetVeryLowColor();
-                    color2 = GoalVisHelper.GetVeryHighColor();
-                    pattern1 = "#error-pattern";
-                    pattern2 = "#success-pattern";
-                    break;
-            }
-
+            
             //Prepare lines
             if (_goal.Rule.Goal == RuleGoal.TimeSpentOn)
             {
@@ -134,8 +107,8 @@ namespace GoalSetting.Visualizers.Week
             }
 
             //Draw lines and axes
-            html += "svg.append('path').style('stroke', '" + color1 + "').attr('d', valueLine1(data)).attr('fill', 'none').attr('stroke-width', '3');";
-            html += "svg.append('path').style('stroke', '" + color2 + "').attr('d', valueLine1(data.filter(function(d) {return " + GoalVisHelper.GetDataPointName(_goal, VisType.Day) + " >= limit;}))).attr('fill', 'none').attr('stroke-width', '3');";
+            html += "svg.append('path').style('stroke', '" + Color1 + "').attr('d', valueLine1(data)).attr('fill', 'none').attr('stroke-width', '3');";
+            html += "svg.append('path').style('stroke', '" + Color2 + "').attr('d', valueLine1(data.filter(function(d) {return " + GoalVisHelper.GetDataPointName(_goal, VisType.Day) + " >= limit;}))).attr('fill', 'none').attr('stroke-width', '3');";
             html += "xAxisYPosition = height;";
             html += "svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + xAxisYPosition + ')').call(xAxis);";
             html += "svg.append('g').attr('class', 'y axis').style('fill', 'black').call(yAxisLeft);";
@@ -152,7 +125,7 @@ namespace GoalSetting.Visualizers.Week
             html += ".enter()";
             html += ".append('rect')";
             html += ".attr({'x':function(d) {return x(d.start);},'y':function(d){ return y0(" + GoalVisHelper.GetDataPointName(_goal, VisType.Day) + "); } })";
-            html += ".style('fill', 'url(" + pattern1 + ")')";
+            html += ".style('fill', 'url(" + Pattern1 + ")')";
             html += ".attr('height', function(d) {return xAxisYPosition - y0(" + GoalVisHelper.GetDataPointName(_goal, VisType.Day) + ");})";
             html += ".attr('width', function(d){ return x(d.end) - x(d.start); });";
 
@@ -163,7 +136,7 @@ namespace GoalSetting.Visualizers.Week
             html += ".enter()";
             html += ".append('rect')";
             html += ".attr({'x':function(d) {return x(d.start);},'y':function(d){ return y0(" + GoalVisHelper.GetDataPointName(_goal, VisType.Day) + "); } })";
-            html += ".style('fill', 'url(" + pattern2 + ")')";
+            html += ".style('fill', 'url(" + Pattern2 + ")')";
             html += ".attr('height', function(d) {return xAxisYPosition - y0(" + GoalVisHelper.GetDataPointName(_goal, VisType.Day) + ");})";
             html += ".attr('width', function(d){ return x(d.end) - x(d.start); });";
 

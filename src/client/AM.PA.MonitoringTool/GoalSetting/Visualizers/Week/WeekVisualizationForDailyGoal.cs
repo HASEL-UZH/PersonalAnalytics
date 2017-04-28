@@ -69,33 +69,14 @@ namespace GoalSetting.Visualizers.Week
                     var y = d3.scale.linear().rangeRound([height, 0]);";
 
             html += "var limit = " + GoalVisHelper.GetLimitValue(_goal, VisType.Week) + ";";
-
-            string color1 = string.Empty;
-            string color2 = string.Empty;
-
-            switch (_goal.Rule.Operator)
-            {
-                case RuleOperator.Equal:
-                    color1 = GoalVisHelper.GetVeryLowColor();
-                    color2 = GoalVisHelper.GetVeryLowColor();
-                    break;
-                case RuleOperator.LessThan:
-                    color1 = GoalVisHelper.GetVeryHighColor();
-                    color2 = GoalVisHelper.GetVeryLowColor();
-                    break;
-                case RuleOperator.GreaterThan:
-                    color1 = GoalVisHelper.GetVeryLowColor();
-                    color2 = GoalVisHelper.GetVeryHighColor();
-                    break;
-            }
-
+            
             if (_goal.Rule.Goal == RuleGoal.TimeSpentOn)
             {
-                html += "var color = d3.scale.ordinal().domain(['belowLimitTime', 'aboveLimitTime']).range(['" + color1 + "', '" + color2 + "']);";
+                html += "var color = d3.scale.ordinal().domain(['belowLimitTime', 'aboveLimitTime']).range(['" + Color1 + "', '" + Color2 + "']);";
             }
             else
             {
-                html += "var color = d3.scale.ordinal().domain(['belowLimitSwitches', 'aboveLimitSwitches']).range(['" + color1 + "', '" + color2 + "']);";
+                html += "var color = d3.scale.ordinal().domain(['belowLimitSwitches', 'aboveLimitSwitches']).range(['" + Color1 + "', '" + Color2 + "']);";
             }
 
             html += @"var xAxis = d3.svg.axis().scale(x).orient('bottom');
