@@ -22,8 +22,14 @@ namespace GoalSetting.Visualizers.Day
         public override string GetHtml()
         {
             var html = string.Empty;
-            var startOfWork = Database.GetInstance().GetUserWorkStart(DateTime.Now.Date);
-            var endOfWork = DateTime.Now;
+            var startOfWork = Database.GetInstance().GetUserWorkStart(_date);
+            var endOfWork = Database.GetInstance().GetUserWorkEnd(_date);
+
+            if (_date.DateTime == DateTime.Today)
+            {
+                endOfWork = DateTime.Now;
+            }
+
             if (_goal.TimeSpan == RuleTimeSpan.Morning)
             {
                 endOfWork = new DateTime(endOfWork.Year, endOfWork.Month, endOfWork.Day, 11, 0, 0, 0);
@@ -207,12 +213,15 @@ namespace GoalSetting.Visualizers.Day
                 }
 
             }
-            
+
             //if we have actual data points, add 1 more datapoint at the end of the list with the current data to ensure that the line is drawn until now.
             if (dataPoints.Count > 0)
             {
-                dataPoints.Insert(0, new TimelineDataPoint { Start = start, End = start, SumSwitches = 0, SumTime = TimeSpan.FromTicks(9) });
-                dataPoints.Add(new TimelineDataPoint { Start = DateTime.Now, End = DateTime.Now, SumTime = sumTime, SumSwitches = sumSwitches });
+                if (_date.DateTime == DateTime.Today)
+                {
+                    dataPoints.Insert(0, new TimelineDataPoint { Start = start, End = start, SumSwitches = 0, SumTime = TimeSpan.FromTicks(9) });
+                    dataPoints.Add(new TimelineDataPoint { Start = DateTime.Now, End = DateTime.Now, SumTime = sumTime, SumSwitches = sumSwitches });
+                }
             }
 
             return dataPoints;

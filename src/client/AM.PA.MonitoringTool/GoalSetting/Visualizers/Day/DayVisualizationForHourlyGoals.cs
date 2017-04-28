@@ -26,8 +26,13 @@ namespace GoalSetting.Visualizers.Day
         {
 
             var html = string.Empty;
-            var startOfWork = Database.GetInstance().GetUserWorkStart(DateTime.Now.Date);
-            var endOfWork = DateTime.Now;
+            var startOfWork = Database.GetInstance().GetUserWorkStart(_date);
+            var endOfWork = Database.GetInstance().GetUserWorkEnd(_date);
+
+            if (_date.DateTime == DateTime.Today)
+            {
+                endOfWork = DateTime.Now;
+            }
 
             if (endOfWork.Subtract(startOfWork).TotalMinutes <= 30)
             {
