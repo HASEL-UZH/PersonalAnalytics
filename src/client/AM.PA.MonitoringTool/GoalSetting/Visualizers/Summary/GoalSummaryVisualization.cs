@@ -67,7 +67,7 @@ namespace GoalSetting.Visualizers.Summary
             html += "var margin = {top: 5, right: 40, bottom: 20, left: 120}, totalWidth = (actualWidth * 0.97)- margin.left - margin.right, totalHeight = (actualHeight * 0.73) - margin.top - margin.bottom;";
 
             //Add scroll bar if the visualization is too long
-            html += "document.getElementById('" + VisHelper.CreateChartHtmlTitle(Title) + "').parentNode.style['overflow-y'] = 'scroll';";
+            html += "document.getElementById('" + VisHelper.CreateChartHtmlTitle(Title) + "').parentNode.style['overflow-y'] = 'auto';";
 
             html += "width = totalWidth,";
             //height of each bullet chart
