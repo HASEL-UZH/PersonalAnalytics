@@ -113,7 +113,7 @@ namespace GoalSetting.Goals
 
             if (Progress.Success.HasValue && Progress.Success.Value)
             {
-                return "You're on a good track to reach your goal. You currently have " + Progress.Actual + " emails in your inbox.";
+                return "You're on a good track to reach your goal. You currently have " + Progress.Actual.ToString("N0") + " emails in your inbox.";
             }
             else if (IsStillReachable())
             {
@@ -142,7 +142,7 @@ namespace GoalSetting.Goals
 
             if (Progress.Success.HasValue && Progress.Success.Value)
             {
-                return "Congratulations, you reached your goal! You have " + Progress.Actual + " emails in your inbox.";
+                return "Congratulations, you reached your goal! You have " + Progress.Actual.ToString("N0") + " emails in your inbox.";
             }
             else
             {

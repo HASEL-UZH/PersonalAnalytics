@@ -76,22 +76,22 @@ namespace GoalSetting.Goals
             {
                 if (Rule.Goal == RuleGoal.NumberOfSwitchesTo)
                 {
-                    return "You're on a good track to reach your goal! You switched " + Progress.Actual + " times to this activity so far.";
+                    return "You're on a good track to reach your goal! You switched " + Progress.Actual.ToString("N0") + " times to this activity so far.";
                 }
                 else if (Rule.Goal == RuleGoal.TimeSpentOn)
                 {
-                    return "You're on a good track to reach your goal! You spent " + Progress.Actual + " hours on this activity so far.";
+                    return "You're on a good track to reach your goal! You spent " + Progress.Actual.ToString("N2") + " hours on this activity so far.";
                 }
             }
             else if (IsStillReachable())
             {
                 if (Rule.Goal == RuleGoal.NumberOfSwitchesTo)
                 {
-                    return "You have not yet reached your goal. However, you can still reach it. You switched to this activity " + Progress.Actual + " of " + Progress.Target + " times.";
+                    return "You have not yet reached your goal. However, you can still reach it. You switched to this activity " + Progress.Actual.ToString("N0") + " of " + Progress.Target.ToString("N0") + " times.";
                 }
                 else if (Rule.Goal == RuleGoal.TimeSpentOn)
                 {
-                    return "You have not yet reached your goal. However, you can still reach it. You spent " + Progress.Actual + " of " + Progress.Target + " hours and this activity.";
+                    return "You have not yet reached your goal. However, you can still reach it. You spent " + Progress.Actual.ToString("N2") + " of " + Progress.Target.ToString("N2") + " hours and this activity.";
                 }
             }
             else
@@ -101,13 +101,13 @@ namespace GoalSetting.Goals
                     switch (Rule.Operator)
                     {
                         case RuleOperator.Equal:
-                            return "Unfortunately, you missed your goal this time. You switched " + Progress.Actual + " times while you wanted to switch " + Progress.Target + " times.";
+                            return "Unfortunately, you missed your goal this time. You switched " + Progress.Actual.ToString("N0") + " times while you wanted to switch " + Progress.Target.ToString("N0") + " times.";
 
                         case RuleOperator.GreaterThan:
-                            return "Unfortunately, you missed your goal this time. You switched " + (Progress.Target - Progress.Actual) + " (+" + ( (Progress.Target - Progress.Actual) / Progress.Target * 100).ToString("N0") + "%) less than your goal.";
+                            return "Unfortunately, you missed your goal this time. You switched " + (Progress.Target - Progress.Actual).ToString("N0") + " (+" + ( (Progress.Target - Progress.Actual) / Progress.Target * 100).ToString("N0") + "%) less than your goal.";
 
                         case RuleOperator.LessThan:
-                            return "Unfortunately, you missed your goal this time. You switched " + (Progress.Actual - Progress.Target) + " (+" + (Progress.Actual / Progress.Target * 100).ToString("N0") + "%) more than your goal.";
+                            return "Unfortunately, you missed your goal this time. You switched " + (Progress.Actual - Progress.Target).ToString("N0") + " (+" + (Progress.Actual / Progress.Target * 100).ToString("N0") + "%) more than your goal.";
                     }
                 }
                 else if (Rule.Goal == RuleGoal.TimeSpentOn)
@@ -275,11 +275,11 @@ namespace GoalSetting.Goals
             {
                 if (Rule.Goal == RuleGoal.NumberOfSwitchesTo)
                 {
-                    return "Congratulations, you reached your goal! You switched " + Progress.Actual + " times to this activity.";
+                    return "Congratulations, you reached your goal! You switched " + Progress.Actual.ToString("N0") + " times to this activity.";
                 }
                 else if (Rule.Goal == RuleGoal.TimeSpentOn)
                 {
-                    return "Congratulations, you reached your goal! You spent " + Progress.Actual + " hours on this activity.";
+                    return "Congratulations, you reached your goal! You spent " + Progress.Actual.ToString("N2") + " hours on this activity.";
                 }
             }
             else
@@ -289,13 +289,13 @@ namespace GoalSetting.Goals
                     switch (Rule.Operator)
                     {
                         case RuleOperator.Equal:
-                            return "Unfortunately, you missed your goal this time. You switched " + Progress.Actual + " times while you wanted to switch " + Progress.Target + " times.";
+                            return "Unfortunately, you missed your goal this time. You switched " + Progress.Actual.ToString("N0") + " times while you wanted to switch " + Progress.Target.ToString("N0") + " times.";
 
                         case RuleOperator.GreaterThan:
-                            return "Unfortunately, you missed your goal this time. You switched " + (Progress.Target - Progress.Actual) + " (+" + ((Progress.Target - Progress.Actual) / Progress.Target * 100).ToString("N0") + "%) less than your goal.";
+                            return "Unfortunately, you missed your goal this time. You switched " + (Progress.Target - Progress.Actual).ToString("N0") + " (+" + ((Progress.Target - Progress.Actual) / Progress.Target * 100).ToString("N0") + "%) less than your goal.";
 
                         case RuleOperator.LessThan:
-                            return "Unfortunately, you missed your goal this time. You switched " + (Progress.Actual - Progress.Target) + " (+" + (Progress.Actual / Progress.Target * 100).ToString("N0") + "%) more than your goal.";
+                            return "Unfortunately, you missed your goal this time. You switched " + (Progress.Actual - Progress.Target).ToString("N0") + " (+" + (Progress.Actual / Progress.Target * 100).ToString("N0") + "%) more than your goal.";
                     }
                 }
                 else if (Rule.Goal == RuleGoal.TimeSpentOn)
