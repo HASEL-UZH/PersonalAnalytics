@@ -13,14 +13,34 @@ namespace GoalSetting.Visualizers.Summary
 {
     public class GoalSummaryVisualization : PAVisualization
     {
-        public GoalSummaryVisualization(DateTimeOffset date) : base(date) {
-            Title = "Goal Summary";
-            Order = -10;
+        ObservableCollection<Goal> goals;
+        string dataHTMLString;
+        string summaryMessage;
+
+        public GoalSummaryVisualization(DateTimeOffset date) : base(date)
+        {
+            Order = -100;
+            goals = GoalSettingManager.Instance.GetGoals();
+
+            if (goals.Count == 0)
+            {
+                Title = "Goal Summary";
+            }
+            else
+            {
+                dataHTMLString = GenerateData(goals);
+                int numberUndecided = goals.Where(g => !g.Progress.Success.HasValue).ToList().Count;
+                var decidedGoals = goals.Where(g => g.Progress.Success.HasValue).ToList();
+                int numberMissedGoals = decidedGoals.Where(g => !g.Progress.Success.Value).ToList().Count;
+                int numberAchievedGoals = decidedGoals.Where(g => g.Progress.Success.Value).ToList().Count;
+
+                summaryMessage = "(achieved: " + numberAchievedGoals + ", missed: " + numberMissedGoals + ", undecided: " + numberUndecided + ")";
+                Title = "Goal Summary " + summaryMessage;
+            }
         }
 
         public override string GetHtml()
         {
-            var goals = GoalSettingManager.Instance.GetGoals();
             int numberOfItems = goals.Count;
 
             var html = string.Empty;
@@ -45,16 +65,11 @@ namespace GoalSetting.Visualizers.Summary
             
             html += "</style>";
 
-            var dataHTMLString = GenerateData(goals);
-
-            int numberUndecided = goals.Where(g => !g.Progress.Success.HasValue).ToList().Count;
-            var decidedGoals = goals.Where(g => g.Progress.Success.HasValue).ToList();
-            int numberMissedGoals = decidedGoals.Where(g => !g.Progress.Success.Value).ToList().Count;
-            int numberAchievedGoals = decidedGoals.Where(g => g.Progress.Success.Value).ToList().Count;
             
+
             //HTML
             html += "<div id='" + VisHelper.CreateChartHtmlTitle(Title) + "' style='align: center'></div>";
-            html += "<p style='text-align: center; font-size: 0.66em;'>" + "Goal Summary (achieved: " + numberAchievedGoals + ", missed: " + numberMissedGoals + ", undecided: " + numberUndecided + ")" + "</p>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>" + "Goal Summary " + summaryMessage + "</p>";
 
             //JS
             html += "<script src='bullet.js'></script>";
