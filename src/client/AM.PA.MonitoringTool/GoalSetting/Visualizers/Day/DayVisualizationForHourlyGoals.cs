@@ -108,6 +108,8 @@ namespace GoalSetting.Visualizers.Day
                 html += "var color = d3.scale.ordinal().domain(['belowLimitSwitches', 'aboveLimitSwitches']).range(['" + color1 + "', '" + color2 + "']);";
             }
 
+            html += "var limit = " + GoalVisHelper.GetLimitValue(_goal, VisType.Day) + ";";
+
             html += @"var xAxis = d3.svg.axis().scale(x).orient('bottom');
 
                     var yAxis = d3.svg.axis().scale(y).orient('left');";
@@ -129,8 +131,8 @@ namespace GoalSetting.Visualizers.Day
                         return d.x;
                     }));
 
-                    y.domain([0, d3.max(dataStackLayout[dataStackLayout.length - 1],
-                        function(d) { return d.y0 + d.y;})
+                    y.domain([0, Math.max(d3.max(dataStackLayout[dataStackLayout.length - 1],
+                        function(d) { return d.y0 + d.y;}), limit)
                     ]).nice();
 
                     var layer = svg.selectAll('.stack')

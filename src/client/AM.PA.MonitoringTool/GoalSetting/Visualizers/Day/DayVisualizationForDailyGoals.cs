@@ -135,7 +135,7 @@ namespace GoalSetting.Visualizers.Day
                 html += "x.domain( [d3.min(data, function(d) { return d.start; }) , d3.max(data, function(d) { return d.end; }) ] );";
                 html += "var switchValues = data.map(function(d){return " + GoalVisHelper.GetDataPointName(_goal, VisType.Day) + ";}).filter(function(val) {return val !== null});";
                 html += "var timeValues = data.map(function(o){return o.time;}).filter(function(val) {return val !== null});";
-                html += "y0.domain([0, d3.max(data, function(d) {return Math.max(" + GoalVisHelper.GetDataPointName(_goal, VisType.Day) + ");}) * 1.01]);";
+                html += "y0.domain([0, Math.max(limit, d3.max(data, function(d) {return Math.max(" + GoalVisHelper.GetDataPointName(_goal, VisType.Day) + ");}))]);";
             }
             else
             {

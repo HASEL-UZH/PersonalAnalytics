@@ -34,33 +34,33 @@ namespace GoalSetting.Model
                     {
                         if (time.TotalMinutes == 1)
                         {
-                            _timespan = time.TotalMinutes + " minute";
+                            _timespan = time.TotalMinutes.ToString("N2") + " minute";
                         }
                         else
                         {
-                            _timespan = time.TotalMinutes + " minutes";
+                            _timespan = time.TotalMinutes.ToString("N2") + " minutes";
                         }
                     }
                     else if (time.TotalHours < 24)
                     {
                         if (time.TotalHours == 1)
                         {
-                            _timespan = time.TotalHours + " hour";
+                            _timespan = time.TotalHours.ToString("N2") + " hour";
                         }
                         else
                         {
-                            _timespan = time.TotalHours + " hours";
+                            _timespan = time.TotalHours.ToString("N2") + " hours";
                         }
                     }
                     else
                     {
                         if (time.TotalDays == 1)
                         {
-                            _timespan = time.TotalDays + " day";
+                            _timespan = time.TotalDays.ToString("N2") + " day";
                         }
                         else
                         {
-                            _timespan = time.TotalDays + " days";
+                            _timespan = time.TotalDays.ToString("N2") + " days";
                         }
                     }
                 }

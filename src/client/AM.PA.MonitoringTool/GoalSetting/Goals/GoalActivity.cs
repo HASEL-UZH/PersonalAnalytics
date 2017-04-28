@@ -38,7 +38,7 @@ namespace GoalSetting.Goals
                 case RuleGoal.NumberOfSwitchesTo:
                     str += "I want to switch ";
                     str += FormatStringHelper.GetDescription(Rule.Operator).ToLower() + " ";
-                    str += Rule.TargetValue + " ";
+                    str += double.Parse(Rule.TargetValue).ToString("N2") + " ";
                     str += "times to ";
                     str += FormatStringHelper.GetDescription(Activity) + " ";
                     str += "per " + FormatStringHelper.GetDescription(TimeSpan) + ".";

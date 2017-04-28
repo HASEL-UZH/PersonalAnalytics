@@ -68,6 +68,8 @@ namespace GoalSetting.Visualizers.Week
             
                     var y = d3.scale.linear().rangeRound([height, 0]);";
 
+            html += "var limit = " + GoalVisHelper.GetLimitValue(_goal, VisType.Week) + ";";
+
             string color1 = string.Empty;
             string color2 = string.Empty;
 
@@ -117,8 +119,8 @@ namespace GoalSetting.Visualizers.Week
                         return d.x;
                     }));
 
-                    y.domain([0, d3.max(dataStackLayout[dataStackLayout.length - 1],
-                        function(d) { return d.y0 + d.y;})
+                    y.domain([0, Math.max(d3.max(dataStackLayout[dataStackLayout.length - 1],
+                        function(d) { return d.y0 + d.y;}), limit)
                     ]).nice();
 
                     var layer = svg.selectAll('.stack')
