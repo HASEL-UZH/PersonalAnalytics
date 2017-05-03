@@ -21,7 +21,6 @@ namespace GoalSetting.Visualizers
             IsEnabled = true;
             Size = VisSize.Wide;
             Order = 0;
-            CalculateColorCodes();
         }
 
         public PAVisualization(DateTimeOffset date, GoalActivity goal)
