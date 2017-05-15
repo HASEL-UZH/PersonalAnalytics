@@ -77,7 +77,7 @@ namespace Shared
 
         ////////////////////////////////////////////////////////////
         // contact emails
-        #if PilotMSR
+        #if Pilot_MSR
         public const string EmailAddress1 = "tzimmer@microsoft.com"; // main email address
         public const string EmailAddress2 = "ameyer@ifi.uzh.ch";
         #else

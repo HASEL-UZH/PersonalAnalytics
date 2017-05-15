@@ -149,6 +149,7 @@ namespace Shared.Data
                 var flowLight = FlowLight.Handler.GetInstance();
                 if (flowLight != null)
                 {
+                    dto.FlowLightAvailable = FlowLight.Settings.IsEnabledByDefault;
                     dto.FlowLightEnabled = flowLight.FlowLightEnabled;
                     dto.FlowLightSkypeForBusinessEnabled = flowLight.SkypeForBusinessEnabled;
                     dto.FlowLightAutomaticEnabled = flowLight.AutomaticEnabled;

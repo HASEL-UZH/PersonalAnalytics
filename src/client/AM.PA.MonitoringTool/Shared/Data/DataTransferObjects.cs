@@ -33,6 +33,7 @@ namespace Shared.Data
         public bool? TimeSpentShowProgramsEnabled { get; set; }
         public bool? PolarTrackerEnabled { get; set; }
         public bool? FitbitTrackerEnabled { get; set; }
+        public bool? FlowLightAvailable { get; set; }
         public bool? FlowLightEnabled { get; set; }
         public bool? FlowLightAutomaticEnabled { get; set; }
         public bool? FlowLightDnDEnabled { get; set; }

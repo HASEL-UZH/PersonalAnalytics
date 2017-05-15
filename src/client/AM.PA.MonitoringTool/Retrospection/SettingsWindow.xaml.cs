@@ -49,6 +49,9 @@ namespace Retrospection
             _trackers = trackers;
             TbVersion.Text = "Version: " + version;
             SetDefaultValues(dto);
+
+            // show/hide FlowLight tab depending on availability
+            FlowLightSettingsTab.Visibility = (dto.FlowLightAvailable.HasValue && dto.FlowLightAvailable.Value) ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void SetDefaultValues(SettingsDto dto)

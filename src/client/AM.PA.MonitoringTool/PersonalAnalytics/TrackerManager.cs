@@ -69,15 +69,6 @@ namespace PersonalAnalytics
             Register(new FitbitTracker.Deamon());
             Register(new FlowTracker.Daemon());
 
-#if Dev
-            //Register(new PeopleVisualizer.PeopleVisualizer()); // disabled, as it's not finished and pretty slow
-            //Register(new WindowsContextTracker.Daemon();); // implementation not finished
-
-#elif TestPilot1
-             // if something is only required in the standard deployment
-            
-#endif
-
             return _trackers; // return trackers for retrospection
         }
 
@@ -87,7 +78,9 @@ namespace PersonalAnalytics
         /// </summary>
         public void Start()
         {
-            //GetDllVersions();
+#if Pilot_MSR // TODO: temp, until FlowLight is ready to be distributed
+            FlowLight.Settings.IsEnabledByDefault = false;
+#endif
 
             // show unified first start screens
             ShowFirstStartScreens();
@@ -107,9 +100,12 @@ namespace PersonalAnalytics
             }
 
             // register FlowLight Events
-            FlowLight.Handler.GetInstance().EnforcingCancelled += TrackerManager_EnforcingCancelled;
-            FlowLight.Handler.GetInstance().FlowLightStarted += TrackerManager_FlowLightStarted;
-            FlowLight.Handler.GetInstance().FLowLightStopped += TrackerManager_FLowLightStopped;
+            if (FlowLight.Handler.GetInstance().FlowLightEnabled)
+            {
+                FlowLight.Handler.GetInstance().EnforcingCancelled += TrackerManager_EnforcingCancelled;
+                FlowLight.Handler.GetInstance().FlowLightStarted += TrackerManager_FlowLightStarted;
+                FlowLight.Handler.GetInstance().FLowLightStopped += TrackerManager_FLowLightStopped;
+            }            
 
             // run database updates for trackers
             PerformDatabaseUpdatesIfNecessary();
@@ -174,8 +170,8 @@ namespace PersonalAnalytics
                 startScreens.Add(new FirstStartWindow());
             }
 
-            // add first start screen for flowlight
-            if (FlowLight.Handler.GetInstance().FlowLightEnabled && FlowLight.Handler.GetInstance().IsFlowLightsFirstUse())
+            // add first start screen for FlowLight (if it can be added)
+            if (FlowLight.Settings.IsEnabledByDefault && FlowLight.Handler.GetInstance().IsFlowLightsFirstUse())
             {
                 startScreens.Add(FlowLight.Handler.GetInstance().GetStartScreen());
             }
@@ -277,7 +273,14 @@ namespace PersonalAnalytics
             Retrospection.Handler.GetInstance().Stop();
 
             // stop the FlowLight
-            FlowLight.Handler.GetInstance().Stop();
+            if (FlowLight.Handler.GetInstance().FlowLightEnabled)
+            {
+                FlowLight.Handler.GetInstance().Stop();
+
+                FlowLight.Handler.GetInstance().EnforcingCancelled -= TrackerManager_EnforcingCancelled;
+                FlowLight.Handler.GetInstance().FlowLightStarted -= TrackerManager_FlowLightStarted;
+                FlowLight.Handler.GetInstance().FLowLightStopped -= TrackerManager_FLowLightStopped;
+            }
 
             // stop timers & unregister
             if (_taskbarIconTimer != null) _taskbarIconTimer.Stop();
@@ -378,7 +381,7 @@ namespace PersonalAnalytics
 
 #endregion
 
-        #region Taskbar Icon Options
+#region Taskbar Icon Options
 
         /// <summary>
         /// Dreates a taskbar icon to modify its tooltip and create the context menu options
@@ -698,9 +701,9 @@ namespace PersonalAnalytics
             TaskbarIcon.ToolTipText = message;
         }
 
-        #endregion
+#endregion
 
-        #region Helpers
+#region Helpers
 
         /// <summary>
         /// On the first workday of the week, remind the user ONCE to share

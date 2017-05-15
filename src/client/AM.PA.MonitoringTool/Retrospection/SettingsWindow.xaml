@@ -81,7 +81,7 @@
 					<Button x:Name="FitbitRevoke" Margin="20 0 0 0" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" Foreground="White" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" VerticalAlignment="Center" HorizontalAlignment="Left" Click="FitbitRevoke_Click">Revoke Access Token</Button>
 				</StackPanel>
             </TabItem>
-            <TabItem Header="FlowLight Settings">
+            <TabItem Header="FlowLight Settings" x:Name="FlowLightSettingsTab">
                 <StackPanel Margin="10">
                     <CheckBox x:Name="CbFlowLightEnabled"
                               Margin="0 0 0 0"
