@@ -11,16 +11,20 @@ using RDotNet;
 using TaskDetectionTracker.Model;
 using System.IO;
 using TaskDetectionTracker.Properties;
-using System.Diagnostics;
-using RDotNet.NativeLibrary;
+using Shared;
 
 namespace TaskDetectionTracker.Algorithm
 {
     public class TaskDetectorImpl : ITaskDetector
     {
-        private string _taskSwitchDataFileName = "pa-taskSwitchData-" + DateTime.Now.ToString("yyyymmdd-hhmmss") + ".csv";
-        private string _taskTypeDataFileName = "pa-taskTypeData-" + DateTime.Now.ToString("yyyymmdd-hhmmss") + ".csv";
+        private const double _taskSwitchThreshold = 0.23;
+
+        private string _taskSwitchDataFolder = "TaskSwitchDataDump";
+        private string _taskSwitchDataFileName = "pa-taskswitchdata-" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".csv";
         private string _taskSwitchDetectionModelFileName = Path.Combine(Environment.CurrentDirectory, "Resources", "taskswitchdetectionmodel.rda");
+
+        private string _taskTypeDataFolder = "TaskTypeDataDump";
+        private string _taskTypeDataFileName = "pa-tasktypedata-" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".csv";
         private string _taskTypeDetectionModelFileName = Path.Combine(Environment.CurrentDirectory, "Resources", "tasktypedetectionmodel.rda");
 
         public List<TaskDetection> FindTasks(List<TaskDetectionInput> processes)
@@ -66,8 +70,7 @@ namespace TaskDetectionTracker.Algorithm
             }
 
             // write output to csv file 
-            File.WriteAllText(GetTaskSwitchDataFileName(), csv_all.ToString());
-            
+            File.WriteAllText(GetTaskDetectionDumpsPath(_taskSwitchDataFolder, _taskSwitchDataFileName), csv_all.ToString(), Encoding.UTF8);
         }
 
         private void LexicalSimilarities(List<TaskDetectionInput> processes, string feature, List<Datapoint> dps)
@@ -78,7 +81,7 @@ namespace TaskDetectionTracker.Algorithm
             {
                 if (feature.Equals("window"))
                 {
-                    String windows = string.Join(" ", processes[i].WindowTitles);
+                    string windows = string.Join(" ", processes[i].WindowTitles);
                     docs[i] = cleanWindowOrProcessString(windows);
                 }
                 else if (feature.Equals("process"))
@@ -250,44 +253,61 @@ namespace TaskDetectionTracker.Algorithm
         {
             List<TaskDetection> tcs = new List<TaskDetection>();
 
-            // start REngine
-            REngine engine = REngine.GetInstance();
-
-            // read taskswitch-data
-            engine.Evaluate("data <- read.csv(file = \"" + GetTaskSwitchDataFileName() + "\", sep = \",\", header = TRUE)");
-
-            // read
-            engine.Evaluate("load(\"" + _taskSwitchDetectionModelFileName + "\")");
-            GenericVector switchResult = engine.Evaluate("prob <- predict(mod_fit_all, newdata = data, type = \"response\")").AsList();
-
-            List<TaskDetectionInput> toBundle = new List<TaskDetectionInput>();
-            toBundle.Add(processes[0]);
-
-            for (int i= 1; i< switchResult.Count(); i++)
+            try
             {
-                NumericVector vec = switchResult[i].AsVector().AsNumeric();
-                double num = vec.First();
-                if (num > 0.23)
+                var path = @"C:\Program Files\R\R-3.4.0\bin\i386";
+                var path64 = @"C:\Program Files\R\R-3.4.0\bin\x64"; // bin\R.exe";
+                var home = @"C:\Program Files\R\R-3.4.0";
+                REngine.SetEnvironmentVariables(path, home);
+                // Katja    home: C:\Program Files\R\R-3.4.0        path: C:\Program Files\R\R-3.4.0\bin\i386       registrypath: C:\Program Files\R\R-3.4.0\bin\i386
+                //Console.WriteLine("home: " + NativeUtility.FindRHome() + " -path:" + NativeUtility.FindRPath() + " -:" + NativeUtility.FindRPathFromRegistry());
+
+                // start REngine
+                REngine engine = REngine.GetInstance();
+
+                // read taskswitch-data
+                engine.Evaluate("data <- read.csv(file = '" + R_ConvertPathToForwardSlash(GetTaskDetectionDumpsPath(_taskSwitchDataFolder, _taskSwitchDataFileName)) + "', sep = \",\", header = TRUE)");
+
+                // read task switch detection model (model based on previous study, N=14)
+                engine.Evaluate("load(\"" + R_ConvertPathToForwardSlash(_taskSwitchDetectionModelFileName) + "\")");
+                GenericVector switchResult = engine.Evaluate("prob <- predict(mod_fit_all, newdata = data, type = \"response\")").AsList();
+
+                List<TaskDetectionInput> toBundle = new List<TaskDetectionInput>();
+                toBundle.Add(processes[0]);
+
+                for (int i = 1; i < switchResult.Count(); i++)
                 {
-                    //is switch
+                    NumericVector vec = switchResult[i].AsVector().AsNumeric();
+
+                    if (IsTaskSwitch(vec.First()))
+                    {
+                        TaskDetection tc = CreateTaskDetectionObject(toBundle);
+                        tcs.Add(tc);
+                        toBundle.Clear();
+                    }
+
+                    toBundle.Add(processes[i]);
+                }
+                if (toBundle.Count > 0)
+                {
                     TaskDetection tc = CreateTaskDetectionObject(toBundle);
                     tcs.Add(tc);
-                    toBundle.Clear();
-                    toBundle.Add(processes[i]);
                 }
-                else
-                {
-                    toBundle.Add(processes[i]);
-                }
+
+                engine.Dispose();
             }
-            if(toBundle.Count > 0)
+            catch (Exception e)
             {
-                TaskDetection tc = CreateTaskDetectionObject(toBundle);
-                tcs.Add(tc);
+                Console.WriteLine(e.Message);
+                Logger.WriteToLogFile(e);
             }
 
-            engine.Dispose();
             return tcs;
+        }
+
+        private bool IsTaskSwitch(double number)
+        {
+            return (number > _taskSwitchThreshold);
         }
 
         private TaskDetection CreateTaskDetectionObject(List<TaskDetectionInput> toBundle)
@@ -300,28 +320,9 @@ namespace TaskDetectionTracker.Algorithm
             return tc;
         }
 
-        private string GetTaskSwitchDataFileName()
-        {
-            var path = Shared.Settings.ExportFilePath;
-            var folder = Path.Combine(path, "TaskSwitchDataRaw");
-            if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
-
-            return Path.Combine(folder, _taskSwitchDataFileName);
-        }
-
-        private string GetTaskTypeDataFileName()
-        {
-            var path = Shared.Settings.ExportFilePath;
-            var folder = Path.Combine(path, "TaskTypeDataRaw");
-            if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
-
-            return Path.Combine(folder, _taskTypeDataFileName);
-        }
-
         private void WriteTypeDetectionFile(List<TaskDetection> tcs)
         {
-            
-            String del = ",";
+            string del = ",";
             #region processCats
             Dictionary<string, string> processCats = new Dictionary<string, string>();
             string[] csv = Resources.ProcessCategories.Split('\n');
@@ -391,7 +392,7 @@ namespace TaskDetectionTracker.Algorithm
                 csv_types.Append(keystrokesPerSec + del + mouseclicksPerSec + "\n");
 
             }
-            File.WriteAllText(GetTaskTypeDataFileName(), csv_types.ToString());
+            File.WriteAllText(GetTaskDetectionDumpsPath(_taskTypeDataFolder, _taskTypeDataFileName), csv_types.ToString());
         }
 
         private void PredictTypes(List<TaskDetection> tcs)
@@ -401,7 +402,7 @@ namespace TaskDetectionTracker.Algorithm
             REngine engine = REngine.GetInstance();
 
             // read taskswitch-data
-            engine.Evaluate("data <- read.csv(file = \"" + GetTaskTypeDataFileName() + "\", sep = \",\", header = TRUE)");
+            engine.Evaluate("data <- read.csv(file = \"" + GetTaskDetectionDumpsPath(_taskTypeDataFolder, _taskTypeDataFileName) + "\", sep = \",\", header = TRUE)");
 
             // read
             engine.Evaluate("load(\"" + _taskTypeDetectionModelFileName + "\")");
@@ -411,5 +412,22 @@ namespace TaskDetectionTracker.Algorithm
         }
 
 
+        #region File & Path Helpers
+
+        private string GetTaskDetectionDumpsPath(string folder, string filename)
+        {
+            var path = Shared.Settings.ExportFilePath;
+            var dumpFolder = Path.Combine(path, folder);
+            if (!Directory.Exists(dumpFolder)) Directory.CreateDirectory(dumpFolder);
+
+            return Path.Combine(dumpFolder, filename);
+        }
+
+        private string R_ConvertPathToForwardSlash(string pathWithBackwardSlash)
+        {
+            return pathWithBackwardSlash.Replace("\\", "/");
+        }
+
+        #endregion
     }
 }
