@@ -7,18 +7,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using RDotNet;
 using TaskDetectionTracker.Model;
 using System.IO;
-using System.Diagnostics;
 
 namespace TaskDetectionTracker.Algorithm
 {
     public class TaskDetectorImpl : ITaskDetector
     {
         private string _taskSwitchDataFileName = "pa-taskSwitchData-" + DateTime.Now.ToString("yyyymmdd-hhmmss") + ".csv";
-        private string _taskSwitchDetectionModelFileName = "test_switchdetectionmodel.rda";
+        private string _taskSwitchDetectionModelFileName = Path.Combine(Environment.CurrentDirectory, "Resources", "taskswitchdetectionmodel.rda");
 
         public List<TaskDetection> FindTasks(List<TaskDetectionInput> processes)
         { 

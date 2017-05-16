@@ -11,7 +11,7 @@ namespace TaskDetectionTracker.Helpers
     internal class StopwordRemover
     {
         public static ISet<string> englishStopwords;
-        private const string fileName = "stopwords.txt";
+        //private const string fileName = "stopwords.txt";
 
         public StopwordRemover()
         {

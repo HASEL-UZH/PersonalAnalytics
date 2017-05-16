@@ -5,6 +5,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using TaskDetectionTracker.Helpers;
 using TaskDetectionTrackerTests;
 
 namespace TaskDetectionTracker.Tests
