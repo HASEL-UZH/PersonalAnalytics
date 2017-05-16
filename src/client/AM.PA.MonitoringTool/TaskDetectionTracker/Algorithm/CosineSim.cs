@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace TaskDetectionTracker.Algorithm
 {
+    /// <summary>
+    /// Computes the similarity between two text documents. 
+    /// Source: https://www.codeproject.com/Articles/12098/Term-frequency-Inverse-document-frequency-implemen
+    /// </summary>
     class CosineSim
     {
         private string[] _docs;

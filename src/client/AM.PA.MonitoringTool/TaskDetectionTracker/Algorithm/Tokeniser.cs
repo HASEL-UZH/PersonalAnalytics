@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace TaskDetectionTracker.Algorithm
 {
+    /// <summary>
+    /// Partitions text into tokens.
+    /// Source: https://www.codeproject.com/Articles/12098/Term-frequency-Inverse-document-frequency-implemen
+    /// </summary>
     class Tokeniser
     {
         private StopwordRemover sw = new StopwordRemover();
@@ -21,7 +25,6 @@ namespace TaskDetectionTracker.Algorithm
 
         public string[] Partition(string input)
         {
-
             Regex r = new Regex("([ \\t{}():;. \n/\\-\\&\\*\\\\_@\\?\\[\\]])");
             input = input.ToLower();
 
@@ -32,14 +35,11 @@ namespace TaskDetectionTracker.Algorithm
             for (int i = 0; i < tokens.Length; i++)
             {
                 MatchCollection mc = r.Matches(tokens[i]);
-
                 if (mc.Count <= 0 && tokens[i].Trim().Length > 1
                     && !sw.IsStopword(tokens[i]))
                 {
                     filter.Add(tokens[i]);
                 }
-
-
             }
 
             return ArrayListToArray(filter);
