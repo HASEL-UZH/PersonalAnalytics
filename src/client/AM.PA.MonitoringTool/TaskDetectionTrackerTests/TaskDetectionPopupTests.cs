@@ -10,6 +10,7 @@ using System.Windows;
 using TaskDetectionTracker.Model;
 using TaskDetectionTrackerTests;
 using System.Linq;
+using TaskDetectionTracker.Algorithm;
 
 namespace TaskDetectionTracker.Views.Tests
 {
@@ -27,6 +28,9 @@ namespace TaskDetectionTracker.Views.Tests
             processes = DataMerger.MergeProcesses(processes, TimeSpan.FromHours(1));
 
             int numberOfInput = processes.Count / _numberOfElementsPerTask + processes.Count % _numberOfElementsPerTask;
+
+            ITaskDetector td = new TaskDetectorImpl();
+            td.FindTasks(processes);
 
             var input = new List<TaskDetection>();
             for (int i = 0; i < numberOfInput; i++)
