@@ -67,6 +67,7 @@ namespace TaskDetectionTracker.Algorithm
 
             // write output to csv file 
             File.WriteAllText(GetTaskSwitchDataFileName(), csv_all.ToString());
+            
         }
 
         private void LexicalSimilarities(List<TaskDetectionInput> processes, string feature, List<Datapoint> dps)
