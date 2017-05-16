@@ -10,6 +10,7 @@ namespace TaskDetectionTracker.Algorithm
     /// <summary>
     /// Computes the similarity between two text documents. 
     /// Source: https://www.codeproject.com/Articles/12098/Term-frequency-Inverse-document-frequency-implemen
+    /// Author: Thanh Dao, modified by Katja Kevic, 2017-05-16
     /// </summary>
     class CosineSim
     {

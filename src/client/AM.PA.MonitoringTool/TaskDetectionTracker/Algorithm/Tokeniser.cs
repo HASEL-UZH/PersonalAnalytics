@@ -11,6 +11,7 @@ namespace TaskDetectionTracker.Algorithm
     /// <summary>
     /// Partitions text into tokens.
     /// Source: https://www.codeproject.com/Articles/12098/Term-frequency-Inverse-document-frequency-implemen
+    /// Author: Thanh Dao, modified by Katja Kevic, 2017-05-16
     /// </summary>
     class Tokeniser
     {
