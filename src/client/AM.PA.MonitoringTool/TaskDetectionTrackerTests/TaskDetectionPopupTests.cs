@@ -30,19 +30,19 @@ namespace TaskDetectionTracker.Views.Tests
             int numberOfInput = processes.Count / _numberOfElementsPerTask + processes.Count % _numberOfElementsPerTask;
 
             ITaskDetector td = new TaskDetectorImpl();
-            td.FindTasks(processes);
+            var input = td.FindTasks(processes);
 
-            var input = new List<TaskDetection>();
-            for (int i = 0; i < numberOfInput; i++)
-            {
-                TaskDetection tdInput = new TaskDetection();
-                var prc = processes.GetRange(i * _numberOfElementsPerTask, _numberOfElementsPerTask);
-                tdInput.Start = prc.First().Start;
-                tdInput.End = prc.Last().End;
-                tdInput.TaskTypeProposed = tasks[i % tasks.Length];
-                tdInput.TimelineInfos = prc;
-                input.Add(tdInput);
-            }
+            //var input = new List<TaskDetection>();
+            //for (int i = 0; i < numberOfInput; i++)
+            //{
+            //    TaskDetection tdInput = new TaskDetection();
+            //    var prc = processes.GetRange(i * _numberOfElementsPerTask, _numberOfElementsPerTask);
+            //    tdInput.Start = prc.First().Start;
+            //    tdInput.End = prc.Last().End;
+            //    tdInput.TaskTypeProposed = tasks[i % tasks.Length];
+            //    tdInput.TimelineInfos = prc;
+            //    input.Add(tdInput);
+            //}
 
             var popup = (Window)new TaskDetectionPopup(input);
             popup.ShowDialog();

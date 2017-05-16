@@ -30,9 +30,9 @@ namespace TaskDetectionTracker.Algorithm
 
             WriteSwitchDetectionFile(dps);
 
-            PredictSwitches();
+            List<TaskDetection> tcs=  PredictSwitches(processes);
 
-            return null;
+            return tcs;
         }
 
         private void WriteSwitchDetectionFile(List<Datapoint> dps)
@@ -237,8 +237,10 @@ namespace TaskDetectionTracker.Algorithm
         }
 
 
-        public void PredictSwitches()
+        public List<TaskDetection> PredictSwitches(List<TaskDetectionInput> processes)
         {
+            List<TaskDetection> tcs = new List<TaskDetection>();
+
             // start REngine
             REngine engine = REngine.GetInstance();
 
@@ -249,15 +251,44 @@ namespace TaskDetectionTracker.Algorithm
             engine.Evaluate("load(\"" + _taskSwitchDetectionModelFileName + "\")");
             GenericVector switchResult = engine.Evaluate("prob <- predict(mod_fit_all, newdata = data, type = \"response\")").AsList();
 
-            foreach(var pred in switchResult)
+            List<TaskDetectionInput> toBundle = new List<TaskDetectionInput>();
+            toBundle.Add(processes[0]);
+
+            for (int i= 1; i< switchResult.Count(); i++)
             {
-                foreach(var num in pred.AsVector())
+                NumericVector vec = switchResult[i].AsVector().AsNumeric();
+                double num = vec.First();
+                if (num > 0.23)
                 {
-                    Debug.WriteLine(num);
+                    //is switch
+                    TaskDetection tc = CreateTaskDetectionObject(toBundle);
+                    tcs.Add(tc);
+                    toBundle.Clear();
+                    toBundle.Add(processes[i]);
                 }
+                else
+                {
+                    toBundle.Add(processes[i]);
+                }
+            }
+            if(toBundle.Count > 0)
+            {
+                TaskDetection tc = CreateTaskDetectionObject(toBundle);
+                tcs.Add(tc);
             }
 
             engine.Dispose();
+            return tcs;
+        }
+
+        private TaskDetection CreateTaskDetectionObject(List<TaskDetectionInput> toBundle)
+        {
+            TaskDetection tc = new TaskDetection();
+            tc.Start = toBundle.First().Start;
+            tc.End = toBundle.Last().End;
+            tc.TimelineInfos = toBundle;
+            tc.TaskTypeProposed = "research";
+            return tc;
         }
 
     }
