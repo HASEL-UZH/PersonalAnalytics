@@ -9,6 +9,7 @@ using Shared.Data;
 using TaskDetectionTracker.Model;
 using System.Data;
 using Shared;
+using TaskDetectionTracker.Helpers;
 
 namespace TaskDetectionTracker.Data
 {

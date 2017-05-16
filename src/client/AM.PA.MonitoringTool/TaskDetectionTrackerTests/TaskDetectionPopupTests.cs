@@ -11,6 +11,7 @@ using TaskDetectionTracker.Model;
 using TaskDetectionTrackerTests;
 using System.Linq;
 using TaskDetectionTracker.Algorithm;
+using TaskDetectionTracker.Helpers;
 
 namespace TaskDetectionTracker.Views.Tests
 {

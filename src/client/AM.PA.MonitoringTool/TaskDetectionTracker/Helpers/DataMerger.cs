@@ -9,7 +9,7 @@ using System.Linq;
 using System;
 using TaskDetectionTracker.Data;
 
-namespace TaskDetectionTracker
+namespace TaskDetectionTracker.Helpers
 {
     public class DataMerger
     {

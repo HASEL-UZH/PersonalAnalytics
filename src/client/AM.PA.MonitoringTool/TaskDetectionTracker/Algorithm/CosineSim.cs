@@ -1,9 +1,11 @@
-﻿using System;
+﻿// Created by Katja Kevic (kevic@ifi.uzh.ch) from the University of Zurich
+// Created: 2017-05-16
+// 
+// Licensed under the MIT License.
+
+using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using TaskDetectionTracker.Helpers;
 
 namespace TaskDetectionTracker.Algorithm
 {
@@ -86,7 +88,7 @@ namespace TaskDetectionTracker.Algorithm
             _ngramDoc = new string[_numDocs][];
             for (int i = 0; i < docs.Length; i++)
             {
-                Tokeniser tokenizer = new Tokeniser();
+                Tokenizer tokenizer = new Tokenizer();
                 string[] words = tokenizer.Partition(docs[i]);
 
                 for (int j = 0; j < words.Length; j++)
@@ -96,8 +98,6 @@ namespace TaskDetectionTracker.Algorithm
             }
             return uniques;
         }
-
-
 
         private static object AddElement(IDictionary collection, object key, object newValue)
         {
@@ -163,7 +163,6 @@ namespace TaskDetectionTracker.Algorithm
             }
         }
 
-
         private void GenerateTermWeight()
         {
             for (int i = 0; i < _numTerms; i++)
@@ -217,7 +216,7 @@ namespace TaskDetectionTracker.Algorithm
         {
             string convertedInput = input.ToLower();
 
-            Tokeniser tokenizer = new Tokeniser();
+            Tokenizer tokenizer = new Tokenizer();
             String[] words = tokenizer.Partition(convertedInput);
             Array.Sort(words);
 
@@ -247,12 +246,10 @@ namespace TaskDetectionTracker.Algorithm
                     if (!list.Contains(input[i])) // N-GRAM SIMILARITY?				
                         list.Add(input[i]);
 
-                return Tokeniser.ArrayListToArray(list);
+                return Tokenizer.ArrayListToArray(list);
             }
         }
-
-
-
+        
         private int CountWords(string word, string[] words)
         {
             int itemIdx = Array.BinarySearch(words, word);

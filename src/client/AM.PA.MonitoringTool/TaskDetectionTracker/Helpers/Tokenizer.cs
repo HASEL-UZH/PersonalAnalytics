@@ -1,19 +1,20 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+﻿// Created by Katja Kevic (kevic@ifi.uzh.ch) from the University of Zurich
+// Created: 2017-05-16
+// 
+// Licensed under the MIT License.
 
-namespace TaskDetectionTracker.Algorithm
+using TaskDetectionTracker.Helpers;
+using System.Collections;
+using System.Text.RegularExpressions;
+
+namespace TaskDetectionTracker.Helpers
 {
     /// <summary>
     /// Partitions text into tokens.
     /// Source: https://www.codeproject.com/Articles/12098/Term-frequency-Inverse-document-frequency-implemen
     /// Author: Thanh Dao, modified by Katja Kevic, 2017-05-16
     /// </summary>
-    class Tokeniser
+    internal class Tokenizer
     {
         private StopwordRemover sw = new StopwordRemover();
 
@@ -29,7 +30,7 @@ namespace TaskDetectionTracker.Algorithm
             Regex r = new Regex("([ \\t{}():;. \n/\\-\\&\\*\\\\_@\\?\\[\\]])");
             input = input.ToLower();
 
-            String[] tokens = r.Split(input);
+            string[] tokens = r.Split(input);
 
             ArrayList filter = new ArrayList();
 
@@ -46,8 +47,7 @@ namespace TaskDetectionTracker.Algorithm
             return ArrayListToArray(filter);
         }
 
-
-        public Tokeniser()
+        public Tokenizer()
         {
         }
     }

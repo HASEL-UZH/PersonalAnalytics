@@ -13,6 +13,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
 using TaskDetectionTracker.Data;
+using TaskDetectionTracker.Helpers;
 using TaskDetectionTracker.Model;
 using TaskDetectionTracker.Views;
 

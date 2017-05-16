@@ -1,4 +1,9 @@
-﻿using System;
+﻿// Created by Katja Kevic (kevic@ifi.uzh.ch) from the University of Zurich
+// Created: 2017-05-16
+// 
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,35 +34,34 @@ namespace TaskDetectionTracker.Algorithm
             SetMouseClicksDiff(processes, dps);
 
             WriteSwitchDetectionFile(dps);
-
-            List<TaskDetection> tcs=  PredictSwitches(processes);
+            List<TaskDetection> tcs = PredictSwitches(processes);
 
             return tcs;
         }
 
         private void WriteSwitchDetectionFile(List<Datapoint> dps)
         {
-            StringBuilder csv_all = new StringBuilder();
+            var csv_all = new StringBuilder();
+
+            // write header
             string header = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}",
              "isSuperSwitch", "lexSim1_win", "lexSim2_win", "lexSim3_win", "lexSim4_win",
                       "lexSim1_pro", "lexSim2_pro", "lexSim3_pro", "lexSim4_pro",
                       "totalKeystrokesDiff", "MouseClicksDiff");
-
             csv_all.AppendLine(header);
+
+            // write raw data
             foreach (Datapoint dp in dps)
             {
-
                 var newLine = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}", "NA",
                     dp.LexSim1_Win, dp.LexSim2_Win, dp.LexSim3_Win, dp.LexSim4_Win, dp.LexSim1_Pro,
                     dp.LexSim2_Pro, dp.LexSim3_Pro, dp.LexSim4_Pro, dp.TotalKeystrokesDiff,
                      dp.TotalMouseClicksDiff);
                 csv_all.AppendLine(newLine);
-
             }
 
             // write output to csv file 
-
-            File.WriteAllText(Path.Combine(Shared.Settings.ExportFilePath, _taskSwitchDataFileName), csv_all.ToString());
+            File.WriteAllText(GetTaskSwitchDataFileName(), csv_all.ToString());
         }
 
         private void LexicalSimilarities(List<TaskDetectionInput> processes, string feature, List<Datapoint> dps)
@@ -236,7 +240,6 @@ namespace TaskDetectionTracker.Algorithm
             }
         }
 
-
         public List<TaskDetection> PredictSwitches(List<TaskDetectionInput> processes)
         {
             List<TaskDetection> tcs = new List<TaskDetection>();
@@ -245,7 +248,7 @@ namespace TaskDetectionTracker.Algorithm
             REngine engine = REngine.GetInstance();
 
             // read taskswitch-data
-            engine.Evaluate("data <- read.csv(file = \"" + Path.Combine(Shared.Settings.ExportFilePath, _taskSwitchDataFileName) + "\", sep = \",\", header = TRUE)");
+            engine.Evaluate("data <- read.csv(file = \"" + GetTaskSwitchDataFileName() + "\", sep = \",\", header = TRUE)");
 
             // read
             engine.Evaluate("load(\"" + _taskSwitchDetectionModelFileName + "\")");
@@ -291,5 +294,13 @@ namespace TaskDetectionTracker.Algorithm
             return tc;
         }
 
+        private string GetTaskSwitchDataFileName()
+        {
+            var path = Shared.Settings.ExportFilePath;
+            var folder = Path.Combine(path, "TaskSwitchDataRaw");
+            if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+
+            return Path.Combine(folder, _taskSwitchDataFileName);
+        }
     }
 }

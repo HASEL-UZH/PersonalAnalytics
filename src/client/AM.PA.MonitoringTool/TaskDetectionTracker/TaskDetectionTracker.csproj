@@ -60,12 +60,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithm\CosineSim.cs" />
-    <Compile Include="Algorithm\Datapoint.cs" />
+    <Compile Include="Model\Datapoint.cs" />
     <Compile Include="Algorithm\ITaskDetector.cs" />
-    <Compile Include="Algorithm\StopwordRemover.cs" />
+    <Compile Include="Helpers\StopwordRemover.cs" />
     <Compile Include="Algorithm\TaskDetectorImpl.cs" />
-    <Compile Include="Algorithm\Tokeniser.cs" />
-    <Compile Include="DataMerger.cs" />
+    <Compile Include="Helpers\Tokenizer.cs" />
+    <Compile Include="Helpers\DataMerger.cs" />
     <Compile Include="Data\DatabaseConnector.cs" />
     <Compile Include="Deamon.cs" />
     <Compile Include="Model\TaskDetection.cs" />

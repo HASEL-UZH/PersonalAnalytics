@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Created by Katja Kevic (kevic@ifi.uzh.ch) from the University of Zurich
+// Created: 2017-05-16
+// 
+// Licensed under the MIT License.
 
-namespace TaskDetectionTracker.Algorithm
+namespace TaskDetectionTracker.Model
 {
     public class Datapoint
     {
-
         private float lexSim1_win;
-
         public float LexSim1_Win
         {
             get { return lexSim1_win; }
@@ -18,7 +15,6 @@ namespace TaskDetectionTracker.Algorithm
         }
 
         private float lexSim2_win;
-
         public float LexSim2_Win
         {
             get { return lexSim2_win; }
@@ -26,7 +22,6 @@ namespace TaskDetectionTracker.Algorithm
         }
 
         private float lexSim3_win;
-
         public float LexSim3_Win
         {
             get { return lexSim3_win; }
@@ -34,7 +29,6 @@ namespace TaskDetectionTracker.Algorithm
         }
 
         private float lexSim4_win;
-
         public float LexSim4_Win
         {
             get { return lexSim4_win; }
@@ -42,7 +36,6 @@ namespace TaskDetectionTracker.Algorithm
         }
 
         private float lexSim1_pro;
-
         public float LexSim1_Pro
         {
             get { return lexSim1_pro; }
@@ -50,7 +43,6 @@ namespace TaskDetectionTracker.Algorithm
         }
 
         private float lexSim2_pro;
-
         public float LexSim2_Pro
         {
             get { return lexSim2_pro; }
@@ -58,7 +50,6 @@ namespace TaskDetectionTracker.Algorithm
         }
 
         private float lexSim3_pro;
-
         public float LexSim3_Pro
         {
             get { return lexSim3_pro; }
@@ -66,7 +57,6 @@ namespace TaskDetectionTracker.Algorithm
         }
 
         private float lexSim4_pro;
-
         public float LexSim4_Pro
         {
             get { return lexSim4_pro; }
@@ -74,7 +64,6 @@ namespace TaskDetectionTracker.Algorithm
         }
 
         private int totalKeystrokesDiff;
-
         public int TotalKeystrokesDiff
         {
             get { return totalKeystrokesDiff; }
@@ -82,7 +71,6 @@ namespace TaskDetectionTracker.Algorithm
         }
 
         private int totalMouseClicksDiff;
-
         public int TotalMouseClicksDiff
         {
             get { return totalMouseClicksDiff; }
