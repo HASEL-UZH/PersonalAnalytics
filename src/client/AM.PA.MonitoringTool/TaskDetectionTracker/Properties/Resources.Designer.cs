@@ -61,6 +61,37 @@ namespace TaskDetectionTracker.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Process,Category
+        ///Alarms &amp; Clock,Utility
+        ///APConsole,Console
+        ///BC2,Developer Tool
+        ///BCompare,Developer Tool
+        ///BI.AutomatedTesting.vshost,IDE
+        ///Bugger,Developer Tool
+        ///chrome,Browser
+        ///cleardescribe,Developer Tool
+        ///clearexplorer,Explorer
+        ///clearmrgman,Developer Tool
+        ///clearprojexp,Project Explorer
+        ///clearviewupdate,Developer Tool
+        ///clearvtree,Developer Tool
+        ///cmd,Console
+        ///CodeFlow,Review
+        ///Compose,ReadWrite
+        ///ConsoleApp.vshost,IDE
+        ///cqintsvr11,IDE
+        ///defectviewer,Testing Tool
+        ///devenv,IDE
+        ///dllhost,Developer Tool
+        ///dwm,Unknown        /// [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string ProcessCategories {
+            get {
+                return ResourceManager.GetString("ProcessCategories", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to a
         ///about
         ///above

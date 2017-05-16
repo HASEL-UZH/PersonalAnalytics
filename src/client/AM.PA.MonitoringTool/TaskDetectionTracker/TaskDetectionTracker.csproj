@@ -104,6 +104,7 @@
     <Content Include="Resources\taskswitchdetectionmodel.rda">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\tasktypedetectionmodel.rda" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -113,6 +114,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\ProcessCategories.csv" />
     <None Include="Resources\stopwords.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
