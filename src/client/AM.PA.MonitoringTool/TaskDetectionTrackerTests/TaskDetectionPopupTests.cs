@@ -30,6 +30,8 @@ namespace TaskDetectionTracker.Views.Tests
 
             int numberOfInput = processes.Count / _numberOfElementsPerTask + processes.Count % _numberOfElementsPerTask;
 
+
+            
             ITaskDetector td = new TaskDetectorImpl();
             var input = td.FindTasks(processes);
 

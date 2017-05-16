@@ -10,16 +10,21 @@ using System.Text;
 using RDotNet;
 using TaskDetectionTracker.Model;
 using System.IO;
+using TaskDetectionTracker.Properties;
+using System.Diagnostics;
+using RDotNet.NativeLibrary;
 
 namespace TaskDetectionTracker.Algorithm
 {
     public class TaskDetectorImpl : ITaskDetector
     {
         private string _taskSwitchDataFileName = "pa-taskSwitchData-" + DateTime.Now.ToString("yyyymmdd-hhmmss") + ".csv";
+        private string _taskTypeDataFileName = "pa-taskTypeData-" + DateTime.Now.ToString("yyyymmdd-hhmmss") + ".csv";
         private string _taskSwitchDetectionModelFileName = Path.Combine(Environment.CurrentDirectory, "Resources", "taskswitchdetectionmodel.rda");
+        private string _taskTypeDetectionModelFileName = Path.Combine(Environment.CurrentDirectory, "Resources", "tasktypedetectionmodel.rda");
 
         public List<TaskDetection> FindTasks(List<TaskDetectionInput> processes)
-        { 
+        {
             List<Datapoint> dps = new List<Datapoint>();
             foreach(var p in processes)
             {
@@ -33,6 +38,8 @@ namespace TaskDetectionTracker.Algorithm
 
             WriteSwitchDetectionFile(dps);
             List<TaskDetection> tcs = PredictSwitches(processes);
+            WriteTypeDetectionFile(tcs);
+            PredictTypes(tcs);
 
             return tcs;
         }
@@ -300,5 +307,108 @@ namespace TaskDetectionTracker.Algorithm
 
             return Path.Combine(folder, _taskSwitchDataFileName);
         }
+
+        private string GetTaskTypeDataFileName()
+        {
+            var path = Shared.Settings.ExportFilePath;
+            var folder = Path.Combine(path, "TaskTypeDataRaw");
+            if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+
+            return Path.Combine(folder, _taskTypeDataFileName);
+        }
+
+        private void WriteTypeDetectionFile(List<TaskDetection> tcs)
+        {
+            
+            String del = ",";
+            #region processCats
+            Dictionary<string, string> processCats = new Dictionary<string, string>();
+            string[] csv = Resources.ProcessCategories.Split('\n');
+
+            for (int i = 1; i < csv.Length; i++)
+            {
+                string l = csv[i];
+                string[] line = csv[i].Split(',');
+                processCats.Add(line[0].Trim(), line[1].Trim());
+            }
+            HashSet<string> uniqueCategories = new HashSet<string>();
+            foreach (var entry in processCats)
+            {
+                uniqueCategories.Add(entry.Value);
+            }
+            List<string> distinctProcessCats = uniqueCategories.ToList();
+
+            #endregion
+
+            StringBuilder header = new StringBuilder();
+
+            foreach (string s in distinctProcessCats)
+            {
+                header.Append(s + del);
+            }
+            header.Append("totalKeyStrokes" + del + "Mouseclicks"  );
+            StringBuilder csv_types = new StringBuilder();
+            csv_types.AppendLine("task"+del+header.ToString());
+
+            foreach(TaskDetection tc in tcs)
+            {
+                csv_types.Append("1" + del);
+                var duration = tc.End - tc.Start;
+
+                #region processCategories
+                foreach (String pc in distinctProcessCats)
+                {
+                    double sum = 0;
+                    foreach (var p in tc.TimelineInfos)
+                    {
+                        if (processCats.ContainsKey(p.ProcessName) && processCats[p.ProcessName].Equals(pc))
+                        {
+                            var dur = p.End - p.Start;
+                            sum += dur.TotalMinutes;
+                        }
+                        double avgTimeInProcessCat = sum / duration.TotalMinutes;
+                        csv_types.Append(avgTimeInProcessCat + del);
+                    }
+                }
+                #endregion
+
+                int sumTotalKeyStrokes = tc.TimelineInfos.Select(d => d.NumberOfKeystrokes).Sum();
+                int sumMouseClicks = tc.TimelineInfos.Select(d => d.NumberOfMouseClicks).Sum();
+
+                double keystrokesPerSec = 0;
+                if (sumTotalKeyStrokes > 0)
+                {
+                    keystrokesPerSec = (double)sumTotalKeyStrokes / duration.Seconds;
+                }
+
+                double mouseclicksPerSec = 0;
+                if (sumMouseClicks > 0)
+                {
+                    mouseclicksPerSec = (double)sumMouseClicks / duration.Seconds;
+                }
+
+                csv_types.Append(keystrokesPerSec + del + mouseclicksPerSec + "\n");
+
+            }
+            File.WriteAllText(GetTaskTypeDataFileName(), csv_types.ToString());
+        }
+
+        private void PredictTypes(List<TaskDetection> tcs)
+        {
+            //1: Private, 2: Planned Meeting, 3: Unplanned Meeting, 4: Awareness, 5: Planning, 6: Observation, 7: Development, 8: Adminstrative Work
+            // start REngine
+            REngine engine = REngine.GetInstance();
+
+            // read taskswitch-data
+            engine.Evaluate("data <- read.csv(file = \"" + GetTaskTypeDataFileName() + "\", sep = \",\", header = TRUE)");
+
+            // read
+            engine.Evaluate("load(\"" + _taskTypeDetectionModelFileName + "\")");
+            GenericVector typeResult = engine.Evaluate("prob <- predict(model, newdata = data, type = \"response\")").AsList();
+            //as.numeric(as.character(prob[1])
+
+        }
+
+
     }
 }

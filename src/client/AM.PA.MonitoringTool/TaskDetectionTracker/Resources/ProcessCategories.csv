@@ -1,0 +1,75 @@
+Process,Category
+Alarms & Clock,Utility
+APConsole,Console
+BC2,Developer Tool
+BCompare,Developer Tool
+BI.AutomatedTesting.vshost,IDE
+Bugger,Developer Tool
+chrome,Browser
+cleardescribe,Developer Tool
+clearexplorer,Explorer
+clearmrgman,Developer Tool
+clearprojexp,Project Explorer
+clearviewupdate,Developer Tool
+clearvtree,Developer Tool
+cmd,Console
+CodeFlow,Review
+Compose,ReadWrite
+ConsoleApp.vshost,IDE
+cqintsvr11,IDE
+defectviewer,Testing Tool
+devenv,IDE
+dllhost,Developer Tool
+dwm,Unknown
+eclipse,IDE
+EXCEL,ReadWrite
+explorer,Explorer
+firefox,Browser
+FlashPlayerPlugin_15_0_0_239,Music
+Foxit Reader,ReadWrite
+GitHub,Developer Tool
+IDLE,Idle
+iexplore,Browser
+ImmersiveOfficeLauncher,Unknown
+inspect,Developer Tool
+IQ.Foundation.Messaging.AzureQueueConsumerSample.vshost,IDE
+IQ.Foundation.Messaging.AzureQueueProducerSample.vshost,IDE
+javaw,Developer Tool
+lync,IM
+Microsoft Edge,Browser
+mintty,Console
+MobaXterm,Remote
+MobileWinC.vshost,IDE
+mstsc,Remote
+notepad,ReadWrite
+OneNote,ReadWrite
+onohostutility,Developer Tool
+OUTLOOK,Mail
+PersonalAnalytics,Utility
+PhotoFiltre,ReadWrite
+pidgin,IM
+plsqldev,SQL
+Postman,Testing Tool
+putty,Remote
+reSearch v2,Developer Tool
+sdb,Unknown
+SDForms,Developer Tool
+sdv,Developer Tool
+sdvdiff,Developer Tool
+ServiceBusExplorer,Developer Tool
+ShellExperienceHost,Windows Process
+Skype,IM
+slack,IM
+SndVol,Music
+SnippingTool,Utility
+SourceTree,Developer Tool
+Spotify,Music
+Ssms,SQL
+taskcoach,Utility
+VirtualBox,Remote
+WinMerge 2.14.0 Setup.tmp,Developer Tool
+WinMergeU,Developer Tool
+WINWORD,ReadWrite
+WINZIP32,Utility
+wmplayer,Music
+product,Developer Tool
