@@ -105,7 +105,7 @@ namespace TaskDetectionTracker
                 foreach (TaskDetectionInput process in processes)
                 {
                     //Ignore processes that are shorter than 1 minute
-                    if (process.End.Subtract(process.Start).TotalSeconds > 60)
+                    if (process.End.Subtract(process.Start).TotalSeconds > 60) //TODO: not too accurate
                     {
                         var clicksForProcess = clicks.Where(c => c.Start >= process.Start && c.Start <= process.End);
                         var keysForProcess = keys.Where(k => k.Start >= process.Start && k.Start <= process.End);

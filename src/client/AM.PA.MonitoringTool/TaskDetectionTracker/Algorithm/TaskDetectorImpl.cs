@@ -12,9 +12,11 @@ namespace TaskDetectionTracker.Algorithm
 {
     public class TaskDetectorImpl : ITaskDetector
     {
+        private string _taskSwitchDataFileName = "pa-taskSwitchData-" + DateTime.Now.ToString("yyyymmdd-hhmmss") + ".csv";
+        private string _taskSwitchDetectionModelFileName = "test_switchdetectionmodel.rda";
+
         public List<TaskDetection> FindTasks(List<TaskDetectionInput> processes)
-        {
-            
+        { 
             List<Datapoint> dps = new List<Datapoint>();
             foreach(var p in processes)
             {
@@ -36,10 +38,10 @@ namespace TaskDetectionTracker.Algorithm
         private void WriteSwitchDetectionFile(List<Datapoint> dps)
         {
             StringBuilder csv_all = new StringBuilder();
-            String header = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}",
+            string header = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}",
              "isSuperSwitch", "lexSim1_win", "lexSim2_win", "lexSim3_win", "lexSim4_win",
                       "lexSim1_pro", "lexSim2_pro", "lexSim3_pro", "lexSim4_pro",
-                      "totalKeystrokesDiff", "MouseCliksDiff");
+                      "totalKeystrokesDiff", "MouseClicksDiff");
 
             csv_all.AppendLine(header);
             foreach (Datapoint dp in dps)
@@ -53,8 +55,9 @@ namespace TaskDetectionTracker.Algorithm
 
             }
 
-            File.WriteAllText("taskSwitchData" + ".csv", csv_all.ToString());
+            // write output to csv file 
 
+            File.WriteAllText(Path.Combine(Shared.Settings.ExportFilePath, _taskSwitchDataFileName), csv_all.ToString());
         }
 
         private void LexicalSimilarities(List<TaskDetectionInput> processes, string feature, List<Datapoint> dps)
@@ -236,10 +239,14 @@ namespace TaskDetectionTracker.Algorithm
 
         public void PredictSwitches()
         {
+            // start REngine
             REngine engine = REngine.GetInstance();
-            engine.Evaluate("data <- read.csv(file = \"taskSwitchData.csv\", sep = \",\", header = TRUE)");
 
-            engine.Evaluate("load(\"test_switchdetectionmodel.rda\")");
+            // read taskswitch-data
+            engine.Evaluate("data <- read.csv(file = \"" + Path.Combine(Shared.Settings.ExportFilePath, _taskSwitchDataFileName) + "\", sep = \",\", header = TRUE)");
+
+            // read
+            engine.Evaluate("load(\"" + _taskSwitchDetectionModelFileName + "\")");
             GenericVector switchResult = engine.Evaluate("prob <- predict(mod_fit_all, newdata = data, type = \"response\")").AsList();
 
             foreach(var pred in switchResult)

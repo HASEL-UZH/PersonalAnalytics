@@ -129,10 +129,12 @@ namespace TaskDetectionTracker
             {
                 processes = DataMerger.MergeProcesses(processes, sessionEnd.Subtract(sessionStart));
                 DataMerger.AddMouseClickAndKeystrokesToProcesses(processes);
-
-                TaskDetection task = new TaskDetection { Start = processes.First().Start, End = processes.Last().End, TimelineInfos = processes, TaskTypeValidated = "test task" };
                 //TODO: file and website extractor
+
+                // test task (remove when adding Katja's helper)
+                TaskDetection task = new TaskDetection { Start = processes.First().Start, End = processes.Last().End, TimelineInfos = processes, TaskTypeValidated = "test task" };
                 var taskDetections = new List<TaskDetection> { task }; // TODO: run task detection (using Katja's helper, likely on separate thread)
+
                 return taskDetections;
             }
             return new List<TaskDetection>();
