@@ -4,6 +4,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 
 namespace WindowsActivityTracker.Models
 {
@@ -15,8 +16,13 @@ namespace WindowsActivityTracker.Models
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public int DurationInSeconds { get; set; }
-        public string WindowTitle { get; set; }
+        public List<string> WindowTitles { get; set; }
         public string ProcessName { get; set; }
         public ActivityCategory ActivityCategory { get; set; }
+
+        public WindowsActivity()
+        {
+            WindowTitles = new List<string>();
+        }
     }
 }

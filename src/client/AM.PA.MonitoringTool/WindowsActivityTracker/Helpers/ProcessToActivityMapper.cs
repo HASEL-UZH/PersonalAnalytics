@@ -67,7 +67,7 @@ namespace WindowsActivityTracker.Helpers
         /// <param name="item"></param>
         public static void Map(WindowsActivity item)
         {
-            item.ActivityCategory = GetCategory(item.ProcessName, item.WindowTitle);
+            item.ActivityCategory = GetCategory(item.ProcessName, item.WindowTitles[0]);
         }
 
         /// <summary>

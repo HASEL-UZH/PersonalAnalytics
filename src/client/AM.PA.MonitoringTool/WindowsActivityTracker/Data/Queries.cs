@@ -122,7 +122,8 @@ namespace WindowsActivityTracker.Data
                     e.EndTime = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
                     e.DurationInSeconds = row.IsNull("durInSec") ? 0 : Convert.ToInt32(row["durInSec"], CultureInfo.InvariantCulture);
                     e.ProcessName = (string)row["process"];
-                    e.WindowTitle = (string)row["window"];
+                    var thisWindowTitle = (string)row["window"];
+                    e.WindowTitles.Add(thisWindowTitle);
 
                     // if the user wishes to see activity categories rather than processes
                     // map it automatically
@@ -140,6 +141,7 @@ namespace WindowsActivityTracker.Data
                             var lastItem = orderedActivityList.Last();
                             lastItem.DurationInSeconds += e.DurationInSeconds;
                             lastItem.EndTime = e.EndTime;
+                            lastItem.WindowTitles.Add(thisWindowTitle);
                         }
                         // previous item is same, update it (duration and tsEnd)
                         else if (!mapToActivity && e.ProcessName == _previousWindowsActivityEntry.ProcessName)
@@ -147,6 +149,7 @@ namespace WindowsActivityTracker.Data
                             var lastItem = orderedActivityList.Last();
                             lastItem.DurationInSeconds += e.DurationInSeconds;
                             lastItem.EndTime = e.EndTime;
+                            lastItem.WindowTitles.Add(thisWindowTitle);
                         }
                         // previous item is different, add it to list
                         else

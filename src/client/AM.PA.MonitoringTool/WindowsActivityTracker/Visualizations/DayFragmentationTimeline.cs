@@ -176,7 +176,7 @@ namespace WindowsActivityTracker.Visualizations
                              ", 'starting_time_formatted': '" + activityEntry.StartTime.ToShortTimeString() + 
                              "', 'ending_time_formatted': '" + activityEntry.EndTime.ToShortTimeString() + 
                              "', 'duration': " + Math.Round(activityEntry.DurationInSeconds / 60.0, 1) + 
-                             ", 'window_title': '" + activityEntry.WindowTitle.Replace("'", "") + 
+                             ", 'window_title': '" + ReadableWindowTitles(activityEntry.ProcessName, activityEntry.WindowTitles) + 
                              "', 'process': '" + ProcessNameHelper.GetFileDescription(activityEntry.ProcessName) + 
                              "', 'color': '" + GetHtmlColorForContextCategory(activityEntry.ActivityCategory) +
                              "', 'activity': '" + GetDescriptionForContextCategory(activityEntry.ActivityCategory) + "'}, ";
@@ -186,6 +186,35 @@ namespace WindowsActivityTracker.Visualizations
             }
 
             return html;
+        }
+
+        private string ReadableWindowTitles(string process, List<string> list)
+        {
+            var maxNumItems = 3;
+            var str = string.Empty;
+
+            // distinct items
+            var windowTitles = list.Distinct().ToList();
+
+            // only maxNumItems
+            if (windowTitles.Count > maxNumItems)
+            {
+                for (int i = 0; i < maxNumItems; i++)
+                {
+                    str += FormatWindowTitle(windowTitles[i]);
+                }
+                str += " and " + (windowTitles.Count - maxNumItems) + " more.";
+            }
+            else
+            {
+                foreach (var item in windowTitles) str += FormatWindowTitle(item);
+            }
+            return str.Trim().TrimEnd(',');
+        }
+
+        private string FormatWindowTitle(string windowTitle)
+        {
+            return string.IsNullOrEmpty(windowTitle) ? string.Empty : windowTitle.Replace("'", "") + ", ";
         }
 
         #region Helpers for legend and colors
