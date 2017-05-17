@@ -18,9 +18,7 @@ namespace WindowsActivityTracker.Visualizations
         private readonly DateTimeOffset _date;
         private bool _isStacked = false; //TODO: test with stack
         private const bool _mapToActivity = true; // TODO: test with false
-
-        private const int _timelineZoomFactor = 1; // TODO: change for user
-        private const string _defaultHoverText = "Hover over the timeline to see details."; 
+        private const int _timelineZoomFactor = 1; // shouldn't be 0!, if > 1 then the user can scroll on top of the timeline
 
         public DayFragmentationTimeline(DateTimeOffset date)
         {
@@ -76,6 +74,7 @@ namespace WindowsActivityTracker.Visualizations
         {
             var categories = activityList.Select(a => a.ActivityCategory).Distinct().OrderBy(a => a).ToList();
             string activityTimeline = "activityTimeline";
+            const string defaultHoverText = "Hint: Hover over the timeline to see details.";
 
             var html = string.Empty;
 
@@ -119,19 +118,22 @@ namespace WindowsActivityTracker.Visualizations
 
             // hover Event (d: current rendering object, i: index during d3 rendering, data: data object)
             var hover = @".hover(function(d, i, data) { 
-                            document.getElementById('hoverDetails').innerHTML = '<strong>From ' + d['starting_time_formatted'] + ' to ' + d['ending_time_formatted'] + '</strong> (duration: ' + d['duration'] + 'min)' +
-                                                                                '<br />Activity: ' + data['activity'] + 
-                                                                                '<br />Process: ' + d['process'] + 
-                                                                                '<br />Window title: ' + d['window_title']; 
+                            console.log(d);
+                            console.log(data);
+
+                            document.getElementById('hoverDetails').innerHTML = '<span style=\'font-size:1.2em; color:#007acc;\'>From ' + d['starting_time_formatted'] + ' to ' + d['ending_time_formatted'] + ' (' + d['duration'] + 'min)</span>' +
+                                                                                '<br /><strong>Activity</strong>: <span style=\'color:' + d['color'] + '\'>■</span> ' + d['activity'] +
+                                                                                '<br /><strong>Process</strong>: ' + d['process'] + 
+                                                                                '<br /><strong>Window title</strong>: ' + d['window_title']; 
                         })";
-            
+
             // mouseout Event
-            var mouseout = @".mouseout(function (d, i, datum) { document.getElementById('hoverDetails').innerHTML = '" + _defaultHoverText + "'; })";
+            var mouseout = @".mouseout(function (d, i, datum) { document.getElementById('hoverDetails').innerHTML = '" + defaultHoverText + "'; })";
 
             // define configuration
             html += (_isStacked)
-                    ? "var " + activityTimeline + " = d3.timeline().width(" + _timelineZoomFactor + " * itemWidth).itemHeight(itemHeight).stack().colors(colorScale).colorProperty('activity') " + hover + mouseout + ";"
-                    : "var " + activityTimeline + " = d3.timeline().width(" + _timelineZoomFactor + " * itemWidth).itemHeight(itemHeight).colors(colorScale).colorProperty('activity')" + hover + mouseout + ";";
+                    ? "var " + activityTimeline + " = d3.timeline().width(" + _timelineZoomFactor + " * itemWidth).itemHeight(itemHeight).stack()" + hover + mouseout + ";" // .colors(colorScale).colorProperty('activity') 
+                    : "var " + activityTimeline + " = d3.timeline().width(" + _timelineZoomFactor + " * itemWidth).itemHeight(itemHeight)" + hover + mouseout + ";"; // .colors(colorScale).colorProperty('activity')
             html += "var svg = d3.select('#" + activityTimeline + "').append('svg').attr('width', itemWidth).datum(data).call(" + activityTimeline + "); ";
 
             html += "}; "; // end #1
@@ -142,7 +144,7 @@ namespace WindowsActivityTracker.Visualizations
             /////////////////////
 
             // details
-            html += "<div style='height:35%; style=''><p id='hoverDetails'>"+ _defaultHoverText + "</p></div>";
+            html += "<div style='height:35%; style='align: center'><p id='hoverDetails'>"+ defaultHoverText + "</p></div>";
 
             // add timeline
             html += "<div id='" + activityTimeline + "' align='center'></div>";
@@ -178,7 +180,9 @@ namespace WindowsActivityTracker.Visualizations
                              "', 'ending_time_formatted': '" + activityEntry.EndTime.ToShortTimeString() + 
                              "', 'duration': " + Math.Round(activityEntry.DurationInSeconds / 60.0, 1) + 
                              ", 'window_title': '" + activityEntry.WindowTitle.Replace("'", "") + 
-                             "', 'process': '"  + ProcessNameHelper.GetFileDescription(activityEntry.ProcessName) + "'}, ";
+                             "', 'process': '" + ProcessNameHelper.GetFileDescription(activityEntry.ProcessName) + 
+                             "', 'color': '" + GetHtmlColorForContextCategory(activityEntry.ActivityCategory) +
+                             "', 'activity': '" + GetDescriptionForContextCategory(activityEntry.ActivityCategory) + "'}, ";
                 }
 
                 html += (_isStacked)
@@ -306,7 +310,7 @@ namespace WindowsActivityTracker.Visualizations
                     return "Reading/Editing Documents";
                 case ActivityCategory.InformalMeeting:
                 case ActivityCategory.InstantMessaging:
-                    return "Ad-hoc meetings/IM";
+                    return "Instant Messaging"; // Ad-Hoc Meeting
                 case ActivityCategory.PlannedMeeting:
                     return "Scheduled meetings";
                 case ActivityCategory.Planning:
@@ -330,7 +334,7 @@ namespace WindowsActivityTracker.Visualizations
                 case ActivityCategory.OtherRdp:
                     return "RDP (uncategorized)";
                 case ActivityCategory.Idle:
-                    return "Idle (e.g. break, lunch)";
+                    return "Idle (e.g. break, lunch, meeting)";
             }
 
             return "??"; // default color
