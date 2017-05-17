@@ -102,7 +102,7 @@ namespace TimeSpentVisualizer.Visualizers
             this._showEmailsEnabled = showEmailsEnabled;
             this._showProgramsEnabled = showProgramsEnabled;
 
-            Title = "Time Spent"; // (on websites, in meetings, in programs, in files, in Visual Studio projects and on code reviews)";
+            Title = "Details: Time Spent"; // (on websites, in meetings, in programs, in files, in Visual Studio projects and on code reviews)";
             IsEnabled = true; //todo: handle by user
             Order = 23; //todo: handle by user
             Size = VisSize.Wide;

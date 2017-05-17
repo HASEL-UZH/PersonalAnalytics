@@ -7,7 +7,7 @@ using System;
 using System.Linq;
 using Windows.Security.Credentials;
 
-namespace FitbitTracker
+namespace FitbitTracker.Data
 {
 
     //Stores access token. See: https://social.msdn.microsoft.com/Forums/en-US/8160064a-dd96-463f-b3b7-4243f20c13e4/recommended-way-to-store-oauth-clientid-and-secret-for-rest-services-in-a-xaml-metro-app?forum=winappswithcsharp
