@@ -104,17 +104,15 @@ namespace TimeSpentVisualizer.Visualizers
 
             Title = "Details: Time Spent"; // (on websites, in meetings, in programs, in files, in Visual Studio projects and on code reviews)";
             IsEnabled = true; //todo: handle by user
-            Order = 23; //todo: handle by user
+            Order = 19; //todo: handle by user
             Size = VisSize.Wide;
             Type = VisType.Day;
         }
 
         public override string GetHtml()
         {
-            var html = string.Empty;
-
+            var html = string.Empty
             var list = new List<TimeSpentItem>();
-
 
             /////////////////////
             // fetch & combine data sets
