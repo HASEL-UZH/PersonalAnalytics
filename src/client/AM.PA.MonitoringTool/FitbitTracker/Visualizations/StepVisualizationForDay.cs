@@ -19,7 +19,7 @@ namespace FitbitTracker
 
         public StepVisualizationForDay(DateTimeOffset date)
         {
-            Title = "Steps per " + MINUTES_PER_BAR + " minutes";
+            Title = "Steps per " + MINUTES_PER_BAR + " Minutes";
             this._date = date;
             IsEnabled = true;
             Size = VisSize.Wide;
