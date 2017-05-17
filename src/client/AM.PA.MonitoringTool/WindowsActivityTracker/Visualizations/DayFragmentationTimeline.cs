@@ -16,9 +16,8 @@ namespace WindowsActivityTracker.Visualizations
     internal class DayFragmentationTimeline : BaseVisualization, IVisualization
     {
         private readonly DateTimeOffset _date;
-        private bool _isStacked = false; //TODO: test with stack
-        private const bool _mapToActivity = true; // TODO: test with false
         private const int _timelineZoomFactor = 1; // shouldn't be 0!, if > 1 then the user can scroll on top of the timeline
+        private const bool _mapToActivity = true; // don't change! (the visualization that shows the processes instead of the activities is NOT yet finished)
 
         public DayFragmentationTimeline(DateTimeOffset date)
         {
@@ -131,9 +130,7 @@ namespace WindowsActivityTracker.Visualizations
             var mouseout = @".mouseout(function (d, i, datum) { document.getElementById('hoverDetails').innerHTML = '" + defaultHoverText + "'; })";
 
             // define configuration
-            html += (_isStacked)
-                    ? "var " + activityTimeline + " = d3.timeline().width(" + _timelineZoomFactor + " * itemWidth).itemHeight(itemHeight).stack()" + hover + mouseout + ";" // .colors(colorScale).colorProperty('activity') 
-                    : "var " + activityTimeline + " = d3.timeline().width(" + _timelineZoomFactor + " * itemWidth).itemHeight(itemHeight)" + hover + mouseout + ";"; // .colors(colorScale).colorProperty('activity')
+            html += "var " + activityTimeline + " = d3.timeline().width(" + _timelineZoomFactor + " * itemWidth).itemHeight(itemHeight)" + hover + mouseout + ";"; // .colors(colorScale).colorProperty('activity') // .stack()
             html += "var svg = d3.select('#" + activityTimeline + "').append('svg').attr('width', itemWidth).datum(data).call(" + activityTimeline + "); ";
 
             html += "}; "; // end #1
@@ -143,14 +140,14 @@ namespace WindowsActivityTracker.Visualizations
             // HTML
             /////////////////////
 
-            // details
+            // show details on hover
             html += "<div style='height:35%; style='align: center'><p id='hoverDetails'>"+ defaultHoverText + "</p></div>";
 
             // add timeline
             html += "<div id='" + activityTimeline + "' align='center'></div>";
 
-            // add legend (if not stacked; there we have a legend)
-            if (!_isStacked) html += GetLegendForCategories(categories);
+            // add legend 
+            html += GetLegendForCategories(categories);
 
             return html;
         }
@@ -185,9 +182,7 @@ namespace WindowsActivityTracker.Visualizations
                              "', 'activity': '" + GetDescriptionForContextCategory(activityEntry.ActivityCategory) + "'}, ";
                 }
 
-                html += (_isStacked)
-                    ? "{label: '" + category + "', activity: '" + category + "', times: [" + times + "]}, "
-                    : "{activity: '" + category + "', times: [" + times + "]}, ";
+                html += "{activity: '" + category + "', times: [" + times + "]}, ";
             }
 
             return html;
@@ -283,10 +278,10 @@ namespace WindowsActivityTracker.Visualizations
                 case ActivityCategory.Idle:
                     return "white";
                 case ActivityCategory.Uncategorized:
-                    return noneColor; // TODO: check
+                    return noneColor; 
             }
 
-            return noneColor; //"#007acb"; // default color
+            return noneColor; // default color
         }
 
         /// <summary>
