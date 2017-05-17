@@ -111,7 +111,7 @@ namespace TimeSpentVisualizer.Visualizers
 
         public override string GetHtml()
         {
-            var html = string.Empty
+            var html = string.Empty;
             var list = new List<TimeSpentItem>();
 
             /////////////////////
