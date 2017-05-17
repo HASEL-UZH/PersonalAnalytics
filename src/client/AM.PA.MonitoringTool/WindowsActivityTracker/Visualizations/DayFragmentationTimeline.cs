@@ -18,7 +18,6 @@ namespace WindowsActivityTracker.Visualizations
     {
         private readonly DateTimeOffset _date;
         private const int _timelineZoomFactor = 1; // shouldn't be 0!, if > 1 then the user can scroll on top of the timeline
-        private const bool _mapToActivity = true; // don't change! (the visualization that shows the processes instead of the activities is NOT yet finished)
 
         public DayFragmentationTimeline(DateTimeOffset date)
         {
@@ -38,7 +37,7 @@ namespace WindowsActivityTracker.Visualizations
             /////////////////////
             // fetch data sets
             /////////////////////
-            var orderedTimelineList = Queries.GetDayTimelineData(_date, _mapToActivity);
+            var orderedTimelineList = Queries.GetDayTimelineData(_date);
 
             /////////////////////
             // data cleaning
@@ -114,7 +113,7 @@ namespace WindowsActivityTracker.Visualizations
 
             // width & height
             html += "var itemWidth = 0.98 * document.getElementsByClassName('item Wide')[0].offsetWidth;";
-            html += "var itemHeight = 0.15 * document.getElementsByClassName('item Wide')[0].offsetHeight;";
+            html += "var itemHeight = 0.13 * document.getElementsByClassName('item Wide')[0].offsetHeight;";
 
             // hover Event (d: current rendering object, i: index during d3 rendering, data: data object)
             var hover = @".hover(function(d, i, data) { 
@@ -123,8 +122,8 @@ namespace WindowsActivityTracker.Visualizations
 
                             document.getElementById('hoverDetails').innerHTML = '<span style=\'font-size:1.2em; color:#007acc;\'>From ' + d['starting_time_formatted'] + ' to ' + d['ending_time_formatted'] + ' (' + d['duration'] + 'min)</span>' +
                                                                                 '<br /><strong>Activity</strong>: <span style=\'color:' + d['color'] + '\'>■</span> ' + d['activity'] +
-                                                                                '<br /><strong>Process</strong>: ' + d['process'] + 
-                                                                                '<br /><strong>Window title</strong>: ' + d['window_title']; 
+                                                                                '<br /><strong>Processes</strong>: ' + d['processes'] + 
+                                                                                '<br /><strong>Window Titles</strong>: ' + d['window_titles']; 
                         })";
 
             // mouseout Event
@@ -142,7 +141,7 @@ namespace WindowsActivityTracker.Visualizations
             /////////////////////
 
             // show details on hover
-            html += "<div style='height:35%; style='align: center'><p id='hoverDetails'>"+ defaultHoverText + "</p></div>";
+            html += "<div style='height:37%; style='align: center'><p id='hoverDetails'>"+ defaultHoverText + "</p></div>";
 
             // add timeline
             html += "<div id='" + activityTimeline + "' align='center'></div>";
@@ -177,8 +176,8 @@ namespace WindowsActivityTracker.Visualizations
                              ", 'starting_time_formatted': '" + activityEntry.StartTime.ToShortTimeString() + 
                              "', 'ending_time_formatted': '" + activityEntry.EndTime.ToShortTimeString() + 
                              "', 'duration': " + Math.Round(activityEntry.DurationInSeconds / 60.0, 1) + 
-                             ", 'window_title': '" + ReadableWindowTitles(activityEntry.ProcessName, activityEntry.WindowTitles) + 
-                             "', 'process': '" + ProcessNameHelper.GetFileDescription(activityEntry.ProcessName) + 
+                             ", 'window_titles': '" + ReadableWindowTitles(activityEntry.WindowProcessList) + 
+                             "', 'processes': '" + ReadableProcesses(activityEntry.WindowProcessList) + 
                              "', 'color': '" + GetHtmlColorForContextCategory(activityEntry.ActivityCategory) +
                              "', 'activity': '" + GetDescriptionForContextCategory(activityEntry.ActivityCategory) + "'}, ";
                 }
@@ -189,34 +188,54 @@ namespace WindowsActivityTracker.Visualizations
             return html;
         }
 
-        private string ReadableWindowTitles(string process, List<string> list)
+        #region Readable WindowTitle and Process
+
+        private string ReadableWindowTitles(List<WindowProcessItem> list)
         {
             var maxNumItems = 5;
             var str = string.Empty;
 
             // distinct items
-            var windowTitles = list.Distinct().ToList();
+            var windowTitles = list.Select(i => i.WindowTitle).Distinct().ToList();
 
             // only maxNumItems
             if (windowTitles.Count > maxNumItems)
             {
                 for (int i = 0; i < maxNumItems; i++)
                 {
-                    str += FormatWindowTitle(process, windowTitles[i]);
+                    str += FormatWindowTitle(windowTitles[i]);
                 }
                 str += " and " + (windowTitles.Count - maxNumItems) + " more.";
             }
             else
             {
-                foreach (var item in windowTitles) str += FormatWindowTitle(process, item);
+                foreach (var item in windowTitles) str += FormatWindowTitle(item);
             }
             return str.Trim().TrimEnd(',');
         }
 
-        private string FormatWindowTitle(string process, string windowTitle)
+        private string FormatWindowTitle(string windowTitle)
         {
             return string.IsNullOrEmpty(windowTitle) ? string.Empty : windowTitle.Replace("'", "") + ", ";
         }
+
+        private string ReadableProcesses(List<WindowProcessItem> list)
+        {
+            // distinct processes
+            var processes = list.Select(i => i.Process).Distinct().ToList();
+
+            // build readable string
+            var str = string.Empty;
+            foreach (var item in processes) str += FormatProcesses(item);
+            return str.Trim().TrimEnd(',');
+        }
+
+        private string FormatProcesses(string process)
+        {
+            return string.IsNullOrEmpty(process) ? string.Empty : ProcessNameHelper.GetFileDescription(process).Replace("'", "") + ", ";
+        }
+
+        #endregion
 
         #region Helpers for legend and colors
 

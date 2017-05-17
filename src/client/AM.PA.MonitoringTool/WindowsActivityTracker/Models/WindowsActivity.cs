@@ -16,13 +16,24 @@ namespace WindowsActivityTracker.Models
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public int DurationInSeconds { get; set; }
-        public List<string> WindowTitles { get; set; }
-        public string ProcessName { get; set; }
+        public List<WindowProcessItem> WindowProcessList { get; set; }
         public ActivityCategory ActivityCategory { get; set; }
 
         public WindowsActivity()
         {
-            WindowTitles = new List<string>();
+            WindowProcessList = new List<WindowProcessItem>();
         }
+    }
+
+    public class WindowProcessItem
+    {
+        public WindowProcessItem(string process, string window)
+        {
+            Process = process;
+            WindowTitle = window;
+        }
+
+        public string WindowTitle { get; set; }
+        public string Process { get; set; }
     }
 }
