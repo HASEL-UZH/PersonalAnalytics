@@ -10,6 +10,7 @@ using Shared;
 using Shared.Helpers;
 using WindowsActivityTracker.Data;
 using WindowsActivityTracker.Models;
+using Shared.Data.Extractors;
 
 namespace WindowsActivityTracker.Visualizations
 {
@@ -190,7 +191,7 @@ namespace WindowsActivityTracker.Visualizations
 
         private string ReadableWindowTitles(string process, List<string> list)
         {
-            var maxNumItems = 3;
+            var maxNumItems = 5;
             var str = string.Empty;
 
             // distinct items
@@ -201,18 +202,18 @@ namespace WindowsActivityTracker.Visualizations
             {
                 for (int i = 0; i < maxNumItems; i++)
                 {
-                    str += FormatWindowTitle(windowTitles[i]);
+                    str += FormatWindowTitle(process, windowTitles[i]);
                 }
                 str += " and " + (windowTitles.Count - maxNumItems) + " more.";
             }
             else
             {
-                foreach (var item in windowTitles) str += FormatWindowTitle(item);
+                foreach (var item in windowTitles) str += FormatWindowTitle(process, item);
             }
             return str.Trim().TrimEnd(',');
         }
 
-        private string FormatWindowTitle(string windowTitle)
+        private string FormatWindowTitle(string process, string windowTitle)
         {
             return string.IsNullOrEmpty(windowTitle) ? string.Empty : windowTitle.Replace("'", "") + ", ";
         }

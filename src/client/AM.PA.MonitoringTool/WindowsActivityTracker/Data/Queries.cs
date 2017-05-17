@@ -4,6 +4,7 @@
 // Licensed under the MIT License.
 using Shared;
 using Shared.Data;
+using Shared.Data.Extractors;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -122,7 +123,12 @@ namespace WindowsActivityTracker.Data
                     e.EndTime = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
                     e.DurationInSeconds = row.IsNull("durInSec") ? 0 : Convert.ToInt32(row["durInSec"], CultureInfo.InvariantCulture);
                     e.ProcessName = (string)row["process"];
+
+                    // make window titles more readable (TODO: improve!)
                     var thisWindowTitle = (string)row["window"];
+                    thisWindowTitle = WindowTitleWebsitesExtractor.GetWebsiteDetails(e.ProcessName, thisWindowTitle);
+                    thisWindowTitle = WindowTitleArtifactExtractor.GetArtifactDetails(e.ProcessName, thisWindowTitle);
+                    thisWindowTitle = WindowTitleCodeExtractor.GetProjectName(thisWindowTitle);
                     e.WindowTitles.Add(thisWindowTitle);
 
                     // if the user wishes to see activity categories rather than processes
