@@ -12,6 +12,7 @@ using TaskDetectionTracker.Model;
 using System.IO;
 using TaskDetectionTracker.Properties;
 using Shared;
+using System.Diagnostics;
 
 namespace TaskDetectionTracker.Algorithm
 {
@@ -294,7 +295,7 @@ namespace TaskDetectionTracker.Algorithm
                     tcs.Add(tc);
                 }
 
-                engine.Dispose();
+                
             }
             catch (Exception e)
             {
@@ -368,9 +369,9 @@ namespace TaskDetectionTracker.Algorithm
                             var dur = p.End - p.Start;
                             sum += dur.TotalMinutes;
                         }
-                        double avgTimeInProcessCat = sum / duration.TotalMinutes;
-                        csv_types.Append(avgTimeInProcessCat + del);
                     }
+                    double avgTimeInProcessCat = sum / duration.TotalMinutes;
+                    csv_types.Append(avgTimeInProcessCat + del);
                 }
                 #endregion
 
@@ -398,16 +399,30 @@ namespace TaskDetectionTracker.Algorithm
         private void PredictTypes(List<TaskDetection> tcs)
         {
             //1: Private, 2: Planned Meeting, 3: Unplanned Meeting, 4: Awareness, 5: Planning, 6: Observation, 7: Development, 8: Adminstrative Work
-            // start REngine
+
             REngine engine = REngine.GetInstance();
-
+            engine.Initialize();
             // read taskswitch-data
-            engine.Evaluate("data <- read.csv(file = \"" + GetTaskDetectionDumpsPath(_taskTypeDataFolder, _taskTypeDataFileName) + "\", sep = \",\", header = TRUE)");
+            
+            engine.Evaluate("tasktypedata <- read.csv(file = '" + R_ConvertPathToForwardSlash(GetTaskDetectionDumpsPath(_taskTypeDataFolder, _taskTypeDataFileName)) + "', sep = \",\", header = TRUE)");
 
+            engine.Evaluate(".libPaths('C:/Users/katja/OneDrive/Documents/R/win-library/3.3')");
+            engine.Evaluate("library(randomForest)");
+            
             // read
-            engine.Evaluate("load(\"" + _taskTypeDetectionModelFileName + "\")");
-            GenericVector typeResult = engine.Evaluate("prob <- predict(model, newdata = data, type = \"response\")").AsList();
+            engine.Evaluate("load(\"" + R_ConvertPathToForwardSlash(_taskTypeDetectionModelFileName) + "\")");
+
+            GenericVector typeResult = engine.Evaluate("prob <- predict(model, newdata = tasktypedata, type = \"response\")").AsList();
             //as.numeric(as.character(prob[1])
+
+            for(int i= 0; i< typeResult.Count(); i++)
+            {
+                string res = typeResult[i].AsCharacter().First();
+                tcs[i].TaskTypeProposed = res;
+            }
+
+
+            engine.Dispose();
 
         }
 

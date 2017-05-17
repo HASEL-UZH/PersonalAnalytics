@@ -64,26 +64,27 @@ namespace TaskDetectionTracker.Properties {
         ///   Looks up a localized string similar to Process,Category
         ///Alarms &amp; Clock,Utility
         ///APConsole,Console
-        ///BC2,Developer Tool
-        ///BCompare,Developer Tool
+        ///BC2,DeveloperTool
+        ///BCompare,DeveloperTool
         ///BI.AutomatedTesting.vshost,IDE
-        ///Bugger,Developer Tool
+        ///Bugger,DeveloperTool
         ///chrome,Browser
-        ///cleardescribe,Developer Tool
+        ///cleardescribe,DeveloperTool
         ///clearexplorer,Explorer
-        ///clearmrgman,Developer Tool
-        ///clearprojexp,Project Explorer
-        ///clearviewupdate,Developer Tool
-        ///clearvtree,Developer Tool
+        ///clearmrgman,DeveloperTool
+        ///clearprojexp,ProjectExplorer
+        ///clearviewupdate,DeveloperTool
+        ///clearvtree,DeveloperTool
         ///cmd,Console
         ///CodeFlow,Review
         ///Compose,ReadWrite
         ///ConsoleApp.vshost,IDE
         ///cqintsvr11,IDE
-        ///defectviewer,Testing Tool
+        ///defectviewer,TestingTool
         ///devenv,IDE
-        ///dllhost,Developer Tool
-        ///dwm,Unknown        /// [rest of string was truncated]&quot;;.
+        ///dllhost,DeveloperTool
+        ///dwm,Unknown
+        ///eclipse,I [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string ProcessCategories {
             get {

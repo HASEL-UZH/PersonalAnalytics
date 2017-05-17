@@ -1,25 +1,25 @@
 Process,Category
 Alarms & Clock,Utility
 APConsole,Console
-BC2,Developer Tool
-BCompare,Developer Tool
+BC2,DeveloperTool
+BCompare,DeveloperTool
 BI.AutomatedTesting.vshost,IDE
-Bugger,Developer Tool
+Bugger,DeveloperTool
 chrome,Browser
-cleardescribe,Developer Tool
+cleardescribe,DeveloperTool
 clearexplorer,Explorer
-clearmrgman,Developer Tool
-clearprojexp,Project Explorer
-clearviewupdate,Developer Tool
-clearvtree,Developer Tool
+clearmrgman,DeveloperTool
+clearprojexp,ProjectExplorer
+clearviewupdate,DeveloperTool
+clearvtree,DeveloperTool
 cmd,Console
 CodeFlow,Review
 Compose,ReadWrite
 ConsoleApp.vshost,IDE
 cqintsvr11,IDE
-defectviewer,Testing Tool
+defectviewer,TestingTool
 devenv,IDE
-dllhost,Developer Tool
+dllhost,DeveloperTool
 dwm,Unknown
 eclipse,IDE
 EXCEL,ReadWrite
@@ -27,14 +27,14 @@ explorer,Explorer
 firefox,Browser
 FlashPlayerPlugin_15_0_0_239,Music
 Foxit Reader,ReadWrite
-GitHub,Developer Tool
+GitHub,DeveloperTool
 IDLE,Idle
 iexplore,Browser
 ImmersiveOfficeLauncher,Unknown
-inspect,Developer Tool
+inspect,DeveloperTool
 IQ.Foundation.Messaging.AzureQueueConsumerSample.vshost,IDE
 IQ.Foundation.Messaging.AzureQueueProducerSample.vshost,IDE
-javaw,Developer Tool
+javaw,DeveloperTool
 lync,IM
 Microsoft Edge,Browser
 mintty,Console
@@ -43,33 +43,33 @@ MobileWinC.vshost,IDE
 mstsc,Remote
 notepad,ReadWrite
 OneNote,ReadWrite
-onohostutility,Developer Tool
+onohostutility,DeveloperTool
 OUTLOOK,Mail
 PersonalAnalytics,Utility
 PhotoFiltre,ReadWrite
 pidgin,IM
 plsqldev,SQL
-Postman,Testing Tool
+Postman,TestingTool
 putty,Remote
-reSearch v2,Developer Tool
+reSearch v2,DeveloperTool
 sdb,Unknown
-SDForms,Developer Tool
-sdv,Developer Tool
-sdvdiff,Developer Tool
-ServiceBusExplorer,Developer Tool
-ShellExperienceHost,Windows Process
+SDForms,DeveloperTool
+sdv,DeveloperTool
+sdvdiff,DeveloperTool
+ServiceBusExplorer,DeveloperTool
+ShellExperienceHost,WindowsProcess
 Skype,IM
 slack,IM
 SndVol,Music
 SnippingTool,Utility
-SourceTree,Developer Tool
+SourceTree,DeveloperTool
 Spotify,Music
 Ssms,SQL
 taskcoach,Utility
 VirtualBox,Remote
-WinMerge 2.14.0 Setup.tmp,Developer Tool
-WinMergeU,Developer Tool
+WinMerge 2.14.0 Setup.tmp,DeveloperTool
+WinMergeU,DeveloperTool
 WINWORD,ReadWrite
 WINZIP32,Utility
 wmplayer,Music
-product,Developer Tool
+product,DeveloperTool

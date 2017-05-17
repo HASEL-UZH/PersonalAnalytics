@@ -104,7 +104,9 @@
     <Content Include="Resources\taskswitchdetectionmodel.rda">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="Resources\tasktypedetectionmodel.rda" />
+    <Content Include="Resources\tasktypedetectionmodel.rda">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
