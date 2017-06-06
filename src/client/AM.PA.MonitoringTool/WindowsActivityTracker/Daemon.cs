@@ -2,6 +2,7 @@
 // Created: 2015-10-30
 // 
 // Licensed under the MIT License.
+
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -74,6 +75,7 @@ namespace WindowsActivityTracker
 
                 // Register for logout/shutdown event
                 SystemEvents.SessionEnding += SessionEnding;
+                SystemEvents.PowerModeChanged += OnPowerChange;
 
                 // Register to check if idle or not
                 if (Settings.RecordIdle)
@@ -184,7 +186,6 @@ namespace WindowsActivityTracker
             // idle if no input for more than 'Interval' milliseconds (120s)
             var isIdle = ((Environment.TickCount - _lastInputInfo.dwTime) > Settings.NotCountingAsIdleInterval);
 
-
             if (isIdle && _lastEntryWasIdle)
             {
                 // don't save, already saved
@@ -268,6 +269,12 @@ namespace WindowsActivityTracker
                 currentWindowTitle = "LockScreen";
                 currentProcess = Dict.Idle;
             }
+            // [special case] slidetoshutdown (shutdown and logout events are handled separately)
+            else if (!string.IsNullOrEmpty(currentProcess) && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture).Contains("slidetoshutdown"))
+            {
+                currentWindowTitle = "SlideToShutDown";
+                currentProcess = Dict.Idle;
+            }
             // [special case] Windows 10 apps (e.g. Edge, Photos, Mail)
             else if (currentProcess.ToLower().Equals("applicationframehost"))
             {
@@ -285,7 +292,7 @@ namespace WindowsActivityTracker
             //add more special cases if necessary
 
             // save if process or window title changed and user was not IDLE in past interval
-            var differentProcessNotIdle = !string.IsNullOrEmpty(currentProcess) && _previousProcess != currentProcess && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture) != "idle";
+            var differentProcessNotIdle = !string.IsNullOrEmpty(currentProcess) && _previousProcess != currentProcess && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture) != Dict.Idle.ToLower(CultureInfo.InvariantCulture);
             var differentWindowTitle = !string.IsNullOrEmpty(currentWindowTitle) && _previousWindowTitleEntry != currentWindowTitle;
             var notIdleLastInterval = !((Environment.TickCount - _lastInputInfo.dwTime) > Settings.NotCountingAsIdleInterval);
 
@@ -307,6 +314,8 @@ namespace WindowsActivityTracker
         /// <param name="e"></param>
         private void SessionEnding(object sender, SessionEndingEventArgs e)
         {
+            Logger.WriteToLogFile(new Exception("Session Ending Event catched: " + e.Reason)); // TODO: temp
+
             if (e.Reason == SessionEndReasons.Logoff)
             {
                 SetAndStoreProcessAndWindowTitle("Logoff", Dict.Idle);
@@ -314,6 +323,24 @@ namespace WindowsActivityTracker
             else if (e.Reason == SessionEndReasons.SystemShutdown)
             {
                 SetAndStoreProcessAndWindowTitle("SystemShutdown", Dict.Idle);
+            }
+        }
+
+        private void OnPowerChange(object sender, PowerModeChangedEventArgs e)
+        {
+            Logger.WriteToLogFile(new Exception("Session Ending Event catched: " + e.Mode)); // TODO: temp
+
+            if (e.Mode == PowerModes.Resume)
+            {
+                // todo: check if we need some cleaning here
+            }
+            else if (e.Mode == PowerModes.Suspend)
+            {
+                SetAndStoreProcessAndWindowTitle("Suspend", Dict.Idle);
+            }
+            else if (e.Mode == PowerModes.StatusChange)
+            {
+                // todo: handle docking station stuff here?
             }
         }
 
