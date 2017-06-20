@@ -403,7 +403,7 @@ namespace PersonalAnalytics
             if (_settings.IsUserEfficiencyTrackerEnabled()) TaskbarIcon.ContextMenu.Items.Add(m2);
 
             var m1 = new MenuItem { Header = "Show Retrospection" };
-            m1.Click += (o, i) => Retrospection.Handler.GetInstance().OpenRetrospection();
+            m1.Click += (o, i) => OpenRetrospection();
             if (Retrospection.Settings.IsEnabled) TaskbarIcon.ContextMenu.Items.Add(m1);
 
 #if DEBUG

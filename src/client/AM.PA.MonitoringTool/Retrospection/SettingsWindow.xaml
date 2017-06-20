@@ -26,6 +26,12 @@
                      VerticalAlignment="Top"
                      Header="Data Tracker Settings">
                 <StackPanel Margin="10">
+                    <StackPanel Orientation="Horizontal" Margin="0 0 0 20">
+                        <!-- only temporary for the goalsetting interview study-->
+                        <TextBox x:Name="TbPinToEnableRetrospection" Text="Enter PIN here" TextChanged="TbPinToEnableRetrospection_TextChanged" Margin="0 0 10 0" />
+                        <TextBlock x:Name="TbHintToEnableRetrospection" Text="The retrospection has been disabled for the first part of the study. Only the researcher knows the pin." Foreground="Gray" />
+                        <TextBlock x:Name="TbHintEnabledRetrospection" Text="The researcher successfully enabled the retrospection." Foreground="Red" Visibility="Collapsed" />
+                    </StackPanel>
                     <CheckBox x:Name="CbPopUpsEnabled" Content="Productivity pop-ups enabled" />
                     <TextBlock Margin="20 0 0 0"
                                Foreground="Gray"

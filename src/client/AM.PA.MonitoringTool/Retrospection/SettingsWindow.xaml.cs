@@ -268,5 +268,25 @@ namespace Retrospection
             DialogResult = true;
             this.Close();
         }
+
+        /// <summary>
+        /// This function is here temporarily to enable the retrospection after the GoalSetting study's first part
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TbPinToEnableRetrospection_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            var pin = "11235813";
+
+            if (TbPinToEnableRetrospection.Text == pin)
+            {
+                TbPinToEnableRetrospection.Text = string.Empty;
+                TbHintToEnableRetrospection.Visibility = Visibility.Collapsed;
+                TbHintEnabledRetrospection.Visibility = Visibility.Visible;
+
+                // enable retrospeciton in settings
+                Database.GetInstance().SetSettings("TempRetrospectionDisabled", false);
+            }
+        }
     }
 }

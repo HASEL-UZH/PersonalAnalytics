@@ -137,6 +137,14 @@ namespace Retrospection
 
         public bool OpenRetrospection()
         {
+            //TODO TEMP: temporary until study is over
+            if (Database.GetInstance().GetSettingsBool("TempRetrospectionDisabled", true))
+            {
+                MessageBox.Show("For the first part of this study, the retrospection was disabled. The researcher will enable it later. Thanks.", "PersonalAnalytics: Cannot use Retrospection yet!",
+                    MessageBoxButton.OK, MessageBoxImage.Warning, MessageBoxResult.None, MessageBoxOptions.DefaultDesktopOnly);
+                return false;
+            }
+
             try
             {
                 // new window
