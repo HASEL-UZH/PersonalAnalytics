@@ -268,6 +268,8 @@ namespace WindowsActivityTracker
             {
                 currentWindowTitle = "LockScreen";
                 currentProcess = Dict.Idle;
+
+                ResumeComputerIdleChecker();
             }
             // [special case] slidetoshutdown (shutdown and logout events are handled separately)
             else if (!string.IsNullOrEmpty(currentProcess) && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture).Contains("slidetoshutdown"))
@@ -298,24 +300,19 @@ namespace WindowsActivityTracker
 
             if ((differentProcessNotIdle || differentWindowTitle)) // && notIdleLastInterval)
             {
-                _previousWindowTitleEntry = currentWindowTitle;
-                _previousProcess = currentProcess;
                 _previousHandle = handle;
-                _lastEntryWasIdle = false;
-
                 Queries.InsertSnapshot(currentWindowTitle, currentProcess);
             }
         }
 
         /// <summary>
-        /// Catch logout/Shutdown event
+        /// Catch logout and shutdown (also restart) event
+        /// (Hint: this event for some reason is not always catched/thrown...)
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void SessionEnding(object sender, SessionEndingEventArgs e)
         {
-            Logger.WriteToLogFile(new Exception("Session Ending Event catched: " + e.Reason)); // TODO: temp
-
             if (e.Reason == SessionEndReasons.Logoff)
             {
                 SetAndStoreProcessAndWindowTitle("Logoff", Dict.Idle);
@@ -326,13 +323,17 @@ namespace WindowsActivityTracker
             }
         }
 
+        /// <summary>
+        /// Catch PowerMode-changes (e.g. resume computer, suspend computer, change charging)
+        /// (Hint: this event for some reason is not always catched/thrown...)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnPowerChange(object sender, PowerModeChangedEventArgs e)
         {
-            Logger.WriteToLogFile(new Exception("Session Ending Event catched: " + e.Mode)); // TODO: temp
-
             if (e.Mode == PowerModes.Resume)
             {
-                // todo: check if we need some cleaning here
+                ResumeComputerIdleChecker();
             }
             else if (e.Mode == PowerModes.Suspend)
             {
@@ -344,6 +345,17 @@ namespace WindowsActivityTracker
             }
         }
 
+        private void ResumeComputerIdleChecker()
+        {
+            // TODO: implement
+        }
+
+        /// <summary>
+        /// Saves the Windows Activity Event into the database
+        /// (also re-sets the previous item values)
+        /// </summary>
+        /// <param name="windowTitle"></param>
+        /// <param name="process"></param>
         private void SetAndStoreProcessAndWindowTitle(string windowTitle, string process)
         {
             _previousWindowTitleEntry = windowTitle;
