@@ -169,6 +169,21 @@ namespace WindowsActivityTracker
 
         #endregion
 
+        /// <summary>
+        /// Saves the Windows Activity Event into the database
+        /// (also re-sets the previous item values)
+        /// </summary>
+        /// <param name="windowTitle"></param>
+        /// <param name="process"></param>
+        private void SetAndStoreProcessAndWindowTitle(string windowTitle, string process)
+        {
+            _previousWindowTitleEntry = windowTitle;
+            _previousProcess = process;
+            _lastEntryWasIdle = (process == Dict.Idle);
+
+            Queries.InsertSnapshot(windowTitle, process);
+        }
+
         #region Idle Time Checker
 
         /// <summary>
@@ -201,27 +216,18 @@ namespace WindowsActivityTracker
             }
             else if (isIdle && ! _lastEntryWasIdle)
             {
-                StoreIdle();
+                // store Idle (i.e. from process -> IDLE)
+                SetAndStoreProcessAndWindowTitle(Dict.Idle, Dict.Idle); 
             }
             else if (! isIdle && _lastEntryWasIdle)
             {
-                StoreProcess(); // resumed work in the same program
+                // resumed work in the same program (i.e. from IDLE -> current process)
+                StoreProcess();
                 //TODO: maybe check if not just moved the mouse a little, but actually inserted some data
             }
             else if (! isIdle && ! _lastEntryWasIdle)
             {
                 // nothing to do here
-            }
-        }
-
-        private void StoreIdle()
-        {
-            var currentWindowTitle = Dict.Idle;
-            var currentProcess = Dict.Idle;
-
-            if (_lastEntryWasIdle == false)
-            {
-                SetAndStoreProcessAndWindowTitle(currentWindowTitle, currentProcess);
             }
         }
 
@@ -306,7 +312,7 @@ namespace WindowsActivityTracker
             if ((differentProcessNotIdle || differentWindowTitle)) // && notIdleLastInterval)
             {
                 _previousHandle = handle;
-                Queries.InsertSnapshot(currentWindowTitle, currentProcess);
+                SetAndStoreProcessAndWindowTitle(currentWindowTitle, currentProcess);
             }
         }
 
@@ -353,21 +359,6 @@ namespace WindowsActivityTracker
         private void ResumeComputerIdleChecker()
         {
             // TODO: implement
-        }
-
-        /// <summary>
-        /// Saves the Windows Activity Event into the database
-        /// (also re-sets the previous item values)
-        /// </summary>
-        /// <param name="windowTitle"></param>
-        /// <param name="process"></param>
-        private void SetAndStoreProcessAndWindowTitle(string windowTitle, string process)
-        {
-            _previousWindowTitleEntry = windowTitle;
-            _previousProcess = process;
-            _lastEntryWasIdle = (process == Dict.Idle);
-
-            Queries.InsertSnapshot(windowTitle, process);
         }
 
         /// <summary>
