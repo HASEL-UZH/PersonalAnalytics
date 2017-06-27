@@ -33,11 +33,8 @@ namespace WindowsActivityTracker
         private IntPtr _hWinEventHookForWindowSwitch;
         private IntPtr _hWinEventHookForWindowTitleChange;
         private Timer _idleCheckTimer;
-        private string _previousWindowTitleEntry = string.Empty;
-        private string _previousProcess = string.Empty;
-        private IntPtr _previousHandle = IntPtr.Zero;
-        private bool _lastEntryWasIdle = false;
         private NativeMethods.LASTINPUTINFO _lastInputInfo;
+        private PreviousWindowsActivityEntry _previousEntry = new PreviousWindowsActivityEntry();
 
         #region ITracker Stuff
 
@@ -169,20 +166,26 @@ namespace WindowsActivityTracker
 
         #endregion
 
+        #region Set Previous Entry and store it
+
         /// <summary>
         /// Saves the Windows Activity Event into the database
         /// (also re-sets the previous item values)
         /// </summary>
         /// <param name="windowTitle"></param>
         /// <param name="process"></param>
-        private void SetAndStoreProcessAndWindowTitle(string windowTitle, string process)
+        private void SetAndStoreProcessAndWindowTitle(string windowTitle, string process, IntPtr handle)
         {
-            _previousWindowTitleEntry = windowTitle;
-            _previousProcess = process;
-            _lastEntryWasIdle = (process == Dict.Idle);
-
+            _previousEntry = new PreviousWindowsActivityEntry(DateTime.Now, windowTitle, process, handle);
             Queries.InsertSnapshot(windowTitle, process);
         }
+
+        private void SetAndStoreProcessAndWindowTitle(string windowTitle, string process)
+        {
+            SetAndStoreProcessAndWindowTitle(windowTitle, process, IntPtr.Zero);
+        }
+
+        #endregion
 
         #region Idle Time Checker
 
@@ -210,22 +213,22 @@ namespace WindowsActivityTracker
         {
             var isIdle = WasIdleInLastInterval();
 
-            if (isIdle && _lastEntryWasIdle)
+            if (isIdle && _previousEntry.WasIdle)
             {
                 // don't save, already saved
             }
-            else if (isIdle && ! _lastEntryWasIdle)
+            else if (isIdle && !_previousEntry.WasIdle)
             {
                 // store Idle (i.e. from process -> IDLE)
                 SetAndStoreProcessAndWindowTitle(Dict.Idle, Dict.Idle); 
             }
-            else if (! isIdle && _lastEntryWasIdle)
+            else if (! isIdle && _previousEntry.WasIdle)
             {
                 // resumed work in the same program (i.e. from IDLE -> current process)
                 StoreProcess();
                 //TODO: maybe check if not just moved the mouse a little, but actually inserted some data
             }
-            else if (! isIdle && ! _lastEntryWasIdle)
+            else if (! isIdle && !_previousEntry.WasIdle)
             {
                 // nothing to do here
             }
@@ -267,12 +270,12 @@ namespace WindowsActivityTracker
         private void StoreProcess()
         {
             // get current window title
-            var handle = IntPtr.Zero;
-            handle = NativeMethods.GetForegroundWindow();
-            var currentWindowTitle = GetActiveWindowTitle(handle);
+            var currentHandle = IntPtr.Zero;
+            currentHandle = NativeMethods.GetForegroundWindow();
+            var currentWindowTitle = GetActiveWindowTitle(currentHandle);
 
             // get current process name
-            var currentProcess = GetProcessName(handle);
+            var currentProcess = GetProcessName(currentHandle);
 
             // [special case] lockscreen (shutdown and logout events are handled separately)
             if (!string.IsNullOrEmpty(currentProcess) && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture).Contains("lockapp"))
@@ -302,17 +305,16 @@ namespace WindowsActivityTracker
                     currentProcess = currentWindowTitle;
                 }
             }
-            //add more special cases if necessary
+            // add more special cases here if necessary
 
             // save if process or window title changed and user was not IDLE in past interval
-            var differentProcessNotIdle = !string.IsNullOrEmpty(currentProcess) && _previousProcess != currentProcess && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture) != Dict.Idle.ToLower(CultureInfo.InvariantCulture);
-            var differentWindowTitle = !string.IsNullOrEmpty(currentWindowTitle) && _previousWindowTitleEntry != currentWindowTitle;
+            var differentProcessNotIdle = !string.IsNullOrEmpty(currentProcess) && _previousEntry.Process != currentProcess && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture) != Dict.Idle.ToLower(CultureInfo.InvariantCulture);
+            var differentWindowTitle = !string.IsNullOrEmpty(currentWindowTitle) && _previousEntry.WindowTitle != currentWindowTitle;
             //var notIdleLastInterval = !WasIdleInLastInterval(); // TODO: why do we have this?
 
             if ((differentProcessNotIdle || differentWindowTitle)) // && notIdleLastInterval)
             {
-                _previousHandle = handle;
-                SetAndStoreProcessAndWindowTitle(currentWindowTitle, currentProcess);
+                SetAndStoreProcessAndWindowTitle(currentWindowTitle, currentProcess, currentHandle);
             }
         }
 
@@ -356,9 +358,20 @@ namespace WindowsActivityTracker
             }
         }
 
+        /// <summary>
+        /// This method is called in case the user resumes the computer.
+        /// As the sleep/logout-events are not always catched, we have to check
+        /// if they were catched the last time, and if not fix it:
+        /// </summary>
         private void ResumeComputerIdleChecker()
         {
-            // TODO: implement
+            // TODO: handle previous entry timestamp
+
+            if (_previousEntry.Process != Dict.Idle && WasIdleInLastInterval())
+            {
+                // TODO: catch timestamp of last entry here (+ go forward until 2+ mins with no user input)
+                SetAndStoreProcessAndWindowTitle("ManualSleep", Dict.Idle);
+            }
         }
 
         /// <summary>
@@ -371,7 +384,7 @@ namespace WindowsActivityTracker
             try
             {
                 // performance: if same handle than previously, just return the process-name
-                if (_previousHandle == handle) return _previousProcess;
+                if (_previousEntry.Handle == handle) return _previousEntry.Process;
 
                 // else: get the process name from the list of processes
                 uint processId;
@@ -408,5 +421,31 @@ namespace WindowsActivityTracker
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// Helper class to handle the previous entry values
+    /// </summary>
+    internal class PreviousWindowsActivityEntry
+    {
+        public PreviousWindowsActivityEntry()
+        {
+            TimeStamp = DateTime.MinValue;
+            Handle = IntPtr.Zero;
+        }
+
+        public PreviousWindowsActivityEntry(DateTime timeStamp, string windowTitle, string process, IntPtr handle)
+        {
+            TimeStamp = timeStamp;
+            WindowTitle = windowTitle;
+            Process = Process;
+            Handle = handle;
+        }
+
+        public DateTime TimeStamp { get; set; }
+        public string WindowTitle { get; set; }
+        public string Process { get; set; }
+        public IntPtr Handle { get; set; }
+        public bool WasIdle { get { return (Process == Dict.Idle); } }
     }
 }
