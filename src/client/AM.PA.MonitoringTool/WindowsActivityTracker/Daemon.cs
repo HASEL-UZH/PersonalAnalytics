@@ -294,9 +294,9 @@ namespace WindowsActivityTracker
             // save if process or window title changed and user was not IDLE in past interval
             var differentProcessNotIdle = !string.IsNullOrEmpty(currentProcess) && _previousProcess != currentProcess && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture) != Dict.Idle.ToLower(CultureInfo.InvariantCulture);
             var differentWindowTitle = !string.IsNullOrEmpty(currentWindowTitle) && _previousWindowTitleEntry != currentWindowTitle;
-            var notIdleLastInterval = !((Environment.TickCount - _lastInputInfo.dwTime) > Settings.NotCountingAsIdleInterval);
+            //var notIdleLastInterval = !((Environment.TickCount - _lastInputInfo.dwTime) > Settings.NotCountingAsIdleInterval); // TODO: why do we have this?
 
-            if ((differentProcessNotIdle || differentWindowTitle) && notIdleLastInterval)
+            if ((differentProcessNotIdle || differentWindowTitle)) // && notIdleLastInterval)
             {
                 _previousWindowTitleEntry = currentWindowTitle;
                 _previousProcess = currentProcess;
