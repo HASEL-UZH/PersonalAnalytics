@@ -33,11 +33,11 @@ namespace WindowsActivityTracker
         private IntPtr _hWinEventHookForWindowSwitch;
         private IntPtr _hWinEventHookForWindowTitleChange;
         private Timer _idleCheckTimer;
-
         private string _previousWindowTitleEntry = string.Empty;
         private string _previousProcess = string.Empty;
         private IntPtr _previousHandle = IntPtr.Zero;
         private bool _lastEntryWasIdle = false;
+        private NativeMethods.LASTINPUTINFO _lastInputInfo;
 
         #region ITracker Stuff
 
@@ -171,7 +171,20 @@ namespace WindowsActivityTracker
 
         #region Idle Time Checker
 
-        private NativeMethods.LASTINPUTINFO _lastInputInfo;
+        /// <summary>
+        /// Checks if the last input timestamp was before the idle-interval
+        /// </summary>
+        /// <returns></returns>
+        private bool WasIdleInLastInterval()
+        {
+            // get a timestamp of the last user input
+            NativeMethods.GetLastInputInfo(ref _lastInputInfo);
+
+            // idle if no input for more than 'Interval' milliseconds (120s)
+            var isIdle = ((Environment.TickCount - _lastInputInfo.dwTime) > Settings.NotCountingAsIdleInterval);
+
+            return isIdle;
+        }
 
         /// <summary>
         ///  check every 10 seconds if the user has been idle for the past 120s
@@ -180,11 +193,7 @@ namespace WindowsActivityTracker
         /// <param name="e"></param>
         private void CheckIfIdleTime(object sender, ElapsedEventArgs e)
         {
-            // get a timestamp of the last user input
-            NativeMethods.GetLastInputInfo(ref _lastInputInfo);
-
-            // idle if no input for more than 'Interval' milliseconds (120s)
-            var isIdle = ((Environment.TickCount - _lastInputInfo.dwTime) > Settings.NotCountingAsIdleInterval);
+            var isIdle = WasIdleInLastInterval();
 
             if (isIdle && _lastEntryWasIdle)
             {
@@ -192,13 +201,12 @@ namespace WindowsActivityTracker
             }
             else if (isIdle && ! _lastEntryWasIdle)
             {
-                // save idle
                 StoreIdle();
             }
             else if (! isIdle && _lastEntryWasIdle)
             {
-                // resumed work in the same program
-                StoreProcess(); //TODO: maybe check if not just moved the mouse a little, but actually inserted some data
+                StoreProcess(); // resumed work in the same program
+                //TODO: maybe check if not just moved the mouse a little, but actually inserted some data
             }
             else if (! isIdle && ! _lastEntryWasIdle)
             {
@@ -209,14 +217,11 @@ namespace WindowsActivityTracker
         private void StoreIdle()
         {
             var currentWindowTitle = Dict.Idle;
-            var process = Dict.Idle;
+            var currentProcess = Dict.Idle;
 
             if (_lastEntryWasIdle == false)
             {
-                _lastEntryWasIdle = true;
-                _previousWindowTitleEntry = currentWindowTitle;
-                Queries.InsertSnapshot(currentWindowTitle, process);
-                //Console.WriteLine(DateTime.Now.ToString("t") + " " + DateTime.Now.Millisecond + "\t" + process + "\t" + currentWindowTitle);
+                SetAndStoreProcessAndWindowTitle(currentWindowTitle, currentProcess);
             }
         }
 
@@ -296,7 +301,7 @@ namespace WindowsActivityTracker
             // save if process or window title changed and user was not IDLE in past interval
             var differentProcessNotIdle = !string.IsNullOrEmpty(currentProcess) && _previousProcess != currentProcess && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture) != Dict.Idle.ToLower(CultureInfo.InvariantCulture);
             var differentWindowTitle = !string.IsNullOrEmpty(currentWindowTitle) && _previousWindowTitleEntry != currentWindowTitle;
-            //var notIdleLastInterval = !((Environment.TickCount - _lastInputInfo.dwTime) > Settings.NotCountingAsIdleInterval); // TODO: why do we have this?
+            //var notIdleLastInterval = !WasIdleInLastInterval(); // TODO: why do we have this?
 
             if ((differentProcessNotIdle || differentWindowTitle)) // && notIdleLastInterval)
             {
