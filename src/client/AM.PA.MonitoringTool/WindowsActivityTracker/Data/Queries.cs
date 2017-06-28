@@ -28,6 +28,11 @@ namespace WindowsActivityTracker.Data
             }
         }
 
+        internal static void InsertSnapshot(string window, string process)
+        {
+            InsertSnapshot(window, process, DateTime.Now);
+        }
+
         /// <summary>
         /// Saves the timestamp, process name and window title into the database.
         /// 
@@ -36,7 +41,7 @@ namespace WindowsActivityTracker.Data
         /// </summary>
         /// <param name="window"></param>
         /// <param name="process"></param>
-        internal static void InsertSnapshot(string window, string process)
+        internal static void InsertSnapshot(string window, string process, DateTime manualTimeEntry)
         {
             if (Shared.Settings.AnonymizeSensitiveData)
             {
@@ -44,8 +49,12 @@ namespace WindowsActivityTracker.Data
                 window = Dict.Anonymized + " " + ContextMapper.GetContextCategory(dto);  // obfuscate window title
             }
 
-            Database.GetInstance().ExecuteDefaultQuery("INSERT INTO " + Settings.DbTable + " (time, window, process) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " +
-                Database.GetInstance().Q(window) + ", " + Database.GetInstance().Q(process) + ")");
+            var query = "INSERT INTO " + Settings.DbTable + " (time, window, process) VALUES (" +
+                            Database.GetInstance().QTime2(manualTimeEntry) + ", " + // (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " +
+                            Database.GetInstance().Q(window) + ", " +
+                            Database.GetInstance().Q(process) + ");";
+
+            Database.GetInstance().ExecuteDefaultQuery(query);
         }
 
         /// <summary>

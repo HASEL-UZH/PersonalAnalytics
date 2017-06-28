@@ -298,6 +298,18 @@ namespace Shared.Data
         }
 
         /// <summary>
+        /// Formats and magicifies a datetime with fractional seconds
+        /// '%Y-%m-%d %H:%M:%f'
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <returns></returns>
+        public string QTime2(DateTime dateTime)
+        {
+            var dateTimeString = dateTime.ToString("yyyy-MM-dd HH:mm:ss.fff"); // dateTime.ToShortDateString() + " " + dateTime.ToLongTimeString();
+            return Q(dateTimeString);
+        }
+
+        /// <summary>
         /// Formats and magicifies a datetime
         /// '%Y-%m-%d'
         /// </summary>

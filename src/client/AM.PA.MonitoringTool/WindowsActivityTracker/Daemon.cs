@@ -185,6 +185,12 @@ namespace WindowsActivityTracker
             SetAndStoreProcessAndWindowTitle(windowTitle, process, IntPtr.Zero);
         }
 
+        private void StoreProcessAndWindowTitle(string windowTitle, string process, DateTime manualTimeStamp)
+        {
+            // do not override previous entry (as this is a hack/fix for a missed IDLE entry)
+            Queries.InsertSnapshot(windowTitle, process, manualTimeStamp);
+        }
+
         #endregion
 
         #region Idle Time Checker
@@ -292,7 +298,7 @@ namespace WindowsActivityTracker
                 currentProcess = Dict.Idle;
             }
             // [special case] Windows 10 apps (e.g. Edge, Photos, Mail)
-            else if (currentProcess.ToLower().Equals("applicationframehost"))
+            else if (!string.IsNullOrEmpty(currentProcess) && currentProcess.ToLower().Equals("applicationframehost"))
             {
                 var lastDash = currentWindowTitle.LastIndexOf("- ");
                 if (lastDash > 0)
@@ -365,12 +371,14 @@ namespace WindowsActivityTracker
         /// </summary>
         private void ResumeComputerIdleChecker()
         {
-            // TODO: handle previous entry timestamp
-
             if (_previousEntry.Process != Dict.Idle && WasIdleInLastInterval())
             {
                 // TODO: catch timestamp of last entry here (+ go forward until 2+ mins with no user input)
-                SetAndStoreProcessAndWindowTitle("ManualSleep", Dict.Idle);
+                var manualTimeStamp = _previousEntry.TimeStamp.AddMilliseconds(Settings.NotCountingAsIdleInterval);
+                StoreProcessAndWindowTitle("ManualSleep", Dict.Idle, manualTimeStamp);
+
+                // TODO: remove logger (only for testing)
+                Logger.WriteToLogFile(new Exception("Fixed? ManualSleep (previous: " + _previousEntry.TimeStamp + " p: " + _previousEntry.Process + " w: " + _previousEntry.WindowTitle));
             }
         }
 
@@ -416,7 +424,7 @@ namespace WindowsActivityTracker
                     return buff.ToString();
                 }
             }
-            catch { }
+            catch {}
             return string.Empty;
         }
 
