@@ -446,7 +446,7 @@ namespace WindowsActivityTracker
         {
             TimeStamp = timeStamp;
             WindowTitle = windowTitle;
-            Process = Process;
+            Process = process;
             Handle = handle;
         }
 
