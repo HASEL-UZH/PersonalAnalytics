@@ -204,7 +204,8 @@ namespace WindowsActivityTracker
             // get a timestamp of the last user input
             NativeMethods.GetLastInputInfo(ref _lastInputInfo);
 
-            // idle if no input for more than 'Interval' milliseconds (120s)
+            // idle if no input for more than 'Interval' milliseconds (120s) 
+            // now_ts - lastinput_ts > 120s => IDLE
             var isIdle = ((Environment.TickCount - _lastInputInfo.dwTime) > Settings.NotCountingAsIdleInterval);
 
             return isIdle;
@@ -289,6 +290,7 @@ namespace WindowsActivityTracker
                 currentWindowTitle = "LockScreen";
                 currentProcess = Dict.Idle;
 
+                // as the logout/shutdown-event is sometimes missed, we try to fix this when the user resumes
                 ResumeComputerIdleChecker();
             }
             // [special case] slidetoshutdown (shutdown and logout events are handled separately)
@@ -316,9 +318,9 @@ namespace WindowsActivityTracker
             // save if process or window title changed and user was not IDLE in past interval
             var differentProcessNotIdle = !string.IsNullOrEmpty(currentProcess) && _previousEntry.Process != currentProcess && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture) != Dict.Idle.ToLower(CultureInfo.InvariantCulture);
             var differentWindowTitle = !string.IsNullOrEmpty(currentWindowTitle) && _previousEntry.WindowTitle != currentWindowTitle;
-            //var notIdleLastInterval = !WasIdleInLastInterval(); // TODO: why do we have this?
+            var notIdleLastInterval = !WasIdleInLastInterval();
 
-            if ((differentProcessNotIdle || differentWindowTitle)) // && notIdleLastInterval)
+            if ((differentProcessNotIdle || differentWindowTitle) && notIdleLastInterval)
             {
                 SetAndStoreProcessAndWindowTitle(currentWindowTitle, currentProcess, currentHandle);
             }
@@ -367,7 +369,10 @@ namespace WindowsActivityTracker
         /// <summary>
         /// This method is called in case the user resumes the computer.
         /// As the sleep/logout-events are not always catched, we have to check
-        /// if they were catched the last time, and if not fix it:
+        /// if they were catched the last time, and if not fix it.
+        /// 
+        /// (it's also called when the user goes to the lockscreen, but not executed,
+        /// as the WasIdleInLastInterval is false)
         /// </summary>
         private void ResumeComputerIdleChecker()
         {
