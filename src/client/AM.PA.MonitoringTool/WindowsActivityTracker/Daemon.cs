@@ -174,15 +174,33 @@ namespace WindowsActivityTracker
         /// </summary>
         /// <param name="windowTitle"></param>
         /// <param name="process"></param>
+        private void SetAndStoreProcessAndWindowTitle(string windowTitle, string process)
+        {
+            SetAndStoreProcessAndWindowTitle(windowTitle, process, IntPtr.Zero);
+        }
+
+        /// <summary>
+        /// Saves the Windows Activity Event into the database (including a process handle)
+        /// (also re-sets the previous item values)
+        /// </summary>
+        /// <param name="windowTitle"></param>
+        /// <param name="process"></param>
         private void SetAndStoreProcessAndWindowTitle(string windowTitle, string process, IntPtr handle)
         {
             _previousEntry = new PreviousWindowsActivityEntry(DateTime.Now, windowTitle, process, handle);
             Queries.InsertSnapshot(windowTitle, process);
         }
 
-        private void SetAndStoreProcessAndWindowTitle(string windowTitle, string process)
+        /// <summary>
+        /// Saves the Windows Activity Event into the database (including a process handle and manual timestamp, used e.g. for IDLE time -2min)
+        /// (also re-sets the previous item values)
+        /// </summary>
+        /// <param name="windowTitle"></param>
+        /// <param name="process"></param>
+        private void SetAndStoreProcessAndWindowTitle(string windowTitle, string process, IntPtr handle, DateTime manualTimeStamp)
         {
-            SetAndStoreProcessAndWindowTitle(windowTitle, process, IntPtr.Zero);
+            _previousEntry = new PreviousWindowsActivityEntry(manualTimeStamp, windowTitle, process, handle);
+            Queries.InsertSnapshot(windowTitle, process, manualTimeStamp);
         }
 
         private void StoreProcessAndWindowTitle(string windowTitle, string process, DateTime manualTimeStamp)
@@ -226,8 +244,8 @@ namespace WindowsActivityTracker
             }
             else if (isIdle && !_previousEntry.WasIdle)
             {
-                // store Idle (i.e. from process -> IDLE)
-                SetAndStoreProcessAndWindowTitle(Dict.Idle, Dict.Idle); 
+                // store Idle (i.e. from process -> IDLE; also subtract IDLE time)
+                SetAndStoreProcessAndWindowTitle(Dict.Idle, Dict.Idle, IntPtr.Zero, DateTime.Now.AddMilliseconds(- Settings.NotCountingAsIdleInterval));
             }
             else if (! isIdle && _previousEntry.WasIdle)
             {
@@ -291,7 +309,7 @@ namespace WindowsActivityTracker
                 currentProcess = Dict.Idle;
 
                 // as the logout/shutdown-event is sometimes missed, we try to fix this when the user resumes
-                ResumeComputerIdleChecker();
+                ResumeComputer_IdleChecker();
             }
             // [special case] slidetoshutdown (shutdown and logout events are handled separately)
             else if (!string.IsNullOrEmpty(currentProcess) && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture).Contains("slidetoshutdown"))
@@ -354,7 +372,7 @@ namespace WindowsActivityTracker
         {
             if (e.Mode == PowerModes.Resume)
             {
-                ResumeComputerIdleChecker();
+                ResumeComputer_IdleChecker();
             }
             else if (e.Mode == PowerModes.Suspend)
             {
@@ -374,12 +392,12 @@ namespace WindowsActivityTracker
         /// (it's also called when the user goes to the lockscreen, but not executed,
         /// as the WasIdleInLastInterval is false)
         /// </summary>
-        private void ResumeComputerIdleChecker()
+        private void ResumeComputer_IdleChecker()
         {
             if (_previousEntry.Process != Dict.Idle && WasIdleInLastInterval())
             {
                 // TODO: catch timestamp of last entry here (+ go forward until 2+ mins with no user input)
-                var manualTimeStamp = _previousEntry.TimeStamp.AddMilliseconds(Settings.NotCountingAsIdleInterval);
+                var manualTimeStamp = _previousEntry.TimeStamp.AddMilliseconds(- Settings.NotCountingAsIdleInterval);
                 StoreProcessAndWindowTitle("ManualSleep", Dict.Idle, manualTimeStamp);
 
                 // TODO: remove logger (only for testing)
