@@ -9,8 +9,12 @@ namespace WindowsActivityTracker
     {
         public const bool IsEnabled = true; // todo; should never be disabled by the user (too many services rely on it)
         public static bool RecordIdle = true;
-        internal const int NotCountingAsIdleInterval = 120000; //in ms
-        internal const int IdleTimerIntervalInMilliseconds = 100; // TODO: temp reduced 1000; // in ms //TODO: maybe uses too much resources?
+        internal const int NotCountingAsIdleInterval_ms = 2 * 60 * 1000; //in ms
+        internal const int IdleTimerInterval_ms = 1000; // in ms
+        internal const int IdleSleepValidate_TimerInterval_ms = 1000; // TODO temp: 20 * 60 * 1000; // in ms
         internal const string DbTable = "windows_activity";
+        internal const int IdleSleepValidate_ThresholdIdleBlocks_s = 10 * 60; // block sized that are considered for validation (2min)
+        internal const int IdleSleepValidate_ThresholdBack_d = 70; // if not checked in the near past, go back 7 days (not more: perf!)
+        internal const string ManualSleepIdle = "ManualSleep";
     }
 }

@@ -51,10 +51,9 @@ namespace Shared
         public const string FeedbackDbTable = "feedback";
         public const string TimeZoneTable = "timezone";
 
-        public const string WindowsActivityTable = "windows_activity"; //used for the retrospection
-        //public const string UserEfficiencySurveyTable = "user_efficiency_survey"; // used for the retrospection
-        //public const string EmailsTable = "emails"; // used for the retrospection
-        public const string MeetingsTable = "meetings";  // used for the retrospection
+        public const string WindowsActivityTable = "windows_activity"; // used for the retrospection (shared)
+        public const string MeetingsTable = "meetings"; // used for the retrospection (shared)
+        public const string UserInputTable = "user_input"; // used to validate IDLE resume entries in the windows activity tracker (shared)
 
         public static TimeSpan CheckForStudyDataSharedReminderInterval = TimeSpan.FromHours(4); // every 4 hours, check if we should remind the user to share study data
         public static TimeSpan CheckForToolUpdatesInterval = TimeSpan.FromMinutes(_checkForToolUpdatesIntervalInMins); // every x minutes, check if there is an update available

@@ -33,6 +33,7 @@ namespace WindowsActivityTracker
         private IntPtr _hWinEventHookForWindowSwitch;
         private IntPtr _hWinEventHookForWindowTitleChange;
         private Timer _idleCheckTimer;
+        private Timer _idleSleepValidator;
         private NativeMethods.LASTINPUTINFO _lastInputInfo;
         private PreviousWindowsActivityEntry _previousEntry = new PreviousWindowsActivityEntry();
 
@@ -50,6 +51,7 @@ namespace WindowsActivityTracker
                 if (disposing)
                 {
                     _idleCheckTimer.Dispose();
+                    _idleSleepValidator.Dispose();
                 }
 
                 // Release unmanaged resources.
@@ -77,12 +79,19 @@ namespace WindowsActivityTracker
                 // Register to check if idle or not
                 if (Settings.RecordIdle)
                 {
-                    if (_idleCheckTimer != null)
-                        Stop();
+                    // reset everything properly
+                    if (_idleCheckTimer != null || _idleSleepValidator != null) Stop();
+
+                    // register for events
                     _idleCheckTimer = new Timer();
-                    _idleCheckTimer.Interval = Settings.IdleTimerIntervalInMilliseconds;
+                    _idleCheckTimer.Interval = Settings.IdleTimerInterval_ms;
                     _idleCheckTimer.Elapsed += CheckIfIdleTime;
                     _idleCheckTimer.Start();
+
+                    _idleSleepValidator = new Timer();
+                    _idleSleepValidator.Interval = Settings.IdleSleepValidate_TimerInterval_ms;
+                    _idleSleepValidator.Elapsed += ValidateSleepIdleTime;
+                    _idleSleepValidator.Start();
 
                     _lastInputInfo = new NativeMethods.LASTINPUTINFO();
                     _lastInputInfo.cbSize = (uint)Marshal.SizeOf(_lastInputInfo);
@@ -113,12 +122,20 @@ namespace WindowsActivityTracker
                 // Unregister for logout/shutdown event
                 SystemEvents.SessionEnding -= SessionEnding;
 
-                // Unregister idle time checker
+                // Unregister idle time checker Timer
                 if (_idleCheckTimer != null)
                 {
                     _idleCheckTimer.Stop();
                     _idleCheckTimer.Dispose();
                     _idleCheckTimer = null;
+                }
+
+                // Unregister idle resume validator Timer
+                if (_idleSleepValidator != null)
+                {
+                    _idleSleepValidator.Stop();
+                    _idleSleepValidator.Dispose();
+                    _idleSleepValidator = null;
                 }
             }
             catch (Exception e)
@@ -224,7 +241,7 @@ namespace WindowsActivityTracker
 
             // idle if no input for more than 'Interval' milliseconds (120s) 
             // now_ts - lastinput_ts > 120s => IDLE
-            var isIdle = ((Environment.TickCount - _lastInputInfo.dwTime) > Settings.NotCountingAsIdleInterval);
+            var isIdle = ((Environment.TickCount - _lastInputInfo.dwTime) > Settings.NotCountingAsIdleInterval_ms);
 
             return isIdle;
         }
@@ -245,7 +262,7 @@ namespace WindowsActivityTracker
             else if (isIdle && !_previousEntry.WasIdle)
             {
                 // store Idle (i.e. from process -> IDLE; also subtract IDLE time)
-                SetAndStoreProcessAndWindowTitle(Dict.Idle, Dict.Idle, IntPtr.Zero, DateTime.Now.AddMilliseconds(- Settings.NotCountingAsIdleInterval));
+                SetAndStoreProcessAndWindowTitle(Dict.Idle, Dict.Idle, IntPtr.Zero, DateTime.Now.AddMilliseconds(- Settings.NotCountingAsIdleInterval_ms));
             }
             else if (! isIdle && _previousEntry.WasIdle)
             {
@@ -257,6 +274,41 @@ namespace WindowsActivityTracker
             {
                 // nothing to do here
             }
+        }
+
+        #endregion
+
+        #region Idle Sleep Checker (sleep bug that sometimes doesn't catch sleep events)
+
+        private DateTime _previousIdleSleepValidated = DateTime.MinValue;
+
+        private void ValidateSleepIdleTime(object sender, ElapsedEventArgs e)
+        {
+            // if user input table is not available => stop timer
+            if (! Queries.UserInputTableExists())
+            {
+                _idleSleepValidator.Stop();
+                _idleSleepValidator.Dispose();
+                _idleSleepValidator = null;
+                return;
+            }
+
+            // get list of all IDLE errors within time frame
+            var toFix = PrepareIntervalAndGetMissedSleepEvents();
+
+            // add IDLE entry NotCountingAsIdleInterval_ms after entry
+            Queries.AddMissedSleepIdleEntry(toFix);
+        }
+
+        private List<DateTime> PrepareIntervalAndGetMissedSleepEvents()
+        {
+            DateTime ts_checkFrom = (_previousIdleSleepValidated.Date == DateTime.Now.Date)
+                                    ? _previousIdleSleepValidated.AddHours(-2) // check from previously checked datetime (and increase the interval a little)
+                                    : DateTime.Now.AddDays(-Settings.IdleSleepValidate_ThresholdBack_d); // go a couple of days back to check
+            DateTime ts_checkTo = DateTime.Now;
+
+            _previousIdleSleepValidated = DateTime.Now; // reset (to not recheck everything every time)
+            return Queries.GetMissedSleepEvents(ts_checkFrom, ts_checkTo);
         }
 
         #endregion
@@ -309,7 +361,7 @@ namespace WindowsActivityTracker
                 currentProcess = Dict.Idle;
 
                 // as the logout/shutdown-event is sometimes missed, we try to fix this when the user resumes
-                ResumeComputer_IdleChecker();
+                //ResumeComputer_IdleChecker();
             }
             // [special case] slidetoshutdown (shutdown and logout events are handled separately)
             else if (!string.IsNullOrEmpty(currentProcess) && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture).Contains("slidetoshutdown"))
@@ -372,7 +424,7 @@ namespace WindowsActivityTracker
         {
             if (e.Mode == PowerModes.Resume)
             {
-                ResumeComputer_IdleChecker();
+                //ResumeComputer_IdleChecker();
             }
             else if (e.Mode == PowerModes.Suspend)
             {
@@ -392,18 +444,18 @@ namespace WindowsActivityTracker
         /// (it's also called when the user goes to the lockscreen, but not executed,
         /// as the WasIdleInLastInterval is false)
         /// </summary>
-        private void ResumeComputer_IdleChecker()
-        {
-            if (_previousEntry.Process != Dict.Idle && WasIdleInLastInterval())
-            {
-                // TODO: catch timestamp of last entry here (+ go forward until 2+ mins with no user input)
-                var manualTimeStamp = _previousEntry.TimeStamp.AddMilliseconds(- Settings.NotCountingAsIdleInterval);
-                StoreProcessAndWindowTitle("ManualSleep", Dict.Idle, manualTimeStamp);
+        //private void ResumeComputer_IdleChecker()
+        //{
+        //    if (_previousEntry.Process != Dict.Idle && WasIdleInLastInterval())
+        //    {
+        //        // TODO: catch timestamp of last entry here (+ go forward until 2+ mins with no user input)
+        //        var manualTimeStamp = _previousEntry.TimeStamp.AddMilliseconds(- Settings.NotCountingAsIdleInterval);
+        //        StoreProcessAndWindowTitle("ManualSleep", Dict.Idle, manualTimeStamp);
 
-                // TODO: remove logger (only for testing)
-                Logger.WriteToLogFile(new Exception("Fixed? ManualSleep (previous: " + _previousEntry.TimeStamp + " p: " + _previousEntry.Process + " w: " + _previousEntry.WindowTitle));
-            }
-        }
+        //        // TODO: remove logger (only for testing)
+        //        Logger.WriteToLogFile(new Exception("Fixed? ManualSleep (previous: " + _previousEntry.TimeStamp + " p: " + _previousEntry.Process + " w: " + _previousEntry.WindowTitle));
+        //    }
+        //}
 
         /// <summary>
         /// Get the name of the current process

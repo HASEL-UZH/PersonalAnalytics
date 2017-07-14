@@ -16,6 +16,8 @@ namespace WindowsActivityTracker.Data
 {
     public class Queries
     {
+        #region Daemon Queries
+
         internal static void CreateWindowsActivityTable()
         {
             try
@@ -56,6 +58,63 @@ namespace WindowsActivityTracker.Data
 
             Database.GetInstance().ExecuteDefaultQuery(query);
         }
+
+        internal static bool UserInputTableExists()
+        {
+            var res = Database.GetInstance().HasTable(Shared.Settings.UserInputTable);
+            return res;
+        }
+
+        internal static List<DateTime> GetMissedSleepEvents(DateTime ts_checkFrom, DateTime ts_checkTo)
+        {
+            var results = new List<DateTime>();
+
+            try
+            {
+                var query = "SELECT wa1.time as 'tsFrom', ( "
+	                      + "SELECT sum(ui.keyTotal) + sum(ui.clickTotal) + sum(ui.ScrollDelta) + sum(ui.movedDistance) "
+                          + "FROM " + Shared.Settings.UserInputTable + " as ui "
+                          + "WHERE (ui.tsStart between wa1.time and wa2.time) AND (ui.tsEnd between wa1.time and wa2.time) "
+                          + ") as 'sumUserInput' "
+                          + "FROM " + Settings.DbTable + " wa1 INNER JOIN " + Settings.DbTable + " wa2 on wa1.id + 1 == wa2.id "
+                          + "WHERE wa1.process <> '" + Dict.Idle + "' " // we are looking for cases where the IDLE event was not catched
+                          + "AND wa1.process <> 'skype' AND wa1.process <> 'lync' " // IDLE during calls are okay
+                          + "AND (wa1.time between "+ Database.GetInstance().QTime(ts_checkFrom) + " AND " + Database.GetInstance().QTime(ts_checkTo) + ") " // perf
+                          + "AND (strftime('%s', wa2.time) - strftime('%s', wa1.time)) > " + Settings.IdleSleepValidate_ThresholdIdleBlocks_s + ";"; // IDLE time window we are looking for
+
+                var table = Database.GetInstance().ExecuteReadQuery(query);
+
+                foreach (DataRow row in table.Rows)
+                {
+                    if (row["sumUserInput"] == DBNull.Value || Convert.ToInt32(row["sumUserInput"]) == 0)
+                    {
+                        var tsFrom = DateTime.Parse((string)row["tsFrom"], CultureInfo.InvariantCulture);
+                        results.Add(tsFrom);
+                    }
+                }
+                table.Dispose();
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+
+            return results;
+        }
+
+        internal static void AddMissedSleepIdleEntry(List<DateTime> toFix)
+        {
+            foreach (var item in toFix)
+            {
+                var idleTimeFix = item.AddMilliseconds(Settings.NotCountingAsIdleInterval_ms);
+                //InsertSnapshot(Settings.ManualSleepIdle, Dict.Idle, idleTimeFix);
+                Logger.WriteToLogFile(new Exception(Settings.ManualSleepIdle + " from: " + item + " to: " + idleTimeFix));
+            }
+        }
+
+        #endregion
+
+        #region Visualization Queries
 
         /// <summary>
         /// Returns the program where the user focused on the longest
@@ -227,5 +286,7 @@ namespace WindowsActivityTracker.Data
 
             return dto;
         }
+
+        #endregion
     }
 }
