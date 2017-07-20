@@ -18,11 +18,42 @@ namespace WindowsActivityTracker.Data
     {
         #region Daemon Queries
 
+        private static string QUERY_CREATE = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable + " (id INTEGER PRIMARY KEY, time TEXT, tsStart TEXT, tsEnd TEXT, window TEXT, process TEXT);";
+        private static string QUERY_INDEX = "CREATE INDEX windows_activity_ts_start_idx ON " + Settings.DbTable + " (tsStart);";
+
         internal static void CreateWindowsActivityTable()
         {
             try
             {
-                Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTable + " (id INTEGER PRIMARY KEY, time TEXT, window TEXT, process TEXT)");
+                Database.GetInstance().ExecuteDefaultQuery(QUERY_CREATE);
+                Database.GetInstance().ExecuteDefaultQuery(QUERY_INDEX); // add index
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+        }
+
+        internal static void UpdateDatabaseTables(int version)
+        {
+            try
+            {
+                // database update 2017-07-20 (added two columns to 'windows_activity' table: tsStart and tsEnd)
+                // need to migrate the existing values in the table
+                if (version == 4)
+                {
+                    if (Database.GetInstance().HasTable(Settings.DbTable))
+                    {
+                        // update table: add columns & index
+                        Database.GetInstance().ExecuteDefaultQuery("ALTER TABLE " + Settings.DbTable + " ADD COLUMN tsStart TEXT;");
+                        Database.GetInstance().ExecuteDefaultQuery("ALTER TABLE " + Settings.DbTable + " ADD COLUMN tsEnd TEXT;");
+                        Database.GetInstance().ExecuteDefaultQuery(QUERY_INDEX);
+
+                        // migrate data (set tsStart / tsEnd)
+
+                        // TODO: implement
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -107,7 +138,7 @@ namespace WindowsActivityTracker.Data
             foreach (var item in toFix)
             {
                 var idleTimeFix = item.AddMilliseconds(Settings.NotCountingAsIdleInterval_ms);
-                //InsertSnapshot(Settings.ManualSleepIdle, Dict.Idle, idleTimeFix);
+                //InsertSnapshot(Settings.ManualSleepIdle, Dict.Idle, idleTimeFix); //TODO: enable again
                 Logger.WriteToLogFile(new Exception(Settings.ManualSleepIdle + " from: " + item + " to: " + idleTimeFix));
             }
         }

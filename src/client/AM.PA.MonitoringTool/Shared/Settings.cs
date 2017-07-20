@@ -3,8 +3,6 @@
 // 
 // Licensed under the MIT License.
 
-using Shared.Data;
-using Shared.Helpers;
 using System;
 using System.IO;
 using System.Windows.Media;
@@ -17,8 +15,9 @@ namespace Shared
          * version 1 - initial release
          * version 2 - update emails table in MsOfficeTracker (2016-06-20)
          * version 3 - update focus_state table in FlowTracker (2017-01-12)
+         * version 4 - update windows_activity table in WindowsActivityTracker (2017-07-20)
          */
-        public const int DatabaseVersion = 3; // !!! update when existing database table changes (have a look at PerformDatabaseUpdatesIfNecessary() for details)
+        public const int DatabaseVersion = 4; // !!! update when existing database table changes (have a look at PerformDatabaseUpdatesIfNecessary() for details)
 
 
 #if Dev
