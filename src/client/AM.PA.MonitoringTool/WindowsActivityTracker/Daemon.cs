@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using Microsoft.Win32;
 using System.Reflection;
 using System.Linq;
+using WindowsActivityTracker.Models;
 
 namespace WindowsActivityTracker
 {
@@ -35,7 +36,7 @@ namespace WindowsActivityTracker
         private Timer _idleCheckTimer;
         private Timer _idleSleepValidator;
         private NativeMethods.LASTINPUTINFO _lastInputInfo;
-        private PreviousWindowsActivityEntry _previousEntry = new PreviousWindowsActivityEntry();
+        private WindowsActivityEntry _previousEntry;
 
         #region ITracker Stuff
 
@@ -113,7 +114,7 @@ namespace WindowsActivityTracker
             try
             {
                 // insert idle event (as last entry
-                SetAndStoreProcessAndWindowTitle("Tracker stopped", Dict.Idle);
+                SetCurrentAndStoreThisAndPrevious_WindowsActivityEvent(DateTime.Now, DateTime.MinValue, "Tracker stopped", Dict.Idle);
 
                 // Unregister for window events
                 NativeMethods.UnhookWinEvent(_hWinEventHookForWindowSwitch);
@@ -186,44 +187,66 @@ namespace WindowsActivityTracker
         #region Set Previous Entry and store it
 
         /// <summary>
-        /// Saves the Windows Activity Event into the database
+        /// Saves the previouis WindowsActivityEvent into the database
         /// (also re-sets the previous item values)
         /// </summary>
         /// <param name="windowTitle"></param>
         /// <param name="process"></param>
-        private void SetAndStoreProcessAndWindowTitle(string windowTitle, string process)
+        private void SetCurrentAndStorePrevious_WindowsActivityEvent(DateTime tsStart, string windowTitle, string process)
         {
-            SetAndStoreProcessAndWindowTitle(windowTitle, process, IntPtr.Zero);
+            // previous entry is set in following method
+            SetCurrentAndStorePrevious_WindowsActivityEvent(tsStart, windowTitle, process, IntPtr.Zero);
         }
 
         /// <summary>
-        /// Saves the Windows Activity Event into the database (including a process handle)
+        /// Saves the previous WindowsActivityEvent into the database 
+        /// 
+        /// (tsEnd not know yet for current entry)
+        /// (includes a process handle for later)
         /// (also re-sets the previous item values)
         /// </summary>
         /// <param name="windowTitle"></param>
         /// <param name="process"></param>
-        private void SetAndStoreProcessAndWindowTitle(string windowTitle, string process, IntPtr handle)
+        private void SetCurrentAndStorePrevious_WindowsActivityEvent(DateTime tsStart, string windowTitle, string process, IntPtr handle)
         {
-            _previousEntry = new PreviousWindowsActivityEntry(DateTime.Now, windowTitle, process, handle);
-            Queries.InsertSnapshot(windowTitle, process);
+            var tmpPreviousEntry = _previousEntry; // perf, because storing takes a moment
+
+            // set current entry
+            _previousEntry = new WindowsActivityEntry(tsStart, windowTitle, process, handle); // tsEnd is not known yet
+
+            // update tsEnd & store previous entry
+            if (tmpPreviousEntry != null)
+            {
+                tmpPreviousEntry.TsEnd = DateTime.Now;
+                Queries.InsertSnapshot(tmpPreviousEntry);
+            }
         }
 
         /// <summary>
-        /// Saves the Windows Activity Event into the database (including a process handle and manual timestamp, used e.g. for IDLE time -2min)
+        /// Saves the previous and current WindowsActivityEvent into the database
         /// (also re-sets the previous item values)
+        /// 
+        /// !! Only used when tsEnd will not be available later, as the tool/computer is being shut down
         /// </summary>
+        /// <param name="tsStart"></param>
+        /// <param name="tsEnd"></param>
         /// <param name="windowTitle"></param>
         /// <param name="process"></param>
-        private void SetAndStoreProcessAndWindowTitle(string windowTitle, string process, IntPtr handle, DateTime manualTimeStamp)
+        private void SetCurrentAndStoreThisAndPrevious_WindowsActivityEvent(DateTime tsStart, DateTime tsEnd, string windowTitle, string process)
         {
-            _previousEntry = new PreviousWindowsActivityEntry(manualTimeStamp, windowTitle, process, handle);
-            Queries.InsertSnapshot(windowTitle, process, manualTimeStamp);
-        }
+            var tmpPreviousEntry = _previousEntry; // perf, because storing takes a moment
 
-        private void StoreProcessAndWindowTitle(string windowTitle, string process, DateTime manualTimeStamp)
-        {
-            // do not override previous entry (as this is a hack/fix for a missed IDLE entry)
-            Queries.InsertSnapshot(windowTitle, process, manualTimeStamp);
+            // set current entry
+            _previousEntry = new WindowsActivityEntry(tsStart, windowTitle, process, IntPtr.Zero);
+
+            // store previous entry
+            if (tmpPreviousEntry != null)
+            {
+                SetCurrentAndStorePrevious_WindowsActivityEvent(tmpPreviousEntry.TsStart, tmpPreviousEntry.WindowTitle, tmpPreviousEntry.Process, tmpPreviousEntry.Handle);
+            }
+
+            // set store current entry
+            Queries.InsertSnapshot(_previousEntry);
         }
 
         #endregion
@@ -253,6 +276,8 @@ namespace WindowsActivityTracker
         /// <param name="e"></param>
         private void CheckIfIdleTime(object sender, ElapsedEventArgs e)
         {
+            if (_previousEntry == null) return; // no need to check if not available
+
             var isIdle = WasIdleInLastInterval();
 
             if (isIdle && _previousEntry.WasIdle)
@@ -261,14 +286,16 @@ namespace WindowsActivityTracker
             }
             else if (isIdle && !_previousEntry.WasIdle)
             {
-                // store Idle (i.e. from process -> IDLE; also subtract IDLE time)
-                SetAndStoreProcessAndWindowTitle(Dict.Idle, Dict.Idle, IntPtr.Zero, DateTime.Now.AddMilliseconds(- Settings.NotCountingAsIdleInterval_ms));
+                // store Idle (i.e. from process -> IDLE)
+                SetCurrentAndStorePrevious_WindowsActivityEvent(
+                    DateTime.Now.AddMilliseconds(-Settings.NotCountingAsIdleInterval_ms), // subtract IDLE time
+                    Dict.Idle, Dict.Idle, IntPtr.Zero);
             }
             else if (! isIdle && _previousEntry.WasIdle)
             {
                 // resumed work in the same program (i.e. from IDLE -> current process)
                 StoreProcess();
-                //TODO: maybe check if not just moved the mouse a little, but actually inserted some data
+                //TODO later: maybe check if not just moved the mouse a little, but actually inserted some data
             }
             else if (! isIdle && !_previousEntry.WasIdle)
             {
@@ -300,7 +327,7 @@ namespace WindowsActivityTracker
             Queries.AddMissedSleepIdleEntry(toFix);
         }
 
-        private List<DateTime> PrepareIntervalAndGetMissedSleepEvents()
+        private List<Tuple<DateTime, DateTime>> PrepareIntervalAndGetMissedSleepEvents()
         {
             DateTime ts_checkFrom = (_previousIdleSleepValidated.Date == DateTime.Now.Date)
                                     ? _previousIdleSleepValidated.AddHours(-2) // check from previously checked datetime (and increase the interval a little)
@@ -346,6 +373,9 @@ namespace WindowsActivityTracker
 
         private void StoreProcess()
         {
+            // get start time stamp
+            var currentTimeStamp = DateTime.Now;
+
             // get current window title
             var currentHandle = IntPtr.Zero;
             currentHandle = NativeMethods.GetForegroundWindow();
@@ -386,13 +416,14 @@ namespace WindowsActivityTracker
             // add more special cases here if necessary
 
             // save if process or window title changed and user was not IDLE in past interval
-            var differentProcessNotIdle = !string.IsNullOrEmpty(currentProcess) && _previousEntry.Process != currentProcess && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture) != Dict.Idle.ToLower(CultureInfo.InvariantCulture);
-            var differentWindowTitle = !string.IsNullOrEmpty(currentWindowTitle) && _previousEntry.WindowTitle != currentWindowTitle;
+            var differentProcessNotIdle = !string.IsNullOrEmpty(currentProcess) && (_previousEntry == null || _previousEntry.Process != currentProcess) && currentProcess.Trim().ToLower(CultureInfo.InvariantCulture) != Dict.Idle.ToLower(CultureInfo.InvariantCulture);
+            var differentWindowTitle = !string.IsNullOrEmpty(currentWindowTitle) && (_previousEntry == null || _previousEntry.WindowTitle != currentWindowTitle);
             var notIdleLastInterval = !WasIdleInLastInterval();
 
+            // is a WindowActivityEntry-Switch
             if ((differentProcessNotIdle || differentWindowTitle) && notIdleLastInterval)
             {
-                SetAndStoreProcessAndWindowTitle(currentWindowTitle, currentProcess, currentHandle);
+                SetCurrentAndStorePrevious_WindowsActivityEvent(currentTimeStamp, currentWindowTitle, currentProcess, currentHandle);
             }
         }
 
@@ -406,11 +437,11 @@ namespace WindowsActivityTracker
         {
             if (e.Reason == SessionEndReasons.Logoff)
             {
-                SetAndStoreProcessAndWindowTitle("Logoff", Dict.Idle);
+                SetCurrentAndStoreThisAndPrevious_WindowsActivityEvent(DateTime.Now, DateTime.MinValue, "Logoff", Dict.Idle);
             }
             else if (e.Reason == SessionEndReasons.SystemShutdown)
             {
-                SetAndStoreProcessAndWindowTitle("SystemShutdown", Dict.Idle);
+                SetCurrentAndStoreThisAndPrevious_WindowsActivityEvent(DateTime.Now, DateTime.MinValue, "SystemShutdown", Dict.Idle);
             }
         }
 
@@ -428,7 +459,7 @@ namespace WindowsActivityTracker
             }
             else if (e.Mode == PowerModes.Suspend)
             {
-                SetAndStoreProcessAndWindowTitle("Suspend", Dict.Idle);
+                SetCurrentAndStorePrevious_WindowsActivityEvent(DateTime.Now, "Suspend", Dict.Idle);
             }
             else if (e.Mode == PowerModes.StatusChange)
             {
@@ -467,7 +498,7 @@ namespace WindowsActivityTracker
             try
             {
                 // performance: if same handle than previously, just return the process-name
-                if (_previousEntry.Handle == handle) return _previousEntry.Process;
+                if (_previousEntry != null && _previousEntry.Handle == handle) return _previousEntry.Process;
 
                 // else: get the process name from the list of processes
                 uint processId;
@@ -504,31 +535,5 @@ namespace WindowsActivityTracker
         }
 
         #endregion
-    }
-
-    /// <summary>
-    /// Helper class to handle the previous entry values
-    /// </summary>
-    internal class PreviousWindowsActivityEntry
-    {
-        public PreviousWindowsActivityEntry()
-        {
-            TimeStamp = DateTime.MinValue;
-            Handle = IntPtr.Zero;
-        }
-
-        public PreviousWindowsActivityEntry(DateTime timeStamp, string windowTitle, string process, IntPtr handle)
-        {
-            TimeStamp = timeStamp;
-            WindowTitle = windowTitle;
-            Process = process;
-            Handle = handle;
-        }
-
-        public DateTime TimeStamp { get; set; }
-        public string WindowTitle { get; set; }
-        public string Process { get; set; }
-        public IntPtr Handle { get; set; }
-        public bool WasIdle { get { return (Process == Dict.Idle); } }
     }
 }

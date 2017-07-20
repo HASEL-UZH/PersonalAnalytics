@@ -16,10 +16,12 @@ namespace WindowsActivityTracker.Data
 {
     public class Queries
     {
-        #region Daemon Queries
 
         private static string QUERY_CREATE = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable + " (id INTEGER PRIMARY KEY, time TEXT, tsStart TEXT, tsEnd TEXT, window TEXT, process TEXT);";
-        private static string QUERY_INDEX = "CREATE INDEX windows_activity_ts_start_idx ON " + Settings.DbTable + " (tsStart);";
+        private static string QUERY_INDEX = "CREATE INDEX IF NOT EXISTS windows_activity_ts_start_idx ON " + Settings.DbTable + " (tsStart);";
+        private static string QUERY_INSERT = "INSERT INTO " + Settings.DbTable + " (time, tsStart, tsEnd, window, process) VALUES ({0}, {1}, {2}, {3}, {4});";
+
+        #region Daemon Queries
 
         internal static void CreateWindowsActivityTable()
         {
@@ -61,33 +63,40 @@ namespace WindowsActivityTracker.Data
             }
         }
 
-        internal static void InsertSnapshot(string window, string process)
-        {
-            InsertSnapshot(window, process, DateTime.Now);
-        }
 
         /// <summary>
-        /// Saves the timestamp, process name and window title into the database.
+        /// Saves the timestamp, start and end, process name and window title into the database.
         /// 
         /// In case the user doesn't want the window title to be stored (For privacy reasons),
         /// it is obfuscated.
         /// </summary>
         /// <param name="window"></param>
         /// <param name="process"></param>
-        internal static void InsertSnapshot(string window, string process, DateTime manualTimeEntry)
+        internal static void InsertSnapshot(WindowsActivityEntry entry)
         {
-            if (Shared.Settings.AnonymizeSensitiveData)
+            try
             {
-                var dto = new ContextDto { Context = new ContextInfos { ProgramInUse = process, WindowTitle = window } };
-                window = Dict.Anonymized + " " + ContextMapper.GetContextCategory(dto);  // obfuscate window title
+                if (Shared.Settings.AnonymizeSensitiveData)
+                {
+                    var dto = new ContextDto { Context = new ContextInfos { ProgramInUse = entry.Process, WindowTitle = entry.WindowTitle } };
+                    entry.WindowTitle = Dict.Anonymized + " " + ContextMapper.GetContextCategory(dto);  // obfuscate window title
+                }
+
+                var tsEndString = (entry.TsEnd == DateTime.MinValue) ? string.Empty : Database.GetInstance().QTime2(entry.TsEnd);
+
+                var query = string.Format(QUERY_INSERT,
+                                          "strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')",
+                                          Database.GetInstance().QTime2(entry.TsStart),
+                                          tsEndString,
+                                          Database.GetInstance().Q(entry.WindowTitle),
+                                          Database.GetInstance().Q(entry.Process));
+
+                Database.GetInstance().ExecuteDefaultQuery(query);
             }
-
-            var query = "INSERT INTO " + Settings.DbTable + " (time, window, process) VALUES (" +
-                            Database.GetInstance().QTime2(manualTimeEntry) + ", " + // (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " +
-                            Database.GetInstance().Q(window) + ", " +
-                            Database.GetInstance().Q(process) + ");";
-
-            Database.GetInstance().ExecuteDefaultQuery(query);
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
         }
 
         internal static bool UserInputTableExists()
@@ -96,13 +105,19 @@ namespace WindowsActivityTracker.Data
             return res;
         }
 
-        internal static List<DateTime> GetMissedSleepEvents(DateTime ts_checkFrom, DateTime ts_checkTo)
+        /// <summary>
+        /// Returns a list with tsStart and tsEnd of all missed sleep events
+        /// </summary>
+        /// <param name="ts_checkFrom"></param>
+        /// <param name="ts_checkTo"></param>
+        /// <returns></returns>
+        internal static List<Tuple<DateTime, DateTime>> GetMissedSleepEvents(DateTime ts_checkFrom, DateTime ts_checkTo)
         {
-            var results = new List<DateTime>();
+            var results = new List<Tuple<DateTime, DateTime>>();
 
             try
             {
-                var query = "SELECT wa1.time as 'tsFrom', ( "
+                var query = "SELECT wa1.time as 'tsFrom', wa2.time as 'tsTo', ( "
 	                      + "SELECT sum(ui.keyTotal) + sum(ui.clickTotal) + sum(ui.ScrollDelta) + sum(ui.movedDistance) "
                           + "FROM " + Shared.Settings.UserInputTable + " as ui "
                           + "WHERE (ui.tsStart between wa1.time and wa2.time) AND (ui.tsEnd between wa1.time and wa2.time) "
@@ -120,7 +135,9 @@ namespace WindowsActivityTracker.Data
                     if (row["sumUserInput"] == DBNull.Value || Convert.ToInt32(row["sumUserInput"]) == 0)
                     {
                         var tsFrom = DateTime.Parse((string)row["tsFrom"], CultureInfo.InvariantCulture);
-                        results.Add(tsFrom);
+                        var tsTo = DateTime.Parse((string)row["tsTo"], CultureInfo.InvariantCulture);
+                        var pair = new Tuple<DateTime, DateTime>(tsFrom, tsTo);
+                        results.Add(pair);
                     }
                 }
                 table.Dispose();
@@ -133,12 +150,14 @@ namespace WindowsActivityTracker.Data
             return results;
         }
 
-        internal static void AddMissedSleepIdleEntry(List<DateTime> toFix)
+        internal static void AddMissedSleepIdleEntry(List<Tuple<DateTime, DateTime>> toFix)
         {
             foreach (var item in toFix)
             {
-                var idleTimeFix = item.AddMilliseconds(Settings.NotCountingAsIdleInterval_ms);
-                //InsertSnapshot(Settings.ManualSleepIdle, Dict.Idle, idleTimeFix); //TODO: enable again
+                var idleTimeFix = item.Item1.AddMilliseconds(Settings.NotCountingAsIdleInterval_ms);
+                var tsEnd = item.Item2;
+
+                var tempItem = new WindowsActivityEntry(idleTimeFix, tsEnd, Settings.ManualSleepIdle, Dict.Idle, IntPtr.Zero); //TODO: enable again
                 Logger.WriteToLogFile(new Exception(Settings.ManualSleepIdle + " from: " + item + " to: " + idleTimeFix));
             }
         }
