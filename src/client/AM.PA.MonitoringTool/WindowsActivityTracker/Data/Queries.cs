@@ -117,16 +117,16 @@ namespace WindowsActivityTracker.Data
 
             try
             {
-                var query = "SELECT wa1.time as 'tsFrom', wa2.time as 'tsTo', ( "
+                var query = "SELECT tsStart, tsEnd, ( "
 	                      + "SELECT sum(ui.keyTotal) + sum(ui.clickTotal) + sum(ui.ScrollDelta) + sum(ui.movedDistance) "
                           + "FROM " + Shared.Settings.UserInputTable + " as ui "
-                          + "WHERE (ui.tsStart between wa1.time and wa2.time) AND (ui.tsEnd between wa1.time and wa2.time) "
+                          + "WHERE (ui.tsStart between tsStart and tsEnd) AND (ui.tsEnd between tsStart and tsEnd) "
                           + ") as 'sumUserInput' "
-                          + "FROM " + Settings.DbTable + " wa1 INNER JOIN " + Settings.DbTable + " wa2 on wa1.id + 1 == wa2.id "
-                          + "WHERE wa1.process <> '" + Dict.Idle + "' " // we are looking for cases where the IDLE event was not catched
-                          + "AND wa1.process <> 'skype' AND wa1.process <> 'lync' " // IDLE during calls are okay
-                          + "AND (wa1.time between "+ Database.GetInstance().QTime(ts_checkFrom) + " AND " + Database.GetInstance().QTime(ts_checkTo) + ") " // perf
-                          + "AND (strftime('%s', wa2.time) - strftime('%s', wa1.time)) > " + Settings.IdleSleepValidate_ThresholdIdleBlocks_s + ";"; // IDLE time window we are looking for
+                          + "FROM " + Settings.DbTable + " "
+                          + "WHERE process <> '" + Dict.Idle + "' " // we are looking for cases where the IDLE event was not catched
+                          + "AND process <> 'skype' AND process <> 'lync' " // IDLE during calls are okay
+                          + "AND (tsStart between "+ Database.GetInstance().QTime(ts_checkFrom) + " AND " + Database.GetInstance().QTime(ts_checkTo) + ") " // perf
+                          + "AND (strftime('%s', tsEnd) - strftime('%s', tsStart)) > " + Settings.IdleSleepValidate_ThresholdIdleBlocks_s + ";"; // IDLE time window we are looking for
 
                 var table = Database.GetInstance().ExecuteReadQuery(query);
 
@@ -134,9 +134,9 @@ namespace WindowsActivityTracker.Data
                 {
                     if (row["sumUserInput"] == DBNull.Value || Convert.ToInt32(row["sumUserInput"]) == 0)
                     {
-                        var tsFrom = DateTime.Parse((string)row["tsFrom"], CultureInfo.InvariantCulture);
-                        var tsTo = DateTime.Parse((string)row["tsTo"], CultureInfo.InvariantCulture);
-                        var pair = new Tuple<DateTime, DateTime>(tsFrom, tsTo);
+                        var tsStart = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
+                        var tsEnd = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
+                        var pair = new Tuple<DateTime, DateTime>(tsStart, tsEnd);
                         results.Add(pair);
                     }
                 }
@@ -158,7 +158,7 @@ namespace WindowsActivityTracker.Data
                 var tsEnd = item.Item2;
 
                 var tempItem = new WindowsActivityEntry(idleTimeFix, tsEnd, Settings.ManualSleepIdle, Dict.Idle, IntPtr.Zero);
-                //InsertSnapshot(tempItem); // TODO: enable again
+                InsertSnapshot(tempItem);
                 Logger.WriteToLogFile(new Exception(Settings.ManualSleepIdle + " from: " + item + " to: " + idleTimeFix));
             }
         }
