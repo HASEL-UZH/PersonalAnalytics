@@ -175,11 +175,11 @@ namespace WindowsActivityTracker.Data
         {
             try
             {
-                var query = "SELECT t1.process as 'process', (strftime('%s', t2.time) - strftime('%s', t1.time)) as 'difference', t1.time as 'from', t2.time as 'to' " // t1.window as 'window', 
-                          + "FROM " + Settings.DbTable + " t1 LEFT JOIN " + Settings.DbTable + " t2 on t1.id + 1 = t2.id "
-                          + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "t1.time") + " and " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "t2.time") + " "
-                          + "AND t1.process <> '" + Dict.Idle + "' "
-                          + "GROUP BY t1.id, t1.time "
+                var query = "SELECT process, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'difference', tsStart, tsEnd "
+                          + "FROM " + Settings.DbTable + " "
+                          + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsStart") + " AND " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsEnd") + " "
+                          + "AND process <> '" + Dict.Idle + "' "
+                          + "GROUP BY id, tsStart "
                           + "ORDER BY difference DESC "
                           + "LIMIT 1;";
 
@@ -191,11 +191,11 @@ namespace WindowsActivityTracker.Data
                     var process = Shared.Helpers.ProcessNameHelper.GetFileDescriptionFromProcess((string)row["process"]);
                     //var window = (string)row["window"];
                     var difference = Convert.ToInt32(row["difference"], CultureInfo.InvariantCulture);
-                    var from = DateTime.Parse((string)row["from"], CultureInfo.InvariantCulture);
-                    var to = DateTime.Parse((string)row["to"], CultureInfo.InvariantCulture);
+                    var tsStart = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
+                    var tsEnd = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
 
                     table.Dispose();
-                    return new FocusedWorkDto(process, difference, from, to);
+                    return new FocusedWorkDto(process, difference, tsStart, tsEnd);
                 }
                 else
                 {
@@ -206,7 +206,6 @@ namespace WindowsActivityTracker.Data
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-
                 return null;
             }
         }
@@ -223,10 +222,10 @@ namespace WindowsActivityTracker.Data
 
             try
             {
-                var query = "SELECT t1.time as 'tsStart', t2.time as 'tsEnd', t1.window, t1.process, (strftime('%s', t2.time) - strftime('%s', t1.time)) as 'durInSec' " //t1.id, t1.time as 'from', t2.time as 'to'
-                              + "FROM " + Settings.DbTable + " t1 LEFT JOIN " + Settings.DbTable + " t2 on t1.id + 1 = t2.id "
-                              + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "t1.time") + " and " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "t2.time") + " "
-                              + "ORDER BY t1.time;";
+                var query = "SELECT tsStart, tsEnd, window, process, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'durInSec' "
+                              + "FROM " + Settings.DbTable + " "
+                              + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsStart") + " AND " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsEnd") + " "
+                              + "ORDER BY tsStart;";
 
                 var table = Database.GetInstance().ExecuteReadQuery(query);
 
@@ -301,11 +300,11 @@ namespace WindowsActivityTracker.Data
             try
             {
                 var query = "SELECT process, sum(difference) / 60.0 / 60.0  as 'durInHrs' "
-                          + "FROM (	"
-                          + "SELECT t1.process, (strftime('%s', t2.time) - strftime('%s', t1.time)) as 'difference' " //t1.id, t1.time as 'from', t2.time as 'to'
-                          + "FROM " + Settings.DbTable + " t1 LEFT JOIN " + Settings.DbTable + " t2 on t1.id + 1 = t2.id "
-                          + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "t1.time") + " and " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "t2.time") + " "
-                          + "GROUP BY t1.id, t1.time "
+                          + "FROM (	" 
+                          + "SELECT process, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'difference' "
+                          + "FROM " + Settings.DbTable + " "
+                          + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsStart") + " and " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsEnd") + " "
+                          + "GROUP BY id, tsStart"
                           + ") "
                           + "WHERE difference > 0 and process <> '" + Dict.Idle + "' "
                           + "GROUP BY process;";

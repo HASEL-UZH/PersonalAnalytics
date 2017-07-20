@@ -186,7 +186,7 @@ namespace UserEfficiencyTracker.Data
 
             var query = "SELECT date FROM ( "
                         + "SELECT date(time) as 'date' "
-                        + "FROM windows_activity "
+                        + "FROM " + Shared.Settings.WindowsActivityTable + " "
                         + "WHERE process <> 'IDLE' AND date(time) <> " + Database.GetInstance().QDate(DateTime.Now) + " " // not today
                         + "GROUP BY date(time) "
                         + "ORDER BY date(time) DESC "

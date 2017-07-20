@@ -360,16 +360,16 @@ namespace Shared.Data
             var firstEntryDateTime = DateTime.Now; // default value
             try
             {
-                var firstEntryReader = new SQLiteCommand("SELECT time FROM " + Settings.WindowsActivityTable +
+                var firstEntryReader = new SQLiteCommand("SELECT tsStart FROM " + Settings.WindowsActivityTable +
                                                          " WHERE STRFTIME('%s', DATE(time))==STRFTIME('%s', DATE('" + date.Date.ToString("u") + "'))" +
                                                          " AND STRFTIME('%H', TIME(time)) >= STRFTIME('%H', TIME('04:00:00'))" + // day start should be after 04 am
                                                          " AND process != '" + Dict.Idle +
-                                                         "' ORDER BY time ASC LIMIT 1;", _connection).ExecuteReader();
+                                                         "' ORDER BY tsStart ASC LIMIT 1;", _connection).ExecuteReader();
 
                 if (firstEntryReader.HasRows)
                 {
                     firstEntryReader.Read(); // read only once
-                    firstEntryDateTime = DateTime.Parse((string)firstEntryReader["time"]);
+                    firstEntryDateTime = DateTime.Parse((string)firstEntryReader["tsStart"]);
                 }
 
                 firstEntryReader.Close();
@@ -386,17 +386,17 @@ namespace Shared.Data
             var lastEntryDateTime = DateTime.Now;
             try
             {
-                var lastEntryReader = new SQLiteCommand("SELECT time FROM " + Settings.WindowsActivityTable +
+                var lastEntryReader = new SQLiteCommand("SELECT tsEnd FROM " + Settings.WindowsActivityTable +
                                                         " WHERE STRFTIME('%s', DATE(time))==STRFTIME('%s', DATE('" +
                                                         date.Date.ToString("u") + "'))" +
-                                                        " AND process != '" + Dict.Idle + "' ORDER BY time DESC LIMIT 1;",
+                                                        " AND process != '" + Dict.Idle + "' ORDER BY tsEnd DESC LIMIT 1;",
                     _connection).ExecuteReader();
 
                 if (lastEntryReader.HasRows)
                 {
 
                     lastEntryReader.Read(); // read only once
-                    lastEntryDateTime = DateTime.Parse((string)lastEntryReader["time"]);
+                    lastEntryDateTime = DateTime.Parse((string)lastEntryReader["tsEnd"]);
                 }
 
                 lastEntryReader.Close();
