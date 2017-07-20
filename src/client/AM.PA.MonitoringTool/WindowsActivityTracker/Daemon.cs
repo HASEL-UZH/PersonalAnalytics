@@ -305,7 +305,7 @@ namespace WindowsActivityTracker
 
         #endregion
 
-        #region Idle Sleep Checker (sleep bug that sometimes doesn't catch sleep events)
+        #region Validate (+ Fix) Idle Sleep (sleep bug that sometimes doesn't catch sleep events)
 
         private DateTime _previousIdleSleepValidated = DateTime.MinValue;
 

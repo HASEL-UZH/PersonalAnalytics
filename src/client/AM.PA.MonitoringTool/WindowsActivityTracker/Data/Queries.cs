@@ -157,7 +157,8 @@ namespace WindowsActivityTracker.Data
                 var idleTimeFix = item.Item1.AddMilliseconds(Settings.NotCountingAsIdleInterval_ms);
                 var tsEnd = item.Item2;
 
-                var tempItem = new WindowsActivityEntry(idleTimeFix, tsEnd, Settings.ManualSleepIdle, Dict.Idle, IntPtr.Zero); //TODO: enable again
+                var tempItem = new WindowsActivityEntry(idleTimeFix, tsEnd, Settings.ManualSleepIdle, Dict.Idle, IntPtr.Zero);
+                //InsertSnapshot(tempItem); // TODO: enable again
                 Logger.WriteToLogFile(new Exception(Settings.ManualSleepIdle + " from: " + item + " to: " + idleTimeFix));
             }
         }
