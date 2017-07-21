@@ -309,8 +309,13 @@ namespace WindowsActivityTracker
 
         private DateTime _previousIdleSleepValidated = DateTime.MinValue;
 
+        private bool tempRunning = false;
+
         private void ValidateSleepIdleTime(object sender, ElapsedEventArgs e)
         {
+            if (tempRunning) return;
+            tempRunning = true;
+
             // if user input table is not available => stop timer
             if (! Queries.UserInputTableExists())
             {
@@ -327,7 +332,7 @@ namespace WindowsActivityTracker
             Queries.AddMissedSleepIdleEntry(toFix);
         }
 
-        private List<Tuple<DateTime, DateTime>> PrepareIntervalAndGetMissedSleepEvents()
+        private List<Tuple<long, DateTime, DateTime>> PrepareIntervalAndGetMissedSleepEvents()
         {
             DateTime ts_checkFrom = (_previousIdleSleepValidated.Date == DateTime.Now.Date)
                                     ? _previousIdleSleepValidated.AddHours(-2) // check from previously checked datetime (and increase the interval a little)

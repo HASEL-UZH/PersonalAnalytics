@@ -161,22 +161,22 @@ namespace WindowsActivityTracker.Data
         /// <param name="ts_checkFrom"></param>
         /// <param name="ts_checkTo"></param>
         /// <returns></returns>
-        internal static List<Tuple<DateTime, DateTime>> GetMissedSleepEvents(DateTime ts_checkFrom, DateTime ts_checkTo)
+        internal static List<Tuple<long, DateTime, DateTime>> GetMissedSleepEvents(DateTime ts_checkFrom, DateTime ts_checkTo)
         {
-            var results = new List<Tuple<DateTime, DateTime>>();
+            var results = new List<Tuple<long, DateTime, DateTime>>();
 
             try
             {
-                var query = "SELECT tsStart, tsEnd, ( "
-	                      + "SELECT sum(ui.keyTotal) + sum(ui.clickTotal) + sum(ui.ScrollDelta) + sum(ui.movedDistance) "
-                          + "FROM " + Shared.Settings.UserInputTable + " as ui "
-                          + "WHERE (ui.tsStart between tsStart and tsEnd) AND (ui.tsEnd between tsStart and tsEnd) "
+                var query = "SELECT wa.id, wa.tsStart, wa.tsEnd, ( "
+                          + "SELECT sum(ui.keyTotal) + sum(ui.clickTotal) + sum(ui.ScrollDelta) + sum(ui.movedDistance) "
+                          + "FROM " + Shared.Settings.UserInputTable + " AS ui "
+                          + "WHERE (ui.tsStart between wa.tsStart and wa.tsEnd) AND (ui.tsEnd between wa.tsStart and wa.tsEnd) "
                           + ") as 'sumUserInput' "
-                          + "FROM " + Settings.DbTable + " "
-                          + "WHERE process <> '" + Dict.Idle + "' " // we are looking for cases where the IDLE event was not catched
-                          + "AND process <> 'skype' AND process <> 'lync' " // IDLE during calls are okay
-                          + "AND (tsStart between "+ Database.GetInstance().QTime(ts_checkFrom) + " AND " + Database.GetInstance().QTime(ts_checkTo) + ") " // perf
-                          + "AND (strftime('%s', tsEnd) - strftime('%s', tsStart)) > " + Settings.IdleSleepValidate_ThresholdIdleBlocks_s + ";"; // IDLE time window we are looking for
+                          + "FROM " + Settings.DbTable + " AS wa "
+                          + "WHERE wa.process <> '" + Dict.Idle + "' " // we are looking for cases where the IDLE event was not catched
+                          + "AND wa.process <> 'skype' AND wa.process <> 'lync' " // IDLE during calls are okay
+                          + "AND (wa.tsStart between " + Database.GetInstance().QTime(ts_checkFrom) + " AND " + Database.GetInstance().QTime(ts_checkTo) + ") " // perf
+                          + "AND (strftime('%s', wa.tsEnd) - strftime('%s', wa.tsStart)) > " + Settings.IdleSleepValidate_ThresholdIdleBlocks_s + ";"; // IDLE time window we are looking for
 
                 var table = Database.GetInstance().ExecuteReadQuery(query);
 
@@ -184,10 +184,11 @@ namespace WindowsActivityTracker.Data
                 {
                     if (row["sumUserInput"] == DBNull.Value || Convert.ToInt32(row["sumUserInput"]) == 0)
                     {
+                        var id = (long)row["id"];
                         var tsStart = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
                         var tsEnd = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
-                        var pair = new Tuple<DateTime, DateTime>(tsStart, tsEnd);
-                        results.Add(pair);
+                        var tuple = new Tuple<long, DateTime, DateTime>(id, tsStart, tsEnd);
+                        results.Add(tuple);
                     }
                 }
                 table.Dispose();
@@ -200,16 +201,22 @@ namespace WindowsActivityTracker.Data
             return results;
         }
 
-        internal static void AddMissedSleepIdleEntry(List<Tuple<DateTime, DateTime>> toFix)
+        internal static void AddMissedSleepIdleEntry(List<Tuple<long, DateTime, DateTime>> toFix)
         {
             foreach (var item in toFix)
             {
-                var idleTimeFix = item.Item1.AddMilliseconds(Settings.NotCountingAsIdleInterval_ms);
-                var tsEnd = item.Item2;
+                var idleTimeFix = item.Item2.AddMilliseconds(Settings.NotCountingAsIdleInterval_ms);
+                var tsEnd = item.Item3;
 
+                // add missed sleep idle entry
                 var tempItem = new WindowsActivityEntry(idleTimeFix, tsEnd, Settings.ManualSleepIdle, Dict.Idle, IntPtr.Zero);
                 InsertSnapshot(tempItem);
-                Logger.WriteToLogFile(new Exception(Settings.ManualSleepIdle + " from: " + item + " to: " + idleTimeFix));
+
+                // update tsEnd of previous (wrong entry)
+                var query = "UPDATE " + Settings.DbTable + " SET tsEnd = " + Database.GetInstance().QTime2(idleTimeFix) + " WHERE id = " + item.Item1;
+                Database.GetInstance().ExecuteDefaultQuery(query);
+
+                Logger.WriteToLogFile(new Exception(Settings.ManualSleepIdle + " from: " + item + " to: " + idleTimeFix)); // TODO: temp, remove
             }
         }
 
