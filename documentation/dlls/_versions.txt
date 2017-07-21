@@ -2,6 +2,7 @@
 Shared.dll
 **********
 
+2017-07-21	V2.0.6411.19686	minor updates following WindowsActivityTracker-changes
 2017-04-20	V2.0.6319.30087	updated sqlite to 1.0.105
 2017-04-19	V2.0.6318.29253
 2017-01-24	V2.0.6233.24728
@@ -13,6 +14,7 @@ Shared.dll
 Retrospection.dll
 *****************
 
+2017-07-21	V1.0.6411.19687	minor updates following WindowsActivityTracker-changes
 2017-04-20	V1.0.6319.30089	updated sqlite to 1.0.105
 2017-04-18	V1.0.6318.26088 initial version
 
@@ -39,6 +41,7 @@ FlowTracker.dll
 UserInputTracker.dll
 ********************
 
+2017-07-21	V2.0.6411.19687	minor updates following WindowsActivityTracker-changes
 2017-04-20	V2.0.6319.30088	updated sqlite to 1.0.105
 2017-01-31	V2.0.6240.21478
 2017-01-24	V2.0.6233.24729
@@ -49,6 +52,7 @@ UserInputTracker.dll
 WindowsActivityTracker.dll
 **************************
 
+2017-07-21	V3.0.6411.19908	major update (fixed IDLE bug, added tsStart + tsEnd rows in table)
 2017-04-20	V2.0.6319.30087	updated sqlite to 1.0.105
 2017-01-24	V2.0.6233.19305
 2016-12-14	V2.0.6187.20492 initial version
@@ -57,4 +61,5 @@ WindowsActivityTracker.dll
 ArtifactVisualizer.dll
 **********************
 
+2017-07-21	V1.0.6411.19687	minor updates following WindowsActivityTracker-changes
 2017-04-20	V1.0.6319.30088	initial version
