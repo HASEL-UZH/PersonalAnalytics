@@ -295,7 +295,7 @@ namespace WindowsActivityTracker
             {
                 // resumed work in the same program (i.e. from IDLE -> current process)
                 StoreProcess();
-                //TODO later: maybe check if not just moved the mouse a little, but actually inserted some data
+                // TODO later: maybe check if not just moved the mouse a little, but actually inserted some data
             }
             else if (! isIdle && !_previousEntry.WasIdle)
             {
@@ -309,7 +309,7 @@ namespace WindowsActivityTracker
 
         private DateTime _previousIdleSleepValidated = DateTime.MinValue;
 
-        private bool tempRunning = false;
+        private bool tempRunning = false; // TODO: remove
 
         private void ValidateSleepIdleTime(object sender, ElapsedEventArgs e)
         {
@@ -468,30 +468,9 @@ namespace WindowsActivityTracker
             }
             else if (e.Mode == PowerModes.StatusChange)
             {
-                // todo: handle docking station stuff here?
+                // handle docking station stuff here?
             }
         }
-
-        /// <summary>
-        /// This method is called in case the user resumes the computer.
-        /// As the sleep/logout-events are not always catched, we have to check
-        /// if they were catched the last time, and if not fix it.
-        /// 
-        /// (it's also called when the user goes to the lockscreen, but not executed,
-        /// as the WasIdleInLastInterval is false)
-        /// </summary>
-        //private void ResumeComputer_IdleChecker()
-        //{
-        //    if (_previousEntry.Process != Dict.Idle && WasIdleInLastInterval())
-        //    {
-        //        // TODO: catch timestamp of last entry here (+ go forward until 2+ mins with no user input)
-        //        var manualTimeStamp = _previousEntry.TimeStamp.AddMilliseconds(- Settings.NotCountingAsIdleInterval);
-        //        StoreProcessAndWindowTitle("ManualSleep", Dict.Idle, manualTimeStamp);
-
-        //        // TODO: remove logger (only for testing)
-        //        Logger.WriteToLogFile(new Exception("Fixed? ManualSleep (previous: " + _previousEntry.TimeStamp + " p: " + _previousEntry.Process + " w: " + _previousEntry.WindowTitle));
-        //    }
-        //}
 
         /// <summary>
         /// Get the name of the current process

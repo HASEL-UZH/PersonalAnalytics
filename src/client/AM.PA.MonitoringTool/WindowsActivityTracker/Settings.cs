@@ -7,7 +7,7 @@ namespace WindowsActivityTracker
 {
     public static class Settings
     {
-        public const bool IsEnabled = true; // todo; should never be disabled by the user (too many services rely on it)
+        public const bool IsEnabled = true; // should never be disabled by the user (too many services rely on it)
         public static bool RecordIdle = true;
         internal const int NotCountingAsIdleInterval_ms = 2 * 60 * 1000; //in ms
         internal const int IdleTimerInterval_ms = 1000; // in ms
