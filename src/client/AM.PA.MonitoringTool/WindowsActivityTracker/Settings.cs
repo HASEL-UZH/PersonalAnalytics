@@ -11,7 +11,7 @@ namespace WindowsActivityTracker
         public static bool RecordIdle = true;
         internal const int NotCountingAsIdleInterval_ms = 2 * 60 * 1000; //in ms
         internal const int IdleTimerInterval_ms = 1000; // in ms
-        internal const int IdleSleepValidate_TimerInterval_ms = 1000; // TODO temp: 20 * 60 * 1000; // in ms
+        internal const int IdleSleepValidate_TimerInterval_ms = 1000 * 60; // TODO temp: 20 * 60 * 1000; // in ms
         internal const string DbTable = "windows_activity";
         internal const int IdleSleepValidate_ThresholdIdleBlocks_s = 10 * 60; // block sized that are considered for validation (2min)
         internal const int IdleSleepValidate_ThresholdBack_d = 70; // if not checked in the near past, go back 7 days (not more: perf!)

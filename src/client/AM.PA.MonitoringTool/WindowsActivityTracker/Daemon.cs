@@ -154,7 +154,7 @@ namespace WindowsActivityTracker
 
         public override void UpdateDatabaseTables(int version)
         {
-            // no database updates necessary yet
+            Queries.UpdateDatabaseTables(version);
         }
 
         public override bool IsEnabled()

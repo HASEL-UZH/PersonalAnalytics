@@ -27,8 +27,8 @@ namespace WindowsActivityTracker.Data
         {
             try
             {
-                Database.GetInstance().ExecuteDefaultQuery(QUERY_CREATE);
-                Database.GetInstance().ExecuteDefaultQuery(QUERY_INDEX); // add index
+                var res = Database.GetInstance().ExecuteDefaultQuery(QUERY_CREATE);
+                if (res == 1) Database.GetInstance().ExecuteDefaultQuery(QUERY_INDEX); // add index when table was newly created
             }
             catch (Exception e)
             {
@@ -52,8 +52,7 @@ namespace WindowsActivityTracker.Data
                         Database.GetInstance().ExecuteDefaultQuery(QUERY_INDEX);
 
                         // migrate data (set tsStart / tsEnd)
-
-                        // TODO: implement
+                        MigrateWindowsActivityTable();
                     }
                 }
             }
@@ -63,6 +62,57 @@ namespace WindowsActivityTracker.Data
             }
         }
 
+        /// <summary>
+        /// Updates all entries, sets time -> tsStart and time (of next item) -> tsEnd (or empty if end of the day)
+        /// </summary>
+        private static void MigrateWindowsActivityTable()
+        {
+            try
+            {
+                // copy time -> tsStart
+                Database.GetInstance().ExecuteDefaultQuery("UPDATE " + Settings.DbTable + " set tsStart = time;");
+
+                // copy tsStart of next item to tsEnd of this item
+                var QUERY_UPDATE_TSEND = "UPDATE " + Settings.DbTable + " SET tsEnd = (SELECT t2.tsStart FROM " + Settings.DbTable + " t2 WHERE windows_activity.id + 1 = t2.id LIMIT 1);";
+                Database.GetInstance().ExecuteDefaultQuery(QUERY_UPDATE_TSEND);
+
+                // set tsEnd
+                //var querySelect = "SELECT id, tsStart FROM " + Settings.DbTable + ";"; // LIMIT 10000;";
+                //var table = Database.GetInstance().ExecuteReadQuery(querySelect);
+
+                //if (table != null)
+                //{
+                //    WindowsActivity _previousItem = null;
+
+                //    foreach (DataRow row in table.Rows)
+                //    {
+                //        // read values for this item
+                //        var currentItem_Id = (long)row["id"];
+                //        var urrentItem_tsStart = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
+
+                //        // update and store previous item
+                //        if (_previousItem != null)
+                //        {
+                //            var tsEndString = (_previousItem.StartTime.Day == urrentItem_tsStart.Day)
+                //                                ? Database.GetInstance().QTime2(urrentItem_tsStart) // previous items' tsEnd is current items' tsStart
+                //                                : "''"; // if end of day: keep empty
+
+                //            var queryUpdate = "UPDATE " + Settings.DbTable + " SET tsEnd = " + tsEndString + " WHERE id = '" + _previousItem.Id + "';";
+                //            Database.GetInstance().ExecuteDefaultQuery(queryUpdate);
+                //            //Logger.WriteToConsole(queryUpdate);
+                //        }
+
+                //        // set new previous item
+                //        _previousItem = new WindowsActivity() { Id = (int)currentItem_Id, StartTime = urrentItem_tsStart }; //tsEnd is not yet known
+                //    }
+                //    table.Dispose();
+                //}
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+        }
 
         /// <summary>
         /// Saves the timestamp, start and end, process name and window title into the database.
@@ -230,55 +280,58 @@ namespace WindowsActivityTracker.Data
 
                 var table = Database.GetInstance().ExecuteReadQuery(query);
 
-                WindowsActivity _previousWindowsActivityEntry = null;
-
-                foreach (DataRow row in table.Rows)
+                if (table != null)
                 {
-                    // fetch items from database
-                    var e = new WindowsActivity();
-                    e.StartTime = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
-                    e.EndTime = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
-                    e.DurationInSeconds = row.IsNull("durInSec") ? 0 : Convert.ToInt32(row["durInSec"], CultureInfo.InvariantCulture);
-                    e.ProcessName = (string)row["process"];
-                    e.WindowTitle = (string)row["window"];
+                    WindowsActivity _previousWindowsActivityEntry = null;
 
-                    // if the user wishes to see activity categories rather than processes
-                    // map it automatically
-                    if (mapToActivity)
+                    foreach (DataRow row in table.Rows)
                     {
-                        ProcessToActivityMapper.Map(e);
-                    }
+                        // fetch items from database
+                        var e = new WindowsActivity();
+                        e.StartTime = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
+                        e.EndTime = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
+                        e.DurationInSeconds = row.IsNull("durInSec") ? 0 : Convert.ToInt32(row["durInSec"], CultureInfo.InvariantCulture);
+                        e.ProcessName = (string)row["process"];
+                        e.WindowTitle = (string)row["window"];
 
-                    // check if we add a new item, or merge with the previous one
-                    if (_previousWindowsActivityEntry != null)
-                    {
-                        // previous item is same, update it (duration and tsEnd)
-                        if (mapToActivity && e.ActivityCategory == _previousWindowsActivityEntry.ActivityCategory)
+                        // if the user wishes to see activity categories rather than processes
+                        // map it automatically
+                        if (mapToActivity)
                         {
-                            var lastItem = orderedActivityList.Last();
-                            lastItem.DurationInSeconds += e.DurationInSeconds;
-                            lastItem.EndTime = e.EndTime;
+                            ProcessToActivityMapper.Map(e);
                         }
-                        // previous item is same, update it (duration and tsEnd)
-                        else if (!mapToActivity && e.ProcessName == _previousWindowsActivityEntry.ProcessName)
+
+                        // check if we add a new item, or merge with the previous one
+                        if (_previousWindowsActivityEntry != null)
                         {
-                            var lastItem = orderedActivityList.Last();
-                            lastItem.DurationInSeconds += e.DurationInSeconds;
-                            lastItem.EndTime = e.EndTime;
+                            // previous item is same, update it (duration and tsEnd)
+                            if (mapToActivity && e.ActivityCategory == _previousWindowsActivityEntry.ActivityCategory)
+                            {
+                                var lastItem = orderedActivityList.Last();
+                                lastItem.DurationInSeconds += e.DurationInSeconds;
+                                lastItem.EndTime = e.EndTime;
+                            }
+                            // previous item is same, update it (duration and tsEnd)
+                            else if (!mapToActivity && e.ProcessName == _previousWindowsActivityEntry.ProcessName)
+                            {
+                                var lastItem = orderedActivityList.Last();
+                                lastItem.DurationInSeconds += e.DurationInSeconds;
+                                lastItem.EndTime = e.EndTime;
+                            }
+                            // previous item is different, add it to list
+                            else
+                            {
+                                orderedActivityList.Add(e);
+                            }
                         }
-                        // previous item is different, add it to list
-                        else
+                        else // first item
                         {
                             orderedActivityList.Add(e);
                         }
+                        _previousWindowsActivityEntry = e;
                     }
-                    else // first item
-                    {
-                        orderedActivityList.Add(e);
-                    }
-                    _previousWindowsActivityEntry = e;
+                    table.Dispose();
                 }
-                table.Dispose();
             }
             catch (Exception e)
             {
@@ -312,22 +365,25 @@ namespace WindowsActivityTracker.Data
 
                 var table = Database.GetInstance().ExecuteReadQuery(query);
 
-                foreach (DataRow row in table.Rows)
+                if (table != null)
                 {
-                    var process = (string)row["process"];
-                    var fileDesc = Shared.Helpers.ProcessNameHelper.GetFileDescription(process);
-                    var share = (double)row["durInHrs"];
+                    foreach (DataRow row in table.Rows)
+                    {
+                        var process = (string)row["process"];
+                        var fileDesc = Shared.Helpers.ProcessNameHelper.GetFileDescription(process);
+                        var share = (double)row["durInHrs"];
 
-                    if (dto.ContainsKey(fileDesc))
-                    {
-                        dto[fileDesc] += share;
+                        if (dto.ContainsKey(fileDesc))
+                        {
+                            dto[fileDesc] += share;
+                        }
+                        else
+                        {
+                            dto.Add(fileDesc, share);
+                        }
                     }
-                    else
-                    {
-                        dto.Add(fileDesc, share);
-                    }
+                    table.Dispose();
                 }
-                table.Dispose();
             }
             catch (Exception e)
             {
