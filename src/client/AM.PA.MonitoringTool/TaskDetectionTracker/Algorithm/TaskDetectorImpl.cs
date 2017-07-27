@@ -28,8 +28,19 @@ namespace TaskDetectionTracker.Algorithm
         private string _taskTypeDataFileName = "pa-tasktypedata-" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".csv";
         private string _taskTypeDetectionModelFileName = Path.Combine(Environment.CurrentDirectory, "Resources", "tasktypedetectionmodel.rda");
 
+        private string _rToolsHomeZip = Path.Combine(Environment.CurrentDirectory, "Resources", "R-3.4.0.zip");
+        private string _rToolsLibrariesZip = Path.Combine(Environment.CurrentDirectory, "Resources", "R_libraries.zip");
+        private string _rToolsExtractDirectory = Path.Combine(Environment.CurrentDirectory, "Resources");
+        private string _rToolsPath = Path.Combine(Environment.CurrentDirectory, "Resources", "R-3.4.0\\bin\\i386");
+        private string _rToolsHome = Path.Combine(Environment.CurrentDirectory, "Resources", "R-3.4.0");
+        private string _rToolsLibraries = Path.Combine(Environment.CurrentDirectory, "Resources", "R_libraries");
+
+
+
         public List<TaskDetection> FindTasks(List<TaskDetectionInput> processes)
         {
+            UnzipRTools();
+
             List<Datapoint> dps = new List<Datapoint>();
             foreach(var p in processes)
             {
@@ -47,6 +58,19 @@ namespace TaskDetectionTracker.Algorithm
             PredictTypes(tcs);
 
             return tcs;
+        }
+
+        private void UnzipRTools()
+        {
+            if (!Directory.Exists(_rToolsHome))
+            {
+                System.IO.Compression.ZipFile.ExtractToDirectory(_rToolsHomeZip, _rToolsExtractDirectory);
+            }
+            if (!Directory.Exists(_rToolsLibraries))
+            {
+                System.IO.Compression.ZipFile.ExtractToDirectory(_rToolsLibrariesZip, _rToolsExtractDirectory);
+            }
+            
         }
 
         private void WriteSwitchDetectionFile(List<Datapoint> dps)
@@ -256,11 +280,16 @@ namespace TaskDetectionTracker.Algorithm
 
             try
             {
-                var path = @"C:\Program Files\R\R-3.4.0\bin\i386";
+               // var path = @"C:\Program Files\R\R-3.4.0\bin\i386";
                 var path64 = @"C:\Program Files\R\R-3.4.0\bin\x64"; // bin\R.exe";
-                var home = @"C:\Program Files\R\R-3.4.0";
+
+
+                var path = R_ConvertPathToForwardSlash(_rToolsPath);
+                var home = R_ConvertPathToForwardSlash(_rToolsHome);
+
                 REngine.SetEnvironmentVariables(path, home);
-                // Katja    home: C:\Program Files\R\R-3.4.0        path: C:\Program Files\R\R-3.4.0\bin\i386       registrypath: C:\Program Files\R\R-3.4.0\bin\i386
+
+
                 //Console.WriteLine("home: " + NativeUtility.FindRHome() + " -path:" + NativeUtility.FindRPath() + " -:" + NativeUtility.FindRPathFromRegistry());
 
                 // start REngine
@@ -405,7 +434,10 @@ namespace TaskDetectionTracker.Algorithm
             
             engine.Evaluate("tasktypedata <- read.csv(file = '" + R_ConvertPathToForwardSlash(GetTaskDetectionDumpsPath(_taskTypeDataFolder, _taskTypeDataFileName)) + "', sep = \",\", header = TRUE)");
 
-            engine.Evaluate(".libPaths('C:/Users/katja/OneDrive/Documents/R/win-library/3.3')");
+           // engine.Evaluate(".libPaths('C:/Users/katja/OneDrive/Documents/R/win-library/3.3')");
+           // engine.Evaluate(".libPaths('C:/Users/katja/Desktop/R_libraries')"); _rToolsRandomForest
+            engine.Evaluate(".libPaths('"+ R_ConvertPathToForwardSlash(_rToolsLibraries) + "')");
+
             engine.Evaluate("library(randomForest)");
             
             // read
