@@ -12,7 +12,8 @@ namespace MsOfficeTracker
 #if Pilot_TaskDetection_March17
         public static bool IsEnabledByDefault = false;
 #else
-        public static bool IsEnabledByDefault = true; // user will see a pop-up (the first start) to decide whether to use it or not
+        // TODO: re-enable after bug has been fixed
+        public static bool IsEnabledByDefault = false; // user will see a pop-up (the first start) to decide whether to use it or not
 #endif
 
         public const int SaveEmailCountsIntervalInMinutes = 20; // in minutes
