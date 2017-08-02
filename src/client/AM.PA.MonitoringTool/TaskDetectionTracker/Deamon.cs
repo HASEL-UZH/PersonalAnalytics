@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
+using TaskDetectionTracker.Algorithm;
 using TaskDetectionTracker.Data;
 using TaskDetectionTracker.Helpers;
 using TaskDetectionTracker.Model;
@@ -132,12 +133,17 @@ namespace TaskDetectionTracker
                 DataMerger.AddMouseClickAndKeystrokesToProcesses(processes);
                 //TODO: file and website extractor
 
+                // TODO Andre: check if user input is in processes
+
+                var td = new TaskDetectorImpl();
+                var taskDetections = td.FindTasks(processes);
                 // test task (remove when adding Katja's helper)
-                TaskDetection task = new TaskDetection { Start = processes.First().Start, End = processes.Last().End, TimelineInfos = processes, TaskTypeValidated = "test task" };
-                var taskDetections = new List<TaskDetection> { task }; // TODO: run task detection (using Katja's helper, likely on separate thread)
+                //TaskDetection task = new TaskDetection { Start = processes.First().Start, End = processes.Last().End, TimelineInfos = processes, TaskTypeValidated = "test task" };
+                //var taskDetections = new List<TaskDetection> { task }; // TODO: run task detection (using Katja's helper, likely on separate thread)
 
                 return taskDetections;
             }
+
             return new List<TaskDetection>();
         }
 
@@ -160,7 +166,7 @@ namespace TaskDetectionTracker
                         // show popup & handle response
                         if (popup.ShowDialog() == true)
                         {
-                            HandlePopUpResponse(popup, taskDetections, detectionSessionEnd);
+                            HandlePopUpResponse(popup, taskDetections, detectionSessionStart, detectionSessionEnd);
                         }
                         else
                         {
@@ -196,13 +202,15 @@ namespace TaskDetectionTracker
         /// </summary>
         /// <param name="taskDetectionPopup"></param>
         /// <param name="popup"></param>
-        private void HandlePopUpResponse(TaskDetectionPopup popup, List<TaskDetection> taskDetections, DateTime detectionSessionEnd)
+        private void HandlePopUpResponse(TaskDetectionPopup popup, List<TaskDetection> taskDetections, DateTime detectionSessionStart, DateTime detectionSessionEnd)
         {
             // successful popup response
             if (popup.ValidationComplete)
             {
                 // save validation responses to the database
-                DatabaseConnector.TaskDetectionSession_SaveToDatabase(taskDetections); //TODO: implement
+                var sessionId = DatabaseConnector.TaskDetectionSession_SaveToDatabase(detectionSessionStart, detectionSessionEnd, DateTime.Now, popup.Comments.Text);
+                if (sessionId > 0) DatabaseConnector.TaskDetectionValidationsPerSession_SaveToDatabase(sessionId, taskDetections);
+                else Database.GetInstance().LogWarning("Did not save any validated task detections for session (" + detectionSessionStart.ToString() + " to " + detectionSessionEnd.ToString() + ") due to an error.");
 
                 // next popup will start from this timestamp
                 _lastPopUpResponse = detectionSessionEnd;

@@ -354,11 +354,16 @@ namespace TaskDetectionTracker.Views
             
             ValidateSaveButtonEnabled();
         }
-        
+
         #endregion
 
         #region Add and remove processes
-        //Extract a process from a task and at it to a newly created task
+
+        /// <summary>
+        /// Extract a process from a task and at it to a newly created task
+        /// </summary>
+        /// <param name="task"></param>
+        /// <param name="processes"></param>
         private void ExtractProcessesFromTask(TaskDetection task, List<TaskDetectionInput> processes)
         {
             //Add process to new task
@@ -401,7 +406,10 @@ namespace TaskDetectionTracker.Views
         #endregion
 
         #region Save button validation
-        //Validate whether the save button should be enabled
+
+        /// <summary>
+        /// Validate whether the save button should be enabled
+        /// </summary>
         private void ValidateSaveButtonEnabled()
         {
             foreach (var task in _tasks)

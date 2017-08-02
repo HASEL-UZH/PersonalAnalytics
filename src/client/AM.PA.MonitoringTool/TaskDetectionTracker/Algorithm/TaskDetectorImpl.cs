@@ -40,7 +40,6 @@ namespace TaskDetectionTracker.Algorithm
             UnzipRTools();
         }
 
-
         /// <summary>
         /// If R-Tools have not yet been unzipped, unzip them
         /// </summary>
@@ -111,11 +110,11 @@ namespace TaskDetectionTracker.Algorithm
                 if (feature.Equals("window"))
                 {
                     string windows = string.Join(" ", processes[i].WindowTitles);
-                    docs[i] = cleanWindowOrProcessString(windows);
+                    docs[i] = CleanWindowOrProcessString(windows);
                 }
                 else if (feature.Equals("process"))
                 {
-                    docs[i] = cleanWindowOrProcessString(processes[i].ProcessName);
+                    docs[i] = CleanWindowOrProcessString(processes[i].ProcessName);
                 }
 
             }
@@ -246,7 +245,7 @@ namespace TaskDetectionTracker.Algorithm
             #endregion 
         }
 
-        private String cleanWindowOrProcessString(String window)
+        private string CleanWindowOrProcessString(string window)
         {
             window = window.Replace(',', ' ');
             window = window.Replace('+', ' ');
@@ -266,7 +265,6 @@ namespace TaskDetectionTracker.Algorithm
             {
                 dps[i].TotalKeystrokesDiff = Math.Abs(processes[i - 1].NumberOfKeystrokes - processes[i].NumberOfKeystrokes);
             }
-
         }
 
         private void SetMouseClicksDiff(List<TaskDetectionInput> processes, List<Datapoint> dps)
@@ -278,21 +276,23 @@ namespace TaskDetectionTracker.Algorithm
             }
         }
 
-        public List<TaskDetection> PredictSwitches(List<TaskDetectionInput> processes)
+        /// <summary>
+        /// TODO: document
+        /// </summary>
+        /// <param name="processes"></param>
+        /// <returns></returns>
+        private List<TaskDetection> PredictSwitches(List<TaskDetectionInput> processes)
         {
             List<TaskDetection> tcs = new List<TaskDetection>();
 
             try
             {
-               // var path = @"C:\Program Files\R\R-3.4.0\bin\i386";
-                var path64 = @"C:\Program Files\R\R-3.4.0\bin\x64"; // bin\R.exe";
-
-
+                // var path = @"C:\Program Files\R\R-3.4.0\bin\i386";
+                //var path64 = @"C:\Program Files\R\R-3.4.0\bin\x64"; // bin\R.exe";
                 var path = R_ConvertPathToForwardSlash(_rToolsPath);
                 var home = R_ConvertPathToForwardSlash(_rToolsHome);
 
                 REngine.SetEnvironmentVariables(path, home);
-
 
                 //Console.WriteLine("home: " + NativeUtility.FindRHome() + " -path:" + NativeUtility.FindRPath() + " -:" + NativeUtility.FindRPathFromRegistry());
 
@@ -327,12 +327,10 @@ namespace TaskDetectionTracker.Algorithm
                     TaskDetection tc = CreateTaskDetectionObject(toBundle);
                     tcs.Add(tc);
                 }
-
-                
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Logger.WriteToConsole(e.Message);
                 Logger.WriteToLogFile(e);
             }
 
@@ -460,7 +458,6 @@ namespace TaskDetectionTracker.Algorithm
             engine.Dispose();
 
         }
-
 
         #region File & Path Helpers
 

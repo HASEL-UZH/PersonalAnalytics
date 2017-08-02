@@ -15,23 +15,72 @@ namespace TaskDetectionTracker.Data
 {
     internal class DatabaseConnector
     {
+        private static string QUERY_CREATE_SESSION = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Sessions + " (sessionId INTEGER PRIMARY KEY, time DATETIME, session_start DATETIME, session_end DATETIME, timePopUpResponded DATETIME, comments TEXT);";
+        private static string QUERY_CREATE_VALIDATION = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Validations + " (id INTEGER PRIMARY KEY, sessionId INTEGER, time DATETIME, task_start DATETIME, task_end DATETIME, task_detection_case TEXT, task_type_proposed TEXT, task_type_validated TEXT);";
+
+        private static string QUERY_INSERT_SESSION = "INSERT INTO " + Settings.DbTable_TaskDetection_Sessions + " (time, session_start, session_end, timePopUpResponded, comments) VALUES ({0}, {1}, {2}, {3}, {4});";
+        private static string QUERY_INSERT_VALIDATION = "INSERT INTO " + Settings.DbTable_TaskDetection_Validations + " (sessionId, time, task_start, task_end, task_detection_case, task_type_proposed, task_type_validated) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6});";
+
         internal static void CreateTaskDetectionValidationTable()
         {
-            Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Sessions + " (sessionId INTEGER PRIMARY KEY, time DATETIME, session_start DATETIME, session_end DATETIME, timePopUpResponded DATETIME, comments TEXT);");
-            Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Validations + " (id INTEGER PRIMARY KEY, sessionId INTEGER, time DATETIME, task_start DATETIME, task_end DATETIME, task_detection_case TEXT, task_type_proposed TEXT, task_type_validated TEXT);");
+            Database.GetInstance().ExecuteDefaultQuery(QUERY_CREATE_SESSION);
+            Database.GetInstance().ExecuteDefaultQuery(QUERY_CREATE_VALIDATION);
         }
 
         /// <summary>
-        /// Saves the user validated task detections to the database.
-        /// 
-        /// 1. saves the session information to DbTable_TaskDetection_Sessions (returns a sessionId)
-        /// 2. saves the validated task detections for this session (with sessionId)
+        /// Saves the session information to DbTable_TaskDetection_Sessions (returns a sessionId)
+        /// </summary>
+        /// <returns></returns>
+        internal static int TaskDetectionSession_SaveToDatabase(DateTime sessionStart, DateTime sessionEnd, DateTime timePopUpResponded, string comment)
+        {
+            try
+            {
+                var query = string.Format(QUERY_INSERT_SESSION,
+                                          "strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')",
+                                          Database.GetInstance().QTime(sessionStart), //TODO: QTime2
+                                          Database.GetInstance().QTime(sessionEnd), //TODO: QTime2
+                                          Database.GetInstance().QTime(timePopUpResponded), //TODO: QTime2
+                                          Database.GetInstance().Q(comment));
+                Database.GetInstance().ExecuteDefaultQuery(query);
+
+                var query2 = "SELECT last_insert_rowid();";
+                return Database.GetInstance().ExecuteScalar(query2);
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Saves the validated task detections for this session (with sessionId)
         /// </summary>
         /// <param name="taskDetections"></param>
-        internal static void TaskDetectionSession_SaveToDatabase(List<TaskDetection> taskDetections)
+        internal static void TaskDetectionValidationsPerSession_SaveToDatabase(int sessionId, List<TaskDetection> taskDetections)
         {
-            // TODO: implement
-            Shared.Logger.WriteToConsole("## Not yet implemented: TaskDetectionSession_SaveToDatabase!");
+            var db = Database.GetInstance();
+
+            try
+            {
+                foreach (var task in taskDetections)
+                {
+                    var query = string.Format(QUERY_INSERT_VALIDATION,
+                                          sessionId, 
+                                          "strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')",
+                                          db.QTime(task.Start), //TODO: QTime2
+                                          db.QTime(task.End), //TODO: QTime2
+                                          db.Q(task.TaskDetectionCase.ToString()),
+                                          db.Q(task.TaskTypeProposed),
+                                          db.Q(task.TaskTypeValidated));
+                                          // doesn't store isMaintask yet
+                    db.ExecuteDefaultQuery(query);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
         }
 
         /// <summary>
@@ -46,7 +95,7 @@ namespace TaskDetectionTracker.Data
 
             try
             {
-                string query = "Select time, window, process from windows_activity where " + "(" + " STRFTIME('%s', DATETIME(time)) between STRFTIME('%s', DATETIME('" + from.ToString("u") + "')) and STRFTIME('%s', DATETIME('" + to.ToString("u") + "')) "+ " ) ";
+                string query = "SELECT time, window, process FROM windows_activity WHERE " + "(" + " STRFTIME('%s', DATETIME(time)) between STRFTIME('%s', DATETIME('" + from.ToString("u") + "')) and STRFTIME('%s', DATETIME('" + to.ToString("u") + "')) "+ " ) ";
                 var table = Database.GetInstance().ExecuteReadQuery(query);
                 foreach (DataRow row in table.Rows)
                 {
@@ -77,7 +126,7 @@ namespace TaskDetectionTracker.Data
 
             try
             {
-                string query = "Select tsStart, tsEnd, keyTotal from user_input where " + "(" + " STRFTIME('%s', DATE(tsStart)) between STRFTIME('%s', DATE('" + start.ToString("u") + "')) and STRFTIME('%s', DATE('" + end.ToString("u") + "')) " + " ) AND " + "(" + " STRFTIME('%s', DATE(tsEnd)) between STRFTIME('%s', DATE('" + start.ToString("u") + "')) and STRFTIME('%s', DATE('" + end.ToString("u") + "')) " + " );";
+                string query = "SELECT tsStart, tsEnd, keyTotal FROM user_input WHERE " + "(" + " STRFTIME('%s', DATE(tsStart)) between STRFTIME('%s', DATE('" + start.ToString("u") + "')) and STRFTIME('%s', DATE('" + end.ToString("u") + "')) " + " ) AND " + "(" + " STRFTIME('%s', DATE(tsEnd)) between STRFTIME('%s', DATE('" + start.ToString("u") + "')) and STRFTIME('%s', DATE('" + end.ToString("u") + "')) " + " );";
                 var table = Database.GetInstance().ExecuteReadQuery(query);
 
                 foreach (DataRow row in table.Rows)
@@ -108,7 +157,7 @@ namespace TaskDetectionTracker.Data
 
             try
             {
-                string query = "Select tsStart, tsEnd, clickTotal from user_input where " + "(" + " STRFTIME('%s', DATE(tsStart)) between STRFTIME('%s', DATE('" + start.ToString("u") + "')) and STRFTIME('%s', DATE('" + end.ToString("u") + "')) " + " ) AND " + "(" + " STRFTIME('%s', DATE(tsEnd)) between STRFTIME('%s', DATE('" + start.ToString("u") + "')) and STRFTIME('%s', DATE('" + end.ToString("u") + "')) " + " );";
+                string query = "SELECT tsStart, tsEnd, clickTotal FROM user_input WHERE " + "(" + " STRFTIME('%s', DATE(tsStart)) between STRFTIME('%s', DATE('" + start.ToString("u") + "')) and STRFTIME('%s', DATE('" + end.ToString("u") + "')) " + " ) AND " + "(" + " STRFTIME('%s', DATE(tsEnd)) between STRFTIME('%s', DATE('" + start.ToString("u") + "')) and STRFTIME('%s', DATE('" + end.ToString("u") + "')) " + " );";
                 var table = Database.GetInstance().ExecuteReadQuery(query);
 
                 foreach (DataRow row in table.Rows)
