@@ -37,6 +37,7 @@ namespace WindowsActivityTracker
         private Timer _idleSleepValidator;
         private NativeMethods.LASTINPUTINFO _lastInputInfo;
         private WindowsActivityEntry _previousEntry;
+        private DateTime _previousIdleSleepValidated = DateTime.MinValue;
 
         #region ITracker Stuff
 
@@ -307,8 +308,6 @@ namespace WindowsActivityTracker
 
         #region Validate (+ Fix) Idle Sleep (sleep bug that sometimes doesn't catch sleep events)
 
-        private DateTime _previousIdleSleepValidated = DateTime.MinValue;
-
         private void ValidateSleepIdleTime(object sender, ElapsedEventArgs e)
         {
             try
@@ -330,6 +329,7 @@ namespace WindowsActivityTracker
 
                 // reset (to not recheck everything every time)
                 _previousIdleSleepValidated = DateTime.Now;
+                Database.GetInstance().SetSettings(Settings.IdleSleepLastValidated, _previousIdleSleepValidated.ToString(DatabaseImplementation.DB_FORMAT_DAY_AND_TIME));
             }
             catch (Exception ex) 
             {
@@ -339,13 +339,33 @@ namespace WindowsActivityTracker
 
         private List<Tuple<long, DateTime, DateTime>> PrepareIntervalAndGetMissedSleepEvents()
         {
-            DateTime ts_checkFrom = (_previousIdleSleepValidated.Date == DateTime.Now.Date)
-                                    ? _previousIdleSleepValidated.AddHours(- Settings.IdleSleepValidate_THresholdBack_short_h) // check from previously checked datetime (and increase the interval a little)
-                                    : DateTime.Now.AddDays(- Settings.IdleSleepValidate_ThresholdBack_long_d); // go a couple of days back to check
+            // check if the validation should go back long
+            var isLongCheck = true;
+            if (_previousIdleSleepValidated == DateTime.MinValue)
+            {
+                var db_previousIdleSleepValidated = Database.GetInstance().GetSettingsDate(Settings.IdleSleepLastValidated, DateTimeOffset.MinValue);
+
+                if (db_previousIdleSleepValidated.Date == DateTimeOffset.Now.Date)
+                {
+                    isLongCheck = false;
+                    _previousIdleSleepValidated = DateTime.Now;
+                }
+            }
+            else
+            {
+                if (_previousIdleSleepValidated.Date == DateTime.Now.Date)
+                {
+                    isLongCheck = false;
+                }
+            }
+
+            // set timespan where idle is validated (short or long)
+            DateTime ts_checkFrom = (isLongCheck)
+                                    ? DateTime.Now.AddDays(-Settings.IdleSleepValidate_ThresholdBack_long_d) // go a couple of days back to check
+                                    : _previousIdleSleepValidated.AddHours(-Settings.IdleSleepValidate_ThresholdBack_short_h); // check from previously checked datetime (and increase the interval a little)
             DateTime ts_checkTo = DateTime.Now;
 
             // reset _previousIdleSleepValidated in method that calls this one
-
             return Queries.GetMissedSleepEvents(ts_checkFrom, ts_checkTo);
         }
 

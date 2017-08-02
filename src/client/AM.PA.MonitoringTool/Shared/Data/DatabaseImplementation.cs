@@ -20,6 +20,7 @@ namespace Shared.Data
     {
         private SQLiteConnection _connection; // null if not connected
         public string CurrentDatabaseDumpFile; // every week a new database file
+        public static readonly string DB_FORMAT_DAY_AND_TIME = "yyyy-MM-dd HH:mm:ss";
 
         public void Dispose()
         {
@@ -681,7 +682,6 @@ namespace Shared.Data
         #endregion
 
         #region TimeZone Tracking
-
 
         /// <summary>
         /// Creates a table for the time zone (if it doesn't yet exist)
