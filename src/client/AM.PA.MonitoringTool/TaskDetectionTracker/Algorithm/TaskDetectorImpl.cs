@@ -35,12 +35,29 @@ namespace TaskDetectionTracker.Algorithm
         private string _rToolsHome = Path.Combine(Environment.CurrentDirectory, "Resources", "R-3.4.0");
         private string _rToolsLibraries = Path.Combine(Environment.CurrentDirectory, "Resources", "R_libraries");
 
+        public TaskDetectorImpl()
+        {
+            UnzipRTools();
+        }
 
+
+        /// <summary>
+        /// If R-Tools have not yet been unzipped, unzip them
+        /// </summary>
+        private void UnzipRTools()
+        {
+            if (!Directory.Exists(_rToolsHome))
+            {
+                System.IO.Compression.ZipFile.ExtractToDirectory(_rToolsHomeZip, _rToolsExtractDirectory);
+            }
+            if (!Directory.Exists(_rToolsLibraries))
+            {
+                System.IO.Compression.ZipFile.ExtractToDirectory(_rToolsLibrariesZip, _rToolsExtractDirectory);
+            }
+        }
 
         public List<TaskDetection> FindTasks(List<TaskDetectionInput> processes)
         {
-            UnzipRTools();
-
             List<Datapoint> dps = new List<Datapoint>();
             foreach(var p in processes)
             {
@@ -58,19 +75,6 @@ namespace TaskDetectionTracker.Algorithm
             PredictTypes(tcs);
 
             return tcs;
-        }
-
-        private void UnzipRTools()
-        {
-            if (!Directory.Exists(_rToolsHome))
-            {
-                System.IO.Compression.ZipFile.ExtractToDirectory(_rToolsHomeZip, _rToolsExtractDirectory);
-            }
-            if (!Directory.Exists(_rToolsLibraries))
-            {
-                System.IO.Compression.ZipFile.ExtractToDirectory(_rToolsLibrariesZip, _rToolsExtractDirectory);
-            }
-            
         }
 
         private void WriteSwitchDetectionFile(List<Datapoint> dps)
