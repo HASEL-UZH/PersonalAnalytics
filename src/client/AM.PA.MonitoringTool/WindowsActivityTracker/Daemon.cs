@@ -311,20 +311,30 @@ namespace WindowsActivityTracker
 
         private void ValidateSleepIdleTime(object sender, ElapsedEventArgs e)
         {
-            // if user input table is not available => stop timer
-            if (! Queries.UserInputTableExists())
+            try
             {
-                _idleSleepValidator.Stop();
-                _idleSleepValidator.Dispose();
-                _idleSleepValidator = null;
-                return;
+                // if user input table is not available => stop timer
+                if (!Queries.UserInputTableExists())
+                {
+                    _idleSleepValidator.Stop();
+                    _idleSleepValidator.Dispose();
+                    _idleSleepValidator = null;
+                    return;
+                }
+
+                // get list of all IDLE errors within time frame
+                var toFix = PrepareIntervalAndGetMissedSleepEvents();
+
+                // add IDLE entry NotCountingAsIdleInterval_ms after entry
+                Queries.AddMissedSleepIdleEntry(toFix);
+
+                // reset (to not recheck everything every time)
+                _previousIdleSleepValidated = DateTime.Now;
             }
-
-            // get list of all IDLE errors within time frame
-            var toFix = PrepareIntervalAndGetMissedSleepEvents();
-
-            // add IDLE entry NotCountingAsIdleInterval_ms after entry
-            Queries.AddMissedSleepIdleEntry(toFix);
+            catch (Exception ex) 
+            {
+                Database.GetInstance().LogError(ex.Message);
+            }
         }
 
         private List<Tuple<long, DateTime, DateTime>> PrepareIntervalAndGetMissedSleepEvents()
@@ -334,7 +344,8 @@ namespace WindowsActivityTracker
                                     : DateTime.Now.AddDays(- Settings.IdleSleepValidate_ThresholdBack_long_d); // go a couple of days back to check
             DateTime ts_checkTo = DateTime.Now;
 
-            _previousIdleSleepValidated = DateTime.Now; // reset (to not recheck everything every time)
+            // reset _previousIdleSleepValidated in method that calls this one
+
             return Queries.GetMissedSleepEvents(ts_checkFrom, ts_checkTo);
         }
 
