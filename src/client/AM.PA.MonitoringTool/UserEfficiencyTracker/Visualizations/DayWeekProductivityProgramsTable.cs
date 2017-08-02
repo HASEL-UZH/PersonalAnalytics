@@ -123,11 +123,11 @@ namespace UserEfficiencyTracker.Visualizations
             ////////////////////
             var js = "<script type='text/javascript'>"
                     + "var tf = new TableFilter('" + VisHelper.CreateChartHtmlTitle(Title) + "', { base_path: '/', "
-                    + "col_widths:[ '12.5em', '6.25em', '6.25em'], " // fixed columns sizes
+                    + "col_widths:[ '12.4em', '6.25em', '6.25em'], " // fixed columns sizes
                     + "col_0: 'none', col_1: 'none', col_2: 'none', "
                     + "alternate_rows: true, " // styling options
-                    + "grid_layout: true, grid_cont_css_class: 'grd-main-cont', grid_tblHead_cont_css_class: 'grd-head-cont', " // styling & behavior of the table                                                         
-                    //+ "extensions: [{name: 'sort', types: [ 'string', 'number', 'number'] }], "
+                    + "grid_layout: true, grid_width: '25.6em', grid_height: '18em', grid_cont_css_class: 'grd-main-cont', grid_tblHead_cont_css_class: 'grd-head-cont', " // styling & behavior of the table       
+                                                                                                                                                      //+ "extensions: [{name: 'sort', types: [ 'string', 'number', 'number'] }], "
                     + "}); " // no content options
                     + "tf.init(); "
                     + "</script>";

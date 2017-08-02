@@ -11,7 +11,7 @@ namespace UserEfficiencyTracker
     {
 #if Pilot_TaskDetection_March17
         public static bool DefaultPopUpIsEnabled = false;
-#else
+#else // default:
         public static bool DefaultPopUpIsEnabled = true;
 #endif
         public const int DefaultPopUpInterval = 60; // in minutes

@@ -16,7 +16,7 @@ namespace FitbitTracker
 
         public SleepVisualizationForDay(DateTimeOffset date)
         {
-            Title = "Sleep stats";
+            Title = "Sleep";
             this._date = date;
             IsEnabled = true;
             Size = VisSize.Square;

@@ -17,6 +17,7 @@ namespace WindowsActivityTracker.Visualizations
     {
         private readonly DateTimeOffset _date;
         //private const int _maxNumberOfPrograms = 10;
+        private const double _minTimeWorked = 0.3; // in hours
 
         public DayProgramsUsedPieChart(DateTimeOffset date)
         {
@@ -55,7 +56,7 @@ namespace WindowsActivityTracker.Visualizations
             var totalHoursWorked = chartQueryResultsLocal.Sum(x => x.Value);
 
             // check if we have enough data
-            if (chartQueryResultsLocal.Count == 0 || totalHoursWorked < 0.3)
+            if (chartQueryResultsLocal.Count == 0 || totalHoursWorked < _minTimeWorked)
             {
                 html += VisHelper.NotEnoughData(Dict.NotEnoughData);
                 return html;
@@ -101,7 +102,7 @@ namespace WindowsActivityTracker.Visualizations
                 //{
                     // summarize small parts of work
                     var totalHoursWorked = chartQueryResultsLocal.Sum(x => x.Value);
-                    var small = (totalHoursWorked > 1.0) ? totalHoursWorked * 0.05 : totalHoursWorked * 0.1;
+                    var small = (totalHoursWorked > 1.0) ? totalHoursWorked * 0.05 : totalHoursWorked * 0.1; // put to 'other' either 5% or 10% of the processes
                     var keysToRemove = new List<string>();
 
                     foreach (var item in chartQueryResultsLocal.ToList())

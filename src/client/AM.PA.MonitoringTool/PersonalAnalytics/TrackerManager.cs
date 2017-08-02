@@ -55,8 +55,7 @@ namespace PersonalAnalytics
 
         /// <summary>
         /// Register trackers for the TrackerManager (i.e. monitoring tool)
-        /// (add a new tracker here to make it being integrated into the monitoring tool
-        /// and retrospection)
+        /// (add a new tracker here to make it being integrated into the monitoring tool and retrospection)
         /// </summary>
         public List<ITracker> RegisterTrackers()
         {
@@ -79,7 +78,7 @@ namespace PersonalAnalytics
             
 #endif
 
-            return _trackers; // return trackers for retrospection
+            return _trackers;
         }
 
         /// <summary>
@@ -776,7 +775,6 @@ namespace PersonalAnalytics
             try
             {
                 info = ad.CheckForDetailedUpdate();
-
             }
             catch (DeploymentDownloadException dde)
             {
@@ -845,10 +843,11 @@ namespace PersonalAnalytics
 
                         // the only way the restart with a click once work and IsNetworkDeployed is not false after the restart is
                         // the following (according to this: http://blachniet.com/blog/how-not-to-restart-a-clickonce-application/)
+                        // and https://robrelyea.wordpress.com/2007/07/24/application-restart-for-wpf/
 
                         Stop(false); // stop the application (restart stuff below)
-                        System.Windows.Forms.Application.Restart(); // other way might be: Process.Start(App.AppPath);
-                        ShutdownApplication();
+                        System.Windows.Forms.Application.Restart();
+                        Application.Current.Shutdown();
                     }
                     catch (DeploymentDownloadException dde)
                     {
@@ -864,7 +863,7 @@ namespace PersonalAnalytics
             }
         }
 
-#region Check for Internet Connection
+        #region Check for Internet Connection
 
         [DllImport("wininet.dll")]
         private extern static bool InternetGetConnectedState(out int description, int reservedValue);
@@ -875,7 +874,7 @@ namespace PersonalAnalytics
             return InternetGetConnectedState(out description, 0);
         }
 
-#endregion
+        #endregion
 
         /// <summary>
         /// Shutdown the application only if the state is saved, database disconnected, etc.

@@ -53,7 +53,7 @@ namespace WindowsActivityTracker.Visualizations
 
             html += string.Format(CultureInfo.InvariantCulture, "<table id='{0}'>", VisHelper.CreateChartHtmlTitle(Title));
             html += GetTableHeader();
-            html += "<tbody>";
+            html += "<tbody style='overflow:hidden;'>";
             foreach (var prog in programUsePerDay)
             {
                 html += "<tr>";
@@ -77,7 +77,7 @@ namespace WindowsActivityTracker.Visualizations
                     + "col_widths:[ '9.6875em', '2.1875em', '2.1875em', '2.1875em', '2.1875em', '2.1875em', '2.1875em', '2.1875em'], " // fixed columns sizes
                     + "col_0: 'none', col_1: 'none', col_2: 'none', col_3: 'none', col_4: 'none', col_5: 'none', col_6: 'none', col_7: 'none', "
                     + "alternate_rows: true, " // styling options
-                    + "grid_layout: true, grid_cont_css_class: 'grd-main-cont', grid_tblHead_cont_css_class: 'grd-head-cont', " // styling & behavior of the table                                                         
+                    + "grid_layout: true, grid_width: '25.6em', grid_height: '18em', grid_cont_css_class: 'grd-main-cont', grid_tblHead_cont_css_class: 'grd-head-cont', " // styling & behavior of the table                                                         
                     + "}); " // no content options
                     + "tf.init(); "
                     + "</script>";

@@ -88,7 +88,6 @@ namespace MsOfficeTracker.Helpers
                 // and let them click the Sign-In button.
                 if (ex.ErrorCode == "user_interaction_required")
                 {
-                    //Console.WriteLine("Please sign in first");
                     var res = await SignIn();
                     return res;
                 }

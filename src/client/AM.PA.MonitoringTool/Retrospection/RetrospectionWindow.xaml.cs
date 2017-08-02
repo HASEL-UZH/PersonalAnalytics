@@ -13,10 +13,13 @@ namespace Retrospection
         string _currentPage;
         VisType _currentVisType;
 
-        public RetrospectionWindow()
+        public RetrospectionWindow(bool hideFeedback, bool hideAbout)
         {
             InitializeComponent();
             webBrowser = (wbWinForms.Child as System.Windows.Forms.WebBrowser);
+
+            FeedbackInfo.Visibility = (hideFeedback) ? Visibility.Collapsed : Visibility.Visible;
+            AboutInfo.Visibility = (hideAbout) ? Visibility.Collapsed : Visibility.Visible;
         }
 
         private void WindowLoaded(object sender, EventArgs e)

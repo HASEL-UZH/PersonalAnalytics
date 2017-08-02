@@ -18,7 +18,7 @@
             <TextBlock TextWrapping="Wrap" Padding="0 5 0 5">The contents of the emails and meetings are NOT accessed. You can manually disable or enable this tracker anytime in the settings.</TextBlock>
             <TextBlock TextWrapping="Wrap" Padding="0 5 0 5">Do you want to enable the tracker?</TextBlock>
             <CheckBox Name="Enable" Checked="Enable_Checked" Unchecked="Enable_Unchecked">Enable the Office 365 Tracker</CheckBox>
-            <TextBlock Visibility="Collapsed" TextWrapping="Wrap" Padding="0 25 0 5" Grid.Row="1" Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" Name="ThanksMessage">Thank you for enabling the Office 365 Tracker. As soon as you click next, a pop-up will appear that lets you log into your Office 365 work or school account.</TextBlock>
+            <TextBlock Visibility="Collapsed" TextWrapping="Wrap" Padding="0 25 0 5" Grid.Row="1" Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" Name="ThanksMessage">Thank you for enabling the Office 365 Tracker. As soon as you click next, a pop-up will appear that lets you log into your Office 365 work or school account. <Run Foreground="Red">Note that at this point, you can NOT use the tracker with a regular Microsoft Account.</Run></TextBlock>
         </StackPanel>
     </Grid>    
 </UserControl>

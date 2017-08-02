@@ -36,7 +36,7 @@ namespace Retrospection.Feedback
             /////////////////////
             html += "<div style='width:100%; height:100%;'>";
             html += "<p style='text-align: center;' onclick=\"window.external.JS_SendFeedback()\">We would really appreciate your feedback and suggestions!</p>";
-            html += "<button class='button' onclick=\"window.external.JS_SendFeedback()\">Drop us a note</button>";
+            html += "<button class='button' onclick=\"window.external.JS_SendFeedback()\">Send an Email</button>";
             html += "</div>";
 
             return html;
