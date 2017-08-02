@@ -23,7 +23,6 @@ namespace TaskDetectionTracker
     public class Deamon : BaseTracker, ITracker
     {
         private DispatcherTimer _popUpTimer;
-
         private DateTime _lastPopUpResponse = DateTime.MinValue;
 
         #region ITracker Stuff
@@ -132,8 +131,6 @@ namespace TaskDetectionTracker
                 processes = DataMerger.MergeProcesses(processes, sessionEnd.Subtract(sessionStart));
                 DataMerger.AddMouseClickAndKeystrokesToProcesses(processes);
                 //TODO: file and website extractor
-
-                // TODO Andre: check if user input is in processes
 
                 var td = new TaskDetectorImpl();
                 var taskDetections = td.FindTasks(processes);

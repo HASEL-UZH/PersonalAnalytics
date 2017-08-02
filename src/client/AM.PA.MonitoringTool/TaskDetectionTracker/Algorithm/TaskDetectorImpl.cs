@@ -55,6 +55,11 @@ namespace TaskDetectionTracker.Algorithm
             }
         }
 
+        /// <summary>
+        /// TODO: please document
+        /// </summary>
+        /// <param name="processes"></param>
+        /// <returns></returns>
         public List<TaskDetection> FindTasks(List<TaskDetectionInput> processes)
         {
             List<Datapoint> dps = new List<Datapoint>();
@@ -277,7 +282,7 @@ namespace TaskDetectionTracker.Algorithm
         }
 
         /// <summary>
-        /// TODO: document
+        /// TODO: please document
         /// </summary>
         /// <param name="processes"></param>
         /// <returns></returns>
@@ -351,6 +356,10 @@ namespace TaskDetectionTracker.Algorithm
             return tc;
         }
 
+        /// <summary>
+        /// TODO: please document
+        /// </summary>
+        /// <param name="tcs"></param>
         private void WriteTypeDetectionFile(List<TaskDetection> tcs)
         {
             string del = ",";
@@ -426,14 +435,19 @@ namespace TaskDetectionTracker.Algorithm
             File.WriteAllText(GetTaskDetectionDumpsPath(_taskTypeDataFolder, _taskTypeDataFileName), csv_types.ToString());
         }
 
+        /// <summary>
+        /// TODO: please document
+        /// </summary>
+        /// <param name="tcs"></param>
         private void PredictTypes(List<TaskDetection> tcs)
         {
             //1: Private, 2: Planned Meeting, 3: Unplanned Meeting, 4: Awareness, 5: Planning, 6: Observation, 7: Development, 8: Adminstrative Work
 
+            // initialize R engine
             REngine engine = REngine.GetInstance();
             engine.Initialize();
+
             // read taskswitch-data
-            
             engine.Evaluate("tasktypedata <- read.csv(file = '" + R_ConvertPathToForwardSlash(GetTaskDetectionDumpsPath(_taskTypeDataFolder, _taskTypeDataFileName)) + "', sep = \",\", header = TRUE)");
 
            // engine.Evaluate(".libPaths('C:/Users/katja/OneDrive/Documents/R/win-library/3.3')");
@@ -454,9 +468,7 @@ namespace TaskDetectionTracker.Algorithm
                 tcs[i].TaskTypeProposed = res;
             }
 
-
             engine.Dispose();
-
         }
 
         #region File & Path Helpers

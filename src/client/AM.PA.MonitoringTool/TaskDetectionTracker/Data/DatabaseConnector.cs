@@ -10,6 +10,7 @@ using TaskDetectionTracker.Model;
 using System.Data;
 using Shared;
 using TaskDetectionTracker.Helpers;
+using System.Globalization;
 
 namespace TaskDetectionTracker.Data
 {
@@ -37,9 +38,9 @@ namespace TaskDetectionTracker.Data
             {
                 var query = string.Format(QUERY_INSERT_SESSION,
                                           "strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')",
-                                          Database.GetInstance().QTime(sessionStart), //TODO: QTime2
-                                          Database.GetInstance().QTime(sessionEnd), //TODO: QTime2
-                                          Database.GetInstance().QTime(timePopUpResponded), //TODO: QTime2
+                                          Database.GetInstance().QTime(sessionStart),
+                                          Database.GetInstance().QTime(sessionEnd), 
+                                          Database.GetInstance().QTime(timePopUpResponded),
                                           Database.GetInstance().Q(comment));
                 Database.GetInstance().ExecuteDefaultQuery(query);
 
@@ -68,8 +69,8 @@ namespace TaskDetectionTracker.Data
                     var query = string.Format(QUERY_INSERT_VALIDATION,
                                           sessionId, 
                                           "strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')",
-                                          db.QTime(task.Start), //TODO: QTime2
-                                          db.QTime(task.End), //TODO: QTime2
+                                          db.QTime2(task.Start), 
+                                          db.QTime2(task.End),
                                           db.Q(task.TaskDetectionCase.ToString()),
                                           db.Q(task.TaskTypeProposed),
                                           db.Q(task.TaskTypeValidated));
@@ -95,15 +96,19 @@ namespace TaskDetectionTracker.Data
 
             try
             {
-                string query = "SELECT time, window, process FROM windows_activity WHERE " + "(" + " STRFTIME('%s', DATETIME(time)) between STRFTIME('%s', DATETIME('" + from.ToString("u") + "')) and STRFTIME('%s', DATETIME('" + to.ToString("u") + "')) "+ " ) ";
+                string query = "SELECT process, window, tsStart, tsEnd FROM windows_activity "  //, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'difference'
+                             + "WHERE (" + " STRFTIME('%s', DATETIME(time)) between STRFTIME('%s', DATETIME('" + from.ToString("u") + "')) and STRFTIME('%s', DATETIME('" + to.ToString("u") + "')) "+ " );";
                 var table = Database.GetInstance().ExecuteReadQuery(query);
                 foreach (DataRow row in table.Rows)
                 {
-                    DateTime start = DateTime.Parse(row[0].ToString());
-                    string window = row[1].ToString();
-                    string processName = row[2].ToString();
-                    var process = new TaskDetectionInput { Start = start, WindowTitles = new List<string> { window }, ProcessName = processName };
-                    result.Add(process);
+                    var process = Shared.Helpers.ProcessNameHelper.GetFileDescriptionFromProcess((string)row["process"]);
+                    var window = (string)row["window"];
+                    //var difference = Convert.ToInt32(row["difference"], CultureInfo.InvariantCulture);
+                    var tsStart = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
+                    var tsEnd = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
+
+                    var processItem = new TaskDetectionInput { Start = tsStart, End = tsEnd,  WindowTitles = new List<string> { window }, ProcessName = process };
+                    result.Add(processItem);
                 }
             }
             catch (Exception e)
@@ -133,7 +138,7 @@ namespace TaskDetectionTracker.Data
                 {
                     DateTime startTime = DateTime.Parse(row[0].ToString());
                     DateTime endTime = DateTime.Parse(row[1].ToString());
-                    int keys = Int32.Parse(row[2].ToString());
+                    int keys = int.Parse(row[2].ToString());
                     result.Add(new KeystrokeData { Start = startTime, End = endTime, Keystrokes = keys });
                 }
             }
@@ -164,7 +169,7 @@ namespace TaskDetectionTracker.Data
                 {
                     DateTime startTime = DateTime.Parse(row[0].ToString());
                     DateTime endTime = DateTime.Parse(row[1].ToString());
-                    int clicks = Int32.Parse(row[2].ToString());
+                    int clicks = int.Parse(row[2].ToString());
                     result.Add(new MouseClickData { Start = startTime, End = endTime, Mouseclicks = clicks });
                 }
             }

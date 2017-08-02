@@ -27,16 +27,16 @@ namespace TaskDetectionTracker.Helpers
         public static List<TaskDetectionInput> MergeProcesses(List<TaskDetectionInput> processes, TimeSpan totalDuration)
         {
             //First set the end timestamp of each process to the value of the start timestamp of the next process
-            SetTimestamps(processes);
+            //SetTimestamps(processes); // not needed anymore since July 17 (the table already has an End timestamp)
 
-            //The end timestamp of the last process in the list is equal to the start of the first process + the total duration
+            //The end timestamp of the last process item in the list is equal to the start of the first process + the total duration
             processes.Last().End = processes.First().Start.Add(totalDuration);
 
-            //Delete all processes when the duration is smaller than the treshold
+            //Delete all processes when the duration is smaller than the threshold
             processes.RemoveAll(p => p.End.Subtract(p.Start).TotalSeconds < Settings.MinimumProcessTimeInSeconds);
 
             //For the remaining processes, merge all subsequent processes if they are the same
-            List<TaskDetectionInput> result = new List<TaskDetectionInput>();
+            var result = new List<TaskDetectionInput>();
 
             if (processes.Count > 0)
             {
@@ -83,13 +83,13 @@ namespace TaskDetectionTracker.Helpers
         /// Sets the timestamps for each process
         /// </summary>
         /// <param name="processes"></param>
-        private static void SetTimestamps(List<TaskDetectionInput> processes)
-        {
-            for (int i = 0; i < processes.Count - 1; i++)
-            {
-                processes.ElementAt(i).End = processes.ElementAt(i + 1).Start;
-            }
-        }
+        //private static void SetTimestamps(List<TaskDetectionInput> processes)
+        //{
+        //    for (int i = 0; i < processes.Count - 1; i++)
+        //    {
+        //        processes.ElementAt(i).End = processes.ElementAt(i + 1).Start;
+        //    }
+        //}
 
         /// <summary>
         /// Add nubmer of keystrokes and mouse clicks to each process
