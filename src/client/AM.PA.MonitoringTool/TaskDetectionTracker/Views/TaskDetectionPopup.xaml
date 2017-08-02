@@ -70,12 +70,12 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="50" />
+            <RowDefinition Height="40" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Grid.Column="0" Background="{x:Static paColors:Settings.RetrospectionColorBrush}">
-            <TextBlock Grid.Row="0" FontSize="16" VerticalAlignment="Center" Margin="10 0 0 0" Text="Validate Task Boundaries" Foreground="White" />
+            <TextBlock Grid.Row="0" FontSize="16" x:Name="WindowTitleBar" VerticalAlignment="Center" Margin="10 0 0 0" Text="Please Add and Validate Your Task-Switches " Foreground="White" />
         </Grid>
 
         <Grid Margin="10" Grid.Row="1">
@@ -93,7 +93,11 @@
             </TextBlock>
 
             <TextBlock Grid.Row="1" Grid.Column="0" FontSize="16" TextWrapping="Wrap">
-                How it works: Please tick the correct task boundaries (red or green). In case there is a task boundary missing, create a new one by clicking on the fair-blue vertical lines. Please also validate the task types. Finally, mark your main (most important) task(s).
+                How it works: <LineBreak />
+                1. In tick which task switches were correctly (green radio button) or incorrectly (red radio button) detected.<LineBreak />
+                2. In case a task switch is missing, create a new one by clicking on the fair-blue vertical lines. <LineBreak />
+                3. Please also validate the task types in case they are wrong by selecting the right one from the drop-downs for each task switch that you've made.<LineBreak />
+                4. Mark your main task(s) from that session using the checkbox(es).
             </TextBlock>
 
             <ScrollViewer Grid.Row="2" Grid.Column="0" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Visible">
@@ -192,14 +196,14 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-                    <Grid Grid.Row="1">
+                    <!--<Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"></ColumnDefinition>
                             <ColumnDefinition Width="*"></ColumnDefinition>
                         </Grid.ColumnDefinitions>
                         <TextBlock Name="StartTime" FontSize="18" Margin="10 20 10 10" Grid.Column="0"></TextBlock>
                         <TextBlock Name="EndTime" FontSize="18" Margin="10 20 10 10" Grid.Column="1" HorizontalAlignment="Right"></TextBlock>
-                    </Grid>
+                    </Grid>-->
                 </Grid>
             </ScrollViewer>
 
@@ -216,7 +220,7 @@
             </StackPanel>
             
             <StackPanel Orientation="Vertical" Grid.Row="4" VerticalAlignment="Bottom">
-                <TextBlock Grid.Row="0" FontSize="16">Space for comments about the task detection (possible issues, questions you have, things you noticed, etc.):</TextBlock>
+                <TextBlock Grid.Row="0" FontSize="16">Please add comments you might have about the task detection (possible issues, questions you have, things you noticed, etc.):</TextBlock>
                 <TextBox Name="Comments" Height="60" Grid.Row="1"></TextBox>
             </StackPanel>
             

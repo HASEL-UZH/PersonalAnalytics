@@ -7,6 +7,7 @@ using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using TaskDetectionTracker.Model;
 
 namespace TaskDetectionTrackerTests
@@ -31,10 +32,23 @@ namespace TaskDetectionTrackerTests
                         input.Add(new TaskDetectionInput { Start = DateTime.Parse(fields[1], CultureInfo.InvariantCulture), WindowTitles = new List<string> { fields[2] }, ProcessName = fields[3] });
                     }
                 }
+
+                SetTimestamps(input);
             }
             catch (Exception e) { }
             return input;
         }
 
+        /// <summary>
+        /// Sets the timestamps for each process
+        /// </summary>
+        /// <param name="processes"></param>
+        private static void SetTimestamps(List<TaskDetectionInput> processes)
+        {
+            for (int i = 0; i < processes.Count - 1; i++)
+            {
+                processes.ElementAt(i).End = processes.ElementAt(i + 1).Start;
+            }
+        }
     }
 }

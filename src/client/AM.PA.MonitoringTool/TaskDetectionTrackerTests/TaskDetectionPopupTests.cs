@@ -44,6 +44,8 @@ namespace TaskDetectionTracker.Views.Tests
             //    input.Add(tdInput);
             //}
 
+            var popup = (Window)new TaskDetectionPopup(input);
+            popup.ShowDialog();
         }
         
     }

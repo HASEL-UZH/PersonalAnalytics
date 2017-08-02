@@ -62,23 +62,31 @@ namespace TaskDetectionTracker.Algorithm
         /// <returns></returns>
         public List<TaskDetection> FindTasks(List<TaskDetectionInput> processes)
         {
-            List<Datapoint> dps = new List<Datapoint>();
-            foreach(var p in processes)
+            try
             {
-                dps.Add(new Datapoint());
+                List<Datapoint> dps = new List<Datapoint>();
+                foreach (var p in processes)
+                {
+                    dps.Add(new Datapoint());
+                }
+
+                LexicalSimilarities(processes, "window", dps);
+                LexicalSimilarities(processes, "process", dps);
+                SetKeyStrokeDiffs(processes, dps);
+                SetMouseClicksDiff(processes, dps);
+
+                WriteSwitchDetectionFile(dps);
+                var tcs = PredictSwitches(processes);
+                WriteTypeDetectionFile(tcs);
+                PredictTypes(tcs);
+
+                return tcs;
             }
-
-            LexicalSimilarities(processes, "window", dps);
-            LexicalSimilarities(processes, "process", dps);
-            SetKeyStrokeDiffs(processes, dps);
-            SetMouseClicksDiff(processes, dps);
-
-            WriteSwitchDetectionFile(dps);
-            List<TaskDetection> tcs = PredictSwitches(processes);
-            WriteTypeDetectionFile(tcs);
-            PredictTypes(tcs);
-
-            return tcs;
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+                return new List<TaskDetection>(); // empty list
+            }
         }
 
         private void WriteSwitchDetectionFile(List<Datapoint> dps)

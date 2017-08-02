@@ -16,19 +16,15 @@ namespace TaskDetectionTracker.Helpers
 
         /// <summary>
         /// Merges processes using the following procedure:
-        /// 1. Set the end timestamp for each process to the start timestamp of the next process
-        /// 2. Set the timestamp of the very last process
-        /// 3. Delete all processes that last for less than the minimum threshold (from the Settings)
-        /// 4. For the remaining processes, merge all subsequent processses if they are the same
+        /// 1. Set the timestamp of the very last process
+        /// 2. Delete all processes that last for less than the minimum threshold (from the Settings)
+        /// 3. For the remaining processes, merge all subsequent processses if they are the same
         /// </summary>
         /// <param name="processes"></param>
         /// <param name="totalDuration"></param>
         /// <returns></returns>
         public static List<TaskDetectionInput> MergeProcesses(List<TaskDetectionInput> processes, TimeSpan totalDuration)
         {
-            //First set the end timestamp of each process to the value of the start timestamp of the next process
-            //SetTimestamps(processes); // not needed anymore since July 17 (the table already has an End timestamp)
-
             //The end timestamp of the last process item in the list is equal to the start of the first process + the total duration
             processes.Last().End = processes.First().Start.Add(totalDuration);
 
@@ -78,18 +74,6 @@ namespace TaskDetectionTracker.Helpers
 
             return result;
         }
-
-        /// <summary>
-        /// Sets the timestamps for each process
-        /// </summary>
-        /// <param name="processes"></param>
-        //private static void SetTimestamps(List<TaskDetectionInput> processes)
-        //{
-        //    for (int i = 0; i < processes.Count - 1; i++)
-        //    {
-        //        processes.ElementAt(i).End = processes.ElementAt(i + 1).Start;
-        //    }
-        //}
 
         /// <summary>
         /// Add nubmer of keystrokes and mouse clicks to each process

@@ -124,24 +124,20 @@ namespace TaskDetectionTracker
         /// <returns></returns>
         private List<TaskDetection> PrepareTaskDetectionDataForPopup(DateTime sessionStart, DateTime sessionEnd)
         {
+            var taskDetections = new List<TaskDetection>();
+
             var processes = DatabaseConnector.GetProcesses(sessionStart, sessionEnd);
-            
             if (processes.Count > 0)
             {
                 processes = DataMerger.MergeProcesses(processes, sessionEnd.Subtract(sessionStart));
                 DataMerger.AddMouseClickAndKeystrokesToProcesses(processes);
-                //TODO: file and website extractor
+                //TODO Andre: use file and website extractor here
 
                 var td = new TaskDetectorImpl();
-                var taskDetections = td.FindTasks(processes);
-                // test task (remove when adding Katja's helper)
-                //TaskDetection task = new TaskDetection { Start = processes.First().Start, End = processes.Last().End, TimelineInfos = processes, TaskTypeValidated = "test task" };
-                //var taskDetections = new List<TaskDetection> { task }; // TODO: run task detection (using Katja's helper, likely on separate thread)
-
-                return taskDetections;
+                taskDetections = td.FindTasks(processes);
             }
 
-            return new List<TaskDetection>();
+            return taskDetections;
         }
 
         /// <summary>

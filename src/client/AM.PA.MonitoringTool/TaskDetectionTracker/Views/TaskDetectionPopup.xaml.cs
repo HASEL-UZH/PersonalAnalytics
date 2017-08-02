@@ -65,8 +65,10 @@ namespace TaskDetectionTracker.Views
             
             //Create timeline
             this._tasks = tasks;
-            StartTime.Inlines.Add(_tasks.First().Start.ToShortTimeString());
-            EndTime.Inlines.Add(_tasks.Last().End.ToShortTimeString());
+            WindowTitleBar.Text = WindowTitleBar.Text 
+                + " (from " + _tasks.First().Start.ToShortTimeString() + " to " + _tasks.Last().End.ToShortTimeString() + ")";
+            //StartTime.Inlines.Add(_tasks.First().Start.ToShortTimeString());
+            //EndTime.Inlines.Add(_tasks.Last().End.ToShortTimeString());
 
             double minDuration = _tasks.Min(t => t.TimelineInfos.Min(p => p.End.Subtract(p.Start))).TotalSeconds;
             double totalDuration = _tasks.Sum(t => t.TimelineInfos.Sum(p => p.End.Subtract(p.Start).TotalSeconds));
