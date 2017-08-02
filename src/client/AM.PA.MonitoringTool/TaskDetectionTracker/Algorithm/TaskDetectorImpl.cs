@@ -12,7 +12,7 @@ using TaskDetectionTracker.Model;
 using System.IO;
 using TaskDetectionTracker.Properties;
 using Shared;
-using System.Diagnostics;
+using Shared.Data;
 
 namespace TaskDetectionTracker.Algorithm
 {
@@ -48,10 +48,12 @@ namespace TaskDetectionTracker.Algorithm
             if (!Directory.Exists(_rToolsHome))
             {
                 System.IO.Compression.ZipFile.ExtractToDirectory(_rToolsHomeZip, _rToolsExtractDirectory);
+                Database.GetInstance().LogInfo("Unzipped R Tools to: " + _rToolsExtractDirectory);
             }
             if (!Directory.Exists(_rToolsLibraries))
             {
                 System.IO.Compression.ZipFile.ExtractToDirectory(_rToolsLibrariesZip, _rToolsExtractDirectory);
+                Database.GetInstance().LogInfo("Unzipped R Libraries to: " + _rToolsExtractDirectory);
             }
         }
 
