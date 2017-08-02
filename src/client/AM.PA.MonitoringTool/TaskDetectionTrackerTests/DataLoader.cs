@@ -33,22 +33,14 @@ namespace TaskDetectionTrackerTests
                     }
                 }
 
-                SetTimestamps(input);
+                // set end time stamps
+                for (int i = 0; i < input.Count - 1; i++)
+                {
+                    input.ElementAt(i).End = input.ElementAt(i + 1).Start;
+                }
             }
             catch (Exception e) { }
             return input;
-        }
-
-        /// <summary>
-        /// Sets the timestamps for each process
-        /// </summary>
-        /// <param name="processes"></param>
-        private static void SetTimestamps(List<TaskDetectionInput> processes)
-        {
-            for (int i = 0; i < processes.Count - 1; i++)
-            {
-                processes.ElementAt(i).End = processes.ElementAt(i + 1).Start;
-            }
         }
     }
 }
