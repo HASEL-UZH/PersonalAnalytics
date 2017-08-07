@@ -32,7 +32,7 @@ namespace TaskDetectionTracker
 #endif
 
         public const int MinimumProcessTimeInSeconds = 10; // TODO: change??? 60; // delete processes smaller than this threshold
-        public const int MinimumProcessWidth = 50;
-        public const int MinimumTimeLineWidth = 1000;
+        public const int MinimumProcessWidth = 20; // was 50
+        public const int MinimumTimeLineWidth = 1000; // was 2000
     }
 }

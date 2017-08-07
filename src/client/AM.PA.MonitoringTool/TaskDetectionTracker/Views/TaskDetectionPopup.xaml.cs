@@ -153,6 +153,7 @@ namespace TaskDetectionTracker.Views
         #endregion
 
         #region Draw Timeline
+
         /// <summary>
         /// Draws the timeline
         /// </summary>
@@ -184,12 +185,16 @@ namespace TaskDetectionTracker.Views
                 foreach (TaskDetectionInput process in task.TimelineInfos)
                 {
                     double processDuration = process.End.Subtract(process.Start).TotalSeconds;
-
                     double processWidth = processDuration * ((width - processBorderWidth) / totalProcessDuration);
 
+                    // create tooltip
                     process.WindowTitles.RemoveAll(w => string.IsNullOrWhiteSpace(w) || string.IsNullOrEmpty(w));
                     string windowTitle = process.WindowTitles.Count > 0 ? string.Join(Environment.NewLine, process.WindowTitles) : "[no window titles]";
-                    string tooltip = "Process: " + process.ProcessName + Environment.NewLine + "Window Titles: " + windowTitle + Environment.NewLine + Environment.NewLine + "Keystrokes: " + process.NumberOfKeystrokes + Environment.NewLine + "Mouse clicks: " + process.NumberOfMouseClicks;
+                    string tooltip =    "From: " + process.Start.ToShortTimeString() + " to " + process.End.ToShortTimeString() + Environment.NewLine
+                                        + "Process: " + process.ProcessName + Environment.NewLine 
+                                        + "Window Titles: " + windowTitle + Environment.NewLine + Environment.NewLine 
+                                        + "Keystrokes: " + process.NumberOfKeystrokes + Environment.NewLine 
+                                        + "Mouse clicks: " + process.NumberOfMouseClicks;
                     
                     bool visibility = lastProcess.Equals(process) ? false : true;
                     processRectangles.Add(new ProcessRectangle { Data = process, Width = processWidth, Height = 30, X = processX, Tooltip = tooltip, IsVisible = visibility });
@@ -216,7 +221,7 @@ namespace TaskDetectionTracker.Views
             int count = 0;
             var usedColors = StringToBrushConverter.GetUsedColors();
 
-            var numberOfRowsNeeded = Math.Ceiling(usedColors.Keys.Count / 4.0);
+            var numberOfRowsNeeded = Math.Ceiling(usedColors.Keys.Count / 6.0); // 6.0 is the number of columns
             for (int i = 0; i < numberOfRowsNeeded; i++)
             {
                 Legend.RowDefinitions.Add(new RowDefinition());
