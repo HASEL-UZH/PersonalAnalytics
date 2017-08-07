@@ -219,10 +219,10 @@ namespace TaskDetectionTracker.Views
 
             // draw new legend
             int count = 0;
-            var numColumns = 6.0;
+            var numColumns = 6;
             var usedColors = StringToBrushConverter.GetUsedColors();
 
-            var numberOfRowsNeeded = Math.Ceiling(usedColors.Keys.Count / numColumns);
+            var numberOfRowsNeeded = Math.Ceiling(usedColors.Keys.Count / (double)numColumns);
             for (int i = 0; i < numberOfRowsNeeded; i++)
             {
                 Legend.RowDefinitions.Add(new RowDefinition());
