@@ -8,7 +8,7 @@
              xmlns:converters="clr-namespace:TaskDetectionTracker.Views.Converters"
              xmlns:paColors="clr-namespace:Shared;assembly=Shared"
              mc:Ignorable="d" Topmost="True"
-             Title="PersonalAnalytics: Validate Task Detections" Width="1200" MinHeight="500">
+             Title="PersonalAnalytics: Validate Task Detections" Width="1200" MinHeight="600">
 
     <Window.Resources>
         <converters:StringToBrushConverter x:Key="StringToBrushConverter" />
@@ -242,8 +242,11 @@
                 <TextBlock>Please add comments you might have about the task detection (possible issues, questions you have, things you noticed, etc.):</TextBlock>
                 <TextBox Name="Comments" Height="60" Grid.Row="1"></TextBox>
             </StackPanel>
-            
-            <Button Grid.Row="5" HorizontalAlignment="Right" Name="Save" IsEnabled="{Binding ValidationComplete, UpdateSourceTrigger=PropertyChanged}" Click="Save_Click" Content="Accept Task Detection (Save)" Margin="0 10 0 0" Height="30" Width="200" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}"/>
+
+            <StackPanel Grid.Row="5" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0 10 0 0">
+                <TextBlock Text="Hint: The save button is enabled once all detected task switches are either marked as correct or incorrect." HorizontalAlignment="Right" TextWrapping="Wrap" Width="300" Margin="0 0 10 0" Foreground="Gray" />
+                <Button Name="Save" IsEnabled="{Binding ValidationComplete, UpdateSourceTrigger=PropertyChanged}" Click="Save_Click" Content="Accept Task Detection (Save)" Height="30" Width="200" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" />
+            </StackPanel>        
         </Grid>
     </Grid>
 </Window>
