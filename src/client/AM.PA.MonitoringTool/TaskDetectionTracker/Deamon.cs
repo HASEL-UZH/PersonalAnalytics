@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
+using TaskDetectionTracker.Algorithm;
 using TaskDetectionTracker.Data;
 using TaskDetectionTracker.Helpers;
 using TaskDetectionTracker.Model;
@@ -132,9 +133,12 @@ namespace TaskDetectionTracker
                 DataMerger.AddMouseClickAndKeystrokesToProcesses(processes);
                 //TODO: file and website extractor
 
+                ITaskDetector td = new TaskDetectorImpl();
+                var taskDetections = td.FindTasks(processes);
+
                 // test task (remove when adding Katja's helper)
-                TaskDetection task = new TaskDetection { Start = processes.First().Start, End = processes.Last().End, TimelineInfos = processes, TaskTypeValidated = "test task" };
-                var taskDetections = new List<TaskDetection> { task }; // TODO: run task detection (using Katja's helper, likely on separate thread)
+                //TaskDetection task = new TaskDetection { Start = processes.First().Start, End = processes.Last().End, TimelineInfos = processes, TaskTypeValidated = "test task" };
+                //var taskDetections = new List<TaskDetection> { task }; // TODO: run task detection (using Katja's helper, likely on separate thread)
 
                 return taskDetections;
             }
