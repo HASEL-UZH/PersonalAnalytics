@@ -17,10 +17,10 @@ namespace TaskDetectionTracker.Data
     internal class DatabaseConnector
     {
         private static string QUERY_CREATE_SESSION = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Sessions + " (sessionId INTEGER PRIMARY KEY, time DATETIME, session_start DATETIME, session_end DATETIME, timePopUpResponded DATETIME, comments TEXT);";
-        private static string QUERY_CREATE_VALIDATION = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Validations + " (id INTEGER PRIMARY KEY, sessionId INTEGER, time DATETIME, task_start DATETIME, task_end DATETIME, task_detection_case TEXT, task_type_proposed TEXT, task_type_validated TEXT);";
+        private static string QUERY_CREATE_VALIDATION = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Validations + " (id INTEGER PRIMARY KEY, sessionId INTEGER, time DATETIME, task_start DATETIME, task_end DATETIME, task_detection_case TEXT, task_type_proposed TEXT, task_type_validated TEXT, is_main_task BOOLEAN);";
 
         private static string QUERY_INSERT_SESSION = "INSERT INTO " + Settings.DbTable_TaskDetection_Sessions + " (time, session_start, session_end, timePopUpResponded, comments) VALUES ({0}, {1}, {2}, {3}, {4});";
-        private static string QUERY_INSERT_VALIDATION = "INSERT INTO " + Settings.DbTable_TaskDetection_Validations + " (sessionId, time, task_start, task_end, task_detection_case, task_type_proposed, task_type_validated) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6});";
+        private static string QUERY_INSERT_VALIDATION = "INSERT INTO " + Settings.DbTable_TaskDetection_Validations + " (sessionId, time, task_start, task_end, task_detection_case, task_type_proposed, task_type_validated, is_main_task) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7});";
 
         internal static void CreateTaskDetectionValidationTable()
         {
@@ -73,8 +73,8 @@ namespace TaskDetectionTracker.Data
                                           db.QTime2(task.End),
                                           db.Q(task.TaskDetectionCase.ToString()),
                                           db.Q(task.TaskTypeProposed),
-                                          db.Q(task.TaskTypeValidated));
-                                          // doesn't store isMaintask yet
+                                          db.Q(task.TaskTypeValidated),
+                                          db.Q(task.IsMainTask));
                     db.ExecuteDefaultQuery(query);
                 }
             }
