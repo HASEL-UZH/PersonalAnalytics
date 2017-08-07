@@ -132,23 +132,21 @@ namespace WindowsActivityTracker.Data
                     entry.WindowTitle = Dict.Anonymized + " " + ContextMapper.GetContextCategory(dto);  // obfuscate window title
                 }
 
-                var tsEndString = (entry.TsEnd == DateTime.MinValue) ? Database.GetInstance().Q(string.Empty) : Database.GetInstance().QTime2(entry.TsEnd);
+                // if end time is missing, don't store anything
+                if (entry.TsEnd == DateTime.MinValue)
+                {
+                    Database.GetInstance().LogWarning("TsEnd of WindowsActivitySwtich was empty.");
+                    return;
+                }
 
                 var query = string.Format(QUERY_INSERT,
                                           "strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')",
                                           Database.GetInstance().QTime2(entry.TsStart),
-                                          tsEndString,
+                                          Database.GetInstance().QTime2(entry.TsEnd),
                                           Database.GetInstance().Q(entry.WindowTitle),
                                           Database.GetInstance().Q(entry.Process));
 
                 Database.GetInstance().ExecuteDefaultQuery(query);
-
-                // TODO: temp, remove!
-                if (entry.TsEnd == DateTime.MinValue)
-                {
-                    Logger.WriteToLogFile(new Exception("Why is tsEnd empty? (" + query + ")"));
-                }
-
             }
             catch (Exception e)
             {
