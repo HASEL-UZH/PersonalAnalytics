@@ -84,9 +84,9 @@
 
             <StackPanel Grid.Column="1" Orientation="Horizontal">
                 <Button Content="Refresh" Click="Refresh_Clicked" VerticalAlignment="Center" Margin="0 0 10 0" />
-                <Button Content="Feedback" Click="Feedback_Clicked" VerticalAlignment="Center" Margin="0 0 10 0" />
+                <Button x:Name="FeedbackInfo" Content="Feedback" Click="Feedback_Clicked" VerticalAlignment="Center" Margin="0 0 10 0" />
                 <!--<Button Content="Settings" Click="Settings_Clicked" VerticalAlignment="Center" Margin="0 0 10 0" />-->
-                <Button Content="About" Click="About_Clicked" VerticalAlignment="Center" Margin="0 0 10 0" />
+                <Button x:Name="AboutInfo" Content="About" Click="About_Clicked" VerticalAlignment="Center" Margin="0 0 10 0" />
             </StackPanel>
         </Grid>
 

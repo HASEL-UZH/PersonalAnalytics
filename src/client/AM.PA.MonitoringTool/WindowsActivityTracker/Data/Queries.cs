@@ -16,11 +16,45 @@ namespace WindowsActivityTracker.Data
 {
     public class Queries
     {
+
+        private static string QUERY_CREATE = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable + " (id INTEGER PRIMARY KEY, time TEXT, tsStart TEXT, tsEnd TEXT, window TEXT, process TEXT);";
+        private static string QUERY_INDEX = "CREATE INDEX IF NOT EXISTS windows_activity_ts_start_idx ON " + Settings.DbTable + " (tsStart);";
+        private static string QUERY_INSERT = "INSERT INTO " + Settings.DbTable + " (time, tsStart, tsEnd, window, process) VALUES ({0}, {1}, {2}, {3}, {4});";
+
+        #region Daemon Queries
+
         internal static void CreateWindowsActivityTable()
         {
             try
             {
-                Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.DbTable + " (id INTEGER PRIMARY KEY, time TEXT, window TEXT, process TEXT)");
+                var res = Database.GetInstance().ExecuteDefaultQuery(QUERY_CREATE);
+                if (res == 1) Database.GetInstance().ExecuteDefaultQuery(QUERY_INDEX); // add index when table was newly created
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+        }
+
+        internal static void UpdateDatabaseTables(int version)
+        {
+            try
+            {
+                // database update 2017-07-20 (added two columns to 'windows_activity' table: tsStart and tsEnd)
+                // need to migrate the existing values in the table
+                if (version == 4)
+                {
+                    if (Database.GetInstance().HasTable(Settings.DbTable))
+                    {
+                        // update table: add columns & index
+                        Database.GetInstance().ExecuteDefaultQuery("ALTER TABLE " + Settings.DbTable + " ADD COLUMN tsStart TEXT;");
+                        Database.GetInstance().ExecuteDefaultQuery("ALTER TABLE " + Settings.DbTable + " ADD COLUMN tsEnd TEXT;");
+                        Database.GetInstance().ExecuteDefaultQuery(QUERY_INDEX);
+
+                        // migrate data (set tsStart / tsEnd)
+                        MigrateWindowsActivityTable();
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -29,24 +63,168 @@ namespace WindowsActivityTracker.Data
         }
 
         /// <summary>
-        /// Saves the timestamp, process name and window title into the database.
+        /// Updates all entries, sets time -> tsStart and time (of next item) -> tsEnd (or empty if end of the day)
+        /// </summary>
+        private static void MigrateWindowsActivityTable()
+        {
+            try
+            {
+                // copy time -> tsStart
+                Database.GetInstance().ExecuteDefaultQuery("UPDATE " + Settings.DbTable + " set tsStart = time;");
+
+                // copy tsStart of next item to tsEnd of this item
+                var QUERY_UPDATE_TSEND = "UPDATE " + Settings.DbTable + " SET tsEnd = (SELECT t2.tsStart FROM " + Settings.DbTable + " t2 WHERE windows_activity.id + 1 = t2.id LIMIT 1);";
+                Database.GetInstance().ExecuteDefaultQuery(QUERY_UPDATE_TSEND);
+
+                // set tsEnd
+                //var querySelect = "SELECT id, tsStart FROM " + Settings.DbTable + ";"; // LIMIT 10000;";
+                //var table = Database.GetInstance().ExecuteReadQuery(querySelect);
+
+                //if (table != null)
+                //{
+                //    WindowsActivity _previousItem = null;
+
+                //    foreach (DataRow row in table.Rows)
+                //    {
+                //        // read values for this item
+                //        var currentItem_Id = (long)row["id"];
+                //        var urrentItem_tsStart = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
+
+                //        // update and store previous item
+                //        if (_previousItem != null)
+                //        {
+                //            var tsEndString = (_previousItem.StartTime.Day == urrentItem_tsStart.Day)
+                //                                ? Database.GetInstance().QTime2(urrentItem_tsStart) // previous items' tsEnd is current items' tsStart
+                //                                : "''"; // if end of day: keep empty
+
+                //            var queryUpdate = "UPDATE " + Settings.DbTable + " SET tsEnd = " + tsEndString + " WHERE id = '" + _previousItem.Id + "';";
+                //            Database.GetInstance().ExecuteDefaultQuery(queryUpdate);
+                //            //Logger.WriteToConsole(queryUpdate);
+                //        }
+
+                //        // set new previous item
+                //        _previousItem = new WindowsActivity() { Id = (int)currentItem_Id, StartTime = urrentItem_tsStart }; //tsEnd is not yet known
+                //    }
+                //    table.Dispose();
+                //}
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+        }
+
+        /// <summary>
+        /// Saves the timestamp, start and end, process name and window title into the database.
         /// 
         /// In case the user doesn't want the window title to be stored (For privacy reasons),
         /// it is obfuscated.
         /// </summary>
         /// <param name="window"></param>
         /// <param name="process"></param>
-        internal static void InsertSnapshot(string window, string process)
+        internal static void InsertSnapshot(WindowsActivityEntry entry)
         {
-            if (Shared.Settings.AnonymizeSensitiveData)
+            try
             {
-                var dto = new ContextDto { Context = new ContextInfos { ProgramInUse = process, WindowTitle = window } };
-                window = Dict.Anonymized + " " + ContextMapper.GetContextCategory(dto);  // obfuscate window title
+                if (Shared.Settings.AnonymizeSensitiveData)
+                {
+                    var dto = new ContextDto { Context = new ContextInfos { ProgramInUse = entry.Process, WindowTitle = entry.WindowTitle } };
+                    entry.WindowTitle = Dict.Anonymized + " " + ContextMapper.GetContextCategory(dto);  // obfuscate window title
+                }
+
+                var tsEndString = (entry.TsEnd == DateTime.MinValue) ? string.Empty : Database.GetInstance().QTime2(entry.TsEnd);
+
+                var query = string.Format(QUERY_INSERT,
+                                          "strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')",
+                                          Database.GetInstance().QTime2(entry.TsStart),
+                                          tsEndString,
+                                          Database.GetInstance().Q(entry.WindowTitle),
+                                          Database.GetInstance().Q(entry.Process));
+
+                Database.GetInstance().ExecuteDefaultQuery(query);
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+        }
+
+        internal static bool UserInputTableExists()
+        {
+            var res = Database.GetInstance().HasTable(Shared.Settings.UserInputTable);
+            return res;
+        }
+
+        /// <summary>
+        /// Returns a list with tsStart and tsEnd of all missed sleep events
+        /// </summary>
+        /// <param name="ts_checkFrom"></param>
+        /// <param name="ts_checkTo"></param>
+        /// <returns></returns>
+        internal static List<Tuple<long, DateTime, DateTime>> GetMissedSleepEvents(DateTime ts_checkFrom, DateTime ts_checkTo)
+        {
+            var results = new List<Tuple<long, DateTime, DateTime>>();
+
+            try
+            {
+                var query = "SELECT wa.id, wa.tsStart, wa.tsEnd, ( "
+                          + "SELECT sum(ui.keyTotal) + sum(ui.clickTotal) + sum(ui.ScrollDelta) + sum(ui.movedDistance) "
+                          + "FROM " + Shared.Settings.UserInputTable + " AS ui "
+                          + "WHERE (ui.tsStart between wa.tsStart and wa.tsEnd) AND (ui.tsEnd between wa.tsStart and wa.tsEnd) "
+                          + ") as 'sumUserInput' "
+                          + "FROM " + Settings.DbTable + " AS wa "
+                          + "WHERE wa.process <> '" + Dict.Idle + "' " // we are looking for cases where the IDLE event was not catched
+                          + "AND wa.process <> 'skype' AND wa.process <> 'lync' " // IDLE during calls are okay
+                          + "AND (wa.tsStart between " + Database.GetInstance().QTime(ts_checkFrom) + " AND " + Database.GetInstance().QTime(ts_checkTo) + ") " // perf
+                          + "AND (strftime('%s', wa.tsEnd) - strftime('%s', wa.tsStart)) > " + Settings.IdleSleepValidate_ThresholdIdleBlocks_s + ";"; // IDLE time window we are looking for
+
+                var table = Database.GetInstance().ExecuteReadQuery(query);
+
+                foreach (DataRow row in table.Rows)
+                {
+                    if (row["sumUserInput"] == DBNull.Value || Convert.ToInt32(row["sumUserInput"]) == 0)
+                    {
+                        var id = (long)row["id"];
+                        var tsStart = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
+                        var tsEnd = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
+                        var tuple = new Tuple<long, DateTime, DateTime>(id, tsStart, tsEnd);
+                        results.Add(tuple);
+                    }
+                }
+                table.Dispose();
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
             }
 
-            Database.GetInstance().ExecuteDefaultQuery("INSERT INTO " + Settings.DbTable + " (time, window, process) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " +
-                Database.GetInstance().Q(window) + ", " + Database.GetInstance().Q(process) + ")");
+            return results;
         }
+
+        internal static void AddMissedSleepIdleEntry(List<Tuple<long, DateTime, DateTime>> toFix)
+        {
+            foreach (var item in toFix)
+            {
+                var idleTimeFix = item.Item2.AddMilliseconds(Settings.NotCountingAsIdleInterval_ms);
+                var tsEnd = item.Item3;
+
+                // add missed sleep idle entry
+                var tempItem = new WindowsActivityEntry(idleTimeFix, tsEnd, Settings.ManualSleepIdle, Dict.Idle, IntPtr.Zero);
+                InsertSnapshot(tempItem);
+
+                // update tsEnd of previous (wrong entry)
+                var query = "UPDATE " + Settings.DbTable + " SET tsEnd = " + Database.GetInstance().QTime2(idleTimeFix) + " WHERE id = " + item.Item1;
+                Database.GetInstance().ExecuteDefaultQuery(query);
+
+                Logger.WriteToLogFile(new Exception(Settings.ManualSleepIdle + " from: " + item + " to: " + idleTimeFix)); // TODO: temp, remove
+            }
+
+            if (toFix.Count > 0) Database.GetInstance().LogInfo("Fixed " + toFix.Count + " missed IDLE sleep entries.");
+        }
+
+        #endregion
+
+        #region Visualization Queries
 
         /// <summary>
         /// Returns the program where the user focused on the longest
@@ -57,11 +235,11 @@ namespace WindowsActivityTracker.Data
         {
             try
             {
-                var query = "SELECT t1.process as 'process', (strftime('%s', t2.time) - strftime('%s', t1.time)) as 'difference', t1.time as 'from', t2.time as 'to' " // t1.window as 'window', 
-                          + "FROM " + Settings.DbTable + " t1 LEFT JOIN " + Settings.DbTable + " t2 on t1.id + 1 = t2.id "
-                          + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "t1.time") + " and " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "t2.time") + " "
-                          + "AND t1.process <> '" + Dict.Idle + "' "
-                          + "GROUP BY t1.id, t1.time "
+                var query = "SELECT process, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'difference', tsStart, tsEnd "
+                          + "FROM " + Settings.DbTable + " "
+                          + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsStart") + " AND " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsEnd") + " "
+                          + "AND process <> '" + Dict.Idle + "' "
+                          + "GROUP BY id, tsStart "
                           + "ORDER BY difference DESC "
                           + "LIMIT 1;";
 
@@ -73,11 +251,11 @@ namespace WindowsActivityTracker.Data
                     var process = Shared.Helpers.ProcessNameHelper.GetFileDescriptionFromProcess((string)row["process"]);
                     //var window = (string)row["window"];
                     var difference = Convert.ToInt32(row["difference"], CultureInfo.InvariantCulture);
-                    var from = DateTime.Parse((string)row["from"], CultureInfo.InvariantCulture);
-                    var to = DateTime.Parse((string)row["to"], CultureInfo.InvariantCulture);
+                    var tsStart = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
+                    var tsEnd = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
 
                     table.Dispose();
-                    return new FocusedWorkDto(process, difference, from, to);
+                    return new FocusedWorkDto(process, difference, tsStart, tsEnd);
                 }
                 else
                 {
@@ -88,7 +266,6 @@ namespace WindowsActivityTracker.Data
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-
                 return null;
             }
         }
@@ -105,62 +282,65 @@ namespace WindowsActivityTracker.Data
 
             try
             {
-                var query = "SELECT t1.time as 'tsStart', t2.time as 'tsEnd', t1.window, t1.process, (strftime('%s', t2.time) - strftime('%s', t1.time)) as 'durInSec' " //t1.id, t1.time as 'from', t2.time as 'to'
-                              + "FROM " + Settings.DbTable + " t1 LEFT JOIN " + Settings.DbTable + " t2 on t1.id + 1 = t2.id "
-                              + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "t1.time") + " and " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "t2.time") + " "
-                              + "ORDER BY t1.time;";
+                var query = "SELECT tsStart, tsEnd, window, process, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'durInSec' "
+                              + "FROM " + Settings.DbTable + " "
+                              + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsStart") + " AND " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsEnd") + " "
+                              + "ORDER BY tsStart;";
 
                 var table = Database.GetInstance().ExecuteReadQuery(query);
 
-                WindowsActivity _previousWindowsActivityEntry = null;
-
-                foreach (DataRow row in table.Rows)
+                if (table != null)
                 {
-                    // fetch items from database
-                    var e = new WindowsActivity();
-                    e.StartTime = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
-                    e.EndTime = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
-                    e.DurationInSeconds = row.IsNull("durInSec") ? 0 : Convert.ToInt32(row["durInSec"], CultureInfo.InvariantCulture);
-                    e.ProcessName = (string)row["process"];
-                    e.WindowTitle = (string)row["window"];
+                    WindowsActivity _previousWindowsActivityEntry = null;
 
-                    // if the user wishes to see activity categories rather than processes
-                    // map it automatically
-                    if (mapToActivity)
+                    foreach (DataRow row in table.Rows)
                     {
-                        ProcessToActivityMapper.Map(e);
-                    }
+                        // fetch items from database
+                        var e = new WindowsActivity();
+                        e.StartTime = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
+                        e.EndTime = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
+                        e.DurationInSeconds = row.IsNull("durInSec") ? 0 : Convert.ToInt32(row["durInSec"], CultureInfo.InvariantCulture);
+                        e.ProcessName = (string)row["process"];
+                        e.WindowTitle = (string)row["window"];
 
-                    // check if we add a new item, or merge with the previous one
-                    if (_previousWindowsActivityEntry != null)
-                    {
-                        // previous item is same, update it (duration and tsEnd)
-                        if (mapToActivity && e.ActivityCategory == _previousWindowsActivityEntry.ActivityCategory)
+                        // if the user wishes to see activity categories rather than processes
+                        // map it automatically
+                        if (mapToActivity)
                         {
-                            var lastItem = orderedActivityList.Last();
-                            lastItem.DurationInSeconds += e.DurationInSeconds;
-                            lastItem.EndTime = e.EndTime;
+                            ProcessToActivityMapper.Map(e);
                         }
-                        // previous item is same, update it (duration and tsEnd)
-                        else if (!mapToActivity && e.ProcessName == _previousWindowsActivityEntry.ProcessName)
+
+                        // check if we add a new item, or merge with the previous one
+                        if (_previousWindowsActivityEntry != null)
                         {
-                            var lastItem = orderedActivityList.Last();
-                            lastItem.DurationInSeconds += e.DurationInSeconds;
-                            lastItem.EndTime = e.EndTime;
+                            // previous item is same, update it (duration and tsEnd)
+                            if (mapToActivity && e.ActivityCategory == _previousWindowsActivityEntry.ActivityCategory)
+                            {
+                                var lastItem = orderedActivityList.Last();
+                                lastItem.DurationInSeconds += e.DurationInSeconds;
+                                lastItem.EndTime = e.EndTime;
+                            }
+                            // previous item is same, update it (duration and tsEnd)
+                            else if (!mapToActivity && e.ProcessName == _previousWindowsActivityEntry.ProcessName)
+                            {
+                                var lastItem = orderedActivityList.Last();
+                                lastItem.DurationInSeconds += e.DurationInSeconds;
+                                lastItem.EndTime = e.EndTime;
+                            }
+                            // previous item is different, add it to list
+                            else
+                            {
+                                orderedActivityList.Add(e);
+                            }
                         }
-                        // previous item is different, add it to list
-                        else
+                        else // first item
                         {
                             orderedActivityList.Add(e);
                         }
+                        _previousWindowsActivityEntry = e;
                     }
-                    else // first item
-                    {
-                        orderedActivityList.Add(e);
-                    }
-                    _previousWindowsActivityEntry = e;
+                    table.Dispose();
                 }
-                table.Dispose();
             }
             catch (Exception e)
             {
@@ -183,33 +363,36 @@ namespace WindowsActivityTracker.Data
             try
             {
                 var query = "SELECT process, sum(difference) / 60.0 / 60.0  as 'durInHrs' "
-                          + "FROM (	"
-                          + "SELECT t1.process, (strftime('%s', t2.time) - strftime('%s', t1.time)) as 'difference' " //t1.id, t1.time as 'from', t2.time as 'to'
-                          + "FROM " + Settings.DbTable + " t1 LEFT JOIN " + Settings.DbTable + " t2 on t1.id + 1 = t2.id "
-                          + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "t1.time") + " and " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "t2.time") + " "
-                          + "GROUP BY t1.id, t1.time "
+                          + "FROM (	" 
+                          + "SELECT process, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'difference' "
+                          + "FROM " + Settings.DbTable + " "
+                          + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsStart") + " and " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsEnd") + " "
+                          + "GROUP BY id, tsStart"
                           + ") "
                           + "WHERE difference > 0 and process <> '" + Dict.Idle + "' "
                           + "GROUP BY process;";
 
                 var table = Database.GetInstance().ExecuteReadQuery(query);
 
-                foreach (DataRow row in table.Rows)
+                if (table != null)
                 {
-                    var process = (string)row["process"];
-                    var fileDesc = Shared.Helpers.ProcessNameHelper.GetFileDescription(process);
-                    var share = (double)row["durInHrs"];
+                    foreach (DataRow row in table.Rows)
+                    {
+                        var process = (string)row["process"];
+                        var fileDesc = Shared.Helpers.ProcessNameHelper.GetFileDescription(process);
+                        var share = (double)row["durInHrs"];
 
-                    if (dto.ContainsKey(fileDesc))
-                    {
-                        dto[fileDesc] += share;
+                        if (dto.ContainsKey(fileDesc))
+                        {
+                            dto[fileDesc] += share;
+                        }
+                        else
+                        {
+                            dto.Add(fileDesc, share);
+                        }
                     }
-                    else
-                    {
-                        dto.Add(fileDesc, share);
-                    }
+                    table.Dispose();
                 }
-                table.Dispose();
             }
             catch (Exception e)
             {
@@ -218,5 +401,7 @@ namespace WindowsActivityTracker.Data
 
             return dto;
         }
+
+        #endregion
     }
 }

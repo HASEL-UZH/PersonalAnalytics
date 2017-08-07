@@ -5,11 +5,8 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 using System.Windows;
-using TaskDetectionTracker.Model;
 using TaskDetectionTrackerTests;
-using System.Linq;
 using TaskDetectionTracker.Algorithm;
 using TaskDetectionTracker.Helpers;
 
@@ -49,7 +46,6 @@ namespace TaskDetectionTracker.Views.Tests
 
             var popup = (Window)new TaskDetectionPopup(input);
             popup.ShowDialog();
-            
         }
         
     }

@@ -30,11 +30,11 @@ namespace Shared.Data.Extractors
 
                 var query = "SELECT process, window, sum(difference) / 60.0 as 'durInMin' "
                           + "FROM ( "
-                          + "SELECT t1.id, t1.process, t1.window, t1.time as 'from', t2.time as 'to', (strftime('%s', t2.time) - strftime('%s', t1.time)) as 'difference' "
-                          + "FROM " + Shared.Settings.WindowsActivityTable + " t1 LEFT JOIN " + Shared.Settings.WindowsActivityTable + " t2 on t1.id + 1 = t2.id "
-                          + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "t1.time") + " and " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "t2.time") + " "
+                          + "SELECT process, window, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'difference' "
+                          + "FROM " + Shared.Settings.WindowsActivityTable + " "
+                          + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsStart") + " and " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsEnd") + " "
                           + onlySearchForProgramsWhereRulesExists
-                          + "GROUP BY t1.id, t1.time "
+                          + "GROUP BY id, tsStart "
                           + ") "
                           + "WHERE difference > 0 "
                           + "GROUP BY window "
@@ -79,7 +79,7 @@ namespace Shared.Data.Extractors
                 for (var i = 0; i < websiteRules.Count; i++)
                 {
                     var processName = websiteRules[i].ProcessName.ToLower();
-                    onlySearchForProgramsWhereRulesExists += "lower(t1.process) = '" + processName + "' ";
+                    onlySearchForProgramsWhereRulesExists += "lower(process) = '" + processName + "' ";
 
                     if (i + 1 < websiteRules.Count) onlySearchForProgramsWhereRulesExists += "or ";
                 }

@@ -18,7 +18,7 @@ namespace FitbitTracker
         public SleepVisualizationForWeek(DateTimeOffset date)
         {
             this._date = date;
-            Title = "Sleep stats per week day";
+            Title = "Sleep per Week Day";
             Size = VisSize.Wide;
             IsEnabled = true;
             Order = -10;

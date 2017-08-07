@@ -6,7 +6,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Windows;
-using NetFwTypeLib;
 using System.Windows.Threading;
 using Microsoft.Win32;
 using Shared;

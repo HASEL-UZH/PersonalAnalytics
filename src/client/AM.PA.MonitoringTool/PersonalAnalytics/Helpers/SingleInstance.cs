@@ -485,4 +485,3 @@ namespace PersonalAnalytics.Helpers
         #endregion
     }
 }
-

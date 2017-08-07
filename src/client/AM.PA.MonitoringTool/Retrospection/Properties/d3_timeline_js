@@ -30,7 +30,7 @@
         beginning = 0,
         labelMargin = 0,
         ending = 0,
-        margin = {left: 0, right:0, top: 30, bottom:0}, // orig: {left: 30, right:30, top: 30, bottom:30},
+        margin = {left: 0, right: 0, top: 20, bottom:0}, // orig: {left: 30, right:30, top: 30, bottom:30},
         stacked = false,
         rotateTicks = false,
         timeIsRelative = false,

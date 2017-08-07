@@ -65,8 +65,10 @@ namespace TaskDetectionTracker.Views
             
             //Create timeline
             this._tasks = tasks;
-            StartTime.Inlines.Add(_tasks.First().Start.ToShortTimeString());
-            EndTime.Inlines.Add(_tasks.Last().End.ToShortTimeString());
+            WindowTitleBar.Text = WindowTitleBar.Text 
+                + " (from " + _tasks.First().Start.ToShortTimeString() + " to " + _tasks.Last().End.ToShortTimeString() + ")";
+            //StartTime.Inlines.Add(_tasks.First().Start.ToShortTimeString());
+            //EndTime.Inlines.Add(_tasks.Last().End.ToShortTimeString());
 
             double minDuration = _tasks.Min(t => t.TimelineInfos.Min(p => p.End.Subtract(p.Start))).TotalSeconds;
             double totalDuration = _tasks.Sum(t => t.TimelineInfos.Sum(p => p.End.Subtract(p.Start).TotalSeconds));
@@ -177,6 +179,7 @@ namespace TaskDetectionTracker.Views
 
                 double processX = 0;
                 var lastProcess = task.TimelineInfos.Last();
+
                 //draw each process
                 foreach (TaskDetectionInput process in task.TimelineInfos)
                 {
@@ -186,7 +189,7 @@ namespace TaskDetectionTracker.Views
 
                     process.WindowTitles.RemoveAll(w => string.IsNullOrWhiteSpace(w) || string.IsNullOrEmpty(w));
                     string windowTitle = process.WindowTitles.Count > 0 ? string.Join(Environment.NewLine, process.WindowTitles) : "[no window titles]";
-                    string tooltip = windowTitle + Environment.NewLine + "Keystrokes: " + process.NumberOfKeystrokes + Environment.NewLine + "Mouse clicks: " + process.NumberOfMouseClicks;
+                    string tooltip = "Process: " + process.ProcessName + Environment.NewLine + "Window Titles: " + windowTitle + Environment.NewLine + Environment.NewLine + "Keystrokes: " + process.NumberOfKeystrokes + Environment.NewLine + "Mouse clicks: " + process.NumberOfMouseClicks;
                     
                     bool visibility = lastProcess.Equals(process) ? false : true;
                     processRectangles.Add(new ProcessRectangle { Data = process, Width = processWidth, Height = 30, X = processX, Tooltip = tooltip, IsVisible = visibility });
@@ -205,9 +208,11 @@ namespace TaskDetectionTracker.Views
         
         public void DrawLegend()
         {
-            //draw legend
+            // clear old legend
             Legend.Children.Clear();
             Legend.RowDefinitions.Clear();
+
+            // draw new legend
             int count = 0;
             var usedColors = StringToBrushConverter.GetUsedColors();
 
@@ -217,7 +222,7 @@ namespace TaskDetectionTracker.Views
                 Legend.RowDefinitions.Add(new RowDefinition());
             }
 
-            foreach (String key in usedColors.Keys)
+            foreach (string key in usedColors.Keys)
             {
                 Brush legendColor;
                 usedColors.TryGetValue(key, out legendColor);
@@ -354,11 +359,16 @@ namespace TaskDetectionTracker.Views
             
             ValidateSaveButtonEnabled();
         }
-        
+
         #endregion
 
         #region Add and remove processes
-        //Extract a process from a task and at it to a newly created task
+
+        /// <summary>
+        /// Extract a process from a task and at it to a newly created task
+        /// </summary>
+        /// <param name="task"></param>
+        /// <param name="processes"></param>
         private void ExtractProcessesFromTask(TaskDetection task, List<TaskDetectionInput> processes)
         {
             //Add process to new task
@@ -401,7 +411,10 @@ namespace TaskDetectionTracker.Views
         #endregion
 
         #region Save button validation
-        //Validate whether the save button should be enabled
+
+        /// <summary>
+        /// Validate whether the save button should be enabled
+        /// </summary>
         private void ValidateSaveButtonEnabled()
         {
             foreach (var task in _tasks)

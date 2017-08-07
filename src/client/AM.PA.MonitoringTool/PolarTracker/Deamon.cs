@@ -33,6 +33,7 @@ namespace PolarTracker
         private bool _isConnectedToBluetoothDevice = false;
         private ChooseBluetoothDevice _chooser;
         private bool _wasFirstStart = true;
+        private bool _isPAPaused = false;
 
         #region ITracker Stuff
 
@@ -80,7 +81,7 @@ namespace PolarTracker
             return Database.GetInstance().GetSettingsBool(Settings.TRACKER_ENEABLED_SETTING, Settings.IsEnabledByDefault);
         }
 
-        public override async void Start()
+        public async void InternalStart()
         {
             string storedDeviceName = Database.GetInstance().GetSettingsString(Settings.HEARTRATE_TRACKER_ID_SETTING, string.Empty);
             if (storedDeviceName.Equals(string.Empty))
@@ -136,10 +137,16 @@ namespace PolarTracker
                     Logger.WriteToLogFile(e);
                 }
             }
-            
+
         }
 
-        public override async void Stop()
+        public override void Start()
+        {
+            _isPAPaused = false;
+            InternalStart();
+        }
+
+        public async void InternalStop()
         {
             try
             {
@@ -160,6 +167,12 @@ namespace PolarTracker
             {
                 Logger.WriteToLogFile(e);
             }
+        }
+
+        public override void Stop()
+        {
+            _isPAPaused = true;
+            InternalStop();
         }
 
         void OnTrackerDisabled() 
@@ -200,14 +213,14 @@ namespace PolarTracker
             Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, polarTrackerEnabled.Value);
             Database.GetInstance().LogInfo("The participant updated the setting '" + Settings.TRACKER_ENEABLED_SETTING + "' to " + polarTrackerEnabled.Value);
 
-            if (polarTrackerEnabled.Value && IsRunning)
+            if (polarTrackerEnabled.Value && _isPAPaused)
             {
                 CreateDatabaseTablesIfNotExist();
-                Start();
+                InternalStart();
             }
-            else if (!polarTrackerEnabled.Value && IsRunning)
+            else if (!polarTrackerEnabled.Value && _isPAPaused && IsRunning)
             {
-                Stop();
+                InternalStop();
             }
             else
             {

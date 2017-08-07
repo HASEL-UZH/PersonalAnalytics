@@ -7,6 +7,7 @@ using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using TaskDetectionTracker.Model;
 
 namespace TaskDetectionTrackerTests
@@ -31,10 +32,15 @@ namespace TaskDetectionTrackerTests
                         input.Add(new TaskDetectionInput { Start = DateTime.Parse(fields[1], CultureInfo.InvariantCulture), WindowTitles = new List<string> { fields[2] }, ProcessName = fields[3] });
                     }
                 }
+
+                // set end time stamps
+                for (int i = 0; i < input.Count - 1; i++)
+                {
+                    input.ElementAt(i).End = input.ElementAt(i + 1).Start;
+                }
             }
             catch (Exception e) { }
             return input;
         }
-
     }
 }

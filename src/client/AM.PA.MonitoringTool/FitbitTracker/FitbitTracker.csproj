@@ -88,7 +88,7 @@
     <Compile Include="Data\FitbitModel\StepDataIntraday.cs" />
     <Compile Include="Data\HeartRateDayData.cs" />
     <Compile Include="Data\HeartRateIntraDayData.cs" />
-    <Compile Include="SecretStorage.cs" />
+    <Compile Include="Data\SecretStorage.cs" />
     <Compile Include="Service References\AccessDataService\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
