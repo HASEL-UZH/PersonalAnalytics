@@ -34,7 +34,7 @@ namespace TaskDetectionTracker.Model
 
         public override string ToString()
         {
-            return TaskTypeProposed + "/" + TaskTypeValidated + " [" + Start.ToShortTimeString() + " - " + End.ToShortTimeString() + "] - " + TaskDetectionCase + " (Main task: " + IsMainTask + ")";
+            return "proposed: " + TaskTypeProposed + ", validated: " + TaskTypeValidated + " [" + Start.ToShortTimeString() + " - " + End.ToShortTimeString() + "] - " + TaskDetectionCase + " (Main task: " + IsMainTask + ")";
         }
 
         public int CompareTo(TaskDetection other)
