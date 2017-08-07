@@ -132,7 +132,7 @@ namespace WindowsActivityTracker.Data
                     entry.WindowTitle = Dict.Anonymized + " " + ContextMapper.GetContextCategory(dto);  // obfuscate window title
                 }
 
-                var tsEndString = (entry.TsEnd == DateTime.MinValue) ? string.Empty : Database.GetInstance().QTime2(entry.TsEnd);
+                var tsEndString = (entry.TsEnd == DateTime.MinValue) ? Database.GetInstance().Q(string.Empty) : Database.GetInstance().QTime2(entry.TsEnd);
 
                 var query = string.Format(QUERY_INSERT,
                                           "strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')",
@@ -142,6 +142,13 @@ namespace WindowsActivityTracker.Data
                                           Database.GetInstance().Q(entry.Process));
 
                 Database.GetInstance().ExecuteDefaultQuery(query);
+
+                // TODO: temp, remove!
+                if (entry.TsEnd == DateTime.MinValue)
+                {
+                    Logger.WriteToLogFile(new Exception("Why is tsEnd empty? (" + query + ")"));
+                }
+
             }
             catch (Exception e)
             {
