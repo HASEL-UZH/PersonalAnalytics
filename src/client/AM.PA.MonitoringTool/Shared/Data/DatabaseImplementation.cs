@@ -48,7 +48,7 @@ namespace Shared.Data
                 }
                 return true;
             }
-            catch (Exception e)
+            catch
             {
                 return false;
             }
@@ -74,6 +74,7 @@ namespace Shared.Data
             catch (Exception e) 
             {
                 Logger.WriteToLogFile(e);
+                Logger.WriteToLogFile(new Exception("Query: " + query));
                 return 0;
             } 
             finally 
