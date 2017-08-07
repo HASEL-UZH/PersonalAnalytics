@@ -246,7 +246,7 @@
             </StackPanel>
 
             <StackPanel Grid.Row="5" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0 10 0 0">
-                <TextBlock Text="Hint: The save button is enabled once all detected task switches are either marked as correct or incorrect." HorizontalAlignment="Right" TextWrapping="Wrap" Width="300" Margin="0 0 10 0" Foreground="Gray" />
+                <TextBlock Text="Hint: The save button is enabled once all detected task switches are either marked as correct or incorrect." TextAlignment="Right" TextWrapping="Wrap" Width="300" Margin="0 0 10 0" Foreground="Gray" />
                 <Button Name="Save" IsEnabled="{Binding ValidationComplete, UpdateSourceTrigger=PropertyChanged}" Click="Save_Click" Content="Accept Task Detection (Save)" Height="30" Width="200" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" />
             </StackPanel>        
         </Grid>

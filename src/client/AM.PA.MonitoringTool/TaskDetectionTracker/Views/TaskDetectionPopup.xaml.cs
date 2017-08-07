@@ -72,7 +72,7 @@ namespace TaskDetectionTracker.Views
 
             double minDuration = _tasks.Min(t => t.TimelineInfos.Min(p => p.End.Subtract(p.Start))).TotalSeconds;
             double totalDuration = _tasks.Sum(t => t.TimelineInfos.Sum(p => p.End.Subtract(p.Start).TotalSeconds));
-            double timeLineWidth = totalDuration / minDuration * Settings.MinimumProcessWidth;
+            double timeLineWidth = 1500; // TODO: change back totalDuration / minDuration * Settings.MinimumProcessWidth;
             CanvasWidth = Math.Max(timeLineWidth, Settings.MinimumTimeLineWidth);
             
             RectItems = new ObservableCollection<TaskRectangle>();
