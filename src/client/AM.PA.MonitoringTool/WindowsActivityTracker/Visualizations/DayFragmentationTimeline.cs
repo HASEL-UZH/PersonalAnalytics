@@ -176,7 +176,7 @@ namespace WindowsActivityTracker.Visualizations
                              ", 'starting_time_formatted': '" + activityEntry.StartTime.ToShortTimeString() + 
                              "', 'ending_time_formatted': '" + activityEntry.EndTime.ToShortTimeString() + 
                              "', 'duration': " + Math.Round(activityEntry.DurationInSeconds / 60.0, 1) + 
-                             ", 'window_title': '" + activityEntry.WindowTitle.Replace("'", "") + 
+                             ", 'window_title': '" + activityEntry.WindowTitle.Replace("'", "").Replace("/", "//").Replace(@"\", @"\\") + 
                              "', 'process': '" + ProcessNameHelper.GetFileDescription(activityEntry.ProcessName) + 
                              "', 'color': '" + GetHtmlColorForContextCategory(activityEntry.ActivityCategory) +
                              "', 'activity': '" + GetDescriptionForContextCategory(activityEntry.ActivityCategory) + "'}, ";
