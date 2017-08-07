@@ -219,9 +219,10 @@ namespace TaskDetectionTracker.Views
 
             // draw new legend
             int count = 0;
+            var numColumns = 6.0;
             var usedColors = StringToBrushConverter.GetUsedColors();
 
-            var numberOfRowsNeeded = Math.Ceiling(usedColors.Keys.Count / 6.0); // 6.0 is the number of columns
+            var numberOfRowsNeeded = Math.Ceiling(usedColors.Keys.Count / numColumns);
             for (int i = 0; i < numberOfRowsNeeded; i++)
             {
                 Legend.RowDefinitions.Add(new RowDefinition());
@@ -248,8 +249,8 @@ namespace TaskDetectionTracker.Views
                     colorText.Inlines.Add(key);
                     colorPanel.Children.Add(colorText);
 
-                    colorPanel.SetValue(Grid.RowProperty, count / 4);
-                    colorPanel.SetValue(Grid.ColumnProperty, count % 4);
+                    colorPanel.SetValue(Grid.RowProperty, count / numColumns);
+                    colorPanel.SetValue(Grid.ColumnProperty, count % numColumns);
                     Legend.Children.Add(colorPanel);
                     count++;
                 }
