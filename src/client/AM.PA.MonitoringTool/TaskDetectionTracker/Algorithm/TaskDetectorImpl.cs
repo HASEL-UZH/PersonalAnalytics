@@ -362,7 +362,7 @@ namespace TaskDetectionTracker.Algorithm
             TaskDetection tc = new TaskDetection();
             tc.Start = toBundle.First().Start;
             tc.End = toBundle.Last().End;
-            tc.TimelineInfos = toBundle;
+            tc.TimelineInfos = toBundle.ToList();
             return tc;
         }
 
