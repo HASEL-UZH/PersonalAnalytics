@@ -101,14 +101,18 @@ namespace TaskDetectionTracker.Data
                 var table = Database.GetInstance().ExecuteReadQuery(query);
                 foreach (DataRow row in table.Rows)
                 {
-                    var process = Shared.Helpers.ProcessNameHelper.GetFileDescriptionFromProcess((string)row["process"]);
-                    var window = (string)row["window"];
-                    //var difference = Convert.ToInt32(row["difference"], CultureInfo.InvariantCulture);
-                    var tsStart = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
-                    var tsEnd = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
+                    try
+                    {
+                        var process = (DBNull.Value != row["process"]) ? Shared.Helpers.ProcessNameHelper.GetFileDescriptionFromProcess((string)row["process"]) : string.Empty;
+                        var window = (DBNull.Value != row["window"]) ? (string)row["window"] : string.Empty;
+                        //var difference = Convert.ToInt32(row["difference"], CultureInfo.InvariantCulture);
+                        var tsStart = (DBNull.Value != row["tsStart"]) ? DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture) : DateTime.MinValue;
+                        var tsEnd = (DBNull.Value != row["tsEnd"]) ? DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture) : DateTime.MinValue;
 
-                    var processItem = new TaskDetectionInput { Start = tsStart, End = tsEnd,  WindowTitles = new List<string> { window }, ProcessName = process };
-                    result.Add(processItem);
+                        var processItem = new TaskDetectionInput { Start = tsStart, End = tsEnd, WindowTitles = new List<string> { window }, ProcessName = process };
+                        if (tsStart != DateTime.MinValue && tsEnd != DateTime.MinValue) result.Add(processItem);
+                    }
+                    catch { } // don't do anything
                 }
             }
             catch (Exception e)
