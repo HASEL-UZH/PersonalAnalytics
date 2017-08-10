@@ -9,6 +9,7 @@ using System.Windows;
 using TaskDetectionTrackerTests;
 using TaskDetectionTracker.Algorithm;
 using TaskDetectionTracker.Helpers;
+using System.Threading;
 
 namespace TaskDetectionTracker.Views.Tests
 {
@@ -22,28 +23,16 @@ namespace TaskDetectionTracker.Views.Tests
         [TestMethod()]
         public void TaskDetectionPopupTest()
         {
+            // fetch processes from demo data
             var processes = DataLoader.LoadTestData();
             processes = DataMerger.MergeProcesses(processes, TimeSpan.FromHours(1));
-
             int numberOfInput = processes.Count / _numberOfElementsPerTask + processes.Count % _numberOfElementsPerTask;
 
-
-            
+            // run task detection
             ITaskDetector td = new TaskDetectorImpl();
             var input = td.FindTasks(processes);
 
-            //var input = new List<TaskDetection>();
-            //for (int i = 0; i < numberOfInput; i++)
-            //{
-            //    TaskDetection tdInput = new TaskDetection();
-            //    var prc = processes.GetRange(i * _numberOfElementsPerTask, _numberOfElementsPerTask);
-            //    tdInput.Start = prc.First().Start;
-            //    tdInput.End = prc.Last().End;
-            //    tdInput.TaskTypeProposed = tasks[i % tasks.Length];
-            //    tdInput.TimelineInfos = prc;
-            //    input.Add(tdInput);
-            //}
-
+            // run popup
             var popup = (Window)new TaskDetectionPopup(input);
             popup.ShowDialog();
         }
