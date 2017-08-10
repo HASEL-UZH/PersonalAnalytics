@@ -28,12 +28,12 @@ namespace TaskDetectionTracker.Algorithm
         private string _taskTypeDataFileName = "pa-tasktypedata-" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".csv";
         private string _taskTypeDetectionModelFileName = Path.Combine(Environment.CurrentDirectory, "Resources", "tasktypedetectionmodel.rda");
 
-        private string _rToolsHomeZip = Path.Combine(Environment.CurrentDirectory, "Resources", "R-3.4.0.zip");
-        private string _rToolsLibrariesZip = Path.Combine(Environment.CurrentDirectory, "Resources", "R_libraries.zip");
-        private string _rToolsExtractDirectory = Path.Combine(Environment.CurrentDirectory, "Resources");
-        private string _rToolsPath = Path.Combine(Environment.CurrentDirectory, "Resources", "R-3.4.0\\bin\\i386");
-        private string _rToolsHome = Path.Combine(Environment.CurrentDirectory, "Resources", "R-3.4.0");
-        private string _rToolsLibraries = Path.Combine(Environment.CurrentDirectory, "Resources", "R_libraries");
+        private static string _rToolsHomeZip = Path.Combine(Environment.CurrentDirectory, "Resources", "R-3.4.0.zip");
+        private static string _rToolsLibrariesZip = Path.Combine(Environment.CurrentDirectory, "Resources", "R_libraries.zip");
+        private static string _rToolsExtractDirectory = Path.Combine(Environment.CurrentDirectory, "Resources");
+        private static string _rToolsPath = Path.Combine(Environment.CurrentDirectory, "Resources", "R-3.4.0\\bin\\i386");
+        private static string _rToolsHome = Path.Combine(Environment.CurrentDirectory, "Resources", "R-3.4.0");
+        private static string _rToolsLibraries = Path.Combine(Environment.CurrentDirectory, "Resources", "R_libraries");
 
         public TaskDetectorImpl()
         {
@@ -45,7 +45,7 @@ namespace TaskDetectionTracker.Algorithm
         /// </summary>
         private void UnzipRTools()
         {
-            if (!Directory.Exists(_rToolsHome))
+          if (!Directory.Exists(_rToolsHome))
             {
                 System.IO.Compression.ZipFile.ExtractToDirectory(_rToolsHomeZip, _rToolsExtractDirectory);
                 Database.GetInstance().LogInfo("Unzipped R Tools to: " + _rToolsExtractDirectory);
@@ -430,13 +430,13 @@ namespace TaskDetectionTracker.Algorithm
                 double keystrokesPerSec = 0;
                 if (sumTotalKeyStrokes > 0)
                 {
-                    keystrokesPerSec = (double)sumTotalKeyStrokes / duration.Seconds;
+                    keystrokesPerSec = (double)sumTotalKeyStrokes / duration.TotalSeconds;
                 }
 
                 double mouseclicksPerSec = 0;
                 if (sumMouseClicks > 0)
                 {
-                    mouseclicksPerSec = (double)sumMouseClicks / duration.Seconds;
+                    mouseclicksPerSec = (double)sumMouseClicks / duration.TotalSeconds;
                 }
 
                 csv_types.Append(keystrokesPerSec + del + mouseclicksPerSec + "\n");
@@ -477,8 +477,8 @@ namespace TaskDetectionTracker.Algorithm
                 string res = typeResult[i].AsCharacter().First();
                 tcs[i].TaskTypeProposed = res;
             }
-
-            engine.Dispose();
+          
+          //  engine.Dispose();
         }
 
         #region File & Path Helpers
