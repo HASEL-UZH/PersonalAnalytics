@@ -1,4 +1,5 @@
 Process,Category
+AcroRd32,ReadWrite
 Alarms & Clock,Utility
 APConsole,Console
 BC2,DeveloperTool
@@ -17,6 +18,7 @@ CodeFlow,Review
 Compose,ReadWrite
 ConsoleApp.vshost,IDE
 cqintsvr11,IDE
+DB Browser for SQLite,DeveloperTool 
 defectviewer,TestingTool
 devenv,IDE
 dllhost,DeveloperTool
@@ -67,8 +69,10 @@ SourceTree,DeveloperTool
 Spotify,Music
 Ssms,SQL
 taskcoach,Utility
+Teams,IM
 VirtualBox,Remote
 Visual Studio,IDE
+vstest.executionengine.x86,TestingTool
 WhatsApp,IM
 WinMerge 2.14.0 Setup.tmp,DeveloperTool
 WinMergeU,DeveloperTool
