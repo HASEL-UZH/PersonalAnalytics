@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using TaskDetectionTracker.Algorithm;
@@ -91,7 +92,7 @@ namespace TaskDetectionTracker
 
         #endregion
 
-        private void PopUp_Tick(object sender, EventArgs e)
+        private async void PopUp_Tick(object sender, EventArgs e)
         {
             // stop pop-up timer
             _popUpTimer.Stop();
@@ -111,7 +112,7 @@ namespace TaskDetectionTracker
             }
 
             // load all data first
-            var taskDetections = PrepareTaskDetectionDataForPopup(sessionStart, sessionEnd);
+            var taskDetections = await Task.Run(() => PrepareTaskDetectionDataForPopup(sessionStart, sessionEnd)); // await Task.Run(() => )
 
             // show pop-up 
             ShowTaskDetectionValidationPopup(taskDetections, sessionStart, sessionEnd);
@@ -126,18 +127,56 @@ namespace TaskDetectionTracker
         {
             var taskDetections = new List<TaskDetection>();
 
-            var processes = DatabaseConnector.GetProcesses(sessionStart, sessionEnd);
-            if (processes.Count > 0)
+            try
             {
-                processes = DataMerger.MergeProcesses(processes, sessionEnd.Subtract(sessionStart));
-                DataMerger.AddMouseClickAndKeystrokesToProcesses(processes);
-                //TODO Andre: use file and website extractor here
+                // temporarily show hidden window
+                TempShowHiddenWindow();
 
-                var td = new TaskDetectorImpl();
-                taskDetections = td.FindTasks(processes);
+                // get processes in interval
+                var processes = DatabaseConnector.GetProcesses(sessionStart, sessionEnd);
+                if (processes.Count > 0)
+                {
+                    // merge processes
+                    processes = DataMerger.MergeProcesses(processes, sessionEnd.Subtract(sessionStart));
+                    DataMerger.AddMouseClickAndKeystrokesToProcesses(processes);
+                    //TODO Andre: use file and website extractor here
+
+                    // run task detection
+                    var td = new TaskDetectorImpl();
+                    taskDetections = td.FindTasks(processes);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
             }
 
             return taskDetections;
+        }
+
+        /// <summary>
+        /// temporarily show hidden window 
+        /// (to add an entry to the windows_activity table and not miss the last item)
+        /// </summary>
+        private void TempShowHiddenWindow()
+        {
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(
+            () =>
+            {
+                var tempWindow = new Window()
+                {
+                    Width = 0,
+                    Height = 0,
+                    WindowStyle = WindowStyle.None,
+                    ShowInTaskbar = false,
+                    //ShowActivated = false,
+                    Title = "PersonalAnalytics: Forced WindowsActvityTracker-entry"
+                };
+                tempWindow.Show();
+                Thread.Sleep(2000);
+                tempWindow.Close();
+            }));
+
         }
 
         /// <summary>

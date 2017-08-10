@@ -11,7 +11,7 @@ namespace Shared.Helpers
         /// </summary>
         /// <param name="process"></param>
         /// <returns></returns>
-        public static string GetFileDescription(string process)
+        public static string GetFileDescription(string process, bool shortenEnabled = true)
         {
             var fileDesc = GetFileDescriptionFromProcess(process);
 
@@ -20,15 +20,18 @@ namespace Shared.Helpers
             fileDesc = textInfo.ToTitleCase(fileDesc.ToLower());
 
             // shorten file description if necessary
-            if (fileDesc == null)
+            if (shortenEnabled)
             {
-                fileDesc = process;
-                if (fileDesc.Length > 20)
-                    fileDesc = "..." + fileDesc.Substring(fileDesc.Length - 17);
-            }
-            else if (fileDesc.Length > 20)
-            {
-                fileDesc = fileDesc.Substring(0, 17) + "...";
+                if (fileDesc == null)
+                {
+                    fileDesc = process;
+                    if (fileDesc.Length > 20)
+                        fileDesc = "..." + fileDesc.Substring(fileDesc.Length - 17);
+                }
+                else if (fileDesc.Length > 20)
+                {
+                    fileDesc = fileDesc.Substring(0, 17) + "...";
+                }
             }
 
             return fileDesc;

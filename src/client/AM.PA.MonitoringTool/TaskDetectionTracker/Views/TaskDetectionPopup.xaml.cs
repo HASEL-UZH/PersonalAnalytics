@@ -17,6 +17,7 @@ using System.Windows.Controls;
 using System.Diagnostics;
 using TaskDetectionTracker.Views.Converters;
 using System.Windows.Media;
+using Shared.Helpers;
 
 namespace TaskDetectionTracker.Views
 {
@@ -190,8 +191,8 @@ namespace TaskDetectionTracker.Views
                     // create tooltip
                     process.WindowTitles.RemoveAll(w => string.IsNullOrWhiteSpace(w) || string.IsNullOrEmpty(w));
                     string windowTitle = process.WindowTitles.Count > 0 ? string.Join(Environment.NewLine, process.WindowTitles) : "[no window titles]";
-                    string tooltip =    "From: " + process.Start.ToShortTimeString() + " to " + process.End.ToShortTimeString() + Environment.NewLine
-                                        + "Process: " + process.ProcessName + Environment.NewLine 
+                    string tooltip =    "From: " + process.Start.ToLongTimeString() + " to " + process.End.ToLongTimeString() + Environment.NewLine
+                                        + "Process: " + ProcessNameHelper.GetFileDescription(process.ProcessName) + Environment.NewLine 
                                         + "Window Titles: " + windowTitle + Environment.NewLine + Environment.NewLine 
                                         + "Keystrokes: " + process.NumberOfKeystrokes + Environment.NewLine 
                                         + "Mouse clicks: " + process.NumberOfMouseClicks;
