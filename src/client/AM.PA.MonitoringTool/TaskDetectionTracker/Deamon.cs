@@ -125,7 +125,7 @@ namespace TaskDetectionTracker
         /// <returns></returns>
         private List<TaskDetection> PrepareTaskDetectionDataForPopup(DateTime sessionStart, DateTime sessionEnd)
         {
-            var taskDetections = new List<TaskDetection>();
+            var taskDetectionsFiltered = new List<TaskDetection>();
 
             try
             {
@@ -143,7 +143,10 @@ namespace TaskDetectionTracker
 
                     // run task detection
                     var td = new TaskDetectorImpl();
-                    taskDetections = td.FindTasks(processes);
+                    var taskDetections = td.FindTasks(processes);
+
+                    // filter task detections
+                    taskDetectionsFiltered = taskDetections.Where(t => (t.End - t.Start).TotalSeconds > Settings.MinimumTaskDurationInSeconds).ToList();
                 }
             }
             catch (Exception e)
@@ -151,7 +154,7 @@ namespace TaskDetectionTracker
                 Logger.WriteToLogFile(e);
             }
 
-            return taskDetections;
+            return taskDetectionsFiltered;
         }
 
         /// <summary>

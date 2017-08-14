@@ -16,23 +16,24 @@ namespace TaskDetectionTracker
 
 #if DEBUG 
         public static bool IsEnabledByDefault = true;
-        public static TimeSpan PopUpInterval = TimeSpan.FromSeconds(10);
-        public static TimeSpan PopUpReminderInterval = TimeSpan.FromSeconds(30);
-        public static TimeSpan MaximumValidationInterval = TimeSpan.FromHours(1);
+        internal static TimeSpan PopUpInterval = TimeSpan.FromSeconds(10);
+        internal static TimeSpan PopUpReminderInterval = TimeSpan.FromSeconds(30);
+        internal static TimeSpan MaximumValidationInterval = TimeSpan.FromHours(1);
 #elif Pilot_TaskDetection_March17
         public static bool IsEnabledByDefault = true;
-        public static TimeSpan PopUpInterval = TimeSpan.FromMinutes(60); // show validation pop-up once every 60 minutes
-        public static TimeSpan PopUpReminderInterval = TimeSpan.FromMinutes(5);
-        public static TimeSpan MaximumValidationInterval = TimeSpan.FromHours(1);
+        internal static TimeSpan PopUpInterval = TimeSpan.FromMinutes(60); // show validation pop-up once every 60 minutes
+        internal static TimeSpan PopUpReminderInterval = TimeSpan.FromMinutes(5);
+        internal static TimeSpan MaximumValidationInterval = TimeSpan.FromHours(1);
 #else
         public static bool IsEnabledByDefault = false; // disabled for all non-study users
-        public static TimeSpan PopUpInterval = TimeSpan.FromMinutes(60); // show validation pop-up once every 60 minutes
-        public static TimeSpan PopUpReminderInterval = TimeSpan.FromMinutes(5);
-        public static TimeSpan MaximumValidationInterval = TimeSpan.FromHours(1);
+        internal static TimeSpan PopUpInterval = TimeSpan.FromMinutes(60); // show validation pop-up once every 60 minutes
+        internal static TimeSpan PopUpReminderInterval = TimeSpan.FromMinutes(5);
+        internal static TimeSpan MaximumValidationInterval = TimeSpan.FromHours(1);
 #endif
 
-        public const int MinimumProcessTimeInSeconds = 10; // TODO: change??? 60; // delete processes smaller than this threshold
-        public const int MinimumProcessWidth = 20; // was 50
-        public const int MaximumTimeLineWidth = 1500; // was 2000
+        internal const int MinimumProcessTimeInSeconds = 10; // TODO: change??? 60; // delete processes smaller than this threshold
+        internal const int MinimumProcessWidth = 20; // was 50
+        internal const int MaximumTimeLineWidth = 1500; // was 2000
+        internal const int MinimumTaskDurationInSeconds = 60;
     }
 }
