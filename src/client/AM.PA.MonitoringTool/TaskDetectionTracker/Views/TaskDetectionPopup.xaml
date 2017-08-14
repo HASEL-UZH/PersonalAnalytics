@@ -127,7 +127,7 @@
                         <ItemsControl Height="250" Grid.Row="0" ItemsSource="{Binding RectItems}" Name="Timeline">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <Canvas Width="{Binding CanvasWidth}"/>
+                                    <Canvas Width="{Binding TimelineWidth}"/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemContainerStyle>

@@ -45,7 +45,7 @@ namespace TaskDetectionTracker.Views
         private DispatcherTimer _popUpReminderTimer;
         private List<TaskDetection> _tasks;
         public ObservableCollection<TaskRectangle> RectItems { get; set; }
-        public static double CanvasWidth { get; set; }
+        public static double TimelineWidth { get; set; }
 
         /// <summary>
         /// Create a new Popup with the tasks in the parameter
@@ -73,8 +73,8 @@ namespace TaskDetectionTracker.Views
 
             double minDuration = _tasks.Min(t => t.TimelineInfos.Min(p => p.End.Subtract(p.Start))).TotalSeconds;
             double totalDuration = _tasks.Sum(t => t.TimelineInfos.Sum(p => p.End.Subtract(p.Start).TotalSeconds));
-            double timeLineWidth = 1500; // TODO: change back totalDuration / minDuration * Settings.MinimumProcessWidth;
-            CanvasWidth = Math.Max(timeLineWidth, Settings.MinimumTimeLineWidth);
+            double timeLineWidth = totalDuration / minDuration * Settings.MinimumProcessWidth;
+            TimelineWidth = Math.Min(timeLineWidth, Settings.MaximumTimeLineWidth);
             
             RectItems = new ObservableCollection<TaskRectangle>();
             this.Loaded += TaskDetectionPopup_Loaded;
@@ -165,7 +165,7 @@ namespace TaskDetectionTracker.Views
             double totalTaskBorderSpace = _tasks.Count * TaskRectangle.TaskBoundaryWidth;
 
             double totalDuration = _tasks.Sum(p => p.End.Subtract(p.Start).TotalSeconds);
-            double totalWidth = CanvasWidth - (2 * margin) - totalTaskBorderSpace;
+            double totalWidth = TimelineWidth - (2 * margin) - totalTaskBorderSpace;
             double x = margin;
 
             //draw each task
