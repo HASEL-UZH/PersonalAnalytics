@@ -191,7 +191,7 @@ namespace TaskDetectionTracker.Views
                     // create tooltip
                     process.WindowTitles.RemoveAll(w => string.IsNullOrWhiteSpace(w) || string.IsNullOrEmpty(w));
                     string windowTitle = process.WindowTitles.Count > 0 ? string.Join(Environment.NewLine, process.WindowTitles) : "[no window titles]";
-                    string tooltip =    "From: " + process.Start.ToLongTimeString() + " to " + process.End.ToLongTimeString() + Environment.NewLine
+                    string tooltip =    "From " + process.Start.ToLongTimeString() + " to " + process.End.ToLongTimeString() + Environment.NewLine
                                         + "Process: " + ProcessNameHelper.GetFileDescription(process.ProcessName) + Environment.NewLine 
                                         + "Window Titles: " + windowTitle + Environment.NewLine + Environment.NewLine 
                                         + "Keystrokes: " + process.NumberOfKeystrokes + Environment.NewLine 
@@ -221,7 +221,7 @@ namespace TaskDetectionTracker.Views
             // draw new legend
             int count = 0;
             var numColumns = 6;
-            var usedColors = StringToBrushConverter.GetUsedColors();
+            var usedColors = StringToBrushConverter.GetColorPallette();
 
             var numberOfRowsNeeded = Math.Ceiling(usedColors.Keys.Count / (double)numColumns);
             for (int i = 0; i < numberOfRowsNeeded; i++)
@@ -233,28 +233,27 @@ namespace TaskDetectionTracker.Views
             {
                 Brush legendColor;
                 usedColors.TryGetValue(key, out legendColor);
-                if (legendColor != null)
-                {
-                    StackPanel colorPanel = new StackPanel();
-                    colorPanel.Orientation = Orientation.Horizontal;
-                    colorPanel.Margin = new Thickness(5);
+                if (legendColor == null) continue;
 
-                    Rectangle colorRectangle = new Rectangle();
-                    colorRectangle.Fill = legendColor;
-                    colorRectangle.Height = 20;
-                    colorRectangle.Width = 20;
-                    colorRectangle.Margin = new Thickness(0, 0, 5, 0);
-                    colorPanel.Children.Add(colorRectangle);
+                StackPanel colorPanel = new StackPanel();
+                colorPanel.Orientation = Orientation.Horizontal;
+                colorPanel.Margin = new Thickness(5);
+
+                Rectangle colorRectangle = new Rectangle();
+                colorRectangle.Fill = legendColor;
+                colorRectangle.Height = 20;
+                colorRectangle.Width = 20;
+                colorRectangle.Margin = new Thickness(0, 0, 5, 0);
+                colorPanel.Children.Add(colorRectangle);
                     
-                    TextBlock colorText = new TextBlock();
-                    colorText.Inlines.Add(key);
-                    colorPanel.Children.Add(colorText);
+                TextBlock colorText = new TextBlock();
+                colorText.Inlines.Add(key);
+                colorPanel.Children.Add(colorText);
 
-                    colorPanel.SetValue(Grid.RowProperty, count / numColumns);
-                    colorPanel.SetValue(Grid.ColumnProperty, count % numColumns);
-                    Legend.Children.Add(colorPanel);
-                    count++;
-                }
+                colorPanel.SetValue(Grid.RowProperty, count / numColumns);
+                colorPanel.SetValue(Grid.ColumnProperty, count % numColumns);
+                Legend.Children.Add(colorPanel);
+                count++;
             }
         }
 
@@ -263,6 +262,7 @@ namespace TaskDetectionTracker.Views
             RectItems.Clear();
             GenerateRectangles();
         }
+
         #endregion
 
         #region UI handlers

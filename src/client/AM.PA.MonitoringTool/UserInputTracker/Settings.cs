@@ -13,7 +13,7 @@ namespace UserInputTracker
 
         // enable/disable the detailed, per-event data collection of user input 
         // hint: only enable this for studies, and not for too long (as it's resources and storage intensive!)
-#if PilotManu_March17
+#if PilotManu_March17 || Pilot_TaskDetection_March17
         public const bool IsDetailedCollectionEnabled = true;
 #else
         public const bool IsDetailedCollectionEnabled = false;
