@@ -172,13 +172,13 @@ namespace TaskDetectionTracker.Views.Converters
 
         internal static void UpdateColors(ObservableCollection<TaskRectangle> rectItems)
         {
-            List<string> usedNames = new List<string>();
+            var usedNames = new List<string>();
 
             foreach (TaskRectangle task in rectItems)
             {
-                if (!usedNames.Contains(task.TaskName))
+                if (!usedNames.Contains(task.TaskName.ToString()))
                 {
-                    usedNames.Add(task.TaskName);
+                    usedNames.Add(task.TaskName.ToString());
                 }
                 foreach (ProcessRectangle process in task.ProcessRectangle)
                 {

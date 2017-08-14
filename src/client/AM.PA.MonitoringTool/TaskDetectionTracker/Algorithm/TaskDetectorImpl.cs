@@ -474,8 +474,13 @@ namespace TaskDetectionTracker.Algorithm
 
             for(int i= 0; i< typeResult.Count(); i++)
             {
-                string res = typeResult[i].AsCharacter().First();
-                tcs[i].TaskTypeProposed = res;
+                string resTask = typeResult[i].AsCharacter().First();
+
+                // convert from string to TaskTypes
+                TaskTypes type = TaskTypes.Other;
+                Enum.TryParse(resTask, out type);
+
+                tcs[i].TaskTypeProposed = type;
             }
           
           //  engine.Dispose();

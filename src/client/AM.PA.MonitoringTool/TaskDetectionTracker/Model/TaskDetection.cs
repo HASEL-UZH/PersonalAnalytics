@@ -17,8 +17,8 @@ namespace TaskDetectionTracker.Model
     {
         private DateTime _start;
         private DateTime _end; //time of switch away
-        private string _taskTypeProposed; //set at the beginning and then not changed anymore
-        private string _taskTypeValidated; //empty at the beginning
+        private TaskTypes _taskTypeProposed; //set at the beginning and then not changed anymore
+        private TaskTypes _taskTypeValidated; //empty at the beginning
         private bool _taskTypeProposedSet = false;
         private TaskDetectionCase _taskDetectionCase;
         private List<TaskDetectionInput> _timelineInfos;
@@ -26,8 +26,8 @@ namespace TaskDetectionTracker.Model
         
         public DateTime Start { get { return _start; } set { _start = value; } }
         public DateTime End { get { return _end; } set { _end = value; } }
-        public string TaskTypeProposed { get { return _taskTypeProposed; } set { if (!_taskTypeProposedSet) { _taskTypeProposed = value; _taskTypeProposedSet = true; _taskTypeValidated = value; } } }
-        public string TaskTypeValidated { get { return _taskTypeValidated; } set { _taskTypeValidated = value; NotifyPropertyChanged("TaskTypeValidated"); } }
+        public TaskTypes TaskTypeProposed { get { return _taskTypeProposed; } set { if (!_taskTypeProposedSet) { _taskTypeProposed = value; _taskTypeProposedSet = true; _taskTypeValidated = value; } } }
+        public TaskTypes TaskTypeValidated { get { return _taskTypeValidated; } set { _taskTypeValidated = value; NotifyPropertyChanged("TaskTypeValidated"); } }
         public TaskDetectionCase TaskDetectionCase { get { return _taskDetectionCase; } set { _taskDetectionCase = value; } }
         public List<TaskDetectionInput> TimelineInfos { get { return _timelineInfos; } set { _timelineInfos = value; } }
         public bool IsMainTask { get { return _isMainTask; } set { _isMainTask = value; } }

@@ -73,8 +73,8 @@ namespace TaskDetectionTracker.Data
                                           db.QTime2(task.Start), 
                                           db.QTime2(task.End),
                                           db.Q(task.TaskDetectionCase.ToString()),
-                                          db.Q(task.TaskTypeProposed),
-                                          db.Q(task.TaskTypeValidated),
+                                          db.Q(task.TaskTypeProposed.ToString()),
+                                          db.Q(task.TaskTypeValidated.ToString()),
                                           db.Q(task.IsMainTask));
                     db.ExecuteDefaultQuery(query);
                 }

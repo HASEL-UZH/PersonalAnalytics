@@ -279,12 +279,6 @@ namespace TaskDetectionTracker.Views
         /// <param name="e"></param>
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            foreach (TaskDetection task in _tasks)
-            {
-                Trace.WriteLine(task);
-                //TODO: actual save
-            }
-            Trace.WriteLine("Comments: " + Comments.Text);
             DialogResult = true;
             Close();
         }
@@ -346,7 +340,7 @@ namespace TaskDetectionTracker.Views
                 if (index != -1 && index + 1 < _tasks.Count)
                 {
                     var nextTask = _tasks.ElementAt(++index);
-                    nextTask.TaskTypeValidated = string.Empty;
+                    nextTask.TaskTypeValidated = TaskTypes.Other;
                 }
             }
             ValidateSaveButtonEnabled();
@@ -383,7 +377,7 @@ namespace TaskDetectionTracker.Views
             newTask.TimelineInfos = processes;
             newTask.Start = newTask.TimelineInfos.First().Start;
             newTask.End = newTask.TimelineInfos.Last().End;
-            newTask.TaskTypeValidated = string.Empty;
+            newTask.TaskTypeValidated = TaskTypes.Other;
             newTask.TaskDetectionCase = task.TaskDetectionCase;
 
             //Remove process from old task
