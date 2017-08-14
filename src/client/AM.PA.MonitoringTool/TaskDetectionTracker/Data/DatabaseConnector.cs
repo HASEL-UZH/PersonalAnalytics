@@ -11,6 +11,7 @@ using System.Data;
 using Shared;
 using TaskDetectionTracker.Helpers;
 using System.Globalization;
+using System.Linq;
 
 namespace TaskDetectionTracker.Data
 {
@@ -64,7 +65,7 @@ namespace TaskDetectionTracker.Data
 
             try
             {
-                foreach (var task in taskDetections)
+                foreach (var task in taskDetections.OrderBy(t => t.Start))
                 {
                     var query = string.Format(QUERY_INSERT_VALIDATION,
                                           sessionId, 

@@ -125,7 +125,7 @@ namespace TaskDetectionTracker
         /// <returns></returns>
         private List<TaskDetection> PrepareTaskDetectionDataForPopup(DateTime sessionStart, DateTime sessionEnd)
         {
-            var taskDetectionsFiltered = new List<TaskDetection>();
+            var taskDetections = new List<TaskDetection>();
 
             try
             {
@@ -143,10 +143,7 @@ namespace TaskDetectionTracker
 
                     // run task detection
                     var td = new TaskDetectorImpl();
-                    var taskDetections = td.FindTasks(processes);
-
-                    // filter task detections
-                    taskDetectionsFiltered = taskDetections.Where(t => (t.End - t.Start).TotalSeconds > Settings.MinimumTaskDurationInSeconds).ToList();
+                    taskDetections = td.FindTasks(processes);
                 }
             }
             catch (Exception e)
@@ -154,7 +151,7 @@ namespace TaskDetectionTracker
                 Logger.WriteToLogFile(e);
             }
 
-            return taskDetectionsFiltered;
+            return taskDetections;
         }
 
         /// <summary>
@@ -196,12 +193,17 @@ namespace TaskDetectionTracker
                     Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(
                     () =>
                     {
-                        var popup = new TaskDetectionPopup(taskDetections);
+                        // filter task detections
+                        var taskDetections_Validated = taskDetections.Where(t => (t.End - t.Start).TotalSeconds >= Settings.MinimumTaskDurationInSeconds).ToList();
+                        var taskDetections_NotValidated = taskDetections.Where(t => (t.End - t.Start).TotalSeconds < Settings.MinimumTaskDurationInSeconds).ToList();
+
+                        // create validation popup
+                        var popup = new TaskDetectionPopup(taskDetections_Validated);
 
                         // show popup & handle response
                         if (popup.ShowDialog() == true)
                         {
-                            HandlePopUpResponse(popup, taskDetections, detectionSessionStart, detectionSessionEnd);
+                            HandlePopUpResponse(popup, taskDetections_Validated, taskDetections_NotValidated, detectionSessionStart, detectionSessionEnd);
                         }
                         else
                         {
@@ -237,11 +239,14 @@ namespace TaskDetectionTracker
         /// </summary>
         /// <param name="taskDetectionPopup"></param>
         /// <param name="popup"></param>
-        private void HandlePopUpResponse(TaskDetectionPopup popup, List<TaskDetection> taskDetections, DateTime detectionSessionStart, DateTime detectionSessionEnd)
+        private void HandlePopUpResponse(TaskDetectionPopup popup, List<TaskDetection> taskDetections_Validated, List<TaskDetection> taskDetections_NotValidated, DateTime detectionSessionStart, DateTime detectionSessionEnd)
         {
             // successful popup response
             if (popup.ValidationComplete)
             {
+                // merge non-validated task detections with validated ones
+                var taskDetections = taskDetections_Validated.Concat(taskDetections_NotValidated).ToList();
+
                 // save validation responses to the database
                 var sessionId = DatabaseConnector.TaskDetectionSession_SaveToDatabase(detectionSessionStart, detectionSessionEnd, DateTime.Now, popup.Comments.Text);
                 if (sessionId > 0) DatabaseConnector.TaskDetectionValidationsPerSession_SaveToDatabase(sessionId, taskDetections);
