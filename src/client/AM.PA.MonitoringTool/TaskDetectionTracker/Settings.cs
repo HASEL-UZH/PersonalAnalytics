@@ -16,7 +16,7 @@ namespace TaskDetectionTracker
 
 #if DEBUG 
         public static bool IsEnabledByDefault = true;
-        public static TimeSpan PopUpInterval = TimeSpan.FromSeconds(180);
+        public static TimeSpan PopUpInterval = TimeSpan.FromSeconds(300);
         public static TimeSpan PopUpReminderInterval = TimeSpan.FromSeconds(30);
         public static TimeSpan MaximumValidationInterval = TimeSpan.FromHours(1);
 #elif Pilot_TaskDetection_March17
