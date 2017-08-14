@@ -3,13 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
              xmlns:local="clr-namespace:TaskDetectionTracker.Views"
              xmlns:model="clr-namespace:TaskDetectionTracker.Model"
              xmlns:converters="clr-namespace:TaskDetectionTracker.Views.Converters"
              xmlns:helpers="clr-namespace:TaskDetectionTracker.Helpers"
              xmlns:paColors="clr-namespace:Shared;assembly=Shared"
              mc:Ignorable="d" Topmost="True"
-             Title="PersonalAnalytics: Validate Task Detections" Height="600" Width="1400" MinHeight="800" MinWidth="600">
+             Title="PersonalAnalytics: Validate Task Detections" Height="650" Width="1400" MinHeight="800" MinWidth="600">
 
     <Window.Resources>
         <converters:StringToBrushConverter x:Key="StringToBrushConverter" />
@@ -18,7 +19,13 @@
         <converters:BoolToVisibilityConverter x:Key="BoolToVisConverter" TrueValue="Visible" FalseValue="Collapsed"/>
         <converters:BoolToVisibilityConverter x:Key="BoolToHiddenConverter" TrueValue="Visible" FalseValue="Hidden" />
         <converters:BoolToVisibilityConverter x:Key="BoolToHiddenConverterInverted" TrueValue="Hidden" FalseValue="Visible" />
-        <helpers:EnumToCollectionConverter x:Key="EnumToCollectionConverter" />
+
+        <ObjectDataProvider x:Key="TaskTypesEnum" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="model:TaskTypes"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
         <Style x:Key="NoHoverButtonStyle" TargetType="Button">
             <Setter Property="OverridesDefaultStyle" Value="True"/>
             <Setter Property="Template">
@@ -48,14 +55,21 @@
                     <ControlTemplate TargetType="{x:Type Label}">
                         <Grid>
                             <ComboBox 
-                                Name="combobox"
+                                Name="TaskTypeComboBox"
                                 Grid.ZIndex="1"
+                                Padding="1,3,0,0"
+                                SelectedItem="{Binding TaskName, UpdateSourceTrigger=PropertyChanged}" 
+                                ItemsSource="{Binding Source={StaticResource TaskTypesEnum}}"
+                                SelectionChanged="TaskTypeComboBox_SelectionChanged"
+                                Opacity="0" />
+
+                            
+                            <!-- Unused properties:
                                 SelectedValuePath="Value"
                                 DisplayMemberPath="Description"
                                 SelectedItem="{Binding RelativeSource={RelativeSource AncestorType={x:Type Label}}, Path=Content, UpdateSourceTrigger=PropertyChanged}" 
-                                ItemsSource="{Binding Path=Models.TaskTypes, Converter={StaticResource EnumToCollectionConverter}, Mode=OneTime}"
-                                Opacity="0" />
-                           
+                                ItemsSource="{Binding Source={x:Type model:TaskTypes}, Converter={StaticResource EnumToCollectionConverter}, Mode=OneTime}" -->
+
                             <!--<TextBox Name="textBox"
                              Grid.ZIndex="1"
                              Padding="1,3,0,0"
@@ -67,7 +81,7 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="true">
-                                <Setter TargetName="combobox" Property="Opacity" Value="1"/>
+                                <Setter TargetName="TaskTypeComboBox" Property="Opacity" Value="1"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="false">
                                 <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>

@@ -10,23 +10,23 @@ namespace TaskDetectionTracker.Model
 {
     public enum TaskTypes
     {
-        [Description("Other")]
+        //[Description("Other")]
         Other,
-        [Description("Private")]
+        //[Description("Private")]
         Private,
-        [Description("Planned Meeting")]
+        //[Description("Planned Meeting")]
         PlannedMeeting,
-        [Description("Ad-hoc Meeting")]
+        //[Description("Ad-hoc Meeting")]
         UnplannedMeeting,
-        [Description("Awareness & Team")]
+        //[Description("Awareness & Team")]
         Awareness,
-        [Description("Planning")]
+        //[Description("Planning")]
         Planning,
-        [Description("Study")]
+        //[Description("Study")]
         Observation,
-        [Description("Development")]
+        //[Description("Development")]
         Development,
-        [Description("Administrative Work")]
+        //[Description("Administrative Work")]
         AdminstrativeWork
     }
 }

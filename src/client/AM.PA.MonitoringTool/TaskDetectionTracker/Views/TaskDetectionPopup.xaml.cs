@@ -43,15 +43,15 @@ namespace TaskDetectionTracker.Views
         #endregion
 
         private DispatcherTimer _popUpReminderTimer;
-        private List<TaskDetection> _tasks;
+        private List<TaskDetection> _taskSwitches;
         public ObservableCollection<TaskRectangle> RectItems { get; set; }
         public static double TimelineWidth { get; set; }
 
         /// <summary>
         /// Create a new Popup with the tasks in the parameter
         /// </summary>
-        /// <param name="tasks"></param>
-        public TaskDetectionPopup(List<TaskDetection> tasks)
+        /// <param name="taskSwitches"></param>
+        public TaskDetectionPopup(List<TaskDetection> taskSwitches)
         {
             InitializeComponent();
 
@@ -65,14 +65,14 @@ namespace TaskDetectionTracker.Views
             Save.DataContext = this;
             
             //Create timeline
-            this._tasks = tasks;
+            this._taskSwitches = taskSwitches;
             WindowTitleBar.Text = WindowTitleBar.Text 
-                + " (from " + _tasks.First().Start.ToShortTimeString() + " to " + _tasks.Last().End.ToShortTimeString() + ")";
+                + " (from " + _taskSwitches.First().Start.ToShortTimeString() + " to " + _taskSwitches.Last().End.ToShortTimeString() + ")";
             //StartTime.Inlines.Add(_tasks.First().Start.ToShortTimeString());
             //EndTime.Inlines.Add(_tasks.Last().End.ToShortTimeString());
 
-            double minDuration = _tasks.Min(t => t.TimelineInfos.Min(p => p.End.Subtract(p.Start))).TotalSeconds;
-            double totalDuration = _tasks.Sum(t => t.TimelineInfos.Sum(p => p.End.Subtract(p.Start).TotalSeconds));
+            double minDuration = _taskSwitches.Min(t => t.TimelineInfos.Min(p => p.End.Subtract(p.Start))).TotalSeconds;
+            double totalDuration = _taskSwitches.Sum(t => t.TimelineInfos.Sum(p => p.End.Subtract(p.Start).TotalSeconds));
             double timeLineWidth = totalDuration / minDuration * Settings.MinimumProcessWidth;
             TimelineWidth = Math.Min(timeLineWidth, Settings.MaximumTimeLineWidth);
             
@@ -153,7 +153,7 @@ namespace TaskDetectionTracker.Views
 
         #endregion
 
-        #region Draw Timeline
+        #region Draw Timeline & Legend
 
         /// <summary>
         /// Draws the timeline
@@ -162,16 +162,16 @@ namespace TaskDetectionTracker.Views
         {
             //margin on the left and right side of the timeline
             double margin = 20;
-            double totalTaskBorderSpace = _tasks.Count * TaskRectangle.TaskBoundaryWidth;
+            double totalTaskBorderSpace = _taskSwitches.Count * TaskRectangle.TaskBoundaryWidth;
 
-            double totalDuration = _tasks.Sum(p => p.End.Subtract(p.Start).TotalSeconds);
+            double totalDuration = _taskSwitches.Sum(p => p.End.Subtract(p.Start).TotalSeconds);
             double totalWidth = TimelineWidth - (2 * margin) - totalTaskBorderSpace;
             double x = margin;
 
             //draw each task
-            for (int i = 0; i < _tasks.Count; i++)
+            for (int i = 0; i < _taskSwitches.Count; i++)
             {
-                TaskDetection task = _tasks.ElementAt(i);
+                TaskDetection task = _taskSwitches.ElementAt(i);
                 double duration = task.End.Subtract(task.Start).TotalSeconds;
                 double width = duration * (totalWidth / totalDuration);
             
@@ -212,6 +212,9 @@ namespace TaskDetectionTracker.Views
             DrawLegend();
         }
         
+        /// <summary>
+        /// Draws a combined legend for the task type and processes
+        /// </summary>
         public void DrawLegend()
         {
             // clear old legend
@@ -247,7 +250,8 @@ namespace TaskDetectionTracker.Views
                 colorPanel.Children.Add(colorRectangle);
                     
                 TextBlock colorText = new TextBlock();
-                colorText.Inlines.Add(key);
+                var text = ProcessNameHelper.GetFileDescription(key);
+                colorText.Inlines.Add(text);
                 colorPanel.Children.Add(colorText);
 
                 colorPanel.SetValue(Grid.RowProperty, count / numColumns);
@@ -266,6 +270,17 @@ namespace TaskDetectionTracker.Views
         #endregion
 
         #region UI handlers
+
+        /// <summary>
+        /// Called when the user changes the combobox selection
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void TaskTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // redraw legend when item is selected
+            DrawLegend();
+        }
 
         private void RedrawTimelineEvent(object sender, MouseEventArgs e)
         {
@@ -288,12 +303,16 @@ namespace TaskDetectionTracker.Views
             RedrawTimeline();
         }
 
-        //Called when a user clicks on a task boundary
+        /// <summary>
+        /// Called when a user clicks on a task boundary
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Rectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             var process = ((sender as Rectangle).DataContext as ProcessRectangle).Data;
             
-            foreach (TaskDetection task in _tasks)
+            foreach (TaskDetection task in _taskSwitches)
             {
                 int index = task.TimelineInfos.FindIndex(p => p.Equals(process));
                 if (index != -1 && (index + 1) < task.TimelineInfos.Count)
@@ -304,21 +323,25 @@ namespace TaskDetectionTracker.Views
             }
         }
 
-        //Called when the user wants to deleted a user-defined task boundary
+        /// <summary>
+        /// Called when the user wants to delete a user-defined task boundary
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void DeleteTaskBoundaryButton_Click(object sender, RoutedEventArgs e)
         {
             var task = ((sender as Button).DataContext as TaskRectangle).Data;
-            var index = _tasks.FindIndex(t => t.Equals(task));
+            var index = _taskSwitches.FindIndex(t => t.Equals(task));
 
             TaskDetection taskToAdd = null;
 
-            if (index != -1 && index + 1 < _tasks.Count)
+            if (index != -1 && index + 1 < _taskSwitches.Count)
             {
-                taskToAdd = _tasks.ElementAt(++index);
+                taskToAdd = _taskSwitches.ElementAt(++index);
             }
             else if (index != -1 && index - 1 >= 0)
             {
-                taskToAdd = _tasks.ElementAt(--index);
+                taskToAdd = _taskSwitches.ElementAt(--index);
             }
 
             if (taskToAdd != null)
@@ -327,7 +350,11 @@ namespace TaskDetectionTracker.Views
             }
         }
 
-        //Called when the user validates a task boundary (correct boundary)
+        /// <summary>
+        /// Called when the user validates a task boundary (correct boundary)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void RadioButton_Checked_Correct(object sender, RoutedEventArgs e)
         {
             var task = ((sender as RadioButton).DataContext as TaskRectangle).Data;
@@ -336,25 +363,29 @@ namespace TaskDetectionTracker.Views
 
             if (previousTaskDetectionCase == TaskDetectionCase.Wrong)
             {
-                var index = _tasks.FindIndex(t => t.Equals(task));
-                if (index != -1 && index + 1 < _tasks.Count)
+                var index = _taskSwitches.FindIndex(t => t.Equals(task));
+                if (index != -1 && index + 1 < _taskSwitches.Count)
                 {
-                    var nextTask = _tasks.ElementAt(++index);
+                    var nextTask = _taskSwitches.ElementAt(++index);
                     nextTask.TaskTypeValidated = TaskTypes.Other;
                 }
             }
             ValidateSaveButtonEnabled();
         }
 
-        //Called when the user validates a task boundary (wrong boundary)
+        /// <summary>
+        /// Called when the user validates a task boundary (wrong boundary)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void RadioButton_Checked_Incorrect(object sender, RoutedEventArgs e)
         {
             var task = ((sender as RadioButton).DataContext as TaskRectangle).Data;
             task.TaskDetectionCase = TaskDetectionCase.Wrong;
-            var index = _tasks.FindIndex(t => t.Equals(task));
-            if (index != -1 && index + 1 < _tasks.Count)
+            var index = _taskSwitches.FindIndex(t => t.Equals(task));
+            if (index != -1 && index + 1 < _taskSwitches.Count)
             {
-                var nextTask = _tasks.ElementAt(++index);
+                var nextTask = _taskSwitches.ElementAt(++index);
                 nextTask.TaskTypeValidated = task.TaskTypeValidated;
             }
             
@@ -388,16 +419,21 @@ namespace TaskDetectionTracker.Views
             task.TaskDetectionCase = TaskDetectionCase.Missing;
             
             //Add new task to list of tasks
-            _tasks.Add(newTask);
-            _tasks.Sort();
+            _taskSwitches.Add(newTask);
+            _taskSwitches.Sort();
 
             RedrawTimeline();
         }
         
-        //Remove process from a task and add it to another task
+        /// <summary>
+        /// Remove process from a task and add it to another task
+        /// </summary>
+        /// <param name="oldTask"></param>
+        /// <param name="newTask"></param>
+        /// <param name="processes"></param>
         private void AddProcessesToAnotherTask(TaskDetection oldTask, TaskDetection newTask, List<TaskDetectionInput> processes)
         {
-            _tasks.Remove(oldTask);
+            _taskSwitches.Remove(oldTask);
 
             newTask.TimelineInfos.AddRange(processes);
             newTask.TimelineInfos.Sort();
@@ -405,10 +441,11 @@ namespace TaskDetectionTracker.Views
             newTask.End = newTask.TimelineInfos.Last().End;
             newTask.TaskTypeValidated = oldTask.TaskTypeValidated;
 
-            _tasks.Sort();
+            _taskSwitches.Sort();
 
             RedrawTimeline();
         }
+
         #endregion
 
         #region Save button validation
@@ -418,7 +455,7 @@ namespace TaskDetectionTracker.Views
         /// </summary>
         private void ValidateSaveButtonEnabled()
         {
-            foreach (var task in _tasks)
+            foreach (var task in _taskSwitches)
             {
                 if (task.TaskDetectionCase == TaskDetectionCase.NotValidated)
                 {
@@ -428,6 +465,6 @@ namespace TaskDetectionTracker.Views
                 ValidationComplete = true;
             }
         }
-        #endregion
+        #endregion        
     }
 }
