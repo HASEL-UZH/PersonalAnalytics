@@ -136,127 +136,142 @@ namespace TaskDetectionTracker.Algorithm
             cosSim.TFIDFMeasure(docs);
 
             #region lexSim1
-            if (feature.Equals("window"))
-            {
-                dps[0].LexSim1_Win = 0;
-            }
-            else if (feature.Equals("process"))
-            {
-                dps[0].LexSim1_Pro = 0;
-            }
-
-            for (int i = 1; i < processes.Count; i++)
+            if(dps.Count > 0)
             {
                 if (feature.Equals("window"))
                 {
-                    float lexSim1 = cosSim.GetSimilarity(i - 1, i);
-                    dps[i].LexSim1_Win = lexSim1;
+                    dps[0].LexSim1_Win = 0;
                 }
                 else if (feature.Equals("process"))
                 {
-                    float lexSim1 = cosSim.GetSimilarity(i - 1, i);
-                    dps[i].LexSim1_Pro = lexSim1;
+                    dps[0].LexSim1_Pro = 0;
+                }
+
+                for (int i = 1; i < processes.Count; i++)
+                {
+                    if (feature.Equals("window"))
+                    {
+                        float lexSim1 = cosSim.GetSimilarity(i - 1, i);
+                        dps[i].LexSim1_Win = lexSim1;
+                    }
+                    else if (feature.Equals("process"))
+                    {
+                        float lexSim1 = cosSim.GetSimilarity(i - 1, i);
+                        dps[i].LexSim1_Pro = lexSim1;
+                    }
                 }
             }
+
             #endregion
             #region lexSim2
-            if (feature.Equals("window"))
-            {
-                dps[0].LexSim2_Win = 0;
-                dps[1].LexSim2_Win = dps[1].LexSim1_Win;
-            }
-            else if (feature.Equals("process"))
-            {
-                dps[0].LexSim2_Pro = 0;
-                dps[1].LexSim2_Pro = dps[1].LexSim1_Pro;
-            }
-
-            for (int i = 2; i < processes.Count; i++)
+            if (dps.Count > 1)
             {
                 if (feature.Equals("window"))
                 {
-                    float lexSim2pre2 = cosSim.GetSimilarity(i - 2, i);
-                    float lexSim2pre1 = cosSim.GetSimilarity(i - 1, i);
-                    float lexSim2 = (lexSim2pre1 + lexSim2pre2) / (float)2;
-                    dps[i].LexSim2_Win = lexSim2;
+                    dps[0].LexSim2_Win = 0;
+                    dps[1].LexSim2_Win = dps[1].LexSim1_Win;
                 }
                 else if (feature.Equals("process"))
                 {
-                    float lexSim2pre2 = cosSim.GetSimilarity(i - 2, i);
-                    float lexSim2pre1 = cosSim.GetSimilarity(i - 1, i);
-                    float lexSim2 = (lexSim2pre1 + lexSim2pre2) / (float)2;
-                    dps[i].LexSim2_Pro = lexSim2;
+                    dps[0].LexSim2_Pro = 0;
+                    dps[1].LexSim2_Pro = dps[1].LexSim1_Pro;
                 }
 
+                for (int i = 2; i < processes.Count; i++)
+                {
+                    if (feature.Equals("window"))
+                    {
+                        float lexSim2pre2 = cosSim.GetSimilarity(i - 2, i);
+                        float lexSim2pre1 = cosSim.GetSimilarity(i - 1, i);
+                        float lexSim2 = (lexSim2pre1 + lexSim2pre2) / (float)2;
+                        dps[i].LexSim2_Win = lexSim2;
+                    }
+                    else if (feature.Equals("process"))
+                    {
+                        float lexSim2pre2 = cosSim.GetSimilarity(i - 2, i);
+                        float lexSim2pre1 = cosSim.GetSimilarity(i - 1, i);
+                        float lexSim2 = (lexSim2pre1 + lexSim2pre2) / (float)2;
+                        dps[i].LexSim2_Pro = lexSim2;
+                    }
+                }
             }
+
             #endregion
             #region lexSim3
-            if (feature.Equals("window"))
-            {
-                dps[0].LexSim3_Win = 0;
-                dps[1].LexSim3_Win = dps[1].LexSim1_Win;
-                dps[2].LexSim3_Win = dps[2].LexSim2_Win;
-            }
-            else if (feature.Equals("process"))
-            {
-                dps[0].LexSim3_Pro = 0;
-                dps[1].LexSim3_Pro = dps[1].LexSim1_Pro;
-                dps[2].LexSim3_Pro = dps[2].LexSim2_Pro;
-            }
-
-            for (int i = 3; i < processes.Count; i++)
+            if (dps.Count > 2)
             {
                 if (feature.Equals("window"))
                 {
-                    float lexSim3pre1 = dps[i].LexSim1_Win;
-                    float lexSim3pre2 = cosSim.GetSimilarity(i - 2, i);
-                    float lexSim3pre3 = cosSim.GetSimilarity(i - 3, i);
-                    dps[i].LexSim3_Win = (lexSim3pre1 + lexSim3pre2 + lexSim3pre3) / (float)3;
+                    dps[0].LexSim3_Win = 0;
+                    dps[1].LexSim3_Win = dps[1].LexSim1_Win;
+                    dps[2].LexSim3_Win = dps[2].LexSim2_Win;
                 }
                 else if (feature.Equals("process"))
                 {
-                    float lexSim3pre1 = dps[i].LexSim1_Pro;
-                    float lexSim3pre2 = cosSim.GetSimilarity(i - 2, i);
-                    float lexSim3pre3 = cosSim.GetSimilarity(i - 3, i);
-                    dps[i].LexSim3_Pro = (lexSim3pre1 + lexSim3pre2 + lexSim3pre3) / (float)3;
+                    dps[0].LexSim3_Pro = 0;
+                    dps[1].LexSim3_Pro = dps[1].LexSim1_Pro;
+                    dps[2].LexSim3_Pro = dps[2].LexSim2_Pro;
+                }
+
+                for (int i = 3; i < processes.Count; i++)
+                {
+                    if (feature.Equals("window"))
+                    {
+                        float lexSim3pre1 = dps[i].LexSim1_Win;
+                        float lexSim3pre2 = cosSim.GetSimilarity(i - 2, i);
+                        float lexSim3pre3 = cosSim.GetSimilarity(i - 3, i);
+                        dps[i].LexSim3_Win = (lexSim3pre1 + lexSim3pre2 + lexSim3pre3) / (float)3;
+                    }
+                    else if (feature.Equals("process"))
+                    {
+                        float lexSim3pre1 = dps[i].LexSim1_Pro;
+                        float lexSim3pre2 = cosSim.GetSimilarity(i - 2, i);
+                        float lexSim3pre3 = cosSim.GetSimilarity(i - 3, i);
+                        dps[i].LexSim3_Pro = (lexSim3pre1 + lexSim3pre2 + lexSim3pre3) / (float)3;
+                    }
                 }
             }
+
             #endregion
             #region lexSim4
-            if (feature.Equals("window"))
-            {
-                dps[0].LexSim4_Win = 0;
-                dps[1].LexSim4_Win = dps[1].LexSim1_Win;
-                dps[2].LexSim4_Win = dps[2].LexSim2_Win;
-                dps[3].LexSim4_Win = dps[3].LexSim3_Win;
-            }
-            else if (feature.Equals("process"))
-            {
-                dps[0].LexSim4_Pro = 0;
-                dps[1].LexSim4_Pro = dps[1].LexSim1_Pro;
-                dps[2].LexSim4_Pro = dps[2].LexSim2_Pro;
-                dps[3].LexSim4_Pro = dps[3].LexSim3_Pro;
-            }
-
-            for (int i = 4; i < processes.Count; i++)
+            if (dps.Count > 3)
             {
                 if (feature.Equals("window"))
                 {
-                    float lexSim4pre1 = dps[i].LexSim1_Win;
-                    float lexSim4pre2 = cosSim.GetSimilarity(i - 2, i);
-                    float lexSim4pre3 = cosSim.GetSimilarity(i - 3, i);
-                    float lexSim4pre4 = cosSim.GetSimilarity(i - 4, i);
-                    dps[i].LexSim4_Win = (lexSim4pre1 + lexSim4pre2 + lexSim4pre3 + lexSim4pre4) / (float)4;
+                    dps[0].LexSim4_Win = 0;
+                    dps[1].LexSim4_Win = dps[1].LexSim1_Win;
+                    dps[2].LexSim4_Win = dps[2].LexSim2_Win;
+                    dps[3].LexSim4_Win = dps[3].LexSim3_Win;
                 }
                 else if (feature.Equals("process"))
                 {
-                    float lexSim4pre1 = dps[i].LexSim1_Pro;
-                    float lexSim4pre2 = cosSim.GetSimilarity(i - 2, i);
-                    float lexSim4pre3 = cosSim.GetSimilarity(i - 3, i);
-                    float lexSim4pre4 = cosSim.GetSimilarity(i - 4, i);
-                    dps[i].LexSim4_Pro = (lexSim4pre1 + lexSim4pre2 + lexSim4pre3 + lexSim4pre4) / (float)4;
+                    dps[0].LexSim4_Pro = 0;
+                    dps[1].LexSim4_Pro = dps[1].LexSim1_Pro;
+                    dps[2].LexSim4_Pro = dps[2].LexSim2_Pro;
+                    dps[3].LexSim4_Pro = dps[3].LexSim3_Pro;
+                }
+
+                for (int i = 4; i < processes.Count; i++)
+                {
+                    if (feature.Equals("window"))
+                    {
+                        float lexSim4pre1 = dps[i].LexSim1_Win;
+                        float lexSim4pre2 = cosSim.GetSimilarity(i - 2, i);
+                        float lexSim4pre3 = cosSim.GetSimilarity(i - 3, i);
+                        float lexSim4pre4 = cosSim.GetSimilarity(i - 4, i);
+                        dps[i].LexSim4_Win = (lexSim4pre1 + lexSim4pre2 + lexSim4pre3 + lexSim4pre4) / (float)4;
+                    }
+                    else if (feature.Equals("process"))
+                    {
+                        float lexSim4pre1 = dps[i].LexSim1_Pro;
+                        float lexSim4pre2 = cosSim.GetSimilarity(i - 2, i);
+                        float lexSim4pre3 = cosSim.GetSimilarity(i - 3, i);
+                        float lexSim4pre4 = cosSim.GetSimilarity(i - 4, i);
+                        dps[i].LexSim4_Pro = (lexSim4pre1 + lexSim4pre2 + lexSim4pre3 + lexSim4pre4) / (float)4;
+                    }
                 }
             }
+            
             #endregion 
         }
 
@@ -453,34 +468,44 @@ namespace TaskDetectionTracker.Algorithm
         {
             //1: Private, 2: Planned Meeting, 3: Unplanned Meeting, 4: Awareness, 5: Planning, 6: Observation, 7: Development, 8: Adminstrative Work
 
-            // initialize R engine
-            REngine engine = REngine.GetInstance();
-            engine.Initialize();
-
-            // read taskswitch-data
-            engine.Evaluate("tasktypedata <- read.csv(file = '" + R_ConvertPathToForwardSlash(GetTaskDetectionDumpsPath(_taskTypeDataFolder, _taskTypeDataFileName)) + "', sep = \",\", header = TRUE)");
-
-           // engine.Evaluate(".libPaths('C:/Users/katja/OneDrive/Documents/R/win-library/3.3')");
-           // engine.Evaluate(".libPaths('C:/Users/katja/Desktop/R_libraries')"); _rToolsRandomForest
-            engine.Evaluate(".libPaths('"+ R_ConvertPathToForwardSlash(_rToolsLibraries) + "')");
-
-            engine.Evaluate("library(randomForest)");
-            
-            // read
-            engine.Evaluate("load(\"" + R_ConvertPathToForwardSlash(_taskTypeDetectionModelFileName) + "\")");
-
-            GenericVector typeResult = engine.Evaluate("prob <- predict(model, newdata = tasktypedata, type = \"response\")").AsList();
-            //as.numeric(as.character(prob[1])
-
-            for(int i= 0; i< typeResult.Count(); i++)
+            try
             {
-                string resTask = typeResult[i].AsCharacter().First();
 
-                // convert from string to TaskTypes
-                TaskTypes type = TaskTypes.Other;
-                Enum.TryParse(resTask, out type);
 
-                tcs[i].TaskTypeProposed = type;
+                // initialize R engine
+                REngine engine = REngine.GetInstance();
+                engine.Initialize();
+
+                // read taskswitch-data
+                engine.Evaluate("tasktypedata <- read.csv(file = '" + R_ConvertPathToForwardSlash(GetTaskDetectionDumpsPath(_taskTypeDataFolder, _taskTypeDataFileName)) + "', sep = \",\", header = TRUE)");
+
+                // engine.Evaluate(".libPaths('C:/Users/katja/OneDrive/Documents/R/win-library/3.3')");
+                // engine.Evaluate(".libPaths('C:/Users/katja/Desktop/R_libraries')"); _rToolsRandomForest
+                engine.Evaluate(".libPaths('" + R_ConvertPathToForwardSlash(_rToolsLibraries) + "')");
+
+                engine.Evaluate("library(randomForest)");
+
+                // read
+                engine.Evaluate("load(\"" + R_ConvertPathToForwardSlash(_taskTypeDetectionModelFileName) + "\")");
+
+                GenericVector typeResult = engine.Evaluate("prob <- predict(model, newdata = tasktypedata, type = \"response\")").AsList();
+                //as.numeric(as.character(prob[1])
+
+                for (int i = 0; i < typeResult.Count(); i++)
+                {
+                    string res = typeResult[i].AsCharacter().First();
+
+                    // convert from string to TaskTypes
+                    TaskTypes type = TaskTypes.Other;
+                    Enum.TryParse(resTask, out type);
+
+                    tcs[i].TaskTypeProposed = type;
+                }
+            }
+            catch(Exception e)
+            {
+                Logger.WriteToConsole(e.Message);
+                Logger.WriteToLogFile(e);
             }
           
           //  engine.Dispose();
