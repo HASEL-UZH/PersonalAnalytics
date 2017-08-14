@@ -493,7 +493,7 @@ namespace TaskDetectionTracker.Algorithm
 
                 for (int i = 0; i < typeResult.Count(); i++)
                 {
-                    string res = typeResult[i].AsCharacter().First();
+                    string resTask = typeResult[i].AsCharacter().First();
 
                     // convert from string to TaskTypes
                     TaskTypes type = TaskTypes.Other;
