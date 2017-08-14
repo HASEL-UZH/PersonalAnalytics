@@ -112,7 +112,7 @@ namespace TaskDetectionTracker
             }
 
             // load all data first
-            var taskDetections = await Task.Run(() => PrepareTaskDetectionDataForPopup(sessionStart, sessionEnd)); // await Task.Run(() => )
+            var taskDetections = await Task.Run(() => PrepareTaskDetectionDataForPopup(sessionStart, sessionEnd));
 
             // show pop-up 
             ShowTaskDetectionValidationPopup(taskDetections, sessionStart, sessionEnd);
