@@ -118,14 +118,24 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ProcessCategories.csv" />
-    <None Include="Resources\R-3.4.0.zip">
+    <Content Include="Resources\ProcessCategories.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\R_libraries.zip">
+    </Content>
+    <Content Include="Resources\R-3.4.0.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\stopwords.txt" />
+    </Content>
+    <Content Include="Resources\R_libraries.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\stopwords.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(SolutionDir)TaskDetectionTracker\**\*">
+      <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
+      <Visible>false</Visible>
+    </Content>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

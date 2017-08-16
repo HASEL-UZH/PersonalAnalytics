@@ -28,9 +28,9 @@ namespace TaskDetectionTracker.Algorithm
         private string _taskTypeDataFileName = "pa-tasktypedata-" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".csv";
         private string _taskTypeDetectionModelFileName = Path.Combine(Environment.CurrentDirectory, "Resources", "tasktypedetectionmodel.rda");
 
+        private static string _rToolsExtractDirectory = Path.Combine(Environment.CurrentDirectory, "Resources");
         private static string _rToolsHomeZip = Path.Combine(Environment.CurrentDirectory, "Resources", "R-3.4.0.zip");
         private static string _rToolsLibrariesZip = Path.Combine(Environment.CurrentDirectory, "Resources", "R_libraries.zip");
-        private static string _rToolsExtractDirectory = Path.Combine(Environment.CurrentDirectory, "Resources");
         private static string _rToolsPath = Path.Combine(Environment.CurrentDirectory, "Resources", "R-3.4.0\\bin\\i386");
         private static string _rToolsHome = Path.Combine(Environment.CurrentDirectory, "Resources", "R-3.4.0");
         private static string _rToolsLibraries = Path.Combine(Environment.CurrentDirectory, "Resources", "R_libraries");
@@ -45,13 +45,19 @@ namespace TaskDetectionTracker.Algorithm
         /// </summary>
         private void UnzipRTools()
         {
+            Logger.WriteToLogFile(new Exception("Trying to copy: " + _rToolsHome)); //TODO: temp
+
           if (!Directory.Exists(_rToolsHome))
             {
+                Logger.WriteToLogFile(new Exception("Extracting: " + _rToolsHomeZip)); //TODO: 
+
                 System.IO.Compression.ZipFile.ExtractToDirectory(_rToolsHomeZip, _rToolsExtractDirectory);
                 Database.GetInstance().LogInfo("Unzipped R Tools to: " + _rToolsExtractDirectory);
             }
             if (!Directory.Exists(_rToolsLibraries))
             {
+                Logger.WriteToLogFile(new Exception("Extracting: " + _rToolsLibrariesZip)); //TODO: 
+
                 System.IO.Compression.ZipFile.ExtractToDirectory(_rToolsLibrariesZip, _rToolsExtractDirectory);
                 Database.GetInstance().LogInfo("Unzipped R Libraries to: " + _rToolsExtractDirectory);
             }
@@ -285,6 +291,7 @@ namespace TaskDetectionTracker.Algorithm
             window = window.Replace('-', ' ');
             window = window.Replace('<', ' ');
             window = window.Replace('>', ' ');
+
             return window;
         }
 
@@ -313,18 +320,14 @@ namespace TaskDetectionTracker.Algorithm
         /// <returns></returns>
         private List<TaskDetection> PredictSwitches(List<TaskDetectionInput> processes)
         {
-            List<TaskDetection> tcs = new List<TaskDetection>();
+            var tcs = new List<TaskDetection>();
 
             try
             {
-                // var path = @"C:\Program Files\R\R-3.4.0\bin\i386";
-                //var path64 = @"C:\Program Files\R\R-3.4.0\bin\x64"; // bin\R.exe";
+                // set environment variables so R can access the tools
                 var path = R_ConvertPathToForwardSlash(_rToolsPath);
                 var home = R_ConvertPathToForwardSlash(_rToolsHome);
-
                 REngine.SetEnvironmentVariables(path, home);
-
-                //Console.WriteLine("home: " + NativeUtility.FindRHome() + " -path:" + NativeUtility.FindRPath() + " -:" + NativeUtility.FindRPathFromRegistry());
 
                 // start REngine
                 REngine engine = REngine.GetInstance();

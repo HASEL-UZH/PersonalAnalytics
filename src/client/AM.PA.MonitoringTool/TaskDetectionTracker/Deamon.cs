@@ -25,6 +25,7 @@ namespace TaskDetectionTracker
     {
         private DispatcherTimer _popUpTimer;
         private DateTime _lastPopUpResponse = DateTime.MinValue;
+        private DateTime _nextPopUp = DateTime.MinValue;
 
         #region ITracker Stuff
 
@@ -44,9 +45,19 @@ namespace TaskDetectionTracker
             _popUpTimer = new DispatcherTimer();
             _popUpTimer.Interval = Settings.PopUpInterval;
             _popUpTimer.Tick += PopUp_Tick;
-            _popUpTimer.Start();
+            StartPopUpTimer();
 
             IsRunning = true;
+        }
+
+        /// <summary>
+        /// starts the timer (as usual)
+        /// and also sets the timestamp for the next popup
+        /// </summary>
+        private void StartPopUpTimer()
+        {
+            _popUpTimer.Start();
+            _nextPopUp = DateTime.Now.Add(Settings.PopUpInterval);
         }
 
         public override void Stop()
@@ -84,10 +95,10 @@ namespace TaskDetectionTracker
 
         public override string GetStatus()
         {
-            var nextSurveyTs = (_lastPopUpResponse == DateTime.MinValue) ? DateTime.Now.Add(Settings.PopUpInterval) : _lastPopUpResponse.Add(Settings.PopUpInterval);
+            var _nextPopUpString = (_nextPopUp > DateTime.Now) ? _nextPopUp.ToLongTimeString() : "Due now. Please respond!";
             return (!IsRunning || _popUpTimer == null)
                 ? Name + " is NOT running"
-                : Name + " is running. Next task detection validation at " + nextSurveyTs.ToLongTimeString() + ".";
+                : Name + " is running. Next task detection validation at " + _nextPopUpString + ".";
         }
 
         #endregion
@@ -215,12 +226,12 @@ namespace TaskDetectionTracker
                 catch (ThreadAbortException e)
                 {
                     Database.GetInstance().LogError(Name + ": " + e.Message);
-                    _popUpTimer.Start();
+                    StartPopUpTimer();
                 }
                 catch (Exception e)
                 {
                     Logger.WriteToLogFile(e);
-                    _popUpTimer.Start();
+                    StartPopUpTimer();
                 }
             }
             // no tasks in timeline detected
@@ -228,7 +239,7 @@ namespace TaskDetectionTracker
             {
                 var msg = string.Format("No tasks detected between {0} {1} and {2} {3}.", detectionSessionStart.ToShortDateString(), detectionSessionStart.ToShortTimeString(), detectionSessionEnd.ToShortDateString(), detectionSessionEnd.ToShortTimeString());
                 Database.GetInstance().LogWarning(msg);
-                _popUpTimer.Start();
+                StartPopUpTimer();
             }
         }
 
@@ -268,7 +279,7 @@ namespace TaskDetectionTracker
             }
 
             // restart timer
-            _popUpTimer.Start();
+            StartPopUpTimer();
         }
     }
 }

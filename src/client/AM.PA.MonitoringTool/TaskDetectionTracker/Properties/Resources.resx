@@ -121,7 +121,19 @@
   <data name="ProcessCategories" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\ProcessCategories.csv;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
   </data>
+  <data name="R_3_4_0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\r-3.4.0.zip;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="R_libraries" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\r_libraries.zip;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="stopwords" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\stopwords.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+  </data>
+  <data name="taskswitchdetectionmodel" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\taskswitchdetectionmodel.rda;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="tasktypedetectionmodel" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\tasktypedetectionmodel.rda;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>

@@ -62,6 +62,7 @@ namespace TaskDetectionTracker.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to Process,Category
+        ///AcroRd32,ReadWrite
         ///Alarms &amp; Clock,Utility
         ///APConsole,Console
         ///BC2,DeveloperTool
@@ -80,15 +81,32 @@ namespace TaskDetectionTracker.Properties {
         ///Compose,ReadWrite
         ///ConsoleApp.vshost,IDE
         ///cqintsvr11,IDE
-        ///defectviewer,TestingTool
-        ///devenv,IDE
-        ///dllhost,DeveloperTool
-        ///dwm,Unknown
-        ///eclipse,I [rest of string was truncated]&quot;;.
+        ///DB Browser for SQLite,DeveloperTool 
+        ///defectviewer,TestingTool        /// [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string ProcessCategories {
             get {
                 return ResourceManager.GetString("ProcessCategories", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] R_3_4_0 {
+            get {
+                object obj = ResourceManager.GetObject("R_3_4_0", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] R_libraries {
+            get {
+                object obj = ResourceManager.GetObject("R_libraries", resourceCulture);
+                return ((byte[])(obj));
             }
         }
         
@@ -180,6 +198,26 @@ namespace TaskDetectionTracker.Properties {
         internal static string stopwords {
             get {
                 return ResourceManager.GetString("stopwords", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] taskswitchdetectionmodel {
+            get {
+                object obj = ResourceManager.GetObject("taskswitchdetectionmodel", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] tasktypedetectionmodel {
+            get {
+                object obj = ResourceManager.GetObject("tasktypedetectionmodel", resourceCulture);
+                return ((byte[])(obj));
             }
         }
     }
