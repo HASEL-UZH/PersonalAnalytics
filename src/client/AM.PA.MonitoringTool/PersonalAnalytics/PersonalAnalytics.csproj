@@ -42,7 +42,7 @@
     <SuiteName>PersonalAnalytics</SuiteName>
     <MinimumRequiredVersion>0.9.5.5</MinimumRequiredVersion>
     <WebPage>index.html</WebPage>
-    <ApplicationRevision>184</ApplicationRevision>
+    <ApplicationRevision>188</ApplicationRevision>
     <ApplicationVersion>0.9.5.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -244,6 +244,21 @@
     <None Include="bin\Release\tessdata\eng.unicharset" />
     <None Include="bin\Release\tessdata\eng.user-words" />
     <None Include="bin\Release\tessdata\eng.word-dawg" /> -->
+    <Content Include="Assets\TaskDetectionData\ProcessCategories.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\TaskDetectionData\R-3.4.0.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\TaskDetectionData\R_libraries.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\TaskDetectionData\taskswitchdetectionmodel.rda">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\TaskDetectionData\tasktypedetectionmodel.rda">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
     <None Include="PersonalAnalytics_TemporaryKey.pfx" />
     <None Include="Properties\Settings.settings">
@@ -327,6 +342,9 @@
     </Resource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\TaskDetectionData\stopwords.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="lib\FlowTracker.dll" />
     <None Include="Service References\AccessDataService\AccessData.disco" />
     <None Include="Service References\AccessDataService\configuration91.svcinfo" />

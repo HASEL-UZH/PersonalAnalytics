@@ -102,13 +102,25 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+<Content Include="Assets\TaskDetectionData\ProcessCategories.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\TaskDetectionData\R-3.4.0.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\TaskDetectionData\R_libraries.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\TaskDetectionData\taskswitchdetectionmodel.rda">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\TaskDetectionData\tasktypedetectionmodel.rda">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content> 
+	    <Content Include="Assets\TaskDetectionData\stopwords.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
-    <Content Include="Resources\taskswitchdetectionmodel.rda">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\tasktypedetectionmodel.rda">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -117,27 +129,12 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Resources\ProcessCategories.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+  <!--<ItemGroup>
+    <Content Include="$(SolutionDir)TaskDetectionTracker\Assets\**\*">
+      <Link>Assets\%(RecursiveDir)%(FileName)%(Extension)</Link>
+      <Visible>true</Visible>
     </Content>
-    <Content Include="Resources\R-3.4.0.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\R_libraries.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\stopwords.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="$(SolutionDir)TaskDetectionTracker\**\*">
-      <Link>%(RecursiveDir)%(FileName)%(Extension)</Link>
-      <Visible>false</Visible>
-    </Content>
-  </ItemGroup>
-  <ItemGroup />
+  </ItemGroup>-->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

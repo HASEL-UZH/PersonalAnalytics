@@ -20,20 +20,23 @@ namespace TaskDetectionTracker.Algorithm
     {
         private const double _taskSwitchThreshold = 0.23;
 
+        // Hint 16.08.17: due to deployment issues, the folder "Assets" was also copied (!) to the PersonalAnalytics-main-project and has to be updated as well
+        private static string _resourcesFolder = Path.Combine("Assets", "TaskDetectionData"); // was: "Resources"
+
         private string _taskSwitchDataFolder = "TaskSwitchDataDump";
         private string _taskSwitchDataFileName = "pa-taskswitchdata-" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".csv";
-        private string _taskSwitchDetectionModelFileName = Path.Combine(Environment.CurrentDirectory, "Resources", "taskswitchdetectionmodel.rda");
+        private string _taskSwitchDetectionModelFileName = Path.Combine(Environment.CurrentDirectory, _resourcesFolder, "taskswitchdetectionmodel.rda");
 
         private string _taskTypeDataFolder = "TaskTypeDataDump";
         private string _taskTypeDataFileName = "pa-tasktypedata-" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".csv";
-        private string _taskTypeDetectionModelFileName = Path.Combine(Environment.CurrentDirectory, "Resources", "tasktypedetectionmodel.rda");
+        private string _taskTypeDetectionModelFileName = Path.Combine(Environment.CurrentDirectory, _resourcesFolder, "tasktypedetectionmodel.rda");
 
-        private static string _rToolsExtractDirectory = Path.Combine(Environment.CurrentDirectory, "Resources");
-        private static string _rToolsHomeZip = Path.Combine(Environment.CurrentDirectory, "Resources", "R-3.4.0.zip");
-        private static string _rToolsLibrariesZip = Path.Combine(Environment.CurrentDirectory, "Resources", "R_libraries.zip");
-        private static string _rToolsPath = Path.Combine(Environment.CurrentDirectory, "Resources", "R-3.4.0\\bin\\i386");
-        private static string _rToolsHome = Path.Combine(Environment.CurrentDirectory, "Resources", "R-3.4.0");
-        private static string _rToolsLibraries = Path.Combine(Environment.CurrentDirectory, "Resources", "R_libraries");
+        private static string _rToolsExtractDirectory = Path.Combine(Environment.CurrentDirectory, _resourcesFolder);
+        private static string _rToolsHomeZip = Path.Combine(Environment.CurrentDirectory, _resourcesFolder, "R-3.4.0.zip");
+        private static string _rToolsLibrariesZip = Path.Combine(Environment.CurrentDirectory, _resourcesFolder, "R_libraries.zip");
+        private static string _rToolsPath = Path.Combine(Environment.CurrentDirectory, _resourcesFolder, "R-3.4.0\\bin\\i386");
+        private static string _rToolsHome = Path.Combine(Environment.CurrentDirectory, _resourcesFolder, "R-3.4.0");
+        private static string _rToolsLibraries = Path.Combine(Environment.CurrentDirectory, _resourcesFolder, "R_libraries");
 
         public TaskDetectorImpl()
         {
@@ -45,19 +48,13 @@ namespace TaskDetectionTracker.Algorithm
         /// </summary>
         private void UnzipRTools()
         {
-            Logger.WriteToLogFile(new Exception("Trying to copy: " + _rToolsHome)); //TODO: temp
-
           if (!Directory.Exists(_rToolsHome))
             {
-                Logger.WriteToLogFile(new Exception("Extracting: " + _rToolsHomeZip)); //TODO: 
-
                 System.IO.Compression.ZipFile.ExtractToDirectory(_rToolsHomeZip, _rToolsExtractDirectory);
                 Database.GetInstance().LogInfo("Unzipped R Tools to: " + _rToolsExtractDirectory);
             }
             if (!Directory.Exists(_rToolsLibraries))
             {
-                Logger.WriteToLogFile(new Exception("Extracting: " + _rToolsLibrariesZip)); //TODO: 
-
                 System.IO.Compression.ZipFile.ExtractToDirectory(_rToolsLibrariesZip, _rToolsExtractDirectory);
                 Database.GetInstance().LogInfo("Unzipped R Libraries to: " + _rToolsExtractDirectory);
             }

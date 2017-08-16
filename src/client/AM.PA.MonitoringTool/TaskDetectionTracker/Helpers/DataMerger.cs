@@ -26,10 +26,10 @@ namespace TaskDetectionTracker.Helpers
         public static List<TaskDetectionInput> MergeProcesses(List<TaskDetectionInput> processes, TimeSpan totalDuration)
         {
             //The end timestamp of the last process item in the list is equal to the start of the first process + the total duration
-            processes.Last().End = processes.First().Start.Add(totalDuration);
+            //processes.Last().End = processes.First().Start.Add(totalDuration);
 
             //Delete all processes when the duration is smaller than the threshold
-            processes.RemoveAll(p => p.End.Subtract(p.Start).TotalSeconds < Settings.MinimumProcessTimeInSeconds);
+            //processes.RemoveAll(p => p.End.Subtract(p.Start).TotalSeconds < Settings.MinimumProcessTimeInSeconds);
 
             //For the remaining processes, merge all subsequent processes if they are the same
             var result = new List<TaskDetectionInput>();
