@@ -244,8 +244,6 @@ namespace TaskDetectionTracker.Views
                 TaskRectangle taskRectangle = new TaskRectangle(task) { X = x, Width = width, Height = 30, ProcessRectangle = processRectangles, TaskName = task.TaskTypeValidated, Timestamp = task.End.ToShortTimeString(), IsUserDefined = isUserDefined };
                 RectItems.Add(taskRectangle);
                 x += (width + TaskRectangle.TaskBoundaryWidth);
-
-                // last task switch item is a switch
             }
 
             StringToBrushConverter.UpdateColors(RectItems);

@@ -229,6 +229,9 @@ namespace TaskDetectionTracker
                     var taskDetections_Validated = taskDetections.Where(t => (t.End - t.Start).TotalSeconds >= Settings.MinimumTaskDuration_Seconds).ToList();
                     var taskDetections_NotValidated = taskDetections.Where(t => (t.End - t.Start).TotalSeconds < Settings.MinimumTaskDuration_Seconds).ToList();
 
+                    // last task switch item is always a switch
+                    taskDetections_Validated.Last().TaskDetectionCase = TaskDetectionCase.Correct;
+
                     // create validation popup
                     var popup = new TaskDetectionPopup(taskDetections_Validated);
 
