@@ -104,6 +104,7 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <Grid.Resources>
                 <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
@@ -119,6 +120,7 @@
             <TextBlock Grid.Column="0" FontSize="16" x:Name="WindowTitleBar" VerticalAlignment="Center" Margin="10 0 0 0" Text="Please Add and Validate Your Task-Switches" Foreground="White" />
             <Button Grid.Column="1" Content="Postpone for 5 minutes" Click="ValidationPostponed5_Click" />
             <Button Grid.Column="2" Content="Postpone for 10 minutes" Click="ValidationPostponed10_Click" />
+            <Button Grid.Column="3" Content="I don't remember my tasks" Click="ValidationCanceled_Click" />
         </Grid>
 
         <Grid Margin="10" Grid.Row="1">

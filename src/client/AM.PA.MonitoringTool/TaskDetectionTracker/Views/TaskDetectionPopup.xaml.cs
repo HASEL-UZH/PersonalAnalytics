@@ -160,10 +160,7 @@ namespace TaskDetectionTracker.Views
             // else, close it (and show another one later)
             else
             {
-                CancelValidationForced = true;
-                ValidationComplete = false;
-                DialogResult = true;
-                Close();
+                ForceCloseValidation();
             }
         }
 
@@ -177,6 +174,19 @@ namespace TaskDetectionTracker.Views
         {
             WindowState = WindowState.Minimized;
             StartReminderTimer(Settings.PopUpReminderInterval_Long); // overwrites the timer interval
+        }
+
+        private void ValidationCanceled_Click(object sender, RoutedEventArgs e)
+        {
+            ForceCloseValidation();
+        }
+
+        private void ForceCloseValidation()
+        {
+            CancelValidationForced = true;
+            ValidationComplete = false;
+            DialogResult = true;
+            Close();
         }
 
         #endregion
@@ -234,6 +244,8 @@ namespace TaskDetectionTracker.Views
                 TaskRectangle taskRectangle = new TaskRectangle(task) { X = x, Width = width, Height = 30, ProcessRectangle = processRectangles, TaskName = task.TaskTypeValidated, Timestamp = task.End.ToShortTimeString(), IsUserDefined = isUserDefined };
                 RectItems.Add(taskRectangle);
                 x += (width + TaskRectangle.TaskBoundaryWidth);
+
+                // last task switch item is a switch
             }
 
             StringToBrushConverter.UpdateColors(RectItems);
