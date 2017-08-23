@@ -36,7 +36,7 @@ namespace TaskDetectionTracker
 
         internal const int MaximumTimePostponed_Minutes = 20;
         internal const int MinimumProcessTime_Seconds = 10; // delete processes smaller than this threshold
-        internal const int MinimumProcessWidth = 20; 
+        internal const int MinimumProcessWidth = 50; 
         internal const int MaximumTimeLineWidth = 2500; 
         internal const int MinimumTaskDuration_Seconds = 60;
     }

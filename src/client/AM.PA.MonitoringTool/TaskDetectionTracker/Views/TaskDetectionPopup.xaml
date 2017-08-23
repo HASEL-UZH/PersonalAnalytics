@@ -10,14 +10,14 @@
              xmlns:helpers="clr-namespace:TaskDetectionTracker.Helpers"
              xmlns:paColors="clr-namespace:Shared;assembly=Shared"
              mc:Ignorable="d" 
-             Title="PersonalAnalytics: Validate Task Detections" Height="650" Width="1400" MinHeight="800" MinWidth="600">
+             Title="PersonalAnalytics: Validate Task Detections" Height="600" Width="1400" MinHeight="700" MinWidth="600">
 
     <Window.Resources>
         <converters:StringToBrushConverter x:Key="StringToBrushConverter" />
         <converters:EnumToDoubleConverter x:Key="EnumToDoubleConverter" />
         <converters:EnumToBooleanConverter x:Key="EnumToBoolConverter" />
         <converters:BoolToVisibilityConverter x:Key="BoolToVisConverter" TrueValue="Visible" FalseValue="Collapsed"/>
-        <converters:BoolToVisibilityConverter x:Key="BoolToHiddenConverter" TrueValue="Visible" FalseValue="Hidden" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToHiddenConverter" TrueValue="Visible" FalseValue="Collapsed" />
         <converters:BoolToVisibilityConverter x:Key="BoolToHiddenConverterInverted" TrueValue="Hidden" FalseValue="Visible" />
 
         <ObjectDataProvider x:Key="TaskTypesEnum" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
@@ -155,12 +155,12 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Margin="0 0 2 0">
-                    <TextBlock Text="Task Type:" Margin="0 60 0 0" HorizontalAlignment="Right" />
-                    <TextBlock Text="Process:&#x0a;(hover for details)" Margin="0 71 0 0" TextAlignment="Right" HorizontalAlignment="Right" />
-                    <TextBlock Text="Timestamp:" Margin="0 6 0 0" Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" HorizontalAlignment="Right" />
-                    <TextBlock Text="Correct Detection:" Margin="0 5 0 0" Foreground="Green" HorizontalAlignment="Right" />
+                    <TextBlock Text="Task Type:" Margin="0 38 0 0" HorizontalAlignment="Right" />
+                    <TextBlock Text="Process:&#x0a;(hover for details)" Margin="0 40 0 0" TextAlignment="Right" HorizontalAlignment="Right" />
+                    <TextBlock Text="Timestamp:" Margin="0 15 0 0" Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" HorizontalAlignment="Right" />
+                    <!--<TextBlock Text="Correct Detection:" Margin="0 5 0 0" Foreground="Green" HorizontalAlignment="Right" />
                     <TextBlock Text="Incorrect Detection:" Margin="0 3 0 0" Foreground="Red" HorizontalAlignment="Right" />
-                    <TextBlock Text="Delete Manual Entry:" Margin="0 5 0 0" Foreground="Red" HorizontalAlignment="Right" />
+                    <TextBlock Text="Delete Manual Entry:" Margin="0 5 0 0" Foreground="Red" HorizontalAlignment="Right" />-->
                 </StackPanel>
 
                 <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
@@ -169,7 +169,7 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
-                        <ItemsControl Height="250" Grid.Row="0" ItemsSource="{Binding RectItems}" Name="Timeline">
+                        <ItemsControl Height="150" Grid.Row="0" ItemsSource="{Binding RectItems}" Name="Timeline">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <Canvas Width="{Binding TimelineWidth}"/>
@@ -203,11 +203,41 @@
 
                                         <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Orientation="Horizontal">
                                             <StackPanel Orientation="Vertical">
-                                                <Rectangle Opacity="{Binding Path=TaskDetectionCase, Converter={StaticResource EnumToDoubleConverter}, ConverterParameter={x:Static model:TaskDetectionCase.Wrong}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="{Binding TaskBoundaryWidth}" Margin="0 62 0 0" Height="122" Fill="{x:Static paColors:Settings.RetrospectionColorBrush}" HorizontalAlignment="Left" />
+                                                <!-- Is No Task Switch Rectangle -->
+                                                <Rectangle MouseLeftButtonDown="IsNoTaskSwitch_ButtonClick" 
+                                                           Width="{Binding TaskBoundaryWidth}" 
+                                                           Height="122"
+                                                           Margin="0 20 0 0"
+                                                           HorizontalAlignment="Left"
+                                                           Fill="{x:Static paColors:Settings.RetrospectionColorBrush}" 
+                                                           Visibility="{Binding Path=IsVisible, Converter={StaticResource BoolToHiddenConverter}}">
+                                                    <!--<Rectangle.RenderTransform>
+                                                        <TransformGroup>
+                                                            <ScaleTransform ScaleY="-4" />
+                                                            <TranslateTransform Y="30" />
+                                                        </TransformGroup>
+                                                    </Rectangle.RenderTransform>-->
+                                                    <Rectangle.Style>
+                                                        <Style TargetType="{x:Type Rectangle}">
+                                                            <Setter Property="Opacity" Value="1" />
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Opacity">
+                                                                        <Setter.Value>0.1</Setter.Value>
+                                                                    </Setter>
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Rectangle.Style>
+                                                </Rectangle>
+                                                <!--<Rectangle Opacity="{Binding Path=TaskDetectionCase, Converter={StaticResource EnumToDoubleConverter}, ConverterParameter={x:Static model:TaskDetectionCase.Wrong}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                Width="{Binding TaskBoundaryWidth}" 
+                                                Margin="0 62 0 0" Height="122" Fill="{x:Static paColors:Settings.RetrospectionColorBrush}" HorizontalAlignment="Left" />-->
+                                                
                                                 <TextBlock Margin="-10 2 0 0" Text="{Binding Timestamp}" Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" />
-                                                <RadioButton Name="Correct" Margin="-5 5 0 0" Checked="RadioButton_Checked_Correct" GroupName="{Binding ID}" BorderThickness="2" BorderBrush="Green" Foreground="Green" Width="{Binding TaskCheckboxWidth}" IsChecked="{Binding Path=TaskDetectionCase, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static model:TaskDetectionCase.Correct}, Mode=OneWay}" HorizontalAlignment="Left" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverterInverted}}" />
+                                                <!--<RadioButton Name="Correct" Margin="-5 5 0 0" Checked="RadioButton_Checked_Correct" GroupName="{Binding ID}" BorderThickness="2" BorderBrush="Green" Foreground="Green" Width="{Binding TaskCheckboxWidth}" IsChecked="{Binding Path=TaskDetectionCase, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static model:TaskDetectionCase.Correct}, Mode=OneWay}" HorizontalAlignment="Left" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverterInverted}}" />
                                                 <RadioButton Name="Wrong" Margin="-5 5 0 0" Checked="RadioButton_Checked_Incorrect" GroupName="{Binding ID}" BorderThickness="2" BorderBrush="Red" Foreground="Red" Width="{Binding TaskCheckboxWidth}" IsChecked="{Binding Path=TaskDetectionCase, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static model:TaskDetectionCase.Wrong}, Mode=OneWay}" HorizontalAlignment="Left" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverterInverted}}" />
-                                                <Button Name="DeleteTaskBoundaryButton" Margin="-5 5 0 4.5" Style="{StaticResource NoHoverButtonStyle}" Width="{Binding TaskCheckboxWidth}" Height="{Binding TaskCheckboxWidth}" VerticalAlignment="Center" Foreground="Red" FontWeight="ExtraBold" Content="x" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverter}}" Click="DeleteTaskBoundaryButton_Click"></Button>
+                                                <Button Name="DeleteTaskBoundaryButton" Margin="-5 5 0 4.5" Style="{StaticResource NoHoverButtonStyle}" Width="{Binding TaskCheckboxWidth}" Height="{Binding TaskCheckboxWidth}" VerticalAlignment="Center" Foreground="Red" FontWeight="ExtraBold" Content="x" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverter}}" Click="DeleteTaskBoundaryButton_Click"></Button>-->
                                             </StackPanel>
                                         </StackPanel>
 
@@ -230,11 +260,15 @@
                                                             <ColumnDefinition Width="auto" />
                                                         </Grid.ColumnDefinitions>
                                                         <Rectangle Grid.Column="0" Width="{Binding Width}" Height="{Binding Height}" Fill="{Binding Path=ProcessName, Converter={StaticResource StringToBrushConverter}, Mode=TwoWay}" ToolTip="{Binding Tooltip}"></Rectangle>
-                                                        <Rectangle Grid.Column="1" MouseLeftButtonDown="Rectangle_MouseLeftButtonDown" Width="{Binding TaskBoundaryWidth}" Fill="{x:Static paColors:Settings.RetrospectionColorBrush}" Visibility="{Binding Path=IsVisible, Converter={StaticResource BoolToVisConverter}}">
+                                                        <!-- IsTask Switch Rectangle -->
+                                                        <Rectangle Grid.Column="1" MouseLeftButtonDown="IsTaskSwitch_ButtonClick" 
+                                                                   Width="{Binding TaskBoundaryWidth}" 
+                                                                   Fill="{x:Static paColors:Settings.RetrospectionColorBrush}" 
+                                                                   Visibility="{Binding Path=IsVisible, Converter={StaticResource BoolToVisConverter}}">
                                                             <Rectangle.RenderTransform>
                                                                 <TransformGroup>
                                                                     <ScaleTransform ScaleY="-4" />
-                                                                    <TranslateTransform Y="30" />
+                                                                    <TranslateTransform Y="50" />
                                                                 </TransformGroup>
                                                             </Rectangle.RenderTransform>
                                                             <Rectangle.Style>

@@ -342,23 +342,25 @@ namespace TaskDetectionTracker.Views
         }
 
         /// <summary>
-        /// Called when a user clicks on a task boundary
+        /// Called when a user clicks on a task boundary to ENABLE it
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Rectangle_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void IsTaskSwitch_ButtonClick(object sender, MouseButtonEventArgs e)
         {
             var process = ((sender as Rectangle).DataContext as ProcessRectangle).Data;
-            
-            foreach (TaskDetection task in _taskSwitches)
-            {
-                int index = task.TimelineInfos.FindIndex(p => p.Equals(process));
-                if (index != -1 && (index + 1) < task.TimelineInfos.Count)
-                {
-                    ExtractProcessesFromTask(task, task.TimelineInfos.GetRange(++index, task.TimelineInfos.Count - index));
-                    break;
-                }
-            }
+            AddTaskBoundary(process);
+        }
+
+        /// <summary>
+        /// Called when a user clicks on a task boundary to DISABLE it
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void IsNoTaskSwitch_ButtonClick(object sender, MouseButtonEventArgs e)
+        {
+            var task = ((sender as Rectangle).DataContext as TaskRectangle).Data;
+            RemoveTaskBoundary(task);
         }
 
         /// <summary>
@@ -369,6 +371,33 @@ namespace TaskDetectionTracker.Views
         private void DeleteTaskBoundaryButton_Click(object sender, RoutedEventArgs e)
         {
             var task = ((sender as Button).DataContext as TaskRectangle).Data;
+            RemoveTaskBoundary(task);
+        }
+
+        /// <summary>
+        /// TODO: document
+        /// </summary>
+        /// <param name="process"></param>
+        private void AddTaskBoundary(TaskDetectionInput process)
+        {
+            foreach (TaskDetection task in _taskSwitches)
+            {
+                int index = task.TimelineInfos.FindIndex(p => p.Equals(process));
+                if (index != -1 && (index + 1) < task.TimelineInfos.Count)
+                {
+                    ExtractProcessesFromTask(task, task.TimelineInfos.GetRange(++index, task.TimelineInfos.Count - index));
+                    break;
+                }
+            }
+            Console.WriteLine("Added task boundary: " + process.ToString()); // TODO: temp
+        }
+
+        /// <summary>
+        /// TODO: document
+        /// </summary>
+        /// <param name="task"></param>
+        private void RemoveTaskBoundary(TaskDetection task)
+        {
             var index = _taskSwitches.FindIndex(t => t.Equals(task));
 
             TaskDetection taskToAdd = null;
@@ -386,6 +415,7 @@ namespace TaskDetectionTracker.Views
             {
                 AddProcessesToAnotherTask(task, taskToAdd, task.TimelineInfos);
             }
+            Console.WriteLine("Removed task boundary: " + task.ToString()); // TODO: temp
         }
 
         /// <summary>

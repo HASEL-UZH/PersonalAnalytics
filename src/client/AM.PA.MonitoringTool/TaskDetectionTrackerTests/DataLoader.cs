@@ -38,6 +38,8 @@ namespace TaskDetectionTrackerTests
                 {
                     input.ElementAt(i).End = input.ElementAt(i + 1).Start;
                 }
+
+                input.Last().End = input.Last().Start.AddMinutes(1);
             }
             catch (Exception e) { }
             return input;
