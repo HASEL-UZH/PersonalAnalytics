@@ -9,7 +9,7 @@
              xmlns:converters="clr-namespace:TaskDetectionTracker.Views.Converters"
              xmlns:helpers="clr-namespace:TaskDetectionTracker.Helpers"
              xmlns:paColors="clr-namespace:Shared;assembly=Shared"
-             mc:Ignorable="d" Topmost="True"
+             mc:Ignorable="d" 
              Title="PersonalAnalytics: Validate Task Detections" Height="650" Width="1400" MinHeight="800" MinWidth="600">
 
     <Window.Resources>

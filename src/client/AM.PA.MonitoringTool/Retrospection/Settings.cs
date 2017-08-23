@@ -11,7 +11,7 @@ namespace Retrospection
 #if PilotManu_March17
         public static bool IsEnabled = false;
 #elif Pilot_TaskDetection_March17
-        public static bool IsEnabled = false;
+        public static bool IsEnabled = true;
 #else
         public static bool IsEnabled = true;
 #endif

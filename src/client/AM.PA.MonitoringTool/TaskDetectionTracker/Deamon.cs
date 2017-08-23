@@ -51,7 +51,7 @@ namespace TaskDetectionTracker
         }
 
         /// <summary>
-        /// starts the timer (as usual)
+        /// (re-)starts the timer (as usual)
         /// and also sets the timestamp for the next popup
         /// </summary>
         private void StartPopUpTimer()
@@ -109,24 +109,36 @@ namespace TaskDetectionTracker
             _popUpTimer.Stop();
 
             // get session start and end
-            var sessionStart = _lastPopUpResponse;
-            if (_lastPopUpResponse == DateTime.MinValue || _lastPopUpResponse.Date != DateTime.Now.Date)
-            {
-                sessionStart = Database.GetInstance().GetUserWorkStart(DateTime.Now.Date);
-            }
+            //var sessionStart = _lastPopUpResponse;
+            //if (_lastPopUpResponse == DateTime.MinValue || _lastPopUpResponse.Date != DateTime.Now.Date)
+            //{
+            //    sessionStart = DateTime.Now.AddHours(- Settings.MaximumValidationInterval.TotalHours);
+            //}
+
+            //// make sure, sessionStart is not too long
+            //var sessionEnd = DateTime.Now;
+            //if (sessionEnd - sessionStart > Settings.MaximumValidationInterval)
+            //{
+            //    sessionStart = sessionEnd - Settings.MaximumValidationInterval;
+            //}
+
+            var sessionStart = DateTime.Now.AddHours(-Settings.MaximumValidationInterval.TotalHours);
             var sessionEnd = DateTime.Now;
 
-            // make sure, sessionStart is not too long
-            if (sessionEnd - sessionStart > Settings.MaximumValidationInterval)
+            // if it's not 1/10th of the validation interval, don't show the pop-up
+            if ((sessionEnd - sessionStart).TotalHours * 10 < Settings.MaximumValidationInterval.TotalHours)
             {
-                sessionStart = sessionEnd - Settings.MaximumValidationInterval;
+                StartPopUpTimer();
+                return;
             }
+            else
+            {
+                // load all data first
+                var taskDetections = await Task.Run(() => PrepareTaskDetectionDataForPopup(sessionStart, sessionEnd));
 
-            // load all data first
-            var taskDetections = await Task.Run(() => PrepareTaskDetectionDataForPopup(sessionStart, sessionEnd));
-
-            // show pop-up 
-            ShowTaskDetectionValidationPopup(taskDetections, sessionStart, sessionEnd);
+                // show pop-up 
+                ShowTaskDetectionValidationPopup(taskDetections, sessionStart, sessionEnd);
+            }            
         }
 
         /// <summary>

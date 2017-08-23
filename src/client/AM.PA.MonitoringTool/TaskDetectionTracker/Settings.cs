@@ -16,7 +16,7 @@ namespace TaskDetectionTracker
 
 #if DEBUG 
         public static bool IsEnabledByDefault = true;
-        internal static TimeSpan PopUpInterval = TimeSpan.FromSeconds(20);
+        internal static TimeSpan PopUpInterval = TimeSpan.FromSeconds(10);
         internal static TimeSpan PopUpReminderInterval = TimeSpan.FromSeconds(30);
         internal static TimeSpan MaximumValidationInterval = TimeSpan.FromHours(1);
 #elif Pilot_TaskDetection_March17
@@ -33,7 +33,7 @@ namespace TaskDetectionTracker
 
         internal const int MinimumProcessTimeInSeconds = 10; // delete processes smaller than this threshold
         internal const int MinimumProcessWidth = 20; 
-        internal const int MaximumTimeLineWidth = 1500; 
+        internal const int MaximumTimeLineWidth = 2500; 
         internal const int MinimumTaskDurationInSeconds = 60;
     }
 }
