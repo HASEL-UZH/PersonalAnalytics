@@ -51,13 +51,22 @@ namespace TaskDetectionTracker
         }
 
         /// <summary>
-        /// (re-)starts the timer (as usual)
+        /// (re-)starts the timer with a given interval
         /// and also sets the timestamp for the next popup
+        /// </summary>
+        private void StartPopUpTimer(TimeSpan interval)
+        {
+            _popUpTimer.Interval = interval;
+            _popUpTimer.Start();
+            _nextPopUp = DateTime.Now.Add(interval);
+        }
+
+        /// <summary>
+        /// (re-)starts the timer with the default interval Settings.PopUpInterval
         /// </summary>
         private void StartPopUpTimer()
         {
-            _popUpTimer.Start();
-            _nextPopUp = DateTime.Now.Add(Settings.PopUpInterval);
+            StartPopUpTimer(Settings.PopUpInterval);
         }
 
         public override void Stop()
@@ -125,20 +134,22 @@ namespace TaskDetectionTracker
             var sessionStart = DateTime.Now.AddHours(-Settings.MaximumValidationInterval.TotalHours);
             var sessionEnd = DateTime.Now;
 
+            // load all data first
+            var taskDetections = await Task.Run(() => PrepareTaskDetectionDataForPopup(sessionStart, sessionEnd));
+
+
             // if it's not 1/10th of the validation interval, don't show the pop-up
-            if ((sessionEnd - sessionStart).TotalHours * 10 < Settings.MaximumValidationInterval.TotalHours)
+            if (taskDetections.Count == 0 || (taskDetections.Last().End - taskDetections.First().Start).TotalHours * 10 < Settings.MaximumValidationInterval.TotalHours)
             {
+                var msg = string.Format("No tasks detected or too short interval between {0} {1} and {2} {3}.", sessionStart.ToShortDateString(), sessionStart.ToShortTimeString(), sessionEnd.ToShortDateString(), sessionEnd.ToShortTimeString());
+                Database.GetInstance().LogWarning(msg);
                 StartPopUpTimer();
-                return;
             }
+            // show pop-up if enough data is available
             else
             {
-                // load all data first
-                var taskDetections = await Task.Run(() => PrepareTaskDetectionDataForPopup(sessionStart, sessionEnd));
-
-                // show pop-up 
                 ShowTaskDetectionValidationPopup(taskDetections, sessionStart, sessionEnd);
-            }            
+            }
         }
 
         /// <summary>
@@ -209,48 +220,38 @@ namespace TaskDetectionTracker
         /// <param name="taskDetections"></param>
         private void ShowTaskDetectionValidationPopup(List<TaskDetection> taskDetections, DateTime detectionSessionStart, DateTime detectionSessionEnd)
         {
-            if (taskDetections.Count > 0)
+            try
             {
-                try
+                Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(
+                () =>
                 {
-                    Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(
-                    () =>
+                    // filter task detections (remove too short ones)
+                    var taskDetections_Validated = taskDetections.Where(t => (t.End - t.Start).TotalSeconds >= Settings.MinimumTaskDuration_Seconds).ToList();
+                    var taskDetections_NotValidated = taskDetections.Where(t => (t.End - t.Start).TotalSeconds < Settings.MinimumTaskDuration_Seconds).ToList();
+
+                    // create validation popup
+                    var popup = new TaskDetectionPopup(taskDetections_Validated);
+
+                    // show popup & handle response
+                    if (popup.ShowDialog() == true)
                     {
-                        // filter task detections
-                        var taskDetections_Validated = taskDetections.Where(t => (t.End - t.Start).TotalSeconds >= Settings.MinimumTaskDurationInSeconds).ToList();
-                        var taskDetections_NotValidated = taskDetections.Where(t => (t.End - t.Start).TotalSeconds < Settings.MinimumTaskDurationInSeconds).ToList();
-
-                        // create validation popup
-                        var popup = new TaskDetectionPopup(taskDetections_Validated);
-
-                        // show popup & handle response
-                        if (popup.ShowDialog() == true)
-                        {
-                            HandlePopUpResponse(popup, taskDetections_Validated, taskDetections_NotValidated, detectionSessionStart, detectionSessionEnd);
-                        }
-                        else
-                        {
-                            // we get here when DialogResult is set to false (which should never happen) 
-                            Database.GetInstance().LogErrorUnknown("DialogResult of PopUp was set to false in tracker: " + Name);
-                        }
-                    }));
-                }
-                catch (ThreadAbortException e)
-                {
-                    Database.GetInstance().LogError(Name + ": " + e.Message);
-                    StartPopUpTimer();
-                }
-                catch (Exception e)
-                {
-                    Logger.WriteToLogFile(e);
-                    StartPopUpTimer();
-                }
+                        HandlePopUpResponse(popup, taskDetections_Validated, taskDetections_NotValidated, detectionSessionStart, detectionSessionEnd);
+                    }
+                    else
+                    {
+                        // we get here when DialogResult is set to false (which should never happen) 
+                        Database.GetInstance().LogErrorUnknown("DialogResult of PopUp was set to false in tracker: " + Name);
+                    }
+                }));
             }
-            // no tasks in timeline detected
-            else
+            catch (ThreadAbortException e)
             {
-                var msg = string.Format("No tasks detected between {0} {1} and {2} {3}.", detectionSessionStart.ToShortDateString(), detectionSessionStart.ToShortTimeString(), detectionSessionEnd.ToShortDateString(), detectionSessionEnd.ToShortTimeString());
-                Database.GetInstance().LogWarning(msg);
+                Database.GetInstance().LogError(Name + ": " + e.Message);
+                StartPopUpTimer();
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
                 StartPopUpTimer();
             }
         }
@@ -273,25 +274,22 @@ namespace TaskDetectionTracker
                 // save validation responses to the database
                 var sessionId = DatabaseConnector.TaskDetectionSession_SaveToDatabase(detectionSessionStart, detectionSessionEnd, DateTime.Now, popup.Comments.Text);
                 if (sessionId > 0) DatabaseConnector.TaskDetectionValidationsPerSession_SaveToDatabase(sessionId, taskDetections);
-                else Database.GetInstance().LogWarning("Did not save any validated task detections for session (" + detectionSessionStart.ToString() + " to " + detectionSessionEnd.ToString() + ") due to an error.");
+                else Database.GetInstance().LogError("Did not save any validated task detections for session (" + detectionSessionStart.ToString() + " to " + detectionSessionEnd.ToString() + ") due to an error.");
 
                 // next popup will start from this timestamp
                 _lastPopUpResponse = detectionSessionEnd;
 
                 // set timer interval to regular interval
-                _popUpTimer.Interval = Settings.PopUpInterval;
+                StartPopUpTimer(Settings.PopUpInterval);
             } 
             else
             {
-                // we get here when DialogResult is set to false (which never happens) 
-                Database.GetInstance().LogErrorUnknown("User closed the PopUp without completing the validation in tracker: " + Name);
+                // we get here when DialogResult is set to false
+                Database.GetInstance().LogInfo("User closed the PopUp without completing the validation in tracker: " + Name);
 
                 // set timer interval to a short one, to try again
-                _popUpTimer.Interval = Settings.PopUpReminderInterval;
+                StartPopUpTimer(Settings.PopUpReminderInterval_Long);
             }
-
-            // restart timer
-            StartPopUpTimer();
         }
     }
 }

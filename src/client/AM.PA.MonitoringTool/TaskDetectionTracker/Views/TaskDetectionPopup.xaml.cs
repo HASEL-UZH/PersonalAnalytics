@@ -26,26 +26,12 @@ namespace TaskDetectionTracker.Views
     /// </summary>
     public partial class TaskDetectionPopup : Window, INotifyPropertyChanged
     {
-        #region Validation of save button
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private bool _validationComplete = false;
-        public bool ValidationComplete { get { return _validationComplete; } set { _validationComplete = value; OnPropertyChanged("ValidationComplete"); } }
-
-        protected void OnPropertyChanged(string name)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(name));
-            }
-        }
-        #endregion
-
         private DispatcherTimer _popUpReminderTimer;
         private List<TaskDetection> _taskSwitches;
         public ObservableCollection<TaskRectangle> RectItems { get; set; }
         public static double TimelineWidth { get; set; }
+
+        private double _totalTimePostponed = 0;
 
         /// <summary>
         /// Create a new Popup with the tasks in the parameter
@@ -56,6 +42,7 @@ namespace TaskDetectionTracker.Views
             InitializeComponent();
 
             //Event handlers
+            this.Deactivated += Window_Deactivated;
             this.StateChanged += Window_StateChanged;
             this.Closing += Window_OnClosing;
             this.SizeChanged += Window_SizeChanged;
@@ -95,7 +82,8 @@ namespace TaskDetectionTracker.Views
         /// <param name="e"></param>
         private void Window_OnClosing(object sender, CancelEventArgs e)
         {
-            if (DialogResult != true || ValidationComplete == false)
+            // if pop-up not filled out correctly, cancle and minimize it
+            if (CancelValidationForced == false && (DialogResult == false || ValidationComplete == false))
             {
                 e.Cancel = true;
                 WindowState = WindowState.Minimized;
@@ -112,9 +100,10 @@ namespace TaskDetectionTracker.Views
         {
             switch(WindowState)
             {
-                case WindowState.Minimized:
-                    StartReminderTimer();
-                    break;
+                // minimize event is handed by deactivated event already
+                //case WindowState.Minimized:
+                    //StartReminderTimer(Settings.PopUpReminderInterval_Short);
+                    //break;
                 case WindowState.Maximized:
                 case WindowState.Normal:
                     StopReminderTimer();
@@ -123,17 +112,30 @@ namespace TaskDetectionTracker.Views
             }
         }
 
-        private void StartReminderTimer()
+        /// <summary>
+        /// When the window loses focus, start the pop-up reminder
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_Deactivated(object sender, EventArgs e)
+        {
+            StartReminderTimer(Settings.PopUpReminderInterval_Short);
+        }
+
+        private void StartReminderTimer(TimeSpan reminderInterval)
         {
             if (_popUpReminderTimer != null)
             {
+                _popUpReminderTimer.Stop();
                 _popUpReminderTimer = null;
             }
 
             _popUpReminderTimer = new DispatcherTimer();
-            _popUpReminderTimer.Interval = Settings.PopUpReminderInterval;
+            _popUpReminderTimer.Interval = reminderInterval;
             _popUpReminderTimer.Tick += PopUpReminder_Tick;
             _popUpReminderTimer.Start();
+
+            _totalTimePostponed += reminderInterval.TotalMinutes;
         }
 
         private void StopReminderTimer()
@@ -147,8 +149,34 @@ namespace TaskDetectionTracker.Views
 
         private void PopUpReminder_Tick(object sender, EventArgs e)
         {
-            BegForParticipation.Visibility = Visibility.Visible;
-            WindowState = WindowState.Normal;
+            StopReminderTimer();
+
+            // only show pop-up if its from the same day and not postponed for too long
+            if (_totalTimePostponed <= Settings.MaximumTimePostponed_Minutes && _taskSwitches.First().Start.Date == DateTime.Now.Date)
+            {
+                BegForParticipation.Visibility = Visibility.Visible;
+                WindowState = WindowState.Normal;
+            }
+            // else, close it (and show another one later)
+            else
+            {
+                CancelValidationForced = true;
+                ValidationComplete = false;
+                DialogResult = true;
+                Close();
+            }
+        }
+
+        private void ValidationPostponed5_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+            StartReminderTimer(Settings.PopUpReminderInterval_Short);
+        }
+
+        private void ValidationPostponed10_Click(object sender, RoutedEventArgs e)
+        {
+            WindowState = WindowState.Minimized;
+            StartReminderTimer(Settings.PopUpReminderInterval_Long); // overwrites the timer interval
         }
 
         #endregion
@@ -450,6 +478,22 @@ namespace TaskDetectionTracker.Views
 
         #region Save button validation
 
+        private bool CancelValidationForced;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private bool _validationComplete = false;
+        public bool ValidationComplete { get { return _validationComplete; } set { _validationComplete = value; OnPropertyChanged("ValidationComplete"); } }
+
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+
         /// <summary>
         /// Validate whether the save button should be enabled
         /// </summary>
@@ -465,6 +509,7 @@ namespace TaskDetectionTracker.Views
                 ValidationComplete = true;
             }
         }
-        #endregion        
+
+        #endregion
     }
 }
