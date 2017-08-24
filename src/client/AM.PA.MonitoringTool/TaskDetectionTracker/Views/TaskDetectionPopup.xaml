@@ -10,7 +10,7 @@
              xmlns:helpers="clr-namespace:TaskDetectionTracker.Helpers"
              xmlns:paColors="clr-namespace:Shared;assembly=Shared"
              mc:Ignorable="d" 
-             Title="PersonalAnalytics: Validate Task Detections" Height="600" Width="1400" MinHeight="700" MinWidth="600">
+             Title="PersonalAnalytics: Validate Task Detections" Height="600" Width="1400" MinHeight="750" MinWidth="600">
 
     <Window.Resources>
         <converters:StringToBrushConverter x:Key="StringToBrushConverter" />
@@ -141,7 +141,7 @@
             <!-- Instructions -->
             <TextBlock Grid.Row="1" Grid.Column="0" TextWrapping="Wrap">
                 <Run FontSize="16">How it works:</Run><LineBreak />
-                Below you see a timeline of the tasks you've worked on (top) and the programs you've used (bottom). Task switches are shown with blue vertical lines.
+                Below you see a timeline of the tasks you've worked on (top) and the programs you've used (bottom). Task switches are shown with blue vertical lines.<LineBreak />
                 1. Please skim through the timeline and select the task switches that were missed.<LineBreak />
                 2. In case the timeline contains a task switch that was wrong, you can click on it to remove it. <LineBreak />
                 3. Please also validate the task types in case they are wrong by selecting the correct one from the drop-downs for each task switch that you've made.<LineBreak />
@@ -269,7 +269,7 @@
                                                             <Rectangle.RenderTransform>
                                                                 <TransformGroup>
                                                                     <ScaleTransform ScaleY="-4" />
-                                                                    <TranslateTransform Y="50" />
+                                                                    <TranslateTransform Y="45" />
                                                                 </TransformGroup>
                                                             </Rectangle.RenderTransform>
                                                             <Rectangle.Style>

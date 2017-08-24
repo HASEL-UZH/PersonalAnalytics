@@ -27,7 +27,7 @@ namespace TaskDetectionTracker.Views
     public partial class TaskDetectionPopup : Window
     {
         private DispatcherTimer _popUpReminderTimer;
-        private List<TaskDetection> _taskSwitches;
+        internal List<TaskDetection> _taskSwitches;
         public ObservableCollection<TaskRectangle> RectItems { get; set; }
         public static double TimelineWidth { get; set; }
         private bool CancelValidationForced;
@@ -157,6 +157,8 @@ namespace TaskDetectionTracker.Views
             {
                 BegForParticipation.Visibility = Visibility.Visible;
                 WindowState = WindowState.Normal;
+                this.Topmost = true;
+                this.Activate();
             }
             // else, close it (and show another one later)
             else
@@ -333,6 +335,7 @@ namespace TaskDetectionTracker.Views
         /// <param name="e"></param>
         private void Save_Click(object sender, RoutedEventArgs e)
         {
+            FinalizeValidations();
             ValidationComplete = true;
             DialogResult = true;
             Close();
@@ -362,7 +365,17 @@ namespace TaskDetectionTracker.Views
         private void IsNoTaskSwitch_ButtonClick(object sender, MouseButtonEventArgs e)
         {
             var task = ((sender as Rectangle).DataContext as TaskRectangle).Data;
-            RemoveTaskBoundary(task);
+
+            // don't remove the last item
+            if (task == _taskSwitches.Last())
+            {
+                MessageBox.Show("You cannot remove this last task switch item as this was the time the pop-up showed up, which is a switch to the study.", "Warning", MessageBoxButton.OK);
+            }
+            // it's save to remove it
+            else
+            {
+                RemoveTaskBoundary(task);
+            }
         }
 
         /// <summary>
@@ -421,6 +434,18 @@ namespace TaskDetectionTracker.Views
         #endregion
 
         #region Add and remove processes
+
+        /// <summary>
+        /// This method is called when the user hits 'save'. All task detections with the state "NotValidated"
+        /// are now considered to be Correct and their status is changed accordingly.
+        /// </summary>
+        private void FinalizeValidations()
+        {
+            foreach (var task in _taskSwitches)
+            {
+                if (task.TaskDetectionCase == TaskDetectionCase.NotValidated) task.TaskDetectionCase = TaskDetectionCase.Correct;
+            }
+        }
 
         /// <summary>
         /// TODO: document
