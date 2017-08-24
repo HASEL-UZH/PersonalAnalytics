@@ -24,13 +24,14 @@ namespace TaskDetectionTracker.Views
     /// <summary>
     /// Interaction logic for TaskDetectionPopup.xaml
     /// </summary>
-    public partial class TaskDetectionPopup : Window, INotifyPropertyChanged
+    public partial class TaskDetectionPopup : Window
     {
         private DispatcherTimer _popUpReminderTimer;
         private List<TaskDetection> _taskSwitches;
         public ObservableCollection<TaskRectangle> RectItems { get; set; }
         public static double TimelineWidth { get; set; }
-
+        private bool CancelValidationForced;
+        public bool ValidationComplete { get; set; }
         private double _totalTimePostponed = 0;
 
         /// <summary>
@@ -332,6 +333,7 @@ namespace TaskDetectionTracker.Views
         /// <param name="e"></param>
         private void Save_Click(object sender, RoutedEventArgs e)
         {
+            ValidationComplete = true;
             DialogResult = true;
             Close();
         }
@@ -368,11 +370,57 @@ namespace TaskDetectionTracker.Views
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void DeleteTaskBoundaryButton_Click(object sender, RoutedEventArgs e)
-        {
-            var task = ((sender as Button).DataContext as TaskRectangle).Data;
-            RemoveTaskBoundary(task);
-        }
+        //private void DeleteTaskBoundaryButton_Click(object sender, RoutedEventArgs e)
+        //{
+        //    var task = ((sender as Button).DataContext as TaskRectangle).Data;
+        //    RemoveTaskBoundary(task);
+        //}
+
+        /// <summary>
+        /// Called when the user validates a task boundary (correct boundary)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        //private void RadioButton_Checked_Correct(object sender, RoutedEventArgs e)
+        //{
+        //    var task = ((sender as RadioButton).DataContext as TaskRectangle).Data;
+        //    TaskDetectionCase previousTaskDetectionCase = task.TaskDetectionCase;
+        //    task.TaskDetectionCase = TaskDetectionCase.Correct;
+
+        //    if (previousTaskDetectionCase == TaskDetectionCase.Wrong)
+        //    {
+        //        var index = _taskSwitches.FindIndex(t => t.Equals(task));
+        //        if (index != -1 && index + 1 < _taskSwitches.Count)
+        //        {
+        //            var nextTask = _taskSwitches.ElementAt(++index);
+        //            nextTask.TaskTypeValidated = TaskTypes.Other;
+        //        }
+        //    }
+        //    ValidateSaveButtonEnabled();
+        //}
+
+        /// <summary>
+        /// Called when the user validates a task boundary (wrong boundary)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        //private void RadioButton_Checked_Incorrect(object sender, RoutedEventArgs e)
+        //{
+        //    var task = ((sender as RadioButton).DataContext as TaskRectangle).Data;
+        //    task.TaskDetectionCase = TaskDetectionCase.Wrong;
+        //    var index = _taskSwitches.FindIndex(t => t.Equals(task));
+        //    if (index != -1 && index + 1 < _taskSwitches.Count)
+        //    {
+        //        var nextTask = _taskSwitches.ElementAt(++index);
+        //        nextTask.TaskTypeValidated = task.TaskTypeValidated;
+        //    }
+
+        //    ValidateSaveButtonEnabled();
+        //}
+
+        #endregion
+
+        #region Add and remove processes
 
         /// <summary>
         /// TODO: document
@@ -417,52 +465,6 @@ namespace TaskDetectionTracker.Views
             }
             Console.WriteLine("Removed task boundary: " + task.ToString()); // TODO: temp
         }
-
-        /// <summary>
-        /// Called when the user validates a task boundary (correct boundary)
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void RadioButton_Checked_Correct(object sender, RoutedEventArgs e)
-        {
-            var task = ((sender as RadioButton).DataContext as TaskRectangle).Data;
-            TaskDetectionCase previousTaskDetectionCase = task.TaskDetectionCase;
-            task.TaskDetectionCase = TaskDetectionCase.Correct;
-
-            if (previousTaskDetectionCase == TaskDetectionCase.Wrong)
-            {
-                var index = _taskSwitches.FindIndex(t => t.Equals(task));
-                if (index != -1 && index + 1 < _taskSwitches.Count)
-                {
-                    var nextTask = _taskSwitches.ElementAt(++index);
-                    nextTask.TaskTypeValidated = TaskTypes.Other;
-                }
-            }
-            ValidateSaveButtonEnabled();
-        }
-
-        /// <summary>
-        /// Called when the user validates a task boundary (wrong boundary)
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void RadioButton_Checked_Incorrect(object sender, RoutedEventArgs e)
-        {
-            var task = ((sender as RadioButton).DataContext as TaskRectangle).Data;
-            task.TaskDetectionCase = TaskDetectionCase.Wrong;
-            var index = _taskSwitches.FindIndex(t => t.Equals(task));
-            if (index != -1 && index + 1 < _taskSwitches.Count)
-            {
-                var nextTask = _taskSwitches.ElementAt(++index);
-                nextTask.TaskTypeValidated = task.TaskTypeValidated;
-            }
-            
-            ValidateSaveButtonEnabled();
-        }
-
-        #endregion
-
-        #region Add and remove processes
 
         /// <summary>
         /// Extract a process from a task and at it to a newly created task
@@ -518,37 +520,35 @@ namespace TaskDetectionTracker.Views
 
         #region Save button validation
 
-        private bool CancelValidationForced;
+        //public event PropertyChangedEventHandler PropertyChanged;
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        //private bool _validationComplete = false;
+        //public bool ValidationComplete { get { return _validationComplete; } set { _validationComplete = value; OnPropertyChanged("ValidationComplete"); } }
 
-        private bool _validationComplete = false;
-        public bool ValidationComplete { get { return _validationComplete; } set { _validationComplete = value; OnPropertyChanged("ValidationComplete"); } }
+        //protected void OnPropertyChanged(string name)
+        //{
+        //    PropertyChangedEventHandler handler = PropertyChanged;
+        //    if (handler != null)
+        //    {
+        //        handler(this, new PropertyChangedEventArgs(name));
+        //    }
+        //}
 
-        protected void OnPropertyChanged(string name)
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(name));
-            }
-        }
-
-        /// <summary>
-        /// Validate whether the save button should be enabled
-        /// </summary>
-        private void ValidateSaveButtonEnabled()
-        {
-            foreach (var task in _taskSwitches)
-            {
-                if (task.TaskDetectionCase == TaskDetectionCase.NotValidated)
-                {
-                    ValidationComplete = false;
-                    break;
-                }
-                ValidationComplete = true;
-            }
-        }
+        ///// <summary>
+        ///// Validate whether the save button should be enabled
+        ///// </summary>
+        //private void ValidateSaveButtonEnabled()
+        //{
+        //    foreach (var task in _taskSwitches)
+        //    {
+        //        if (task.TaskDetectionCase == TaskDetectionCase.NotValidated)
+        //        {
+        //            ValidationComplete = false;
+        //            break;
+        //        }
+        //        ValidationComplete = true;
+        //    }
+        //}
 
         #endregion
     }

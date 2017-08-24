@@ -98,7 +98,7 @@ namespace TaskDetectionTracker.Data
             try
             {
                 string query = "SELECT process, window, tsStart, tsEnd FROM windows_activity "  //, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'difference'
-                             + "WHERE (" + " STRFTIME('%s', DATETIME(time)) between STRFTIME('%s', DATETIME('" + from.ToString("u") + "')) and STRFTIME('%s', DATETIME('" + to.ToString("u") + "')) "+ " );";
+                             + "WHERE (" + " STRFTIME('%s', DATETIME(tsStart)) between STRFTIME('%s', DATETIME('" + from.ToString("u") + "')) and STRFTIME('%s', DATETIME('" + to.ToString("u") + "')) "+ " );";
                 var table = Database.GetInstance().ExecuteReadQuery(query);
                 foreach (DataRow row in table.Rows)
                 {
