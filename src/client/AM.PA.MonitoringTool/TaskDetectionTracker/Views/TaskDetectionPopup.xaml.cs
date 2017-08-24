@@ -27,11 +27,14 @@ namespace TaskDetectionTracker.Views
     public partial class TaskDetectionPopup : Window
     {
         private DispatcherTimer _popUpReminderTimer;
-        internal List<TaskDetection> _taskSwitches;
         public ObservableCollection<TaskRectangle> RectItems { get; set; }
         public static double TimelineWidth { get; set; }
         private bool CancelValidationForced;
         public bool ValidationComplete { get; set; }
+
+        internal List<TaskDetection> _taskSwitches_Validated = new List<TaskDetection>();
+        internal List<TaskDetection> _taskSwitches_NotValidated = new List<TaskDetection>();
+        internal List<TaskDetection> _taskSwitches_InTimeline = new List<TaskDetection>();
         private double _totalTimePostponed = 0;
 
         /// <summary>
@@ -41,6 +44,9 @@ namespace TaskDetectionTracker.Views
         public TaskDetectionPopup(List<TaskDetection> taskSwitches)
         {
             InitializeComponent();
+
+            // preserve task switch list for later
+            this._taskSwitches_NotValidated = taskSwitches.ToList();
 
             //Event handlers
             this.Deactivated += Window_Deactivated;
@@ -53,14 +59,14 @@ namespace TaskDetectionTracker.Views
             Save.DataContext = this;
             
             //Create timeline
-            this._taskSwitches = taskSwitches;
+            this._taskSwitches_InTimeline = taskSwitches.ToList();
             WindowTitleBar.Text = WindowTitleBar.Text 
-                + " (from " + _taskSwitches.First().Start.ToShortTimeString() + " to " + _taskSwitches.Last().End.ToShortTimeString() + ")";
+                + " (from " + _taskSwitches_InTimeline.First().Start.ToShortTimeString() + " to " + _taskSwitches_InTimeline.Last().End.ToShortTimeString() + ")";
             //StartTime.Inlines.Add(_tasks.First().Start.ToShortTimeString());
             //EndTime.Inlines.Add(_tasks.Last().End.ToShortTimeString());
 
-            double minDuration = _taskSwitches.Min(t => t.TimelineInfos.Min(p => p.End.Subtract(p.Start))).TotalSeconds;
-            double totalDuration = _taskSwitches.Sum(t => t.TimelineInfos.Sum(p => p.End.Subtract(p.Start).TotalSeconds));
+            double minDuration = _taskSwitches_InTimeline.Min(t => t.TimelineInfos.Min(p => p.End.Subtract(p.Start))).TotalSeconds;
+            double totalDuration = _taskSwitches_InTimeline.Sum(t => t.TimelineInfos.Sum(p => p.End.Subtract(p.Start).TotalSeconds));
             double timeLineWidth = totalDuration / minDuration * Settings.MinimumProcessWidth;
             TimelineWidth = Math.Min(timeLineWidth, Settings.MaximumTimeLineWidth);
             
@@ -153,7 +159,7 @@ namespace TaskDetectionTracker.Views
             StopReminderTimer();
 
             // only show pop-up if its from the same day and not postponed for too long
-            if (_totalTimePostponed <= Settings.MaximumTimePostponed_Minutes && _taskSwitches.First().Start.Date == DateTime.Now.Date)
+            if (_totalTimePostponed <= Settings.MaximumTimePostponed_Minutes && _taskSwitches_InTimeline.First().Start.Date == DateTime.Now.Date)
             {
                 BegForParticipation.Visibility = Visibility.Visible;
                 WindowState = WindowState.Normal;
@@ -203,16 +209,16 @@ namespace TaskDetectionTracker.Views
         {
             //margin on the left and right side of the timeline
             double margin = 20;
-            double totalTaskBorderSpace = _taskSwitches.Count * TaskRectangle.TaskBoundaryWidth;
+            double totalTaskBorderSpace = _taskSwitches_InTimeline.Count * TaskRectangle.TaskBoundaryWidth;
 
-            double totalDuration = _taskSwitches.Sum(p => p.End.Subtract(p.Start).TotalSeconds);
+            double totalDuration = _taskSwitches_InTimeline.Sum(p => p.End.Subtract(p.Start).TotalSeconds);
             double totalWidth = TimelineWidth - (2 * margin) - totalTaskBorderSpace;
             double x = margin;
 
             //draw each task
-            for (int i = 0; i < _taskSwitches.Count; i++)
+            for (int i = 0; i < _taskSwitches_InTimeline.Count; i++)
             {
-                TaskDetection task = _taskSwitches.ElementAt(i);
+                TaskDetection task = _taskSwitches_InTimeline.ElementAt(i);
                 double duration = task.End.Subtract(task.Start).TotalSeconds;
                 double width = duration * (totalWidth / totalDuration);
             
@@ -367,7 +373,7 @@ namespace TaskDetectionTracker.Views
             var task = ((sender as Rectangle).DataContext as TaskRectangle).Data;
 
             // don't remove the last item
-            if (task == _taskSwitches.Last())
+            if (task == _taskSwitches_InTimeline.Last())
             {
                 MessageBox.Show("You cannot remove this last task switch item as this was the time the pop-up showed up, which is a switch to the study.", "Warning", MessageBoxButton.OK);
             }
@@ -441,9 +447,44 @@ namespace TaskDetectionTracker.Views
         /// </summary>
         private void FinalizeValidations()
         {
-            foreach (var task in _taskSwitches)
+            try
             {
-                if (task.TaskDetectionCase == TaskDetectionCase.NotValidated) task.TaskDetectionCase = TaskDetectionCase.Correct;
+
+                // all tasks that are not yet validated are correct
+                foreach (var task in _taskSwitches_InTimeline)
+                {
+                    if (task.TaskDetectionCase == TaskDetectionCase.NotValidated) task.TaskDetectionCase = TaskDetectionCase.Correct;
+                }
+
+                // copy missing and correct ones over
+                foreach (var task in _taskSwitches_NotValidated)
+                {
+                    var currentTaskIsValidated = false;
+
+                    // add tasks that were missing or are correct to final list
+                    foreach (var task2 in _taskSwitches_InTimeline)
+                    {
+                        if (task == task2 && (task.TaskDetectionCase == TaskDetectionCase.Missing || task.TaskDetectionCase == TaskDetectionCase.Correct))
+                        {
+                            _taskSwitches_Validated.Add(task);
+                            currentTaskIsValidated = true;
+                            break;
+                        }
+                    }
+
+                    // remaining ones were wrong (add to final list)
+                    if (!currentTaskIsValidated)
+                    {
+                        task.TaskDetectionCase = TaskDetectionCase.Wrong;
+                        _taskSwitches_Validated.Add(task);
+                    }
+                }
+
+                Shared.Logger.WriteToConsole(_taskSwitches_Validated.ToString());
+            }
+            catch (Exception e)
+            {
+                Shared.Logger.WriteToLogFile(e);
             }
         }
 
@@ -453,7 +494,7 @@ namespace TaskDetectionTracker.Views
         /// <param name="process"></param>
         private void AddTaskBoundary(TaskDetectionInput process)
         {
-            foreach (TaskDetection task in _taskSwitches)
+            foreach (TaskDetection task in _taskSwitches_InTimeline)
             {
                 int index = task.TimelineInfos.FindIndex(p => p.Equals(process));
                 if (index != -1 && (index + 1) < task.TimelineInfos.Count)
@@ -471,17 +512,17 @@ namespace TaskDetectionTracker.Views
         /// <param name="task"></param>
         private void RemoveTaskBoundary(TaskDetection task)
         {
-            var index = _taskSwitches.FindIndex(t => t.Equals(task));
+            var index = _taskSwitches_InTimeline.FindIndex(t => t.Equals(task));
 
             TaskDetection taskToAdd = null;
 
-            if (index != -1 && index + 1 < _taskSwitches.Count)
+            if (index != -1 && index + 1 < _taskSwitches_InTimeline.Count)
             {
-                taskToAdd = _taskSwitches.ElementAt(++index);
+                taskToAdd = _taskSwitches_InTimeline.ElementAt(++index);
             }
             else if (index != -1 && index - 1 >= 0)
             {
-                taskToAdd = _taskSwitches.ElementAt(--index);
+                taskToAdd = _taskSwitches_InTimeline.ElementAt(--index);
             }
 
             if (taskToAdd != null)
@@ -514,8 +555,8 @@ namespace TaskDetectionTracker.Views
             task.TaskDetectionCase = TaskDetectionCase.Missing;
             
             //Add new task to list of tasks
-            _taskSwitches.Add(newTask);
-            _taskSwitches.Sort();
+            _taskSwitches_InTimeline.Add(newTask);
+            _taskSwitches_InTimeline.Sort();
 
             RedrawTimeline();
         }
@@ -528,7 +569,7 @@ namespace TaskDetectionTracker.Views
         /// <param name="processes"></param>
         private void AddProcessesToAnotherTask(TaskDetection oldTask, TaskDetection newTask, List<TaskDetectionInput> processes)
         {
-            _taskSwitches.Remove(oldTask);
+            _taskSwitches_InTimeline.Remove(oldTask);
 
             newTask.TimelineInfos.AddRange(processes);
             newTask.TimelineInfos.Sort();
@@ -536,7 +577,7 @@ namespace TaskDetectionTracker.Views
             newTask.End = newTask.TimelineInfos.Last().End;
             newTask.TaskTypeValidated = oldTask.TaskTypeValidated;
 
-            _taskSwitches.Sort();
+            _taskSwitches_InTimeline.Sort();
 
             RedrawTimeline();
         }

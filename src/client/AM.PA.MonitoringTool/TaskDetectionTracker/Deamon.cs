@@ -238,7 +238,7 @@ namespace TaskDetectionTracker
                     // show popup & handle response
                     if (popup.ShowDialog() == true)
                     {
-                        HandlePopUpResponse(popup, taskDetections_Validated, taskDetections_NotValidated, detectionSessionStart, detectionSessionEnd);
+                        HandlePopUpResponse(popup, popup._taskSwitches_Validated, taskDetections_NotValidated, detectionSessionStart, detectionSessionEnd);
                     }
                     else
                     {
@@ -273,6 +273,7 @@ namespace TaskDetectionTracker
             {
                 // merge non-validated task detections with validated ones
                 var taskDetections = taskDetections_Validated.Concat(taskDetections_NotValidated).ToList();
+                taskDetections.Sort();
 
                 // save validation responses to the database
                 var sessionId = DatabaseConnector.TaskDetectionSession_SaveToDatabase(detectionSessionStart, detectionSessionEnd, DateTime.Now, popup.Comments.Text);
