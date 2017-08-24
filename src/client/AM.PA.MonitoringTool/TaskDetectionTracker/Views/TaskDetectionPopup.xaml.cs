@@ -137,7 +137,6 @@ namespace TaskDetectionTracker.Views
             _popUpReminderTimer.Start();
 
             _totalTimePostponed += reminderInterval.TotalMinutes;
-            Shared.Logger.WriteToLogFile(new Exception("Totaltimepostponed: " + _totalTimePostponed + " (added: " + reminderInterval.TotalMinutes + ")"); // TODO: remove !!
         }
 
         private void StopReminderTimer()

@@ -141,10 +141,11 @@
             <!-- Instructions -->
             <TextBlock Grid.Row="1" Grid.Column="0" TextWrapping="Wrap">
                 <Run FontSize="16">How it works:</Run><LineBreak />
-                1. In tick which task switches were correctly (green radio button) or incorrectly (red radio button) detected.<LineBreak />
-                2. In case a task switch is missing, create a new one by clicking on the fair-blue vertical lines. <LineBreak />
-                3. Please also validate the task types in case they are wrong by selecting the right one from the drop-downs for each task switch that you've made.<LineBreak />
-                4. Mark your main task(s) from that session using the checkbox(es).
+                Below you see a timeline of the tasks you've worked on (top) and the programs you've used (bottom). Task switches are shown with blue vertical lines.
+                1. Please skim through the timeline and select the task switches that were missed.<LineBreak />
+                2. In case the timeline contains a task switch that was wrong, you can click on it to remove it. <LineBreak />
+                3. Please also validate the task types in case they are wrong by selecting the correct one from the drop-downs for each task switch that you've made.<LineBreak />
+                4. Finally, mark your main task(s) from that session using the checkbox(es).
             </TextBlock>
 
             <!-- Timeline -->
