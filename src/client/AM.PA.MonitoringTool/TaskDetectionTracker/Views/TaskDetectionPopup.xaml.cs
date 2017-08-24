@@ -165,13 +165,13 @@ namespace TaskDetectionTracker.Views
             }
         }
 
-        private void ValidationPostponed5_Click(object sender, RoutedEventArgs e)
+        private void ValidationPostponed_Short_Click(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState.Minimized;
             StartReminderTimer(Settings.PopUpReminderInterval_Short);
         }
 
-        private void ValidationPostponed10_Click(object sender, RoutedEventArgs e)
+        private void ValidationPostponed_Long_Click(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState.Minimized;
             StartReminderTimer(Settings.PopUpReminderInterval_Long); // overwrites the timer interval

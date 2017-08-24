@@ -24,13 +24,13 @@ namespace TaskDetectionTracker
         public static bool IsEnabledByDefault = true;
         internal static TimeSpan PopUpInterval = TimeSpan.FromMinutes(60); // show validation pop-up once every 60 minutes
         internal static TimeSpan PopUpReminderInterval_Short = TimeSpan.FromMinutes(5);
-        internal static TimeSpan PopUpReminderInterval_Long = TimeSpan.FromMinutes(10);
+        internal static TimeSpan PopUpReminderInterval_Long = TimeSpan.FromMinutes(15);
         internal static TimeSpan MaximumValidationInterval = TimeSpan.FromHours(1);
 #else
         public static bool IsEnabledByDefault = false; // disabled for all non-study users
         internal static TimeSpan PopUpInterval = TimeSpan.FromMinutes(60); // show validation pop-up once every 60 minutes
         internal static TimeSpan PopUpReminderInterval_Short = TimeSpan.FromMinutes(5);
-        internal static TimeSpan PopUpReminderInterval_Long = TimeSpan.FromMinutes(10);
+        internal static TimeSpan PopUpReminderInterval_Long = TimeSpan.FromMinutes(15);
         internal static TimeSpan MaximumValidationInterval = TimeSpan.FromHours(1);
 #endif
 

@@ -118,8 +118,8 @@
             </Grid.Resources>
 
             <TextBlock Grid.Column="0" FontSize="16" x:Name="WindowTitleBar" VerticalAlignment="Center" Margin="10 0 0 0" Text="Please Add and Validate Your Task-Switches" Foreground="White" />
-            <Button Grid.Column="1" Content="Postpone for 5 minutes" Click="ValidationPostponed5_Click" />
-            <Button Grid.Column="2" Content="Postpone for 10 minutes" Click="ValidationPostponed10_Click" />
+            <Button Grid.Column="1" Content="Postpone for 5 minutes" Click="ValidationPostponed_Short_Click" />
+            <Button Grid.Column="2" Content="Postpone for 15 minutes" Click="ValidationPostponed_Long_Click" />
             <Button Grid.Column="3" Content="I don't remember my tasks" Click="ValidationCanceled_Click" />
         </Grid>
 
@@ -330,7 +330,6 @@
             <StackPanel Grid.Row="6" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0 10 0 0">
                 <TextBlock Text="Hint: The save button is enabled once all detected task switches are either marked as correct or incorrect." TextAlignment="Right" TextWrapping="Wrap" Width="300" Margin="0 0 10 0" Foreground="Gray" />
                 <Button Name="Save" 
-                        IsEnabled="{Binding ValidationComplete, UpdateSourceTrigger=PropertyChanged}" 
                         Click="Save_Click" 
                         Content="Accept Task Detection (Save)" 
                         Height="30" Width="200" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" />
