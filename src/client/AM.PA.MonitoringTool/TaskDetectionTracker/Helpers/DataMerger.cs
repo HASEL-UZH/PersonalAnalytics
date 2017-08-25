@@ -29,7 +29,7 @@ namespace TaskDetectionTracker.Helpers
             //processes.Last().End = processes.First().Start.Add(totalDuration);
 
             //Delete all processes when the duration is smaller than the threshold
-            //processes.RemoveAll(p => p.End.Subtract(p.Start).TotalSeconds < Settings.MinimumProcessTimeInSeconds);
+            processes.RemoveAll(p => p.End.Subtract(p.Start).TotalSeconds < Settings.MinimumProcessTime_Seconds); // TODO: fix: results in gaps
 
             //For the remaining processes, merge all subsequent processes if they are the same
             var result = new List<TaskDetectionInput>();
@@ -54,23 +54,6 @@ namespace TaskDetectionTracker.Helpers
                 //Add the last one too
                 result.Add(new TaskDetectionInput { Start = currentGroup.First().Start, End = currentGroup.Last().End, ProcessName = currentGroup.First().ProcessName, WindowTitles = currentGroup.SelectMany(w => w.WindowTitles).Distinct().ToList() });
             }
-
-            //LINQ based solution
-            /**
-            int groupID = -1;
-
-            var result = processes.Select((item, index) =>
-            {
-                    if (index == 0 || processes[index - 1].ProcessName != item.ProcessName)
-                    {
-                        ++groupID;
-                    }
-                    return new { group = groupID, item = item };
-                }).GroupBy(item => item.group).Select(group =>
-                {
-                    return new TaskDetectionInput { ProcessName = group.First().item.ProcessName, Start = group.First().item.Start, End = group.Last().item.End, WindowTitles = group.SelectMany(g => g.item.WindowTitles).Distinct().ToList() };
-                }
-            ).ToList();**/
 
             return result;
         }
