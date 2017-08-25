@@ -28,6 +28,22 @@ namespace TaskDetectionTracker.Model
         public int NumberOfKeystrokes { get { return _numberOfKeystrokes; } set { _numberOfKeystrokes = value; } }
         public int NumberOfMouseClicks { get { return _numberOfMouseClicks; } set { _numberOfMouseClicks = value; } }
 
+
+        public TaskDetectionInput()
+        {
+            // empty constructor
+        }
+
+        public TaskDetectionInput(DateTime start, DateTime end, string procesName, List<string> windowTitles, int keystrokes, int clicks)
+        {
+            Start = start;
+            End = end;
+            ProcessName = ProcessName;
+            WindowTitles = windowTitles;
+            NumberOfKeystrokes = keystrokes;
+            NumberOfMouseClicks = clicks;
+        }
+
         public override string ToString()
         {
             return string.Format("Process: {0} ({1} to {2}, dur: {3}) keys: {4} clicks: {5}",

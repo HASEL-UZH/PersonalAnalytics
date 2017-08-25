@@ -14,19 +14,24 @@ namespace TaskDetectionTracker
         public const string DbTable_TaskDetection_Sessions = "task_detection_sessions";
         public const string DbTable_TaskDetection_Validations = "task_detection_validations";
 
+        public const string NumberOfValidationsCompleted_Setting = "TaskDetectionNumValidations";
+
 #if DEBUG 
         public static bool IsEnabledByDefault = true;
+        internal static int NumberOfPopUpsWithoutPredictions = 2;
         internal static TimeSpan PopUpInterval = TimeSpan.FromSeconds(10);
         internal static TimeSpan PopUpReminderInterval_Short = TimeSpan.FromSeconds(30);
         internal static TimeSpan PopUpReminderInterval_Long = TimeSpan.FromSeconds(60);
         internal static TimeSpan MaximumValidationInterval = TimeSpan.FromHours(1);
 #elif Pilot_TaskDetection_March17
         public static bool IsEnabledByDefault = true;
+        internal static int NumberOfPopUpsWithoutPredictions = 2;
         internal static TimeSpan PopUpInterval = TimeSpan.FromMinutes(60); // show validation pop-up once every 60 minutes
         internal static TimeSpan PopUpReminderInterval_Short = TimeSpan.FromMinutes(5);
         internal static TimeSpan PopUpReminderInterval_Long = TimeSpan.FromMinutes(15);
         internal static TimeSpan MaximumValidationInterval = TimeSpan.FromHours(1);
 #else
+        internal static int NumberOfPopUpsWithoutPredictions = 2;
         public static bool IsEnabledByDefault = false; // disabled for all non-study users
         internal static TimeSpan PopUpInterval = TimeSpan.FromMinutes(60); // show validation pop-up once every 60 minutes
         internal static TimeSpan PopUpReminderInterval_Short = TimeSpan.FromMinutes(5);

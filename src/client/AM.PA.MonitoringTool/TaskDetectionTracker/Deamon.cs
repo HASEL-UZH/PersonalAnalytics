@@ -137,7 +137,6 @@ namespace TaskDetectionTracker
             // load all data first
             var taskDetections = await Task.Run(() => PrepareTaskDetectionDataForPopup(sessionStart, sessionEnd));
 
-
             // if it's not 1/10th of the validation interval, don't show the pop-up
             if (taskDetections.Count == 0 || (taskDetections.Last().End - taskDetections.First().Start).TotalHours * 10 < Settings.MaximumValidationInterval.TotalHours)
             {
@@ -173,11 +172,23 @@ namespace TaskDetectionTracker
                     // merge processes
                     processes = DataMerger.MergeProcesses(processes, sessionEnd.Subtract(sessionStart));
                     DataMerger.AddMouseClickAndKeystrokesToProcesses(processes);
-                    //TODO Andre: use file and website extractor here
+                    //option to use file and website extractor here to add more info to the timeline-hover
 
-                    // run task detection
-                    var td = new TaskDetectorImpl();
-                    taskDetections = td.FindTasks(processes);
+                    // the first two times the pop-up is shown, there should be no task predictions
+                    var numberOfValidationsCompleted = Database.GetInstance().GetSettingsInt(Settings.NumberOfValidationsCompleted_Setting, 0);
+                    var validatePopUpWithPredictions = (numberOfValidationsCompleted >= Settings.NumberOfPopUpsWithoutPredictions);
+
+                    // run task detection and show predictions
+                    if (validatePopUpWithPredictions)
+                    { 
+                        var td = new TaskDetectorImpl();
+                        taskDetections = td.FindTasks(processes);
+                    }
+                    // show empty prediction (just last item)
+                    else
+                    {
+                        taskDetections.Add(new TaskDetection(processes.First().Start, processes.Last().End, TaskTypes.Observation, TaskTypes.Other, processes, false));
+                    }                    
                 }
             }
             catch (Exception e)
@@ -229,11 +240,9 @@ namespace TaskDetectionTracker
                     var taskDetections_Validated = taskDetections.Where(t => (t.End - t.Start).TotalSeconds >= Settings.MinimumTaskDuration_Seconds).ToList();
                     var taskDetections_NotValidated = taskDetections.Where(t => (t.End - t.Start).TotalSeconds < Settings.MinimumTaskDuration_Seconds).ToList();
 
-                    // last task switch item is always a switch
-                    taskDetections_Validated.Last().TaskDetectionCase = TaskDetectionCase.Correct;
-
                     // create validation popup
                     var popup = new TaskDetectionPopup(taskDetections_Validated);
+                    popup.Topmost = true;
 
                     // show popup & handle response
                     if (popup.ShowDialog() == true)
@@ -279,6 +288,12 @@ namespace TaskDetectionTracker
                 var sessionId = DatabaseConnector.TaskDetectionSession_SaveToDatabase(detectionSessionStart, detectionSessionEnd, DateTime.Now, popup.Comments.Text);
                 if (sessionId > 0) DatabaseConnector.TaskDetectionValidationsPerSession_SaveToDatabase(sessionId, taskDetections);
                 else Database.GetInstance().LogError("Did not save any validated task detections for session (" + detectionSessionStart.ToString() + " to " + detectionSessionEnd.ToString() + ") due to an error.");
+
+                // log successful validation
+                var db = Database.GetInstance();
+                db.LogInfo("User successfully validated task switches for session (" + detectionSessionStart.ToString() + " to " + detectionSessionEnd.ToString() + ").");
+                var numberOfValidationsCompleted = 1 + db.GetSettingsInt(Settings.NumberOfValidationsCompleted_Setting, 0);
+                db.SetSettings(Settings.NumberOfValidationsCompleted_Setting, numberOfValidationsCompleted.ToString());
 
                 // next popup will start from this timestamp
                 _lastPopUpResponse = detectionSessionEnd;

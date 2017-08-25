@@ -46,7 +46,15 @@ namespace TaskDetectionTracker.Views
             InitializeComponent();
 
             // preserve task switch list for later (deep copy!)
-            this._taskSwitches_NotValidated = taskSwitches.ConvertAll(task => new TaskDetection(task.Start, task.End, task.TaskTypeProposed, task.TaskTypeValidated, task.TimelineInfos, task.IsMainTask));
+            //this._taskSwitches_NotValidated = taskSwitches.ConvertAll(task => new TaskDetection(task.Start, task.End, task.TaskTypeProposed, task.TaskTypeValidated, task.TimelineInfos, task.IsMainTask));
+
+            _taskSwitches_NotValidated = new List<TaskDetection>();
+            foreach (var task in taskSwitches)
+            {
+                var taskNew_TimeLineInfos = task.TimelineInfos.ConvertAll(info => new TaskDetectionInput());
+                var taskNew = new TaskDetection(task.Start, task.End, task.TaskTypeProposed, task.TaskTypeValidated, taskNew_TimeLineInfos, task.IsMainTask);
+                _taskSwitches_NotValidated.Add(taskNew);
+            }
 
             //Event handlers
             this.Deactivated += Window_Deactivated;
@@ -157,7 +165,7 @@ namespace TaskDetectionTracker.Views
             StopReminderTimer();
 
             // only show pop-up if its from the same day and not postponed for too long
-            if (_totalTimePostponed <= Settings.MaximumTimePostponed_Minutes && _taskSwitches_InTimeline.First().Start.Date == DateTime.Now.Date)
+           if (_totalTimePostponed <= Settings.MaximumTimePostponed_Minutes && _taskSwitches_InTimeline.First().Start.Date == DateTime.Now.Date)
             {
                 BegForParticipation.Visibility = Visibility.Visible;
                 WindowState = WindowState.Normal;
@@ -185,6 +193,7 @@ namespace TaskDetectionTracker.Views
 
         private void ValidationCanceled_Click(object sender, RoutedEventArgs e)
         {
+            StopReminderTimer();
             ForceCloseValidation();
         }
 
@@ -231,6 +240,7 @@ namespace TaskDetectionTracker.Views
                 foreach (TaskDetectionInput process in task.TimelineInfos)
                 {
                     double processDuration = process.End.Subtract(process.Start).TotalSeconds;
+                    //if (processDuration < Settings.MinimumProcessTime_Seconds) continue; // only visualize processes longer than 10s
                     double processWidth = processDuration * ((width - processBorderWidth) / totalProcessDuration);
 
                     // create tooltip
