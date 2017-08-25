@@ -285,7 +285,8 @@ namespace TaskDetectionTracker
                 taskDetections.Sort();
 
                 // save validation responses to the database
-                var sessionId = DatabaseConnector.TaskDetectionSession_SaveToDatabase(detectionSessionStart, detectionSessionEnd, DateTime.Now, popup.Comments.Text);
+                var sessionId = DatabaseConnector.TaskDetectionSession_SaveToDatabase(detectionSessionStart, detectionSessionEnd, DateTime.Now, 
+                    popup.Comments.Text, (int)popup.ConfidenceSlider_TaskSwitch.Value, (int)popup.ConfidenceSlider_TaskType.Value);
                 if (sessionId > 0) DatabaseConnector.TaskDetectionValidationsPerSession_SaveToDatabase(sessionId, taskDetections);
                 else Database.GetInstance().LogError("Did not save any validated task detections for session (" + detectionSessionStart.ToString() + " to " + detectionSessionEnd.ToString() + ") due to an error.");
 

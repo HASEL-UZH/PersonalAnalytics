@@ -17,10 +17,10 @@ namespace TaskDetectionTracker.Data
 {
     internal class DatabaseConnector
     {
-        private static string QUERY_CREATE_SESSION = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Sessions + " (sessionId INTEGER PRIMARY KEY, time DATETIME, session_start DATETIME, session_end DATETIME, timePopUpResponded DATETIME, comments TEXT);";
+        private static string QUERY_CREATE_SESSION = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Sessions + " (sessionId INTEGER PRIMARY KEY, time DATETIME, session_start DATETIME, session_end DATETIME, timePopUpResponded DATETIME, comments TEXT, confidence_switch TEXT, confidence_type TEXT);";
         private static string QUERY_CREATE_VALIDATION = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Validations + " (id INTEGER PRIMARY KEY, sessionId INTEGER, time DATETIME, task_start DATETIME, task_end DATETIME, task_detection_case TEXT, task_type_proposed TEXT, task_type_validated TEXT, is_main_task BOOLEAN);";
 
-        private static string QUERY_INSERT_SESSION = "INSERT INTO " + Settings.DbTable_TaskDetection_Sessions + " (time, session_start, session_end, timePopUpResponded, comments) VALUES ({0}, {1}, {2}, {3}, {4});";
+        private static string QUERY_INSERT_SESSION = "INSERT INTO " + Settings.DbTable_TaskDetection_Sessions + " (time, session_start, session_end, timePopUpResponded, comments, confidence_switch, confidence_type) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6});";
         private static string QUERY_INSERT_VALIDATION = "INSERT INTO " + Settings.DbTable_TaskDetection_Validations + " (sessionId, time, task_start, task_end, task_detection_case, task_type_proposed, task_type_validated, is_main_task) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7});";
 
         internal static void CreateTaskDetectionValidationTable()
@@ -33,16 +33,19 @@ namespace TaskDetectionTracker.Data
         /// Saves the session information to DbTable_TaskDetection_Sessions (returns a sessionId)
         /// </summary>
         /// <returns></returns>
-        internal static int TaskDetectionSession_SaveToDatabase(DateTime sessionStart, DateTime sessionEnd, DateTime timePopUpResponded, string comment)
+        internal static int TaskDetectionSession_SaveToDatabase(DateTime sessionStart, DateTime sessionEnd, DateTime timePopUpResponded, string comment, int confidenceSwitch, int confidenceType)
         {
             try
             {
+                var db = Database.GetInstance();
                 var query = string.Format(QUERY_INSERT_SESSION,
                                           "strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')",
-                                          Database.GetInstance().QTime(sessionStart),
-                                          Database.GetInstance().QTime(sessionEnd), 
-                                          Database.GetInstance().QTime(timePopUpResponded),
-                                          Database.GetInstance().Q(comment));
+                                          db.QTime(sessionStart),
+                                          db.QTime(sessionEnd),
+                                          db.QTime(timePopUpResponded),
+                                          db.Q(comment),
+                                          db.Q(confidenceSwitch),
+                                          db.Q(confidenceType));
                 Database.GetInstance().ExecuteDefaultQuery(query);
 
                 var query2 = "SELECT last_insert_rowid();";
