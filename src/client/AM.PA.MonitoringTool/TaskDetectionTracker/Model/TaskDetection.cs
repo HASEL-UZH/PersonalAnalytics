@@ -32,14 +32,29 @@ namespace TaskDetectionTracker.Model
         public List<TaskDetectionInput> TimelineInfos { get { return _timelineInfos; } set { _timelineInfos = value; } }
         public bool IsMainTask { get { return _isMainTask; } set { _isMainTask = value; } }
 
-        public override string ToString()
+        public TaskDetection()
         {
-            return "proposed: " + TaskTypeProposed + ", validated: " + TaskTypeValidated + " [" + Start.ToShortTimeString() + " - " + End.ToShortTimeString() + "] - " + TaskDetectionCase + " (Main task: " + IsMainTask + ")";
+            // empty constructor
+        }
+
+        public TaskDetection(DateTime start, DateTime end, TaskTypes proposed, TaskTypes validated, List<TaskDetectionInput> infos, bool isMainTask)
+        {
+            Start = start;
+            End = end;
+            TaskTypeProposed = proposed;
+            TaskTypeValidated = validated;
+            TimelineInfos = infos;
+            IsMainTask = isMainTask;
         }
 
         public int CompareTo(TaskDetection other)
         {
-            return Start.CompareTo(other.Start);
+            return Start.CompareTo(other.Start); // TODO: add End as well in comparison?
+        }
+
+        public override string ToString()
+        {
+            return "proposed: " + TaskTypeProposed + ", validated: " + TaskTypeValidated + " [" + Start.ToShortTimeString() + " - " + End.ToShortTimeString() + "] - " + TaskDetectionCase + " (Main task: " + IsMainTask + ")";
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

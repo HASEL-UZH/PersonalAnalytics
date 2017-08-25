@@ -33,8 +33,8 @@ namespace TaskDetectionTracker.Views
         public bool ValidationComplete { get; set; }
 
         internal List<TaskDetection> _taskSwitches_Validated = new List<TaskDetection>();
-        internal List<TaskDetection> _taskSwitches_NotValidated = new List<TaskDetection>();
-        internal List<TaskDetection> _taskSwitches_InTimeline = new List<TaskDetection>();
+        internal List<TaskDetection> _taskSwitches_NotValidated;
+        private List<TaskDetection> _taskSwitches_InTimeline;
         private double _totalTimePostponed = 0;
 
         /// <summary>
@@ -45,8 +45,8 @@ namespace TaskDetectionTracker.Views
         {
             InitializeComponent();
 
-            // preserve task switch list for later
-            this._taskSwitches_NotValidated = taskSwitches.ToList();
+            // preserve task switch list for later (deep copy!)
+            this._taskSwitches_NotValidated = taskSwitches.ConvertAll(task => new TaskDetection(task.Start, task.End, task.TaskTypeProposed, task.TaskTypeValidated, task.TimelineInfos, task.IsMainTask));
 
             //Event handlers
             this.Deactivated += Window_Deactivated;
@@ -59,11 +59,9 @@ namespace TaskDetectionTracker.Views
             Save.DataContext = this;
             
             //Create timeline
-            this._taskSwitches_InTimeline = taskSwitches.ToList();
+            this._taskSwitches_InTimeline = taskSwitches;
             WindowTitleBar.Text = WindowTitleBar.Text 
-                + " (from " + _taskSwitches_InTimeline.First().Start.ToShortTimeString() + " to " + _taskSwitches_InTimeline.Last().End.ToShortTimeString() + ")";
-            //StartTime.Inlines.Add(_tasks.First().Start.ToShortTimeString());
-            //EndTime.Inlines.Add(_tasks.Last().End.ToShortTimeString());
+                                    + " (from " + _taskSwitches_InTimeline.First().Start.ToShortTimeString() + " to " + _taskSwitches_InTimeline.Last().End.ToShortTimeString() + ")";
 
             double minDuration = _taskSwitches_InTimeline.Min(t => t.TimelineInfos.Min(p => p.End.Subtract(p.Start))).TotalSeconds;
             double totalDuration = _taskSwitches_InTimeline.Sum(t => t.TimelineInfos.Sum(p => p.End.Subtract(p.Start).TotalSeconds));
@@ -453,34 +451,37 @@ namespace TaskDetectionTracker.Views
                 // all tasks that are not yet validated are correct
                 foreach (var task in _taskSwitches_InTimeline)
                 {
+                    // not yet validated items are "correct"
                     if (task.TaskDetectionCase == TaskDetectionCase.NotValidated) task.TaskDetectionCase = TaskDetectionCase.Correct;
+
+                    // save "correct" and "missing" items to validated list
+                    _taskSwitches_Validated.Add(task);
                 }
 
-                // copy missing and correct ones over
+                // remaining ones were wrong (add to final list)
                 foreach (var task in _taskSwitches_NotValidated)
                 {
-                    var currentTaskIsValidated = false;
+                    var taskAlreadySaved = false;
 
-                    // add tasks that were missing or are correct to final list
-                    foreach (var task2 in _taskSwitches_InTimeline)
+                    foreach (var taskValidated in _taskSwitches_Validated)
                     {
-                        if (task == task2 && (task.TaskDetectionCase == TaskDetectionCase.Missing || task.TaskDetectionCase == TaskDetectionCase.Correct))
+                        if (task.End == taskValidated.End)
                         {
-                            _taskSwitches_Validated.Add(task);
-                            currentTaskIsValidated = true;
+                            taskAlreadySaved = true;
                             break;
                         }
                     }
 
-                    // remaining ones were wrong (add to final list)
-                    if (!currentTaskIsValidated)
+                    // add tasks that were missing or are correct to final list
+                    if (!taskAlreadySaved)
                     {
                         task.TaskDetectionCase = TaskDetectionCase.Wrong;
                         _taskSwitches_Validated.Add(task);
                     }
                 }
 
-                Shared.Logger.WriteToConsole(_taskSwitches_Validated.ToString());
+                // sort list again
+                _taskSwitches_Validated.Sort();
             }
             catch (Exception e)
             {
