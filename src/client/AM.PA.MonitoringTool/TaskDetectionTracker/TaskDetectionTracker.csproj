@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;Pilot_TaskDetection_March17</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -102,7 +102,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-<Content Include="Assets\TaskDetectionData\ProcessCategories.csv">
+    <Content Include="Assets\TaskDetectionData\ProcessCategories.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\TaskDetectionData\R-3.4.0.zip">
@@ -116,8 +116,8 @@
     </Content>
     <Content Include="Assets\TaskDetectionData\tasktypedetectionmodel.rda">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content> 
-	    <Content Include="Assets\TaskDetectionData\stopwords.txt">
+    </Content>
+    <Content Include="Assets\TaskDetectionData\stopwords.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="packages.config" />
