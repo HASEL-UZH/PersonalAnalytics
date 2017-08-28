@@ -61,7 +61,7 @@ namespace TaskDetectionTracker.Algorithm
         }
 
         /// <summary>
-        /// TODO: please document
+        /// Predicts task switches between <see cref="TaskDetectionInput"/> and predicts task types of <see cref="TaskDetection"/>.
         /// </summary>
         /// <param name="processes"></param>
         /// <returns></returns>
@@ -94,6 +94,11 @@ namespace TaskDetectionTracker.Algorithm
             }
         }
 
+        /// <summary>
+        /// Creates a file that arranged the <see cref="Datapoint"/> such that it can be read by the trained classifier
+        /// used for predicting the task switches.
+        /// </summary>
+        /// <param name="dps"></param>
         private void WriteSwitchDetectionFile(List<Datapoint> dps)
         {
             var csv_all = new StringBuilder();
@@ -311,14 +316,13 @@ namespace TaskDetectionTracker.Algorithm
         }
 
         /// <summary>
-        /// TODO: please document
+        /// Predicts task switches between <see cref="TaskDetectionInput"/> using a pre-trained classifier.
         /// </summary>
         /// <param name="processes"></param>
         /// <returns></returns>
         private List<TaskDetection> PredictSwitches(List<TaskDetectionInput> processes)
         {
             var tcs = new List<TaskDetection>();
-
             try
             {
                 // set environment variables so R can access the tools
@@ -332,10 +336,11 @@ namespace TaskDetectionTracker.Algorithm
                 // read taskswitch-data
                 engine.Evaluate("data <- read.csv(file = '" + R_ConvertPathToForwardSlash(GetTaskDetectionDumpsPath(_taskSwitchDataFolder, _taskSwitchDataFileName)) + "', sep = \",\", header = TRUE)");
 
-                // read task switch detection model (model based on previous study, N=14)
+                // load task switch detection model (model based on previous study, N=14)
                 engine.Evaluate("load(\"" + R_ConvertPathToForwardSlash(_taskSwitchDetectionModelFileName) + "\")");
+                // use task switch detection model
                 GenericVector switchResult = engine.Evaluate("prob <- predict(mod_fit_all, newdata = data, type = \"response\")").AsList();
-
+                // read and process the predictions
                 List<TaskDetectionInput> toBundle = new List<TaskDetectionInput>();
                 toBundle.Add(processes[0]);
 
@@ -382,7 +387,8 @@ namespace TaskDetectionTracker.Algorithm
         }
 
         /// <summary>
-        /// TODO: please document
+        /// Creates a file that arranges the <see cref="TaskDetection"/> information such that it can be read by the trained 
+        /// classifier used for predicting the task types. 
         /// </summary>
         /// <param name="tcs"></param>
         private void WriteTypeDetectionFile(List<TaskDetection> tcs)
@@ -461,44 +467,35 @@ namespace TaskDetectionTracker.Algorithm
         }
 
         /// <summary>
-        /// TODO: please document
+        /// Predicts task types of a <see cref="TaskDetection"/> using a pre-trained classifier. The trained task types 
+        /// include: Private, Planned Meeting, Unplanned Meeting, Awareness, Planning, Observation, Development, Adminstrative Work
         /// </summary>
         /// <param name="tcs"></param>
         private void PredictTypes(List<TaskDetection> tcs)
         {
             //1: Private, 2: Planned Meeting, 3: Unplanned Meeting, 4: Awareness, 5: Planning, 6: Observation, 7: Development, 8: Adminstrative Work
-
             try
             {
-
-
                 // initialize R engine
                 REngine engine = REngine.GetInstance();
                 engine.Initialize();
 
                 // read taskswitch-data
                 engine.Evaluate("tasktypedata <- read.csv(file = '" + R_ConvertPathToForwardSlash(GetTaskDetectionDumpsPath(_taskTypeDataFolder, _taskTypeDataFileName)) + "', sep = \",\", header = TRUE)");
-
-                // engine.Evaluate(".libPaths('C:/Users/katja/OneDrive/Documents/R/win-library/3.3')");
-                // engine.Evaluate(".libPaths('C:/Users/katja/Desktop/R_libraries')"); _rToolsRandomForest
                 engine.Evaluate(".libPaths('" + R_ConvertPathToForwardSlash(_rToolsLibraries) + "')");
-
                 engine.Evaluate("library(randomForest)");
 
-                // read
+                // load the taskswitch classifier
                 engine.Evaluate("load(\"" + R_ConvertPathToForwardSlash(_taskTypeDetectionModelFileName) + "\")");
-
+                // use the classifier 
                 GenericVector typeResult = engine.Evaluate("prob <- predict(model, newdata = tasktypedata, type = \"response\")").AsList();
-                //as.numeric(as.character(prob[1])
-
+                // read the results
                 for (int i = 0; i < typeResult.Count(); i++)
                 {
                     string resTask = typeResult[i].AsCharacter().First();
-
                     // convert from string to TaskTypes
                     TaskTypes type = TaskTypes.Other;
                     Enum.TryParse(resTask, out type);
-
                     tcs[i].TaskTypeProposed = type;
                 }
             }
