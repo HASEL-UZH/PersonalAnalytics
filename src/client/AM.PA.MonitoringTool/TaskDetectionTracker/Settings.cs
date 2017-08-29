@@ -19,13 +19,13 @@ namespace TaskDetectionTracker
 #if DEBUG 
         public static bool IsEnabledByDefault = true;
         internal static int NumberOfPopUpsWithoutPredictions = 2;
-        internal static TimeSpan PopUpInterval = TimeSpan.FromSeconds(10);
+        internal static TimeSpan PopUpInterval = TimeSpan.FromSeconds(300);
         internal static TimeSpan PopUpReminderInterval_Short = TimeSpan.FromSeconds(30);
         internal static TimeSpan PopUpReminderInterval_Long = TimeSpan.FromSeconds(60);
         internal static TimeSpan MaximumValidationInterval = TimeSpan.FromHours(1);
 #elif Pilot_TaskDetection_March17
         public static bool IsEnabledByDefault = true;
-        internal static int NumberOfPopUpsWithoutPredictions = 2;
+        internal static int NumberOfPopUpsWithoutPredictions = 5;
         internal static TimeSpan PopUpInterval = TimeSpan.FromMinutes(60); // show validation pop-up once every 60 minutes
         internal static TimeSpan PopUpReminderInterval_Short = TimeSpan.FromMinutes(5);
         internal static TimeSpan PopUpReminderInterval_Long = TimeSpan.FromMinutes(15);
