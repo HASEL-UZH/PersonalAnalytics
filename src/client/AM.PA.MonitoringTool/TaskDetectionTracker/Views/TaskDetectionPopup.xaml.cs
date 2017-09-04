@@ -514,7 +514,7 @@ namespace TaskDetectionTracker.Views
                     break;
                 }
             }
-            Console.WriteLine("Added task boundary: " + process.ToString()); // TODO: temp
+            //Console.WriteLine("Added task boundary: " + process.ToString()); // TODO: temp
         }
 
         /// <summary>
@@ -540,7 +540,7 @@ namespace TaskDetectionTracker.Views
             {
                 AddProcessesToAnotherTask(task, taskToAdd, task.TimelineInfos);
             }
-            Console.WriteLine("Removed task boundary: " + task.ToString()); // TODO: temp
+            //Console.WriteLine("Removed task boundary: " + task.ToString()); // TODO: temp
         }
 
         /// <summary>
@@ -553,8 +553,11 @@ namespace TaskDetectionTracker.Views
             //Add process to new task
             TaskDetection newTask = new TaskDetection();
             newTask.TimelineInfos = processes;
-            newTask.Start = newTask.TimelineInfos.First().Start;
-            newTask.End = newTask.TimelineInfos.Last().End;
+            if (processes.Count > 0)
+            {
+                newTask.Start = newTask.TimelineInfos.First().Start;
+                newTask.End = newTask.TimelineInfos.Last().End;
+            }
             newTask.TaskTypeValidated = TaskTypes.Other;
             newTask.TaskDetectionCase = task.TaskDetectionCase;
 

@@ -137,8 +137,10 @@ namespace TaskDetectionTracker
             // load all data first
             var taskDetections = await Task.Run(() => PrepareTaskDetectionDataForPopup(sessionStart, sessionEnd));
 
-            // if it's not 1/10th of the validation interval, don't show the pop-up
-            if (taskDetections.Count == 0 || (taskDetections.Last().End - taskDetections.First().Start).TotalHours * 10 < Settings.MaximumValidationInterval.TotalHours)
+            // don't show the pop-up if...
+            if (taskDetections.Count == 0 || // if there are no predictions
+                ((taskDetections.Last().End - taskDetections.First().Start).TotalHours * 5 < Settings.MaximumValidationInterval.TotalHours) || // if it's not 1/5th of the validation interval
+                (taskDetections.Sum(t => (t.End - t.Start).TotalSeconds) < 10 * 60)) // if the total duration of the detected tasks is 10 minutes
             {
                 var msg = string.Format("No tasks detected or too short interval between {0} {1} and {2} {3}.", sessionStart.ToShortDateString(), sessionStart.ToShortTimeString(), sessionEnd.ToShortDateString(), sessionEnd.ToShortTimeString());
                 Database.GetInstance().LogWarning(msg);

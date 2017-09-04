@@ -10,7 +10,7 @@
              xmlns:helpers="clr-namespace:TaskDetectionTracker.Helpers"
              xmlns:paColors="clr-namespace:Shared;assembly=Shared"
              mc:Ignorable="d" 
-             Title="PersonalAnalytics: Validate Task Detections" Height="840" Width="1400" MinHeight="840" MinWidth="1200">
+             Title="PersonalAnalytics: Validate Task Detections" Height="850" Width="1400" MinHeight="850" MinWidth="1000">
 
     <Window.Resources>
         <converters:StringToBrushConverter x:Key="StringToBrushConverter" />
