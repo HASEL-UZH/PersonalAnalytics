@@ -304,36 +304,33 @@ namespace WindowsActivityTracker.Data
                         e.StartTime = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
                         e.EndTime = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
                         e.DurationInSeconds = row.IsNull("durInSec") ? 0 : Convert.ToInt32(row["durInSec"], CultureInfo.InvariantCulture);
-                        e.ProcessName = (string)row["process"];
-                        e.WindowTitle = (string)row["window"];
+                        var processName = (string)row["process"];
 
-                        // if the user wishes to see activity categories rather than processes
-                        // map it automatically
-                        if (mapToActivity)
-                        {
-                            ProcessToActivityMapper.Map(e);
-                        }
+                        // make window titles more readable (TODO: improve!)
+                        var windowTitle = (string)row["window"];
+                        windowTitle = WindowTitleWebsitesExtractor.GetWebsiteDetails(processName, windowTitle);
+                        //windowTitle = WindowTitleArtifactExtractor.GetArtifactDetails(processName, windowTitle);
+                        //windowTitle = WindowTitleCodeExtractor.GetProjectName(windowTitle);
+
+                        // map process and window to activity
+                        ProcessToActivityMapper.Map(e, processName, windowTitle);
+
 
                         // check if we add a new item, or merge with the previous one
                         if (_previousWindowsActivityEntry != null)
                         {
                             // previous item is same, update it (duration and tsEnd)
-                            if (mapToActivity && e.ActivityCategory == _previousWindowsActivityEntry.ActivityCategory)
+                            if (e.ActivityCategory == _previousWindowsActivityEntry.ActivityCategory)
                             {
                                 var lastItem = orderedActivityList.Last();
                                 lastItem.DurationInSeconds += e.DurationInSeconds;
                                 lastItem.EndTime = e.EndTime;
-                            }
-                            // previous item is same, update it (duration and tsEnd)
-                            else if (!mapToActivity && e.ProcessName == _previousWindowsActivityEntry.ProcessName)
-                            {
-                                var lastItem = orderedActivityList.Last();
-                                lastItem.DurationInSeconds += e.DurationInSeconds;
-                                lastItem.EndTime = e.EndTime;
+                                lastItem.WindowProcessList.Add(new WindowProcessItem(processName, windowTitle));
                             }
                             // previous item is different, add it to list
                             else
                             {
+                                e.WindowProcessList.Add(new WindowProcessItem(processName, windowTitle));
                                 orderedActivityList.Add(e);
                             }
                         }

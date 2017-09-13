@@ -179,8 +179,8 @@ namespace WindowsActivityTracker.Visualizations
                              ", 'starting_time_formatted': '" + activityEntry.StartTime.ToShortTimeString() + 
                              "', 'ending_time_formatted': '" + activityEntry.EndTime.ToShortTimeString() + 
                              "', 'duration': " + Math.Round(activityEntry.DurationInSeconds / 60.0, 1) + 
-                             ", 'window_title': '" + activityEntry.WindowTitle.Replace("'", "").Replace("/", "//").Replace(@"\", @"\\") + 
-                             "', 'process': '" + ProcessNameHelper.GetFileDescription(activityEntry.ProcessName) + 
+                             ", 'window_titles': '" + ReadableWindowTitles(activityEntry.WindowProcessList) + 
+                             "', 'processes': '" + ReadableProcesses(activityEntry.WindowProcessList) + 
                              "', 'color': '" + GetHtmlColorForContextCategory(activityEntry.ActivityCategory) +
                              "', 'activity': '" + GetDescriptionForContextCategory(activityEntry.ActivityCategory) + "'}, ";
                 }
@@ -219,7 +219,7 @@ namespace WindowsActivityTracker.Visualizations
 
         private string FormatWindowTitle(string windowTitle)
         {
-            return string.IsNullOrEmpty(windowTitle) ? string.Empty : windowTitle.Replace("'", "") + ", ";
+            return string.IsNullOrEmpty(windowTitle) ? string.Empty : windowTitle.Replace("'", "").Replace("'", "").Replace("/", "//").Replace(@"\", @"\\") + ", ";
         }
 
         private string ReadableProcesses(List<WindowProcessItem> list)
