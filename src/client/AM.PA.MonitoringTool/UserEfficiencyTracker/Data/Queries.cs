@@ -186,7 +186,7 @@ namespace UserEfficiencyTracker.Data
 
             var query = "SELECT date FROM ( "
                         + "SELECT date(time) as 'date' "
-                        + "FROM windows_activity "
+                        + "FROM " + Shared.Settings.WindowsActivityTable + " "
                         + "WHERE process <> 'IDLE' AND date(time) <> " + Database.GetInstance().QDate(DateTime.Now) + " " // not today
                         + "GROUP BY date(time) "
                         + "ORDER BY date(time) DESC "
@@ -311,10 +311,10 @@ namespace UserEfficiencyTracker.Data
                             + "FROM ( "
                             + "SELECT process, sum(difference) / 60.0  as 'durInMins' "
                             + "FROM (	"
-                            + "SELECT t1.process, (strftime('%s', t2.time) - strftime('%s', t1.time)) as 'difference' "
-                            + "FROM " + Shared.Settings.WindowsActivityTable + " t1 LEFT JOIN " + Shared.Settings.WindowsActivityTable + " t2 on t1.id + 1 = t2.id "
-                            + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(type, date, "t1.time") + " and " + Database.GetInstance().GetDateFilteringStringForQuery(type, date, "t2.time") + " "
-                            + "GROUP BY t1.id, t1.time "
+                            + "SELECT process, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'difference' "
+                            + "FROM " + Shared.Settings.WindowsActivityTable + " "
+                            + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(type, date, "tsStart") + " AND " + Database.GetInstance().GetDateFilteringStringForQuery(type, date, "tsEnd") + " "
+                            + "GROUP BY id, tsStart "
                             + ") "
                             + "WHERE difference > 0 and process <> '" + Dict.Idle + "' "
                             + "GROUP BY process "
@@ -352,13 +352,13 @@ namespace UserEfficiencyTracker.Data
 
             try
             {
-                var dayFilter = (type == VisType.Day) ? "" : "(STRFTIME('%s', DATE(t1.time)) = STRFTIME('%s', DATE(t2.time))) and "; // needed for week view
-                var query = "SELECT (strftime('%s', t2.time) - strftime('%s', t1.time)) as 'difference', t1.time as 'from', t2.time as 'to' "
-                            + "FROM " + Shared.Settings.WindowsActivityTable + " t1 LEFT JOIN " + Shared.Settings.WindowsActivityTable + " t2 on t1.id + 1 = t2.id "
+                var dayFilter = (type == VisType.Day) ? "" : "(STRFTIME('%s', DATE(tsStart)) = STRFTIME('%s', DATE(tsEnd))) and "; // needed for week view
+                var query = "SELECT (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'difference', tsStart, tsEnd "
+                            + "FROM " + Shared.Settings.WindowsActivityTable + " "
                             + "WHERE " + dayFilter
-                            + Database.GetInstance().GetDateFilteringStringForQuery(type, date, "t1.time") + " and " + Database.GetInstance().GetDateFilteringStringForQuery(type, date, "t2.time") + " "
-                            + "AND lower(t1.process) ='" + process.ToLower(CultureInfo.InvariantCulture) + "' "
-                            + "GROUP BY t1.id, t1.time; ";
+                            + Database.GetInstance().GetDateFilteringStringForQuery(type, date, "tsStart") + " AND " + Database.GetInstance().GetDateFilteringStringForQuery(type, date, "tsEnd") + " "
+                            + "AND lower(process) ='" + process.ToLower(CultureInfo.InvariantCulture) + "' "
+                            + "GROUP BY id, tsStart;";
 
                 var table = Database.GetInstance().ExecuteReadQuery(query);
 
@@ -366,11 +366,11 @@ namespace UserEfficiencyTracker.Data
                 {
                     var diff = Convert.ToInt32(row["difference"], CultureInfo.InvariantCulture);
                     var durInMins = (int)Math.Round(diff / 60.0, 0);
-                    var to = DateTime.Parse((string)row["to"], CultureInfo.InvariantCulture);
-                    var from = DateTime.Parse((string)row["from"], CultureInfo.InvariantCulture);
+                    var tsStart = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
+                    var tsEnd = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
 
                     if (durInMins == 0) continue;
-                    list.Add(new TopProgramTimeDto(from, to, durInMins));
+                    list.Add(new TopProgramTimeDto(tsStart, tsEnd, durInMins));
                 }
                 table.Dispose();
             }

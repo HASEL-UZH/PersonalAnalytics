@@ -3,8 +3,6 @@
 // 
 // Licensed under the MIT License.
 
-using Shared.Data;
-using Shared.Helpers;
 using System;
 using System.IO;
 using System.Windows.Media;
@@ -17,21 +15,31 @@ namespace Shared
          * version 1 - initial release
          * version 2 - update emails table in MsOfficeTracker (2016-06-20)
          * version 3 - update focus_state table in FlowTracker (2017-01-12)
+         * version 4 - update windows_activity table in WindowsActivityTracker (2017-07-20)
          */
-        public const int DatabaseVersion = 3; // !!! update when existing database table changes (have a look at PerformDatabaseUpdatesIfNecessary() for details)
+        public const int DatabaseVersion = 4; // !!! update when existing database table changes (have a look at PerformDatabaseUpdatesIfNecessary() for details)
 
-#if Pilot_MSR
+
+#if Dev
+        public const bool IsUploadEnabled = false;
+        public const bool IsUploadReminderEnabled = false;
+        public static bool IsFeedbackEnabled = true; // can be overwritten when starting the retrospection
+        private const int _checkForToolUpdatesIntervalInMins = 5;
+#elif Pilot_MSR
         public const bool IsUploadEnabled = true;
         public const bool IsUploadReminderEnabled = true;
-        public const bool IsFeedbackEnabled = false;
+        public static bool IsFeedbackEnabled = false; // can be overwritten when starting the retrospection
+        private const int _checkForToolUpdatesIntervalInMins = 6 * 60;
 #elif Pilot_TaskDetection_March17
         public const bool IsUploadEnabled = false;
         public const bool IsUploadReminderEnabled = false;
-        public const bool IsFeedbackEnabled = false;
+        public static bool IsFeedbackEnabled = false; // can be overwritten when starting the retrospection
+        private const int _checkForToolUpdatesIntervalInMins = 6 * 60;
 #else
         public const bool IsUploadEnabled = false;
         public const bool IsUploadReminderEnabled = false;
-        public const bool IsFeedbackEnabled = false;
+        public static bool IsFeedbackEnabled = true; // can be overwritten when starting the retrospection
+        private const int _checkForToolUpdatesIntervalInMins = 6 * 60;
 #endif
 
         public static bool AnonymizeSensitiveData = false;
@@ -42,13 +50,12 @@ namespace Shared
         public const string FeedbackDbTable = "feedback";
         public const string TimeZoneTable = "timezone";
 
-        public const string WindowsActivityTable = "windows_activity"; //used for the retrospection
-        //public const string UserEfficiencySurveyTable = "user_efficiency_survey"; // used for the retrospection
-        //public const string EmailsTable = "emails"; // used for the retrospection
-        public const string MeetingsTable = "meetings";  // used for the retrospection
+        public const string WindowsActivityTable = "windows_activity"; // used for the retrospection (shared)
+        public const string MeetingsTable = "meetings"; // used for the retrospection (shared)
+        public const string UserInputTable = "user_input"; // used to validate IDLE resume entries in the windows activity tracker (shared)
 
         public static TimeSpan CheckForStudyDataSharedReminderInterval = TimeSpan.FromHours(4); // every 4 hours, check if we should remind the user to share study data
-        public static TimeSpan CheckForToolUpdatesInterval = TimeSpan.FromHours(6); // every 6 hours, check if there is an update available
+        public static TimeSpan CheckForToolUpdatesInterval = TimeSpan.FromMinutes(_checkForToolUpdatesIntervalInMins); // every x minutes, check if there is an update available
         public static TimeSpan TooltipIconUpdateInterval = TimeSpan.FromSeconds(20); // every 20 seconds, update the tasktray icon tool tip
         public static TimeSpan RemindToResumeToolInterval = TimeSpan.FromMinutes(30); // every 30 minutes, check if the tool is still paused, if yes: remind the user
 
@@ -77,13 +84,13 @@ namespace Shared
 
         ////////////////////////////////////////////////////////////
         // contact emails
-        #if Pilot_MSR
+#if PilotMSR
         public const string EmailAddress1 = "tzimmer@microsoft.com"; // main email address
         public const string EmailAddress2 = "ameyer@ifi.uzh.ch";
-        #else
+#else
         public const string EmailAddress1 = "ameyer@ifi.uzh.ch"; // main email address
         public static string EmailAddress2 = string.Empty;
-        #endif
+#endif
 
 
         ////////////////////////////////////////////////////////////

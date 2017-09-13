@@ -94,6 +94,9 @@ namespace WindowsActivityTracker.Visualizations
                     .timeline-label {
                       font-size: .71em;
                     }
+                    /*.coloredDiv {
+                      height:20px; width:20px; float:left; margin-right:5px;
+                    }
                     </style>";
 
             /////////////////////
@@ -176,8 +179,8 @@ namespace WindowsActivityTracker.Visualizations
                              ", 'starting_time_formatted': '" + activityEntry.StartTime.ToShortTimeString() + 
                              "', 'ending_time_formatted': '" + activityEntry.EndTime.ToShortTimeString() + 
                              "', 'duration': " + Math.Round(activityEntry.DurationInSeconds / 60.0, 1) + 
-                             ", 'window_titles': '" + ReadableWindowTitles(activityEntry.WindowProcessList) + 
-                             "', 'processes': '" + ReadableProcesses(activityEntry.WindowProcessList) + 
+                             ", 'window_title': '" + activityEntry.WindowTitle.Replace("'", "").Replace("/", "//").Replace(@"\", @"\\") + 
+                             "', 'process': '" + ProcessNameHelper.GetFileDescription(activityEntry.ProcessName) + 
                              "', 'color': '" + GetHtmlColorForContextCategory(activityEntry.ActivityCategory) +
                              "', 'activity': '" + GetDescriptionForContextCategory(activityEntry.ActivityCategory) + "'}, ";
                 }

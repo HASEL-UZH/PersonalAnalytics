@@ -29,6 +29,8 @@ namespace Retrospection
         private SettingsWindow _settingsWindow;
         private string _publishedAppVersion;
         private List<ITracker> _trackers;
+        private bool _hideFeedback;
+        private bool _hideAbout;
 
         #region Start/Stop & Initialization of Singleton
 
@@ -47,9 +49,13 @@ namespace Retrospection
         }
 
         /// <summary>
-        /// start HTTP Localhost
+        /// prepares the retrospection: starts HTTP Localhost
         /// </summary>
-        public void Start(List<ITracker> trackers, string appVersion)
+        /// <param name="trackers">visualizes these trackers' visualizations</param>
+        /// <param name="appVersion">necessary to display in the pop-up</param>
+        /// <param name="hideFeedback">hides the feedback option in the retrospection window, default: false</param>
+        /// <param name="hideAbout">hides the about option in the retrospection window, default: false</param>
+        public void Start(List<ITracker> trackers, string appVersion, bool hideFeedback = false, bool hideAbout = false)
         {
             // start http server (if not already started)
             StartHttpServer();
@@ -57,6 +63,9 @@ namespace Retrospection
             // set needed variables
             SetTrackers(trackers);
             _publishedAppVersion = appVersion;
+            _hideFeedback = hideFeedback;
+            _hideAbout = hideAbout;
+            if (hideFeedback) Shared.Settings.IsFeedbackEnabled = false;
 
             IsRunning = true;
         }
@@ -133,7 +142,7 @@ namespace Retrospection
                 // new window
                 if (_retrospection == null)
                 {
-                    _retrospection = new RetrospectionWindow();
+                    _retrospection = new RetrospectionWindow(_hideFeedback, _hideAbout);
                     _retrospection.WindowState = (OpenRetrospectionInFullScreen) ? WindowState.Maximized : WindowState.Normal;
                     _retrospection.Topmost = true;
                     _retrospection.Topmost = false;

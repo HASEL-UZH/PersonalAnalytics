@@ -62,10 +62,10 @@ namespace TimeSpentVisualizer.Data
             {
                 var query = "SELECT process, sum(difference) / 60.0  as 'durInMins' "
                           + "FROM (	"
-                          + "SELECT t1.process, (strftime('%s', t2.time) - strftime('%s', t1.time)) as 'difference' " //t1.id, t1.time as 'from', t2.time as 'to'
-                          + "FROM " + Settings.WindowsActivityTable + " t1 LEFT JOIN " + Settings.WindowsActivityTable + " t2 on t1.id + 1 = t2.id "
-                          + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "t1.time") + " and " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "t2.time") + " "
-                          + "GROUP BY t1.id, t1.time "
+                          + "SELECT process, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'difference' "
+                          + "FROM " + Settings.WindowsActivityTable + " "
+                          + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsStart") + " AND " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsEnd") + " "
+                          + "GROUP BY id, tsStart"
                           + ") "
                           + "WHERE difference > 0 and process <> '" + Dict.Idle + "' "
                           + "GROUP BY process;";

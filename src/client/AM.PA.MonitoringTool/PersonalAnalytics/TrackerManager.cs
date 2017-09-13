@@ -55,8 +55,7 @@ namespace PersonalAnalytics
 
         /// <summary>
         /// Register trackers for the TrackerManager (i.e. monitoring tool)
-        /// (add a new tracker here to make it being integrated into the monitoring tool
-        /// and retrospection)
+        /// (add a new tracker here to make it being integrated into the monitoring tool and retrospection)
         /// </summary>
         public List<ITracker> RegisterTrackers()
         {
@@ -69,7 +68,16 @@ namespace PersonalAnalytics
             Register(new FitbitTracker.Deamon());
             Register(new FlowTracker.Daemon());
 
-            return _trackers; // return trackers for retrospection
+#if Dev
+            //Register(new PeopleVisualizer.PeopleVisualizer()); // disabled, as it's not finished and pretty slow
+            //Register(new WindowsContextTracker.Daemon();); // implementation not finished
+
+#elif TestPilot1
+             // if something is only required in the standard deployment
+            
+#endif
+
+            return _trackers;
         }
 
         /// <summary>
@@ -778,7 +786,6 @@ namespace PersonalAnalytics
             try
             {
                 info = ad.CheckForDetailedUpdate();
-
             }
             catch (DeploymentDownloadException dde)
             {
@@ -847,9 +854,10 @@ namespace PersonalAnalytics
 
                         // the only way the restart with a click once work and IsNetworkDeployed is not false after the restart is
                         // the following (according to this: http://blachniet.com/blog/how-not-to-restart-a-clickonce-application/)
+                        // and https://robrelyea.wordpress.com/2007/07/24/application-restart-for-wpf/
 
                         Stop(false); // stop the application (restart stuff below)
-                        System.Windows.Forms.Application.Restart(); // other way might be: Process.Start(App.AppPath);
+                        System.Windows.Forms.Application.Restart();
                         Application.Current.Shutdown();
                     }
                     catch (DeploymentDownloadException dde)

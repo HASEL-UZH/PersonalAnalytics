@@ -95,6 +95,7 @@ namespace TimeSpentVisualizer.Visualizers
         private const int numberOfItemsShown = 10;
         private bool _showEmailsEnabled;
         private bool _showProgramsEnabled;
+        private bool? _meetingTableExists;
 
         public DayTimeSpentTable(DateTimeOffset date, bool showEmailsEnabled, bool showProgramsEnabled)
         {
@@ -129,14 +130,23 @@ namespace TimeSpentVisualizer.Visualizers
             var reviews = CollectData.GetCleanedCodeReviewsDone(_date);
             list.AddRange(reviews);
 
-            var meetings = CollectData.GetCleanedMeetings(_date);
-            list.AddRange(meetings);
-
+            // check if table exists before runnign query
+            if (! _meetingTableExists.HasValue)
+            {
+                _meetingTableExists = Database.GetInstance().HasTable(Settings.MeetingsTable);
+            }
+            if (_meetingTableExists.Value)
+            {
+                var meetings = CollectData.GetCleanedMeetings(_date);
+                list.AddRange(meetings);
+            }
+            // users can disable including email data
             if (_showEmailsEnabled)
             {
                 var emails = CollectData.GetCleanedOutlookInfo(_date);
                 list.AddRange(emails);
             }
+            // users can disable showing program details
             if (_showProgramsEnabled)
             {
                 var programs = CollectData.GetCleanedPrograms(_date);
