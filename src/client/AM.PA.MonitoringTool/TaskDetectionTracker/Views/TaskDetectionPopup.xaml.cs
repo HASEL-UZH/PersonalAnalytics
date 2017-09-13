@@ -514,7 +514,6 @@ namespace TaskDetectionTracker.Views
                     break;
                 }
             }
-            //Console.WriteLine("Added task boundary: " + process.ToString()); // TODO: temp
         }
 
         /// <summary>
@@ -540,7 +539,6 @@ namespace TaskDetectionTracker.Views
             {
                 AddProcessesToAnotherTask(task, taskToAdd, task.TimelineInfos);
             }
-            //Console.WriteLine("Removed task boundary: " + task.ToString()); // TODO: temp
         }
 
         /// <summary>
