@@ -3,6 +3,7 @@
 // 
 // Licensed under the MIT License.
 
+using FitbitTracker.Data;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FitbitTracker.Tests
