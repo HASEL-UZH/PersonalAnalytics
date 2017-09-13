@@ -30,6 +30,7 @@ FlowLight.dll
 FlowTracker.dll
 ***************
 
+2017-09-13	V2.0.6465.27233	minor updates following WindowsActivityTracker-changes
 2017-04-20	V2.0.6319.40265	updated sqlite to 1.0.105
 2017-03-17	V2.0.6285.27369
 2017-01-31	V2.0.6240.21524
@@ -56,6 +57,7 @@ WindowsActivityTracker.dll
 2017-04-20	V2.0.6319.30087	updated sqlite to 1.0.105
 2017-01-24	V2.0.6233.19305
 2016-12-14	V2.0.6187.20492 initial version
+
 
 **********************
 ArtifactVisualizer.dll
