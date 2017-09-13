@@ -220,8 +220,6 @@ namespace WindowsActivityTracker.Data
                 // update tsEnd of previous (wrong entry)
                 var query = "UPDATE " + Settings.DbTable + " SET tsEnd = " + Database.GetInstance().QTime2(idleTimeFix) + " WHERE id = " + item.Item1;
                 Database.GetInstance().ExecuteDefaultQuery(query);
-
-                Logger.WriteToLogFile(new Exception(Settings.ManualSleepIdle + " from: " + item + " to: " + idleTimeFix)); // TODO: temp, remove
             }
 
             if (toFix.Count > 0) Database.GetInstance().LogInfo("Fixed " + toFix.Count + " missed IDLE sleep entries.");
