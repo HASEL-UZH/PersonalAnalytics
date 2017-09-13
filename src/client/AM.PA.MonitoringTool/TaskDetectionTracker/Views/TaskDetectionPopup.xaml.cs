@@ -29,6 +29,8 @@ namespace TaskDetectionTracker.Views
         private DispatcherTimer _popUpReminderTimer;
         public ObservableCollection<TaskRectangle> RectItems { get; set; }
         public static double TimelineWidth { get; set; }
+        public int Confidence_TaskSwitch = -1;
+        public int Confidence_TaskType = -1;
         private bool CancelValidationForced;
         public bool ValidationComplete { get; set; }
 
@@ -64,17 +66,20 @@ namespace TaskDetectionTracker.Views
 
             //Set task context
             Timeline.DataContext = this;
-            Save.DataContext = this;
+            SaveButton.DataContext = this;
             
             //Create timeline
             this._taskSwitches_InTimeline = taskSwitches;
             WindowTitleBar.Text = WindowTitleBar.Text 
                                     + " (from " + _taskSwitches_InTimeline.First().Start.ToShortTimeString() + " to " + _taskSwitches_InTimeline.Last().End.ToShortTimeString() + ")";
 
+            // find ideal timeline width
             double minDuration = _taskSwitches_InTimeline.Min(t => t.TimelineInfos.Min(p => p.End.Subtract(p.Start))).TotalSeconds;
             double totalDuration = _taskSwitches_InTimeline.Sum(t => t.TimelineInfos.Sum(p => p.End.Subtract(p.Start).TotalSeconds));
             double timeLineWidth = totalDuration / minDuration * Settings.MinimumProcessWidth;
-            TimelineWidth = Math.Min(timeLineWidth, Settings.MaximumTimeLineWidth);
+            if (timeLineWidth > Settings.MaximumTimeLineWidth) TimelineWidth = Settings.MaximumTimeLineWidth;
+            else if (timeLineWidth < Settings.MinimumProcessTime_Seconds) TimelineWidth = Settings.MinimumTimeLineWidth;
+            else TimelineWidth = timeLineWidth;
             
             RectItems = new ObservableCollection<TaskRectangle>();
             this.Loaded += TaskDetectionPopup_Loaded;
@@ -327,6 +332,18 @@ namespace TaskDetectionTracker.Views
         #region UI handlers
 
         /// <summary>
+        /// Will enable the save button when the user scrolled to the end
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Timeline_OnScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            var scrollViewer = (ScrollViewer)sender;
+            if (scrollViewer.HorizontalOffset == scrollViewer.ScrollableWidth)
+                SaveButton.IsEnabled = true;
+        }
+
+        /// <summary>
         /// Called when the user changes the combobox selection
         /// </summary>
         /// <param name="sender"></param>
@@ -392,58 +409,121 @@ namespace TaskDetectionTracker.Views
             }
         }
 
-        /// <summary>
-        /// Called when the user wants to delete a user-defined task boundary
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        //private void DeleteTaskBoundaryButton_Click(object sender, RoutedEventArgs e)
-        //{
-        //    var task = ((sender as Button).DataContext as TaskRectangle).Data;
-        //    RemoveTaskBoundary(task);
-        //}
+        #region Handle Confidence Ratings
 
-        /// <summary>
-        /// Called when the user validates a task boundary (correct boundary)
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        //private void RadioButton_Checked_Correct(object sender, RoutedEventArgs e)
-        //{
-        //    var task = ((sender as RadioButton).DataContext as TaskRectangle).Data;
-        //    TaskDetectionCase previousTaskDetectionCase = task.TaskDetectionCase;
-        //    task.TaskDetectionCase = TaskDetectionCase.Correct;
+        private void Confidence_TaskSwitch_ResetButtons()
+        {
+            TaskSwitchConfidence_Btn_1.Background = Brushes.White;
+            TaskSwitchConfidence_Btn_2.Background = Brushes.White;
+            TaskSwitchConfidence_Btn_3.Background = Brushes.White;
+            TaskSwitchConfidence_Btn_4.Background = Brushes.White;
+            TaskSwitchConfidence_Btn_5.Background = Brushes.White;
 
-        //    if (previousTaskDetectionCase == TaskDetectionCase.Wrong)
-        //    {
-        //        var index = _taskSwitches.FindIndex(t => t.Equals(task));
-        //        if (index != -1 && index + 1 < _taskSwitches.Count)
-        //        {
-        //            var nextTask = _taskSwitches.ElementAt(++index);
-        //            nextTask.TaskTypeValidated = TaskTypes.Other;
-        //        }
-        //    }
-        //    ValidateSaveButtonEnabled();
-        //}
+            TaskSwitchConfidence_Btn_1.Foreground = Brushes.Black;
+            TaskSwitchConfidence_Btn_2.Foreground = Brushes.Black;
+            TaskSwitchConfidence_Btn_3.Foreground = Brushes.Black;
+            TaskSwitchConfidence_Btn_4.Foreground = Brushes.Black;
+            TaskSwitchConfidence_Btn_5.Foreground = Brushes.Black;
+        }
 
-        /// <summary>
-        /// Called when the user validates a task boundary (wrong boundary)
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        //private void RadioButton_Checked_Incorrect(object sender, RoutedEventArgs e)
-        //{
-        //    var task = ((sender as RadioButton).DataContext as TaskRectangle).Data;
-        //    task.TaskDetectionCase = TaskDetectionCase.Wrong;
-        //    var index = _taskSwitches.FindIndex(t => t.Equals(task));
-        //    if (index != -1 && index + 1 < _taskSwitches.Count)
-        //    {
-        //        var nextTask = _taskSwitches.ElementAt(++index);
-        //        nextTask.TaskTypeValidated = task.TaskTypeValidated;
-        //    }
+        private void Confidence_TaskSwitch_1_Checked(object sender, RoutedEventArgs e)
+        {
+            Confidence_TaskSwitch_ResetButtons();
+            Confidence_TaskSwitch = 1;
+            TaskSwitchConfidence_Btn_1.Background = Shared.Settings.RetrospectionColorBrush;
+            TaskSwitchConfidence_Btn_1.Foreground = Brushes.White;
+        }
 
-        //    ValidateSaveButtonEnabled();
-        //}
+        private void Confidence_TaskSwitch_2_Checked(object sender, RoutedEventArgs e)
+        {
+            Confidence_TaskSwitch_ResetButtons();
+            Confidence_TaskSwitch = 2;
+            TaskSwitchConfidence_Btn_2.Background = Shared.Settings.RetrospectionColorBrush;
+            TaskSwitchConfidence_Btn_2.Foreground = Brushes.White;
+        }
+
+        private void Confidence_TaskSwitch_3_Checked(object sender, RoutedEventArgs e)
+        {
+            Confidence_TaskSwitch_ResetButtons();
+            Confidence_TaskSwitch = 3;
+            TaskSwitchConfidence_Btn_3.Background = Shared.Settings.RetrospectionColorBrush;
+            TaskSwitchConfidence_Btn_3.Foreground = Brushes.White;
+
+        }
+
+        private void Confidence_TaskSwitch_4_Checked(object sender, RoutedEventArgs e)
+        {
+            Confidence_TaskSwitch_ResetButtons();
+            Confidence_TaskSwitch = 4;
+            TaskSwitchConfidence_Btn_4.Background = Shared.Settings.RetrospectionColorBrush;
+            TaskSwitchConfidence_Btn_4.Foreground = Brushes.White;
+        }
+
+        private void Confidence_TaskSwitch_5_Checked(object sender, RoutedEventArgs e)
+        {
+            Confidence_TaskSwitch_ResetButtons();
+            Confidence_TaskSwitch = 5;
+            TaskSwitchConfidence_Btn_5.Background = Shared.Settings.RetrospectionColorBrush;
+            TaskSwitchConfidence_Btn_5.Foreground = Brushes.White;
+        }
+
+        private void Confidence_TaskType_ResetButtons()
+        {
+            TaskTypeConfidence_Btn_1.Background = Brushes.White;
+            TaskTypeConfidence_Btn_2.Background = Brushes.White;
+            TaskTypeConfidence_Btn_3.Background = Brushes.White;
+            TaskTypeConfidence_Btn_4.Background = Brushes.White;
+            TaskTypeConfidence_Btn_5.Background = Brushes.White;
+
+            TaskTypeConfidence_Btn_1.Foreground = Brushes.Black;
+            TaskTypeConfidence_Btn_2.Foreground = Brushes.Black;
+            TaskTypeConfidence_Btn_3.Foreground = Brushes.Black;
+            TaskTypeConfidence_Btn_4.Foreground = Brushes.Black;
+            TaskTypeConfidence_Btn_5.Foreground = Brushes.Black;
+        }
+
+        private void Confidence_TaskType_1_Checked(object sender, RoutedEventArgs e)
+        {
+            Confidence_TaskType_ResetButtons();
+            Confidence_TaskType = 1;
+            TaskTypeConfidence_Btn_1.Background = Shared.Settings.RetrospectionColorBrush;
+            TaskTypeConfidence_Btn_1.Foreground = Brushes.White;
+        }
+
+        private void Confidence_TaskType_2_Checked(object sender, RoutedEventArgs e)
+        {
+            Confidence_TaskType_ResetButtons();
+            Confidence_TaskType = 2;
+            TaskTypeConfidence_Btn_2.Background = Shared.Settings.RetrospectionColorBrush;
+            TaskTypeConfidence_Btn_2.Foreground = Brushes.White;
+        }
+
+        private void Confidence_TaskType_3_Checked(object sender, RoutedEventArgs e)
+        {
+            Confidence_TaskType_ResetButtons();
+            Confidence_TaskType = 3;
+            TaskTypeConfidence_Btn_3.Background = Shared.Settings.RetrospectionColorBrush;
+            TaskTypeConfidence_Btn_3.Foreground = Brushes.White;
+
+        }
+
+        private void Confidence_TaskType_4_Checked(object sender, RoutedEventArgs e)
+        {
+            Confidence_TaskType_ResetButtons();
+            Confidence_TaskType = 4;
+            TaskTypeConfidence_Btn_4.Background = Shared.Settings.RetrospectionColorBrush;
+            TaskTypeConfidence_Btn_4.Foreground = Brushes.White;
+        }
+
+        private void Confidence_TaskType_5_Checked(object sender, RoutedEventArgs e)
+        {
+            Confidence_TaskType_ResetButtons();
+            Confidence_TaskType = 5;
+            TaskTypeConfidence_Btn_5.Background = Shared.Settings.RetrospectionColorBrush;
+            TaskTypeConfidence_Btn_5.Foreground = Brushes.White;
+        }
+
+        #endregion
 
         #endregion
 

@@ -10,7 +10,7 @@
              xmlns:helpers="clr-namespace:TaskDetectionTracker.Helpers"
              xmlns:paColors="clr-namespace:Shared;assembly=Shared"
              mc:Ignorable="d" 
-             Title="PersonalAnalytics: Validate Task Detections" Height="850" Width="1400" MinHeight="850" MinWidth="1000">
+             Title="PersonalAnalytics: Validate Task Detections" Height="880" Width="1400" MinHeight="800" MinWidth="1000">
 
     <Window.Resources>
         <converters:StringToBrushConverter x:Key="StringToBrushConverter" />
@@ -164,14 +164,15 @@
 
                 <StackPanel Grid.Row="1" Grid.Column="0" Margin="0 0 2 0">
                     <TextBlock Text="Task Type:" Margin="0 38 0 0" HorizontalAlignment="Right" />
-                    <TextBlock Text="Programs:&#x0a;(hover for details)" Margin="0 40 0 0" TextAlignment="Right" HorizontalAlignment="Right" />
-                    <TextBlock Text="Timestamp:" Margin="0 15 0 0" Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" HorizontalAlignment="Right" />
+                    <TextBlock Text="Programs:" Margin="0 40 0 0" TextAlignment="Right" HorizontalAlignment="Right" />
+                    <TextBlock Text="(hover for details)" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" TextAlignment="Right" HorizontalAlignment="Right" />
+                    <TextBlock Text="Timestamp:" Margin="0 5 0 0" Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" HorizontalAlignment="Right" />
                     <!--<TextBlock Text="Correct Detection:" Margin="0 5 0 0" Foreground="Green" HorizontalAlignment="Right" />
                     <TextBlock Text="Incorrect Detection:" Margin="0 3 0 0" Foreground="Red" HorizontalAlignment="Right" />
                     <TextBlock Text="Delete Manual Entry:" Margin="0 5 0 0" Foreground="Red" HorizontalAlignment="Right" />-->
                 </StackPanel>
 
-                <ScrollViewer Grid.Row="1" Grid.Column="1" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto">
+                <ScrollViewer Grid.Row="1" Grid.Column="1" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto" ScrollChanged="Timeline_OnScrollChanged">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
@@ -313,7 +314,6 @@
                 </ScrollViewer>
             </Grid>
 
-
             <!-- Legend -->
             <StackPanel Orientation="Vertical" Grid.Row="3">
                 <TextBlock FontSize="16" Margin="0 10 0 10">Legend for Processes and Task Types:</TextBlock>
@@ -330,75 +330,74 @@
             </StackPanel>
 
             <Grid Grid.Row="5" VerticalAlignment="Bottom">
+                <Grid.Resources>
+                    <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
+                        <Setter Property="Foreground" Value="Black" />
+                        <Setter Property="Background" Value="White" />
+                        <Setter Property="BorderBrush" Value="Black" />
+                        <Setter Property="Width" Value="30" />
+                        <Setter Property="Height" Value="30" />
+                        <Setter Property="VerticalAlignment" Value="Center" />
+                        <Setter Property="Margin" Value="0 0 70 0" />
+                    </Style>
+                </Grid.Resources>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="50" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
+                
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="How confident are you with the self-reporting of your task switches?" FontSize="16" />
 
-                    <Grid Width="500" HorizontalAlignment="Left" Margin="0 10 0 10">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="20" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                    <StackPanel Width="500" HorizontalAlignment="Left" Margin="0 10 0 10">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="1" x:Name="TaskSwitchConfidence_Btn_1" Click="Confidence_TaskSwitch_1_Checked" />
+                            <Button Content="2" x:Name="TaskSwitchConfidence_Btn_2" Click="Confidence_TaskSwitch_2_Checked" />
+                            <Button Content="3" x:Name="TaskSwitchConfidence_Btn_3" Click="Confidence_TaskSwitch_3_Checked" />
+                            <Button Content="4" x:Name="TaskSwitchConfidence_Btn_4" Click="Confidence_TaskSwitch_4_Checked" />
+                            <Button Content="5" x:Name="TaskSwitchConfidence_Btn_5" Click="Confidence_TaskSwitch_5_Checked" />
+                        </StackPanel>
 
-                        <Slider Name="ConfidenceSlider_TaskSwitch" Grid.ColumnSpan="5" Grid.Row="0"
-                        Minimum="1" Maximum="5" Value="3" TickFrequency="1" IsSnapToTickEnabled="True"/>
-
-                        <TextBlock Text="1 (not confident)" Grid.Column="0" Grid.Row="1" TextAlignment="Left" />
-                        <TextBlock Text="2" Grid.Column="1" Grid.Row="1" TextAlignment="Center" Margin="0 0 45 0" />
-                        <TextBlock Text="3 (undecided)" Grid.Column="2" Grid.Row="1" TextAlignment="Center" />
-                        <TextBlock Text="4" Grid.Column="3" Grid.Row="1" TextAlignment="Center" Margin="45 0 0 0" />
-                        <TextBlock Text="(very confident) 5" Grid.Column="4" Grid.Row="1" TextAlignment="Right" />
-                    </Grid>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="not confident" Margin="0 0 0 0" TextAlignment="Left" />
+                            <TextBlock Text="undecided" Margin="115 0 0 0" TextAlignment="Center" />
+                            <TextBlock Text="very confident" Margin="110 0 0 0" TextAlignment="Right" />
+                        </StackPanel>
+                    </StackPanel>
                 </StackPanel>
+
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="How confident are you with the self-reporting of your task types?" FontSize="16" />
 
-                    <Grid Width="500" HorizontalAlignment="Left" Margin="0 10 0 10">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="20" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
+                    <StackPanel Width="500" HorizontalAlignment="Left" Margin="0 10 0 10">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="1" x:Name="TaskTypeConfidence_Btn_1" Click="Confidence_TaskType_1_Checked" />
+                            <Button Content="2" x:Name="TaskTypeConfidence_Btn_2" Click="Confidence_TaskType_2_Checked" />
+                            <Button Content="3" x:Name="TaskTypeConfidence_Btn_3" Click="Confidence_TaskType_3_Checked" />
+                            <Button Content="4" x:Name="TaskTypeConfidence_Btn_4" Click="Confidence_TaskType_4_Checked" />
+                            <Button Content="5" x:Name="TaskTypeConfidence_Btn_5" Click="Confidence_TaskType_5_Checked" />
+                        </StackPanel>
 
-                        <Slider Name="ConfidenceSlider_TaskType" Grid.ColumnSpan="5" Grid.Row="0"
-                        Minimum="1" Maximum="5" Value="3" TickFrequency="1" IsSnapToTickEnabled="True"/>
-
-                        <TextBlock Text="1 (not confident)" Grid.Column="0" Grid.Row="1" TextAlignment="Left" />
-                        <TextBlock Text="2" Grid.Column="1" Grid.Row="1" TextAlignment="Center" Margin="0 0 45 0" />
-                        <TextBlock Text="3 (undecided)" Grid.Column="2" Grid.Row="1" TextAlignment="Center" />
-                        <TextBlock Text="4" Grid.Column="3" Grid.Row="1" TextAlignment="Center" Margin="45 0 0 0" />
-                        <TextBlock Text="(very confident) 5" Grid.Column="4" Grid.Row="1" TextAlignment="Right" />
-                    </Grid>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="not confident" Margin="0 0 0 0" TextAlignment="Left" />
+                            <TextBlock Text="undecided" Margin="115 0 0 0" TextAlignment="Center" />
+                            <TextBlock Text="very confident" Margin="110 0 0 0" TextAlignment="Right" />
+                        </StackPanel>
+                    </StackPanel>
                 </StackPanel>
-                
             </Grid>
 
             <StackPanel Orientation="Vertical" Grid.Row="6" VerticalAlignment="Bottom">
                 <TextBlock Text="Comments:" FontSize="16" />
                 <TextBlock>Please add comments you might have about the task detection (possible issues, questions you have, things you noticed, etc.):</TextBlock>
-                <TextBox Name="Comments" Height="60" Grid.Row="1"></TextBox>
+                <TextBox Name="Comments" Height="50" Grid.Row="1"></TextBox>
             </StackPanel>
 
             <StackPanel Grid.Row="7" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0 10 0 0">
-                <TextBlock Text="Hint: The save button is enabled once all detected task switches are either marked as correct or incorrect." TextAlignment="Right" TextWrapping="Wrap" Width="300" Margin="0 0 10 0" Foreground="Gray" />
-                <Button Name="Save" 
+                <TextBlock Text="Hint: The save button will be enabled once you validated the task switches/types in the whole timeline (i.e. scroll to the end)." TextAlignment="Right" TextWrapping="Wrap" Width="350" Margin="0 0 10 0" Foreground="Gray" />
+                <Button Name="SaveButton"
+                        IsEnabled="False"
                         Click="Save_Click" 
                         Content="Accept Task Detection (Save)" 
                         Height="30" Width="200" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" />

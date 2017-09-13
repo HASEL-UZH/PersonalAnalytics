@@ -112,6 +112,8 @@ namespace TaskDetectionTracker
 
         #endregion
 
+        #region Create and Handle Validator PopUp
+
         private async void PopUp_Tick(object sender, EventArgs e)
         {
             // stop pop-up timer
@@ -288,7 +290,7 @@ namespace TaskDetectionTracker
 
                 // save validation responses to the database
                 var sessionId = DatabaseConnector.TaskDetectionSession_SaveToDatabase(detectionSessionStart, detectionSessionEnd, DateTime.Now, 
-                    popup.Comments.Text, (int)popup.ConfidenceSlider_TaskSwitch.Value, (int)popup.ConfidenceSlider_TaskType.Value);
+                    popup.Comments.Text, (int)popup.Confidence_TaskSwitch, (int)popup.Confidence_TaskType);
                 if (sessionId > 0) DatabaseConnector.TaskDetectionValidationsPerSession_SaveToDatabase(sessionId, taskDetections);
                 else Database.GetInstance().LogError("Did not save any validated task detections for session (" + detectionSessionStart.ToString() + " to " + detectionSessionEnd.ToString() + ") due to an error.");
 
@@ -313,5 +315,7 @@ namespace TaskDetectionTracker
                 StartPopUpTimer(Settings.PopUpReminderInterval_Long);
             }
         }
+
+        #endregion
     }
 }
