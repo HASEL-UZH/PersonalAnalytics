@@ -17,7 +17,7 @@ namespace WindowsActivityTracker.Visualizations
     internal class DayFragmentationTimeline : BaseVisualization, IVisualization
     {
         private readonly DateTimeOffset _date;
-        private const int _timelineZoomFactor = 1; // shouldn't be 0!, if > 1 then the user can scroll on top of the timeline
+        private const int TimelineZoomFactor = 1; // shouldn't be 0!, if > 1 then the user can scroll on top of the timeline
 
         public DayFragmentationTimeline(DateTimeOffset date)
         {
@@ -44,7 +44,8 @@ namespace WindowsActivityTracker.Visualizations
             /////////////////////
 
             // show message if not enough data
-            if (orderedTimelineList.Count <= 3) // 3 is the minimum number of input-data-items
+            var sum = orderedTimelineList.Sum(i => i.DurationInSeconds);
+            if (orderedTimelineList.Count <= 3 || sum < 5 * 60) // 3 is the minimum number of input-data-items & 5 minutes of data
             {
                 html += VisHelper.NotEnoughData(Dict.NotEnoughData);
                 return html;
@@ -133,7 +134,7 @@ namespace WindowsActivityTracker.Visualizations
             var mouseout = @".mouseout(function (d, i, datum) { document.getElementById('hoverDetails').innerHTML = '" + defaultHoverText + "'; })";
 
             // define configuration
-            html += "var " + activityTimeline + " = d3.timeline().width(" + _timelineZoomFactor + " * itemWidth).itemHeight(itemHeight)" + hover + mouseout + ";"; // .colors(colorScale).colorProperty('activity') // .stack()
+            html += "var " + activityTimeline + " = d3.timeline().width(" + TimelineZoomFactor + " * itemWidth).itemHeight(itemHeight)" + hover + mouseout + ";"; // .colors(colorScale).colorProperty('activity') // .stack()
             html += "var svg = d3.select('#" + activityTimeline + "').append('svg').attr('width', itemWidth).datum(data).call(" + activityTimeline + "); ";
 
             html += "}; "; // end #1
@@ -158,7 +159,7 @@ namespace WindowsActivityTracker.Visualizations
         /// <summary>
         /// prepares a formatted javascript list of the participantActivityData
         /// </summary>
-        /// <param name="participantActivityData"></param>
+        /// <param name="activityList"></param>
         /// <returns></returns>
         private string CreateJavascriptActivityDataList(List<WindowsActivity> activityList)
         {
@@ -245,10 +246,9 @@ namespace WindowsActivityTracker.Visualizations
         /// <summary>
         /// Creates a colored square for each category (legend)
         /// </summary>
-        /// <param name="activityDataSet"></param>
-        /// <param name="visWidth"></param>
+        /// <param name="categoryList"></param>
         /// <returns></returns>
-        private string GetLegendForCategories(List<ActivityCategory> categoryList)
+        private string GetLegendForCategories(IEnumerable<ActivityCategory> categoryList)
         {
             var html = string.Empty;
             html += @"<style type='text/css'>

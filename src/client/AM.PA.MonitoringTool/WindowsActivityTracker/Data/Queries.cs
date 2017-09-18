@@ -18,9 +18,9 @@ namespace WindowsActivityTracker.Data
     public class Queries
     {
 
-        private static string QUERY_CREATE = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable + " (id INTEGER PRIMARY KEY, time TEXT, tsStart TEXT, tsEnd TEXT, window TEXT, process TEXT);";
-        private static string QUERY_INDEX = "CREATE INDEX IF NOT EXISTS windows_activity_ts_start_idx ON " + Settings.DbTable + " (tsStart);";
-        private static string QUERY_INSERT = "INSERT INTO " + Settings.DbTable + " (time, tsStart, tsEnd, window, process) VALUES ({0}, {1}, {2}, {3}, {4});";
+        private static readonly string QUERY_CREATE = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable + " (id INTEGER PRIMARY KEY, time TEXT, tsStart TEXT, tsEnd TEXT, window TEXT, process TEXT);";
+        private static readonly string QUERY_INDEX = "CREATE INDEX IF NOT EXISTS windows_activity_ts_start_idx ON " + Settings.DbTable + " (tsStart);";
+        private static readonly string QUERY_INSERT = "INSERT INTO " + Settings.DbTable + " (time, tsStart, tsEnd, window, process) VALUES ({0}, {1}, {2}, {3}, {4});";
 
         #region Daemon Queries
 
@@ -295,7 +295,7 @@ namespace WindowsActivityTracker.Data
 
                 if (table != null)
                 {
-                    WindowsActivity _previousWindowsActivityEntry = null;
+                    WindowsActivity previousWindowsActivityEntry = null;
 
                     foreach (DataRow row in table.Rows)
                     {
@@ -317,10 +317,10 @@ namespace WindowsActivityTracker.Data
 
 
                         // check if we add a new item, or merge with the previous one
-                        if (_previousWindowsActivityEntry != null)
+                        if (previousWindowsActivityEntry != null)
                         {
                             // previous item is same, update it (duration and tsEnd)
-                            if (e.ActivityCategory == _previousWindowsActivityEntry.ActivityCategory)
+                            if (e.ActivityCategory == previousWindowsActivityEntry.ActivityCategory)
                             {
                                 var lastItem = orderedActivityList.Last();
                                 lastItem.DurationInSeconds += e.DurationInSeconds;
@@ -338,7 +338,7 @@ namespace WindowsActivityTracker.Data
                         {
                             orderedActivityList.Add(e);
                         }
-                        _previousWindowsActivityEntry = e;
+                        previousWindowsActivityEntry = e;
                     }
                     table.Dispose();
                 }
