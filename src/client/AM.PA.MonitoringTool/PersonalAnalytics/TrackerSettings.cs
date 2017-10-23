@@ -3,8 +3,6 @@
 // 
 // Licensed under the MIT License.
 
-using FitbitTracker;
-using FitbitTracker.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -87,20 +85,20 @@ namespace Shared.Data
                 {
                     GetFlowTracker().SetSetting_Application_Blacklist(updatedSettings.FlowLightBlacklist);
                 }
-                if (updatedSettings.PolarTrackerEnabled.HasValue)
-                {
-                    if (GetPolarTracker() != null) GetPolarTracker().ChangeEnableState(updatedSettings.PolarTrackerEnabled);
-                }
+                //if (updatedSettings.PolarTrackerEnabled.HasValue)
+                //{
+                //    if (GetPolarTracker() != null) GetPolarTracker().ChangeEnableState(updatedSettings.PolarTrackerEnabled);
+                //}
 
-                if (updatedSettings.FitbitTrackerEnabled.HasValue)
-                {
-                    if (GetFitbitTracker() != null) GetFitbitTracker().ChangeEnabledState(updatedSettings.FitbitTrackerEnabled);
-                }
+                //if (updatedSettings.FitbitTrackerEnabled.HasValue)
+                //{
+                //    if (GetFitbitTracker() != null) GetFitbitTracker().ChangeEnabledState(updatedSettings.FitbitTrackerEnabled);
+                //}
 
-                if (updatedSettings.FitbitTokenRevoked.HasValue)
-                {
-                    FitbitConnector.RevokeAccessToken(SecretStorage.GetAccessToken());
-                }
+                //if (updatedSettings.FitbitTokenRevoked.HasValue)
+                //{
+                //    FitbitConnector.RevokeAccessToken(SecretStorage.GetAccessToken());
+                //}
             }
             catch (Exception e)
             {
@@ -138,13 +136,13 @@ namespace Shared.Data
                 //else if (peopleVisualizer != null && msOfficeTracker == null) dto.Office365ApiEnabled = peopleVisualizer.PeopleVisualizerEnabled;
                 //else dto.Office365ApiEnabled = false;
 
-                var polarTracker = GetPolarTracker();
-                dto.PolarTrackerEnabled = polarTracker.IsEnabled();
+                //var polarTracker = GetPolarTracker();
+                //dto.PolarTrackerEnabled = polarTracker.IsEnabled();
 
-                var fitbitTracker = GetFitbitTracker();
-                dto.FitbitTrackerEnabled = fitbitTracker.IsEnabled();
-                dto.FitbitTokenRevokEnabled = SecretStorage.GetAccessToken() != null && fitbitTracker.IsEnabled();
-                dto.FitbitTokenRevoked = dto.FitbitTokenRevokEnabled;
+                //var fitbitTracker = GetFitbitTracker();
+                //dto.FitbitTrackerEnabled = fitbitTracker.IsEnabled();
+                //dto.FitbitTokenRevokEnabled = SecretStorage.GetAccessToken() != null && fitbitTracker.IsEnabled();
+                //dto.FitbitTokenRevoked = dto.FitbitTokenRevokEnabled;
 
                 var flowLight = FlowLight.Handler.GetInstance();
                 if (flowLight != null)
@@ -164,33 +162,33 @@ namespace Shared.Data
             return dto;
         }
 
-        private FitbitTracker.Deamon GetFitbitTracker()
-        {
-            try
-            {
-                var tracker =
-                    _trackers.Where(t => t.GetType() == typeof(FitbitTracker.Deamon))
-                        .Cast<FitbitTracker.Deamon>()
-                        .FirstOrDefault();
+        //private FitbitTracker.Deamon GetFitbitTracker()
+        //{
+        //    try
+        //    {
+        //        var tracker =
+        //            _trackers.Where(t => t.GetType() == typeof(FitbitTracker.Deamon))
+        //                .Cast<FitbitTracker.Deamon>()
+        //                .FirstOrDefault();
 
-                return tracker;
-            }
-            catch { return null; }
-        }
+        //        return tracker;
+        //    }
+        //    catch { return null; }
+        //}
 
-        private PolarTracker.Deamon GetPolarTracker()
-        {
-            try
-            {
-                var tracker =
-                    _trackers.Where(t => t.GetType() == typeof(PolarTracker.Deamon))
-                        .Cast<PolarTracker.Deamon>()
-                        .FirstOrDefault();
+        //private PolarTracker.Deamon GetPolarTracker()
+        //{
+        //    try
+        //    {
+        //        var tracker =
+        //            _trackers.Where(t => t.GetType() == typeof(PolarTracker.Deamon))
+        //                .Cast<PolarTracker.Deamon>()
+        //                .FirstOrDefault();
 
-                return tracker;
-            }
-            catch { return null; }
-        }
+        //        return tracker;
+        //    }
+        //    catch { return null; }
+        //}
 
         //private PeopleVisualizer.PeopleVisualizer GetPeopleVisualizer()
         //{

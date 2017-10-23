@@ -61,10 +61,6 @@
     <Compile Include="Visualizations\PolarVisualizationForDay.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BluetoothLowEnergyConnector\BluetoothLowEnergyConnector.csproj">
-      <Project>{6ff21d77-0b66-409d-b57c-e5338c50849b}</Project>
-      <Name>BluetoothLowEnergyConnector</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Shared\Shared.csproj">
       <Project>{2bbdfa6d-20dd-4a7b-893e-43c388382c9a}</Project>
       <Name>Shared</Name>
