@@ -255,8 +255,9 @@ namespace TaskDetectionTracker
                     }
                     else
                     {
-                        // we get here when DialogResult is set to false (which should never happen) 
-                        Database.GetInstance().LogErrorUnknown("DialogResult of PopUp was set to false in tracker: " + Name);
+                        // we get here when DialogResult is set to false (which should only happen when pop-up is not answered)
+                        Database.GetInstance().LogInfo("DialogResult of PopUp was set to false in tracker: " + Name);
+                        StartPopUpTimer();
                     }
                 }));
             }

@@ -206,7 +206,7 @@ namespace TaskDetectionTracker.Views
         {
             CancelValidationForced = true;
             ValidationComplete = false;
-            DialogResult = true;
+            //DialogResult = true;
             Close();
         }
 
