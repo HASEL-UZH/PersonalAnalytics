@@ -27,10 +27,10 @@ namespace Retrospection
         private bool defaultOpenRetrospectionInFullScreen;
         private bool defaultTimeSpentShowProgramsEnabled;
         private bool defaultTimeSpentShowEmailsEnabled;
-        private bool defaultPolarTrackerEnabled;
-        private bool defaultFitbitTrackerEnabled;
-        private bool defaultFitbitTokenRemoveEnabled;
-        private bool defaultFitbitTokenRevoked;
+        //private bool defaultPolarTrackerEnabled;
+        //private bool defaultFitbitTrackerEnabled;
+        //private bool defaultFitbitTokenRemoveEnabled;
+        //private bool defaultFitbitTokenRevoked;
         private bool defaultFlowLightEnabled;
         private bool defaultSkypeForBusinessEnabled;
         private bool defaultFlowLightAutomaticEnabled;
@@ -61,16 +61,16 @@ namespace Retrospection
             defaultOpenRetrospectionInFullScreen = dto.OpenRetrospectionInFullScreen.Value;
             defaultTimeSpentShowProgramsEnabled = dto.TimeSpentShowProgramsEnabled.Value;
             defaultTimeSpentShowEmailsEnabled = dto.TimeSpentShowEmailsEnabled.Value;
-            defaultPolarTrackerEnabled = dto.PolarTrackerEnabled.Value;
-            defaultFitbitTrackerEnabled = dto.FitbitTrackerEnabled.Value;
+            //defaultPolarTrackerEnabled = dto.PolarTrackerEnabled.Value;
+            //defaultFitbitTrackerEnabled = dto.FitbitTrackerEnabled.Value;
             defaultFlowLightEnabled = dto.FlowLightEnabled.Value;
             defaultSkypeForBusinessEnabled = dto.FlowLightSkypeForBusinessEnabled.Value;
             defaultFlowLightAutomaticEnabled = dto.FlowLightAutomaticEnabled.Value;
             defaultFlowLightDnDEnabled = dto.FlowLightDnDEnabled.Value;
             defaultFlowLightSensitivityLevel = dto.FlowLightSensitivityLevel.Value;
             defaultFlowLightBlacklist = dto.FlowLightBlacklist;
-            defaultFitbitTokenRemoveEnabled = dto.FitbitTokenRevokEnabled.Value;
-            defaultFitbitTokenRevoked = dto.FitbitTokenRevoked.Value;
+            //defaultFitbitTokenRemoveEnabled = dto.FitbitTokenRevokEnabled.Value;
+            //defaultFitbitTokenRevoked = dto.FitbitTokenRevoked.Value;
             
             // no changes yet, disable buttons by default
             SaveButtonsEnabled(false);
@@ -108,15 +108,15 @@ namespace Retrospection
             }
             CbPopUpInterval.SelectionChanged += CbPopUpInterval_SelectionChanged;
 
-            PolarEnabled.IsChecked = defaultPolarTrackerEnabled;
-            PolarEnabled.Checked += CbChecked_Update;
-            PolarEnabled.Unchecked += CbChecked_Update;
+            //PolarEnabled.IsChecked = defaultPolarTrackerEnabled;
+            //PolarEnabled.Checked += CbChecked_Update;
+            //PolarEnabled.Unchecked += CbChecked_Update;
 
-            FitbitEnabled.IsChecked = defaultFitbitTrackerEnabled;
-            FitbitEnabled.Checked += CbChecked_Update;
-            FitbitEnabled.Unchecked += CbChecked_Update;
+            //FitbitEnabled.IsChecked = defaultFitbitTrackerEnabled;
+            //FitbitEnabled.Checked += CbChecked_Update;
+            //FitbitEnabled.Unchecked += CbChecked_Update;
 
-            FitbitRevoke.IsEnabled = defaultFitbitTokenRemoveEnabled;
+            //FitbitRevoke.IsEnabled = defaultFitbitTokenRemoveEnabled;
 
             CbFlowLightEnabled.IsChecked = defaultFlowLightEnabled;
             CbFlowLightEnabled.Checked += CbChecked_Update;
@@ -225,8 +225,8 @@ namespace Retrospection
                  (defaultOpenRetrospectionInFullScreen != CbOpenRetrospectionInFullScreen.IsChecked.Value) ||
                  (defaultTimeSpentShowEmailsEnabled != CbTimeSpentShowEmailsEnabled.IsChecked.Value) ||
                  (defaultTimeSpentShowProgramsEnabled != CbTimeSpentShowProgramsEnabled.IsChecked.Value) ||
-                 (defaultPolarTrackerEnabled != PolarEnabled.IsChecked.Value) ||
-                 (defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value) ||
+                 //(defaultPolarTrackerEnabled != PolarEnabled.IsChecked.Value) ||
+                 //(defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value) ||
                  (defaultFlowLightEnabled != CbFlowLightEnabled.IsChecked.Value) ||
                  (defaultSkypeForBusinessEnabled != CbFlowLightSkypeForBusinessEnabled.IsChecked.Value) ||
                  (defaultFlowLightAutomaticEnabled != RbFlowLightAutomatic.IsChecked.Value) ||
@@ -306,17 +306,17 @@ namespace Retrospection
                 }
                 else { dto.UserInputTrackerEnabled = null; }
 
-                if (defaultPolarTrackerEnabled != PolarEnabled.IsChecked.Value)
-                {
-                    dto.PolarTrackerEnabled = PolarEnabled.IsChecked.Value;
-                }
-                else { dto.PolarTrackerEnabled = null; }
+                //if (defaultPolarTrackerEnabled != PolarEnabled.IsChecked.Value)
+                //{
+                //    dto.PolarTrackerEnabled = PolarEnabled.IsChecked.Value;
+                //}
+                //else { dto.PolarTrackerEnabled = null; }
 
-                if (defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value)
-                {
-                    dto.FitbitTrackerEnabled = FitbitEnabled.IsChecked.Value;
-                }
-                else { dto.FitbitTrackerEnabled = null; }
+                //if (defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value)
+                //{
+                //    dto.FitbitTrackerEnabled = FitbitEnabled.IsChecked.Value;
+                //}
+                //else { dto.FitbitTrackerEnabled = null; }
 
                 if (defaultFlowLightEnabled != CbFlowLightEnabled.IsChecked.Value)
                 {
@@ -373,16 +373,16 @@ namespace Retrospection
             Handler.GetInstance().SendFeedback();
         }
 
-        private void FitbitRevoke_Click(object sender, RoutedEventArgs e)
-        {
-            FitbitRevoke.IsEnabled = false;
+        //private void FitbitRevoke_Click(object sender, RoutedEventArgs e)
+        //{
+        //    FitbitRevoke.IsEnabled = false;
 
-            //  FitbitConnector.RevokeAccessToken(SecretStorage.GetAccessToken());
-            UpdatedSettingsDto = new SettingsDto();
-            UpdatedSettingsDto.FitbitTokenRevoked = true;
+        //    //  FitbitConnector.RevokeAccessToken(SecretStorage.GetAccessToken());
+        //    UpdatedSettingsDto = new SettingsDto();
+        //    UpdatedSettingsDto.FitbitTokenRevoked = true;
 
-            DialogResult = true;
-            this.Close();
-        }
+        //    DialogResult = true;
+        //    this.Close();
+        //}
     }
 }
