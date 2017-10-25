@@ -252,7 +252,7 @@ namespace TaskDetectionTracker.Views
                     process.WindowTitles.RemoveAll(w => string.IsNullOrWhiteSpace(w) || string.IsNullOrEmpty(w));
                     string windowTitle = process.WindowTitles.Count > 0 ? string.Join(Environment.NewLine, process.WindowTitles) : "[no window titles]";
                     string tooltip =    "From " + process.Start.ToLongTimeString() + " to " + process.End.ToLongTimeString() + Environment.NewLine
-                                        + "Process: " + ProcessNameHelper.GetFileDescription(process.ProcessName) + Environment.NewLine 
+                                        + "Process: " + process.ProcessNameFormatted + Environment.NewLine //ProcessNameHelper.GetFileDescription(process.ProcessName) + Environment.NewLine 
                                         + "Window Titles: " + windowTitle + Environment.NewLine + Environment.NewLine 
                                         + "Keystrokes: " + process.NumberOfKeystrokes + Environment.NewLine 
                                         + "Mouse clicks: " + process.NumberOfMouseClicks;
@@ -269,7 +269,7 @@ namespace TaskDetectionTracker.Views
             }
 
             StringToBrushConverter.UpdateColors(RectItems);
-            DrawLegend();
+            //DrawLegend();
         }
         
         /// <summary>
@@ -281,35 +281,44 @@ namespace TaskDetectionTracker.Views
             Legend.Children.Clear();
             Legend.RowDefinitions.Clear();
 
-            // draw new legend
-            int count = 0;
-            var numColumns = 6;
+            // get legend items (the color-list contains processes and tasks, just have tasks)
+            var tasktypevalues = Enum.GetValues(typeof(TaskTypes));
             var usedColors = StringToBrushConverter.GetColorPallette();
+            var legendList = new List<string>();
 
-            var numberOfRowsNeeded = Math.Ceiling(usedColors.Keys.Count / (double)numColumns);
-            for (int i = 0; i < numberOfRowsNeeded; i++)
+            foreach (object item in tasktypevalues)
+            {
+                if (usedColors.ContainsKey(item.ToString())) legendList.Add(item.ToString());
+            }
+
+            // draw new legend
+            var count = 0;
+            const int numColumns = 6;
+
+            var numberOfRowsNeeded = Math.Ceiling(legendList.Count / (double)numColumns);
+            for (var i = 0; i < numberOfRowsNeeded; i++)
             {
                 Legend.RowDefinitions.Add(new RowDefinition());
             }
 
-            foreach (string key in usedColors.Keys)
+            foreach (var key in legendList)
             {
                 Brush legendColor;
                 usedColors.TryGetValue(key, out legendColor);
                 if (legendColor == null) continue;
 
-                StackPanel colorPanel = new StackPanel();
+                var colorPanel = new StackPanel();
                 colorPanel.Orientation = Orientation.Horizontal;
                 colorPanel.Margin = new Thickness(5);
 
-                Rectangle colorRectangle = new Rectangle();
+                var colorRectangle = new Rectangle();
                 colorRectangle.Fill = legendColor;
                 colorRectangle.Height = 20;
                 colorRectangle.Width = 20;
                 colorRectangle.Margin = new Thickness(0, 0, 5, 0);
                 colorPanel.Children.Add(colorRectangle);
                     
-                TextBlock colorText = new TextBlock();
+                var colorText = new TextBlock();
                 var text = ProcessNameHelper.GetFileDescription(key);
                 colorText.Inlines.Add(text);
                 colorPanel.Children.Add(colorText);

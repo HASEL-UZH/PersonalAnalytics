@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using Shared.Helpers;
 
 namespace TaskDetectionTracker.Model
 {
@@ -17,13 +18,15 @@ namespace TaskDetectionTracker.Model
         private DateTime _start;
         private DateTime _end;
         private string _processName;
+        private string _processNameFormatted;
         private List<string> _windowTitles = new List<string>();
         private int _numberOfKeystrokes;
         private int _numberOfMouseClicks;
 
         public DateTime Start { get { return _start; } set { _start = value; } }
         public DateTime End { get { return _end; } set { _end = value; } }
-        public string ProcessName { get { return _processName; } set { _processName = value; } }
+        public string ProcessName { get { return _processName; } set { _processName = value; _processNameFormatted = ProcessNameHelper.GetFileDescription(_processName); } }
+        public string ProcessNameFormatted { get { return _processNameFormatted; } set { _processNameFormatted = value; } }
         public List<string> WindowTitles { get { return _windowTitles; } set { _windowTitles = value; } }
         public int NumberOfKeystrokes { get { return _numberOfKeystrokes; } set { _numberOfKeystrokes = value; } }
         public int NumberOfMouseClicks { get { return _numberOfMouseClicks; } set { _numberOfMouseClicks = value; } }
@@ -34,11 +37,12 @@ namespace TaskDetectionTracker.Model
             // empty constructor
         }
 
-        public TaskDetectionInput(DateTime start, DateTime end, string procesName, List<string> windowTitles, int keystrokes, int clicks)
+        public TaskDetectionInput(DateTime start, DateTime end, string processName, List<string> windowTitles, int keystrokes, int clicks)
         {
             Start = start;
             End = end;
-            ProcessName = ProcessName;
+            ProcessName = processName;
+            ProcessNameFormatted = ProcessNameHelper.GetFileDescription(ProcessName);
             WindowTitles = windowTitles;
             NumberOfKeystrokes = keystrokes;
             NumberOfMouseClicks = clicks;

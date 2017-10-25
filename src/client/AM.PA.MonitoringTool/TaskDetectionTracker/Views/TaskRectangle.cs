@@ -72,6 +72,7 @@ namespace TaskDetectionTracker.Views
         public string Tooltip { get; set; }
         public TaskDetectionInput Data { get; set; }
         public string ProcessName { get { return Data.ProcessName; } set { Data.ProcessName = value; } }
+        public string ProcessNameFormatted { get { return Data.ProcessNameFormatted; } set { Data.ProcessNameFormatted = value; } }
 
         //Potential task boundary
         private static double _taskBoundaryWidth = 5;
