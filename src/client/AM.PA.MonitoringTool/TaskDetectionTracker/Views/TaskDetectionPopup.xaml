@@ -4,21 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:System="clr-namespace:System;assembly=mscorlib"
-             xmlns:local="clr-namespace:TaskDetectionTracker.Views"
              xmlns:model="clr-namespace:TaskDetectionTracker.Model"
              xmlns:converters="clr-namespace:TaskDetectionTracker.Views.Converters"
-             xmlns:helpers="clr-namespace:TaskDetectionTracker.Helpers"
              xmlns:paColors="clr-namespace:Shared;assembly=Shared"
              mc:Ignorable="d" 
-             Title="PersonalAnalytics: Validate Task Detections" Height="880" Width="1400" MinHeight="750" MinWidth="1000">
+             Title="PersonalAnalytics: Validate Task Detections" Height="600" Width="1400" MinHeight="600" MinWidth="1000">
 
     <Window.Resources>
         <converters:StringToBrushConverter x:Key="StringToBrushConverter" />
-        <converters:EnumToDoubleConverter x:Key="EnumToDoubleConverter" />
-        <converters:EnumToBooleanConverter x:Key="EnumToBoolConverter" />
         <converters:BoolToVisibilityConverter x:Key="BoolToVisConverter" TrueValue="Visible" FalseValue="Collapsed"/>
-        <converters:BoolToVisibilityConverter x:Key="BoolToHiddenConverter" TrueValue="Visible" FalseValue="Collapsed" />
-        <converters:BoolToVisibilityConverter x:Key="BoolToHiddenConverterInverted" TrueValue="Hidden" FalseValue="Visible" />
 
         <ObjectDataProvider x:Key="TaskTypesEnum" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
             <ObjectDataProvider.MethodParameters>
@@ -96,6 +90,8 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -117,76 +113,58 @@
                 </Style>
             </Grid.Resources>
 
-            <TextBlock Grid.Column="0" FontSize="16" x:Name="WindowTitleBar" VerticalAlignment="Center" Margin="10 0 0 0" Text="Please Add and Validate Your Task-Switches" Foreground="White" />
+            <TextBlock Grid.Column="0" FontSize="16" x:Name="WindowTitleBar" VerticalAlignment="Center" Margin="10 0 0 0" Foreground="White" />
             <Button Grid.Column="1" Content="Postpone for 5 minutes" Click="ValidationPostponed_Short_Click" />
             <Button Grid.Column="2" Content="Postpone for 15 minutes" Click="ValidationPostponed_Long_Click" />
             <Button Grid.Column="3" Content="I don't remember my tasks" Click="ValidationCanceled_Click" />
         </Grid>
 
-        <Grid Margin="10" Grid.Row="1">
+        <TextBlock Grid.Row="1" Name="BegForParticipation" Foreground="Red" Visibility="Collapsed" TextWrapping="Wrap" Margin="10 10 10 10" FontSize="14">
+            We would really appreciate your response to this popup. It just takes a few minutes and would make our research much more accurate if done regularly. Thanks!
+        </TextBlock>
+
+        <TextBlock Grid.Row="2" Name="EmphasizeTaskDetectionIsEnabled" Visibility="Collapsed" Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" TextWrapping="Wrap" Margin="10 10 10 10" FontSize="14">
+            You successfully completed Phase 1, thank you! For the next pop-ups, we'll present the automatically predicted task switches/types and ask you to validate them. Your answers will help us to improve the accuracy of the predictions!
+        </TextBlock>
+
+        <Grid Margin="10" Grid.Row="3" x:Name="Step1_TaskSwitches" Visibility="Collapsed">
             <Grid.RowDefinitions>
+                <RowDefinition Height="120" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" MinHeight="50" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <TextBlock Name="BegForParticipation" Foreground="Red" Visibility="Collapsed" TextWrapping="Wrap" Margin="0 0 0 20" FontSize="16">
-                We would really appreciate your response to this popup. It just takes a few minutes and would make our research much more accurate if done regularly. Thanks!
-            </TextBlock>
-
             <!-- Instructions -->
-            <TextBlock Grid.Row="1" Grid.Column="0" TextWrapping="Wrap">
-                <Run FontSize="16">How it works:</Run><LineBreak />
-                Below you see a timeline of the tasks you've worked on (top) and the programs you've used (bottom). Task switches are shown with blue vertical lines.<LineBreak />
-                0. Postpone the survey on the top right, if it appeared at an inopportune moment.<LineBreak />
-                1. Please skim through the timeline and select the task switches that were missed.<LineBreak />
-                2. In case the timeline contains a task switch that was wrong, you can click on it to remove it. <LineBreak />
-                3. Please also validate the task types in case they are wrong by selecting the correct one from the drop-downs for each task switch that you've made.<LineBreak />
-                4. Finally, mark your main task(s) from that session using the checkbox(es).
+            <TextBlock Grid.Row="0" Grid.Column="0" TextWrapping="Wrap" FontSize="14">
+                Below you see a timeline of how you have spent your time in different applications<LineBreak />
+                1. Please skim through the timeline and select the task switches that were missed by the task prediction. Task swithces are shown as blue vertical lines. <LineBreak />
+                2. In case the timeline contains a task switch that was wrong, please click on it to remove it.<LineBreak />
+                <Run FontSize="12">You can hover over the processes to see what you were doing in the application.</Run>
             </TextBlock>
 
             <!-- Timeline -->
-            <Grid Grid.Row="2" Margin="0 10 0 0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
+            <Grid Grid.Row="1" Margin="0 10 0 0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Row="0" Grid.ColumnSpan="2" FontSize="16" Margin="0 10 0 10">Timeline showing Task Switches, Task Types and Programs used:</TextBlock>
-
-                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0 0 2 0">
-                    <TextBlock Text="Task Type:" Margin="0 38 0 0" HorizontalAlignment="Right" />
-                    <TextBlock Text="Programs:" Margin="0 40 0 0" TextAlignment="Right" HorizontalAlignment="Right" />
+                <StackPanel Grid.Column="0" Margin="0 0 2 0">
+                    <TextBlock Text="Is it the Main Task?" Margin="0 28 0 0" HorizontalAlignment="Right" Visibility="Hidden" />
+                    <TextBlock Text="Select Task Type:" Margin="0 9 0 0" HorizontalAlignment="Right" Visibility="Hidden" />
+                    <TextBlock Text="Applications:" Margin="0 30 0 0" TextAlignment="Right" HorizontalAlignment="Right" />
                     <TextBlock Text="(hover for details)" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" TextAlignment="Right" HorizontalAlignment="Right" />
-                    <TextBlock Text="Timestamp:" Margin="0 5 0 0" Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" HorizontalAlignment="Right" />
-                    <!--<TextBlock Text="Correct Detection:" Margin="0 5 0 0" Foreground="Green" HorizontalAlignment="Right" />
-                    <TextBlock Text="Incorrect Detection:" Margin="0 3 0 0" Foreground="Red" HorizontalAlignment="Right" />
-                    <TextBlock Text="Delete Manual Entry:" Margin="0 5 0 0" Foreground="Red" HorizontalAlignment="Right" />-->
+                    <TextBlock Text="Timestamp:" Margin="0 14 0 0" Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" HorizontalAlignment="Right" />
                 </StackPanel>
 
-                <ScrollViewer Grid.Row="1" Grid.Column="1" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Visible" ScrollChanged="Timeline_OnScrollChanged">
+                <ScrollViewer x:Name="Step1_Timeline_ScrollViewer" Grid.Column="1" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Visible" ScrollChanged="Step1_Timeline_OnScrollChanged">
                     <ScrollViewer.Resources>
                         <Style TargetType="{x:Type ScrollBar}">
                             <Setter Property="Foreground" Value="{x:Static paColors:Settings.RetrospectionColorBrush}"/>
                             <Setter Property="Background" Value="#ededed"/>
-                            <!--<Setter Property="BorderBrush" Value="Red" />-->
                         </Style>
                     </ScrollViewer.Resources>
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <ItemsControl Height="150" Grid.Row="0" ItemsSource="{Binding RectItems}" Name="Timeline">
+                    <ItemsControl Height="200" ItemsSource="{Binding RectItems}" Name="Step1_Timeline">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <Canvas Width="{Binding TimelineWidth}"/>
@@ -209,7 +187,8 @@
                                             <ColumnDefinition Width="auto"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <Grid Grid.Row="0" Grid.Column="0" Width="{Binding Width}" Height="{Binding Height}" Background="{Binding Path=TaskName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToBrushConverter}}">
+                                        <!-- Task Type -->
+                                        <Grid Visibility="Hidden" Grid.Row="0" Grid.Column="0" Width="{Binding Width}" Height="{Binding Height}" Background="{Binding Path=TaskName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToBrushConverter}}">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="auto" />
@@ -227,13 +206,6 @@
                                                            Margin="0 20 0 0"
                                                            HorizontalAlignment="Left"
                                                            Fill="{x:Static paColors:Settings.RetrospectionColorBrush}">
-                                                    <!--  Visibility="{Binding Path=IsVisible, Converter={StaticResource BoolToHiddenConverter}}"-->
-                                                    <!--<Rectangle.RenderTransform>
-                                                        <TransformGroup>
-                                                            <ScaleTransform ScaleY="-4" />
-                                                            <TranslateTransform Y="30" />
-                                                        </TransformGroup>
-                                                    </Rectangle.RenderTransform>-->
                                                     <Rectangle.Style>
                                                         <Style TargetType="{x:Type Rectangle}">
                                                             <Setter Property="Opacity" Value="1" />
@@ -247,14 +219,9 @@
                                                         </Style>
                                                     </Rectangle.Style>
                                                 </Rectangle>
-                                                <!--<Rectangle Opacity="{Binding Path=TaskDetectionCase, Converter={StaticResource EnumToDoubleConverter}, ConverterParameter={x:Static model:TaskDetectionCase.Wrong}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                                Width="{Binding TaskBoundaryWidth}" 
-                                                Margin="0 62 0 0" Height="122" Fill="{x:Static paColors:Settings.RetrospectionColorBrush}" HorizontalAlignment="Left" />-->
-                                                
+
+                                                <!-- Time -->
                                                 <TextBlock Margin="-10 2 0 0" Text="{Binding Timestamp}" Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" />
-                                                <!--<RadioButton Name="Correct" Margin="-5 5 0 0" Checked="RadioButton_Checked_Correct" GroupName="{Binding ID}" BorderThickness="2" BorderBrush="Green" Foreground="Green" Width="{Binding TaskCheckboxWidth}" IsChecked="{Binding Path=TaskDetectionCase, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static model:TaskDetectionCase.Correct}, Mode=OneWay}" HorizontalAlignment="Left" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverterInverted}}" />
-                                                <RadioButton Name="Wrong" Margin="-5 5 0 0" Checked="RadioButton_Checked_Incorrect" GroupName="{Binding ID}" BorderThickness="2" BorderBrush="Red" Foreground="Red" Width="{Binding TaskCheckboxWidth}" IsChecked="{Binding Path=TaskDetectionCase, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static model:TaskDetectionCase.Wrong}, Mode=OneWay}" HorizontalAlignment="Left" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverterInverted}}" />
-                                                <Button Name="DeleteTaskBoundaryButton" Margin="-5 5 0 4.5" Style="{StaticResource NoHoverButtonStyle}" Width="{Binding TaskCheckboxWidth}" Height="{Binding TaskCheckboxWidth}" VerticalAlignment="Center" Foreground="Red" FontWeight="ExtraBold" Content="x" Visibility="{Binding Path=IsUserDefined, Converter={StaticResource BoolToHiddenConverter}}" Click="DeleteTaskBoundaryButton_Click"></Button>-->
                                             </StackPanel>
                                         </StackPanel>
 
@@ -279,15 +246,17 @@
                                                         <Grid Grid.Column="0" ToolTip="{Binding Tooltip}" Width="{Binding Width}" Height="{Binding Height}" Background="{Binding Path=ProcessName, Converter={StaticResource StringToBrushConverter}, Mode=TwoWay}">
                                                             <TextBlock Margin="4 0 0 0" Text="{Binding Path=ProcessNameFormatted}" VerticalAlignment="Center" />
                                                         </Grid>
+
                                                         <!-- IsTask Switch Rectangle -->
-                                                        <Rectangle Grid.Column="1" MouseLeftButtonDown="IsTaskSwitch_ButtonClick" 
+                                                        <Rectangle Grid.Column="1" 
+                                                                   MouseLeftButtonDown="IsTaskSwitch_ButtonClick" 
                                                                    Width="{Binding TaskBoundaryWidth}" 
                                                                    Fill="{x:Static paColors:Settings.RetrospectionColorBrush}" 
                                                                    Visibility="{Binding Path=IsVisible, Converter={StaticResource BoolToVisConverter}}">
                                                             <Rectangle.RenderTransform>
                                                                 <TransformGroup>
                                                                     <ScaleTransform ScaleY="-4" />
-                                                                    <TranslateTransform Y="45" />
+                                                                    <TranslateTransform Y="38" />
                                                                 </TransformGroup>
                                                             </Rectangle.RenderTransform>
                                                             <Rectangle.Style>
@@ -311,23 +280,163 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
+                </ScrollViewer>
+            </Grid>
 
-                        <Grid Grid.Row="1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"></ColumnDefinition>
-                                <ColumnDefinition Width="*"></ColumnDefinition>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Name="StartTime" Margin="10 20 10 10" Grid.Column="0"></TextBlock>
-                            <TextBlock Name="EndTime" Margin="10 20 10 10" Grid.Column="1" HorizontalAlignment="Right"></TextBlock>
-                        </Grid>
-                    </Grid>
+            <Grid Grid.Row="2" VerticalAlignment="Bottom">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="1" Text="Hint: The save button will be enabled once you validated the task switches in the whole timeline (i.e. scroll to the end)." TextAlignment="Right" TextWrapping="Wrap" Width="350" Margin="0 0 10 0" Foreground="Gray" />
+                <Button Name="Step1_Next_Button"
+                        Grid.Column="2"
+                        IsEnabled="False"
+                        Click="Step1_Next_Button_Click" 
+                        Content="NEXT" 
+                        HorizontalAlignment="Right"
+                        Margin="0"
+                        Height="30" Width="100" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" />
+            </Grid>
+        </Grid>
+
+        <Grid Margin="10" Grid.Row="3" x:Name="Step2_TaskTypes" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="120" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            
+            <!-- Instructions -->
+            <TextBlock Grid.Row="0" Grid.Column="0" TextWrapping="Wrap" FontSize="14">
+                Below you see the timeline with your applications and the task switches you selected in the previous step<LineBreak />
+                1. Please select and validate the task types in case they are wrong by selecting the correct one from the drop-downs for each task switch that you've made.<LineBreak />
+                2. Please mark the main task(s) of this session in the checkbox.<LineBreak />
+                <Run FontSize="12">Hints: Task switches are shown as blue vertical lines. You can hover over the processes to see what you were doing in the application.</Run>
+            </TextBlock>
+            
+            <!-- Timeline -->
+            <Grid Grid.Row="1" Margin="0 10 0 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Margin="0 0 2 0">
+                    <TextBlock Text="Is it the Main Task?" Margin="0 28 0 0" HorizontalAlignment="Right" />
+                    <TextBlock Text="Select Task Type:" Margin="0 9 0 0" HorizontalAlignment="Right" />
+                    <TextBlock Text="Applications:" Margin="0 30 0 0" TextAlignment="Right" HorizontalAlignment="Right" />
+                    <TextBlock Text="(hover for details)" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" TextAlignment="Right" HorizontalAlignment="Right" />
+                    <TextBlock Text="Timestamp:" Margin="0 14 0 0" Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" HorizontalAlignment="Right" />
+                </StackPanel>
+
+                <ScrollViewer x:Name="Step2_Timeline_ScrollViewer" Grid.Column="1" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Visible" ScrollChanged="Step2_Timeline_OnScrollChanged">
+                    <ScrollViewer.Resources>
+                        <Style TargetType="{x:Type ScrollBar}">
+                            <Setter Property="Foreground" Value="{x:Static paColors:Settings.RetrospectionColorBrush}"/>
+                            <Setter Property="Background" Value="#ededed"/>
+                        </Style>
+                    </ScrollViewer.Resources>
+                    <ItemsControl Height="200" ItemsSource="{Binding RectItems}" Name="Step2_Timeline">
+                        <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <Canvas Width="{Binding TimelineWidth}"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemContainerStyle>
+                                <Style TargetType="ContentPresenter">
+                                    <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                                </Style>
+                            </ItemsControl.ItemContainerStyle>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto"/>
+                                        <RowDefinition Height="auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto"/>
+                                        <ColumnDefinition Width="auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Task Type -->
+                                    <Grid Grid.Row="0" Grid.Column="0" Width="{Binding Width}" Height="{Binding Height}" Background="{Binding Path=TaskName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToBrushConverter}}">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+
+                                        <CheckBox Grid.Row="0" VerticalAlignment="Center" Margin="4 2 2 2" IsChecked="{Binding IsMainTask}" />
+                                        <Label Grid.Row="1" Style="{StaticResource EditableLabelStyle}" Width="500" HorizontalAlignment="Left" Content="{Binding TaskName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </Grid>
+                                    <StackPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" Orientation="Horizontal">
+                                            <StackPanel Orientation="Vertical">
+                                                <!-- Is No Task Switch Rectangle -->
+                                                <Rectangle Width="{Binding TaskBoundaryWidth}" 
+                                                           Height="122"
+                                                           Margin="0 20 0 0"
+                                                           HorizontalAlignment="Left"
+                                                           Fill="{x:Static paColors:Settings.RetrospectionColorBrush}">
+                                                </Rectangle>
+
+                                                <!-- Time -->
+                                                <TextBlock Margin="-10 2 0 0" Text="{Binding Timestamp}" Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" />
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <ItemsControl Grid.Row="1" Grid.Column="0" x:Name="ProcessesTimeline" ItemsSource="{Binding ProcessRectangle}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <Canvas/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemContainerStyle>
+                                                <Style TargetType="ContentPresenter">
+                                                    <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                                                </Style>
+                                            </ItemsControl.ItemContainerStyle>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*" />
+                                                            <ColumnDefinition Width="auto" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <Grid Grid.Column="0" ToolTip="{Binding Tooltip}" Width="{Binding Width}" Height="{Binding Height}" Background="{Binding Path=ProcessName, Converter={StaticResource StringToBrushConverter}, Mode=TwoWay}">
+                                                            <TextBlock Margin="4 0 0 0" Text="{Binding Path=ProcessNameFormatted}" VerticalAlignment="Center" />
+                                                        </Grid>
+
+                                                        <!-- IsTask Switch Rectangle -->
+                                                        <Rectangle Grid.Column="1" 
+                                                                   Width="{Binding TaskBoundaryWidth}" 
+                                                                   Fill="{x:Static paColors:Settings.RetrospectionColorBrush}" 
+                                                                   Visibility="Hidden">
+                                                            <Rectangle.RenderTransform>
+                                                                <TransformGroup>
+                                                                    <ScaleTransform ScaleY="-4" />
+                                                                    <TranslateTransform Y="45" />
+                                                                </TransformGroup>
+                                                            </Rectangle.RenderTransform>
+                                                        </Rectangle>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                 </ScrollViewer>
             </Grid>
 
             <!-- Legend -->
-            <StackPanel Orientation="Vertical" Grid.Row="3">
-                <TextBlock FontSize="16" Margin="0 10 0 10">Legend for Task Types:</TextBlock>
-                <Grid Name="Legend">
+            <StackPanel Grid.Row="2" Orientation="Vertical" Visibility="Collapsed">
+                <TextBlock FontSize="14" Margin="0 10 0 10">Legend for Task Types:</TextBlock>
+                <Grid Name="TaskTypeLegend">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
@@ -338,80 +447,116 @@
                     </Grid.ColumnDefinitions>
                 </Grid>
             </StackPanel>
-
-            <Grid Grid.Row="5" VerticalAlignment="Bottom">
-                <Grid.Resources>
-                    <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
-                        <Setter Property="Foreground" Value="Black" />
-                        <Setter Property="Background" Value="White" />
-                        <Setter Property="BorderBrush" Value="Black" />
-                        <Setter Property="Width" Value="30" />
-                        <Setter Property="Height" Value="30" />
-                        <Setter Property="VerticalAlignment" Value="Center" />
-                        <Setter Property="Margin" Value="0 0 70 0" />
-                    </Style>
-                </Grid.Resources>
+            
+            <Grid Grid.Row="3" VerticalAlignment="Bottom">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="50" />
-                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="How confident are you with the self-reporting of your task switches?" FontSize="16" />
-
-                    <StackPanel Width="500" HorizontalAlignment="Left" Margin="0 10 0 10">
-                        <StackPanel Orientation="Horizontal">
-                            <Button Content="1" x:Name="TaskSwitchConfidence_Btn_1" Click="Confidence_TaskSwitch_1_Checked" />
-                            <Button Content="2" x:Name="TaskSwitchConfidence_Btn_2" Click="Confidence_TaskSwitch_2_Checked" />
-                            <Button Content="3" x:Name="TaskSwitchConfidence_Btn_3" Click="Confidence_TaskSwitch_3_Checked" />
-                            <Button Content="4" x:Name="TaskSwitchConfidence_Btn_4" Click="Confidence_TaskSwitch_4_Checked" />
-                            <Button Content="5" x:Name="TaskSwitchConfidence_Btn_5" Click="Confidence_TaskSwitch_5_Checked" />
-                        </StackPanel>
-
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="not confident" Margin="0 0 0 0" TextAlignment="Left" />
-                            <TextBlock Text="undecided" Margin="115 0 0 0" TextAlignment="Center" />
-                            <TextBlock Text="very confident" Margin="110 0 0 0" TextAlignment="Right" />
-                        </StackPanel>
-                    </StackPanel>
-                </StackPanel>
-
-                <StackPanel Grid.Column="2">
-                    <TextBlock Text="How confident are you with the self-reporting of your task types?" FontSize="16" />
-
-                    <StackPanel Width="500" HorizontalAlignment="Left" Margin="0 10 0 10">
-                        <StackPanel Orientation="Horizontal">
-                            <Button Content="1" x:Name="TaskTypeConfidence_Btn_1" Click="Confidence_TaskType_1_Checked" />
-                            <Button Content="2" x:Name="TaskTypeConfidence_Btn_2" Click="Confidence_TaskType_2_Checked" />
-                            <Button Content="3" x:Name="TaskTypeConfidence_Btn_3" Click="Confidence_TaskType_3_Checked" />
-                            <Button Content="4" x:Name="TaskTypeConfidence_Btn_4" Click="Confidence_TaskType_4_Checked" />
-                            <Button Content="5" x:Name="TaskTypeConfidence_Btn_5" Click="Confidence_TaskType_5_Checked" />
-                        </StackPanel>
-
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="not confident" Margin="0 0 0 0" TextAlignment="Left" />
-                            <TextBlock Text="undecided" Margin="115 0 0 0" TextAlignment="Center" />
-                            <TextBlock Text="very confident" Margin="110 0 0 0" TextAlignment="Right" />
-                        </StackPanel>
-                    </StackPanel>
-                </StackPanel>
+                <Button Name="Step2_Previous_Button"
+                        Grid.Column="0"
+                        Click="Step2_Previous_Button_Click" 
+                        Content="Previous Step" 
+                        HorizontalAlignment="Left"
+                        Margin="0"
+                        Height="30" Width="100" Foreground="White" Background="Gray" BorderBrush="Gray" />
+                <TextBlock Grid.Column="1" Text="Hint: The save button will be enabled once you validated the task types in the whole timeline (i.e. scroll to the end)." TextAlignment="Right" TextWrapping="Wrap" Width="350" Margin="0 0 10 0" Foreground="Gray" />
+                <Button Name="Step2_Next_Button"
+                        Grid.Column="2"
+                        IsEnabled="False"
+                        Click="Step2_Next_Button_Click" 
+                        Content="NEXT" 
+                        HorizontalAlignment="Right"
+                        Margin="0"
+                        Height="30" Width="100" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" />
             </Grid>
+        </Grid>
 
-            <StackPanel Orientation="Vertical" Grid.Row="6" VerticalAlignment="Bottom">
-                <TextBlock Text="Comments:" FontSize="16" />
-                <TextBlock>Please add comments you might have about the task detection (possible issues, questions you have, things you noticed, etc.):</TextBlock>
-                <TextBox Name="Comments" Height="50" Grid.Row="1"></TextBox>
+        <Grid Margin="10" Grid.Row="3" x:Name="Step3_Confidence" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.Resources>
+                <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
+                    <Setter Property="Foreground" Value="Black" />
+                    <Setter Property="Background" Value="White" />
+                    <Setter Property="BorderBrush" Value="Black" />
+                    <Setter Property="Width" Value="30" />
+                    <Setter Property="Height" Value="30" />
+                    <Setter Property="VerticalAlignment" Value="Center" />
+                    <Setter Property="Margin" Value="0 0 70 0" />
+                </Style>
+            </Grid.Resources>
+
+            <StackPanel Grid.Row="0">
+                <TextBlock Text="How confident are you with the self-reporting of your task switches?" FontSize="14" />
+
+                <StackPanel Width="500" HorizontalAlignment="Left" Margin="0 10 0 10">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="1" x:Name="TaskSwitchConfidence_Btn_1" Click="Confidence_TaskSwitch_1_Checked" />
+                        <Button Content="2" x:Name="TaskSwitchConfidence_Btn_2" Click="Confidence_TaskSwitch_2_Checked" />
+                        <Button Content="3" x:Name="TaskSwitchConfidence_Btn_3" Click="Confidence_TaskSwitch_3_Checked" />
+                        <Button Content="4" x:Name="TaskSwitchConfidence_Btn_4" Click="Confidence_TaskSwitch_4_Checked" />
+                        <Button Content="5" x:Name="TaskSwitchConfidence_Btn_5" Click="Confidence_TaskSwitch_5_Checked" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="not confident" Margin="0 0 0 0" TextAlignment="Left" />
+                        <TextBlock Text="undecided" Margin="115 0 0 0" TextAlignment="Center" />
+                        <TextBlock Text="very confident" Margin="110 0 0 0" TextAlignment="Right" />
+                    </StackPanel>
+                </StackPanel>
             </StackPanel>
 
-            <StackPanel Grid.Row="7" HorizontalAlignment="Right" Orientation="Horizontal" Margin="0 10 0 0">
-                <TextBlock Text="Hint: The save button will be enabled once you validated the task switches/types in the whole timeline (i.e. scroll to the end)." TextAlignment="Right" TextWrapping="Wrap" Width="350" Margin="0 0 10 0" Foreground="Gray" />
-                <Button Name="SaveButton"
-                        IsEnabled="False"
-                        Click="Save_Click" 
+            <StackPanel Grid.Row="2">
+                <TextBlock Text="How confident are you with the self-reporting of your task types?" FontSize="14" />
+
+                <StackPanel Width="500" HorizontalAlignment="Left" Margin="0 10 0 10">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="1" x:Name="TaskTypeConfidence_Btn_1" Click="Confidence_TaskType_1_Checked" />
+                        <Button Content="2" x:Name="TaskTypeConfidence_Btn_2" Click="Confidence_TaskType_2_Checked" />
+                        <Button Content="3" x:Name="TaskTypeConfidence_Btn_3" Click="Confidence_TaskType_3_Checked" />
+                        <Button Content="4" x:Name="TaskTypeConfidence_Btn_4" Click="Confidence_TaskType_4_Checked" />
+                        <Button Content="5" x:Name="TaskTypeConfidence_Btn_5" Click="Confidence_TaskType_5_Checked" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="not confident" Margin="0 0 0 0" TextAlignment="Left" />
+                        <TextBlock Text="undecided" Margin="115 0 0 0" TextAlignment="Center" />
+                        <TextBlock Text="very confident" Margin="110 0 0 0" TextAlignment="Right" />
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel Orientation="Vertical" Grid.Row="4" VerticalAlignment="Bottom">
+                <TextBlock Text="Optional comments:" FontSize="14" />
+                <TextBlock>Please add comments you might have about the task detection (possible issues, questions you have, things you noticed, etc.):</TextBlock>
+                <TextBox Name="Comments" Height="80" />
+            </StackPanel>
+
+            <Grid Grid.Row="5" VerticalAlignment="Bottom">
+                <Button Name="Step3_Previous_Button"
+                        Click="Step3_Previous_Button_Click" 
+                        Content="Previous Step" 
+                        HorizontalAlignment="Left"
+                        Margin="0"
+                        Height="30" Width="100" Foreground="White" Background="Gray" BorderBrush="Gray" />
+                
+                <Button Name="Step3_Save_Button"
+                        Click="Step3_Save_Button_Click" 
                         Content="SAVE" 
+                        HorizontalAlignment="Right"
+                        Margin="0"
                         Height="30" Width="100" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" />
-            </StackPanel>        
+            </Grid>
         </Grid>
+
     </Grid>
 </Window>

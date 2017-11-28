@@ -33,7 +33,7 @@ namespace TaskDetectionTracker.Views.Tests
             var input = td.FindTasks(processes);
 
             // run popup
-            var popup = (Window)new TaskDetectionPopup(input);
+            var popup = (Window)new TaskDetectionPopup(input, false);
             popup.ShowDialog();
         }
         

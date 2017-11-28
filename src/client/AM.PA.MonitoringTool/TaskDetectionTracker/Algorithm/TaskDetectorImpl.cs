@@ -67,6 +67,7 @@ namespace TaskDetectionTracker.Algorithm
         /// <returns></returns>
         public List<TaskDetection> FindTasks(List<TaskDetectionInput> processes)
         {
+            if (processes.Count == 0) return new List<TaskDetection>(); // empty list
             try
             {
                 List<Datapoint> dps = new List<Datapoint>();
@@ -90,8 +91,9 @@ namespace TaskDetectionTracker.Algorithm
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return new List<TaskDetection>(); // empty list
             }
+
+            return new List<TaskDetection>(); // empty list
         }
 
         /// <summary>

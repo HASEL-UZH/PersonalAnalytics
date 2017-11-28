@@ -39,11 +39,13 @@ namespace TaskDetectionTracker
         internal static TimeSpan MaximumValidationInterval = TimeSpan.FromHours(1);
 #endif
 
-        internal const int MaximumTimePostponed_Minutes = 20;
-        internal const int MinimumProcessTime_Seconds = 10; // delete processes smaller than this threshold
-        internal const int MinimumProcessWidth = 50; 
-        internal const int MaximumTimeLineWidth = 2500;
+        internal const int MaximumTimePostponed_Minutes = 20; // TODO: explain!
+        internal const int MinimumProcessTime_Seconds = 10; // delete processes smaller than this threshold // TODO: explain!
+        internal const int MinimumProcessWidth = 70; 
+        internal const int MaximumTimeLineWidth = 3000;
         internal const int MinimumTimeLineWidth = 500;
-        internal const int MinimumTaskDuration_Seconds = 60;
+        internal const int MinimumTaskDuration_Seconds = 60; // TODO: explain!
+        internal const int ProcessHeight = 30;
+        internal const int TaskHeight = 45;
     }
 }

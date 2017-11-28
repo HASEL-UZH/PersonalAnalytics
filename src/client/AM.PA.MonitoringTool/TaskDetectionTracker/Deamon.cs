@@ -119,25 +119,16 @@ namespace TaskDetectionTracker
             // stop pop-up timer
             _popUpTimer.Stop();
 
-            // get session start and end
-            //var sessionStart = _lastPopUpResponse;
-            //if (_lastPopUpResponse == DateTime.MinValue || _lastPopUpResponse.Date != DateTime.Now.Date)
-            //{
-            //    sessionStart = DateTime.Now.AddHours(- Settings.MaximumValidationInterval.TotalHours);
-            //}
-
-            //// make sure, sessionStart is not too long
-            //var sessionEnd = DateTime.Now;
-            //if (sessionEnd - sessionStart > Settings.MaximumValidationInterval)
-            //{
-            //    sessionStart = sessionEnd - Settings.MaximumValidationInterval;
-            //}
-
             var sessionStart = DateTime.Now.AddHours(-Settings.MaximumValidationInterval.TotalHours);
             var sessionEnd = DateTime.Now;
 
+            // the first two times the pop-up is shown, there should be no task predictions
+            var numberOfValidationsCompleted = Database.GetInstance().GetSettingsInt(Settings.NumberOfValidationsCompleted_Setting, 0);
+            var isCurrentPopupFirstTimeWithPredictions = numberOfValidationsCompleted == Settings.NumberOfPopUpsWithoutPredictions;
+            var validatePopUpWithPredictions = (numberOfValidationsCompleted >= Settings.NumberOfPopUpsWithoutPredictions);
+
             // load all data first
-            var taskDetections = await Task.Run(() => PrepareTaskDetectionDataForPopup(sessionStart, sessionEnd));
+            var taskDetections = await Task.Run(() => PrepareTaskDetectionDataForPopup(sessionStart, sessionEnd, validatePopUpWithPredictions));
 
             // don't show the pop-up if...
             if (taskDetections.Count == 0 || // if there are no predictions
@@ -151,7 +142,7 @@ namespace TaskDetectionTracker
             // show pop-up if enough data is available
             else
             {
-                ShowTaskDetectionValidationPopup(taskDetections, sessionStart, sessionEnd);
+                ShowTaskDetectionValidationPopup(taskDetections, sessionStart, sessionEnd, isCurrentPopupFirstTimeWithPredictions);
             }
         }
 
@@ -160,7 +151,7 @@ namespace TaskDetectionTracker
         /// time the participant answered the popup
         /// </summary>
         /// <returns></returns>
-        private List<TaskDetection> PrepareTaskDetectionDataForPopup(DateTime sessionStart, DateTime sessionEnd)
+        private static List<TaskDetection> PrepareTaskDetectionDataForPopup(DateTime sessionStart, DateTime sessionEnd, bool validatePopUpWithPredictions)
         {
             var taskDetections = new List<TaskDetection>();
 
@@ -177,10 +168,6 @@ namespace TaskDetectionTracker
                     processes = DataMerger.MergeProcesses(processes, sessionEnd.Subtract(sessionStart));
                     DataMerger.AddMouseClickAndKeystrokesToProcesses(processes);
                     //option to use file and website extractor here to add more info to the timeline-hover
-
-                    // the first two times the pop-up is shown, there should be no task predictions
-                    var numberOfValidationsCompleted = Database.GetInstance().GetSettingsInt(Settings.NumberOfValidationsCompleted_Setting, 0);
-                    var validatePopUpWithPredictions = (numberOfValidationsCompleted >= Settings.NumberOfPopUpsWithoutPredictions);
 
                     // run task detection and show predictions
                     if (validatePopUpWithPredictions)
@@ -207,7 +194,7 @@ namespace TaskDetectionTracker
         /// temporarily show hidden window 
         /// (to add an entry to the windows_activity table and not miss the last item)
         /// </summary>
-        private void TempShowHiddenWindow()
+        private static void TempShowHiddenWindow()
         {
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(
             () =>
@@ -222,10 +209,9 @@ namespace TaskDetectionTracker
                     Title = "PersonalAnalytics: Forced WindowsActvityTracker-entry"
                 };
                 tempWindow.Show();
-                Thread.Sleep(2000);
+                Thread.Sleep(1500);
                 tempWindow.Close();
             }));
-
         }
 
         /// <summary>
@@ -233,7 +219,10 @@ namespace TaskDetectionTracker
         /// to validate them. The response is handled in a separate method.
         /// </summary>
         /// <param name="taskDetections"></param>
-        private void ShowTaskDetectionValidationPopup(List<TaskDetection> taskDetections, DateTime detectionSessionStart, DateTime detectionSessionEnd)
+        /// <param name="detectionSessionStart"></param>
+        /// <param name="detectionSessionEnd"></param>
+        /// <param name="isCurrentPopupFirstTimeWithPredictions"></param>
+        private void ShowTaskDetectionValidationPopup(List<TaskDetection> taskDetections, DateTime detectionSessionStart, DateTime detectionSessionEnd, bool isCurrentPopupFirstTimeWithPredictions)
         {
             try
             {
@@ -245,13 +234,13 @@ namespace TaskDetectionTracker
                     var taskDetections_NotValidated = taskDetections.Where(t => (t.End - t.Start).TotalSeconds < Settings.MinimumTaskDuration_Seconds).ToList();
 
                     // create validation popup
-                    var popup = new TaskDetectionPopup(taskDetections_Validated);
+                    var popup = new TaskDetectionPopup(taskDetections_Validated, isCurrentPopupFirstTimeWithPredictions);
                     popup.Topmost = true;
 
                     // show popup & handle response
                     if (popup.ShowDialog() == true)
                     {
-                        HandlePopUpResponse(popup, popup._taskSwitches_Validated, taskDetections_NotValidated, detectionSessionStart, detectionSessionEnd);
+                        HandlePopUpResponse(popup, popup.TaskSwitchesValidated, taskDetections_NotValidated, detectionSessionStart, detectionSessionEnd);
                     }
                     else
                     {
