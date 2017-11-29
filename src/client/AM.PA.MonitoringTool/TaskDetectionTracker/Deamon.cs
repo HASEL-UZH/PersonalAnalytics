@@ -135,7 +135,7 @@ namespace TaskDetectionTracker
                 ((taskDetections.Last().End - taskDetections.First().Start).TotalHours * 5 < Settings.MaximumValidationInterval.TotalHours) || // if it's not 1/5th of the validation interval
                 (taskDetections.Sum(t => (t.End - t.Start).TotalSeconds) < 10 * 60)) // if the total duration of the detected tasks is 10 minutes
             {
-                var msg = string.Format("No tasks detected or too short interval between {0} {1} and {2} {3}.", sessionStart.ToShortDateString(), sessionStart.ToShortTimeString(), sessionEnd.ToShortDateString(), sessionEnd.ToShortTimeString());
+                var msg = string.Format(Name + ": No tasks detected or too short interval between {0} {1} and {2} {3}.", sessionStart.ToShortDateString(), sessionStart.ToShortTimeString(), sessionEnd.ToShortDateString(), sessionEnd.ToShortTimeString());
                 Database.GetInstance().LogWarning(msg);
                 StartPopUpTimer();
             }
@@ -237,15 +237,17 @@ namespace TaskDetectionTracker
                     var popup = new TaskDetectionPopup(taskDetections_Validated, isCurrentPopupFirstTimeWithPredictions);
                     popup.Topmost = true;
 
+                    Database.GetInstance().LogInfo(Name + ": Show fresh/new task detection validation PopUp to user.");
+
                     // show popup & handle response
                     if (popup.ShowDialog() == true)
                     {
-                        HandlePopUpResponse(popup, popup.TaskSwitchesValidated, taskDetections_NotValidated, detectionSessionStart, detectionSessionEnd);
+                        HandlePopUpResponse(popup, popup.TaskSwitchesValidated, taskDetections_NotValidated, DateTime.Now, detectionSessionStart, detectionSessionEnd);
                     }
                     else
                     {
                         // we get here when DialogResult is set to false (which should only happen when pop-up is not answered)
-                        Database.GetInstance().LogInfo("DialogResult of PopUp was set to false in tracker: " + Name);
+                        Database.GetInstance().LogInfo(Name + ": DialogResult of PopUp was set to false.");
                         StartPopUpTimer();
                     }
                 }));
@@ -267,10 +269,15 @@ namespace TaskDetectionTracker
         /// - if answered: stores the validation in the database
         /// - else: re-opens the window and asks the user to do it again
         /// </summary>
-        /// <param name="taskDetectionPopup"></param>
         /// <param name="popup"></param>
-        private void HandlePopUpResponse(TaskDetectionPopup popup, List<TaskDetection> taskDetections_Validated, List<TaskDetection> taskDetections_NotValidated, DateTime detectionSessionStart, DateTime detectionSessionEnd)
+        /// <param name="taskDetections_Validated"></param>
+        /// <param name="taskDetections_NotValidated"></param>
+        /// <param name="detectionSessionStart"></param>
+        /// <param name="detectionSessionEnd"></param>
+        private void HandlePopUpResponse(TaskDetectionPopup popup, List<TaskDetection> taskDetections_Validated, List<TaskDetection> taskDetections_NotValidated, DateTime timePopUpFirstShown, DateTime detectionSessionStart, DateTime detectionSessionEnd)
         {
+            var timePopUpResponded = DateTime.Now;
+
             // successful popup response
             if (popup.ValidationComplete)
             {
@@ -278,15 +285,15 @@ namespace TaskDetectionTracker
                 var taskDetections = taskDetections_Validated.Concat(taskDetections_NotValidated).ToList();
                 taskDetections.Sort();
 
-                // save validation responses to the database
-                var sessionId = DatabaseConnector.TaskDetectionSession_SaveToDatabase(detectionSessionStart, detectionSessionEnd, DateTime.Now, 
-                    popup.Comments.Text, (int)popup.Confidence_TaskSwitch, (int)popup.Confidence_TaskType);
+                // save validation responses to task validation table
+                var sessionId = DatabaseConnector.TaskDetectionSession_SaveToDatabase(detectionSessionStart, detectionSessionEnd, timePopUpFirstShown, timePopUpResponded,
+                    popup.PostponedInfo, popup.Comments.Text, popup.Confidence_TaskSwitch, popup.Confidence_TaskType);
                 if (sessionId > 0) DatabaseConnector.TaskDetectionValidationsPerSession_SaveToDatabase(sessionId, taskDetections);
-                else Database.GetInstance().LogError("Did not save any validated task detections for session (" + detectionSessionStart.ToString() + " to " + detectionSessionEnd.ToString() + ") due to an error.");
+                else Database.GetInstance().LogError(Name + ": Did not save any validated task detections for session (" + detectionSessionStart + " to " + detectionSessionEnd + ") due to an error.");
 
                 // log successful validation
                 var db = Database.GetInstance();
-                db.LogInfo("User successfully validated task switches for session (" + detectionSessionStart.ToString() + " to " + detectionSessionEnd.ToString() + ").");
+                db.LogInfo(Name + ": User successfully validated task switches for session (" + detectionSessionStart + " to " + detectionSessionEnd + ").");
                 var numberOfValidationsCompleted = 1 + db.GetSettingsInt(Settings.NumberOfValidationsCompleted_Setting, 0);
                 db.SetSettings(Settings.NumberOfValidationsCompleted_Setting, numberOfValidationsCompleted.ToString());
 
@@ -299,7 +306,11 @@ namespace TaskDetectionTracker
             else
             {
                 // we get here when DialogResult is set to false
-                Database.GetInstance().LogInfo("User closed the PopUp without completing the validation in tracker: " + Name);
+                Database.GetInstance().LogInfo(Name + ": User closed the PopUp without completing the validation.");
+
+                // save empty validation responses to the task validation table
+                DatabaseConnector.TaskDetectionSession_SaveToDatabase(detectionSessionStart, detectionSessionEnd, timePopUpFirstShown, timePopUpResponded,
+                    popup.PostponedInfo, string.Empty, -1, -1);
 
                 // set timer interval to a short one, to try again
                 StartPopUpTimer(Settings.PopUpReminderInterval_Long);

@@ -17,10 +17,10 @@ namespace TaskDetectionTracker.Data
 {
     internal class DatabaseConnector
     {
-        private static string QUERY_CREATE_SESSION = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Sessions + " (sessionId INTEGER PRIMARY KEY, time DATETIME, session_start DATETIME, session_end DATETIME, timePopUpResponded DATETIME, comments TEXT, confidence_switch TEXT, confidence_type TEXT);";
+        private static string QUERY_CREATE_SESSION = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Sessions + " (sessionId INTEGER PRIMARY KEY, time DATETIME, session_start DATETIME, session_end DATETIME, timePopUpFirstShown DATETIME, timePopUpResponded DATETIME, postponedInfo TEXT, comments TEXT, confidence_switch TEXT, confidence_type TEXT);";
         private static string QUERY_CREATE_VALIDATION = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Validations + " (id INTEGER PRIMARY KEY, sessionId INTEGER, time DATETIME, task_start DATETIME, task_end DATETIME, task_detection_case TEXT, task_type_proposed TEXT, task_type_validated TEXT, is_main_task BOOLEAN);";
 
-        private static string QUERY_INSERT_SESSION = "INSERT INTO " + Settings.DbTable_TaskDetection_Sessions + " (time, session_start, session_end, timePopUpResponded, comments, confidence_switch, confidence_type) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6});";
+        private static string QUERY_INSERT_SESSION = "INSERT INTO " + Settings.DbTable_TaskDetection_Sessions + " (time, session_start, session_end, timePopUpFirstShown, timePopUpResponded, postponedInfo, comments, confidence_switch, confidence_type) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8});";
         private static string QUERY_INSERT_VALIDATION = "INSERT INTO " + Settings.DbTable_TaskDetection_Validations + " (sessionId, time, task_start, task_end, task_detection_case, task_type_proposed, task_type_validated, is_main_task) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7});";
 
         internal static void CreateTaskDetectionValidationTable()
@@ -33,7 +33,7 @@ namespace TaskDetectionTracker.Data
         /// Saves the session information to DbTable_TaskDetection_Sessions (returns a sessionId)
         /// </summary>
         /// <returns></returns>
-        internal static int TaskDetectionSession_SaveToDatabase(DateTime sessionStart, DateTime sessionEnd, DateTime timePopUpResponded, string comment, int confidenceSwitch, int confidenceType)
+        internal static int TaskDetectionSession_SaveToDatabase(DateTime sessionStart, DateTime sessionEnd, DateTime timePopUpFirstShown, DateTime timePopUpResponded, string postponedInfo, string comment, int confidenceSwitch, int confidenceType)
         {
             try
             {
@@ -42,7 +42,9 @@ namespace TaskDetectionTracker.Data
                                           "strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')",
                                           db.QTime(sessionStart),
                                           db.QTime(sessionEnd),
+                                          db.QTime(timePopUpFirstShown),
                                           db.QTime(timePopUpResponded),
+                                          db.Q(postponedInfo),
                                           db.Q(comment),
                                           db.Q(confidenceSwitch),
                                           db.Q(confidenceType));
@@ -61,6 +63,7 @@ namespace TaskDetectionTracker.Data
         /// <summary>
         /// Saves the validated task detections for this session (with sessionId)
         /// </summary>
+        /// <param name="sessionId"></param>
         /// <param name="taskDetections"></param>
         internal static void TaskDetectionValidationsPerSession_SaveToDatabase(int sessionId, List<TaskDetection> taskDetections)
         {
@@ -96,11 +99,11 @@ namespace TaskDetectionTracker.Data
         /// <returns></returns>
         internal static List<TaskDetectionInput> GetProcesses(DateTime from, DateTime to)
         {
-            List<TaskDetectionInput> result = new List<TaskDetectionInput>();
+            var result = new List<TaskDetectionInput>();
 
             try
             {
-                string query = "SELECT process, window, tsStart, tsEnd FROM windows_activity "  //, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'difference'
+                var query = "SELECT process, window, tsStart, tsEnd FROM windows_activity "  //, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'difference'
                              + "WHERE (" + " STRFTIME('%s', DATETIME(tsStart)) between STRFTIME('%s', DATETIME('" + from.ToString("u") + "')) and STRFTIME('%s', DATETIME('" + to.ToString("u") + "')) "+ " );";
                 var table = Database.GetInstance().ExecuteReadQuery(query);
                 foreach (DataRow row in table.Rows)

@@ -17,6 +17,7 @@ using System.Windows.Controls;
 using System.Diagnostics;
 using TaskDetectionTracker.Views.Converters;
 using System.Windows.Media;
+using Shared.Data;
 using Shared.Helpers;
 
 namespace TaskDetectionTracker.Views
@@ -38,6 +39,7 @@ namespace TaskDetectionTracker.Views
         internal List<TaskDetection> TaskSwitchesNotValidated;
         private readonly List<TaskDetection> _taskSwitchesInTimeline;
         private double _totalTimePostponed;
+        public string PostponedInfo;
 
         /// <inheritdoc />
         /// <summary>
@@ -193,18 +195,27 @@ namespace TaskDetectionTracker.Views
 
         private void ValidationPostponed_Short_Click(object sender, RoutedEventArgs e)
         {
+            Database.GetInstance().LogInfo(Settings.TrackerName + ": User postponed the PopUp by " + Settings.PopUpReminderInterval_Short + ".");
+            PostponedInfo += string.Format("[{0}: {1}], ", DateTime.Now.ToShortTimeString(), Settings.PopUpReminderInterval_Short);
+
             WindowState = WindowState.Minimized;
             StartReminderTimer(Settings.PopUpReminderInterval_Short);
         }
 
         private void ValidationPostponed_Long_Click(object sender, RoutedEventArgs e)
         {
+            Database.GetInstance().LogInfo(Settings.TrackerName + ": User postponed the PopUp by " + Settings.PopUpReminderInterval_Long + ".");
+            PostponedInfo += string.Format("[{0}: {1}], ", DateTime.Now.ToShortTimeString(), Settings.PopUpReminderInterval_Long);
+
             WindowState = WindowState.Minimized;
             StartReminderTimer(Settings.PopUpReminderInterval_Long); // overwrites the timer interval
         }
 
         private void ValidationCanceled_Click(object sender, RoutedEventArgs e)
         {
+            Database.GetInstance().LogInfo(Settings.TrackerName + ": User canceled the PopUp.");
+            PostponedInfo += string.Format("[{0}: {1}], ", DateTime.Now.ToShortTimeString(), "Canceled by User");
+
             StopReminderTimer();
             ForceCloseValidation();
         }
