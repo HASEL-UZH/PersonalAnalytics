@@ -238,14 +238,19 @@ namespace TaskDetectionTracker
                     popup.Topmost = true;
 
                     Database.GetInstance().LogInfo(Name + ": Show fresh/new task detection validation PopUp to user.");
+                    var timePopUpFirstShown = DateTime.Now;
 
                     // show popup & handle response
                     if (popup.ShowDialog() == true)
                     {
-                        HandlePopUpResponse(popup, popup.TaskSwitchesValidated, taskDetections_NotValidated, DateTime.Now, detectionSessionStart, detectionSessionEnd);
+                        HandlePopUpResponse(popup, popup.TaskSwitchesValidated, taskDetections_NotValidated, timePopUpFirstShown, detectionSessionStart, detectionSessionEnd);
                     }
                     else
                     {
+                        // save empty validation responses to the task validation table
+                        DatabaseConnector.TaskDetectionSession_SaveToDatabase(detectionSessionStart, detectionSessionEnd, timePopUpFirstShown, DateTime.Now,
+                            popup.PostponedInfo, string.Empty, -1, -1);
+
                         // we get here when DialogResult is set to false (which should only happen when pop-up is not answered)
                         Database.GetInstance().LogInfo(Name + ": DialogResult of PopUp was set to false.");
                         StartPopUpTimer();
@@ -309,8 +314,8 @@ namespace TaskDetectionTracker
                 Database.GetInstance().LogInfo(Name + ": User closed the PopUp without completing the validation.");
 
                 // save empty validation responses to the task validation table
-                DatabaseConnector.TaskDetectionSession_SaveToDatabase(detectionSessionStart, detectionSessionEnd, timePopUpFirstShown, timePopUpResponded,
-                    popup.PostponedInfo, string.Empty, -1, -1);
+                //DatabaseConnector.TaskDetectionSession_SaveToDatabase(detectionSessionStart, detectionSessionEnd, timePopUpFirstShown, timePopUpResponded,
+                //    popup.PostponedInfo, string.Empty, -1, -1);
 
                 // set timer interval to a short one, to try again
                 StartPopUpTimer(Settings.PopUpReminderInterval_Long);

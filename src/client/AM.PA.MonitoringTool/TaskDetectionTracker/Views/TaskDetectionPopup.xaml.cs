@@ -63,7 +63,7 @@ namespace TaskDetectionTracker.Views
             }
 
             //Event handlers
-            this.Deactivated += Window_Deactivated;
+            //this.Deactivated += Window_Deactivated;
             this.StateChanged += Window_StateChanged;
             this.Closing += Window_OnClosing;
             this.SizeChanged += Window_SizeChanged;
@@ -109,7 +109,7 @@ namespace TaskDetectionTracker.Views
         /// <param name="e"></param>
         private void Window_OnClosing(object sender, CancelEventArgs e)
         {
-            // if pop-up not filled out correctly, cancle and minimize it
+            // if pop-up not filled out correctly, cancel and minimize it
             if (CancelValidationForced == false && (DialogResult == false || ValidationComplete == false))
             {
                 e.Cancel = true;
@@ -128,9 +128,15 @@ namespace TaskDetectionTracker.Views
             switch (WindowState)
             {
                 // minimize event is handed by deactivated event already
-                //case WindowState.Minimized:
-                    //StartReminderTimer(Settings.PopUpReminderInterval_Short);
-                    //break;
+                case WindowState.Minimized:
+                    if (!_skipNextMinimizedEvent)
+                    {
+                        Database.GetInstance().LogInfo(Settings.TrackerName + ": User minimized the PopUp.");
+                        PostponedInfo += FormatPostponedInfo(Settings.PopUpReminderInterval_Short.ToString());
+                        StartReminderTimer(Settings.PopUpReminderInterval_Short);
+                    }
+                    _skipNextMinimizedEvent = false;
+                    break;
                 case WindowState.Maximized:
                 case WindowState.Normal:
                     StopReminderTimer();
@@ -144,10 +150,17 @@ namespace TaskDetectionTracker.Views
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void Window_Deactivated(object sender, EventArgs e)
-        {
-            StartReminderTimer(Settings.PopUpReminderInterval_Short);
-        }
+        //private void Window_Deactivated(object sender, EventArgs e)
+        //{
+        //    //if (! _skipNextMinimizedEvent)
+        //    //{
+        //    //    Database.GetInstance().LogInfo(Settings.TrackerName + ": User minimized the PopUp.");
+        //    //    PostponedInfo += FormatPostponedInfo(Settings.PopUpReminderInterval_Short.ToString());
+        //    //    StartReminderTimer(Settings.PopUpReminderInterval_Short);
+        //    //}
+
+        //    //_skipNextMinimizedEvent = false;
+        //}
 
         private void StartReminderTimer(TimeSpan reminderInterval)
         {
@@ -167,11 +180,9 @@ namespace TaskDetectionTracker.Views
 
         private void StopReminderTimer()
         {
-            if (_popUpReminderTimer != null)
-            {
-                _popUpReminderTimer.Stop();
-                _popUpReminderTimer = null;
-            }
+            if (_popUpReminderTimer == null) return;
+            _popUpReminderTimer.Stop();
+            _popUpReminderTimer = null;
         }
 
         private void PopUpReminder_Tick(object sender, EventArgs e)
@@ -193,11 +204,13 @@ namespace TaskDetectionTracker.Views
             }
         }
 
+        private bool _skipNextMinimizedEvent = false;
+
         private void ValidationPostponed_Short_Click(object sender, RoutedEventArgs e)
         {
             Database.GetInstance().LogInfo(Settings.TrackerName + ": User postponed the PopUp by " + Settings.PopUpReminderInterval_Short + ".");
-            PostponedInfo += string.Format("[{0}: {1}], ", DateTime.Now.ToShortTimeString(), Settings.PopUpReminderInterval_Short);
-
+            PostponedInfo += FormatPostponedInfo(Settings.PopUpReminderInterval_Short.ToString());
+            _skipNextMinimizedEvent = true;
             WindowState = WindowState.Minimized;
             StartReminderTimer(Settings.PopUpReminderInterval_Short);
         }
@@ -205,8 +218,8 @@ namespace TaskDetectionTracker.Views
         private void ValidationPostponed_Long_Click(object sender, RoutedEventArgs e)
         {
             Database.GetInstance().LogInfo(Settings.TrackerName + ": User postponed the PopUp by " + Settings.PopUpReminderInterval_Long + ".");
-            PostponedInfo += string.Format("[{0}: {1}], ", DateTime.Now.ToShortTimeString(), Settings.PopUpReminderInterval_Long);
-
+            PostponedInfo += FormatPostponedInfo(Settings.PopUpReminderInterval_Long.ToString());
+            _skipNextMinimizedEvent = true;
             WindowState = WindowState.Minimized;
             StartReminderTimer(Settings.PopUpReminderInterval_Long); // overwrites the timer interval
         }
@@ -214,10 +227,15 @@ namespace TaskDetectionTracker.Views
         private void ValidationCanceled_Click(object sender, RoutedEventArgs e)
         {
             Database.GetInstance().LogInfo(Settings.TrackerName + ": User canceled the PopUp.");
-            PostponedInfo += string.Format("[{0}: {1}], ", DateTime.Now.ToShortTimeString(), "Canceled by User");
+            PostponedInfo += FormatPostponedInfo("Canceled by User");
 
             StopReminderTimer();
             ForceCloseValidation();
+        }
+
+        private static string FormatPostponedInfo(string message = "")
+        {
+            return string.Format("[{0}: {1}], ", DateTime.Now.ToString("HH:mm:ss"), message);
         }
 
         private void ForceCloseValidation()
