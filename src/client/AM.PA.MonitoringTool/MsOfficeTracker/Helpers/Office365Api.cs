@@ -5,7 +5,6 @@
 using System;
 using Shared;
 using System.Globalization;
-using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Office365.OutlookServices;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -14,6 +13,7 @@ using Shared.Data;
 using MsOfficeTracker.Models;
 using System.Net;
 using System.Runtime.InteropServices;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace MsOfficeTracker.Helpers
 {
@@ -64,7 +64,7 @@ namespace MsOfficeTracker.Helpers
             _client = new OutlookServicesClient(new Uri(_apiUrl), async () =>
             {
                 // Since we have it locally from the Session, just return it here.
-                return _authResult.Token;
+                return _authResult.AccessToken; // was: .Token;
             });
         }
 
@@ -137,7 +137,7 @@ namespace MsOfficeTracker.Helpers
                 else
                 {
                     // An unexpected error occurred.
-                    string message = ex.Message;
+                    var message = ex.Message;
                     if (ex.InnerException != null)
                     {
                         message += "Inner Exception : " + ex.InnerException.Message;

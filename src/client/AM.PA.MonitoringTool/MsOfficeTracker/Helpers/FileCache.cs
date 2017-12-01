@@ -2,9 +2,9 @@
 // Created: 2015-12-08
 // 
 // Licensed under the MIT License.
-using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
 using System.IO;
 using System.Security.Cryptography;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace MsOfficeTracker.Helpers
 {
