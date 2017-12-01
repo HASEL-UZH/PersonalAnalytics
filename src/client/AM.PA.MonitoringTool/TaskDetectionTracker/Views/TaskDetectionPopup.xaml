@@ -136,10 +136,10 @@
 
             <!-- Instructions -->
             <TextBlock Grid.Row="0" Grid.Column="0" TextWrapping="Wrap" FontSize="14">
-                Below you see a timeline of how you have spent your time in different applications<LineBreak />
-                1. Please skim through the timeline and select the task switches that were missed by the task prediction. Task swithces are shown as blue vertical lines. <LineBreak />
+                Below you see a timeline of how you have spent your time in different applications.<LineBreak />
+                1. Please skim through the timeline and select the task switches that were missed by the task prediction. Task switches are shown as blue vertical lines. <LineBreak />
                 2. In case the timeline contains a task switch that was wrong, please click on it to remove it.<LineBreak />
-                <Run FontSize="12">You can hover over the processes to see what you were doing in the application.</Run>
+                <Run FontSize="12">You can hover over the processes to see what you were doing in each application.</Run>
             </TextBlock>
 
             <!-- Timeline -->
@@ -312,9 +312,9 @@
             
             <!-- Instructions -->
             <TextBlock Grid.Row="0" Grid.Column="0" TextWrapping="Wrap" FontSize="14">
-                Below you see the timeline with your applications and the task switches you selected in the previous step<LineBreak />
-                1. Please select and validate the task types in case they are wrong by selecting the correct one from the drop-downs for each task switch that you've made.<LineBreak />
-                2. Please mark the main task(s) of this session in the checkbox.<LineBreak />
+                Below you see the timeline with your applications and the task switches you selected in the previous step.<LineBreak />
+                1. Please change the task types where they are wrong using the drop-downs.<LineBreak />
+                2. Please mark the main task(s) of this session using the checkboxes.<LineBreak />
                 <Run FontSize="12">Hints: Task switches are shown as blue vertical lines. You can hover over the processes to see what you were doing in the application.</Run>
             </TextBlock>
             
@@ -474,7 +474,7 @@
             </Grid>
         </Grid>
 
-        <Grid Margin="10" Grid.Row="3" x:Name="Step3_Confidence" Visibility="Collapsed">
+        <Grid Margin="10" Grid.Row="3" x:Name="Step3_Confidence" Visibility="Visible">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="30" />
@@ -508,9 +508,9 @@
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="not confident" Margin="0 0 0 0" TextAlignment="Left" />
-                        <TextBlock Text="undecided" Margin="115 0 0 0" TextAlignment="Center" />
-                        <TextBlock Text="very confident" Margin="110 0 0 0" TextAlignment="Right" />
+                        <TextBlock Text="not at all confident" Margin="0 0 0 0" TextAlignment="Left" />
+                        <TextBlock Text="undecided" Margin="87 0 0 0" TextAlignment="Center" />
+                        <TextBlock Text="very confident" Margin="112 0 0 0" TextAlignment="Right" />
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
@@ -528,9 +528,9 @@
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="not confident" Margin="0 0 0 0" TextAlignment="Left" />
-                        <TextBlock Text="undecided" Margin="115 0 0 0" TextAlignment="Center" />
-                        <TextBlock Text="very confident" Margin="110 0 0 0" TextAlignment="Right" />
+                        <TextBlock Text="not at all confident" Margin="0 0 0 0" TextAlignment="Left" />
+                        <TextBlock Text="undecided" Margin="87 0 0 0" TextAlignment="Center" />
+                        <TextBlock Text="very confident" Margin="112 0 0 0" TextAlignment="Right" />
                     </StackPanel>
                 </StackPanel>
             </StackPanel>

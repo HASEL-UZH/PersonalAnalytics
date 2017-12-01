@@ -235,7 +235,7 @@ namespace TaskDetectionTracker.Views
 
         private static string FormatPostponedInfo(string message = "")
         {
-            return string.Format("[{0}: {1}], ", DateTime.Now.ToString("HH:mm:ss"), message);
+            return string.Format("[{0}, {1}], ", DateTime.Now.ToString("HH:mm:ss"), message);
         }
 
         private void ForceCloseValidation()
