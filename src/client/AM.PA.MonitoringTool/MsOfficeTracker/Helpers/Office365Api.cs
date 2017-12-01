@@ -3,7 +3,6 @@
 // 
 // Licensed under the MIT License.
 using System;
-using Shared;
 using System.Globalization;
 using Microsoft.Office365.OutlookServices;
 using System.Threading.Tasks;
@@ -13,21 +12,23 @@ using Shared.Data;
 using MsOfficeTracker.Models;
 using System.Net;
 using System.Runtime.InteropServices;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Identity.Client;
+using Logger = Shared.Logger;
 
 namespace MsOfficeTracker.Helpers
 {
     public class Office365Api
     {
         private static Office365Api _api;
-        private Uri redirectUri = new Uri(Settings.RedirectUriString);
-        private string _authority = string.Format(CultureInfo.InvariantCulture, Settings.AadInstance, "common"); // use microsoft.onmicrosoft.com for just this tenant, use "common" if used for everyone
-        private AuthenticationContext _authContext;
+        //private Uri redirectUri = new Uri(Settings.RedirectUriString);
+        //private string _authority = string.Format(CultureInfo.InvariantCulture, Settings.AadInstance, "common"); // use microsoft.onmicrosoft.com for just this tenant, use "common" if used for everyone
+        //private AuthenticationContext _authContext;
         private AuthenticationResult _authResult;
         private OutlookServicesClient _client;
+        private PublicClientApplication _app;
 
-        private string[] _scopes = { "https://outlook.office.com/mail.read", "https://outlook.office.com/calendars.read" }; // "https://outlook.office.com/user.readbasic.all" };
-        private const string _apiUrl = "https://outlook.office.com/api/v2.0";
+        private string[] _scopes = { "mail.read", "calendars.read" }; // "https://outlook.office.com/mail.read", "https://outlook.office.com/calendars.read" }; // "https://outlook.office.com/user.readbasic.all" };
+        private const string _graphAPIEndpoint = "https://outlook.office.com/api/v2.0"; //"https://graph.microsoft.com/v1.0/me"; 
         //private string _loggedInUserEmail;
         //private string _loggedInUserName;
 
@@ -42,30 +43,72 @@ namespace MsOfficeTracker.Helpers
 
         #region Api Authentication, Clearing Cookies, etc.
 
+        private async void Test()
+        {
+            try
+            {
+                _app = new PublicClientApplication(Settings.ClientId, "https://login.microsoftonline.com/common",
+                    FileCache.GetUserCache());
+
+                //_authResult = await _app.AcquireTokenAsync(_scopes, "", UIBehavior.ForceLogin, "");
+                await TrySilentAuthentication();
+
+                var token = _authResult.AccessToken;
+                _client = new OutlookServicesClient(new Uri("https://outlook.office.com/api/v2.0"),
+                    () =>
+                    {
+                        return Task.Run(() => token);
+                    });
+
+
+                var num = await GetTotalNumberOfEmailsReceived(DateTime.Now.Date);
+                Console.WriteLine(num);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+
         private Office365Api()
         {
-            // use file cache to persist token
-            _authContext = new AuthenticationContext(_authority, new FileCache());
+            Test();
+            //_authResult = await _app.AcquireTokenAsync(_scopes, "", UIBehavior.ForceLogin, "");
 
-            if (_authContext.TokenCache.ReadItems().Count() > 0)
-            {
-                // re-bind the AuthenticationContext to the authority that sourced the token in the cache 
-                // this is needed for the cache to work when asking a token from that authority 
-                // (the common endpoint never triggers cache hits) 
-                var cachedAuthority = _authContext.TokenCache.ReadItems().First().Authority;
-                _authContext = new AuthenticationContext(cachedAuthority, new FileCache());
-            }
-            else
-            {
-                // no previous tokens -> do nothing for now
-            }
+            //TrySilentAuthentication();
+
+            // use file cache to persist token
+            //_authContext = new AuthenticationContext(_authority, new FileCache());
+
+            /*            
+                        if (_authContext.TokenCache.ReadItems().Count() > 0)
+                        {
+                            // re-bind the AuthenticationContext to the authority that sourced the token in the cache 
+                            // this is needed for the cache to work when asking a token from that authority 
+                            // (the common endpoint never triggers cache hits) 
+                            var cachedAuthority = _authContext.TokenCache.ReadItems().First().Authority;
+                            _authContext = new AuthenticationContext(cachedAuthority, new FileCache());
+                        }
+                        else
+                        {
+                            // no previous tokens -> do nothing for now
+                        }
+            */
 
             // initialize outlook services client
-            _client = new OutlookServicesClient(new Uri(_apiUrl), async () =>
-            {
-                // Since we have it locally from the Session, just return it here.
-                return _authResult.AccessToken; // was: .Token;
-            });
+            //if (_authResult != null)
+            //{
+            //    _client = new OutlookServicesClient(new Uri(_graphAPIEndpoint), async () =>
+            //    {
+            //        // Since we have it locally from the Session, just return it here.
+            //        return _authResult.AccessToken; // was: .Token;
+            //    });
+            //}
+            //else
+            //{
+            //    // TODO:
+            //    Console.WriteLine("arrgh");
+            //}
         }
 
         /// <summary>
@@ -79,29 +122,32 @@ namespace MsOfficeTracker.Helpers
             {
                 // Here, we try to get an access token to call the service without invoking any UI prompt.  PromptBehavior.Never forces
                 // ADAL to throw an exception if it cannot get a token silently.
-                _authResult = await _authContext.AcquireTokenAsync(_scopes, null, Settings.ClientId, redirectUri, new PlatformParameters(PromptBehavior.Never, null));
+                _authResult = await _app.AcquireTokenSilentAsync(_scopes, _app.Users.FirstOrDefault()); // _authContext.AcquireTokenAsync(_scopes, null, Settings.ClientId, redirectUri, new PlatformParameters(PromptBehavior.Never, null));
                 return true;
             }
-            catch (AdalException ex)
+            catch (MsalUiRequiredException ex)
             {
                 // ADAL couldn't get a token silently, so show the user a message
                 // and let them click the Sign-In button.
-                if (ex.ErrorCode == "user_interaction_required")
-                {
-                    var res = await SignIn();
-                    return res;
-                }
-                else
-                {
-                    // In any other case, an unexpected error occurred.
-                    string message = ex.Message;
-                    if (ex.InnerException != null)
-                    {
-                        message += "Inner Exception : " + ex.InnerException.Message;
-                    }
-                    Logger.WriteToLogFile(ex);
-                    return false;
-                }
+                var res = await SignIn();
+                return res;
+
+                //if (ex.ErrorCode == "user_null") //"user_interaction_required")
+                //{
+                //    var res = await SignIn();
+                //    return res;
+                //}
+                //else
+                //{
+                //    // In any other case, an unexpected error occurred.
+                //    var message = ex.Message;
+                //    if (ex.InnerException != null)
+                //    {
+                //        message += "Inner Exception : " + ex.InnerException.Message;
+                //    }
+                //    Logger.WriteToLogFile(ex);
+                //    return false;
+                //}
             }
             catch (Exception e)
             {
@@ -118,14 +164,14 @@ namespace MsOfficeTracker.Helpers
         {
             try
             {
-                _authResult = await _authContext.AcquireTokenAsync(_scopes, null, Settings.ClientId, redirectUri, new PlatformParameters(PromptBehavior.Always, null));
+                _authResult = await _app.AcquireTokenAsync(_scopes); //_authContext.AcquireTokenAsync(_scopes, null, Settings.ClientId, redirectUri, new PlatformParameters(PromptBehavior.Always, null));
                 //_loggedInUserEmail = _authResult.UserInfo.DisplayableId; // hint: UserInfo empty after authentication
                 //_loggedInUserName = _authResult.UserInfo.Name; // hint: UserInfo empty after authentication
                 return true;
             }
-            catch (AdalException ex)
+            catch (MsalException ex)
             {
-                // If ADAL cannot get a token, it will throw an exception.
+                // If MSAL cannot get a token, it will throw an exception.
                 // If the user canceled the login, it will result in the
                 // error code 'authentication_canceled'.
                 if (ex.ErrorCode == "authentication_canceled")
@@ -159,19 +205,32 @@ namespace MsOfficeTracker.Helpers
         /// </summary>
         public void SignOut()
         {
-            if (_authContext != null && _authContext.TokenCache != null) _authContext.TokenCache.Clear();
-            ClearCookies();
-            Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "Successfully signed-out user from Office 365."));
+            if (_app.Users.Any())
+            {
+                try
+                {
+                    _app.Remove(_app.Users.FirstOrDefault());
+                }
+                catch (MsalException ex)
+                {
+                    // TODO: handle exceptions
+                    Console.WriteLine(ex);
+                }
+            }
+
+            //if (_authContext != null && _authContext.TokenCache != null) _authContext.TokenCache.Clear();
+            //ClearCookies();
+            //Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "Successfully signed-out user from Office 365."));
         }
 
         /// <summary>
         /// This function clears cookies from the browser control used by ADAL.
         /// </summary>
-        private void ClearCookies()
-        {
-            const int INTERNET_OPTION_END_BROWSER_SESSION = 42;
-            NativeMethods.InternetSetOption(IntPtr.Zero, INTERNET_OPTION_END_BROWSER_SESSION, IntPtr.Zero, 0);
-        }
+        //private void ClearCookies()
+        //{
+        //    const int INTERNET_OPTION_END_BROWSER_SESSION = 42;
+        //    NativeMethods.InternetSetOption(IntPtr.Zero, INTERNET_OPTION_END_BROWSER_SESSION, IntPtr.Zero, 0);
+        //}
 
         /// <summary>
         /// try logging in, or show sign-in page and ask for rights
@@ -484,16 +543,17 @@ namespace MsOfficeTracker.Helpers
                 do
                 {
                     var mailResults = groups.CurrentPage.ToList();
+                    numberOfEmailsReceived += mailResults.Count(m => !deleteFolders.Contains(m.ParentFolderId));
 
-                    if (deleteFolders.Item1 == false)
-                    {
-                        numberOfEmailsReceived += mailResults.Count;
-                    }
-                    else
-                    {
-                        numberOfEmailsReceived += mailResults.Where(m => m.ParentFolderId != deleteFolders.Item2 && m.ParentFolderId != deleteFolders.Item3 // not in deleted folder
-                                                                    && m.ParentFolderId != deleteFolders.Item4 && m.ParentFolderId != deleteFolders.Item5).ToList().Count; // not in junk folder
-                    }
+                    //if (deleteFolders.Item1 == false)
+                    //{
+                    //    numberOfEmailsReceived += mailResults.Count;
+                    //}
+                    //else
+                    //{
+                    //    numberOfEmailsReceived += mailResults.Where(m => m.ParentFolderId != deleteFolders.Item2 && m.ParentFolderId != deleteFolders.Item3 // not in deleted folder
+                    //                                                && m.ParentFolderId != deleteFolders.Item4 && m.ParentFolderId != deleteFolders.Item5).ToList().Count; // not in junk folder
+                    //}
 
                     groups = await groups.GetNextPageAsync();
                 }
@@ -528,25 +588,26 @@ namespace MsOfficeTracker.Helpers
                     .Where(m => m.ReceivedDateTime.Value >= dtStart && m.ReceivedDateTime.Value <= dtEnd && m.IsDraft == false)
                     .OrderByDescending(m => m.ReceivedDateTime)
                     .Take(20)
-                    .Select(m => new { m.ParentFolderId }) // new DisplayEmail(m)) // m.From
+                    .Select(m => new { m.ParentFolderId, m.ReceivedDateTime, m.Subject, m.From }) // new DisplayEmail(m)) // m.From
                     .ExecuteAsync();
 
-                // filter if not in Junk Email and Deleted Folder (maybe with ParentFolderId)
+                // filter if not in Junk Email and Deleted Folder with ParentFolderId
                 var deleteFolders = await GetDeleteAndJunkFolderIds();
                 var numberOfEmailsReceived = 0;
                 do
                 {
                     var mailResults = groups.CurrentPage.ToList();
+                    numberOfEmailsReceived += mailResults.Count(m => !deleteFolders.Contains(m.ParentFolderId));
 
-                    if (deleteFolders.Item1 == false)
-                    {
-                        numberOfEmailsReceived += mailResults.Count;
-                    }
-                    else
-                    {
-                        numberOfEmailsReceived += mailResults.Where(m => m.ParentFolderId != deleteFolders.Item2 && m.ParentFolderId != deleteFolders.Item3 // not in deleted folder
-                                                                    && m.ParentFolderId != deleteFolders.Item4 && m.ParentFolderId != deleteFolders.Item5).ToList().Count; // not in junk folder
-                    }
+                    //if (deleteFolders.Count == 0)
+                    //{
+                    //    numberOfEmailsReceived += mailResults.Count;
+                    //}
+                    //else
+                    //{
+                    //    //numberOfEmailsReceived += mailResults.Where(m => m.ParentFolderId != deleteFolders.Item2 && m.ParentFolderId != deleteFolders.Item3 // not in deleted folder
+                    //    //                                            && m.ParentFolderId != deleteFolders.Item4 && m.ParentFolderId != deleteFolders.Item5).ToList().Count; // not in junk folder
+                    //}
 
                     groups = await groups.GetNextPageAsync();
                 }
@@ -564,45 +625,50 @@ namespace MsOfficeTracker.Helpers
         /// <summary>
         /// Loads a list of folders to find the Ids of the junk and deleted items folders
         /// to filter them
+        /// 
+        /// TODO: cache list
         /// </summary>
         /// <returns></returns>
-        private async Task<Tuple<bool, string, string, string, string>> GetDeleteAndJunkFolderIds()
+        private async Task<List<string>> GetDeleteAndJunkFolderIds()
         {
+            var foldersToDelete = new List<string>();
+
             try
             {
-                var deletedFolderIdEn = string.Empty;
-                var deletedFolderIdDe = string.Empty;
-                var junkFolderId1 = string.Empty;
-                var junkFolderId2 = string.Empty;
-
                 var folders = await _client.Me.MailFolders.Take(10).Select(f => new { f.Id, f.DisplayName }).ExecuteAsync();
                 do
                 {
                     var res1 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("deleted")).FirstOrDefault();
-                    if (res1 != null && !string.IsNullOrEmpty(res1.Id)) deletedFolderIdEn = res1.Id;
+                    if (res1 != null && !string.IsNullOrEmpty(res1.Id)) foldersToDelete.Add(res1.Id);
 
                     var res2 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("gelöscht")).FirstOrDefault();
-                    if (res2 != null && !string.IsNullOrEmpty(res2.Id)) deletedFolderIdDe = res2.Id;
+                    if (res2 != null && !string.IsNullOrEmpty(res2.Id)) foldersToDelete.Add(res2.Id);
 
                     var res3 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("junk")).FirstOrDefault();
-                    if (res3 != null && !string.IsNullOrEmpty(res3.Id)) junkFolderId1 = res3.Id;
+                    if (res3 != null && !string.IsNullOrEmpty(res3.Id)) foldersToDelete.Add(res3.Id);
 
                     var res4 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("spam")).FirstOrDefault();
-                    if (res4 != null && !string.IsNullOrEmpty(res4.Id)) junkFolderId2 = res4.Id;
+                    if (res4 != null && !string.IsNullOrEmpty(res4.Id)) foldersToDelete.Add(res4.Id);
 
-                    if (!string.IsNullOrEmpty(deletedFolderIdEn) && !string.IsNullOrEmpty(deletedFolderIdDe) &&
-                        !string.IsNullOrEmpty(junkFolderId1) && !string.IsNullOrEmpty(junkFolderId2)) break;
+                    var res5 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("sent")).FirstOrDefault();
+                    if (res5 != null && !string.IsNullOrEmpty(res5.Id)) foldersToDelete.Add(res5.Id);
+
+                    var res6 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("gesendet")).FirstOrDefault();
+                    if (res6 != null && !string.IsNullOrEmpty(res6.Id)) foldersToDelete.Add(res6.Id);
+
+                    //if (!string.IsNullOrEmpty(deletedFolderIdEn) && !string.IsNullOrEmpty(deletedFolderIdDe) &&
+                    //    !string.IsNullOrEmpty(junkFolderId1) && !string.IsNullOrEmpty(junkFolderId2)) break;
 
                     folders = await folders.GetNextPageAsync();
                 }
                 while (folders != null);
-
-                return new Tuple<bool, string, string, string, string>(true, deletedFolderIdEn, deletedFolderIdDe, junkFolderId1, junkFolderId2);
             }
             catch
             {
-                return new Tuple<bool, string, string, string, string>(false, "", "", "", "");
+                Console.WriteLine("TODO");
             }
+
+            return foldersToDelete;
         }
 
         //public async Task<List<ContactItem>> LoadPeopleFromEmails(DateTimeOffset date)

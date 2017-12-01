@@ -1,10 +1,33 @@
-﻿// Created by André Meyer at MSR
-// Created: 2015-12-08
-// 
-// Licensed under the MIT License.
+﻿//------------------------------------------------------------------------------
+//
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
+//
+// This code is licensed under the MIT License.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
+
 using System.IO;
 using System.Security.Cryptography;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Identity.Client;
 
 namespace MsOfficeTracker.Helpers
 {
@@ -13,58 +36,58 @@ namespace MsOfficeTracker.Helpers
     /// This is a simple persistent cache implementation for a desktop application.
     /// It uses DPAPI for storing tokens in a local file.
     /// 
+    /// from: https://raw.githubusercontent.com/Azure-Samples/active-directory-dotnet-desktop-msgraph-v2/master/active-directory-wpf-msgraph-v2/TokenCacheHelper.cs
     /// from: https://github.com/Azure-Samples/active-directory-dotnet-native-aspnet5/blob/master/TodoListClient/FileCache.cs
     /// </summary>
-    internal class FileCache : TokenCache
+    static class FileCache
     {
-        public string CacheFilePath;
+        /// <summary>
+        /// Get the user token cache
+        /// </summary>
+        /// <returns></returns>
+        public static TokenCache GetUserCache()
+        {
+            if (usertokenCache == null)
+            {
+                usertokenCache = new TokenCache();
+                usertokenCache.SetBeforeAccess(BeforeAccessNotification);
+                usertokenCache.SetAfterAccess(AfterAccessNotification);
+            }
+            return usertokenCache;
+        }
+
+        static TokenCache usertokenCache;
+
+        /// <summary>
+        /// Path to the token cache
+        /// </summary>
+        public static string CacheFilePath = Path.Combine(Shared.Settings.ExportFilePath, @"Office365TokenCache.cch"); //System.Reflection.Assembly.GetExecutingAssembly().Location + "msalcache.txt";
+
         private static readonly object FileLock = new object();
 
-        // Initializes the cache against a local file.
-        // If the file is already rpesent, it loads its content in the ADAL cache
-        public FileCache()
-        {
-            CacheFilePath = Path.Combine(Shared.Settings.ExportFilePath, @"Office365TokenCache.cch");
-            this.AfterAccess = AfterAccessNotification;
-            this.BeforeAccess = BeforeAccessNotification;
-            lock (FileLock)
-            {
-                this.Deserialize(File.Exists(CacheFilePath) ? ProtectedData.Unprotect(File.ReadAllBytes(CacheFilePath), null, DataProtectionScope.CurrentUser) : null);
-            }
-        }
-
-        // Empties the persistent store.
-        public override void Clear()
-        {
-            base.Clear();
-            File.Delete(CacheFilePath);
-        }
-
-        // Triggered right before ADAL needs to access the cache.
-        // Reload the cache from the persistent store in case it changed since the last access.
-        void BeforeAccessNotification(TokenCacheNotificationArgs args)
+        public static void BeforeAccessNotification(TokenCacheNotificationArgs args)
         {
             lock (FileLock)
             {
-                this.Deserialize(File.Exists(CacheFilePath) ? ProtectedData.Unprotect(File.ReadAllBytes(CacheFilePath), null, DataProtectionScope.CurrentUser) : null);
+                args.TokenCache.Deserialize(File.Exists(CacheFilePath)
+                    ? File.ReadAllBytes(CacheFilePath)
+                    : null);
             }
         }
 
-        // Triggered right after ADAL accessed the cache.
-        void AfterAccessNotification(TokenCacheNotificationArgs args)
+        public static void AfterAccessNotification(TokenCacheNotificationArgs args)
         {
             // if the access operation resulted in a cache update
-            if (this.HasStateChanged)
+            if (args.TokenCache.HasStateChanged)
             {
                 lock (FileLock)
                 {
-                    // reflect changes in the persistent store
-                    File.WriteAllBytes(CacheFilePath, ProtectedData.Protect(this.Serialize(), null, DataProtectionScope.CurrentUser));
-                    // once the write operation took place, restore the HasStateChanged bit to false
-                    this.HasStateChanged = false;
+                    // reflect changesgs in the persistent store
+                    File.WriteAllBytes(CacheFilePath, args.TokenCache.Serialize());
+                    // once the write operationtakes place restore the HasStateChanged bit to filse
+                    args.TokenCache.HasStateChanged = false;
                 }
             }
         }
     }
-
 }

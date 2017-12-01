@@ -25,7 +25,7 @@ namespace MsOfficeTracker
         ////////////////////////////////////////////////////////////
         // constants for using the Office 365 API
         internal const string AadInstance = "https://login.microsoftonline.com/{0}"; // default: "common"
-        internal const string ClientId = "d10fd94c-50f0-4560-aab8-9f44a98026f5"; //"d45086c2-265d-4244-b501-0e8498d5d3fb"; //"6a0253aa-7f9a-44d8-8959-e7839de094f1";
+        internal const string ClientId = "5a6e510c-f900-491e-bfb3-8a6151a49c04"; //"d10fd94c-50f0-4560-aab8-9f44a98026f5"; //"d45086c2-265d-4244-b501-0e8498d5d3fb"; //"6a0253aa-7f9a-44d8-8959-e7839de094f1";
         internal const string RedirectUriString = "urn:ietf:wg:oauth:2.0:oob"; // https://PersonalAnalytics
     }
 }
