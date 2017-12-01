@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Shared;
 using Shared.Helpers;
 using WindowsActivityTracker.Data;
@@ -18,6 +19,7 @@ namespace WindowsActivityTracker.Visualizations
     {
         private readonly DateTimeOffset _date;
         private const int TimelineZoomFactor = 1; // shouldn't be 0!, if > 1 then the user can scroll on top of the timeline
+        private StringBuilder _sb = new StringBuilder();
 
         public DayFragmentationTimeline(DateTimeOffset date)
         {
@@ -47,8 +49,8 @@ namespace WindowsActivityTracker.Visualizations
             var sum = orderedTimelineList.Sum(i => i.DurationInSeconds);
             if (orderedTimelineList.Count <= 3 || sum < 5 * 60) // 3 is the minimum number of input-data-items & 5 minutes of data
             {
-                html += VisHelper.NotEnoughData(Dict.NotEnoughData);
-                return html;
+                _sb.Append(VisHelper.NotEnoughData(Dict.NotEnoughData));
+                return _sb.ToString();
             }
 
             // remove first + last items if IDLE
@@ -65,15 +67,14 @@ namespace WindowsActivityTracker.Visualizations
             // Create HTML
             /////////////////////
 
-            html += GetActivityVisualizationContent(orderedTimelineList);
-
-            return html;
+            _sb.Append(GetActivityVisualizationContent(orderedTimelineList));
+            return _sb.ToString();
         }
 
         private string GetActivityVisualizationContent(List<WindowsActivity> activityList)
         {
             var categories = activityList.Select(a => a.ActivityCategory).Distinct().OrderBy(a => a).ToList();
-            string activityTimeline = "activityTimeline";
+            const string activityTimeline = "activityTimeline";
             const string defaultHoverText = "Hint: Hover over the timeline to see details.";
 
             var html = string.Empty;
@@ -120,18 +121,15 @@ namespace WindowsActivityTracker.Visualizations
             html += "var itemHeight = 0.13 * document.getElementsByClassName('item Wide')[0].offsetHeight;";
 
             // hover Event (d: current rendering object, i: index during d3 rendering, data: data object)
-            var hover = @".hover(function(d, i, data) { 
-                            console.log(d);
-                            console.log(data);
-
-                            document.getElementById('hoverDetails').innerHTML = '<span style=\'font-size:1.2em; color:#007acc;\'>From ' + d['starting_time_formatted'] + ' to ' + d['ending_time_formatted'] + ' (' + d['duration'] + 'min)</span>' +
-                                                                                '<br /><strong>Activity</strong>: <span style=\'color:' + d['color'] + '\'>■</span> ' + d['activity'] +
-                                                                                '<br /><strong>Processes</strong>: ' + d['processes'] + 
-                                                                                '<br /><strong>Window Titles</strong>: ' + d['window_titles']; 
-                        })";
+            const string hover = @".hover(function(d, i, data) { 
+                                    document.getElementById('hoverDetails').innerHTML = '<span style=\'font-size:1.2em; color:#007acc;\'>From ' + d['starting_time_formatted'] + ' to ' + d['ending_time_formatted'] + ' (' + d['duration'] + 'min)</span>' +
+                                                                                        '<br /><strong>Activity</strong>: <span style=\'color:' + d['color'] + '\'>■</span> ' + d['activity'] +
+                                                                                        '<br /><strong>Processes</strong>: ' + d['processes'] + 
+                                                                                        '<br /><strong>Window Titles</strong>: ' + d['window_titles']; 
+                                })";
 
             // mouseout Event
-            var mouseout = @".mouseout(function (d, i, datum) { document.getElementById('hoverDetails').innerHTML = '" + defaultHoverText + "'; })";
+            const string mouseout = @".mouseout(function (d, i, datum) { document.getElementById('hoverDetails').innerHTML = '" + defaultHoverText + "'; })";
 
             // define configuration
             html += "var " + activityTimeline + " = d3.timeline().width(" + TimelineZoomFactor + " * itemWidth).itemHeight(itemHeight)" + hover + mouseout + ";"; // .colors(colorScale).colorProperty('activity') // .stack()
@@ -145,7 +143,7 @@ namespace WindowsActivityTracker.Visualizations
             /////////////////////
 
             // show details on hover
-            html += "<div style='height:37%; style='align: center'><p id='hoverDetails'>"+ defaultHoverText + "</p></div>";
+            html += "<div style='height:37%; style='align: center'><p id='hoverDetails'>" + defaultHoverText + "</p></div>";
 
             // add timeline
             html += "<div id='" + activityTimeline + "' align='center'></div>";
@@ -169,24 +167,28 @@ namespace WindowsActivityTracker.Visualizations
 
             foreach (var category in categories)
             {
-                var times = string.Empty;
+                //var times = string.Empty;
+                var times = new StringBuilder();
                 foreach (var activityEntry in activityList.Where(a => a.ActivityCategory == category))
                 {
                     var startTime = JavascriptTimestampFromDateTime(activityEntry.StartTime);
                     var endTime = JavascriptTimestampFromDateTime(activityEntry.EndTime);
 
                     // add data used for the timeline and the timeline hover
-                    times += "{'starting_time': " + startTime + ", 'ending_time': " + endTime + 
-                             ", 'starting_time_formatted': '" + activityEntry.StartTime.ToShortTimeString() + 
-                             "', 'ending_time_formatted': '" + activityEntry.EndTime.ToShortTimeString() + 
-                             "', 'duration': " + Math.Round(activityEntry.DurationInSeconds / 60.0, 1) + 
-                             ", 'window_titles': '" + ReadableWindowTitles(activityEntry.WindowProcessList) + 
-                             "', 'processes': '" + ReadableProcesses(activityEntry.WindowProcessList) + 
-                             "', 'color': '" + GetHtmlColorForContextCategory(activityEntry.ActivityCategory) +
-                             "', 'activity': '" + GetDescriptionForContextCategory(activityEntry.ActivityCategory) + "'}, ";
+                    times.Append("{");
+                    times.Append("'starting_time': "); times.Append(startTime);
+                    times.Append(", 'ending_time': "); times.Append(endTime);
+                    times.Append(", 'starting_time_formatted': '"); times.Append(activityEntry.StartTime.ToShortTimeString());
+                    times.Append("', 'ending_time_formatted': '"); times.Append(activityEntry.EndTime.ToShortTimeString());
+                    times.Append("', 'duration': "); times.Append(Math.Round(activityEntry.DurationInSeconds / 60.0, 1));
+                    times.Append(", 'window_titles': '"); times.Append(ReadableWindowTitles(activityEntry.WindowProcessList));
+                    times.Append("', 'processes': '"); times.Append(ReadableProcesses(activityEntry.WindowProcessList));
+                    times.Append("', 'color': '"); times.Append(GetHtmlColorForContextCategory(activityEntry.ActivityCategory));
+                    times.Append("', 'activity': '"); times.Append(GetDescriptionForContextCategory(activityEntry.ActivityCategory));
+                    times.Append("'}, ");
                 }
 
-                html += "{activity: '" + category + "', times: [" + times + "]}, ";
+                html += "{activity: '" + category + "', times: [" + times.ToString() + "]}, ";
             }
 
             return html;
@@ -194,9 +196,9 @@ namespace WindowsActivityTracker.Visualizations
 
         #region Readable WindowTitle and Process
 
-        private string ReadableWindowTitles(List<WindowProcessItem> list)
+        private static string ReadableWindowTitles(List<WindowProcessItem> list)
         {
-            var maxNumItems = 5;
+            const int maxNumItems = 5;
             var str = string.Empty;
 
             // distinct items
@@ -213,12 +215,12 @@ namespace WindowsActivityTracker.Visualizations
             }
             else
             {
-                foreach (var item in windowTitles) str += FormatWindowTitle(item);
+                str = windowTitles.Aggregate(str, (current, item) => current + FormatWindowTitle(item));
             }
             return str.Trim().TrimEnd(',');
         }
 
-        private string FormatWindowTitle(string windowTitle)
+        private static string FormatWindowTitle(string windowTitle)
         {
             return string.IsNullOrEmpty(windowTitle) ? string.Empty : windowTitle.Replace("'", "").Replace("'", "").Replace("/", "//").Replace(@"\", @"\\") + ", ";
         }
@@ -234,7 +236,7 @@ namespace WindowsActivityTracker.Visualizations
             return str.Trim().TrimEnd(',');
         }
 
-        private string FormatProcesses(string process)
+        private static string FormatProcesses(string process)
         {
             return string.IsNullOrEmpty(process) ? string.Empty : ProcessNameHelper.GetFileDescription(process).Replace("'", "") + ", ";
         }
@@ -264,15 +266,15 @@ namespace WindowsActivityTracker.Visualizations
             return html;
         }
 
-        private string GetLegendEntryForActivity(ActivityCategory category)
-        {
-            return "<li style='color:" + GetHtmlColorForContextCategory(category) + "'><span>" + GetDescriptionForContextCategory(category) + "</span></li>";
-        }
+        //private string GetLegendEntryForActivity(ActivityCategory category)
+        //{
+        //    return "<li style='color:" + GetHtmlColorForContextCategory(category) + "'><span>" + GetDescriptionForContextCategory(category) + "</span></li>";
+        //}
 
         /// <summary>
         /// Creates a colorscheme for each activity category
         /// </summary>
-        /// <param name="activityList"></param>
+        /// <param name="categories"></param>
         /// <returns></returns>
         private string CreateColorScheme(List<ActivityCategory> categories)
         {
@@ -289,9 +291,9 @@ namespace WindowsActivityTracker.Visualizations
         /// </summary>
         /// <param name="category"></param>
         /// <returns></returns>
-        private string GetHtmlColorForContextCategory(ActivityCategory category)
+        private static string GetHtmlColorForContextCategory(ActivityCategory category)
         {
-            var noneColor = "#DDDDDD";
+            const string noneColor = "#DDDDDD";
 
             switch (category)
             {
@@ -341,7 +343,7 @@ namespace WindowsActivityTracker.Visualizations
         /// </summary>
         /// <param name="category"></param>
         /// <returns></returns>
-        private string GetDescriptionForContextCategory(ActivityCategory category)
+        private static string GetDescriptionForContextCategory(ActivityCategory category)
         {
             switch (category)
             {
