@@ -20,15 +20,12 @@ namespace MsOfficeTracker.Helpers
     public class Office365Api
     {
         private static Office365Api _api;
-        //private Uri redirectUri = new Uri(Settings.RedirectUriString);
-        //private string _authority = string.Format(CultureInfo.InvariantCulture, Settings.AadInstance, "common"); // use microsoft.onmicrosoft.com for just this tenant, use "common" if used for everyone
-        //private AuthenticationContext _authContext;
+
         private AuthenticationResult _authResult;
         private OutlookServicesClient _client;
         private PublicClientApplication _app;
+        private readonly string _authority = string.Format(CultureInfo.InvariantCulture, Settings.LoginApiEndpoint, "common"); // use microsoft.onmicrosoft.com for just this tenant, use "common" if used for everyone
 
-        private string[] _scopes = { "mail.read", "calendars.read" }; // "https://outlook.office.com/mail.read", "https://outlook.office.com/calendars.read" }; // "https://outlook.office.com/user.readbasic.all" };
-        private const string _graphAPIEndpoint = "https://outlook.office.com/api/v2.0"; //"https://graph.microsoft.com/v1.0/me"; 
         //private string _loggedInUserEmail;
         //private string _loggedInUserName;
 
@@ -43,72 +40,33 @@ namespace MsOfficeTracker.Helpers
 
         #region Api Authentication, Clearing Cookies, etc.
 
-        private async void Test()
+        private Office365Api()
+        {
+            InitializeConnectionToOffice365Api();
+        }
+
+        private async void InitializeConnectionToOffice365Api()
         {
             try
             {
-                _app = new PublicClientApplication(Settings.ClientId, "https://login.microsoftonline.com/common",
-                    FileCache.GetUserCache());
+                // register app
+                _app = new PublicClientApplication(Settings.ClientId, _authority, FileCache.GetUserCache());
 
-                //_authResult = await _app.AcquireTokenAsync(_scopes, "", UIBehavior.ForceLogin, "");
-                await TrySilentAuthentication();
+                // try silent authentication (if it fails, the regular sign-in window will appear)
+                //await TrySilentAuthentication();
+                await Authenticate();
 
+                // prepare outlook services client
                 var token = _authResult.AccessToken;
-                _client = new OutlookServicesClient(new Uri("https://outlook.office.com/api/v2.0"),
-                    () =>
-                    {
-                        return Task.Run(() => token);
-                    });
+                _client = new OutlookServicesClient(new Uri(Settings.GraphApiEndpoint), () => { return Task.Run(() => token); });
 
-
-                var num = await GetTotalNumberOfEmailsReceived(DateTime.Now.Date);
-                Console.WriteLine(num);
+                // TODO: log
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                // TODO: handle error
             }
-        }
-
-        private Office365Api()
-        {
-            Test();
-            //_authResult = await _app.AcquireTokenAsync(_scopes, "", UIBehavior.ForceLogin, "");
-
-            //TrySilentAuthentication();
-
-            // use file cache to persist token
-            //_authContext = new AuthenticationContext(_authority, new FileCache());
-
-            /*            
-                        if (_authContext.TokenCache.ReadItems().Count() > 0)
-                        {
-                            // re-bind the AuthenticationContext to the authority that sourced the token in the cache 
-                            // this is needed for the cache to work when asking a token from that authority 
-                            // (the common endpoint never triggers cache hits) 
-                            var cachedAuthority = _authContext.TokenCache.ReadItems().First().Authority;
-                            _authContext = new AuthenticationContext(cachedAuthority, new FileCache());
-                        }
-                        else
-                        {
-                            // no previous tokens -> do nothing for now
-                        }
-            */
-
-            // initialize outlook services client
-            //if (_authResult != null)
-            //{
-            //    _client = new OutlookServicesClient(new Uri(_graphAPIEndpoint), async () =>
-            //    {
-            //        // Since we have it locally from the Session, just return it here.
-            //        return _authResult.AccessToken; // was: .Token;
-            //    });
-            //}
-            //else
-            //{
-            //    // TODO:
-            //    Console.WriteLine("arrgh");
-            //}
         }
 
         /// <summary>
@@ -120,34 +78,16 @@ namespace MsOfficeTracker.Helpers
         {
             try
             {
-                // Here, we try to get an access token to call the service without invoking any UI prompt.  PromptBehavior.Never forces
-                // ADAL to throw an exception if it cannot get a token silently.
-                _authResult = await _app.AcquireTokenSilentAsync(_scopes, _app.Users.FirstOrDefault()); // _authContext.AcquireTokenAsync(_scopes, null, Settings.ClientId, redirectUri, new PlatformParameters(PromptBehavior.Never, null));
+                // Here, we try to get an access token to call the service without invoking any UI prompt.
+                //_authResult = await _app.AcquireTokenAsync(_scopes, "", UIBehavior.ForceLogin, "");
+                _authResult = await _app.AcquireTokenSilentAsync(Settings.Scopes, _app.Users.FirstOrDefault()); 
                 return true;
             }
             catch (MsalUiRequiredException ex)
             {
-                // ADAL couldn't get a token silently, so show the user a message
-                // and let them click the Sign-In button.
+                // MSAL couldn't get a token silently, so show the user a message and let them click the Sign-In button.
                 var res = await SignIn();
                 return res;
-
-                //if (ex.ErrorCode == "user_null") //"user_interaction_required")
-                //{
-                //    var res = await SignIn();
-                //    return res;
-                //}
-                //else
-                //{
-                //    // In any other case, an unexpected error occurred.
-                //    var message = ex.Message;
-                //    if (ex.InnerException != null)
-                //    {
-                //        message += "Inner Exception : " + ex.InnerException.Message;
-                //    }
-                //    Logger.WriteToLogFile(ex);
-                //    return false;
-                //}
             }
             catch (Exception e)
             {
@@ -157,16 +97,16 @@ namespace MsOfficeTracker.Helpers
         }
 
         /// <summary>
-        /// force ADAL to prompt the user for credentials by specifying PromptBehavior.Always.
+        /// force MSAL to prompt the user for credentials by specifying PromptBehavior.Always.
         /// ADAL will get a token and cache it
         /// </summary>
         private async Task<bool> SignIn()
         {
             try
             {
-                _authResult = await _app.AcquireTokenAsync(_scopes); //_authContext.AcquireTokenAsync(_scopes, null, Settings.ClientId, redirectUri, new PlatformParameters(PromptBehavior.Always, null));
-                //_loggedInUserEmail = _authResult.UserInfo.DisplayableId; // hint: UserInfo empty after authentication
-                //_loggedInUserName = _authResult.UserInfo.Name; // hint: UserInfo empty after authentication
+                _authResult = await _app.AcquireTokenAsync(Settings.Scopes);
+                //var  _loggedInUserEmail = _authResult.User.DisplayableId; // hint: UserInfo empty after authentication
+                //var _loggedInUserName = _authResult.User.Name; // hint: UserInfo empty after authentication
                 return true;
             }
             catch (MsalException ex)
@@ -183,11 +123,11 @@ namespace MsOfficeTracker.Helpers
                 else
                 {
                     // An unexpected error occurred.
-                    var message = ex.Message;
-                    if (ex.InnerException != null)
-                    {
-                        message += "Inner Exception : " + ex.InnerException.Message;
-                    }
+                    //var message = ex.Message;
+                    //if (ex.InnerException != null)
+                    //{
+                    //    message += "Inner Exception : " + ex.InnerException.Message;
+                    //}
                     Logger.WriteToLogFile(ex);
                     return false;
                 }
@@ -200,37 +140,22 @@ namespace MsOfficeTracker.Helpers
         }
 
         /// <summary>
-        /// clear the ADAL token cache
+        /// clear the MSAL token cache
         /// It's also necessary to clear the cookies from the browser' control so the next user has a chance to sign in.
         /// </summary>
         public void SignOut()
         {
-            if (_app.Users.Any())
+            if (!_app.Users.Any()) return;
+            try
             {
-                try
-                {
-                    _app.Remove(_app.Users.FirstOrDefault());
-                }
-                catch (MsalException ex)
-                {
-                    // TODO: handle exceptions
-                    Console.WriteLine(ex);
-                }
+                _app.Remove(_app.Users.FirstOrDefault());
             }
-
-            //if (_authContext != null && _authContext.TokenCache != null) _authContext.TokenCache.Clear();
-            //ClearCookies();
-            //Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "Successfully signed-out user from Office 365."));
+            catch (MsalException ex)
+            {
+                // TODO: handle exceptions
+                Console.WriteLine(ex);
+            }
         }
-
-        /// <summary>
-        /// This function clears cookies from the browser control used by ADAL.
-        /// </summary>
-        //private void ClearCookies()
-        //{
-        //    const int INTERNET_OPTION_END_BROWSER_SESSION = 42;
-        //    NativeMethods.InternetSetOption(IntPtr.Zero, INTERNET_OPTION_END_BROWSER_SESSION, IntPtr.Zero, 0);
-        //}
 
         /// <summary>
         /// try logging in, or show sign-in page and ask for rights
@@ -261,9 +186,7 @@ namespace MsOfficeTracker.Helpers
         /// <returns></returns>
         public bool IsAuthenticated()
         {
-            //if (!await TrySilentAuthentication() || _authResult == null) return false;
-            if (_authResult == null) return false;
-            return true;
+            return _authResult != null;
         }
 
         [DllImport("wininet.dll")]

@@ -26,7 +26,6 @@
 //------------------------------------------------------------------------------
 
 using System.IO;
-using System.Security.Cryptography;
 using Microsoft.Identity.Client;
 
 namespace MsOfficeTracker.Helpers
@@ -39,31 +38,30 @@ namespace MsOfficeTracker.Helpers
     /// from: https://raw.githubusercontent.com/Azure-Samples/active-directory-dotnet-desktop-msgraph-v2/master/active-directory-wpf-msgraph-v2/TokenCacheHelper.cs
     /// from: https://github.com/Azure-Samples/active-directory-dotnet-native-aspnet5/blob/master/TodoListClient/FileCache.cs
     /// </summary>
-    static class FileCache
+    internal static class FileCache
     {
+        private static readonly object FileLock = new object();
+        public static TokenCache UsertokenCache;
+
         /// <summary>
         /// Get the user token cache
         /// </summary>
         /// <returns></returns>
         public static TokenCache GetUserCache()
         {
-            if (usertokenCache == null)
+            if (UsertokenCache == null)
             {
-                usertokenCache = new TokenCache();
-                usertokenCache.SetBeforeAccess(BeforeAccessNotification);
-                usertokenCache.SetAfterAccess(AfterAccessNotification);
+                UsertokenCache = new TokenCache();
+                UsertokenCache.SetBeforeAccess(BeforeAccessNotification);
+                UsertokenCache.SetAfterAccess(AfterAccessNotification);
             }
-            return usertokenCache;
+            return UsertokenCache;
         }
-
-        static TokenCache usertokenCache;
 
         /// <summary>
         /// Path to the token cache
         /// </summary>
         public static string CacheFilePath = Path.Combine(Shared.Settings.ExportFilePath, @"Office365TokenCache.cch"); //System.Reflection.Assembly.GetExecutingAssembly().Location + "msalcache.txt";
-
-        private static readonly object FileLock = new object();
 
         public static void BeforeAccessNotification(TokenCacheNotificationArgs args)
         {
