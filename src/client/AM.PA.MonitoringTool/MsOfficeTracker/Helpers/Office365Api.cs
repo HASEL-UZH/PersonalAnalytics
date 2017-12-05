@@ -2,6 +2,7 @@
 // Created: 2015-12-09
 // 
 // Licensed under the MIT License.
+
 using System;
 using System.Globalization;
 using Microsoft.Office365.OutlookServices;
@@ -10,7 +11,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Shared.Data;
 using MsOfficeTracker.Models;
-using System.Net;
 using System.Runtime.InteropServices;
 using Microsoft.Identity.Client;
 using Logger = Shared.Logger;
@@ -40,34 +40,61 @@ namespace MsOfficeTracker.Helpers
 
         #region Api Authentication, Clearing Cookies, etc.
 
-        private Office365Api()
+        /// <summary>
+        /// try logging in, or show sign-in page and ask for rights
+        /// </summary>
+        public async Task<bool> Authenticate()
         {
-            InitializeConnectionToOffice365Api();
+            var isAuthenticated = await TrySilentAuthentication();
+
+            //if (_app == null || _authResult == null)
+            //{
+            //    isAuthenticated = await InitializeConnectionToOffice365Api();
+            //}
+            //else
+            //{
+            //    isAuthenticated = await TrySilentAuthentication();
+            //}
+
+            if (isAuthenticated)
+            {
+                Database.GetInstance().LogInfo("Successfully logged in with Office 365 (as " + _authResult.User.Name + ")." );
+                return true;
+            }
+            else
+            {
+                Database.GetInstance().LogError("Error logging in the user with Office 365.");
+                return false;
+            }
         }
 
-        private async void InitializeConnectionToOffice365Api()
-        {
-            try
-            {
-                // register app
-                _app = new PublicClientApplication(Settings.ClientId, _authority, FileCache.GetUserCache());
+        /// <summary>
+        /// TODO: add comment
+        /// </summary>
+        /// <returns></returns>
+        //private async Task<bool> InitializeConnectionToOffice365Api()
+        //{
+        //    try
+        //    {
+        //        // register app
+        //        _app = new PublicClientApplication(Settings.ClientId, _authority, FileCache.GetUserCache());
 
-                // try silent authentication (if it fails, the regular sign-in window will appear)
-                //await TrySilentAuthentication();
-                await Authenticate();
+        //        // try silent authentication (if it fails, the regular sign-in window will appear)
+        //        var res = await TrySilentAuthentication();
 
-                // prepare outlook services client
-                var token = _authResult.AccessToken;
-                _client = new OutlookServicesClient(new Uri(Settings.GraphApiEndpoint), () => { return Task.Run(() => token); });
+        //        // prepare outlook services client
+        //        var token = _authResult.AccessToken;
+        //        _client = new OutlookServicesClient(new Uri(Settings.GraphApiEndpoint), () => { return Task.Run(() => token); });
 
-                // TODO: log
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                // TODO: handle error
-            }
-        }
+        //        return res;
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Console.WriteLine(e);
+        //        // TODO: handle error
+        //        return false;
+        //    }
+        //}
 
         /// <summary>
         /// This method is called from a method if the user is not properly signed in yet
@@ -78,9 +105,24 @@ namespace MsOfficeTracker.Helpers
         {
             try
             {
+                // register app (if not yet done)
+                if (_app == null)
+                { 
+                    _app = new PublicClientApplication(Settings.ClientId, _authority, FileCache.GetUserCache());
+                }
+
                 // Here, we try to get an access token to call the service without invoking any UI prompt.
                 //_authResult = await _app.AcquireTokenAsync(_scopes, "", UIBehavior.ForceLogin, "");
-                _authResult = await _app.AcquireTokenSilentAsync(Settings.Scopes, _app.Users.FirstOrDefault()); 
+                _authResult = await _app.AcquireTokenSilentAsync(Settings.Scopes, _app.Users.FirstOrDefault());
+
+                // prepare outlook services client (if not yet ready)
+                if (_client == null)
+                {
+                    var token = _authResult.AccessToken;
+                    _client = new OutlookServicesClient(new Uri(Settings.GraphApiEndpoint), () => { return Task.Run(() => token); });
+
+                }
+
                 return true;
             }
             catch (MsalUiRequiredException ex)
@@ -154,24 +196,6 @@ namespace MsOfficeTracker.Helpers
             {
                 // TODO: handle exceptions
                 Console.WriteLine(ex);
-            }
-        }
-
-        /// <summary>
-        /// try logging in, or show sign-in page and ask for rights
-        /// </summary>
-        public async Task<bool> Authenticate()
-        {
-            var res = await TrySilentAuthentication();
-            if (res)
-            {
-                Database.GetInstance().LogInfo("Successfully logged in with Office 365.");
-                return true;
-            }
-            else
-            {
-                Database.GetInstance().LogError("Error logging in the user with Office 365.");
-                return false;
             }
         }
 

@@ -31,7 +31,7 @@ namespace MsOfficeTracker
             Name = Settings.TrackerName;
         }
 
-        public async override void Start()
+        public override async void Start()
         {
             // initialize API & authenticate if necessary
             var isAuthenticated = await Office365Api.GetInstance().Authenticate();
