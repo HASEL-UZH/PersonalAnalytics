@@ -16,8 +16,9 @@ namespace MsOfficeTracker
         public static bool IsEnabledByDefault = true; // user will see a pop-up (the first start) to decide whether to use it or not
 #endif
 
-        public const int SaveEmailCountsIntervalInMinutes = 20; // in minutes
+        public const int SaveEmailCountsInterval_InMinutes = 20; // in minutes
         public const int UpdateCacheForDays = 10;
+        public const int WaitTimeUntilTimerFirstTicks_InSeconds = 120; // in seconds
 
         public const string EmailsTable = "emails";
         public const string MeetingsTable = "meetings";

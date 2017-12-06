@@ -14,7 +14,6 @@ using System.Globalization;
 using System.Threading;
 using MsOfficeTracker.Helpers;
 using System.Reflection;
-using System.Windows.Controls;
 using MsOfficeTracker.Views;
 
 namespace MsOfficeTracker
@@ -55,10 +54,10 @@ namespace MsOfficeTracker
                 Stop();
 
             // initialize a new timer
-            var interval = (int)TimeSpan.FromMinutes(Settings.SaveEmailCountsIntervalInMinutes).TotalMilliseconds;
-            _timer = new Timer(new TimerCallback(TimerTick), // callback
+            var interval = (int)TimeSpan.FromMinutes(Settings.SaveEmailCountsInterval_InMinutes).TotalMilliseconds;
+            _timer = new Timer(TimerTick, // callback
                             null,  // no idea
-                            60000, // start immediately after 1 minute
+                            Settings.WaitTimeUntilTimerFirstTicks_InSeconds * 1000,
                             interval); // interval
         }
 
@@ -83,7 +82,7 @@ namespace MsOfficeTracker
             Queries.UpdateDatabaseTables(version);
         }
         
-        public override bool IsFirstStart { get { return !Database.GetInstance().HasSetting("MsOfficeTrackerEnabled"); } }
+        public override bool IsFirstStart => ! Database.GetInstance().HasSetting("MsOfficeTrackerEnabled");
 
         public override List<IFirstStartScreen> GetStartScreens()
         {
@@ -92,9 +91,6 @@ namespace MsOfficeTracker
 
         public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
         {
-            //var vis1 = new DayEmailsSent(date);
-            //var vis2 = new DayEmailsReceived(date);
-            //var vis3 = new DayEmailsAvgUnreadInbox(date);
             var vis = new DayEmailsTable(date);
             return new List<IVisualization> { vis };
         }

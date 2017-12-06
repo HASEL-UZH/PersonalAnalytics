@@ -46,7 +46,7 @@ namespace MsOfficeTracker.Visualizations
 
             // if database entry is outdated or not there, create a live API call and override entries
             if (emailsSnapshotResult.Item1 == DateTime.MinValue || // no emails stored yet
-                (isToday && lastUpdatedMinsAgo > Settings.SaveEmailCountsIntervalInMinutes)) // request is for today and saved results are too old // could not fetch sent emails
+                (isToday && lastUpdatedMinsAgo > Settings.SaveEmailCountsInterval_InMinutes)) // request is for today and saved results are too old // could not fetch sent emails
             {
                 // create and save a new email snapshot (inbox, sent, received)
                 var res = Queries.CreateEmailsSnapshot(_date.Date, false);
