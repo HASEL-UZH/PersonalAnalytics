@@ -1,4 +1,4 @@
-﻿// Created by André Meyer at MSR
+﻿// Created by André Meyer at MSR, updated at University of Zurich
 // Created: 2015-12-09
 // 
 // Licensed under the MIT License.
@@ -17,6 +17,17 @@ using Logger = Shared.Logger;
 
 namespace MsOfficeTracker.Helpers
 {
+    /// <summary>
+    /// The Office365 uses the MSAL library for the authentication (previously ADAL) 
+    /// and then the OutlookServicesClient to have a nice interface for the API requests.
+    /// 
+    /// A good starting point can be found here: 
+    /// https://docs.microsoft.com/en-us/azure/active-directory/develop/guidedsetups/active-directory-windesktop
+    /// https://github.com/Azure-Samples/active-directory-dotnet-desktop-msgraph-v2/tree/master/active-directory-wpf-msgraph-v2
+    /// 
+    /// The app can be registered here: 
+    /// https://apps.dev.microsoft.com/#/appListt
+    /// </summary>
     public class Office365Api
     {
         private static Office365Api _api;
@@ -25,9 +36,6 @@ namespace MsOfficeTracker.Helpers
         private OutlookServicesClient _client;
         private PublicClientApplication _app;
         private readonly string _authority = string.Format(CultureInfo.InvariantCulture, Settings.LoginApiEndpoint, "common"); // use microsoft.onmicrosoft.com for just this tenant, use "common" if used for everyone
-
-        //private string _loggedInUserEmail;
-        //private string _loggedInUserName;
 
         /// <summary>
         /// Singleton
@@ -47,15 +55,6 @@ namespace MsOfficeTracker.Helpers
         {
             var isAuthenticated = await TrySilentAuthentication();
 
-            //if (_app == null || _authResult == null)
-            //{
-            //    isAuthenticated = await InitializeConnectionToOffice365Api();
-            //}
-            //else
-            //{
-            //    isAuthenticated = await TrySilentAuthentication();
-            //}
-
             if (isAuthenticated)
             {
                 Database.GetInstance().LogInfo("Successfully logged in with Office 365 (as " + _authResult.User.Name + ")." );
@@ -67,34 +66,6 @@ namespace MsOfficeTracker.Helpers
                 return false;
             }
         }
-
-        /// <summary>
-        /// TODO: add comment
-        /// </summary>
-        /// <returns></returns>
-        //private async Task<bool> InitializeConnectionToOffice365Api()
-        //{
-        //    try
-        //    {
-        //        // register app
-        //        _app = new PublicClientApplication(Settings.ClientId, _authority, FileCache.GetUserCache());
-
-        //        // try silent authentication (if it fails, the regular sign-in window will appear)
-        //        var res = await TrySilentAuthentication();
-
-        //        // prepare outlook services client
-        //        var token = _authResult.AccessToken;
-        //        _client = new OutlookServicesClient(new Uri(Settings.GraphApiEndpoint), () => { return Task.Run(() => token); });
-
-        //        return res;
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Console.WriteLine(e);
-        //        // TODO: handle error
-        //        return false;
-        //    }
-        //}
 
         /// <summary>
         /// This method is called from a method if the user is not properly signed in yet
@@ -140,15 +111,13 @@ namespace MsOfficeTracker.Helpers
 
         /// <summary>
         /// force MSAL to prompt the user for credentials by specifying PromptBehavior.Always.
-        /// ADAL will get a token and cache it
+        /// MSAL will get a token and cache it
         /// </summary>
         private async Task<bool> SignIn()
         {
             try
             {
                 _authResult = await _app.AcquireTokenAsync(Settings.Scopes);
-                //var  _loggedInUserEmail = _authResult.User.DisplayableId; // hint: UserInfo empty after authentication
-                //var _loggedInUserName = _authResult.User.Name; // hint: UserInfo empty after authentication
                 return true;
             }
             catch (MsalException ex)
@@ -165,11 +134,6 @@ namespace MsOfficeTracker.Helpers
                 else
                 {
                     // An unexpected error occurred.
-                    //var message = ex.Message;
-                    //if (ex.InnerException != null)
-                    //{
-                    //    message += "Inner Exception : " + ex.InnerException.Message;
-                    //}
                     Logger.WriteToLogFile(ex);
                     return false;
                 }
@@ -194,15 +158,9 @@ namespace MsOfficeTracker.Helpers
             }
             catch (MsalException ex)
             {
-                // TODO: handle exceptions
-                Console.WriteLine(ex);
+                Logger.WriteToLogFile(ex);
             }
         }
-
-        //public bool IsAuthenticatedUser(string name, string email)
-        //{
-        //    return (name == _loggedInUserName || email == _loggedInUserEmail);
-        //}
 
         /// <summary>
         /// Returns true if the user is already authenticated with Office 365
