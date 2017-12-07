@@ -7,6 +7,7 @@ using Shared.Data.Extractors;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using Shared.Data;
 using TimeSpentVisualizer.Data;
 using TimeSpentVisualizer.Models;
 
@@ -152,8 +153,9 @@ namespace TimeSpentVisualizer.Helpers
         /// (hint: no API calls are made, meetings are only fetched if they are already stored)
         /// </summary>
         /// <param name="date"></param>
+        /// <param name="hideMeetingsWithoutAttendees"></param>
         /// <returns></returns>
-        internal static List<TimeSpentItem> GetCleanedMeetings(DateTimeOffset date)
+        internal static List<TimeSpentItem> GetCleanedMeetings(DateTimeOffset date, bool hideMeetingsWithoutAttendees)
         {
             var meetingsFromDb = Queries.GetMeetingsFromDatabase(date);
 
@@ -170,7 +172,7 @@ namespace TimeSpentVisualizer.Helpers
                 if (w.Item2 > DateTime.Now) continue;
 
                 // (optionally) hide meetings where no attendees
-                if (w.Item3 == 0) continue; // TODO: add setting
+                if (hideMeetingsWithoutAttendees && w.Item4 == 0) continue;
 
                 var item = new TimeSpentItem(TimeSpentType.Meeting, w.Item1, w.Item3);
                 list.Add(item);

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Retrospection"
         xmlns:paColors="clr-namespace:Shared;assembly=Shared"
         mc:Ignorable="d"
-        Title="PersonalAnalytics: Settings" Height="730" Width="770" ResizeMode="NoResize">
+        Title="PersonalAnalytics: Settings" Height="750" Width="770" ResizeMode="NoResize">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -61,10 +61,13 @@
 
                     <CheckBox x:Name="CbTimeSpentShowProgramsEnabled"
                               Margin="0 20 0 0"
-                              Content="Show programs used in the 'Time Spent'-table" />
+                              Content="Show programs used in the Time Spent-table" />
+                    <CheckBox x:Name="CbTimeSpentHideMeetingsWithoutAttendeesEnabled"
+                              Margin="0 5 0 0"
+                              Content="Hide meetings with no attendees in the Time Spent-table" />
                     <CheckBox x:Name="CbTimeSpentShowEmailsEnabled"
                               Margin="0 5 0 0"
-                              Content="Show details from working in Outlook in the 'Time Spent'-table" />
+                              Content="Show details from working in Outlook in the Time Spent-table" />
                     <TextBlock Margin="20 0 0 0"
                                Foreground="Gray"
                                Text="Hint: The time spent reading/writing emails might not be perfect as this metric bases on the Outlook window title, which is not changed if you are not reading/writing emails in new window, but the Outlook main window."

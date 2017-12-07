@@ -50,6 +50,10 @@ namespace Shared.Data
                 {
                     if (GetTimeSpentVisualizerVisualizer() != null) GetTimeSpentVisualizerVisualizer().TimeSpentShowEmailsEnabled = updatedSettings.TimeSpentShowEmailsEnabled.Value;
                 }
+                if (updatedSettings.TimeSpentHideMeetingsWithoutAttendeesEnabled.HasValue)
+                {
+                    if (GetTimeSpentVisualizerVisualizer() != null) GetTimeSpentVisualizerVisualizer().TimeSpentHideMeetingsWithoutAttendeesEnabled = updatedSettings.TimeSpentHideMeetingsWithoutAttendeesEnabled.Value;
+                }
                 if (updatedSettings.TimeSpentShowProgramsEnabled.HasValue)
                 {
                     if (GetTimeSpentVisualizerVisualizer() != null) GetTimeSpentVisualizerVisualizer().TimeSpentShowProgramsEnabled = updatedSettings.TimeSpentShowProgramsEnabled.Value;
@@ -125,6 +129,7 @@ namespace Shared.Data
                 if (timeSpentVisualizer != null)
                 {
                     dto.TimeSpentShowEmailsEnabled = timeSpentVisualizer.TimeSpentShowEmailsEnabled;
+                    dto.TimeSpentHideMeetingsWithoutAttendeesEnabled = timeSpentVisualizer.TimeSpentHideMeetingsWithoutAttendeesEnabled;
                     dto.TimeSpentShowProgramsEnabled = timeSpentVisualizer.TimeSpentShowProgramsEnabled;
                 }
 
@@ -280,8 +285,7 @@ namespace Shared.Data
         public bool IsUserEfficiencyTrackerEnabled()
         {
             var tracker = GetUserEfficiencyTracker();
-            if (tracker != null) return tracker.PopUpEnabled;
-            else return false;
+            return tracker != null && tracker.PopUpEnabled;
         }
     }
 }
