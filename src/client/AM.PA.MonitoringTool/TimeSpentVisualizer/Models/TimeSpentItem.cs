@@ -1,5 +1,5 @@
 ﻿
-namespace ArtifactVisualizer.Models
+namespace TimeSpentVisualizer.Models
 {
     internal enum TimeSpentType
     {

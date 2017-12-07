@@ -8,10 +8,9 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using TimeSpentVisualizer.Data;
-using ArtifactVisualizer.Models;
-using System.Globalization;
+using TimeSpentVisualizer.Models;
 
-namespace ArtifactVisualizer.Helpers
+namespace TimeSpentVisualizer.Helpers
 {
     public static class CollectData
     {
@@ -156,24 +155,25 @@ namespace ArtifactVisualizer.Helpers
         /// <returns></returns>
         internal static List<TimeSpentItem> GetCleanedMeetings(DateTimeOffset date)
         {
-            var list = new List<TimeSpentItem>();
-
             var meetingsFromDb = Queries.GetMeetingsFromDatabase(date);
 
             // if already saved, get it from the database (if not today)
-            if (meetingsFromDb != null && meetingsFromDb.Count > 0)
+            var list = new List<TimeSpentItem>();
+            if (meetingsFromDb == null || meetingsFromDb.Count <= 0) return list;
+
+            foreach (var w in meetingsFromDb)
             {
-                foreach (var w in meetingsFromDb)
-                {
-                    // hide day or longer meetings
-                    if (w.Item3 >= 24 * 60) continue;
+                // hide day or longer meetings
+                if (w.Item3 >= 24 * 60) continue;
 
-                    // hide meetings which not yet occurred
-                    if (w.Item2 > DateTime.Now) continue;
+                // hide meetings which not yet occurred
+                if (w.Item2 > DateTime.Now) continue;
 
-                    var item = new TimeSpentItem(TimeSpentType.Meeting, w.Item1, w.Item3);
-                    list.Add(item);
-                }
+                // (optionally) hide meetings where no attendees
+                if (w.Item3 == 0) continue; // TODO: add setting
+
+                var item = new TimeSpentItem(TimeSpentType.Meeting, w.Item1, w.Item3);
+                list.Add(item);
             }
 
             return list;

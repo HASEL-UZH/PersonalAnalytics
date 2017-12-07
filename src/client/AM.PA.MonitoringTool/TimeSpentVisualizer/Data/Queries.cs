@@ -19,12 +19,12 @@ namespace TimeSpentVisualizer.Data
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        internal static List<Tuple<string, DateTime, int>> GetMeetingsFromDatabase(DateTimeOffset date)
+        internal static List<Tuple<string, DateTime, int, int>> GetMeetingsFromDatabase(DateTimeOffset date)
         {
-            var meetings = new List<Tuple<string, DateTime, int>>();
+            var meetings = new List<Tuple<string, DateTime, int, int>>();
             try
             {
-                var query = "SELECT subject, time, durationInMins FROM " + Settings.MeetingsTable + " "
+                var query = "SELECT subject, time, durationInMins, numAttendees FROM " + Settings.MeetingsTable + " "
                             + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date) + " "
                             + "AND subject != '" + Dict.Anonymized + "';";
 
@@ -35,8 +35,9 @@ namespace TimeSpentVisualizer.Data
                     var subject = (string)row["subject"];
                     var time = DateTime.Parse((string)row["time"], CultureInfo.InvariantCulture);
                     var duration = Convert.ToInt32(row["durationInMins"], CultureInfo.InvariantCulture);
+                    var numAttendess = Convert.ToInt32(row["numAttendees"], CultureInfo.InvariantCulture);
 
-                    var t = new Tuple<string, DateTime, int>(subject, time, duration);
+                    var t = new Tuple<string, DateTime, int, int>(subject, time, duration, numAttendess);
                     meetings.Add(t);
                 }
             }

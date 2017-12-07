@@ -8,8 +8,8 @@ using Shared;
 using System.Collections.Generic;
 using Shared.Helpers;
 using System.Linq;
-using ArtifactVisualizer.Helpers;
-using ArtifactVisualizer.Models;
+using TimeSpentVisualizer.Helpers;
+using TimeSpentVisualizer.Models;
 using System.Globalization;
 using Shared.Data;
 using System.Reflection;
@@ -93,8 +93,8 @@ namespace TimeSpentVisualizer.Visualizers
     {
         private readonly DateTimeOffset _date;
         private const int numberOfItemsShown = 10;
-        private bool _showEmailsEnabled;
-        private bool _showProgramsEnabled;
+        private readonly bool _showEmailsEnabled;
+        private readonly bool _showProgramsEnabled;
         private bool? _meetingTableExists;
 
         public DayTimeSpentTable(DateTimeOffset date, bool showEmailsEnabled, bool showProgramsEnabled)
