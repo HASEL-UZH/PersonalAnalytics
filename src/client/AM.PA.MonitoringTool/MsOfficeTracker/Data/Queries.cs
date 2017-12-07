@@ -20,7 +20,7 @@ namespace MsOfficeTracker.Data
         {
             try
             {
-                Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.MeetingsTable + " (id INTEGER PRIMARY KEY, timestamp TEXT, time TEXT, subject TEXT, durationInMins INTEGER);");
+                Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.MeetingsTable + " (id INTEGER PRIMARY KEY, timestamp TEXT, time TEXT, subject TEXT, durationInMins INTEGER, numAttendees INTEGER);");
                 Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.EmailsTable + " (id INTEGER PRIMARY KEY, timestamp TEXT, time TEXT, inbox INTEGER, inboxUnread INTEGER, sent INTEGER, received INTEGER, receivedUnread INTEGER, isFromTimer INTEGER);");
             }
             catch (Exception e)
@@ -33,6 +33,15 @@ namespace MsOfficeTracker.Data
         {
             try
             {
+                // database update 07.12.2017 (added one column to 'meetings' table)
+                if (version == 5)
+                {
+                    if (Database.GetInstance().HasTable(Settings.MeetingsTable))
+                    {
+                        Database.GetInstance().ExecuteDefaultQuery("ALTER TABLE " + Settings.MeetingsTable + " ADD COLUMN numAttendees INTEGER;");
+                    }
+                }
+
                 // database update 20.06.2016 (added two columns to 'emails' table)
                 if (version == 2)
                 {
@@ -107,8 +116,13 @@ namespace MsOfficeTracker.Data
         /// <summary>
         /// Saves the timestamp, inbox size, sent items count, received items count into the database
         /// </summary>
-        /// <param name="window"></param>
-        /// <param name="process"></param>
+        /// <param name="date"></param>
+        /// <param name="inbox"></param>
+        /// <param name="unreadInbox"></param>
+        /// <param name="sent"></param>
+        /// <param name="received"></param>
+        /// <param name="unreadReceived"></param>
+        /// <param name="isFromTimer"></param>
         internal static void SaveEmailsSnapshot(DateTime date, long inbox, long unreadInbox, int sent, int received, int unreadReceived, bool isFromTimer)
         {
             Database.GetInstance().ExecuteDefaultQuery("INSERT INTO " + Settings.EmailsTable + " (timestamp, time, inbox, inboxUnread, sent, received, receivedUnread, isFromTimer) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " +
@@ -122,19 +136,27 @@ namespace MsOfficeTracker.Data
         /// 
         /// Hint: The meeting subject can be obfuscated by setting the property RecordMeetingTitles to false
         /// </summary>
+        /// <param name="date"></param>
         /// <param name="subject"></param>
         /// <param name="durationInMins"></param>
-        internal static void SaveMeetingsSnapshot(DateTime date, string subject, int durationInMins)
+        /// <param name="numberOfAttendees"></param>
+        internal static void SaveMeetingsSnapshot(DateTime date, string subject, int durationInMins, int numberOfAttendees)
         {
             if (Shared.Settings.AnonymizeSensitiveData)
             {
                 subject = Dict.Anonymized;  // obfuscate window title
             }
 
-            var query = "INSERT INTO " + Settings.MeetingsTable + " (timestamp, time, subject, durationInMins) "
-                        + "SELECT strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " + Database.GetInstance().QTime(date) + ", " + Database.GetInstance().Q(subject) + ", " + Database.GetInstance().Q(durationInMins) + " "
+            var query = "INSERT INTO " + Settings.MeetingsTable + " (timestamp, time, subject, durationInMins, numAttendees) "
+                        + "SELECT strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " + 
+                        //Database.GetInstance().Q(id) + ", " + // could also save ID to validate duplicates below with it (but needs quite some space)
+                        Database.GetInstance().QTime(date) + ", " + 
+                        Database.GetInstance().Q(subject) + ", " + 
+                        Database.GetInstance().Q(durationInMins) + ", " + 
+                        Database.GetInstance().Q(numberOfAttendees) + " "
+                        // check if a duplicate entry exists (subject and date) - changes in number of attendees and duration not considered
                         + "WHERE NOT EXISTS ("
-                            + "SELECT 1 FROM " + Settings.MeetingsTable + " WHERE time = " + Database.GetInstance().QTime(date) + " AND subject = " + Database.GetInstance().Q(subject) + " AND durationInMins = " + Database.GetInstance().Q(durationInMins)
+                            + "SELECT 1 FROM " + Settings.MeetingsTable + " WHERE time = " + Database.GetInstance().QTime(date) + " AND subject = " + Database.GetInstance().Q(subject) 
                         + ");";
 
             Database.GetInstance().ExecuteDefaultQuery(query);

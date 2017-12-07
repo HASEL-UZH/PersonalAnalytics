@@ -12,13 +12,17 @@ namespace MsOfficeTracker
 #if Pilot_TaskDetection_March17
         public static bool IsEnabledByDefault = false;
 #else
-        // TODO: re-enable after bug has been fixed
         public static bool IsEnabledByDefault = true; // user will see a pop-up (the first start) to decide whether to use it or not
 #endif
 
         public const int SaveEmailCountsInterval_InMinutes = 20; // in minutes
         public const int UpdateCacheForDays = 10;
+
+#if DEBUG
+        public const int WaitTimeUntilTimerFirstTicks_InSeconds = 10; // in seconds
+#else
         public const int WaitTimeUntilTimerFirstTicks_InSeconds = 120; // in seconds
+#endif
 
         public const string EmailsTable = "emails";
         public const string MeetingsTable = "meetings";

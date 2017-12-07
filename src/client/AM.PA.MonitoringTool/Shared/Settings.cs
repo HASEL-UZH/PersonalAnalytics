@@ -16,8 +16,9 @@ namespace Shared
          * version 2 - update emails table in MsOfficeTracker (2016-06-20)
          * version 3 - update focus_state table in FlowTracker (2017-01-12)
          * version 4 - update windows_activity table in WindowsActivityTracker (2017-07-20)
+         * version 5 - update meetings table in MsOfficeTracker (2017-12-07)
          */
-        public const int DatabaseVersion = 4; // !!! update when existing database table changes (have a look at PerformDatabaseUpdatesIfNecessary() for details)
+        public const int DatabaseVersion = 5; // !!! update when existing database table changes (have a look at PerformDatabaseUpdatesIfNecessary() for details)
 
 
 #if Dev

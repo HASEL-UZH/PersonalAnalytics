@@ -6,6 +6,7 @@ namespace MsOfficeTracker.Models
 {
     public class DisplayEvent
     {
+        //public string Id { get; private set; }
         public EmailAddress Organizer { get; private set; }
         public bool IsOrganizer { get; private set; }
         public string Subject { get; set; }
@@ -13,11 +14,13 @@ namespace MsOfficeTracker.Models
         public DateTime End { get; private set; }
         public List<string> Attendees { get; private set; }
         public ResponseType ResponseStatus { get; set; }
+        public bool? IsAllDay { get; set; }
 
         public int DurationInMins { get; set; }
 
-        public DisplayEvent(Recipient organizer, bool? isOrganizer, string subject, ResponseStatus status, string start, string end, IList<Attendee> attendees)
+        public DisplayEvent(Recipient organizer, bool? isOrganizer, string subject, ResponseStatus status, string start, string end, IList<Attendee> attendees, bool? isAllDay)
         {
+            //Id = id;
             if (organizer != null && organizer.EmailAddress != null) Organizer = new EmailAddress(organizer.EmailAddress);
             if (isOrganizer != null && isOrganizer.Value) IsOrganizer = isOrganizer.Value;
             Subject = subject;
@@ -42,6 +45,7 @@ namespace MsOfficeTracker.Models
             catch { }
 
             ResponseStatus = status.Response;
+            IsAllDay = isAllDay;
         }
 
         public DisplayEvent(string subject, int durationInMins)

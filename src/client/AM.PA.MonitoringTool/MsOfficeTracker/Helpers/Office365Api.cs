@@ -57,7 +57,8 @@ namespace MsOfficeTracker.Helpers
 
             if (isAuthenticated)
             {
-                Database.GetInstance().LogInfo("Successfully logged in with Office 365 (as " + _authResult.User.Name + ")." );
+                var userName = (Shared.Settings.AnonymizeSensitiveData) ? Shared.Dict.Anonymized : _authResult.User.Name;
+                Database.GetInstance().LogInfo("Successfully logged in with Office 365 (as " + userName + ")." );
                 return true;
             }
             else
@@ -204,7 +205,7 @@ namespace MsOfficeTracker.Helpers
                                     .Where(e => e.IsCancelled == false)
                                     .OrderBy(e => e.Start.DateTime)
                                     .Take(20)
-                                    .Select(e => new DisplayEvent(e.Organizer, e.IsOrganizer, e.Subject, e.ResponseStatus, e.Start.DateTime, e.End.DateTime, e.Attendees))
+                                    .Select(e => new DisplayEvent(e.Organizer, e.IsOrganizer, e.Subject, e.ResponseStatus, e.Start.DateTime, e.End.DateTime, e.Attendees, e.IsAllDay))
                                     .ExecuteAsync();
 
                 do

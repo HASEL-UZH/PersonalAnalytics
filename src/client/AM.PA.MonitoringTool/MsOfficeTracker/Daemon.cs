@@ -11,6 +11,7 @@ using MsOfficeTracker.Visualizations;
 using MsOfficeTracker.Data;
 using Shared.Data;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using MsOfficeTracker.Helpers;
 using System.Reflection;
@@ -184,7 +185,7 @@ namespace MsOfficeTracker
         /// <summary>
         /// Regularly runs and saves some email counts
         /// </summary>
-        private void SaveMeetingsCount(DateTimeOffset date)
+        private static void SaveMeetingsCount(DateTimeOffset date)
         {
             try
             {
@@ -207,9 +208,11 @@ namespace MsOfficeTracker
                     foreach (var meeting in meetings)
                     {
                         var duration = (int)Math.Round(Math.Abs((meeting.End - meeting.Start).TotalMinutes), 0);
-                        if (duration >= 24 * 60) continue; // only store if not multiple-day meeting
+                        //if (duration >= 24 * 60) continue; // only store if not multiple-day meeting
+                        if ((meeting.IsAllDay.HasValue && meeting.IsAllDay.Value) || duration > 24 * 60) continue;
                         var start = meeting.Start.ToLocalTime();
-                        Queries.SaveMeetingsSnapshot(start, meeting.Subject, duration);
+                        var numAttendees = meeting.Attendees.Count(a => a != meeting.Organizer.Address);
+                        Queries.SaveMeetingsSnapshot(start, meeting.Subject, duration, numAttendees);
                     }
                 }
             }
