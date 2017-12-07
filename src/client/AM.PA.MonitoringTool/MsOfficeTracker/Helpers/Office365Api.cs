@@ -68,12 +68,29 @@ namespace MsOfficeTracker.Helpers
         }
 
         /// <summary>
+        /// Checks if the connection to the API was successfully established previously.
+        /// If not, it tries to establish a connection:
+        /// 
+        /// 1. check if an auth-token is available (usually then the connection works fine)
+        /// 2. checks if internet is available (necessary)
+        /// 3. checks if a silent authentication can be made. if it fails, tries to connect via regular SignIn.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> ConnectionToApiFailing()
+        {
+            return _authResult == null || ! IsInternetAvailable() || ! await TrySilentAuthentication();
+        }
+
+        /// <summary>
         /// This method is called from a method if the user is not properly signed in yet
         /// and to check if the user can be authenticated
         /// (also checks for an active internet connection)
         /// </summary>
         private async Task<bool> TrySilentAuthentication()
         {
+            // check for internet connection
+            if (! IsInternetAvailable()) return false;
+
             try
             {
                 // register app (if not yet done)
@@ -162,19 +179,10 @@ namespace MsOfficeTracker.Helpers
             }
         }
 
-        /// <summary>
-        /// Returns true if the user is already authenticated with Office 365
-        /// </summary>
-        /// <returns></returns>
-        public bool IsAuthenticated()
-        {
-            return _authResult != null;
-        }
-
         [DllImport("wininet.dll")]
         private extern static bool InternetGetConnectedState(out int description, int reservedValue);
 
-        private static bool IsInternetAvailable()
+        public static bool IsInternetAvailable()
         {
             int description;
             return InternetGetConnectedState(out description, 0);
@@ -188,7 +196,7 @@ namespace MsOfficeTracker.Helpers
         {
             var meetings = new List<DisplayEvent>();
 
-            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return meetings;
+            if (await ConnectionToApiFailing()) return meetings;
 
             try
             {
@@ -317,7 +325,7 @@ namespace MsOfficeTracker.Helpers
         /// <returns>number of items, -1 in case of an error</returns>
         public async Task<long> GetNumberOfUnreadEmailsInInbox()
         {
-            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return -1;
+            if (await ConnectionToApiFailing()) return -1;
 
             try
             {
@@ -352,7 +360,7 @@ namespace MsOfficeTracker.Helpers
         /// <returns>number of items, -1 in case of an error</returns>
         public async Task<long> GetTotalNumberOfEmailsInInbox()
         {
-            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return -1;
+            if (await ConnectionToApiFailing()) return -1;
 
             try
             {
@@ -387,7 +395,7 @@ namespace MsOfficeTracker.Helpers
         /// <returns></returns>
         public async Task<int> GetNumberOfEmailsSent(DateTimeOffset date)
         {
-            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return -1;
+            if (await ConnectionToApiFailing()) return -1;
 
             try
             {
@@ -426,7 +434,7 @@ namespace MsOfficeTracker.Helpers
         /// <returns></returns>
         public async Task<int> GetNumberOfUnreadEmailsReceived(DateTimeOffset date)
         {
-            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return -1;
+            if (await ConnectionToApiFailing()) return -1;
 
             try
             {
@@ -449,17 +457,6 @@ namespace MsOfficeTracker.Helpers
                 {
                     var mailResults = groups.CurrentPage.ToList();
                     numberOfEmailsReceived += mailResults.Count(m => !deleteFolders.Contains(m.ParentFolderId));
-
-                    //if (deleteFolders.Item1 == false)
-                    //{
-                    //    numberOfEmailsReceived += mailResults.Count;
-                    //}
-                    //else
-                    //{
-                    //    numberOfEmailsReceived += mailResults.Where(m => m.ParentFolderId != deleteFolders.Item2 && m.ParentFolderId != deleteFolders.Item3 // not in deleted folder
-                    //                                                && m.ParentFolderId != deleteFolders.Item4 && m.ParentFolderId != deleteFolders.Item5).ToList().Count; // not in junk folder
-                    //}
-
                     groups = await groups.GetNextPageAsync();
                 }
                 while (groups != null); //&& groups.MorePagesAvailable);
@@ -481,7 +478,7 @@ namespace MsOfficeTracker.Helpers
         /// <returns></returns>
         public async Task<int> GetTotalNumberOfEmailsReceived(DateTimeOffset date)
         {
-            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return -1;
+            if (await ConnectionToApiFailing()) return -1;
 
             try
             {
@@ -527,16 +524,18 @@ namespace MsOfficeTracker.Helpers
             }
         }
 
+        private List<string> _emailFoldersToIgnore;
+
         /// <summary>
         /// Loads a list of folders to find the Ids of the junk and deleted items folders
-        /// to filter them
-        /// 
-        /// TODO: cache list
+        /// to filter them. Also caches it after first instantiation.
         /// </summary>
         /// <returns></returns>
         private async Task<List<string>> GetDeleteAndJunkFolderIds()
         {
-            var foldersToDelete = new List<string>();
+            if (_emailFoldersToIgnore != null) return _emailFoldersToIgnore;
+
+            _emailFoldersToIgnore = new List<string>();
 
             try
             {
@@ -544,36 +543,33 @@ namespace MsOfficeTracker.Helpers
                 do
                 {
                     var res1 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("deleted")).FirstOrDefault();
-                    if (res1 != null && !string.IsNullOrEmpty(res1.Id)) foldersToDelete.Add(res1.Id);
+                    if (!string.IsNullOrEmpty(res1?.Id)) _emailFoldersToIgnore.Add(res1.Id);
 
                     var res2 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("gelöscht")).FirstOrDefault();
-                    if (res2 != null && !string.IsNullOrEmpty(res2.Id)) foldersToDelete.Add(res2.Id);
+                    if (!string.IsNullOrEmpty(res2?.Id)) _emailFoldersToIgnore.Add(res2.Id);
 
                     var res3 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("junk")).FirstOrDefault();
-                    if (res3 != null && !string.IsNullOrEmpty(res3.Id)) foldersToDelete.Add(res3.Id);
+                    if (!string.IsNullOrEmpty(res3?.Id)) _emailFoldersToIgnore.Add(res3.Id);
 
                     var res4 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("spam")).FirstOrDefault();
-                    if (res4 != null && !string.IsNullOrEmpty(res4.Id)) foldersToDelete.Add(res4.Id);
+                    if (!string.IsNullOrEmpty(res4?.Id)) _emailFoldersToIgnore.Add(res4.Id);
 
                     var res5 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("sent")).FirstOrDefault();
-                    if (res5 != null && !string.IsNullOrEmpty(res5.Id)) foldersToDelete.Add(res5.Id);
+                    if (!string.IsNullOrEmpty(res5?.Id)) _emailFoldersToIgnore.Add(res5.Id);
 
                     var res6 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("gesendet")).FirstOrDefault();
-                    if (res6 != null && !string.IsNullOrEmpty(res6.Id)) foldersToDelete.Add(res6.Id);
-
-                    //if (!string.IsNullOrEmpty(deletedFolderIdEn) && !string.IsNullOrEmpty(deletedFolderIdDe) &&
-                    //    !string.IsNullOrEmpty(junkFolderId1) && !string.IsNullOrEmpty(junkFolderId2)) break;
+                    if (!string.IsNullOrEmpty(res6?.Id)) _emailFoldersToIgnore.Add(res6.Id);
 
                     folders = await folders.GetNextPageAsync();
                 }
                 while (folders != null);
             }
-            catch
+            catch (Exception ex)
             {
-                Console.WriteLine("TODO");
+                Logger.WriteToLogFile(ex);
             }
 
-            return foldersToDelete;
+            return _emailFoldersToIgnore;
         }
 
         //public async Task<List<ContactItem>> LoadPeopleFromEmails(DateTimeOffset date)
@@ -655,7 +651,7 @@ namespace MsOfficeTracker.Helpers
 
         public async Task<string> GetPhotoForUser(string email)
         {
-            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return string.Empty;
+            if (await ConnectionToApiFailing()) return string.Empty;
 
             try
             {
