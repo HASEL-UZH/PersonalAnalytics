@@ -28,7 +28,7 @@ namespace MsOfficeTracker.Helpers
     /// https://github.com/Azure-Samples/active-directory-dotnet-desktop-msgraph-v2/tree/master/active-directory-wpf-msgraph-v2
     /// 
     /// The app can be registered here: 
-    /// https://apps.dev.microsoft.com/#/appListt
+    /// https://apps.dev.microsoft.com/#/appList
     /// </summary>
     public class Office365Api
     {
@@ -110,28 +110,17 @@ namespace MsOfficeTracker.Helpers
                 // prepare outlook services client (if not yet ready)
                 if (_client == null)
                 {
+                    _newClient = new GraphServiceClient(new DelegateAuthenticationProvider(requestMessage =>
+                        {
+                            requestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", _authResult.AccessToken);
+                            return Task.FromResult(0);
+                        }));
+                    //_newClient.BaseUrl = Settings.GraphApiEndpoint;
+
+                    TestTempQueries();
+
+                    // old: OutlookServicesClient
                     var token = _authResult.AccessToken;
-
-                    var dap = new DelegateAuthenticationProvider(rm =>
-                    {
-                        rm.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", _authResult.AccessToken);
-                        return Task.FromResult(0);
-                    });
-                    _newClient = new GraphServiceClient(dap);
-
-                    var msg = _newClient.Me.Messages.Request().GetAsync();
-                    msg.Wait();
-                    var msgC = msg.Result; //.OrderByDescending(m => m.ReceivedDateTime).Where(m => m.IsRead == true);
-                        //.Where(m => m.ReceivedDateTime.Value >= DateTime.Now.AddDays(-10) && m.ReceivedDateTime.Value <= DateTime.Now
-                        //            && m.IsDraft == false && m.IsRead == false)  // only unread emails          //todo: filter if not in Junk Email and Deleted Folder (maybe with ParentFolderId)
-                        //.Take(20)
-                        //.Select(m => new { m.ParentFolderId }); // new DisplayEmail(m)) // m.From
-                    var inbox = _newClient.Me.MailFolders.SentItems.Messages.Request().GetAsync();
-                    inbox.Wait();
-                    var inboxC = inbox.Result;
-
-                    Console.WriteLine((msgC + ""+inboxC));
-
                     _client = new OutlookServicesClient(new Uri(Settings.GraphApiEndpoint), () => { return Task.Run(() => token); });
                 }
 
@@ -147,6 +136,44 @@ namespace MsOfficeTracker.Helpers
             {
                 Logger.WriteToLogFile(e);
                 return false;
+            }
+        }
+
+        private async void TestTempQueries()
+        {
+            try
+            {
+                var options = new List<QueryOption>
+                    {
+                    // ReceivedDateTime ge 2017-04-01 and receivedDateTime lt 2017-05-01
+                        new QueryOption("filter", "receivedDateTime/dateTime ge '" + DateTime.Now.AddDays(-10).ToString("o") + "' and receivedDateTime/dateTime le '" + DateTime.Now.ToString("o") + "'"),
+                        //new QueryOption("filter", "isRead eq false"),
+                        //new QueryOption("sentDateTime", DateTime.Now.ToString("o")),
+                        new QueryOption("orderby", "sentDateTime desc"),
+                        new QueryOption("count", "true")
+                    };
+                //var msgC = await _newClient.Me.Messages.Request(options).GetAsync();
+
+                var options2 = new List<QueryOption>
+                    {
+                        new QueryOption("$filter", "isRead eq false"),
+                        new QueryOption("$count", "true")
+                    };
+                //var inboxC = await _newClient.Me.MailFolders.Inbox.Messages.Request(options2).GetAsync();
+
+                var options3 = new List<QueryOption>
+                    {
+                        new QueryOption("$filter", "sentDateTime ge " + DateTime.Now.Date.ToString("yyyy-MM-dd") + " and sentDateTime lt " + DateTime.Now.AddDays(1).Date.ToString("yyyy-MM-dd")), // .ToUniversalTime()"),
+                        //new QueryOption("orderby", "sentDateTime desc"),
+                        new QueryOption("$count", "true")
+                    };
+                var sentC = await _newClient.Me.MailFolders.SentItems.Messages.Request(options3).GetAsync();
+
+                Console.WriteLine(sentC);
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
             }
         }
 
