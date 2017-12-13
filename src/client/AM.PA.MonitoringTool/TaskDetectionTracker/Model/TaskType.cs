@@ -3,13 +3,11 @@
 // 
 // Licensed under the MIT License.
 
-
-using System.ComponentModel;
-
 namespace TaskDetectionTracker.Model
 {
-    public enum TaskTypes
+    public enum TaskType
     {
+        NotValidated,
         //[Description("Other")]
         Other,
         //[Description("Private")]

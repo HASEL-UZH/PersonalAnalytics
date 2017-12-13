@@ -178,7 +178,7 @@ namespace TaskDetectionTracker
                     // show empty prediction (just last item)
                     else
                     {
-                        taskDetections.Add(new TaskDetection(processes.First().Start, processes.Last().End, TaskTypes.Observation, TaskTypes.Other, processes, false));
+                        taskDetections.Add(new TaskDetection(processes.First().Start, processes.Last().End, TaskType.Other, TaskType.NotValidated, processes, false));
                     }                    
                 }
             }
@@ -231,6 +231,14 @@ namespace TaskDetectionTracker
                 {
                     // filter task detections (remove too short ones)
                     var taskDetections_Validated = taskDetections.Where(t => (t.End - t.Start).TotalSeconds >= Settings.MinimumTaskDuration_Seconds).ToList();
+
+                    // update Start timestamp because others (non-validated items) were removed
+                    for (var i=0; i<taskDetections_Validated.Count-1; i++)
+                    {
+                        taskDetections_Validated[i + 1].Start = taskDetections_Validated[i].End;
+                    }
+
+                    // get a list with all not-validated task detections 
                     var taskDetections_NotValidated = taskDetections.Where(t => (t.End - t.Start).TotalSeconds < Settings.MinimumTaskDuration_Seconds).ToList();
 
                     // create validation popup

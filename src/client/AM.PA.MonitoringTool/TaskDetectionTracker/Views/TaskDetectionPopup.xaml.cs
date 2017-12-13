@@ -53,7 +53,6 @@ namespace TaskDetectionTracker.Views
 
             // preserve task switch list for later (deep copy!)
             //this._taskSwitches_NotValidated = taskSwitches.ConvertAll(task => new TaskDetection(task.Start, task.End, task.TaskTypeProposed, task.TaskTypeValidated, task.TimelineInfos, task.IsMainTask));
-
             TaskSwitchesNotValidated = new List<TaskDetection>();
             foreach (var task in taskSwitches)
             {
@@ -320,7 +319,7 @@ namespace TaskDetectionTracker.Views
             TaskTypeLegend.RowDefinitions.Clear();
 
             // get legend items (the color-list contains processes and tasks, just have tasks)
-            var tasktypevalues = Enum.GetValues(typeof(TaskTypes));
+            var tasktypevalues = Enum.GetValues(typeof(TaskType));
             var usedColors = StringToBrushConverter.GetColorPallette();
             var legendList = new List<string>();
 
@@ -779,7 +778,7 @@ namespace TaskDetectionTracker.Views
                 newTask.Start = newTask.TimelineInfos.First().Start;
                 newTask.End = newTask.TimelineInfos.Last().End;
             }
-            newTask.TaskTypeValidated = TaskTypes.Other;
+            newTask.TaskTypeValidated = TaskType.Other;
             newTask.TaskDetectionCase = task.TaskDetectionCase;
 
             //Remove process from old task

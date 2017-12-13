@@ -374,17 +374,19 @@ namespace TaskDetectionTracker.Algorithm
             return tcs;
         }
 
-        private bool IsTaskSwitch(double number)
+        private static bool IsTaskSwitch(double number)
         {
             return (number > _taskSwitchThreshold);
         }
 
         private TaskDetection CreateTaskDetectionObject(List<TaskDetectionInput> toBundle)
         {
-            TaskDetection tc = new TaskDetection();
-            tc.Start = toBundle.First().Start;
-            tc.End = toBundle.Last().End;
-            tc.TimelineInfos = toBundle.ToList();
+            var tc = new TaskDetection
+            {
+                Start = toBundle.First().Start,
+                End = toBundle.Last().End,
+                TimelineInfos = toBundle.ToList()
+            };
             return tc;
         }
 
@@ -395,7 +397,7 @@ namespace TaskDetectionTracker.Algorithm
         /// <param name="tcs"></param>
         private void WriteTypeDetectionFile(List<TaskDetection> tcs)
         {
-            string del = ",";
+            var del = ",";
             #region processCats
             Dictionary<string, string> processCats = new Dictionary<string, string>();
             string[] csv = Resources.ProcessCategories.Split('\n');
@@ -415,9 +417,8 @@ namespace TaskDetectionTracker.Algorithm
 
             #endregion
 
-            StringBuilder header = new StringBuilder();
-
-            foreach (string s in distinctProcessCats)
+            var header = new StringBuilder();
+            foreach (var s in distinctProcessCats)
             {
                 header.Append(s + del);
             }
@@ -479,7 +480,7 @@ namespace TaskDetectionTracker.Algorithm
             try
             {
                 // initialize R engine
-                REngine engine = REngine.GetInstance();
+                var engine = REngine.GetInstance();
                 engine.Initialize();
 
                 // read taskswitch-data
@@ -490,13 +491,13 @@ namespace TaskDetectionTracker.Algorithm
                 // load the taskswitch classifier
                 engine.Evaluate("load(\"" + R_ConvertPathToForwardSlash(_taskTypeDetectionModelFileName) + "\")");
                 // use the classifier 
-                GenericVector typeResult = engine.Evaluate("prob <- predict(model, newdata = tasktypedata, type = \"response\")").AsList();
+                var typeResult = engine.Evaluate("prob <- predict(model, newdata = tasktypedata, type = \"response\")").AsList();
                 // read the results
-                for (int i = 0; i < typeResult.Count(); i++)
+                for (var i = 0; i < typeResult.Count(); i++)
                 {
-                    string resTask = typeResult[i].AsCharacter().First();
+                    var resTask = typeResult[i].AsCharacter().First();
                     // convert from string to TaskTypes
-                    TaskTypes type = TaskTypes.Other;
+                    var type = TaskType.Other;
                     Enum.TryParse(resTask, out type);
                     tcs[i].TaskTypeProposed = type;
                 }

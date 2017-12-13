@@ -72,7 +72,7 @@
     <Compile Include="Model\TaskDetection.cs" />
     <Compile Include="Model\TaskDetectionCase.cs" />
     <Compile Include="Model\TaskDetectionInput.cs" />
-    <Compile Include="Model\TaskTypes.cs" />
+    <Compile Include="Model\TaskType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

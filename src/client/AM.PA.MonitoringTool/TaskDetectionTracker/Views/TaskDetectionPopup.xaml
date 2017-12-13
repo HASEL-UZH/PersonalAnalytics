@@ -16,7 +16,7 @@
 
         <ObjectDataProvider x:Key="TaskTypesEnum" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
             <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="model:TaskTypes"/>
+                <x:Type TypeName="model:TaskType"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
 
