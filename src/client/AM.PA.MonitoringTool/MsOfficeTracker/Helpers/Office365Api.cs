@@ -163,13 +163,14 @@ namespace MsOfficeTracker.Helpers
 
                 var options3 = new List<QueryOption>
                     {
-                        new QueryOption("$filter", "sentDateTime ge " + DateTime.Now.Date.ToString("yyyy-MM-dd") + " and sentDateTime lt " + DateTime.Now.AddDays(1).Date.ToString("yyyy-MM-dd")), // .ToUniversalTime()"),
+                        new QueryOption("$filter", "sentDateTime ge " + DateTime.Now.AddDays(-10).Date.ToString("yyyy-MM-dd") + " and sentDateTime lt " + DateTime.Now.AddDays(1).Date.ToString("yyyy-MM-dd")), // .ToUniversalTime()"),
                         //new QueryOption("orderby", "sentDateTime desc"),
                         new QueryOption("$count", "true")
                     };
                 var sentC = await _newClient.Me.MailFolders.SentItems.Messages.Request(options3).GetAsync();
+                var count = (sentC.AdditionalData.ContainsKey("@odata.count") ? sentC.AdditionalData["@odata.count"] : 0);
 
-                Console.WriteLine(sentC);
+                Console.WriteLine(sentC + "-> " + count);
             }
             catch (Exception e)
             {
@@ -371,12 +372,25 @@ namespace MsOfficeTracker.Helpers
         #region Email Queries
 
         /// <summary>
+        /// In case the email result contains an odata count, return the value
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        private static int GetOdataCount(IMailFolderMessagesCollectionPage result)
+        {
+            return result.AdditionalData.ContainsKey("@odata.count") ? (int)result.AdditionalData["@odata.count"] : Settings.NoValueDefault;
+
+            // TODO: else do manual count (+ rename function)
+        }
+
+        /// <summary>
         /// Returns the number of unread emails currently in the inbox
+        /// todo: UPDATE
         /// </summary>
         /// <returns>number of items, -1 in case of an error</returns>
         public async Task<long> GetNumberOfUnreadEmailsInInbox()
         {
-            if (await ConnectionToApiFailing()) return -1;
+            if (await ConnectionToApiFailing()) return Settings.NoValueDefault;
 
             try
             {
@@ -407,11 +421,12 @@ namespace MsOfficeTracker.Helpers
 
         /// <summary>
         /// Returns the total number of emails currently in the inbox (read and unread)
+        /// todo: update
         /// </summary>
         /// <returns>number of items, -1 in case of an error</returns>
         public async Task<long> GetTotalNumberOfEmailsInInbox()
         {
-            if (await ConnectionToApiFailing()) return -1;
+            if (await ConnectionToApiFailing()) return Settings.NoValueDefault;
 
             try
             {
@@ -446,27 +461,35 @@ namespace MsOfficeTracker.Helpers
         /// <returns></returns>
         public async Task<int> GetNumberOfEmailsSent(DateTimeOffset date)
         {
-            if (await ConnectionToApiFailing()) return -1;
+            if (await ConnectionToApiFailing()) return Settings.NoValueDefault;
 
             try
             {
-                var dtStart = date.Date.ToUniversalTime();
-                var dtEnd = date.Date.AddDays(1).ToUniversalTime();
+                var dtStart = date.Date; //.ToUniversalTime();
+                var dtEnd = date.Date.AddDays(1); //.ToUniversalTime();
 
-                var groups = await _client.Me.MailFolders.GetById("SentItems").Messages
-                    .Where(m => m.SentDateTime.Value >= dtStart && m.SentDateTime.Value <= dtEnd)
-                    .Take(20)
-                    .Select(m => new { m.From }) //new DisplayEmail(m))
-                    .ExecuteAsync();
-
-                var numberEmailsSent = 0;
-                do
+                var options = new List<QueryOption>
                 {
-                    var mailResults = groups.CurrentPage.ToList();
-                    numberEmailsSent += mailResults.Count;
-                    groups = await groups.GetNextPageAsync(); // next page
-                }
-                while (groups != null); // && groups.MorePagesAvailable);
+                    new QueryOption("$filter", "sentDateTime ge " + dtStart.ToString("yyyy-MM-dd") + " and sentDateTime le " + dtEnd.ToString("yyyy-MM-dd")),
+                    new QueryOption("$count", "true")
+                };
+                var result = await _newClient.Me.MailFolders.SentItems.Messages.Request(options).GetAsync();
+                var numberEmailsSent = GetOdataCount(result);
+
+                //var groups = await _client.Me.MailFolders.GetById("SentItems").Messages
+                //    .Where(m => m.SentDateTime.Value >= dtStart && m.SentDateTime.Value <= dtEnd)
+                //    .Take(20)
+                //    .Select(m => new { m.From }) //new DisplayEmail(m))
+                //    .ExecuteAsync();
+
+                //var numberEmailsSent = 0;
+                //do
+                //{
+                //    var mailResults = groups.CurrentPage.ToList();
+                //    numberEmailsSent += mailResults.Count;
+                //    groups = await groups.GetNextPageAsync(); // next page
+                //}
+                //while (groups != null); // && groups.MorePagesAvailable);
 
                 return numberEmailsSent;
             }
@@ -485,7 +508,7 @@ namespace MsOfficeTracker.Helpers
         /// <returns></returns>
         public async Task<int> GetNumberOfUnreadEmailsReceived(DateTimeOffset date)
         {
-            if (await ConnectionToApiFailing()) return -1;
+            if (await ConnectionToApiFailing()) return Settings.NoValueDefault;
 
             try
             {
@@ -529,7 +552,7 @@ namespace MsOfficeTracker.Helpers
         /// <returns></returns>
         public async Task<int> GetTotalNumberOfEmailsReceived(DateTimeOffset date)
         {
-            if (await ConnectionToApiFailing()) return -1;
+            if (await ConnectionToApiFailing()) return Settings.NoValueDefault;
 
             try
             {
@@ -571,7 +594,7 @@ namespace MsOfficeTracker.Helpers
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return -1;
+                return Settings.NoValueDefault;
             }
         }
 

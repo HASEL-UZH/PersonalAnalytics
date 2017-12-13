@@ -8,6 +8,7 @@ namespace MsOfficeTracker
     internal class Settings
     {
         public const string TrackerName = "Office 365 Tracker";
+        public const int NoValueDefault = -1;
 
 #if Pilot_TaskDetection_March17
         public static bool IsEnabledByDefault = false;
