@@ -12,8 +12,10 @@ using System.Linq;
 using Shared.Data;
 using MsOfficeTracker.Models;
 using System.Runtime.InteropServices;
+using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using Logger = Shared.Logger;
+using ResponseType = Microsoft.Office365.OutlookServices.ResponseType;
 
 namespace MsOfficeTracker.Helpers
 {
@@ -34,6 +36,7 @@ namespace MsOfficeTracker.Helpers
 
         private AuthenticationResult _authResult;
         private OutlookServicesClient _client;
+        private GraphServiceClient _newClient;
         private PublicClientApplication _app;
         private readonly string _authority = string.Format(CultureInfo.InvariantCulture, Settings.LoginApiEndpoint, "common"); // use microsoft.onmicrosoft.com for just this tenant, use "common" if used for everyone
 
@@ -108,8 +111,28 @@ namespace MsOfficeTracker.Helpers
                 if (_client == null)
                 {
                     var token = _authResult.AccessToken;
-                    _client = new OutlookServicesClient(new Uri(Settings.GraphApiEndpoint), () => { return Task.Run(() => token); });
 
+                    var dap = new DelegateAuthenticationProvider(rm =>
+                    {
+                        rm.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", _authResult.AccessToken);
+                        return Task.FromResult(0);
+                    });
+                    _newClient = new GraphServiceClient(dap);
+
+                    var msg = _newClient.Me.Messages.Request().GetAsync();
+                    msg.Wait();
+                    var msgC = msg.Result; //.OrderByDescending(m => m.ReceivedDateTime).Where(m => m.IsRead == true);
+                        //.Where(m => m.ReceivedDateTime.Value >= DateTime.Now.AddDays(-10) && m.ReceivedDateTime.Value <= DateTime.Now
+                        //            && m.IsDraft == false && m.IsRead == false)  // only unread emails          //todo: filter if not in Junk Email and Deleted Folder (maybe with ParentFolderId)
+                        //.Take(20)
+                        //.Select(m => new { m.ParentFolderId }); // new DisplayEmail(m)) // m.From
+                    var inbox = _newClient.Me.MailFolders.SentItems.Messages.Request().GetAsync();
+                    inbox.Wait();
+                    var inboxC = inbox.Result;
+
+                    Console.WriteLine((msgC + ""+inboxC));
+
+                    _client = new OutlookServicesClient(new Uri(Settings.GraphApiEndpoint), () => { return Task.Run(() => token); });
                 }
 
                 return true;

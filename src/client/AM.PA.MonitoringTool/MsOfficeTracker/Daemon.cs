@@ -166,7 +166,7 @@ namespace MsOfficeTracker
         /// <summary>
         /// Regularly runs and saves some email counts
         /// </summary>
-        private void SaveEmailsCount(DateTime date)
+        private static void SaveEmailsCount(DateTime date)
         {
             try
             {
