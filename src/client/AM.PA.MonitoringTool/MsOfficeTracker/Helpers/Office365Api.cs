@@ -21,11 +21,14 @@ namespace MsOfficeTracker.Helpers
 {
     /// <summary>
     /// The Office365 uses the MSAL library for the authentication (previously ADAL) 
-    /// and then the OutlookServicesClient to have a nice interface for the API requests.
+    /// and then the GraphServiceclient to have a nice interface for the API requests.
     /// 
-    /// A good starting point can be found here: 
+    /// A good starting point for the authentication with MSAL can be found here: 
     /// https://docs.microsoft.com/en-us/azure/active-directory/develop/guidedsetups/active-directory-windesktop
     /// https://github.com/Azure-Samples/active-directory-dotnet-desktop-msgraph-v2/tree/master/active-directory-wpf-msgraph-v2
+    /// 
+    /// A good starting point for using the Graph library can be found here:
+    /// TODO add links
     /// 
     /// The app can be registered here: 
     /// https://apps.dev.microsoft.com/#/appList
@@ -117,8 +120,7 @@ namespace MsOfficeTracker.Helpers
                         }));
                     //_newClient.BaseUrl = Settings.GraphApiEndpoint;
 
-                    TestTempQueries();
-
+                    // TODO: remove old client
                     // old: OutlookServicesClient
                     var token = _authResult.AccessToken;
                     _client = new OutlookServicesClient(new Uri(Settings.GraphApiEndpoint), () => { return Task.Run(() => token); });
@@ -136,45 +138,6 @@ namespace MsOfficeTracker.Helpers
             {
                 Logger.WriteToLogFile(e);
                 return false;
-            }
-        }
-
-        private async void TestTempQueries()
-        {
-            try
-            {
-                var options = new List<QueryOption>
-                    {
-                    // ReceivedDateTime ge 2017-04-01 and receivedDateTime lt 2017-05-01
-                        new QueryOption("filter", "receivedDateTime/dateTime ge '" + DateTime.Now.AddDays(-10).ToString("o") + "' and receivedDateTime/dateTime le '" + DateTime.Now.ToString("o") + "'"),
-                        //new QueryOption("filter", "isRead eq false"),
-                        //new QueryOption("sentDateTime", DateTime.Now.ToString("o")),
-                        new QueryOption("orderby", "sentDateTime desc"),
-                        new QueryOption("count", "true")
-                    };
-                //var msgC = await _newClient.Me.Messages.Request(options).GetAsync();
-
-                var options2 = new List<QueryOption>
-                    {
-                        new QueryOption("$filter", "isRead eq false"),
-                        new QueryOption("$count", "true")
-                    };
-                //var inboxC = await _newClient.Me.MailFolders.Inbox.Messages.Request(options2).GetAsync();
-
-                var options3 = new List<QueryOption>
-                    {
-                        new QueryOption("$filter", "sentDateTime ge " + DateTime.Now.AddDays(-10).Date.ToString("yyyy-MM-dd") + " and sentDateTime lt " + DateTime.Now.AddDays(1).Date.ToString("yyyy-MM-dd")), // .ToUniversalTime()"),
-                        //new QueryOption("orderby", "sentDateTime desc"),
-                        new QueryOption("$count", "true")
-                    };
-                var sentC = await _newClient.Me.MailFolders.SentItems.Messages.Request(options3).GetAsync();
-                var count = (sentC.AdditionalData.ContainsKey("@odata.count") ? sentC.AdditionalData["@odata.count"] : 0);
-
-                Console.WriteLine(sentC + "-> " + count);
-            }
-            catch (Exception e)
-            {
-                Logger.WriteToLogFile(e);
             }
         }
 
@@ -244,6 +207,12 @@ namespace MsOfficeTracker.Helpers
 
         #region Meeting Queries
 
+        /// <summary>
+        /// Loads all meetings from the user's main calendar for the given date
+        /// TODO: update
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
         public async Task<List<DisplayEvent>> LoadMeetings(DateTimeOffset date)
         {
             var meetings = new List<DisplayEvent>();
@@ -376,16 +345,14 @@ namespace MsOfficeTracker.Helpers
         /// </summary>
         /// <param name="result"></param>
         /// <returns></returns>
-        private static int GetOdataCount(IMailFolderMessagesCollectionPage result)
+        private static int GetResultCount(IMailFolderMessagesCollectionPage result)
         {
             return result.AdditionalData.ContainsKey("@odata.count") ? (int)result.AdditionalData["@odata.count"] : Settings.NoValueDefault;
-
-            // TODO: else do manual count (+ rename function)
+            // here, we could also iterate through the result and manually count (if it didn't work), but why should we when the API does it?
         }
 
         /// <summary>
         /// Returns the number of unread emails currently in the inbox
-        /// todo: UPDATE
         /// </summary>
         /// <returns>number of items, -1 in case of an error</returns>
         public async Task<long> GetNumberOfUnreadEmailsInInbox()
@@ -394,21 +361,29 @@ namespace MsOfficeTracker.Helpers
 
             try
             {
-                var groups = await _client.Me.MailFolders.GetById("Inbox").Messages
-                    .Where(m => m.IsRead == false) // only unread emails
-                    .Take(20)
-                    .Select(m => new { m.From }) // only get single info (can get more if needed)
-                    .ExecuteAsync();
-
-                var inboxSize = 0;
-
-                do
+                var options = new List<QueryOption>
                 {
-                    var mailResults = groups.CurrentPage.ToList();
-                    inboxSize += mailResults.Count;
-                    groups = await groups.GetNextPageAsync(); // next page
-                }
-                while (groups != null); // && groups.MorePagesAvailable);
+                    new QueryOption("$filter", "isRead eq false"),
+                    new QueryOption("$count", "true")
+                };
+                var result = await _newClient.Me.MailFolders.Inbox.Messages.Request(options).GetAsync();
+                var inboxSize = GetResultCount(result);
+
+                //var groups = await _client.Me.MailFolders.GetById("Inbox").Messages
+                //    .Where(m => m.IsRead == false) // only unread emails
+                //    .Take(20)
+                //    .Select(m => new { m.From }) // only get single info (can get more if needed)
+                //    .ExecuteAsync();
+
+                //var inboxSize = 0;
+
+                //do
+                //{
+                //    var mailResults = groups.CurrentPage.ToList();
+                //    inboxSize += mailResults.Count;
+                //    groups = await groups.GetNextPageAsync(); // next page
+                //}
+                //while (groups != null); // && groups.MorePagesAvailable);
 
                 return inboxSize;
             }
@@ -421,7 +396,6 @@ namespace MsOfficeTracker.Helpers
 
         /// <summary>
         /// Returns the total number of emails currently in the inbox (read and unread)
-        /// todo: update
         /// </summary>
         /// <returns>number of items, -1 in case of an error</returns>
         public async Task<long> GetTotalNumberOfEmailsInInbox()
@@ -430,20 +404,28 @@ namespace MsOfficeTracker.Helpers
 
             try
             {
-                var groups = await _client.Me.MailFolders.GetById("Inbox").Messages
-                    .Take(20)
-                    .Select(m => new { m.From }) // only get single info (can get more if needed)
-                    .ExecuteAsync();
-
-                var inboxSize = 0;
-
-                do
+                var options = new List<QueryOption>
                 {
-                    var mailResults = groups.CurrentPage.ToList();
-                    inboxSize += mailResults.Count;
-                    groups = await groups.GetNextPageAsync(); // next page
-                }
-                while (groups != null); // && groups.MorePagesAvailable);
+                    //new QueryOption("$filter", "isRead eq false"), // we want the total list
+                    new QueryOption("$count", "true")
+                };
+                var result = await _newClient.Me.MailFolders.Inbox.Messages.Request(options).GetAsync();
+                var inboxSize = GetResultCount(result);
+
+                //var groups = await _client.Me.MailFolders.GetById("Inbox").Messages
+                //    .Take(20)
+                //    .Select(m => new { m.From }) // only get single info (can get more if needed)
+                //    .ExecuteAsync();
+
+                //var inboxSize = 0;
+
+                //do
+                //{
+                //    var mailResults = groups.CurrentPage.ToList();
+                //    inboxSize += mailResults.Count;
+                //    groups = await groups.GetNextPageAsync(); // next page
+                //}
+                //while (groups != null); // && groups.MorePagesAvailable);
 
                 return inboxSize;
             }
@@ -474,7 +456,7 @@ namespace MsOfficeTracker.Helpers
                     new QueryOption("$count", "true")
                 };
                 var result = await _newClient.Me.MailFolders.SentItems.Messages.Request(options).GetAsync();
-                var numberEmailsSent = GetOdataCount(result);
+                var numberEmailsSent = GetResultCount(result);
 
                 //var groups = await _client.Me.MailFolders.GetById("SentItems").Messages
                 //    .Where(m => m.SentDateTime.Value >= dtStart && m.SentDateTime.Value <= dtEnd)
@@ -503,6 +485,7 @@ namespace MsOfficeTracker.Helpers
         /// <summary>
         /// Returns a list of emails which were received on a given date
         /// AND are unread (and not in junk or delete folder)
+        /// TODO: update
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
@@ -514,6 +497,17 @@ namespace MsOfficeTracker.Helpers
             {
                 var dtStart = date.Date.ToUniversalTime();
                 var dtEnd = date.Date.AddDays(1).ToUniversalTime();
+
+                //var options = new List<QueryOption>
+                //{
+                //    // ReceivedDateTime ge 2017-04-01 and receivedDateTime lt 2017-05-01
+                //    new QueryOption("$filter", "receivedDateTime ge '" + DateTime.Now.AddDays(-10).ToString("o") + "' and receivedDateTime/dateTime le '" + DateTime.Now.ToString("o") + "'"),
+                //    //new QueryOption("$filter", "isRead eq false"),
+                //    //new QueryOption("$sentDateTime", DateTime.Now.ToString("o")),
+                //    //new QueryOption("$orderby", "sentDateTime desc"),
+                //    new QueryOption("$count", "true")
+                //};
+                //var msgC = await _newClient.Me.Messages.Request(options).GetAsync();
 
                 // TODO: bug: this query also includes sent items (and not just received ones)
                 var groups = await _client.Me.Messages
@@ -547,6 +541,7 @@ namespace MsOfficeTracker.Helpers
         /// <summary>
         /// Returns a list of emails which were received on a given date
         /// (and not in junk or delete folder)
+        /// TODO: update
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
@@ -603,6 +598,7 @@ namespace MsOfficeTracker.Helpers
         /// <summary>
         /// Loads a list of folders to find the Ids of the junk and deleted items folders
         /// to filter them. Also caches it after first instantiation.
+        /// TODO: update
         /// </summary>
         /// <returns></returns>
         private async Task<List<string>> GetDeleteAndJunkFolderIds()
@@ -723,28 +719,28 @@ namespace MsOfficeTracker.Helpers
 
         #region Contact Queries
 
-        public async Task<string> GetPhotoForUser(string email)
-        {
-            if (await ConnectionToApiFailing()) return string.Empty;
+        //public async Task<string> GetPhotoForUser(string email)
+        //{
+        //    if (await ConnectionToApiFailing()) return string.Empty;
 
-            try
-            {
-                //var userResult = await _client.Users.GetById(email).Photo.ExecuteAsync(); //.Select(u => u.Photo)
-                //var userResult = await _client.Users.Where(u => u.Id.Equals(email)).ExecuteAsync(); //.Select(u => u.Photo)
+        //    try
+        //    {
+        //        //var userResult = await _client.Users.GetById(email).Photo.ExecuteAsync(); //.Select(u => u.Photo)
+        //        //var userResult = await _client.Users.Where(u => u.Id.Equals(email)).ExecuteAsync(); //.Select(u => u.Photo)
 
-                //Console.WriteLine(userResult + userResult2.CurrentPage.ToString() + userResult3.CurrentPage.ToString());
+        //        //Console.WriteLine(userResult + userResult2.CurrentPage.ToString() + userResult3.CurrentPage.ToString());
 
-                // todo: handle current page
-                //var result = userResult.ToString();
+        //        // todo: handle current page
+        //        //var result = userResult.ToString();
 
-                return "";
-            }
-            catch (Exception e)
-            {
-                Logger.WriteToLogFile(e); // todo; disable because many photos are not available
-                return string.Empty;
-            }
-        }
+        //        return "";
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Logger.WriteToLogFile(e); // todo; disable because many photos are not available
+        //        return string.Empty;
+        //    }
+        //}
 
         #endregion
     }
