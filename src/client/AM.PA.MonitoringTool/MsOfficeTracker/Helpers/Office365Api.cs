@@ -203,9 +203,9 @@ namespace MsOfficeTracker.Helpers
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public async Task<List<Microsoft.Graph.Event>> LoadMeetings(DateTimeOffset date)
+        public async Task<List<Event>> LoadMeetings(DateTimeOffset date)
         {
-            var meetings = new List<Microsoft.Graph.Event>();
+            var meetings = new List<Event>();
 
             if (await ConnectionToApiFailing()) return meetings;
 
@@ -226,7 +226,7 @@ namespace MsOfficeTracker.Helpers
 
                 if (result?.Count > 0)
                 {
-                    var meetingsUnfiltered = new List<Microsoft.Graph.Event>();
+                    var meetingsUnfiltered = new List<Event>();
                     meetingsUnfiltered.AddRange(result.CurrentPage);
                     while (result.NextPageRequest != null)
                     {
@@ -234,32 +234,13 @@ namespace MsOfficeTracker.Helpers
                         meetingsUnfiltered.AddRange(result.CurrentPage);
                     }
 
-                    // remove
-                    // only add if the user attends the meeting
-                    //if (m.IsCancelled == false && (! m.IsOrganizer && m.ResponseStatus != new ResponseStatus("Accepted")))
-                    meetings = meetingsUnfiltered.Where(m => m.IsCancelled != null && m.IsCancelled.Value == false).ToList();
+                    // remove unneeded meetings
+                    meetings = meetingsUnfiltered.Where(
+                                    m => (m.IsCancelled != null && m.IsCancelled.Value == false) // && // meeting is not cancelled
+                                         //(m.IsOrganizer != null && !m.IsOrganizer.Value && (m.ResponseStatus.Response == ResponseType.Accepted || m.ResponseStatus.Response == ResponseType.TentativelyAccepted))) // user attends meeting
+                                    ).ToList();
                 }
-
-                    //var groups = await _client.Me.Calendar.GetCalendarView(date.Date.ToUniversalTime(), date.Date.ToUniversalTime().AddDays(1).AddTicks(-1))
-                    //                    .Where(e => e.IsCancelled == false)
-                    //                    .OrderBy(e => e.Start.DateTime)
-                    //                    .Take(20)
-                    //                    .Select(e => new DisplayEvent(e.Organizer, e.IsOrganizer, e.Subject, e.ResponseStatus, e.Start.DateTime, e.End.DateTime, e.Attendees, e.IsAllDay))
-                    //                    .ExecuteAsync();
-
-                    //do
-                    //{
-                    //    foreach (var m in groups.CurrentPage.ToList())
-                    //    {
-                    //        // only add if the user attends the meeting
-                    //        if (!m.IsOrganizer && m.ResponseStatus != ResponseType.Accepted) continue;
-                    //        meetings.Add(m);
-                    //    }
-
-                    //    groups = await groups.GetNextPageAsync();
-                    //}
-                    //while (groups != null && groups.MorePagesAvailable);                
-                }
+            }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
@@ -387,23 +368,6 @@ namespace MsOfficeTracker.Helpers
                 };
                 var result = await _client.Me.MailFolders.Inbox.Messages.Request(options).GetAsync();
                 var inboxSize = GetResultCount(result);
-
-                //var groups = await _client.Me.MailFolders.GetById("Inbox").Messages
-                //    .Where(m => m.IsRead == false) // only unread emails
-                //    .Take(20)
-                //    .Select(m => new { m.From }) // only get single info (can get more if needed)
-                //    .ExecuteAsync();
-
-                //var inboxSize = 0;
-
-                //do
-                //{
-                //    var mailResults = groups.CurrentPage.ToList();
-                //    inboxSize += mailResults.Count;
-                //    groups = await groups.GetNextPageAsync(); // next page
-                //}
-                //while (groups != null); // && groups.MorePagesAvailable);
-
                 return inboxSize;
             }
             catch (Exception e)
@@ -430,22 +394,6 @@ namespace MsOfficeTracker.Helpers
                 };
                 var result = await _client.Me.MailFolders.Inbox.Messages.Request(options).GetAsync();
                 var inboxSize = GetResultCount(result);
-
-                //var groups = await _client.Me.MailFolders.GetById("Inbox").Messages
-                //    .Take(20)
-                //    .Select(m => new { m.From }) // only get single info (can get more if needed)
-                //    .ExecuteAsync();
-
-                //var inboxSize = 0;
-
-                //do
-                //{
-                //    var mailResults = groups.CurrentPage.ToList();
-                //    inboxSize += mailResults.Count;
-                //    groups = await groups.GetNextPageAsync(); // next page
-                //}
-                //while (groups != null); // && groups.MorePagesAvailable);
-
                 return inboxSize;
             }
             catch (Exception e)
@@ -476,22 +424,6 @@ namespace MsOfficeTracker.Helpers
                 };
                 var result = await _client.Me.MailFolders.SentItems.Messages.Request(options).GetAsync();
                 var numberEmailsSent = GetResultCount(result);
-
-                //var groups = await _client.Me.MailFolders.GetById("SentItems").Messages
-                //    .Where(m => m.SentDateTime.Value >= dtStart && m.SentDateTime.Value <= dtEnd)
-                //    .Take(20)
-                //    .Select(m => new { m.From }) //new DisplayEmail(m))
-                //    .ExecuteAsync();
-
-                //var numberEmailsSent = 0;
-                //do
-                //{
-                //    var mailResults = groups.CurrentPage.ToList();
-                //    numberEmailsSent += mailResults.Count;
-                //    groups = await groups.GetNextPageAsync(); // next page
-                //}
-                //while (groups != null); // && groups.MorePagesAvailable);
-
                 return numberEmailsSent;
             }
             catch (Exception e)
