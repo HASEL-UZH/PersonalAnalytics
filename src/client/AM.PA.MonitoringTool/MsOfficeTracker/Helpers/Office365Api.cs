@@ -13,6 +13,7 @@ using System.Runtime.InteropServices;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using Logger = Shared.Logger;
+using Message = Microsoft.Graph.Message;
 
 namespace MsOfficeTracker.Helpers
 {
@@ -119,7 +120,7 @@ namespace MsOfficeTracker.Helpers
 
                 return true;
             }
-            catch (MsalUiRequiredException ex)
+            catch (MsalUiRequiredException)
             {
                 // MSAL couldn't get a token silently, so show the user a message and let them click the Sign-In button.
                 var res = await SignIn();
@@ -186,7 +187,7 @@ namespace MsOfficeTracker.Helpers
         }
 
         [DllImport("wininet.dll")]
-        private extern static bool InternetGetConnectedState(out int description, int reservedValue);
+        private static extern bool InternetGetConnectedState(out int description, int reservedValue);
 
         public static bool IsInternetAvailable()
         {
@@ -347,7 +348,7 @@ namespace MsOfficeTracker.Helpers
         /// <returns></returns>
         private static long GetResultCount(IMailFolderMessagesCollectionPage result)
         {
-            return result.AdditionalData.ContainsKey("@odata.count") ? Int64.Parse(result.AdditionalData["@odata.count"].ToString()) : Settings.NoValueDefault;
+            return result.AdditionalData.ContainsKey("@odata.count") ? long.Parse(result.AdditionalData["@odata.count"].ToString()) : Settings.NoValueDefault;
             // here, we could also iterate through the result and manually count (if it didn't work), but why should we when the API does it?
         }
 
@@ -434,162 +435,127 @@ namespace MsOfficeTracker.Helpers
         }
 
         /// <summary>
-        /// Returns a list of emails which were received on a given date
-        /// AND are unread (and not in junk or delete folder)
-        /// TODO: update
+        /// Returns a list of emails which were received on a given date AND are unread 
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
         public async Task<int> GetNumberOfUnreadEmailsReceived(DateTimeOffset date)
         {
-            return -2;
-
             if (await ConnectionToApiFailing()) return Settings.NoValueDefault;
 
             try
             {
-                var dtStart = date.Date.ToUniversalTime();
-                var dtEnd = date.Date.AddDays(1).ToUniversalTime();
+                var dtStart = date.Date; //.ToUniversalTime();
+                var dtEnd = date.Date.AddDays(1); //.ToUniversalTime();
 
-                //var options = new List<QueryOption>
-                //{
-                //    // ReceivedDateTime ge 2017-04-01 and receivedDateTime lt 2017-05-01
-                //    new QueryOption("$filter", "receivedDateTime ge '" + DateTime.Now.AddDays(-10).ToString("o") + "' and receivedDateTime/dateTime le '" + DateTime.Now.ToString("o") + "'"),
-                //    //new QueryOption("$filter", "isRead eq false"),
-                //    //new QueryOption("$sentDateTime", DateTime.Now.ToString("o")),
-                //    //new QueryOption("$orderby", "sentDateTime desc"),
-                //    new QueryOption("$count", "true")
-                //};
-                //var msgC = await _client.Me.Messages.Request(options).GetAsync();
+                var options = new List<QueryOption>
+                {
+                    new QueryOption("$filter", "receivedDateTime ge " + dtStart.ToString("yyyy-MM-dd") + " and receivedDateTime le " + dtEnd.ToString("yyyy-MM-dd")),
+                };
+                var result = await _client.Me.Messages.Request(options).GetAsync();
 
-                // TODO: bug: this query also includes sent items (and not just received ones)
-                //var groups = await _client.Me.Messages
-                //    .OrderByDescending(m => m.ReceivedDateTime)
-                //    .Where(m => m.ReceivedDateTime.Value >= dtStart && m.ReceivedDateTime.Value <= dtEnd
-                //             && m.IsDraft == false && m.IsRead == false)  // only unread emails                                                                                                                                                //todo: filter if not in Junk Email and Deleted Folder (maybe with ParentFolderId)
-                //    .Take(20)
-                //    .Select(m => new { m.ParentFolderId }) // new DisplayEmail(m)) // m.From
-                //    .ExecuteAsync();
+                if (result?.Count > 0)
+                {
+                    var receivedUnfilter = new List<Message>();
+                    receivedUnfilter.AddRange(result.CurrentPage);
+                    while (result.NextPageRequest != null)
+                    {
+                        result = await result.NextPageRequest.GetAsync();
+                        receivedUnfilter.AddRange(result.CurrentPage);
+                    }
 
-                //var deleteFolders = await GetDeleteAndJunkFolderIds();
-
-                //var numberOfEmailsReceived = 0;
-                //do
-                //{
-                //    var mailResults = groups.CurrentPage.ToList();
-                //    numberOfEmailsReceived += mailResults.Count(m => !deleteFolders.Contains(m.ParentFolderId));
-                //    groups = await groups.GetNextPageAsync();
-                //}
-                //while (groups != null); //&& groups.MorePagesAvailable);
-
-                //return numberOfEmailsReceived;
+                    // delete emails in IgnoreFolders and Drafts && unread
+                    var deleteFolders = await GetDeleteAndJunkFolderIds();
+                    var unreadEmailsReceived = receivedUnfilter.Count(m => m.IsRead == false && m.IsDraft == false && !deleteFolders.Contains(m.ParentFolderId));
+                    return unreadEmailsReceived;
+                }
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return Settings.NoValueDefault;
             }
+            return Settings.NoValueDefault;
         }
 
         /// <summary>
         /// Returns a list of emails which were received on a given date
-        /// (and not in junk or delete folder)
-        /// TODO: update
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
         public async Task<int> GetTotalNumberOfEmailsReceived(DateTimeOffset date)
         {
-            return -2;
-
             if (await ConnectionToApiFailing()) return Settings.NoValueDefault;
 
             try
             {
-                //var dtStart = date.Date.ToUniversalTime();
-                //var dtEnd = date.Date.AddDays(1).ToUniversalTime();
+                var dtStart = date.Date; //.ToUniversalTime();
+                var dtEnd = date.Date.AddDays(1); //.ToUniversalTime();
 
-                //// TODO: bug: this query also includes sent items (and not just received ones)
-                //var groups = await _client.Me.Messages
-                //    .Where(m => m.ReceivedDateTime.Value >= dtStart && m.ReceivedDateTime.Value <= dtEnd && m.IsDraft == false)
-                //    .OrderByDescending(m => m.ReceivedDateTime)
-                //    .Take(20)
-                //    .Select(m => new { m.ParentFolderId, m.ReceivedDateTime, m.Subject, m.From }) // new DisplayEmail(m)) // m.From
-                //    .ExecuteAsync();
+                var options = new List<QueryOption>
+                {
+                    new QueryOption("$filter", "receivedDateTime ge " + dtStart.ToString("yyyy-MM-dd") + " and receivedDateTime le " + dtEnd.ToString("yyyy-MM-dd")),
+                };
+                var result = await _client.Me.Messages.Request(options).GetAsync();
 
-                //// filter if not in Junk Email and Deleted Folder with ParentFolderId
-                //var deleteFolders = await GetDeleteAndJunkFolderIds();
-                //var numberOfEmailsReceived = 0;
-                //do
-                //{
-                //    var mailResults = groups.CurrentPage.ToList();
-                //    numberOfEmailsReceived += mailResults.Count(m => !deleteFolders.Contains(m.ParentFolderId));
+                if (result?.Count > 0)
+                {
+                    var receivedUnfilter = new List<Message>();
+                    receivedUnfilter.AddRange(result.CurrentPage);
+                    while (result.NextPageRequest != null)
+                    {
+                        result = await result.NextPageRequest.GetAsync();
+                        receivedUnfilter.AddRange(result.CurrentPage);
+                    }
 
-                //    //if (deleteFolders.Count == 0)
-                //    //{
-                //    //    numberOfEmailsReceived += mailResults.Count;
-                //    //}
-                //    //else
-                //    //{
-                //    //    //numberOfEmailsReceived += mailResults.Where(m => m.ParentFolderId != deleteFolders.Item2 && m.ParentFolderId != deleteFolders.Item3 // not in deleted folder
-                //    //    //                                            && m.ParentFolderId != deleteFolders.Item4 && m.ParentFolderId != deleteFolders.Item5).ToList().Count; // not in junk folder
-                //    //}
-
-                //    groups = await groups.GetNextPageAsync();
-                //}
-                //while (groups != null); //&& groups.MorePagesAvailable);
-
-                //return numberOfEmailsReceived;
+                    // delete emails in IgnoreFolders and Drafts
+                    var deleteFolders = await GetDeleteAndJunkFolderIds();
+                    var emailsReceived = receivedUnfilter.Count(m => m.IsDraft == false && !deleteFolders.Contains(m.ParentFolderId));
+                    return emailsReceived;
+                }
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return Settings.NoValueDefault;
             }
+            return Settings.NoValueDefault;
         }
 
         private List<string> _emailFoldersToIgnore;
 
         /// <summary>
-        /// Loads a list of folders to find the Ids of the junk and deleted items folders
-        /// to filter them. Also caches it after first instantiation.
-        /// TODO: update
+        /// Loads a list of folders to find the Ids of folders that should not be considered
+        /// (Spam, Sent, Clutter, Deleted, etc.)
+        /// Also caches it after first instantiation.
         /// </summary>
         /// <returns></returns>
         private async Task<List<string>> GetDeleteAndJunkFolderIds()
         {
             if (_emailFoldersToIgnore != null) return _emailFoldersToIgnore;
-
             _emailFoldersToIgnore = new List<string>();
 
             try
             {
-                //    var folders = await _client.Me.MailFolders.Take(10).Select(f => new { f.Id, f.DisplayName }).ExecuteAsync();
-                //    do
-                //    {
-                //        //_client.Me.MailFolders.DeletedItems.
+                var folders = await _client.Me.MailFolders.Request().GetAsync();
 
-                //        var res1 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("deleted")).FirstOrDefault();
-                //        if (!string.IsNullOrEmpty(res1?.Id)) _emailFoldersToIgnore.Add(res1.Id);
+                // get all mailbox-folders
+                var folderList = new List<MailFolder>();
+                folderList.AddRange(folders.CurrentPage);
+                while (folders.NextPageRequest != null)
+                {
+                    folders = await folders.NextPageRequest.GetAsync();
+                    folderList.AddRange(folders.CurrentPage);
+                }
 
-                //        var res2 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("gelöscht")).FirstOrDefault();
-                //        if (!string.IsNullOrEmpty(res2?.Id)) _emailFoldersToIgnore.Add(res2.Id);
-
-                //        var res3 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("junk")).FirstOrDefault();
-                //        if (!string.IsNullOrEmpty(res3?.Id)) _emailFoldersToIgnore.Add(res3.Id);
-
-                //        var res4 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("spam")).FirstOrDefault();
-                //        if (!string.IsNullOrEmpty(res4?.Id)) _emailFoldersToIgnore.Add(res4.Id);
-
-                //        var res5 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("sent")).FirstOrDefault();
-                //        if (!string.IsNullOrEmpty(res5?.Id)) _emailFoldersToIgnore.Add(res5.Id);
-
-                //        var res6 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("gesendet")).FirstOrDefault();
-                //        if (!string.IsNullOrEmpty(res6?.Id)) _emailFoldersToIgnore.Add(res6.Id);
-
-                //        folders = await folders.GetNextPageAsync();
-                //    }
-                //    while (folders != null);
+                // filter folders we want to ignore
+                var foldersToIgnore = new List<string>{"deleted", "junk", "spam", "sent", "draft", "outbox", "clutter", "archive"};
+                foreach (var item in folderList)
+                {
+                    foreach (var ignoreFolder in foldersToIgnore)
+                    {
+                        if (!item.DisplayName.ToLower().Contains(ignoreFolder)) continue;
+                        _emailFoldersToIgnore.Add(item.Id);
+                    }
+                }
             }
             catch (Exception ex)
             {
