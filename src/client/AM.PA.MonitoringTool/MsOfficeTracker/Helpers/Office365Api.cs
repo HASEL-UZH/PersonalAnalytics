@@ -209,38 +209,66 @@ namespace MsOfficeTracker.Helpers
 
         /// <summary>
         /// Loads all meetings from the user's main calendar for the given date
-        /// TODO: update
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public async Task<List<DisplayEvent>> LoadMeetings(DateTimeOffset date)
+        public async Task<List<Microsoft.Graph.Event>> LoadMeetings(DateTimeOffset date)
         {
-            var meetings = new List<DisplayEvent>();
+            var meetings = new List<Microsoft.Graph.Event>();
 
             if (await ConnectionToApiFailing()) return meetings;
 
             try
             {
-                var groups = await _client.Me.Calendar.GetCalendarView(date.Date.ToUniversalTime(), date.Date.ToUniversalTime().AddDays(1).AddTicks(-1))
-                                    .Where(e => e.IsCancelled == false)
-                                    .OrderBy(e => e.Start.DateTime)
-                                    .Take(20)
-                                    .Select(e => new DisplayEvent(e.Organizer, e.IsOrganizer, e.Subject, e.ResponseStatus, e.Start.DateTime, e.End.DateTime, e.Attendees, e.IsAllDay))
-                                    .ExecuteAsync();
+                var dtStart = date.Date; //.ToUniversalTime();
+                var dtEnd = date.Date.AddDays(1).AddTicks(-1); //.ToUniversalTime();
 
-                do
+                var options = new List<QueryOption>
                 {
-                    foreach (var m in groups.CurrentPage.ToList())
+                    new QueryOption("startDateTime", dtStart.ToString("u")),
+                    new QueryOption("endDateTime", dtEnd.ToString("u")),
+                    //new QueryOption("select", "subject,body,bodyPreview,organizer,attendees,start,end,location"),
+                    //new QueryOption("$count", "true")
+                };
+                var result = await _newClient.Me.CalendarView.Request(options).GetAsync();
+                //var calendar = await _newClient.Me.Calendar.CalendarView.Request(options).GetAsync();
+
+                if (result?.Count > 0)
+                {
+                    var meetingsUnfiltered = new List<Microsoft.Graph.Event>();
+                    meetingsUnfiltered.AddRange(result.CurrentPage);
+                    while (result.NextPageRequest != null)
                     {
-                        // only add if the user attends the meeting
-                        if (!m.IsOrganizer && m.ResponseStatus != ResponseType.Accepted) continue;
-                        meetings.Add(m);
+                        result = await result.NextPageRequest.GetAsync();
+                        meetingsUnfiltered.AddRange(result.CurrentPage);
                     }
 
-                    groups = await groups.GetNextPageAsync();
+                    // remove
+                    // only add if the user attends the meeting
+                    //if (m.IsCancelled == false && (! m.IsOrganizer && m.ResponseStatus != new ResponseStatus("Accepted")))
+                    meetings = meetingsUnfiltered.Where(m => m.IsCancelled != null && m.IsCancelled.Value == false).ToList();
                 }
-                while (groups != null && groups.MorePagesAvailable);                
-            }
+
+                    //var groups = await _client.Me.Calendar.GetCalendarView(date.Date.ToUniversalTime(), date.Date.ToUniversalTime().AddDays(1).AddTicks(-1))
+                    //                    .Where(e => e.IsCancelled == false)
+                    //                    .OrderBy(e => e.Start.DateTime)
+                    //                    .Take(20)
+                    //                    .Select(e => new DisplayEvent(e.Organizer, e.IsOrganizer, e.Subject, e.ResponseStatus, e.Start.DateTime, e.End.DateTime, e.Attendees, e.IsAllDay))
+                    //                    .ExecuteAsync();
+
+                    //do
+                    //{
+                    //    foreach (var m in groups.CurrentPage.ToList())
+                    //    {
+                    //        // only add if the user attends the meeting
+                    //        if (!m.IsOrganizer && m.ResponseStatus != ResponseType.Accepted) continue;
+                    //        meetings.Add(m);
+                    //    }
+
+                    //    groups = await groups.GetNextPageAsync();
+                    //}
+                    //while (groups != null && groups.MorePagesAvailable);                
+                }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
@@ -345,9 +373,9 @@ namespace MsOfficeTracker.Helpers
         /// </summary>
         /// <param name="result"></param>
         /// <returns></returns>
-        private static int GetResultCount(IMailFolderMessagesCollectionPage result)
+        private static long GetResultCount(IMailFolderMessagesCollectionPage result)
         {
-            return result.AdditionalData.ContainsKey("@odata.count") ? (int)result.AdditionalData["@odata.count"] : Settings.NoValueDefault;
+            return result.AdditionalData.ContainsKey("@odata.count") ? Int64.Parse(result.AdditionalData["@odata.count"].ToString()) : Settings.NoValueDefault;
             // here, we could also iterate through the result and manually count (if it didn't work), but why should we when the API does it?
         }
 
@@ -390,7 +418,7 @@ namespace MsOfficeTracker.Helpers
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return -1;
+                return Settings.NoValueDefault;
             }
         }
 
@@ -432,7 +460,7 @@ namespace MsOfficeTracker.Helpers
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return -1;
+                return Settings.NoValueDefault;
             }
         }
 
@@ -441,7 +469,7 @@ namespace MsOfficeTracker.Helpers
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public async Task<int> GetNumberOfEmailsSent(DateTimeOffset date)
+        public async Task<long> GetNumberOfEmailsSent(DateTimeOffset date)
         {
             if (await ConnectionToApiFailing()) return Settings.NoValueDefault;
 
@@ -478,7 +506,7 @@ namespace MsOfficeTracker.Helpers
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return -1;
+                return Settings.NoValueDefault;
             }
         }
 
@@ -534,7 +562,7 @@ namespace MsOfficeTracker.Helpers
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return -1;
+                return Settings.NoValueDefault;
             }
         }
 

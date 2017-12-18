@@ -64,13 +64,13 @@ namespace MsOfficeTracker.Data
         /// </summary>
         /// <param name="date"></param>
         /// <param name="isFromTimer"></param>
-        internal static Tuple<long, long, int, int, int> CreateEmailsSnapshot(DateTime date, bool isFromTimer)
+        internal static Tuple<long, long, long, long, int> CreateEmailsSnapshot(DateTime date, bool isFromTimer)
         {
             try
             {
                 // get inbox size (can only be done today)
-                var unreadInbox = -1;
-                var inbox = -1;
+                var unreadInbox = Settings.NoValueDefault;
+                var inbox = Settings.NoValueDefault;
                 if (date.Date == DateTime.Now.Date)
                 {
                     // unread inbox size
@@ -104,12 +104,12 @@ namespace MsOfficeTracker.Data
                  SaveEmailsSnapshot(date, inbox, unreadInbox, sent, receivedCorrected, unreadReceived, isFromTimer);
 
                 // return for immediate use
-                return new Tuple<long, long, int, int, int>(inbox, unreadInbox, sent, receivedCorrected, unreadReceived);
+                return new Tuple<long, long, long, long, int>(inbox, unreadInbox, sent, receivedCorrected, unreadReceived);
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return new Tuple<long, long, int, int, int>(-1, -1, -1, -1, -1);
+                return new Tuple<long, long, long, long, int>(Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault);
             }
         }
 
@@ -123,7 +123,7 @@ namespace MsOfficeTracker.Data
         /// <param name="received"></param>
         /// <param name="unreadReceived"></param>
         /// <param name="isFromTimer"></param>
-        internal static void SaveEmailsSnapshot(DateTime date, long inbox, long unreadInbox, int sent, int received, int unreadReceived, bool isFromTimer)
+        internal static void SaveEmailsSnapshot(DateTime date, long inbox, long unreadInbox, long sent, long received, int unreadReceived, bool isFromTimer)
         {
             Database.GetInstance().ExecuteDefaultQuery("INSERT INTO " + Settings.EmailsTable + " (timestamp, time, inbox, inboxUnread, sent, received, receivedUnread, isFromTimer) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " +
                 Database.GetInstance().QTime(date) + ", " + Database.GetInstance().Q(inbox) + ", " + Database.GetInstance().Q(unreadInbox) + ", " + Database.GetInstance().Q(sent) + ", "  +
@@ -239,11 +239,11 @@ namespace MsOfficeTracker.Data
                 {
                     var row = table.Rows[0];
 
-                    var inbox = row.IsNull("inbox") ? -1 : Convert.ToInt64(row["inbox"], CultureInfo.InvariantCulture);
-                    var inboxUnread = row.IsNull("inboxUnread") ? -1 : Convert.ToInt64(row["inboxUnread"], CultureInfo.InvariantCulture);
-                    var sent = row.IsNull("sent") ? -1 : Convert.ToInt64(row["sent"], CultureInfo.InvariantCulture);
-                    var received = row.IsNull("received") ? -1 : Convert.ToInt64(row["received"], CultureInfo.InvariantCulture);
-                    var receivedUnread = row.IsNull("receivedUnread") ? -1 : Convert.ToInt64(row["receivedUnread"], CultureInfo.InvariantCulture);
+                    var inbox = row.IsNull("inbox") ? Settings.NoValueDefault : Convert.ToInt64(row["inbox"], CultureInfo.InvariantCulture);
+                    var inboxUnread = row.IsNull("inboxUnread") ? Settings.NoValueDefault : Convert.ToInt64(row["inboxUnread"], CultureInfo.InvariantCulture);
+                    var sent = row.IsNull("sent") ? Settings.NoValueDefault : Convert.ToInt64(row["sent"], CultureInfo.InvariantCulture);
+                    var received = row.IsNull("received") ? Settings.NoValueDefault : Convert.ToInt64(row["received"], CultureInfo.InvariantCulture);
+                    var receivedUnread = row.IsNull("receivedUnread") ? Settings.NoValueDefault : Convert.ToInt64(row["receivedUnread"], CultureInfo.InvariantCulture);
                     var timestamp = DateTime.Parse((string)row["time"], CultureInfo.InvariantCulture);
 
                     table.Dispose();
@@ -252,13 +252,13 @@ namespace MsOfficeTracker.Data
                 else
                 {
                     table.Dispose();
-                    return new Tuple<DateTime, long, long, long, long, long>(DateTime.MinValue, -1, -1, -1, -1, -1);
+                    return new Tuple<DateTime, long, long, long, long, long>(DateTime.MinValue, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault);
                 }
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return new Tuple<DateTime, long, long, long, long, long>(DateTime.MinValue, -1, -1, -1, -1, -1);
+                return new Tuple<DateTime, long, long, long, long, long>(DateTime.MinValue, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault);
             }
         }
 
@@ -289,26 +289,26 @@ namespace MsOfficeTracker.Data
 
                 foreach (DataRow row in table.Rows)
                 {
-                    inboxItems.Add(row.IsNull("inbox") ? -1 : Convert.ToInt64(row["inbox"], CultureInfo.InvariantCulture));
-                    inboxUnreadItems.Add(row.IsNull("inboxUnread") ? -1 : Convert.ToInt64(row["inboxUnread"], CultureInfo.InvariantCulture));
-                    sentItems.Add(row.IsNull("sent") ? -1 : Convert.ToInt64(row["sent"], CultureInfo.InvariantCulture));
-                    receivedItems.Add(row.IsNull("received") ? -1 : Convert.ToInt64(row["received"], CultureInfo.InvariantCulture));
-                    receivedUnreadItems.Add(row.IsNull("receivedUnread") ? -1 : Convert.ToInt64(row["receivedUnread"], CultureInfo.InvariantCulture));
+                    inboxItems.Add(row.IsNull("inbox") ? Settings.NoValueDefault : Convert.ToInt64(row["inbox"], CultureInfo.InvariantCulture));
+                    inboxUnreadItems.Add(row.IsNull("inboxUnread") ? Settings.NoValueDefault : Convert.ToInt64(row["inboxUnread"], CultureInfo.InvariantCulture));
+                    sentItems.Add(row.IsNull("sent") ? Settings.NoValueDefault : Convert.ToInt64(row["sent"], CultureInfo.InvariantCulture));
+                    receivedItems.Add(row.IsNull("received") ? Settings.NoValueDefault : Convert.ToInt64(row["received"], CultureInfo.InvariantCulture));
+                    receivedUnreadItems.Add(row.IsNull("receivedUnread") ? Settings.NoValueDefault : Convert.ToInt64(row["receivedUnread"], CultureInfo.InvariantCulture));
                 }
                 table.Dispose();
 
-                var inboxAvg = inboxItems.Where(e => e > -1).DefaultIfEmpty().Average(e => e);
-                var inboxUnreadAvg = inboxUnreadItems.Where(e => e > -1).DefaultIfEmpty().Average(e => e);
-                var sentAvg = sentItems.Where(e => e > -1).DefaultIfEmpty().Average(e => e);
-                var receivedAvg = receivedItems.Where(e => e > -1).DefaultIfEmpty().Average(e => e);
-                var receivedUnreadAvg = receivedUnreadItems.Where(e => e > -1).DefaultIfEmpty().Average(e => e);
+                var inboxAvg = inboxItems.Where(e => e > Settings.NoValueDefault).DefaultIfEmpty().Average(e => e);
+                var inboxUnreadAvg = inboxUnreadItems.Where(e => e > Settings.NoValueDefault).DefaultIfEmpty().Average(e => e);
+                var sentAvg = sentItems.Where(e => e > Settings.NoValueDefault).DefaultIfEmpty().Average(e => e);
+                var receivedAvg = receivedItems.Where(e => e > Settings.NoValueDefault).DefaultIfEmpty().Average(e => e);
+                var receivedUnreadAvg = receivedUnreadItems.Where(e => e > Settings.NoValueDefault).DefaultIfEmpty().Average(e => e);
 
                 return new Tuple<double, double, double, double, double>(inboxAvg, inboxUnreadAvg, sentAvg, receivedAvg, receivedUnreadAvg);
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return new Tuple<double, double, double, double, double>(-1, -1, -1, -1, -1);
+                return new Tuple<double, double, double, double, double>(Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault);
             }
         }
 

@@ -199,21 +199,21 @@ namespace MsOfficeTracker
                 meetingsResult.Wait();
                 var meetings = meetingsResult.Result;
 
-                if (meetings.Count > 0)
-                {
-                    // delete old entries (to add updated meetings)
-                    Queries.RemoveMeetingsForDate(date);
+                if (meetings.Count <= 0) return;
 
-                    // save new meetings into the database
-                    foreach (var meeting in meetings)
-                    {
-                        var duration = (int)Math.Round(Math.Abs((meeting.End - meeting.Start).TotalMinutes), 0);
-                        //if (duration >= 24 * 60) continue; // only store if not multiple-day meeting
-                        if ((meeting.IsAllDay.HasValue && meeting.IsAllDay.Value) || duration > 24 * 60) continue;
-                        var start = meeting.Start.ToLocalTime();
-                        var numAttendees = meeting.Attendees.Count(a => a != meeting.Organizer.Address);
-                        Queries.SaveMeetingsSnapshot(start, meeting.Subject, duration, numAttendees);
-                    }
+                // delete old entries (to add updated meetings)
+                Queries.RemoveMeetingsForDate(date);
+
+                // save new meetings into the database
+                foreach (var meeting in meetings)
+                {
+                    var start = DateTime.Parse(meeting.Start.DateTime); // Start.ToLocalTime(); 
+                    var end = DateTime.Parse(meeting.End.DateTime); // Start.ToLocalTime(); 
+                    var duration = (int)Math.Round(Math.Abs((start - end).TotalMinutes), 0);
+                    //if (duration >= 24 * 60) continue; // only store if not multiple-day meeting
+                    if ((meeting.IsAllDay.HasValue && meeting.IsAllDay.Value) || duration > 24 * 60) continue;
+                    var numAttendees = meeting.Attendees.Count(a => a.EmailAddress != meeting.Organizer.EmailAddress);
+                    Queries.SaveMeetingsSnapshot(start, meeting.Subject, duration, numAttendees);
                 }
             }
             catch (Exception e)
