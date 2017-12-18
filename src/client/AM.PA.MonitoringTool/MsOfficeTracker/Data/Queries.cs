@@ -93,7 +93,6 @@ namespace MsOfficeTracker.Data
                 var receivedResult = Office365Api.GetInstance().GetTotalNumberOfEmailsReceived(date.Date);
                 receivedResult.Wait();
                 var received = receivedResult.Result;
-                var receivedCorrected = received - sent; // TODO: due to a bug which will show sent items in the received list, we subtract it (03.01.17)
 
                 // get unread emails received count
                 var unreadReceivedResult = Office365Api.GetInstance().GetNumberOfUnreadEmailsReceived(date.Date);
@@ -101,10 +100,10 @@ namespace MsOfficeTracker.Data
                 var unreadReceived = unreadReceivedResult.Result;
 
                 // save into the database
-                 SaveEmailsSnapshot(date, inbox, unreadInbox, sent, receivedCorrected, unreadReceived, isFromTimer);
+                SaveEmailsSnapshot(date, inbox, unreadInbox, sent, received, unreadReceived, isFromTimer);
 
                 // return for immediate use
-                return new Tuple<long, long, long, long, int>(inbox, unreadInbox, sent, receivedCorrected, unreadReceived);
+                return new Tuple<long, long, long, long, int>(inbox, unreadInbox, sent, received, unreadReceived);
             }
             catch (Exception e)
             {

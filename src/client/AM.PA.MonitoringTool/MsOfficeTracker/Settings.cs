@@ -20,7 +20,7 @@ namespace MsOfficeTracker
         public const int UpdateCacheForDays = 10;
 
 #if DEBUG
-        public const int WaitTimeUntilTimerFirstTicks_InSeconds = 10; // in seconds
+        public const int WaitTimeUntilTimerFirstTicks_InSeconds = 20; // in seconds
 #else
         public const int WaitTimeUntilTimerFirstTicks_InSeconds = 120; // in seconds
 #endif

@@ -368,8 +368,8 @@ namespace MsOfficeTracker.Helpers
                     new QueryOption("$count", "true")
                 };
                 var result = await _client.Me.MailFolders.Inbox.Messages.Request(options).GetAsync();
-                var inboxSize = GetResultCount(result);
-                return inboxSize;
+                var unreadInboxSize = GetResultCount(result);
+                return unreadInboxSize;
             }
             catch (Exception e)
             {
@@ -464,11 +464,12 @@ namespace MsOfficeTracker.Helpers
                         receivedUnfilter.AddRange(result.CurrentPage);
                     }
 
-                    // delete emails in IgnoreFolders and Drafts && unread
-                    var deleteFolders = await GetDeleteAndJunkFolderIds();
-                    var unreadEmailsReceived = receivedUnfilter.Count(m => m.IsRead == false && m.IsDraft == false && !deleteFolders.Contains(m.ParentFolderId));
+                    // delete emails in IgnoreFolders and Drafts and IM-copies from S4B/Teams
+                    var ignoreFolders = await GetFoldersToIgnoreIds();
+                    var unreadEmailsReceived = receivedUnfilter.Count(m => m.IsDraft == false && !ignoreFolders.Contains(m.ParentFolderId) && m.Subject != "IM");
                     return unreadEmailsReceived;
                 }
+                return 0;
             }
             catch (Exception e)
             {
@@ -507,11 +508,13 @@ namespace MsOfficeTracker.Helpers
                         receivedUnfilter.AddRange(result.CurrentPage);
                     }
 
-                    // delete emails in IgnoreFolders and Drafts
-                    var deleteFolders = await GetDeleteAndJunkFolderIds();
-                    var emailsReceived = receivedUnfilter.Count(m => m.IsDraft == false && !deleteFolders.Contains(m.ParentFolderId));
+                    // delete emails in IgnoreFolders and Drafts and IM-copies from S4B/Teams
+                    var ignoreFolders = await GetFoldersToIgnoreIds();
+                    var emailsReceived = receivedUnfilter.Count(m => m.IsDraft == false && !ignoreFolders.Contains(m.ParentFolderId) && m.Subject != "IM");
+
                     return emailsReceived;
                 }
+                return 0;
             }
             catch (Exception e)
             {
@@ -528,7 +531,7 @@ namespace MsOfficeTracker.Helpers
         /// Also caches it after first instantiation.
         /// </summary>
         /// <returns></returns>
-        private async Task<List<string>> GetDeleteAndJunkFolderIds()
+        private async Task<List<string>> GetFoldersToIgnoreIds()
         {
             if (_emailFoldersToIgnore != null) return _emailFoldersToIgnore;
             _emailFoldersToIgnore = new List<string>();
