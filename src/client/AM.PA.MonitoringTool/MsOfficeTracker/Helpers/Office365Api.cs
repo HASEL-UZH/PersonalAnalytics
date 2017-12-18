@@ -5,17 +5,14 @@
 
 using System;
 using System.Globalization;
-using Microsoft.Office365.OutlookServices;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using Shared.Data;
-using MsOfficeTracker.Models;
 using System.Runtime.InteropServices;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
 using Logger = Shared.Logger;
-using ResponseType = Microsoft.Office365.OutlookServices.ResponseType;
 
 namespace MsOfficeTracker.Helpers
 {
@@ -38,8 +35,7 @@ namespace MsOfficeTracker.Helpers
         private static Office365Api _api;
 
         private AuthenticationResult _authResult;
-        private OutlookServicesClient _client;
-        private GraphServiceClient _newClient;
+        private GraphServiceClient _client;
         private PublicClientApplication _app;
         private readonly string _authority = string.Format(CultureInfo.InvariantCulture, Settings.LoginApiEndpoint, "common"); // use microsoft.onmicrosoft.com for just this tenant, use "common" if used for everyone
 
@@ -113,17 +109,12 @@ namespace MsOfficeTracker.Helpers
                 // prepare outlook services client (if not yet ready)
                 if (_client == null)
                 {
-                    _newClient = new GraphServiceClient(new DelegateAuthenticationProvider(requestMessage =>
+                    _client = new GraphServiceClient(new DelegateAuthenticationProvider(requestMessage =>
                         {
                             requestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", _authResult.AccessToken);
                             return Task.FromResult(0);
                         }));
-                    //_newClient.BaseUrl = Settings.GraphApiEndpoint;
-
-                    // TODO: remove old client
-                    // old: OutlookServicesClient
-                    var token = _authResult.AccessToken;
-                    _client = new OutlookServicesClient(new Uri(Settings.GraphApiEndpoint), () => { return Task.Run(() => token); });
+                    //_client.BaseUrl = Settings.GraphApiEndpoint;
                 }
 
                 return true;
@@ -230,8 +221,8 @@ namespace MsOfficeTracker.Helpers
                     //new QueryOption("select", "subject,body,bodyPreview,organizer,attendees,start,end,location"),
                     //new QueryOption("$count", "true")
                 };
-                var result = await _newClient.Me.CalendarView.Request(options).GetAsync();
-                //var calendar = await _newClient.Me.Calendar.CalendarView.Request(options).GetAsync();
+                var result = await _client.Me.CalendarView.Request(options).GetAsync();
+                //var calendar = await _client.Me.Calendar.CalendarView.Request(options).GetAsync();
 
                 if (result?.Count > 0)
                 {
@@ -394,7 +385,7 @@ namespace MsOfficeTracker.Helpers
                     new QueryOption("$filter", "isRead eq false"),
                     new QueryOption("$count", "true")
                 };
-                var result = await _newClient.Me.MailFolders.Inbox.Messages.Request(options).GetAsync();
+                var result = await _client.Me.MailFolders.Inbox.Messages.Request(options).GetAsync();
                 var inboxSize = GetResultCount(result);
 
                 //var groups = await _client.Me.MailFolders.GetById("Inbox").Messages
@@ -437,7 +428,7 @@ namespace MsOfficeTracker.Helpers
                     //new QueryOption("$filter", "isRead eq false"), // we want the total list
                     new QueryOption("$count", "true")
                 };
-                var result = await _newClient.Me.MailFolders.Inbox.Messages.Request(options).GetAsync();
+                var result = await _client.Me.MailFolders.Inbox.Messages.Request(options).GetAsync();
                 var inboxSize = GetResultCount(result);
 
                 //var groups = await _client.Me.MailFolders.GetById("Inbox").Messages
@@ -483,7 +474,7 @@ namespace MsOfficeTracker.Helpers
                     new QueryOption("$filter", "sentDateTime ge " + dtStart.ToString("yyyy-MM-dd") + " and sentDateTime le " + dtEnd.ToString("yyyy-MM-dd")),
                     new QueryOption("$count", "true")
                 };
-                var result = await _newClient.Me.MailFolders.SentItems.Messages.Request(options).GetAsync();
+                var result = await _client.Me.MailFolders.SentItems.Messages.Request(options).GetAsync();
                 var numberEmailsSent = GetResultCount(result);
 
                 //var groups = await _client.Me.MailFolders.GetById("SentItems").Messages
@@ -519,6 +510,8 @@ namespace MsOfficeTracker.Helpers
         /// <returns></returns>
         public async Task<int> GetNumberOfUnreadEmailsReceived(DateTimeOffset date)
         {
+            return -2;
+
             if (await ConnectionToApiFailing()) return Settings.NoValueDefault;
 
             try
@@ -535,29 +528,29 @@ namespace MsOfficeTracker.Helpers
                 //    //new QueryOption("$orderby", "sentDateTime desc"),
                 //    new QueryOption("$count", "true")
                 //};
-                //var msgC = await _newClient.Me.Messages.Request(options).GetAsync();
+                //var msgC = await _client.Me.Messages.Request(options).GetAsync();
 
                 // TODO: bug: this query also includes sent items (and not just received ones)
-                var groups = await _client.Me.Messages
-                    .OrderByDescending(m => m.ReceivedDateTime)
-                    .Where(m => m.ReceivedDateTime.Value >= dtStart && m.ReceivedDateTime.Value <= dtEnd
-                             && m.IsDraft == false && m.IsRead == false)  // only unread emails                                                                                                                                                //todo: filter if not in Junk Email and Deleted Folder (maybe with ParentFolderId)
-                    .Take(20)
-                    .Select(m => new { m.ParentFolderId }) // new DisplayEmail(m)) // m.From
-                    .ExecuteAsync();
+                //var groups = await _client.Me.Messages
+                //    .OrderByDescending(m => m.ReceivedDateTime)
+                //    .Where(m => m.ReceivedDateTime.Value >= dtStart && m.ReceivedDateTime.Value <= dtEnd
+                //             && m.IsDraft == false && m.IsRead == false)  // only unread emails                                                                                                                                                //todo: filter if not in Junk Email and Deleted Folder (maybe with ParentFolderId)
+                //    .Take(20)
+                //    .Select(m => new { m.ParentFolderId }) // new DisplayEmail(m)) // m.From
+                //    .ExecuteAsync();
 
-                var deleteFolders = await GetDeleteAndJunkFolderIds();
+                //var deleteFolders = await GetDeleteAndJunkFolderIds();
 
-                var numberOfEmailsReceived = 0;
-                do
-                {
-                    var mailResults = groups.CurrentPage.ToList();
-                    numberOfEmailsReceived += mailResults.Count(m => !deleteFolders.Contains(m.ParentFolderId));
-                    groups = await groups.GetNextPageAsync();
-                }
-                while (groups != null); //&& groups.MorePagesAvailable);
+                //var numberOfEmailsReceived = 0;
+                //do
+                //{
+                //    var mailResults = groups.CurrentPage.ToList();
+                //    numberOfEmailsReceived += mailResults.Count(m => !deleteFolders.Contains(m.ParentFolderId));
+                //    groups = await groups.GetNextPageAsync();
+                //}
+                //while (groups != null); //&& groups.MorePagesAvailable);
 
-                return numberOfEmailsReceived;
+                //return numberOfEmailsReceived;
             }
             catch (Exception e)
             {
@@ -575,44 +568,46 @@ namespace MsOfficeTracker.Helpers
         /// <returns></returns>
         public async Task<int> GetTotalNumberOfEmailsReceived(DateTimeOffset date)
         {
+            return -2;
+
             if (await ConnectionToApiFailing()) return Settings.NoValueDefault;
 
             try
             {
-                var dtStart = date.Date.ToUniversalTime();
-                var dtEnd = date.Date.AddDays(1).ToUniversalTime();
+                //var dtStart = date.Date.ToUniversalTime();
+                //var dtEnd = date.Date.AddDays(1).ToUniversalTime();
 
-                // TODO: bug: this query also includes sent items (and not just received ones)
-                var groups = await _client.Me.Messages
-                    .Where(m => m.ReceivedDateTime.Value >= dtStart && m.ReceivedDateTime.Value <= dtEnd && m.IsDraft == false)
-                    .OrderByDescending(m => m.ReceivedDateTime)
-                    .Take(20)
-                    .Select(m => new { m.ParentFolderId, m.ReceivedDateTime, m.Subject, m.From }) // new DisplayEmail(m)) // m.From
-                    .ExecuteAsync();
+                //// TODO: bug: this query also includes sent items (and not just received ones)
+                //var groups = await _client.Me.Messages
+                //    .Where(m => m.ReceivedDateTime.Value >= dtStart && m.ReceivedDateTime.Value <= dtEnd && m.IsDraft == false)
+                //    .OrderByDescending(m => m.ReceivedDateTime)
+                //    .Take(20)
+                //    .Select(m => new { m.ParentFolderId, m.ReceivedDateTime, m.Subject, m.From }) // new DisplayEmail(m)) // m.From
+                //    .ExecuteAsync();
 
-                // filter if not in Junk Email and Deleted Folder with ParentFolderId
-                var deleteFolders = await GetDeleteAndJunkFolderIds();
-                var numberOfEmailsReceived = 0;
-                do
-                {
-                    var mailResults = groups.CurrentPage.ToList();
-                    numberOfEmailsReceived += mailResults.Count(m => !deleteFolders.Contains(m.ParentFolderId));
+                //// filter if not in Junk Email and Deleted Folder with ParentFolderId
+                //var deleteFolders = await GetDeleteAndJunkFolderIds();
+                //var numberOfEmailsReceived = 0;
+                //do
+                //{
+                //    var mailResults = groups.CurrentPage.ToList();
+                //    numberOfEmailsReceived += mailResults.Count(m => !deleteFolders.Contains(m.ParentFolderId));
 
-                    //if (deleteFolders.Count == 0)
-                    //{
-                    //    numberOfEmailsReceived += mailResults.Count;
-                    //}
-                    //else
-                    //{
-                    //    //numberOfEmailsReceived += mailResults.Where(m => m.ParentFolderId != deleteFolders.Item2 && m.ParentFolderId != deleteFolders.Item3 // not in deleted folder
-                    //    //                                            && m.ParentFolderId != deleteFolders.Item4 && m.ParentFolderId != deleteFolders.Item5).ToList().Count; // not in junk folder
-                    //}
+                //    //if (deleteFolders.Count == 0)
+                //    //{
+                //    //    numberOfEmailsReceived += mailResults.Count;
+                //    //}
+                //    //else
+                //    //{
+                //    //    //numberOfEmailsReceived += mailResults.Where(m => m.ParentFolderId != deleteFolders.Item2 && m.ParentFolderId != deleteFolders.Item3 // not in deleted folder
+                //    //    //                                            && m.ParentFolderId != deleteFolders.Item4 && m.ParentFolderId != deleteFolders.Item5).ToList().Count; // not in junk folder
+                //    //}
 
-                    groups = await groups.GetNextPageAsync();
-                }
-                while (groups != null); //&& groups.MorePagesAvailable);
+                //    groups = await groups.GetNextPageAsync();
+                //}
+                //while (groups != null); //&& groups.MorePagesAvailable);
 
-                return numberOfEmailsReceived;
+                //return numberOfEmailsReceived;
             }
             catch (Exception e)
             {
@@ -637,30 +632,32 @@ namespace MsOfficeTracker.Helpers
 
             try
             {
-                var folders = await _client.Me.MailFolders.Take(10).Select(f => new { f.Id, f.DisplayName }).ExecuteAsync();
-                do
-                {
-                    var res1 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("deleted")).FirstOrDefault();
-                    if (!string.IsNullOrEmpty(res1?.Id)) _emailFoldersToIgnore.Add(res1.Id);
+                //    var folders = await _client.Me.MailFolders.Take(10).Select(f => new { f.Id, f.DisplayName }).ExecuteAsync();
+                //    do
+                //    {
+                //        //_client.Me.MailFolders.DeletedItems.
 
-                    var res2 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("gelöscht")).FirstOrDefault();
-                    if (!string.IsNullOrEmpty(res2?.Id)) _emailFoldersToIgnore.Add(res2.Id);
+                //        var res1 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("deleted")).FirstOrDefault();
+                //        if (!string.IsNullOrEmpty(res1?.Id)) _emailFoldersToIgnore.Add(res1.Id);
 
-                    var res3 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("junk")).FirstOrDefault();
-                    if (!string.IsNullOrEmpty(res3?.Id)) _emailFoldersToIgnore.Add(res3.Id);
+                //        var res2 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("gelöscht")).FirstOrDefault();
+                //        if (!string.IsNullOrEmpty(res2?.Id)) _emailFoldersToIgnore.Add(res2.Id);
 
-                    var res4 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("spam")).FirstOrDefault();
-                    if (!string.IsNullOrEmpty(res4?.Id)) _emailFoldersToIgnore.Add(res4.Id);
+                //        var res3 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("junk")).FirstOrDefault();
+                //        if (!string.IsNullOrEmpty(res3?.Id)) _emailFoldersToIgnore.Add(res3.Id);
 
-                    var res5 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("sent")).FirstOrDefault();
-                    if (!string.IsNullOrEmpty(res5?.Id)) _emailFoldersToIgnore.Add(res5.Id);
+                //        var res4 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("spam")).FirstOrDefault();
+                //        if (!string.IsNullOrEmpty(res4?.Id)) _emailFoldersToIgnore.Add(res4.Id);
 
-                    var res6 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("gesendet")).FirstOrDefault();
-                    if (!string.IsNullOrEmpty(res6?.Id)) _emailFoldersToIgnore.Add(res6.Id);
+                //        var res5 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("sent")).FirstOrDefault();
+                //        if (!string.IsNullOrEmpty(res5?.Id)) _emailFoldersToIgnore.Add(res5.Id);
 
-                    folders = await folders.GetNextPageAsync();
-                }
-                while (folders != null);
+                //        var res6 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("gesendet")).FirstOrDefault();
+                //        if (!string.IsNullOrEmpty(res6?.Id)) _emailFoldersToIgnore.Add(res6.Id);
+
+                //        folders = await folders.GetNextPageAsync();
+                //    }
+                //    while (folders != null);
             }
             catch (Exception ex)
             {

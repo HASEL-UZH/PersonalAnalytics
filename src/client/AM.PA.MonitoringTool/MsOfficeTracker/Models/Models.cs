@@ -1,6 +1,12 @@
-﻿using Microsoft.Office365.OutlookServices;
+﻿// Created by André Meyer at MSR
+// Created: 2015-12-07
+// 
+// Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Messaging;
+using Microsoft.Graph;
 
 namespace MsOfficeTracker.Models
 {
@@ -44,7 +50,7 @@ namespace MsOfficeTracker.Models
             }
             catch { }
 
-            ResponseStatus = status.Response;
+            if (status.Response != null) ResponseStatus = status.Response.Value;
             IsAllDay = isAllDay;
         }
 
@@ -58,36 +64,36 @@ namespace MsOfficeTracker.Models
 
     public class DisplayEmail
     {
-        public DisplayEmail(IMessage mail)
-        {
-            try
-            {
-                var recipients = new List<EmailAddress>();
-                if (mail.ToRecipients != null)
-                {
-                    foreach (var r in mail.ToRecipients)
-                        recipients.Add(new EmailAddress(r.EmailAddress));
-                }
+        //public DisplayEmail(IMessage mail)
+        //{
+        //    try
+        //    {
+        //        var recipients = new List<EmailAddress>();
+        //        if (mail.ToRecipients != null)
+        //        {
+        //            foreach (var r in mail.ToRecipients)
+        //                recipients.Add(new EmailAddress(r.EmailAddress));
+        //        }
 
-                if (mail.CcRecipients != null)
-                {
-                    foreach (var r in mail.CcRecipients)
-                        recipients.Add(new EmailAddress(r.EmailAddress));
-                }
+        //        if (mail.CcRecipients != null)
+        //        {
+        //            foreach (var r in mail.CcRecipients)
+        //                recipients.Add(new EmailAddress(r.EmailAddress));
+        //        }
 
-                if (mail.Sender != null)
-                {
-                    Sender = new EmailAddress(mail.Sender.EmailAddress);
-                }
-                if (mail.SentDateTime != null)
-                {
-                    Sent = mail.SentDateTime.Value;
-                }
-                Subject = mail.Subject;
-                Recepients = recipients;
-            }
-            catch { }
-        }
+        //        if (mail.Sender != null)
+        //        {
+        //            Sender = new EmailAddress(mail.Sender.EmailAddress);
+        //        }
+        //        if (mail.SentDateTime != null)
+        //        {
+        //            Sent = mail.SentDateTime.Value;
+        //        }
+        //        Subject = mail.Subject;
+        //        Recepients = recipients;
+        //    }
+        //    catch { }
+        //}
 
         public string Subject { get; private set; }
         public DateTimeOffset Sent { get; private set; }
@@ -97,7 +103,7 @@ namespace MsOfficeTracker.Models
 
     public class EmailAddress
     {
-        public EmailAddress(Microsoft.Office365.OutlookServices.EmailAddress emailAddress)
+        public EmailAddress(Microsoft.Graph.EmailAddress emailAddress)
         {
             Name = emailAddress.Name;
             Address = emailAddress.Address;

@@ -34,8 +34,8 @@ namespace TimeSpentVisualizer.Data
                 {
                     var subject = (string)row["subject"];
                     var time = DateTime.Parse((string)row["time"], CultureInfo.InvariantCulture);
-                    var duration = Convert.ToInt32(row["durationInMins"], CultureInfo.InvariantCulture);
-                    var numAttendess = Convert.ToInt32(row["numAttendees"], CultureInfo.InvariantCulture);
+                    var duration = (row["durationInMins"] == DBNull.Value) ? 0 : Convert.ToInt32(row["durationInMins"], CultureInfo.InvariantCulture);
+                    var numAttendess = (row["numAttendees"] == DBNull.Value) ? 0 : Convert.ToInt32(row["numAttendees"], CultureInfo.InvariantCulture);
 
                     var t = new Tuple<string, DateTime, int, int>(subject, time, duration, numAttendess);
                     meetings.Add(t);

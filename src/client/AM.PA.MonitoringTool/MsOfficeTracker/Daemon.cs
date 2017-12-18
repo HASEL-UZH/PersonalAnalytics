@@ -212,7 +212,7 @@ namespace MsOfficeTracker
                     var duration = (int)Math.Round(Math.Abs((start - end).TotalMinutes), 0);
                     //if (duration >= 24 * 60) continue; // only store if not multiple-day meeting
                     if ((meeting.IsAllDay.HasValue && meeting.IsAllDay.Value) || duration > 24 * 60) continue;
-                    var numAttendees = meeting.Attendees.Count(a => a.EmailAddress != meeting.Organizer.EmailAddress);
+                    var numAttendees = meeting.Attendees.Count(a => a.EmailAddress.Address != meeting.Organizer.EmailAddress.Address);
                     Queries.SaveMeetingsSnapshot(start, meeting.Subject, duration, numAttendees);
                 }
             }
