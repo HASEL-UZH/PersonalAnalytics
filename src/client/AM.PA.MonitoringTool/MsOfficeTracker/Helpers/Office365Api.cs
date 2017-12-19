@@ -26,7 +26,9 @@ namespace MsOfficeTracker.Helpers
     /// https://github.com/Azure-Samples/active-directory-dotnet-desktop-msgraph-v2/tree/master/active-directory-wpf-msgraph-v2
     /// 
     /// A good starting point for using the Graph library can be found here:
-    /// TODO add links
+    /// https://developer.microsoft.com/en-us/graph/docs/api-reference/v1.0/resources/message
+    /// https://developer.microsoft.com/en-us/graph/docs/api-reference/v1.0/api/user_list_calendarview
+    /// https://developer.microsoft.com/en-us/graph/graph-explorer
     /// 
     /// The app can be registered here: 
     /// https://apps.dev.microsoft.com/#/appList
@@ -656,14 +658,13 @@ namespace MsOfficeTracker.Helpers
 
         //        //Console.WriteLine(userResult + userResult2.CurrentPage.ToString() + userResult3.CurrentPage.ToString());
 
-        //        // todo: handle current page
         //        //var result = userResult.ToString();
 
         //        return "";
         //    }
         //    catch (Exception e)
         //    {
-        //        Logger.WriteToLogFile(e); // todo; disable because many photos are not available
+        //        Logger.WriteToLogFile(e); // disable because many photos are not available
         //        return string.Empty;
         //    }
         //}
