@@ -174,8 +174,7 @@ namespace MsOfficeTracker.Data
                           + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date) + "); ";
 
                 var count = Database.GetInstance().ExecuteScalar(query);
-                if (count == 0) return false;
-                return true;
+                return count != 0;
             }
             catch (Exception e)
             {
@@ -250,7 +249,7 @@ namespace MsOfficeTracker.Data
                 }
                 else
                 {
-                    table.Dispose();
+                    table?.Dispose();
                     return new Tuple<DateTime, long, long, long, long, long>(DateTime.MinValue, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault);
                 }
             }
