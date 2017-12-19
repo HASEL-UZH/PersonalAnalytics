@@ -71,6 +71,7 @@ namespace MsOfficeTracker.Data
                 // get inbox size (can only be done today)
                 var unreadInbox = Settings.NoValueDefault;
                 var inbox = Settings.NoValueDefault;
+                var unreadReceived = Settings.NoValueDefault;
                 if (date.Date == DateTime.Now.Date)
                 {
                     // unread inbox size
@@ -82,6 +83,11 @@ namespace MsOfficeTracker.Data
                     var inboxSizeResponse = Office365Api.GetInstance().GetTotalNumberOfEmailsInInbox();
                     inboxSizeResponse.Wait();
                     inbox = (int)inboxSizeResponse.Result;
+
+                    // get unread emails received count
+                    var unreadReceivedResult = Office365Api.GetInstance().GetNumberOfUnreadEmailsReceived(date.Date);
+                    unreadReceivedResult.Wait();
+                    unreadReceived = unreadReceivedResult.Result;
                 }
 
                 // get emails sent count
@@ -93,11 +99,6 @@ namespace MsOfficeTracker.Data
                 var receivedResult = Office365Api.GetInstance().GetTotalNumberOfEmailsReceived(date.Date);
                 receivedResult.Wait();
                 var received = receivedResult.Result;
-
-                // get unread emails received count
-                var unreadReceivedResult = Office365Api.GetInstance().GetNumberOfUnreadEmailsReceived(date.Date);
-                unreadReceivedResult.Wait();
-                var unreadReceived = unreadReceivedResult.Result;
 
                 // save into the database
                 SaveEmailsSnapshot(date, inbox, unreadInbox, sent, received, unreadReceived, isFromTimer);
