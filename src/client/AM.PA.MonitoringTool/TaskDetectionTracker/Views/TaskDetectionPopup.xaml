@@ -101,6 +101,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <Grid.Resources>
                 <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
@@ -115,8 +116,9 @@
 
             <TextBlock Grid.Column="0" FontSize="16" x:Name="WindowTitleBar" VerticalAlignment="Center" Margin="10 0 0 0" Foreground="White" />
             <Button Grid.Column="1" Content="Postpone for 5 minutes" Click="ValidationPostponed_Short_Click" />
-            <Button Grid.Column="2" Content="Postpone for 15 minutes" Click="ValidationPostponed_Long_Click" />
-            <Button Grid.Column="3" Content="I don't remember my tasks" Click="ValidationCanceled_Click" />
+            <Button Grid.Column="2" Content="Postpone for 15 minutes" Click="ValidationPostponed_Middle_Click" />
+            <Button Grid.Column="3" Content="Postpone for 6 hours" Click="ValidationPostponed_Long_Click" />
+            <Button Grid.Column="4" Content="I don't remember my tasks" Click="ValidationCanceled_Click" />
         </Grid>
 
         <TextBlock Grid.Row="1" Name="BegForParticipation" Foreground="Red" Visibility="Collapsed" TextWrapping="Wrap" Margin="10 10 10 10" FontSize="14">

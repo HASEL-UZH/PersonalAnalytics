@@ -34,6 +34,7 @@ namespace TaskDetectionTracker.Views
         public int Confidence_TaskType = -1;
         private bool CancelValidationForced;
         public bool ValidationComplete { get; set; }
+        public bool WasPostponed { get; set; }
 
         internal List<TaskDetection> TaskSwitchesValidated = new List<TaskDetection>();
         internal List<TaskDetection> TaskSwitchesNotValidated;
@@ -214,13 +215,22 @@ namespace TaskDetectionTracker.Views
             StartReminderTimer(Settings.PopUpReminderInterval_Short);
         }
 
+        private void ValidationPostponed_Middle_Click(object sender, RoutedEventArgs e)
+        {
+            Database.GetInstance().LogInfo(Settings.TrackerName + ": User postponed the PopUp by " + Settings.PopUpReminderInterval_Long + ".");
+            PostponedInfo += FormatPostponedInfo(Settings.PopUpReminderInterval_Middle.ToString());
+            _skipNextMinimizedEvent = true;
+            WindowState = WindowState.Minimized;
+            StartReminderTimer(Settings.PopUpReminderInterval_Long); // overwrites the timer interval
+        }
+
         private void ValidationPostponed_Long_Click(object sender, RoutedEventArgs e)
         {
             Database.GetInstance().LogInfo(Settings.TrackerName + ": User postponed the PopUp by " + Settings.PopUpReminderInterval_Long + ".");
             PostponedInfo += FormatPostponedInfo(Settings.PopUpReminderInterval_Long.ToString());
-            _skipNextMinimizedEvent = true;
-            WindowState = WindowState.Minimized;
-            StartReminderTimer(Settings.PopUpReminderInterval_Long); // overwrites the timer interval
+
+            StopReminderTimer();
+            ForceCloseValidation(true);
         }
 
         private void ValidationCanceled_Click(object sender, RoutedEventArgs e)
@@ -237,10 +247,11 @@ namespace TaskDetectionTracker.Views
             return string.Format("[{0}, {1}], ", DateTime.Now.ToString("HH:mm:ss"), message);
         }
 
-        private void ForceCloseValidation()
+        private void ForceCloseValidation(bool wasPostponed = false)
         {
             CancelValidationForced = true;
             ValidationComplete = false;
+            WasPostponed = wasPostponed;
             //DialogResult = true;
             Close();
         }

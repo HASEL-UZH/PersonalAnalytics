@@ -104,10 +104,10 @@ namespace TaskDetectionTracker
 
         public override string GetStatus()
         {
-            var _nextPopUpString = (_nextPopUp > DateTime.Now) ? _nextPopUp.ToLongTimeString() : "Due now. Please respond!";
+            var _nextPopUpString = (_nextPopUp > DateTime.Now) ? ("at " + _nextPopUp.ToLongTimeString()) : "due now. Please respond!";
             return (!IsRunning || _popUpTimer == null)
                 ? Name + " is NOT running"
-                : Name + " is running. Next task detection validation at " + _nextPopUpString + ".";
+                : Name + " is running. Next task detection validation is " + _nextPopUpString + ". You answered it " + Database.GetInstance().GetSettingsInt(Settings.NumberOfValidationsCompleted_Setting, 0) + " times so far.";
         }
 
         #endregion
@@ -253,6 +253,18 @@ namespace TaskDetectionTracker
                     {
                         HandlePopUpResponse(popup, popup.TaskSwitchesValidated, taskDetections_NotValidated, timePopUpFirstShown, detectionSessionStart, detectionSessionEnd);
                     }
+                    else if (popup.WasPostponed)
+                    {
+                        // we get here when DialogResult is set to false
+                        Database.GetInstance().LogInfo(Name + ": User postponed the PopUp for (" + Settings.PopUpReminderInterval_Long + "h) without completing the validation.");
+
+                        // save empty validation responses to the task validation table
+                        DatabaseConnector.TaskDetectionSession_SaveToDatabase(detectionSessionStart, detectionSessionEnd, timePopUpFirstShown, DateTime.Now,
+                            popup.PostponedInfo, string.Empty, -1, -1);
+
+                        // set timer interval to come up again in several hours
+                        StartPopUpTimer(Settings.PopUpReminderInterval_Long);
+                    }
                     else
                     {
                         // save empty validation responses to the task validation table
@@ -326,7 +338,7 @@ namespace TaskDetectionTracker
                 //    popup.PostponedInfo, string.Empty, -1, -1);
 
                 // set timer interval to a short one, to try again
-                StartPopUpTimer(Settings.PopUpReminderInterval_Long);
+                StartPopUpTimer(Settings.PopUpReminderInterval_Middle);
             }
         }
 

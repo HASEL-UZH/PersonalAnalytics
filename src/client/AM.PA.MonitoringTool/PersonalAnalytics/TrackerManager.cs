@@ -616,14 +616,9 @@ namespace PersonalAnalytics
         private static void UploadTrackedData(bool isManually = true)
         {
             // log
-            if (isManually)
-            {
-                Database.GetInstance().LogInfo("The participant manually opened the upload wizard.");
-            }
-            else
-            {
-                Database.GetInstance().LogInfo("The participant opened the upload wizard after the upload reminder prompt.");
-            }
+            Database.GetInstance().LogInfo(isManually
+                ? "The participant manually opened the upload wizard."
+                : "The participant opened the upload wizard after the upload reminder prompt.");
 
             // show pop-up
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(
