@@ -178,7 +178,7 @@ namespace TaskDetectionTracker
                     // show empty prediction (just last item)
                     else
                     {
-                        taskDetections.Add(new TaskDetection(processes.First().Start, processes.Last().End, TaskType.Other, TaskType.NotValidated, processes, false));
+                        taskDetections.Add(new TaskDetection(processes.First().Start, processes.Last().End, TaskType.Other, TaskType.Other, processes, false));
                     }                    
                 }
             }

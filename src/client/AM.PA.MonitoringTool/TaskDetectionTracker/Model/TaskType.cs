@@ -7,7 +7,6 @@ namespace TaskDetectionTracker.Model
 {
     public enum TaskType
     {
-        NotValidated,
         //[Description("Other")]
         Other,
         //[Description("Private")]
