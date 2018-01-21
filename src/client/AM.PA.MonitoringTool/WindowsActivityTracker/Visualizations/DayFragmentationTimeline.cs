@@ -198,7 +198,7 @@ namespace WindowsActivityTracker.Visualizations
 
         private static string ReadableWindowTitles(List<WindowProcessItem> list)
         {
-            const int maxNumItems = 5;
+            const int maxNumItems = 4;
             var str = string.Empty;
 
             // distinct items
@@ -207,7 +207,7 @@ namespace WindowsActivityTracker.Visualizations
             // only maxNumItems
             if (windowTitles.Count > maxNumItems)
             {
-                for (int i = 0; i < maxNumItems; i++)
+                for (var i = 0; i < maxNumItems; i++)
                 {
                     str += FormatWindowTitle(windowTitles[i]);
                 }
@@ -222,10 +222,12 @@ namespace WindowsActivityTracker.Visualizations
 
         private static string FormatWindowTitle(string windowTitle)
         {
-            return string.IsNullOrEmpty(windowTitle) ? string.Empty : windowTitle.Replace("'", "").Replace("'", "").Replace("/", "//").Replace(@"\", @"\\") + ", ";
+            return string.IsNullOrEmpty(windowTitle) 
+                ? string.Empty 
+                : windowTitle.Replace("'", "").Replace("'", "").Replace("/", "//").Replace(@"\", @"\\").Replace("\r\n", "").Replace("\t", "").Replace("\r", "").Replace("\n", "") + ", ";
         }
 
-        private string ReadableProcesses(List<WindowProcessItem> list)
+        private static string ReadableProcesses(List<WindowProcessItem> list)
         {
             // distinct processes
             var processes = list.Select(i => i.Process).Distinct().ToList();

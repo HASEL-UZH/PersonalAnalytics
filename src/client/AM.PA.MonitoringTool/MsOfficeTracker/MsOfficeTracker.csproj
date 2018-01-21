@@ -129,4 +129,8 @@
     <BuildEnvironment>DEV</BuildEnvironment>
   </PropertyGroup>
   <Import Project="../../../web/Customized.targets" Condition=" '$(BuildEnvironment)' == 'DEPLOY' " />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
 </Project>
