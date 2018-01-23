@@ -214,8 +214,8 @@ namespace MsOfficeTracker.Helpers
 
             try
             {
-                var dtStart = date.Date; //.ToUniversalTime();
-                var dtEnd = date.Date.AddDays(1).AddTicks(-1); //.ToUniversalTime();
+                var dtStart = date.Date.ToUniversalTime();
+                var dtEnd = date.Date.AddDays(1).AddTicks(-1).ToUniversalTime();
 
                 var options = new List<QueryOption>
                 {
@@ -417,8 +417,8 @@ namespace MsOfficeTracker.Helpers
 
             try
             {
-                var dtStart = date.Date; //.ToUniversalTime();
-                var dtEnd = date.Date.AddDays(1); //.ToUniversalTime();
+                var dtStart = date.Date.ToUniversalTime();
+                var dtEnd = date.Date.AddDays(1).ToUniversalTime();
 
                 var options = new List<QueryOption>
                 {
@@ -447,12 +447,12 @@ namespace MsOfficeTracker.Helpers
 
             try
             {
-                var dtStart = date.Date; //.ToUniversalTime();
-                var dtEnd = date.Date.AddDays(1); //.ToUniversalTime();
+                var dtStart = date.Date.ToUniversalTime();
+                var dtEnd = date.Date.AddDays(1).ToUniversalTime();
 
                 var options = new List<QueryOption>
                 {
-                    new QueryOption("$filter", "receivedDateTime ge " + dtStart.ToString("yyyy-MM-dd") + " and receivedDateTime le " + dtEnd.ToString("yyyy-MM-dd")),
+                    new QueryOption("$filter", "receivedDateTime ge " + dtStart.ToString("yyyy-MM-dd") + " and receivedDateTime le " + dtEnd.ToString("yyyy-MM-dd") + " and isRead eq false"),
                 };
                 var result = await _client.Me.Messages.Request(options).GetAsync();
 
@@ -491,8 +491,8 @@ namespace MsOfficeTracker.Helpers
 
             try
             {
-                var dtStart = date.Date; //.ToUniversalTime();
-                var dtEnd = date.Date.AddDays(1); //.ToUniversalTime();
+                var dtStart = date.Date.ToUniversalTime();
+                var dtEnd = date.Date.AddDays(1).ToUniversalTime();
 
                 var options = new List<QueryOption>
                 {
