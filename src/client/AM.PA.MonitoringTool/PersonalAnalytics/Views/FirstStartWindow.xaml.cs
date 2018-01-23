@@ -33,6 +33,10 @@ namespace PersonalAnalytics.Views
         {
             //not needed
         }
-    }
 
+        private void PrivacyStatement_Clicked(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            System.Diagnostics.Process.Start(Shared.Settings.PrivacyStatementUri);
+        }
+    }
 }

@@ -388,6 +388,11 @@ namespace Retrospection
             Handler.GetInstance().SendFeedback();
         }
 
+        private void PrivacyStatement_Clicked(object sender, RoutedEventArgs e)
+        {
+            Handler.GetInstance().OpenPrivacyStatement();
+        }
+
         private void FitbitRevoke_Click(object sender, RoutedEventArgs e)
         {
             FitbitRevoke.IsEnabled = false;

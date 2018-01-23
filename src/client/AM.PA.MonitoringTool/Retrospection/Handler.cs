@@ -187,6 +187,11 @@ namespace Retrospection
             FeedbackHelper.SendFeedback(subject, body, _publishedAppVersion);
         }
 
+        public void OpenPrivacyStatement()
+        {
+            Process.Start(Shared.Settings.PrivacyStatementUri);
+        }
+
         public SettingsDto OpenSettings(SettingsDto currentSettings)
         {
             var updatedSettings = new SettingsDto();

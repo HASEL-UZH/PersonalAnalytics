@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Retrospection"
         xmlns:paColors="clr-namespace:Shared;assembly=Shared"
         mc:Ignorable="d"
-        Title="PersonalAnalytics: About" Height="380" Width="600" ResizeMode="NoResize">
+        Title="PersonalAnalytics: About" Height="420" Width="800" ResizeMode="NoResize">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -44,7 +44,14 @@
             https://github.com/sealuzh/PersonalAnalytics/releases
             </Hyperlink>
             </TextBlock>
-            
+
+            <TextBlock Margin="0 0 0 5" Text="Privacy Statement:" TextWrapping="Wrap" FontWeight="Bold" />
+
+            <StackPanel Margin="0 0 0 30" PreviewMouseDown="PrivacyStatement_Clicked" Orientation="Horizontal">
+                <TextBlock Text="Access from this link: " TextWrapping="Wrap" />
+                <TextBlock x:Name="PrivacyStatementUriText" Text="N/A" TextDecorations="Underline" />
+            </StackPanel>
+
             <TextBlock Margin="0 0 0 5" Text="Credits:" TextWrapping="Wrap" FontWeight="Bold" />
             <TextBlock Margin="0 0 0 30" Text="SQLite, JQuery, Masonry, D3.js, C3.js, HTML FilterTable, MousekeyHook, Hardcodet.NotifyIcon" TextWrapping="Wrap" />
 

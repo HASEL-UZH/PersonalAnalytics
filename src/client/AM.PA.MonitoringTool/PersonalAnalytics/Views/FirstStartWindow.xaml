@@ -30,6 +30,8 @@
                 <Span Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" FontWeight="Bold">Retrospection:</Span> This is the heart of the tool. It visualized the collected data in a daily and weekly retrospection. If you use it regularly, you can learn more about your work patterns and get valuable insights into your productivity.
                 <LineBreak /><LineBreak />
                 <Span Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" FontWeight="Bold">The Icon:</Span> In your task bar on the bottom right, you will find the PersonalAnalytics icon (<Image Source="../Assets/icon.ico" Width="15" Height="15" />), whenever the tool is running. Right click on the icon to access all features, such as opening the Retrospection, pausing/continuing the monitoring component, or looking at the collected data.
+                <LineBreak /><LineBreak />
+                <Span Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" FontWeight="Bold">Privacy Statement:</Span> All the data that is collected is <Span FontWeight="Bold">only</Span> stored locally. You can access it any time by right clicking on the PersonalAnalytics icon and clicking on 'open collected data'. You are looking for the pa.dat-file there (SQLite-file). <Span PreviewMouseDown="PrivacyStatement_Clicked" TextDecorations="Underline">Privacy Statement</Span>
             </TextBlock>
         </StackPanel>
  

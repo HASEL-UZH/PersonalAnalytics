@@ -25,6 +25,7 @@ namespace Retrospection
         {
             InitializeComponent();
             TbVersion.Text = "Tool-Version: " + toolVersion + ", Database-Version: " + dbVersion;
+            PrivacyStatementUriText.Text = Shared.Settings.PrivacyStatementUri;
         }
 
         private void Feedback_Clicked(object sender, RoutedEventArgs e)
@@ -50,6 +51,12 @@ namespace Retrospection
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
         {
             Process.Start(e.Uri.ToString());
+        }
+
+        private void PrivacyStatement_Clicked(object sender, MouseButtonEventArgs e)
+
+        {
+            Handler.GetInstance().OpenPrivacyStatement();
         }
 
         //private void CheckForUpdates_Clicked(object sender, RoutedEventArgs e)
