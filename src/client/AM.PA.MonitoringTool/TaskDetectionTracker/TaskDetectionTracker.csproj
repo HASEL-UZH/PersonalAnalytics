@@ -88,6 +88,7 @@
     <Compile Include="Views\TaskDetectionPopup.xaml.cs">
       <DependentUpon>TaskDetectionPopup.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Visualizations\DayNumberOfValidationsCompleted.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Shared\Shared.csproj">

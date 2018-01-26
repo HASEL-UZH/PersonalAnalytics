@@ -18,6 +18,7 @@ using TaskDetectionTracker.Data;
 using TaskDetectionTracker.Helpers;
 using TaskDetectionTracker.Model;
 using TaskDetectionTracker.Views;
+using TaskDetectionTracker.Visualizations;
 
 namespace TaskDetectionTracker
 {
@@ -89,6 +90,12 @@ namespace TaskDetectionTracker
         {
             var v = new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version;
             return Shared.Helpers.VersionHelper.GetFormattedVersion(v);
+        }
+
+        public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
+        {
+            var vis1 = new DayNumberOfValidationsCompleted();
+            return new List<IVisualization> { vis1 };
         }
 
         public override bool IsEnabled()
