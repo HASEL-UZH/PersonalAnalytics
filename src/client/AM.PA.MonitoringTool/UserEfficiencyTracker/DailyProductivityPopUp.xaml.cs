@@ -10,7 +10,6 @@ namespace UserEfficiencyTracker
 {
     /// <summary>
     /// This pop-up is shown once a day.
-    /// 
     /// Interaction logic for DailyProductivityPopUp.xaml
     /// </summary>
     public partial class DailyProductivityPopUp : Window
@@ -23,9 +22,7 @@ namespace UserEfficiencyTracker
 
             // set default values
             if (lastActiveWorkday > DateTime.MinValue)
-                LastTimeWorked.Text = "do you consider your previous work day (" + lastActiveWorkday.ToShortDateString() + ")?";
-            else
-                LastTimeWorked.Text = "do you consider your previous work day?";
+                LastTimeWorked.Text = "(" + lastActiveWorkday.ToShortDateString() + ")?";
         }
 
         /// <summary>

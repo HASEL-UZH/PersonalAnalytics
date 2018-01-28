@@ -7,21 +7,33 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:paColor="clr-namespace:Shared;assembly=Shared"
-        SizeToContent="Height" Height="245" Width="500" 
+        SizeToContent="Height" Height="250" Width="500" 
         KeyDown="OnKeyDownHandler"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent">
 
     <Grid RenderTransformOrigin="0,1" >
 
         <!-- Notification area -->
-        <Border BorderThickness="1" Background="{x:Static paColor:Settings.RetrospectionColorBrush}" BorderBrush="Black">
+        <Border BorderThickness="1" Background="White" BorderBrush="{x:Static paColor:Settings.RetrospectionColorBrush}">
             <StackPanel Margin="10">
-                <TextBlock Text="Compared to your normal level of productivity, how productive" Foreground="White" FontWeight="Bold" FontSize="15" />
-                <TextBlock x:Name="LastTimeWorked" Text="do you consider your previous work day?" Foreground="White" FontWeight="Bold" FontSize="15" />
-                <TextBlock Text="Hint: you can also just type the key 1-7 if this pop-up is in focus." Foreground="White" />
+                <TextBlock Foreground="{x:Static paColor:Settings.RetrospectionColorBrush}" FontWeight="Bold" FontSize="16">
+                    Compared to your normal level of productivity, how productive<LineBreak />
+                    do you consider your <Span TextDecorations="Underline">previous workday</Span><Run x:Name="LastTimeWorked"></Run>?
+                </TextBlock>
+                <!--<TextBlock Text="Compared to your normal level of productivity, how productive" Foreground="{x:Static paColor:Settings.RetrospectionColorBrush}" FontWeight="Bold" FontSize="17" />
+                <TextBlock x:Name="LastTimeWorked" Text="do you consider your previous work day?" Foreground="{x:Static paColor:Settings.RetrospectionColorBrush}" FontWeight="Bold" FontSize="17" />-->
+                <TextBlock Text="Hint: you can also just type the key 1-7 if this pop-up is in focus." Foreground="Gray" />
                 <!--<TextBlock x:Name="LastTimeWorked" Text="" Foreground="White" />-->
 
                 <StackPanel Margin="-2 30 -2 5" HorizontalAlignment="Left" Orientation="Horizontal">
+                    <StackPanel.Resources>
+                        <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
+                            <Setter Property="Foreground" Value="White" />
+                            <Setter Property="Background" Value="{x:Static paColor:Settings.RetrospectionColorBrush}" />
+                            <Setter Property="BorderBrush" Value="{x:Static paColor:Settings.RetrospectionColorBrush}" />
+                        </Style>
+                    </StackPanel.Resources>
+                    
                     <Button Content="1" Width="30" Height="30" Margin="15 0 40 0" Click="Productivity1_Checked" />
                     <Button Content="2" Width="30" Height="30" Margin="0 0 40 0" Click="Productivity2_Checked" />
                     <Button Content="3" Width="30" Height="30" Margin="0 0 40 0" Click="Productivity3_Checked" />
@@ -31,12 +43,12 @@
                     <Button Content="7" Width="30" Height="30" Click="Productivity7_Checked" />
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock HorizontalAlignment="Left" Margin="0 0 0 0" Text="not at all productive" Foreground="LightGray" />
-                    <TextBlock HorizontalAlignment="Left" Margin="75 0 0 0" Text="moderately productive" Foreground="LightGray" />
-                    <TextBlock HorizontalAlignment="Left" Margin="95 0 0 0" Text="very productive" Foreground="LightGray" />
+                    <TextBlock HorizontalAlignment="Left" Margin="0 0 0 0" Text="not at all productive" />
+                    <TextBlock HorizontalAlignment="Left" Margin="75 0 0 0" Text="moderately productive" />
+                    <TextBlock HorizontalAlignment="Left" Margin="95 0 0 0" Text="very productive" />
                 </StackPanel>
 
-                <TextBlock HorizontalAlignment="Left" Margin="0 29 0 5" Foreground="White" Text="Or, don't respond to the pop-up:" FontWeight="Bold" />
+                <TextBlock HorizontalAlignment="Left" Margin="0 45 0 5" Foreground="Gray" Text="Or, don't respond to the pop-up:" FontWeight="Bold" />
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -44,7 +56,7 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Content="Skip response" Background="LightGray" Height="20" Margin="0 0 5 0" Click="Postpone0Clicked"  />
+                    <Button Grid.Column="0" Content="Skip response" Background="Gray" Foreground="White" BorderBrush="Gray" Height="20" Margin="0 0 5 0" Click="Postpone0Clicked"  />
                     <!--<Button Grid.Column="1" Content="Postpone for 5mins" Background="LightGray" Height="20" Margin="0 0 5 0" Click="Postpone1Clicked" />
                     <Button Grid.Column="2" Content="Postpone for 1hr" Background="LightGray" Height="20" Margin="0 0 5 0" Click="Postpone2Clicked" />
                     <Button Grid.Column="3" Content="Postpone for 6hrs" Background="LightGray" Height="20" Click="Postpone3Clicked"  />-->
