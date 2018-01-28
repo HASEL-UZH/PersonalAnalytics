@@ -84,13 +84,15 @@ namespace Shared
 
 
         ////////////////////////////////////////////////////////////
-        // contact emails
+        // contact emails & privacy statement URI
 #if PilotMSR
         public const string EmailAddress1 = "tzimmer@microsoft.com"; // main email address
         public const string EmailAddress2 = "ameyer@ifi.uzh.ch";
+        public const string PrivacyStatementUri = "";
 #else
         public const string EmailAddress1 = "ameyer@ifi.uzh.ch"; // main email address
         public static string EmailAddress2 = string.Empty;
+        public const string PrivacyStatementUri = @"https://pluto.ifi.uzh.ch/PersonalAnalytics";
 #endif
 
 

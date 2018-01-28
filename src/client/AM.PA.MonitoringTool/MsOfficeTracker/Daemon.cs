@@ -207,11 +207,11 @@ namespace MsOfficeTracker
                 // save new meetings into the database
                 foreach (var meeting in meetings)
                 {
-                    var start = DateTime.Parse(meeting.Start.DateTime); // Start.ToLocalTime(); 
-                    var end = DateTime.Parse(meeting.End.DateTime); // Start.ToLocalTime(); 
+                    var start = DateTime.Parse(meeting.Start.DateTime).ToLocalTime(); 
+                    var end = DateTime.Parse(meeting.End.DateTime).ToLocalTime(); 
                     var duration = (int)Math.Round(Math.Abs((start - end).TotalMinutes), 0);
-                    //if (duration >= 24 * 60) continue; // only store if not multiple-day meeting
-                    if ((meeting.IsAllDay.HasValue && meeting.IsAllDay.Value) || duration > 24 * 60) continue;
+                    if ((meeting.IsAllDay.HasValue && meeting.IsAllDay.Value) || duration > 24 * 60) continue; // only store if not all-day/multiple-day meeting
+                    if (date.Date != start.Date) continue; // only store if the start of the meeting is the same day
                     var numAttendees = meeting.Attendees.Count(a => a.EmailAddress.Address != meeting.Organizer.EmailAddress.Address);
                     Queries.SaveMeetingsSnapshot(start, meeting.Subject, duration, numAttendees);
                 }

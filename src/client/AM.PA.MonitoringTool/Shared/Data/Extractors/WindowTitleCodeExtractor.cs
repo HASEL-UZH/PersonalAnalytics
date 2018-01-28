@@ -62,7 +62,7 @@ namespace Shared.Data.Extractors
                           + "SELECT process, window, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'difference' "
                           + "FROM " + Shared.Settings.WindowsActivityTable + " "
                           + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsStart") + " and " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsEnd") + " "
-                          + "AND lower(process) = 'devenv' OR  lower(process) = 'code' "
+                          + "AND (lower(process) = 'devenv' OR lower(process) = 'code') "
                           + "GROUP BY id, tsStart"
                           + ") "
                           + "WHERE difference > 0 "

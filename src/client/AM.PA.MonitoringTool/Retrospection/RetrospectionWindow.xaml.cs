@@ -60,7 +60,12 @@ namespace Retrospection
         WebBrowserNavigateTo(Handler.GetInstance().GetDashboardHome());
         SwitchToWeekButton.Visibility = Visibility.Visible;
         SwitchToDayButton.Visibility = Visibility.Collapsed;
-    }
+        }
+
+        private void PrivacyStatement_Clicked(object sender, RoutedEventArgs e)
+        {     
+            Handler.GetInstance().OpenPrivacyStatement();
+        }
 
         private void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {  
