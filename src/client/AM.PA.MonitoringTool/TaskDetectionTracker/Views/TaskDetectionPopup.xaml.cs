@@ -221,7 +221,7 @@ namespace TaskDetectionTracker.Views
             PostponedInfo += FormatPostponedInfo(Settings.PopUpReminderInterval_Middle.ToString());
             _skipNextMinimizedEvent = true;
             WindowState = WindowState.Minimized;
-            StartReminderTimer(Settings.PopUpReminderInterval_Long); // overwrites the timer interval
+            StartReminderTimer(Settings.PopUpReminderInterval_Middle); // overwrites the timer interval
         }
 
         private void ValidationPostponed_Long_Click(object sender, RoutedEventArgs e)
