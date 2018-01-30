@@ -217,7 +217,7 @@ namespace TaskDetectionTracker.Views
 
         private void ValidationPostponed_Middle_Click(object sender, RoutedEventArgs e)
         {
-            Database.GetInstance().LogInfo(Settings.TrackerName + ": User postponed the PopUp by " + Settings.PopUpReminderInterval_Long + ".");
+            Database.GetInstance().LogInfo(Settings.TrackerName + ": User postponed the PopUp by " + Settings.PopUpReminderInterval_Middle + ".");
             PostponedInfo += FormatPostponedInfo(Settings.PopUpReminderInterval_Middle.ToString());
             _skipNextMinimizedEvent = true;
             WindowState = WindowState.Minimized;
