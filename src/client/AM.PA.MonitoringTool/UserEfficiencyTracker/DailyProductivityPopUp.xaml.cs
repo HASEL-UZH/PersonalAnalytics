@@ -22,7 +22,7 @@ namespace UserEfficiencyTracker
 
             // set default values
             if (lastActiveWorkday > DateTime.MinValue)
-                LastTimeWorked.Text = "(" + lastActiveWorkday.ToShortDateString() + ")?";
+                LastTimeWorked.Text = " (" + lastActiveWorkday.ToShortDateString() + ")";
         }
 
         /// <summary>
