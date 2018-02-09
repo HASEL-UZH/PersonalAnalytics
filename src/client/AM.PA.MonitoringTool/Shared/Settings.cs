@@ -99,12 +99,12 @@ namespace Shared
         private static SolidColorBrush _retrospectionColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(RetrospectionColorHex));
         public static SolidColorBrush RetrospectionColorBrush { get { return _retrospectionColor; } }
 
-        public const string GrayColor = "#E8E8E8";
-        private static SolidColorBrush _grayColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(GrayColor));
+        public const string GrayColorHex = "#E8E8E8";
+        private static SolidColorBrush _grayColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(GrayColorHex));
         public static SolidColorBrush GrayColorBrush { get { return _grayColor; } }
 
-        public const string DarkGrayColor = "#808080";
-        private static SolidColorBrush _darkGrayColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(DarkGrayColor));
+        public const string DarkGrayColorHex = "#808080";
+        private static SolidColorBrush _darkGrayColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(DarkGrayColorHex));
         public static SolidColorBrush DarkGrayColorBrush { get { return _darkGrayColor; } }
 
     }

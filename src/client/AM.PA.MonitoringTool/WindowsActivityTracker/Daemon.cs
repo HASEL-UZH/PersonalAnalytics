@@ -179,8 +179,9 @@ namespace WindowsActivityTracker
 
         public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)
         {
-            var vis = new WeekProgramsUsedTable(date);
-            return new List<IVisualization> { vis };
+            var vis1 = new WeekProgramsUsedTable(date);
+            var vis2 = new WeekWorkTimeBarChart(date);
+            return new List<IVisualization> { vis1, vis2 };
         }
 
         #endregion

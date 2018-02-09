@@ -84,7 +84,8 @@ namespace Shared.Data
 
         /// <summary>
         /// Executes a query scalar. Return 1 in case of an entry, or 0
-        /// in case of no entry or an error
+        /// in case of no entry or an error.
+        /// Returns an INT.
         /// </summary>
         /// <param name="query"></param>
         /// <returns></returns>
@@ -103,6 +104,35 @@ namespace Shared.Data
             {
                 Logger.WriteToLogFile(e);
                 return 0;
+            }
+            finally
+            {
+                cmd.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Executes a query scalar. Return 1 in case of an entry, or 0
+        /// in case of no entry or an error
+        /// Returns a DOUBLE.
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        public double ExecuteScalar3(string query)
+        {
+            WriteQueryToLog(query);
+            if (_connection == null || _connection.State != ConnectionState.Open) return 0.0;
+
+            var cmd = new SQLiteCommand(query, _connection);
+            try
+            {
+                var ans = Convert.ToDouble(cmd.ExecuteScalar());
+                return ans;
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+                return 0.0;
             }
             finally
             {
