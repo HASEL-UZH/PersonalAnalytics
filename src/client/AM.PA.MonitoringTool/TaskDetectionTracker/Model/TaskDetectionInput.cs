@@ -48,6 +48,11 @@ namespace TaskDetectionTracker.Model
             NumberOfMouseClicks = clicks;
         }
 
+        public double Duration_InSeconds()
+        {
+            return Math.Abs((End - Start).TotalSeconds);
+        }
+
         public override string ToString()
         {
             return string.Format("Process: {0} ({1} to {2}, dur: {3}) keys: {4} clicks: {5}",

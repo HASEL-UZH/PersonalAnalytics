@@ -12,6 +12,7 @@ namespace TaskDetectionTracker
         public const string TrackerName = "Task Detection Tracker";
 
         public const string DbTable_TaskDetection_Sessions = "task_detection_sessions";
+        public const string DbTable_TaskDetection_Predictions = "task_detection_predictions";
         public const string DbTable_TaskDetection_Validations = "task_detection_validations";
 
         public const string NumberOfValidationsCompleted_Setting = "TaskDetectionNumValidations";
@@ -24,7 +25,7 @@ namespace TaskDetectionTracker
         internal static TimeSpan PopUpReminderInterval_Middle = TimeSpan.FromSeconds(60);
         internal static TimeSpan PopUpReminderInterval_Long = TimeSpan.FromSeconds(20);
         internal static TimeSpan MaximumValidationInterval = TimeSpan.FromHours(1);
-#elif Pilot_TaskDetection_March17
+#elif Pilot_TaskDetection_MSR
         public static bool IsEnabledByDefault = true;
         internal static int NumberOfPopUpsWithoutPredictions = 5;
         internal static TimeSpan PopUpInterval = TimeSpan.FromMinutes(60); // show validation pop-up once every 60 minutes
@@ -44,7 +45,7 @@ namespace TaskDetectionTracker
 
         internal const int MaximumTimePostponed_Minutes = 20; // TODO: explain!
         internal const int MinimumProcessTime_Seconds = 10; // delete processes smaller than this threshold // TODO: explain!
-        internal const int MinimumProcessWidth = 50; 
+        internal const int MinimumProcessWidth = 50;
         internal const int MaximumTimeLineWidth = 2500;
         internal const int MinimumTimeLineWidth = 500;
         internal const int MinimumTaskDuration_Seconds = 60; // TODO: explain!

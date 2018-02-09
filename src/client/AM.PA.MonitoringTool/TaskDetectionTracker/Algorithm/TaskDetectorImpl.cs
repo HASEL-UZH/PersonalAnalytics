@@ -48,7 +48,7 @@ namespace TaskDetectionTracker.Algorithm
         /// </summary>
         private void UnzipRTools()
         {
-          if (!Directory.Exists(_rToolsHome))
+            if (!Directory.Exists(_rToolsHome))
             {
                 System.IO.Compression.ZipFile.ExtractToDirectory(_rToolsHomeZip, _rToolsExtractDirectory);
                 Database.GetInstance().LogInfo("Unzipped R Tools to: " + _rToolsExtractDirectory);
@@ -499,7 +499,7 @@ namespace TaskDetectionTracker.Algorithm
                     // convert from string to TaskTypes
                     var type = TaskType.Other;
                     Enum.TryParse(resTask, out type);
-                    tcs[i].TaskTypeProposed = type;
+                    tcs[i].TaskTypePredicted = type;
                 }
             }
             catch(Exception e)

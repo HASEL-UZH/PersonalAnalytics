@@ -37,7 +37,7 @@ namespace TaskDetectionTracker.Views
         public bool WasPostponed { get; set; }
 
         internal List<TaskDetection> TaskSwitchesValidated = new List<TaskDetection>();
-        internal List<TaskDetection> TaskSwitchesNotValidated;
+        //internal List<TaskDetection> TaskSwitchesNotValidated;
         private readonly List<TaskDetection> _taskSwitchesInTimeline;
         private double _totalTimePostponed;
         public string PostponedInfo;
@@ -46,21 +46,21 @@ namespace TaskDetectionTracker.Views
         /// <summary>
         /// Create a new Popup with the tasks in the parameter
         /// </summary>
-        /// <param name="taskSwitches"></param>
+        /// <param name="taskSwitches_toValidate"></param>
         /// <param name="isCurrentPopupFirstTimeWithPredictions"></param>
-        public TaskDetectionPopup(List<TaskDetection> taskSwitches, bool isCurrentPopupFirstTimeWithPredictions)
+        public TaskDetectionPopup(List<TaskDetection> taskSwitches_toValidate, bool isCurrentPopupFirstTimeWithPredictions)
         {
             InitializeComponent();
 
             // preserve task switch list for later (deep copy!)
-            //this._taskSwitches_NotValidated = taskSwitches.ConvertAll(task => new TaskDetection(task.Start, task.End, task.TaskTypeProposed, task.TaskTypeValidated, task.TimelineInfos, task.IsMainTask));
-            TaskSwitchesNotValidated = new List<TaskDetection>();
-            foreach (var task in taskSwitches)
-            {
-                var taskNew_TimeLineInfos = task.TimelineInfos.ConvertAll(info => new TaskDetectionInput());
-                var taskNew = new TaskDetection(task.Start, task.End, task.TaskTypeProposed, task.TaskTypeValidated, taskNew_TimeLineInfos, task.IsMainTask);
-                TaskSwitchesNotValidated.Add(taskNew);
-            }
+            //this._taskSwitches_NotValidated = taskSwitches.ConvertAll(task => new TaskDetection(task.Start, task.End, task.TaskTypePredicted, task.TaskTypeValidated, task.TimelineInfos, task.IsMainTask));
+            //TaskSwitchesNotValidated = new List<TaskDetection>();
+            //foreach (var task in taskSwitches_toValidate)
+            //{
+            //    var taskNew_TimeLineInfos = task.TimelineInfos.ConvertAll(info => new TaskDetectionInput());
+            //    var taskNew = new TaskDetection(task.Start, task.End, task.TaskTypePredicted, task.TaskTypeValidated, taskNew_TimeLineInfos, task.IsMainTask);
+            //    TaskSwitchesNotValidated.Add(taskNew);
+            //}
 
             //Event handlers
             //this.Deactivated += Window_Deactivated;
@@ -74,11 +74,11 @@ namespace TaskDetectionTracker.Views
             //Step3_Save_Button.DataContext = this;
 
             //Create timeline
-            this._taskSwitchesInTimeline = taskSwitches;
+            this._taskSwitchesInTimeline = taskSwitches_toValidate;
 
             // find ideal timeline width
             var minDuration = _taskSwitchesInTimeline.Min(t => t.TimelineInfos.Min(p => p.End.Subtract(p.Start))).TotalSeconds;
-            var totalDuration = _taskSwitchesInTimeline.Sum(t => t.TimelineInfos.Sum(p => p.End.Subtract(p.Start).TotalSeconds));
+            var totalDuration = _taskSwitchesInTimeline.Sum(t => t.TimelineInfos.Sum(p => p.Duration_InSeconds()));
             var timeLineWidth = totalDuration / minDuration * Settings.MinimumProcessWidth;
             if (timeLineWidth > Settings.MaximumTimeLineWidth) TimelineWidth = Settings.MaximumTimeLineWidth;
             else if (timeLineWidth < Settings.MinimumProcessTime_Seconds) TimelineWidth = Settings.MinimumTimeLineWidth;
@@ -269,7 +269,7 @@ namespace TaskDetectionTracker.Views
             const double margin = 20;
             var totalTaskBorderSpace = _taskSwitchesInTimeline.Count * TaskRectangle.TaskBoundaryWidth;
 
-            var totalDuration = _taskSwitchesInTimeline.Sum(p => p.End.Subtract(p.Start).TotalSeconds);
+            var totalDuration = _taskSwitchesInTimeline.Sum(t => t.Duration_InSeconds());
             var totalWidth = TimelineWidth - (2 * margin) - totalTaskBorderSpace;
             var x = margin;
 
@@ -277,11 +277,10 @@ namespace TaskDetectionTracker.Views
             for (var i = 0; i < _taskSwitchesInTimeline.Count; i++)
             {
                 var task = _taskSwitchesInTimeline.ElementAt(i);
-                var duration = task.End.Subtract(task.Start).TotalSeconds;
-                var width = duration * (totalWidth / totalDuration);
+                var width = task.Duration_InSeconds() * (totalWidth / totalDuration);
             
                 var processRectangles = new ObservableCollection<ProcessRectangle>();
-                var totalProcessDuration = task.TimelineInfos.Sum(p => p.End.Subtract(p.Start).TotalSeconds);
+                var totalProcessDuration = task.TimelineInfos.Sum(p => p.Duration_InSeconds());
                 var processBorderWidth = (task.TimelineInfos.Count - 1) * ProcessRectangle.TaskBoundaryWidth;
 
                 var processX = 0.0;
@@ -290,9 +289,8 @@ namespace TaskDetectionTracker.Views
                 //draw each process
                 foreach (var process in task.TimelineInfos)
                 {
-                    var processDuration = process.End.Subtract(process.Start).TotalSeconds;
                     //if (processDuration < Settings.MinimumProcessTime_Seconds) continue; // only visualize processes longer than 10s
-                    var processWidth = processDuration * ((width - processBorderWidth) / totalProcessDuration);
+                    var processWidth = process.Duration_InSeconds() * ((width - processBorderWidth) / totalProcessDuration);
 
                     // create tooltip
                     process.WindowTitles.RemoveAll(w => string.IsNullOrWhiteSpace(w) || string.IsNullOrEmpty(w));
@@ -308,8 +306,8 @@ namespace TaskDetectionTracker.Views
                     processX += (processWidth + ProcessRectangle.TaskBoundaryWidth);
                 }
 
-                var isUserDefined = (task.TaskDetectionCase == TaskDetectionCase.Missing);
-                var taskRectangle = new TaskRectangle(task) { X = x, Width = width, Height = Settings.TaskHeight, ProcessRectangle = processRectangles, TaskName = task.TaskTypeValidated, Timestamp = task.End.ToShortTimeString(), IsUserDefined = isUserDefined };
+                //var isUserDefined = (task.TaskDetectionCase == TaskDetectionCase.Missing);
+                var taskRectangle = new TaskRectangle(task) { X = x, Width = width, Height = Settings.TaskHeight, ProcessRectangle = processRectangles, TaskName = task.TaskTypeValidated, Timestamp = task.End.ToShortTimeString() }; // IsUserDefined = isUserDefined };
                 RectItems.Add(taskRectangle);
                 x += (width + TaskRectangle.TaskBoundaryWidth);
             }
@@ -445,7 +443,7 @@ namespace TaskDetectionTracker.Views
         private void IsTaskSwitch_ButtonClick(object sender, MouseButtonEventArgs e)
         {
             var process = ((sender as Rectangle).DataContext as ProcessRectangle).Data;
-            AddTaskBoundary(process);
+            AddMissingTaskSwitch(process);
         }
 
         /// <summary>
@@ -465,7 +463,7 @@ namespace TaskDetectionTracker.Views
             // it's save to remove it
             else
             {
-                RemoveTaskBoundary(task);
+                RemoveWrongTaskSwitch(task);
             }
         }
 
@@ -678,6 +676,11 @@ namespace TaskDetectionTracker.Views
             WindowTitleBar.Text = message;
         }
 
+        private void PrivacyStatement_Clicked(object sender, MouseButtonEventArgs e)
+        {
+            Process.Start(Shared.Settings.PrivacyStatementUri);
+        }
+
         #endregion
 
         #region Add and remove processes
@@ -695,33 +698,33 @@ namespace TaskDetectionTracker.Views
                 foreach (var task in _taskSwitchesInTimeline)
                 {
                     // not yet validated items are "correct"
-                    if (task.TaskDetectionCase == TaskDetectionCase.NotValidated) task.TaskDetectionCase = TaskDetectionCase.Correct;
+                    //if (task.TaskDetectionCase == TaskDetectionCase.NotValidated) task.TaskDetectionCase = TaskDetectionCase.Correct;
 
                     // save "correct" and "missing" items to validated list
                     TaskSwitchesValidated.Add(task);
                 }
 
                 // remaining ones were wrong (add to final list)
-                foreach (var task in TaskSwitchesNotValidated)
-                {
-                    var taskAlreadySaved = false;
+                //foreach (var task in TaskSwitchesNotValidated)
+                //{
+                //    var taskAlreadySaved = false;
 
-                    foreach (var taskValidated in TaskSwitchesValidated)
-                    {
-                        if (task.End == taskValidated.End)
-                        {
-                            taskAlreadySaved = true;
-                            break;
-                        }
-                    }
+                //    foreach (var taskValidated in TaskSwitchesValidated)
+                //    {
+                //        if (task.End == taskValidated.End)
+                //        {
+                //            taskAlreadySaved = true;
+                //            break;
+                //        }
+                //    }
 
-                    // add tasks that were missing or are correct to final list
-                    if (!taskAlreadySaved)
-                    {
-                        task.TaskDetectionCase = TaskDetectionCase.Wrong;
-                        TaskSwitchesValidated.Add(task);
-                    }
-                }
+                //    // add tasks that were missing or are correct to final list
+                //    if (!taskAlreadySaved)
+                //    {
+                //        task.TaskDetectionCase = TaskDetectionCase.Wrong;
+                //        TaskSwitchesValidated.Add(task);
+                //    }
+                //}
 
                 // sort list again
                 TaskSwitchesValidated.Sort();
@@ -733,32 +736,67 @@ namespace TaskDetectionTracker.Views
         }
 
         /// <summary>
-        /// TODO: document
+        /// Case: MISSING
+        /// Extract the processes from the task before and after the process (where the switch was)
+        /// to split up the tasks
         /// </summary>
         /// <param name="process"></param>
-        private void AddTaskBoundary(TaskDetectionInput process)
+        private void AddMissingTaskSwitch(TaskDetectionInput process)
         {
             foreach (TaskDetection task in _taskSwitchesInTimeline)
             {
                 int index = task.TimelineInfos.FindIndex(p => p.Equals(process));
                 if (index != -1 && (index + 1) < task.TimelineInfos.Count)
                 {
-                    ExtractProcessesFromTask(task, task.TimelineInfos.GetRange(++index, task.TimelineInfos.Count - index));
+                    SplitTasks(task, task.TimelineInfos.GetRange(++index, task.TimelineInfos.Count - index));
                     break;
                 }
             }
+
+            RedrawTimeline();
         }
 
         /// <summary>
-        /// TODO: document
+        /// Extract a processes from a task and add them to a newly created task
+        /// (update task settings)
         /// </summary>
         /// <param name="task"></param>
-        private void RemoveTaskBoundary(TaskDetection task)
+        /// <param name="processes"></param>
+        private void SplitTasks(TaskDetection task, List<TaskDetectionInput> processes)
+        {
+            //Add processes to new task
+            TaskDetection newTask = new TaskDetection();
+            newTask.TimelineInfos = processes;
+            if (processes.Count > 0)
+            {
+                newTask.Start = newTask.TimelineInfos.First().Start;
+                newTask.End = newTask.TimelineInfos.Last().End;
+            }
+            newTask.TaskTypeValidated = task.TaskTypeValidated; //TaskType.Other;
+            //newTask.TaskDetectionCase = task.TaskDetectionCase;
+
+            //Remove processes from old task
+            task.TimelineInfos.RemoveAll(process => processes.Contains(process));
+            task.TimelineInfos.Sort();
+            task.Start = task.TimelineInfos.First().Start;
+            task.End = task.TimelineInfos.Last().End;
+            //task.TaskDetectionCase = TaskDetectionCase.Missing;
+            
+            //Add new task to list of tasks
+            _taskSwitchesInTimeline.Add(newTask);
+            _taskSwitchesInTimeline.Sort();
+        }
+
+        /// <summary>
+        /// Case: WRONG
+        /// Merge the two tasks (task, taskToAdd(
+        /// </summary>
+        /// <param name="task"></param>
+        private void RemoveWrongTaskSwitch(TaskDetection task)
         {
             var index = _taskSwitchesInTimeline.FindIndex(t => t.Equals(task));
 
             TaskDetection taskToAdd = null;
-
             if (index != -1 && index + 1 < _taskSwitchesInTimeline.Count)
             {
                 taskToAdd = _taskSwitchesInTimeline.ElementAt(++index);
@@ -770,61 +808,35 @@ namespace TaskDetectionTracker.Views
 
             if (taskToAdd != null)
             {
-                AddProcessesToAnotherTask(task, taskToAdd, task.TimelineInfos);
+                MergeTasks(task, taskToAdd, task.TimelineInfos);
             }
-        }
-
-        /// <summary>
-        /// Extract a process from a task and at it to a newly created task
-        /// </summary>
-        /// <param name="task"></param>
-        /// <param name="processes"></param>
-        private void ExtractProcessesFromTask(TaskDetection task, List<TaskDetectionInput> processes)
-        {
-            //Add process to new task
-            TaskDetection newTask = new TaskDetection();
-            newTask.TimelineInfos = processes;
-            if (processes.Count > 0)
-            {
-                newTask.Start = newTask.TimelineInfos.First().Start;
-                newTask.End = newTask.TimelineInfos.Last().End;
-            }
-            newTask.TaskTypeValidated = TaskType.Other;
-            newTask.TaskDetectionCase = task.TaskDetectionCase;
-
-            //Remove process from old task
-            task.TimelineInfos.RemoveAll(process => processes.Contains(process));
-            task.TimelineInfos.Sort();
-            task.Start = task.TimelineInfos.First().Start;
-            task.End = task.TimelineInfos.Last().End;
-            task.TaskDetectionCase = TaskDetectionCase.Missing;
-            
-            //Add new task to list of tasks
-            _taskSwitchesInTimeline.Add(newTask);
-            _taskSwitchesInTimeline.Sort();
 
             RedrawTimeline();
         }
-        
+
         /// <summary>
-        /// Remove process from a task and add it to another task
+        /// Merge two tasks: Remove processes from a task and add it to another task. Update the task properties
         /// </summary>
         /// <param name="oldTask"></param>
         /// <param name="newTask"></param>
         /// <param name="processes"></param>
-        private void AddProcessesToAnotherTask(TaskDetection oldTask, TaskDetection newTask, List<TaskDetectionInput> processes)
+        private void MergeTasks(TaskDetection oldTask, TaskDetection newTask, List<TaskDetectionInput> processes)
         {
             _taskSwitchesInTimeline.Remove(oldTask);
 
             newTask.TimelineInfos.AddRange(processes);
             newTask.TimelineInfos.Sort();
+
+            if ((oldTask.End - oldTask.Start).TotalMilliseconds > (newTask.End - newTask.Start).TotalMilliseconds)
+            {
+                newTask.TaskTypeValidated = oldTask.TaskTypeValidated;
+            }
+            // don't need else, as the newTask already has the type in that case
+
             newTask.Start = newTask.TimelineInfos.First().Start;
             newTask.End = newTask.TimelineInfos.Last().End;
-            newTask.TaskTypeValidated = oldTask.TaskTypeValidated;
 
             _taskSwitchesInTimeline.Sort();
-
-            RedrawTimeline();
         }
 
         #endregion

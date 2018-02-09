@@ -287,12 +287,14 @@
 
             <Grid Grid.Row="2" VerticalAlignment="Bottom">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="1" Text="Hint: The save button will be enabled once you validated the task switches in the whole timeline (i.e. scroll to the end)." TextAlignment="Right" TextWrapping="Wrap" Width="350" Margin="0 0 10 0" Foreground="Gray" />
+                <TextBlock Grid.Column="1" Text="Privacy Statement" PreviewMouseDown="PrivacyStatement_Clicked" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray" TextDecorations="Underline" />
+                <TextBlock Grid.Column="1" Text="Hint: The save button will be enabled once you validated the task switches in the whole timeline (i.e. scroll to the end)." HorizontalAlignment="Right" TextAlignment="Right" TextWrapping="Wrap" Width="350" Margin="0 0 10 0" Foreground="Gray" />
+                
                 <Button Name="Step1_Next_Button"
                         Grid.Column="2"
                         IsEnabled="False"
@@ -452,8 +454,8 @@
             
             <Grid Grid.Row="3" VerticalAlignment="Bottom">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 
@@ -464,7 +466,8 @@
                         HorizontalAlignment="Left"
                         Margin="0"
                         Height="30" Width="100" Foreground="White" Background="Gray" BorderBrush="Gray" />
-                <TextBlock Grid.Column="1" Text="Hint: The save button will be enabled once you validated the task types in the whole timeline (i.e. scroll to the end)." TextAlignment="Right" TextWrapping="Wrap" Width="350" Margin="0 0 10 0" Foreground="Gray" />
+                <TextBlock Grid.Column="1" Text="Privacy Statement" PreviewMouseDown="PrivacyStatement_Clicked" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray" TextDecorations="Underline" />
+                <TextBlock Grid.Column="1" Text="Hint: The save button will be enabled once you validated the task types in the whole timeline (i.e. scroll to the end)." HorizontalAlignment="Right" TextAlignment="Right" TextWrapping="Wrap" Width="350" Margin="0 0 10 0" Foreground="Gray" />
                 <Button Name="Step2_Next_Button"
                         Grid.Column="2"
                         IsEnabled="False"
@@ -476,7 +479,7 @@
             </Grid>
         </Grid>
 
-        <Grid Margin="10" Grid.Row="3" x:Name="Step3_Confidence" Visibility="Visible">
+        <Grid Margin="10" Grid.Row="3" x:Name="Step3_Confidence" Visibility="Collapsed">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="30" />
@@ -550,7 +553,9 @@
                         HorizontalAlignment="Left"
                         Margin="0"
                         Height="30" Width="100" Foreground="White" Background="Gray" BorderBrush="Gray" />
-                
+
+                <TextBlock Text="Privacy Statement" PreviewMouseDown="PrivacyStatement_Clicked" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray" TextDecorations="Underline" />
+
                 <Button Name="Step3_Save_Button"
                         Click="Step3_Save_Button_Click" 
                         Content="SAVE" 

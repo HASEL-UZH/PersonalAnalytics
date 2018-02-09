@@ -30,7 +30,7 @@ namespace Shared
         public const bool IsUploadReminderEnabled = true;
         public static bool IsFeedbackEnabled = false; // can be overwritten when starting the retrospection
         private const int _checkForToolUpdatesIntervalInMins = 6 * 60;
-#elif Pilot_TaskDetection_March17
+#elif Pilot_TaskDetection_March17 || Pilot_TaskDetection_MSR
         public const bool IsUploadEnabled = false;
         public const bool IsUploadReminderEnabled = false;
         public static bool IsFeedbackEnabled = false; // can be overwritten when starting the retrospection
@@ -83,13 +83,15 @@ namespace Shared
 
 
         ////////////////////////////////////////////////////////////
-        // contact emails
-#if PilotMSR
+        // contact emails & privacy statement URI
+#if Pilot_TaskDetection_MSR || Pilot_MSR
         public const string EmailAddress1 = "tzimmer@microsoft.com"; // main email address
         public const string EmailAddress2 = "ameyer@ifi.uzh.ch";
+        public const string PrivacyStatementUri = @"";
 #else
         public const string EmailAddress1 = "ameyer@ifi.uzh.ch"; // main email address
         public static string EmailAddress2 = string.Empty;
+        public const string PrivacyStatementUri = @"https://pluto.ifi.uzh.ch/PersonalAnalytics";
 #endif
 
 
