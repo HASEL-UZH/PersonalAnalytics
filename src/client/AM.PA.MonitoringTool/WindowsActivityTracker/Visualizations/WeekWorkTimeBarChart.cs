@@ -54,16 +54,14 @@ namespace WindowsActivityTracker.Visualizations
             var timeSpentActiveData = workTimeData.Aggregate("", (current, p) => current + (Math.Round(p.Value.Item2, 1) + ", ")).Trim().TrimEnd(',');
             var formattedXAxis = workTimeData.Aggregate("", (current, p) => current + ("'" + DateTimeHelper.GetShortestDayName(p.Key) + "', ")).Trim().TrimEnd(',');
 
-            var totalTimespentName = "Total Time Spent (in hrs)";
-            var timeSpentActiveName = "Time Spent Active (in hrs)";
+            var totalTimespentName = "at work in total (hours)";
+            var timeSpentActiveName = "active at the computer (hours)";
 
             var data = "columns: [ ['" + totalTimespentName + "', " + totalTimespentData + "], ['" + timeSpentActiveName + "', " + timeSpentActiveData + "] ], type: 'bar' ";
             var bar = "width: { ratio: 0.5 }";
             var colors = "'" + totalTimespentName + "' : '" + Shared.Settings.RetrospectionColorHex + "', '" + timeSpentActiveName + "' : '" + Shared.Settings.DarkGrayColorHex + "'";
             var axis = "x: { type: 'category', categories: [ " + formattedXAxis + " ] }, y: { max: " + workTimeData.Max(i => i.Value.Item1)  +  " }";
             var parameters = " bindto: '#" + VisHelper.CreateChartHtmlTitle(Title) + "', data: { " + data + " }, bar: { " + bar + " }, colors: { " + colors + " }, axis: { " + axis + " }, padding: { left: 20, right: 0, bottom: 0, top: 0}, grid: { y: { show: true } }, legend: { show: true } ";
-
-            Console.WriteLine("$$$$$" + workTimeData.Max(i => i.Value.Item1));
 
             html += "<script type='text/javascript'>";
             html += "var " + VisHelper.CreateChartHtmlTitle(Title) + " = c3.generate({ " + parameters + " });";
