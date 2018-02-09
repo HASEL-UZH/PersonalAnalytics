@@ -216,7 +216,7 @@ namespace Shared.Data
             try
             {
                 WriteQueryToLog(message, true);
-                var query = "INSERT INTO " + Settings.LogDbTable + " (created, message, type) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " + Q(message) + ", " + Q(LogType.Error.ToString()) + ")";
+                var query = "INSERT INTO " + Settings.LogDbTable + " (created, message, type) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " + Q(message) + ", " + Q(LogType.Error.ToString(CultureInfo.InvariantCulture)) + ")";
                 ExecuteDefaultQuery(query);
             }
             catch (Exception e)
@@ -246,7 +246,7 @@ namespace Shared.Data
             try
             {
                 WriteQueryToLog(message, true);
-                var query = "INSERT INTO " + Settings.LogDbTable + " (created, message, type) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " + Q(message) + ", " + Q(LogType.Info.ToString()) + ")";
+                var query = "INSERT INTO " + Settings.LogDbTable + " (created, message, type) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " + Q(message) + ", " + Q(LogType.Info.ToString(CultureInfo.InvariantCulture)) + ")";
                 ExecuteDefaultQuery(query);
             }
             catch (Exception e)
@@ -265,7 +265,7 @@ namespace Shared.Data
             try
             {
                 WriteQueryToLog(message, true);
-                var query = "INSERT INTO " + Settings.LogDbTable + " (created, message, type) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " + Q(message) + ", " + Q(LogType.Warning.ToString()) + ")";
+                var query = "INSERT INTO " + Settings.LogDbTable + " (created, message, type) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " + Q(message) + ", " + Q(LogType.Warning.ToString(CultureInfo.InvariantCulture)) + ")";
                 ExecuteDefaultQuery(query);
             }
             catch (Exception e)
