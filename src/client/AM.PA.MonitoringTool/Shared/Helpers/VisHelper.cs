@@ -19,7 +19,7 @@ namespace Shared.Helpers
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        public static string NotEnoughData(string message = "We don't yet have enough data to show you a retrospection of your workday.")
+        public static string NotEnoughData(string message = "We don't yet have enough data to show you a retrospection of your work.")
         {
             return "<br/><div style='text-align: center; font-size: 0.66em;'>" + message + "</div>";
         }
