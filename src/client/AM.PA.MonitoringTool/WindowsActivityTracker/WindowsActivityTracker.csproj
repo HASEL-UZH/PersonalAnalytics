@@ -80,6 +80,7 @@
     <Compile Include="Helpers\NativeMethods.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Visualizations\WeekProgramsUsedTable.cs" />
+    <Compile Include="Visualizations\WeekWorkTimeBarChart.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
