@@ -19,12 +19,12 @@ namespace TaskDetectionTracker.Data
     {
         private static string QUERY_CREATE_SESSION = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Sessions + " (sessionId INTEGER PRIMARY KEY, time DATETIME, session_start DATETIME, session_end DATETIME, timePopUpFirstShown DATETIME, timePopUpResponded DATETIME, postponedInfo TEXT, comments TEXT, confidence_switch TEXT, confidence_type TEXT);";
         private static string QUERY_CREATE_PREDICTION = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Predictions + " (id INTEGER PRIMARY KEY, sessionId INTEGER, time DATETIME, task_start DATETIME, task_end DATETIME, task_type_predicted TEXT);";
-        private static string QUERY_CREATE_VALIDATION = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Validations + " (id INTEGER PRIMARY KEY, sessionId INTEGER, time DATETIME, task_start DATETIME, task_end DATETIME, task_type_validated TEXT, is_main_task BOOLEAN);";
+        private static string QUERY_CREATE_VALIDATION = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Validations + " (id INTEGER PRIMARY KEY, sessionId INTEGER, time DATETIME, task_start DATETIME, task_end DATETIME, task_type_validated TEXT);";
 
         private static string QUERY_INSERT_SESSION = "INSERT INTO " + Settings.DbTable_TaskDetection_Sessions + " (time, session_start, session_end, timePopUpFirstShown) VALUES ({0}, {1}, {2}, {3});";
         private static string QUERY_UPDATE_SESSION = "UPDATE " + Settings.DbTable_TaskDetection_Sessions + " SET timePopUpResponded = {1}, postponedInfo = {2}, comments = {3}, confidence_switch = {4}, confidence_type = {5} WHERE sessionId = {0};";
         private static string QUERY_INSERT_PREDICTION = "INSERT INTO " + Settings.DbTable_TaskDetection_Predictions + " (sessionId, time, task_start, task_end, task_type_predicted) VALUES ({0}, {1}, {2}, {3}, {4});";
-        private static string QUERY_INSERT_VALIDATION = "INSERT INTO " + Settings.DbTable_TaskDetection_Validations + " (sessionId, time, task_start, task_end, task_type_validated, is_main_task) VALUES ({0}, {1}, {2}, {3}, {4}, {5});";
+        private static string QUERY_INSERT_VALIDATION = "INSERT INTO " + Settings.DbTable_TaskDetection_Validations + " (sessionId, time, task_start, task_end, task_type_validated) VALUES ({0}, {1}, {2}, {3}, {4});";
 
         internal static void CreateTaskDetectionValidationTables()
         {
@@ -131,8 +131,7 @@ namespace TaskDetectionTracker.Data
                                           "strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')",
                                           db.QTime2(task.Start),
                                           db.QTime2(task.End),
-                                          db.Q(task.TaskTypeValidated.ToString()),
-                                          db.Q(task.IsMainTask));
+                                          db.Q(task.TaskTypeValidated.ToString()));
                     db.ExecuteDefaultQuery(query);
                 }
             }

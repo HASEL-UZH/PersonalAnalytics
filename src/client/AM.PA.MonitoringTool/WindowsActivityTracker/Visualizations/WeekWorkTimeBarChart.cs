@@ -15,6 +15,7 @@ namespace WindowsActivityTracker.Visualizations
     internal class WeekWorkTimeBarChart : BaseVisualization, IVisualization
     {
         private readonly DateTimeOffset _date;
+        private int _minNumDays = 2;
 
         public WeekWorkTimeBarChart(DateTimeOffset date)
         {
@@ -36,7 +37,7 @@ namespace WindowsActivityTracker.Visualizations
             /////////////////////
             var workTimeData = GetWorkTimeData();
 
-            if (workTimeData.Where(i => i.Value.Item1 > 0).Count() < 1)
+            if (workTimeData.Where(i => i.Value.Item1 > 0).Count() <= _minNumDays)
             {
                 return VisHelper.NotEnoughData();
             }

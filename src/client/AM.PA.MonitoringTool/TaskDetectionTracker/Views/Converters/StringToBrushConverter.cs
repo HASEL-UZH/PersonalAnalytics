@@ -197,7 +197,7 @@ namespace TaskDetectionTracker.Views.Converters
                     }
                 }
             }
-            catch (Exception e) { }
+            catch (Exception e) {} // no idea what happens here, but avoids exception...
         }
     }
 }

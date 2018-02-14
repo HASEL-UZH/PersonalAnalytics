@@ -44,12 +44,12 @@ namespace TaskDetectionTracker
 #endif
 
         internal const int MaximumTimePostponed_Minutes = 20; // TODO: explain!
+        internal const int MinimumTaskDuration_Seconds = 60; // TODO: explain!
         internal const int MinimumProcessTime_Seconds = 10; // delete processes smaller than this threshold // TODO: explain!
         internal const int MinimumProcessWidth = 50;
         internal const int MaximumTimeLineWidth = 2500;
         internal const int MinimumTimeLineWidth = 500;
-        internal const int MinimumTaskDuration_Seconds = 60; // TODO: explain!
         internal const int ProcessHeight = 30;
-        internal const int TaskHeight = 45;
+        internal const int TaskHeight = 30; //45;
     }
 }

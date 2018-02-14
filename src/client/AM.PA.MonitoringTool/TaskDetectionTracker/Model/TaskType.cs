@@ -3,27 +3,29 @@
 // 
 // Licensed under the MIT License.
 
+using System.ComponentModel;
+
 namespace TaskDetectionTracker.Model
 {
     public enum TaskType
     {
-        //[Description("Other")]
+        [Description("Other (please specify in the comments field)")]
         Other,
-        //[Description("Private")]
+        [Description("Private (breaks, lunch, work-unrelated webbrowsing, private phone calls)")]
         Private,
-        //[Description("Planned Meeting")]
+        [Description("Planned Meeting")]
         PlannedMeeting,
-        //[Description("Ad-hoc Meeting")]
+        [Description("Ad-hoc or unplanned Meeting")]
         UnplannedMeeting,
-        //[Description("Awareness & Team")]
+        [Description("Awareness & Team (e.g. quick chat/email)")]
         Awareness,
-        //[Description("Planning")]
+        [Description("Planning (scheduling meetings, managing tasks)")]
         Planning,
-        //[Description("Study")]
+        [Description("Observation (related to this TaskDetection study)")]
         Observation,
-        //[Description("Development")]
+        [Description("Development (implementing feature, fixing bugs, code reviews, testing)")]
         Development,
-        //[Description("Administrative Work")]
+        [Description("Administrative work (e.g. connects)")]
         AdminstrativeWork
     }
 }

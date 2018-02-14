@@ -186,7 +186,7 @@ namespace TaskDetectionTracker
                 // show empty prediction (just one task until interruption at popup-time)
                 else
                 {
-                    taskDetections.Add(new TaskDetection(processes.First().Start, processes.Last().End, TaskType.Other, TaskType.Other, processes, false));
+                    taskDetections.Add(new TaskDetection(processes.First().Start, processes.Last().End, TaskType.Other, TaskType.Other, processes));
                 }                    
             }
             catch (Exception e)

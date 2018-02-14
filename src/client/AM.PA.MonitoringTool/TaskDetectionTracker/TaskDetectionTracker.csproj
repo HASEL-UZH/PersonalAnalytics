@@ -81,6 +81,7 @@
     </Compile>
     <Compile Include="Settings.cs" />
     <Compile Include="Views\Converters\BooleanToVisibilityConverter.cs" />
+    <Compile Include="Views\Converters\EnumDescriptionConverter.cs" />
     <Compile Include="Views\Converters\EnumToBooleanConverter.cs" />
     <Compile Include="Views\Converters\EnumToDoubleConverter.cs" />
     <Compile Include="Views\Converters\StringToBrushConverter.cs" />

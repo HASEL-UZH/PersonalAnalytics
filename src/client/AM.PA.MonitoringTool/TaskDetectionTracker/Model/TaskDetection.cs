@@ -20,31 +20,26 @@ namespace TaskDetectionTracker.Model
         private TaskType _taskTypePredicted; //set at the beginning and then not changed anymore
         private TaskType _taskTypeValidated; //empty at the beginning
         private bool _taskTypePredictedSet = false;
-        //private TaskDetectionCase _taskDetectionCase;
         private List<TaskDetectionInput> _timelineInfos;
-        private bool _isMainTask = false;
         
         public DateTime Start { get { return _start; } set { _start = value; } }
         public DateTime End { get { return _end; } set { _end = value; } }
         public TaskType TaskTypePredicted { get { return _taskTypePredicted; } set { if (!_taskTypePredictedSet) { _taskTypePredicted = value; _taskTypePredictedSet = true; _taskTypeValidated = value; } } }
         public TaskType TaskTypeValidated { get { return _taskTypeValidated; } set { _taskTypeValidated = value; NotifyPropertyChanged("TaskTypeValidated"); } }
-        //public TaskDetectionCase TaskDetectionCase { get { return _taskDetectionCase; } set { _taskDetectionCase = value; } }
         public List<TaskDetectionInput> TimelineInfos { get { return _timelineInfos; } set { _timelineInfos = value; } }
-        public bool IsMainTask { get { return _isMainTask; } set { _isMainTask = value; } }
 
         public TaskDetection()
         {
             // empty constructor
         }
 
-        public TaskDetection(DateTime start, DateTime end, TaskType predicted, TaskType validated, List<TaskDetectionInput> infos, bool isMainTask)
+        public TaskDetection(DateTime start, DateTime end, TaskType predicted, TaskType validated, List<TaskDetectionInput> infos)
         {
             Start = start;
             End = end;
             TaskTypePredicted = predicted;
             TaskTypeValidated = validated;
             TimelineInfos = infos;
-            IsMainTask = isMainTask;
         }
 
         public double Duration_InSeconds()
@@ -59,7 +54,7 @@ namespace TaskDetectionTracker.Model
 
         public override string ToString()
         {
-            return "predicted: " + TaskTypePredicted + ", validated: " + TaskTypeValidated + " [" + Start.ToShortTimeString() + " - " + End.ToShortTimeString() + "] - (Main task: " + IsMainTask + ")";
+            return "predicted: " + TaskTypePredicted + ", validated: " + TaskTypeValidated + " [" + Start.ToShortTimeString() + " - " + End.ToShortTimeString() + "]"; // - (Main task: " + IsMainTask + ")";
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
