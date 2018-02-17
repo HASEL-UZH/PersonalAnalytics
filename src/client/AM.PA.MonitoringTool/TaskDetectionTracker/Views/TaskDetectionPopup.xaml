@@ -525,7 +525,7 @@
 
             <StackPanel Orientation="Vertical" Grid.Row="4" VerticalAlignment="Bottom">
                 <TextBlock Text="Optional comments:" FontSize="14" />
-                <TextBlock>Please add comments you might have about the task detection (possible issues, questions you have, things you noticed, etc.):</TextBlock>
+                <TextBlock>Please add comments you might have about the task detection (possible issues and difficulties, questions you have, things you noticed, etc.):</TextBlock>
                 <TextBox Name="Comments" Height="80" />
             </StackPanel>
 
