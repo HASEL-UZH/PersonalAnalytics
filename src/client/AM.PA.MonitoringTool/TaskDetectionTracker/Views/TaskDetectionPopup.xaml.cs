@@ -62,6 +62,10 @@ namespace TaskDetectionTracker.Views
             //    TaskSwitchesNotValidated.Add(taskNew);
             //}
 
+            // show number of pop-ups answered in window title
+            var num = Database.GetInstance().GetSettingsInt(Settings.NumberOfValidationsCompleted_Setting, 0);
+            if (num > 0) this.Title += " (" + num + " pop-ups answered so far)";
+
             //Event handlers
             //this.Deactivated += Window_Deactivated;
             this.StateChanged += Window_StateChanged;

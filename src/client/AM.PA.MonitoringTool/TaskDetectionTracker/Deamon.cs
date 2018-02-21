@@ -115,7 +115,7 @@ namespace TaskDetectionTracker
 
             return (!IsRunning || _popUpTimer == null)
                 ? Name + " is NOT running"
-                : Name + " is running. Next task detection validation is " + _nextPopUpString + ". You answered it " + Database.GetInstance().GetSettingsInt(Settings.NumberOfValidationsCompleted_Setting, 0) + " times so far.";
+                : Name + " is running. Next task detection pop-up is " + _nextPopUpString + ". You answered it " + Database.GetInstance().GetSettingsInt(Settings.NumberOfValidationsCompleted_Setting, 0) + " times so far.";
         }
 
         #endregion
