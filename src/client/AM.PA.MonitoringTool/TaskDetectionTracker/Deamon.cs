@@ -48,6 +48,11 @@ namespace TaskDetectionTracker
             _popUpTimer.Tick += PopUp_Tick;
             StartPopUpTimer();
 
+            // log current state
+            var numberOfValidationsCompleted = Database.GetInstance().GetSettingsInt(Settings.NumberOfValidationsCompleted_Setting, 0);
+            Database.GetInstance().LogInfo(Name + " is running. " + numberOfValidationsCompleted + " pop-ups completed so far. After " + 
+                Settings.NumberOfPopUpsWithoutPredictions + " pop-ups predictions will be shown to validate.");
+
             IsRunning = true;
         }
 
@@ -130,38 +135,52 @@ namespace TaskDetectionTracker
             var sessionStart = DateTime.Now.AddHours(-Settings.MaximumValidationInterval.TotalHours);
             var sessionEnd = DateTime.Now;
 
-            // the first two times the pop-up is shown, there should be no task predictions
-            var numberOfValidationsCompleted = Database.GetInstance().GetSettingsInt(Settings.NumberOfValidationsCompleted_Setting, 0);
-            var isCurrentPopupFirstTimeWithPredictions = numberOfValidationsCompleted == Settings.NumberOfPopUpsWithoutPredictions;
-            var validatePopUpWithPredictions = (numberOfValidationsCompleted >= Settings.NumberOfPopUpsWithoutPredictions);
-
-            // load all data first
-            var taskDetections = await Task.Run(() => PrepareTaskDetectionDataForPopup(sessionStart, sessionEnd, validatePopUpWithPredictions));
-
-            // don't show the pop-up if...
-            if (taskDetections.Count == 0 || // if there are no predictions
-                ((taskDetections.Last().End - taskDetections.First().Start).TotalHours * 5 < Settings.MaximumValidationInterval.TotalHours) || // if it's not 1/5th of the validation interval
-                (taskDetections.Sum(t => t.Duration_InSeconds()) < 10 * 60)) // if the total duration of the detected tasks is 10 minutes
+            // save session infos to database
+            var sessionId = DatabaseConnector.TaskDetectionSession_Insert_SaveToDatabase(sessionStart, sessionEnd, DateTime.Now);
+            if (sessionId == 0)
             {
-                var msg = string.Format(Name + ": No tasks detected or too short interval between {0} {1} and {2} {3}.", sessionStart.ToShortDateString(), sessionStart.ToShortTimeString(), sessionEnd.ToShortDateString(), sessionEnd.ToShortTimeString());
-                Database.GetInstance().LogWarning(msg);
+                // saving session infos to database failed, skip this validation
+                Database.GetInstance().LogInfo(Name + ": Did not save any validated task detections for session (" + sessionStart + " to " + sessionEnd + ") due to an error in saving the sessionId.");
                 StartPopUpTimer();
+                // don't show pop-up, stop here
             }
-            // show pop-up if enough data is available
+            // saving the session was successful, continue with validation
             else
             {
-                ShowTaskDetectionValidationPopup(taskDetections, sessionStart, sessionEnd, isCurrentPopupFirstTimeWithPredictions);
+                // at the beginning of the study (i.e. Settings.NumberOfPopUpsWithoutPredictions times), we don't want to show task detection predictions
+                var numberOfValidationsCompleted = Database.GetInstance().GetSettingsInt(Settings.NumberOfValidationsCompleted_Setting, 0);
+                var isCurrentPopupFirstTimeWithPredictions = numberOfValidationsCompleted == Settings.NumberOfPopUpsWithoutPredictions;
+                var validatePopUpWithPredictions = (numberOfValidationsCompleted >= Settings.NumberOfPopUpsWithoutPredictions);
+
+                // prepare task detection predictions for validation
+                var taskDetections = await Task.Run(() => PrepareTaskDetectionDataForPopup(validatePopUpWithPredictions, sessionId, sessionStart, sessionEnd));
+
+                // don't show the pop-up if...
+                if (taskDetections.Count == 0 || // if there are no predictions
+                    ((taskDetections.Last().End - taskDetections.First().Start).TotalHours * 5 < Settings.MaximumValidationInterval.TotalHours) || // if it's not 1/5th of the validation interval
+                    (taskDetections.Sum(t => t.Duration_InSeconds()) < 10 * 60)) // if the total duration of the detected tasks is 10 minutes
+                {
+                    var msg = string.Format(Name + ": No tasks detected or too short interval between {0} {1} and {2} {3}.", sessionStart.ToShortDateString(), sessionStart.ToShortTimeString(), sessionEnd.ToShortDateString(), sessionEnd.ToShortTimeString());
+                    Database.GetInstance().LogWarning(msg);
+                    StartPopUpTimer();
+                }
+                // show pop-up if enough data is available
+                else
+                {
+                    ShowTaskDetectionValidationPopup(isCurrentPopupFirstTimeWithPredictions, sessionId, taskDetections, sessionStart, sessionEnd);
+                }
             }
         }
 
         /// <summary>
-        /// Fetches all processes for the session 
-        /// and runs the task detection (switch and type prediction) - if validatePopUpWithPredictions is true
+        /// Fetches all processes for the session and runs the task detection (switch and type prediction).
+        /// Stores the predictions.
+        /// If validatePopUpWithPredictions is true, return the predicted tasks, else return an empty list.
         /// </summary>
         /// <returns></returns>
-        private static List<TaskDetection> PrepareTaskDetectionDataForPopup(DateTime sessionStart, DateTime sessionEnd, bool validatePopUpWithPredictions)
+        private static List<TaskDetection> PrepareTaskDetectionDataForPopup(bool validatePopUpWithPredictions, int sessionId, DateTime sessionStart, DateTime sessionEnd)
         {
-            var taskDetections = new List<TaskDetection>();
+            var tasksToValidate = new List<TaskDetection>();
 
             try
             {
@@ -175,26 +194,32 @@ namespace TaskDetectionTracker
                 // merge processes
                 processes = DataMerger.MergeProcesses(processes, sessionEnd.Subtract(sessionStart));
                 DataMerger.AddMouseClickAndKeystrokesToProcesses(processes);
-                //option to use file and website extractor here to add more info to the timeline-hover
+                // option to use file and website extractor here to add more info to the timeline-hover
 
                 // run task detection and show predictions
+                var td = new TaskDetectorImpl();
+                var taskPredictions = td.FindTasks(processes);
+
+                // save original task (type and switch) predictions
+                DatabaseConnector.TaskDetectionPredictionsPerSession_SaveToDatabase(sessionId, taskPredictions);
+
+                // show user predicted tasks for validation
                 if (validatePopUpWithPredictions)
-                { 
-                    var td = new TaskDetectorImpl();
-                    taskDetections = td.FindTasks(processes);
+                {
+                    tasksToValidate = taskPredictions;
                 }
                 // show empty prediction (just one task until interruption at popup-time)
                 else
                 {
-                    taskDetections.Add(new TaskDetection(processes.First().Start, processes.Last().End, TaskType.Other, TaskType.Other, processes));
-                }                    
+                    tasksToValidate.Add(new TaskDetection(processes.First().Start, processes.Last().End, TaskType.Other, TaskType.Other, processes));
+                }
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
             }
 
-            return taskDetections;
+            return tasksToValidate;
         }
 
         /// <summary>
@@ -229,29 +254,13 @@ namespace TaskDetectionTracker
         /// <param name="detectionSessionStart"></param>
         /// <param name="detectionSessionEnd"></param>
         /// <param name="isCurrentPopupFirstTimeWithPredictions"></param>
-        private void ShowTaskDetectionValidationPopup(List<TaskDetection> taskDetections_predicted, DateTime detectionSessionStart, DateTime detectionSessionEnd, bool isCurrentPopupFirstTimeWithPredictions)
+        private void ShowTaskDetectionValidationPopup(bool isCurrentPopupFirstTimeWithPredictions, int sessionId, List<TaskDetection> taskDetections_predicted, DateTime detectionSessionStart, DateTime detectionSessionEnd)
         {
             try
             {
                 Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(
                 () =>
                 {
-                    var timePopUpFirstShown = DateTime.Now;
-
-                    // save session infos to database
-                    var sessionId = DatabaseConnector.TaskDetectionSession_Insert_SaveToDatabase(detectionSessionStart, detectionSessionEnd, timePopUpFirstShown);
-                    if (sessionId == 0)
-                    {
-                        // saving session infos to database failed, skip this validation
-                        Database.GetInstance().LogInfo(Name + ": Did not save any validated task detections for session (" + detectionSessionStart + " to " + detectionSessionEnd + ") due to an error in saving the sessionId.");
-                        StartPopUpTimer();
-                        return;
-                    }
-                    else
-                    {
-                        // save original task (type and switch) predictions
-                        DatabaseConnector.TaskDetectionPredictionsPerSession_SaveToDatabase(sessionId, taskDetections_predicted);
-                    }
 
                     // filter task detections (remove too short ones), merge them with next task
                     for (var i = 0; i < taskDetections_predicted.Count; i++)
@@ -347,10 +356,6 @@ namespace TaskDetectionTracker
             // successful popup response
             if (popup.ValidationComplete)
             {
-                // merge non-validated task detections with validated ones
-                //var taskDetections = taskDetections_Validated.Concat(taskDetections_NotValidated).ToList();
-                //taskDetections.Sort();
-
                 // save validation responses to task validation table
                 DatabaseConnector.TaskDetectionSession_Update_SaveToDatabase(sessionId, timePopUpResponded, popup.PostponedInfo, popup.Comments.Text, popup.Confidence_TaskSwitch, popup.Confidence_TaskType);
                 DatabaseConnector.TaskDetectionValidationsPerSession_SaveToDatabase(sessionId, taskDetections_Validated);
@@ -371,10 +376,6 @@ namespace TaskDetectionTracker
             {
                 // we get here when DialogResult is set to false
                 Database.GetInstance().LogInfo(Name + ": User closed the PopUp without completing the validation.");
-
-                // save empty validation responses to the task validation table
-                //DatabaseConnector.TaskDetectionSession_SaveToDatabase(detectionSessionStart, detectionSessionEnd, timePopUpFirstShown, timePopUpResponded,
-                //    popup.PostponedInfo, string.Empty, -1, -1);
 
                 // set timer interval to a short one, to try again
                 StartPopUpTimer(Settings.PopUpReminderInterval_Middle);

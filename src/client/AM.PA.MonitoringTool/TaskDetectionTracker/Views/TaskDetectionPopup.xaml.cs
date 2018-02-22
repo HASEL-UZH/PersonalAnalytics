@@ -37,7 +37,6 @@ namespace TaskDetectionTracker.Views
         public bool WasPostponed { get; set; }
 
         internal List<TaskDetection> TaskSwitchesValidated = new List<TaskDetection>();
-        //internal List<TaskDetection> TaskSwitchesNotValidated;
         private readonly List<TaskDetection> _taskSwitchesInTimeline;
         private double _totalTimePostponed;
         public string PostponedInfo;
@@ -51,16 +50,6 @@ namespace TaskDetectionTracker.Views
         public TaskDetectionPopup(List<TaskDetection> taskSwitches_toValidate, bool isCurrentPopupFirstTimeWithPredictions)
         {
             InitializeComponent();
-
-            // preserve task switch list for later (deep copy!)
-            //this._taskSwitches_NotValidated = taskSwitches.ConvertAll(task => new TaskDetection(task.Start, task.End, task.TaskTypePredicted, task.TaskTypeValidated, task.TimelineInfos, task.IsMainTask));
-            //TaskSwitchesNotValidated = new List<TaskDetection>();
-            //foreach (var task in taskSwitches_toValidate)
-            //{
-            //    var taskNew_TimeLineInfos = task.TimelineInfos.ConvertAll(info => new TaskDetectionInput());
-            //    var taskNew = new TaskDetection(task.Start, task.End, task.TaskTypePredicted, task.TaskTypeValidated, taskNew_TimeLineInfos, task.IsMainTask);
-            //    TaskSwitchesNotValidated.Add(taskNew);
-            //}
 
             // show number of pop-ups answered in window title
             var num = Database.GetInstance().GetSettingsInt(Settings.NumberOfValidationsCompleted_Setting, 0);
@@ -707,28 +696,6 @@ namespace TaskDetectionTracker.Views
                     // save "correct" and "missing" items to validated list
                     TaskSwitchesValidated.Add(task);
                 }
-
-                // remaining ones were wrong (add to final list)
-                //foreach (var task in TaskSwitchesNotValidated)
-                //{
-                //    var taskAlreadySaved = false;
-
-                //    foreach (var taskValidated in TaskSwitchesValidated)
-                //    {
-                //        if (task.End == taskValidated.End)
-                //        {
-                //            taskAlreadySaved = true;
-                //            break;
-                //        }
-                //    }
-
-                //    // add tasks that were missing or are correct to final list
-                //    if (!taskAlreadySaved)
-                //    {
-                //        task.TaskDetectionCase = TaskDetectionCase.Wrong;
-                //        TaskSwitchesValidated.Add(task);
-                //    }
-                //}
 
                 // sort list again
                 TaskSwitchesValidated.Sort();
