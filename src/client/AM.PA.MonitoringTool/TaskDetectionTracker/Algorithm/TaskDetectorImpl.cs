@@ -73,7 +73,7 @@ namespace TaskDetectionTracker.Algorithm
                 List<Datapoint> dps = new List<Datapoint>();
                 foreach (var p in processes)
                 {
-                    dps.Add(new Datapoint());
+                    dps.Add(new Datapoint() { StartTime = p.Start, EndTime = p.End });
                 }
 
                 LexicalSimilarities(processes, "window", dps);
@@ -106,8 +106,8 @@ namespace TaskDetectionTracker.Algorithm
             var csv_all = new StringBuilder();
 
             // write header
-            string header = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}",
-             "isSuperSwitch", "lexSim1_win", "lexSim2_win", "lexSim3_win", "lexSim4_win",
+            string header = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12}",
+             "startTime", "endTime", "isSuperSwitch", "lexSim1_win", "lexSim2_win", "lexSim3_win", "lexSim4_win",
                       "lexSim1_pro", "lexSim2_pro", "lexSim3_pro", "lexSim4_pro",
                       "totalKeystrokesDiff", "MouseClicksDiff");
             csv_all.AppendLine(header);
@@ -115,7 +115,8 @@ namespace TaskDetectionTracker.Algorithm
             // write raw data
             foreach (Datapoint dp in dps)
             {
-                var newLine = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}", "NA",
+                var newLine = string.Format("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10},{11},{12}", 
+                    Database.GetInstance().QTime2(dp.StartTime), Database.GetInstance().QTime2(dp.EndTime), "NA",
                     dp.LexSim1_Win, dp.LexSim2_Win, dp.LexSim3_Win, dp.LexSim4_Win, dp.LexSim1_Pro,
                     dp.LexSim2_Pro, dp.LexSim3_Pro, dp.LexSim4_Pro, dp.TotalKeystrokesDiff,
                      dp.TotalMouseClicksDiff);
@@ -418,6 +419,8 @@ namespace TaskDetectionTracker.Algorithm
             #endregion
 
             var header = new StringBuilder();
+            header.Append("startTime" + del + "endTime" + del);
+
             foreach (var s in distinctProcessCats)
             {
                 header.Append(s + del);
@@ -429,6 +432,10 @@ namespace TaskDetectionTracker.Algorithm
             foreach(TaskDetection tc in tcs)
             {
                 csv_types.Append("1" + del);
+
+                csv_types.Append(Database.GetInstance().QTime2(tc.Start) + del);
+                csv_types.Append(Database.GetInstance().QTime2(tc.End) + del);
+
                 var duration = tc.End - tc.Start;
 
                 #region processCategories

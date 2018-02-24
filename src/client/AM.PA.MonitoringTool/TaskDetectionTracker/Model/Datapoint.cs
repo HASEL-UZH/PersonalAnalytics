@@ -3,10 +3,16 @@
 // 
 // Licensed under the MIT License.
 
+using System;
+
 namespace TaskDetectionTracker.Model
 {
     public class Datapoint
     {
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+
+
         private float lexSim1_win;
         public float LexSim1_Win
         {
