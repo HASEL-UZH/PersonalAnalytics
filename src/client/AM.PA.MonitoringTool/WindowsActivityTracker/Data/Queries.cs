@@ -136,7 +136,7 @@ namespace WindowsActivityTracker.Data
                 // if end time is missing, don't store anything
                 if (entry.TsEnd == DateTime.MinValue)
                 {
-                    Database.GetInstance().LogWarning("TsEnd of WindowsActivitySwtich was empty.");
+                    Database.GetInstance().LogWarning("TsEnd of WindowsActivitySwitch was empty.");
                     return;
                 }
 
