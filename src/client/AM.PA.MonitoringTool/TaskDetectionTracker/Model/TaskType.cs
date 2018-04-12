@@ -21,7 +21,7 @@ namespace TaskDetectionTracker.Model
         Awareness,
         [Description("Planning (scheduling meetings, managing tasks)")]
         Planning,
-        [Description("Study (activities related to this study)")]
+        [Description("Study/Observation (activities related to this study)")]
         Observation,
         [Description("Development (implementing feature, fixing bugs, code reviews, testing)")]
         Development,

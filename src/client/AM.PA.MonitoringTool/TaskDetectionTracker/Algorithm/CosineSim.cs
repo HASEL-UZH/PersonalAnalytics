@@ -214,7 +214,7 @@ namespace TaskDetectionTracker.Algorithm
 
         private IDictionary GetWordFrequency(string input)
         {
-            string convertedInput = input.ToLower();
+            string convertedInput = input.ToLower(System.Globalization.CultureInfo.InvariantCulture);
 
             Tokenizer tokenizer = new Tokenizer();
             String[] words = tokenizer.Partition(convertedInput);

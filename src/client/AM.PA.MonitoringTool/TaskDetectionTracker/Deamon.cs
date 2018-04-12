@@ -140,7 +140,7 @@ namespace TaskDetectionTracker
             if (sessionId == 0)
             {
                 // saving session infos to database failed, skip this validation
-                Database.GetInstance().LogInfo(Name + ": Did not save any validated task detections for session (" + sessionStart + " to " + sessionEnd + ") due to an error in saving the sessionId.");
+                Database.GetInstance().LogError(Name + ": Did not save any validated task detections for session (" + sessionStart + " to " + sessionEnd + ") due to an error in saving the sessionId.");
                 StartPopUpTimer();
                 // don't show pop-up, stop here
             }
@@ -161,7 +161,7 @@ namespace TaskDetectionTracker
                     (taskDetections.Sum(t => t.Duration_InSeconds()) < 10 * 60)) // if the total duration of the detected tasks is 10 minutes
                 {
                     var msg = string.Format(Name + ": No tasks detected or too short interval between {0} {1} and {2} {3}.", sessionStart.ToShortDateString(), sessionStart.ToShortTimeString(), sessionEnd.ToShortDateString(), sessionEnd.ToShortTimeString());
-                    Database.GetInstance().LogWarning(msg);
+                    Database.GetInstance().LogInfo(msg);
                     StartPopUpTimer();
                 }
                 // show pop-up if enough data is available

@@ -50,7 +50,9 @@ namespace TaskDetectionTracker.Data
                                           db.QTime(timePopUpFirstShown));
                 Database.GetInstance().ExecuteDefaultQuery(query);
 
-                var query2 = "SELECT last_insert_rowid();";
+                var query2 = "SELECT sessionId FROM " + Settings.DbTable_TaskDetection_Sessions + " ORDER BY sessionId DESC LIMIT 1;";
+                // this doesn't work properly in a multi-threaded environment: "SELECT last_insert_rowid();" 
+                // (could use the sqlite_sequence table, but it only exists when SequenceId is defined as an autoincrement field)
                 return Database.GetInstance().ExecuteScalar(query2);
             }
             catch (Exception e)
