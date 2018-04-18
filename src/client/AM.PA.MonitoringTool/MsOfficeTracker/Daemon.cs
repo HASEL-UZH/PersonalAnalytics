@@ -11,10 +11,10 @@ using MsOfficeTracker.Visualizations;
 using MsOfficeTracker.Data;
 using Shared.Data;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using MsOfficeTracker.Helpers;
 using System.Reflection;
-using System.Windows.Controls;
 using MsOfficeTracker.Views;
 
 namespace MsOfficeTracker
@@ -31,7 +31,7 @@ namespace MsOfficeTracker
             Name = Settings.TrackerName;
         }
 
-        public async override void Start()
+        public override async void Start()
         {
             // initialize API & authenticate if necessary
             var isAuthenticated = await Office365Api.GetInstance().Authenticate();
@@ -55,10 +55,10 @@ namespace MsOfficeTracker
                 Stop();
 
             // initialize a new timer
-            var interval = (int)TimeSpan.FromMinutes(Settings.SaveEmailCountsIntervalInMinutes).TotalMilliseconds;
-            _timer = new Timer(new TimerCallback(TimerTick), // callback
+            var interval = (int)TimeSpan.FromMinutes(Settings.SaveEmailCountsInterval_InMinutes).TotalMilliseconds;
+            _timer = new Timer(TimerTick, // callback
                             null,  // no idea
-                            60000, // start immediately after 1 minute
+                            Settings.WaitTimeUntilTimerFirstTicks_InSeconds * 1000,
                             interval); // interval
         }
 
@@ -83,7 +83,7 @@ namespace MsOfficeTracker
             Queries.UpdateDatabaseTables(version);
         }
         
-        public override bool IsFirstStart { get { return !Database.GetInstance().HasSetting("MsOfficeTrackerEnabled"); } }
+        public override bool IsFirstStart => ! Database.GetInstance().HasSetting("MsOfficeTrackerEnabled");
 
         public override List<IFirstStartScreen> GetStartScreens()
         {
@@ -92,9 +92,6 @@ namespace MsOfficeTracker
 
         public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
         {
-            //var vis1 = new DayEmailsSent(date);
-            //var vis2 = new DayEmailsReceived(date);
-            //var vis3 = new DayEmailsAvgUnreadInbox(date);
             var vis = new DayEmailsTable(date);
             return new List<IVisualization> { vis };
         }
@@ -169,7 +166,7 @@ namespace MsOfficeTracker
         /// <summary>
         /// Regularly runs and saves some email counts
         /// </summary>
-        private void SaveEmailsCount(DateTime date)
+        private static void SaveEmailsCount(DateTime date)
         {
             try
             {
@@ -188,7 +185,7 @@ namespace MsOfficeTracker
         /// <summary>
         /// Regularly runs and saves some email counts
         /// </summary>
-        private void SaveMeetingsCount(DateTimeOffset date)
+        private static void SaveMeetingsCount(DateTimeOffset date)
         {
             try
             {
@@ -202,19 +199,21 @@ namespace MsOfficeTracker
                 meetingsResult.Wait();
                 var meetings = meetingsResult.Result;
 
-                if (meetings.Count > 0)
-                {
-                    // delete old entries (to add updated meetings)
-                    Queries.RemoveMeetingsForDate(date);
+                if (meetings.Count <= 0) return;
 
-                    // save new meetings into the database
-                    foreach (var meeting in meetings)
-                    {
-                        var duration = (int)Math.Round(Math.Abs((meeting.End - meeting.Start).TotalMinutes), 0);
-                        if (duration >= 24 * 60) continue; // only store if not multiple-day meeting
-                        var start = meeting.Start.ToLocalTime();
-                        Queries.SaveMeetingsSnapshot(start, meeting.Subject, duration);
-                    }
+                // delete old entries (to add updated meetings)
+                Queries.RemoveMeetingsForDate(date);
+
+                // save new meetings into the database
+                foreach (var meeting in meetings)
+                {
+                    var start = DateTime.Parse(meeting.Start.DateTime).ToLocalTime(); 
+                    var end = DateTime.Parse(meeting.End.DateTime).ToLocalTime(); 
+                    var duration = (int)Math.Round(Math.Abs((start - end).TotalMinutes), 0);
+                    if ((meeting.IsAllDay.HasValue && meeting.IsAllDay.Value) || duration > 24 * 60) continue; // only store if not all-day/multiple-day meeting
+                    if (date.Date != start.Date) continue; // only store if the start of the meeting is the same day
+                    var numAttendees = meeting.Attendees.Count(a => a.EmailAddress.Address != meeting.Organizer.EmailAddress.Address);
+                    Queries.SaveMeetingsSnapshot(start, meeting.Subject, duration, numAttendees);
                 }
             }
             catch (Exception e)

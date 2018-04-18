@@ -64,9 +64,9 @@ WindowsActivityTracker.dll
 2016-12-14	V2.0.6187.20492 initial version
 
 
-**********************
-ArtifactVisualizer.dll
-**********************
+***********************
+TimeSPentVisualizer.dll
+***********************
 
 2017-09-13	V1.0.6465.29287	
 2017-07-21	V1.0.6411.19687	minor updates following WindowsActivityTracker-changes

@@ -7,21 +7,31 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:paColors="clr-namespace:Shared;assembly=Shared"
-        SizeToContent="Height" Height="245" Width="500"
+        SizeToContent="Height" Height="250" Width="500"
         KeyDown="OnKeyDownHandler"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent">
 
     <Grid RenderTransformOrigin="0,1" >
 
         <!-- Notification area -->
-        <Border BorderThickness="1" Background="LightGray" BorderBrush="Black">
+        <Border BorderThickness="1" Background="White" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}">
             <StackPanel Margin="10">
-                <TextBlock Text="Compared to your normal level of productivity," Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" FontWeight="Bold" FontSize="15" />
-                <TextBlock Text="how productive do you consider the previous session?" Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" FontWeight="Bold" FontSize="15" />
-                <TextBlock Text="Hint: you can also just type the key 1-7 if this pop-up is in focus." />
-                <TextBlock x:Name="LastTimeFilledOut" Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" Text="" />
+                <TextBlock Foreground="{x:Static paColors:Settings.RetrospectionColorBrush}" FontWeight="Bold" FontSize="17">
+                    Compared to your normal level of productivity, <LineBreak />
+                    how productive do you consider the <Span TextDecorations="Underline">previous session</Span>?
+                </TextBlock>
+                <TextBlock Text="Hint: you can also just type the key 1-7 if this pop-up is in focus." Foreground="Gray" />
+                <TextBlock x:Name="LastTimeFilledOut" Text="" Foreground="Gray" />
 
                 <StackPanel Margin="-2 30 -2 5" HorizontalAlignment="Left" Orientation="Horizontal">
+                    <StackPanel.Resources>
+                        <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
+                            <Setter Property="Foreground" Value="White" />
+                            <Setter Property="Background" Value="{x:Static paColors:Settings.RetrospectionColorBrush}" />
+                            <Setter Property="BorderBrush" Value="{x:Static paColors:Settings.RetrospectionColorBrush}" />
+                        </Style>
+                    </StackPanel.Resources>
+                    
                     <Button Content="1" Width="30" Height="30" Margin="15 0 40 0" Click="Productivity1_Checked" />
                     <Button Content="2" Width="30" Height="30" Margin="0 0 40 0" Click="Productivity2_Checked" />
                     <Button Content="3" Width="30" Height="30" Margin="0 0 40 0" Click="Productivity3_Checked" />
@@ -44,10 +54,19 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Content="I didn't work" Background="LightGray" Height="20" Margin="0 0 5 0" Click="Postpone0Clicked"  />
-                    <Button Grid.Column="1" Content="Postpone for 5mins" Background="LightGray" Height="20" Margin="0 0 5 0" Click="Postpone1Clicked" />
-                    <Button Grid.Column="2" Content="Postpone for 1hr" Background="LightGray" Height="20" Margin="0 0 5 0" Click="Postpone2Clicked" />
-                    <Button Grid.Column="3" Content="Postpone for 6hrs" Background="LightGray" Height="20" Click="Postpone3Clicked"  />
+
+                    <Grid.Resources>
+                        <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
+                            <Setter Property="Foreground" Value="White" />
+                            <Setter Property="Background" Value="Gray" />
+                            <Setter Property="BorderBrush" Value="Gray" />
+                        </Style>
+                    </Grid.Resources>
+
+                    <Button Grid.Column="0" Content="I didn't work" Height="20" Margin="0 0 5 0" Click="Postpone0Clicked"  />
+                    <Button Grid.Column="1" Content="Postpone for 5mins" Height="20" Margin="0 0 5 0" Click="Postpone1Clicked" />
+                    <Button Grid.Column="2" Content="Postpone for 1hr" Height="20" Margin="0 0 5 0" Click="Postpone2Clicked" />
+                    <Button Grid.Column="3" Content="Postpone for 6hrs" Height="20" Click="Postpone3Clicked"  />
                 </Grid>
             </StackPanel>
         </Border>

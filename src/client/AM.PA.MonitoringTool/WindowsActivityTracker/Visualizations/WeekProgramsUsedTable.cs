@@ -16,7 +16,7 @@ namespace WindowsActivityTracker.Visualizations
     class WeekProgramsUsedTable : BaseVisualization, IVisualization
     {
         private readonly DateTimeOffset _date;
-        private const int _maxNumberOfPrograms = 7;
+        private const int MaxNumberOfPrograms = 7;
 
         public WeekProgramsUsedTable(DateTimeOffset date)
         {
@@ -144,7 +144,7 @@ namespace WindowsActivityTracker.Visualizations
             }
 
             // sort & filter
-            var sortedDict = (from prog in dict orderby prog.Value.Total descending select prog).Take(_maxNumberOfPrograms).ToDictionary(pair => pair.Key, pair => pair.Value);
+            var sortedDict = (from prog in dict orderby prog.Value.Total descending select prog).Take(MaxNumberOfPrograms).ToDictionary(pair => pair.Key, pair => pair.Value);
 
             return sortedDict;
         }

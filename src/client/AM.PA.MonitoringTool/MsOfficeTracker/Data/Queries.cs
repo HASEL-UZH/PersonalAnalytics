@@ -20,7 +20,7 @@ namespace MsOfficeTracker.Data
         {
             try
             {
-                Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.MeetingsTable + " (id INTEGER PRIMARY KEY, timestamp TEXT, time TEXT, subject TEXT, durationInMins INTEGER);");
+                Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.MeetingsTable + " (id INTEGER PRIMARY KEY, timestamp TEXT, time TEXT, subject TEXT, durationInMins INTEGER, numAttendees INTEGER);");
                 Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.EmailsTable + " (id INTEGER PRIMARY KEY, timestamp TEXT, time TEXT, inbox INTEGER, inboxUnread INTEGER, sent INTEGER, received INTEGER, receivedUnread INTEGER, isFromTimer INTEGER);");
             }
             catch (Exception e)
@@ -33,6 +33,15 @@ namespace MsOfficeTracker.Data
         {
             try
             {
+                // database update 07.12.2017 (added one column to 'meetings' table)
+                if (version == 5)
+                {
+                    if (Database.GetInstance().HasTable(Settings.MeetingsTable))
+                    {
+                        Database.GetInstance().ExecuteDefaultQuery("ALTER TABLE " + Settings.MeetingsTable + " ADD COLUMN numAttendees INTEGER;");
+                    }
+                }
+
                 // database update 20.06.2016 (added two columns to 'emails' table)
                 if (version == 2)
                 {
@@ -55,13 +64,14 @@ namespace MsOfficeTracker.Data
         /// </summary>
         /// <param name="date"></param>
         /// <param name="isFromTimer"></param>
-        internal static Tuple<long, long, int, int, int> CreateEmailsSnapshot(DateTime date, bool isFromTimer)
+        internal static Tuple<long, long, long, long, int> CreateEmailsSnapshot(DateTime date, bool isFromTimer)
         {
             try
             {
                 // get inbox size (can only be done today)
-                var unreadInbox = -1;
-                var inbox = -1;
+                var unreadInbox = Settings.NoValueDefault;
+                var inbox = Settings.NoValueDefault;
+                var unreadReceived = Settings.NoValueDefault;
                 if (date.Date == DateTime.Now.Date)
                 {
                     // unread inbox size
@@ -73,6 +83,11 @@ namespace MsOfficeTracker.Data
                     var inboxSizeResponse = Office365Api.GetInstance().GetTotalNumberOfEmailsInInbox();
                     inboxSizeResponse.Wait();
                     inbox = (int)inboxSizeResponse.Result;
+
+                    // get unread emails received count
+                    var unreadReceivedResult = Office365Api.GetInstance().GetNumberOfUnreadEmailsReceived(date.Date);
+                    unreadReceivedResult.Wait();
+                    unreadReceived = unreadReceivedResult.Result;
                 }
 
                 // get emails sent count
@@ -84,32 +99,31 @@ namespace MsOfficeTracker.Data
                 var receivedResult = Office365Api.GetInstance().GetTotalNumberOfEmailsReceived(date.Date);
                 receivedResult.Wait();
                 var received = receivedResult.Result;
-                var receivedCorrected = received - sent; // TODO: due to a bug which will show sent items in the received list, we subtract it (03.01.17)
-
-                // get unread emails received count
-                var unreadReceivedResult = Office365Api.GetInstance().GetNumberOfUnreadEmailsReceived(date.Date);
-                unreadReceivedResult.Wait();
-                var unreadReceived = unreadReceivedResult.Result;
 
                 // save into the database
-                 SaveEmailsSnapshot(date, inbox, unreadInbox, sent, receivedCorrected, unreadReceived, isFromTimer);
+                SaveEmailsSnapshot(date, inbox, unreadInbox, sent, received, unreadReceived, isFromTimer);
 
                 // return for immediate use
-                return new Tuple<long, long, int, int, int>(inbox, unreadInbox, sent, receivedCorrected, unreadReceived);
+                return new Tuple<long, long, long, long, int>(inbox, unreadInbox, sent, received, unreadReceived);
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return new Tuple<long, long, int, int, int>(-1, -1, -1, -1, -1);
+                return new Tuple<long, long, long, long, int>(Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault);
             }
         }
 
         /// <summary>
         /// Saves the timestamp, inbox size, sent items count, received items count into the database
         /// </summary>
-        /// <param name="window"></param>
-        /// <param name="process"></param>
-        internal static void SaveEmailsSnapshot(DateTime date, long inbox, long unreadInbox, int sent, int received, int unreadReceived, bool isFromTimer)
+        /// <param name="date"></param>
+        /// <param name="inbox"></param>
+        /// <param name="unreadInbox"></param>
+        /// <param name="sent"></param>
+        /// <param name="received"></param>
+        /// <param name="unreadReceived"></param>
+        /// <param name="isFromTimer"></param>
+        internal static void SaveEmailsSnapshot(DateTime date, long inbox, long unreadInbox, long sent, long received, int unreadReceived, bool isFromTimer)
         {
             Database.GetInstance().ExecuteDefaultQuery("INSERT INTO " + Settings.EmailsTable + " (timestamp, time, inbox, inboxUnread, sent, received, receivedUnread, isFromTimer) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " +
                 Database.GetInstance().QTime(date) + ", " + Database.GetInstance().Q(inbox) + ", " + Database.GetInstance().Q(unreadInbox) + ", " + Database.GetInstance().Q(sent) + ", "  +
@@ -122,19 +136,27 @@ namespace MsOfficeTracker.Data
         /// 
         /// Hint: The meeting subject can be obfuscated by setting the property RecordMeetingTitles to false
         /// </summary>
+        /// <param name="date"></param>
         /// <param name="subject"></param>
         /// <param name="durationInMins"></param>
-        internal static void SaveMeetingsSnapshot(DateTime date, string subject, int durationInMins)
+        /// <param name="numberOfAttendees"></param>
+        internal static void SaveMeetingsSnapshot(DateTime date, string subject, int durationInMins, int numberOfAttendees)
         {
             if (Shared.Settings.AnonymizeSensitiveData)
             {
                 subject = Dict.Anonymized;  // obfuscate window title
             }
 
-            var query = "INSERT INTO " + Settings.MeetingsTable + " (timestamp, time, subject, durationInMins) "
-                        + "SELECT strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " + Database.GetInstance().QTime(date) + ", " + Database.GetInstance().Q(subject) + ", " + Database.GetInstance().Q(durationInMins) + " "
+            var query = "INSERT INTO " + Settings.MeetingsTable + " (timestamp, time, subject, durationInMins, numAttendees) "
+                        + "SELECT strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " + 
+                        //Database.GetInstance().Q(id) + ", " + // could also save ID to validate duplicates below with it (but needs quite some space)
+                        Database.GetInstance().QTime(date) + ", " + 
+                        Database.GetInstance().Q(subject) + ", " + 
+                        Database.GetInstance().Q(durationInMins) + ", " + 
+                        Database.GetInstance().Q(numberOfAttendees) + " "
+                        // check if a duplicate entry exists (subject and date) - changes in number of attendees and duration not considered
                         + "WHERE NOT EXISTS ("
-                            + "SELECT 1 FROM " + Settings.MeetingsTable + " WHERE time = " + Database.GetInstance().QTime(date) + " AND subject = " + Database.GetInstance().Q(subject) + " AND durationInMins = " + Database.GetInstance().Q(durationInMins)
+                            + "SELECT 1 FROM " + Settings.MeetingsTable + " WHERE time = " + Database.GetInstance().QTime(date) + " AND subject = " + Database.GetInstance().Q(subject) 
                         + ");";
 
             Database.GetInstance().ExecuteDefaultQuery(query);
@@ -153,8 +175,7 @@ namespace MsOfficeTracker.Data
                           + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date) + "); ";
 
                 var count = Database.GetInstance().ExecuteScalar(query);
-                if (count == 0) return false;
-                return true;
+                return count != 0;
             }
             catch (Exception e)
             {
@@ -217,11 +238,11 @@ namespace MsOfficeTracker.Data
                 {
                     var row = table.Rows[0];
 
-                    var inbox = row.IsNull("inbox") ? -1 : Convert.ToInt64(row["inbox"], CultureInfo.InvariantCulture);
-                    var inboxUnread = row.IsNull("inboxUnread") ? -1 : Convert.ToInt64(row["inboxUnread"], CultureInfo.InvariantCulture);
-                    var sent = row.IsNull("sent") ? -1 : Convert.ToInt64(row["sent"], CultureInfo.InvariantCulture);
-                    var received = row.IsNull("received") ? -1 : Convert.ToInt64(row["received"], CultureInfo.InvariantCulture);
-                    var receivedUnread = row.IsNull("receivedUnread") ? -1 : Convert.ToInt64(row["receivedUnread"], CultureInfo.InvariantCulture);
+                    var inbox = row.IsNull("inbox") ? Settings.NoValueDefault : Convert.ToInt64(row["inbox"], CultureInfo.InvariantCulture);
+                    var inboxUnread = row.IsNull("inboxUnread") ? Settings.NoValueDefault : Convert.ToInt64(row["inboxUnread"], CultureInfo.InvariantCulture);
+                    var sent = row.IsNull("sent") ? Settings.NoValueDefault : Convert.ToInt64(row["sent"], CultureInfo.InvariantCulture);
+                    var received = row.IsNull("received") ? Settings.NoValueDefault : Convert.ToInt64(row["received"], CultureInfo.InvariantCulture);
+                    var receivedUnread = row.IsNull("receivedUnread") ? Settings.NoValueDefault : Convert.ToInt64(row["receivedUnread"], CultureInfo.InvariantCulture);
                     var timestamp = DateTime.Parse((string)row["time"], CultureInfo.InvariantCulture);
 
                     table.Dispose();
@@ -229,14 +250,14 @@ namespace MsOfficeTracker.Data
                 }
                 else
                 {
-                    table.Dispose();
-                    return new Tuple<DateTime, long, long, long, long, long>(DateTime.MinValue, -1, -1, -1, -1, -1);
+                    table?.Dispose();
+                    return new Tuple<DateTime, long, long, long, long, long>(DateTime.MinValue, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault);
                 }
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return new Tuple<DateTime, long, long, long, long, long>(DateTime.MinValue, -1, -1, -1, -1, -1);
+                return new Tuple<DateTime, long, long, long, long, long>(DateTime.MinValue, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault);
             }
         }
 
@@ -267,26 +288,26 @@ namespace MsOfficeTracker.Data
 
                 foreach (DataRow row in table.Rows)
                 {
-                    inboxItems.Add(row.IsNull("inbox") ? -1 : Convert.ToInt64(row["inbox"], CultureInfo.InvariantCulture));
-                    inboxUnreadItems.Add(row.IsNull("inboxUnread") ? -1 : Convert.ToInt64(row["inboxUnread"], CultureInfo.InvariantCulture));
-                    sentItems.Add(row.IsNull("sent") ? -1 : Convert.ToInt64(row["sent"], CultureInfo.InvariantCulture));
-                    receivedItems.Add(row.IsNull("received") ? -1 : Convert.ToInt64(row["received"], CultureInfo.InvariantCulture));
-                    receivedUnreadItems.Add(row.IsNull("receivedUnread") ? -1 : Convert.ToInt64(row["receivedUnread"], CultureInfo.InvariantCulture));
+                    inboxItems.Add(row.IsNull("inbox") ? Settings.NoValueDefault : Convert.ToInt64(row["inbox"], CultureInfo.InvariantCulture));
+                    inboxUnreadItems.Add(row.IsNull("inboxUnread") ? Settings.NoValueDefault : Convert.ToInt64(row["inboxUnread"], CultureInfo.InvariantCulture));
+                    sentItems.Add(row.IsNull("sent") ? Settings.NoValueDefault : Convert.ToInt64(row["sent"], CultureInfo.InvariantCulture));
+                    receivedItems.Add(row.IsNull("received") ? Settings.NoValueDefault : Convert.ToInt64(row["received"], CultureInfo.InvariantCulture));
+                    receivedUnreadItems.Add(row.IsNull("receivedUnread") ? Settings.NoValueDefault : Convert.ToInt64(row["receivedUnread"], CultureInfo.InvariantCulture));
                 }
                 table.Dispose();
 
-                var inboxAvg = inboxItems.Where(e => e > -1).DefaultIfEmpty().Average(e => e);
-                var inboxUnreadAvg = inboxUnreadItems.Where(e => e > -1).DefaultIfEmpty().Average(e => e);
-                var sentAvg = sentItems.Where(e => e > -1).DefaultIfEmpty().Average(e => e);
-                var receivedAvg = receivedItems.Where(e => e > -1).DefaultIfEmpty().Average(e => e);
-                var receivedUnreadAvg = receivedUnreadItems.Where(e => e > -1).DefaultIfEmpty().Average(e => e);
+                var inboxAvg = inboxItems.Where(e => e > Settings.NoValueDefault).DefaultIfEmpty().Average(e => e);
+                var inboxUnreadAvg = inboxUnreadItems.Where(e => e > Settings.NoValueDefault).DefaultIfEmpty().Average(e => e);
+                var sentAvg = sentItems.Where(e => e > Settings.NoValueDefault).DefaultIfEmpty().Average(e => e);
+                var receivedAvg = receivedItems.Where(e => e > Settings.NoValueDefault).DefaultIfEmpty().Average(e => e);
+                var receivedUnreadAvg = receivedUnreadItems.Where(e => e > Settings.NoValueDefault).DefaultIfEmpty().Average(e => e);
 
                 return new Tuple<double, double, double, double, double>(inboxAvg, inboxUnreadAvg, sentAvg, receivedAvg, receivedUnreadAvg);
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return new Tuple<double, double, double, double, double>(-1, -1, -1, -1, -1);
+                return new Tuple<double, double, double, double, double>(Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault, Settings.NoValueDefault);
             }
         }
 

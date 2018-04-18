@@ -7,8 +7,8 @@
     <ProjectGuid>{8EBA3B95-BE0E-4498-9EAC-20D417176A00}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ArtifactVisualizer</RootNamespace>
-    <AssemblyName>ArtifactVisualizer</AssemblyName>
+    <RootNamespace>TimeSpentVisualizer</RootNamespace>
+    <AssemblyName>TimeSpentVisualizer</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

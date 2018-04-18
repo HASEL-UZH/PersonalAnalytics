@@ -8,8 +8,8 @@ using Shared;
 using System.Collections.Generic;
 using Shared.Helpers;
 using System.Linq;
-using ArtifactVisualizer.Helpers;
-using ArtifactVisualizer.Models;
+using TimeSpentVisualizer.Helpers;
+using TimeSpentVisualizer.Models;
 using System.Globalization;
 using Shared.Data;
 using System.Reflection;
@@ -38,7 +38,7 @@ namespace TimeSpentVisualizer.Visualizers
 
         public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
         {
-            var vis = new DayTimeSpentTable(date, TimeSpentShowEmailsEnabled, TimeSpentShowProgramsEnabled);
+            var vis = new DayTimeSpentTable(date, TimeSpentShowEmailsEnabled, TimeSpentShowProgramsEnabled, TimeSpentHideMeetingsWithoutAttendeesEnabled);
             return new List<IVisualization> { vis };
         }
 
@@ -87,21 +87,46 @@ namespace TimeSpentVisualizer.Visualizers
                 Database.GetInstance().LogInfo("The participant updated the setting 'TimeSpentShowEmailsEnabled' to " + updatedIsEnabled);
             }
         }
+
+        private bool _timeSpentHideMeetingsWithoutAttendeesEnabled;
+        public bool TimeSpentHideMeetingsWithoutAttendeesEnabled
+        {
+            get
+            {
+                _timeSpentHideMeetingsWithoutAttendeesEnabled = Database.GetInstance().GetSettingsBool("TimeSpentHideMeetingsWithoutAttendeesEnabled", false); // by default, shown
+                return _timeSpentHideMeetingsWithoutAttendeesEnabled;
+            }
+            set
+            {
+                var updatedIsEnabled = value;
+
+                // only update if settings changed
+                if (updatedIsEnabled == _timeSpentHideMeetingsWithoutAttendeesEnabled) return;
+
+                // update settings
+                Database.GetInstance().SetSettings("TimeSpentHideMeetingsWithoutAttendeesEnabled", value);
+
+                // log
+                Database.GetInstance().LogInfo("The participant updated the setting 'TimeSpentHideMeetingsWithoutAttendeesEnabled' to " + updatedIsEnabled);
+            }
+        }
     }
 
     public class DayTimeSpentTable : BaseVisualization, IVisualization
     {
         private readonly DateTimeOffset _date;
         private const int numberOfItemsShown = 10;
-        private bool _showEmailsEnabled;
-        private bool _showProgramsEnabled;
+        private readonly bool _showEmailsEnabled;
+        private readonly bool _showProgramsEnabled;
+        private readonly bool _hideMeetingsWithoutAttendees;
         private bool? _meetingTableExists;
 
-        public DayTimeSpentTable(DateTimeOffset date, bool showEmailsEnabled, bool showProgramsEnabled)
+        public DayTimeSpentTable(DateTimeOffset date, bool showEmailsEnabled, bool showProgramsEnabled, bool hideMeetingsWithoutAttendees)
         {
             this._date = date;
             this._showEmailsEnabled = showEmailsEnabled;
             this._showProgramsEnabled = showProgramsEnabled;
+            this._hideMeetingsWithoutAttendees = hideMeetingsWithoutAttendees;
 
             Title = "Details: Time Spent"; // (on websites, in meetings, in programs, in files, in Visual Studio projects and on code reviews)";
             IsEnabled = true; //todo: handle by user
@@ -137,7 +162,7 @@ namespace TimeSpentVisualizer.Visualizers
             }
             if (_meetingTableExists.Value)
             {
-                var meetings = CollectData.GetCleanedMeetings(_date);
+                var meetings = CollectData.GetCleanedMeetings(_date, _hideMeetingsWithoutAttendees);
                 list.AddRange(meetings);
             }
             // users can disable including email data

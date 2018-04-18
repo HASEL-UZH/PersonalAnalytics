@@ -1,35 +1,46 @@
-﻿// Created by André Meyer at MSR
+﻿// Created by André Meyer at MSR, updated at University of Zurich
 // Created: 2015-12-09
 // 
 // Licensed under the MIT License.
+
 using System;
-using Shared;
 using System.Globalization;
-using Microsoft.Experimental.IdentityModel.Clients.ActiveDirectory;
-using Microsoft.Office365.OutlookServices;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using Shared.Data;
-using MsOfficeTracker.Models;
-using System.Net;
 using System.Runtime.InteropServices;
+using Microsoft.Graph;
+using Microsoft.Identity.Client;
+using Logger = Shared.Logger;
+using Message = Microsoft.Graph.Message;
 
 namespace MsOfficeTracker.Helpers
 {
+    /// <summary>
+    /// The Office365 uses the MSAL library for the authentication (previously ADAL) 
+    /// and then the GraphServiceclient to have a nice interface for the API requests.
+    /// 
+    /// A good starting point for the authentication with MSAL can be found here: 
+    /// https://docs.microsoft.com/en-us/azure/active-directory/develop/guidedsetups/active-directory-windesktop
+    /// https://github.com/Azure-Samples/active-directory-dotnet-desktop-msgraph-v2/tree/master/active-directory-wpf-msgraph-v2
+    /// 
+    /// A good starting point for using the Graph library can be found here:
+    /// https://developer.microsoft.com/en-us/graph/docs/api-reference/v1.0/resources/message
+    /// https://developer.microsoft.com/en-us/graph/docs/api-reference/v1.0/api/user_list_calendarview
+    /// https://developer.microsoft.com/en-us/graph/graph-explorer
+    /// 
+    /// The app can be registered here: 
+    /// https://apps.dev.microsoft.com/#/appList
+    /// </summary>
     public class Office365Api
     {
         private static Office365Api _api;
-        private Uri redirectUri = new Uri(Settings.RedirectUriString);
-        private string _authority = string.Format(CultureInfo.InvariantCulture, Settings.AadInstance, "common"); // use microsoft.onmicrosoft.com for just this tenant, use "common" if used for everyone
-        private AuthenticationContext _authContext;
-        private AuthenticationResult _authResult;
-        private OutlookServicesClient _client;
 
-        private string[] _scopes = { "https://outlook.office.com/mail.read", "https://outlook.office.com/calendars.read" }; // "https://outlook.office.com/user.readbasic.all" };
-        private const string _apiUrl = "https://outlook.office.com/api/v2.0";
-        //private string _loggedInUserEmail;
-        //private string _loggedInUserName;
+        private AuthenticationResult _authResult;
+        private GraphServiceClient _client;
+        private PublicClientApplication _app;
+        private readonly string _authority = string.Format(CultureInfo.InvariantCulture, Settings.LoginApiEndpoint, "common"); // use microsoft.onmicrosoft.com for just this tenant, use "common" if used for everyone
 
         /// <summary>
         /// Singleton
@@ -42,30 +53,38 @@ namespace MsOfficeTracker.Helpers
 
         #region Api Authentication, Clearing Cookies, etc.
 
-        private Office365Api()
+        /// <summary>
+        /// try logging in, or show sign-in page and ask for rights
+        /// </summary>
+        public async Task<bool> Authenticate()
         {
-            // use file cache to persist token
-            _authContext = new AuthenticationContext(_authority, new FileCache());
+            var isAuthenticated = await TrySilentAuthentication();
 
-            if (_authContext.TokenCache.ReadItems().Count() > 0)
+            if (isAuthenticated)
             {
-                // re-bind the AuthenticationContext to the authority that sourced the token in the cache 
-                // this is needed for the cache to work when asking a token from that authority 
-                // (the common endpoint never triggers cache hits) 
-                var cachedAuthority = _authContext.TokenCache.ReadItems().First().Authority;
-                _authContext = new AuthenticationContext(cachedAuthority, new FileCache());
+                var userName = (Shared.Settings.AnonymizeSensitiveData) ? Shared.Dict.Anonymized : _authResult.User.Name;
+                Database.GetInstance().LogInfo("Successfully logged in with Office 365 (as " + userName + ")." );
+                return true;
             }
             else
             {
-                // no previous tokens -> do nothing for now
+                Database.GetInstance().LogError("Error logging in the user with Office 365.");
+                return false;
             }
+        }
 
-            // initialize outlook services client
-            _client = new OutlookServicesClient(new Uri(_apiUrl), async () =>
-            {
-                // Since we have it locally from the Session, just return it here.
-                return _authResult.Token;
-            });
+        /// <summary>
+        /// Checks if the connection to the API was successfully established previously.
+        /// If not, it tries to establish a connection:
+        /// 
+        /// 1. check if an auth-token is available (usually then the connection works fine)
+        /// 2. checks if internet is available (necessary)
+        /// 3. checks if a silent authentication can be made. if it fails, tries to connect via regular SignIn.
+        /// </summary>
+        /// <returns></returns>
+        public async Task<bool> ConnectionToApiFailing()
+        {
+            return _authResult == null || ! IsInternetAvailable() || ! await TrySilentAuthentication();
         }
 
         /// <summary>
@@ -75,33 +94,39 @@ namespace MsOfficeTracker.Helpers
         /// </summary>
         private async Task<bool> TrySilentAuthentication()
         {
+            // check for internet connection
+            if (! IsInternetAvailable()) return false;
+
             try
             {
-                // Here, we try to get an access token to call the service without invoking any UI prompt.  PromptBehavior.Never forces
-                // ADAL to throw an exception if it cannot get a token silently.
-                _authResult = await _authContext.AcquireTokenAsync(_scopes, null, Settings.ClientId, redirectUri, new PlatformParameters(PromptBehavior.Never, null));
+                // register app (if not yet done)
+                if (_app == null)
+                { 
+                    _app = new PublicClientApplication(Settings.ClientId, _authority, FileCache.GetUserCache());
+                }
+
+                // Here, we try to get an access token to call the service without invoking any UI prompt.
+                //_authResult = await _app.AcquireTokenAsync(_scopes, "", UIBehavior.ForceLogin, "");
+                _authResult = await _app.AcquireTokenSilentAsync(Settings.Scopes, _app.Users.FirstOrDefault());
+
+                // prepare outlook services client (if not yet ready)
+                if (_client == null)
+                {
+                    _client = new GraphServiceClient(new DelegateAuthenticationProvider(requestMessage =>
+                        {
+                            requestMessage.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", _authResult.AccessToken);
+                            return Task.FromResult(0);
+                        }));
+                    //_client.BaseUrl = Settings.GraphApiEndpoint;
+                }
+
                 return true;
             }
-            catch (AdalException ex)
+            catch (MsalUiRequiredException)
             {
-                // ADAL couldn't get a token silently, so show the user a message
-                // and let them click the Sign-In button.
-                if (ex.ErrorCode == "user_interaction_required")
-                {
-                    var res = await SignIn();
-                    return res;
-                }
-                else
-                {
-                    // In any other case, an unexpected error occurred.
-                    string message = ex.Message;
-                    if (ex.InnerException != null)
-                    {
-                        message += "Inner Exception : " + ex.InnerException.Message;
-                    }
-                    Logger.WriteToLogFile(ex);
-                    return false;
-                }
+                // MSAL couldn't get a token silently, so show the user a message and let them click the Sign-In button.
+                var res = await SignIn();
+                return res;
             }
             catch (Exception e)
             {
@@ -111,21 +136,19 @@ namespace MsOfficeTracker.Helpers
         }
 
         /// <summary>
-        /// force ADAL to prompt the user for credentials by specifying PromptBehavior.Always.
-        /// ADAL will get a token and cache it
+        /// force MSAL to prompt the user for credentials by specifying PromptBehavior.Always.
+        /// MSAL will get a token and cache it
         /// </summary>
         private async Task<bool> SignIn()
         {
             try
             {
-                _authResult = await _authContext.AcquireTokenAsync(_scopes, null, Settings.ClientId, redirectUri, new PlatformParameters(PromptBehavior.Always, null));
-                //_loggedInUserEmail = _authResult.UserInfo.DisplayableId; // hint: UserInfo empty after authentication
-                //_loggedInUserName = _authResult.UserInfo.Name; // hint: UserInfo empty after authentication
+                _authResult = await _app.AcquireTokenAsync(Settings.Scopes);
                 return true;
             }
-            catch (AdalException ex)
+            catch (MsalException ex)
             {
-                // If ADAL cannot get a token, it will throw an exception.
+                // If MSAL cannot get a token, it will throw an exception.
                 // If the user canceled the login, it will result in the
                 // error code 'authentication_canceled'.
                 if (ex.ErrorCode == "authentication_canceled")
@@ -137,11 +160,6 @@ namespace MsOfficeTracker.Helpers
                 else
                 {
                     // An unexpected error occurred.
-                    string message = ex.Message;
-                    if (ex.InnerException != null)
-                    {
-                        message += "Inner Exception : " + ex.InnerException.Message;
-                    }
                     Logger.WriteToLogFile(ex);
                     return false;
                 }
@@ -154,63 +172,26 @@ namespace MsOfficeTracker.Helpers
         }
 
         /// <summary>
-        /// clear the ADAL token cache
+        /// clear the MSAL token cache
         /// It's also necessary to clear the cookies from the browser' control so the next user has a chance to sign in.
         /// </summary>
         public void SignOut()
         {
-            if (_authContext != null && _authContext.TokenCache != null) _authContext.TokenCache.Clear();
-            ClearCookies();
-            Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "Successfully signed-out user from Office 365."));
-        }
-
-        /// <summary>
-        /// This function clears cookies from the browser control used by ADAL.
-        /// </summary>
-        private void ClearCookies()
-        {
-            const int INTERNET_OPTION_END_BROWSER_SESSION = 42;
-            NativeMethods.InternetSetOption(IntPtr.Zero, INTERNET_OPTION_END_BROWSER_SESSION, IntPtr.Zero, 0);
-        }
-
-        /// <summary>
-        /// try logging in, or show sign-in page and ask for rights
-        /// </summary>
-        public async Task<bool> Authenticate()
-        {
-            var res = await TrySilentAuthentication();
-            if (res)
+            if (!_app.Users.Any()) return;
+            try
             {
-                Database.GetInstance().LogInfo("Successfully logged in with Office 365.");
-                return true;
+                _app.Remove(_app.Users.FirstOrDefault());
             }
-            else
+            catch (MsalException ex)
             {
-                Database.GetInstance().LogError("Error logging in the user with Office 365.");
-                return false;
+                Logger.WriteToLogFile(ex);
             }
-        }
-
-        //public bool IsAuthenticatedUser(string name, string email)
-        //{
-        //    return (name == _loggedInUserName || email == _loggedInUserEmail);
-        //}
-
-        /// <summary>
-        /// Returns true if the user is already authenticated with Office 365
-        /// </summary>
-        /// <returns></returns>
-        public bool IsAuthenticated()
-        {
-            //if (!await TrySilentAuthentication() || _authResult == null) return false;
-            if (_authResult == null) return false;
-            return true;
         }
 
         [DllImport("wininet.dll")]
-        private extern static bool InternetGetConnectedState(out int description, int reservedValue);
+        private static extern bool InternetGetConnectedState(out int description, int reservedValue);
 
-        private static bool IsInternetAvailable()
+        public static bool IsInternetAvailable()
         {
             int description;
             return InternetGetConnectedState(out description, 0);
@@ -220,33 +201,48 @@ namespace MsOfficeTracker.Helpers
 
         #region Meeting Queries
 
-        public async Task<List<DisplayEvent>> LoadMeetings(DateTimeOffset date)
+        /// <summary>
+        /// Loads all meetings from the user's main calendar for the given date
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public async Task<List<Event>> LoadMeetings(DateTimeOffset date)
         {
-            var meetings = new List<DisplayEvent>();
+            var meetings = new List<Event>();
 
-            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return meetings;
+            if (await ConnectionToApiFailing()) return meetings;
 
             try
             {
-                var groups = await _client.Me.Calendar.GetCalendarView(date.Date.ToUniversalTime(), date.Date.ToUniversalTime().AddDays(1).AddTicks(-1))
-                                    .Where(e => e.IsCancelled == false)
-                                    .OrderBy(e => e.Start.DateTime)
-                                    .Take(20)
-                                    .Select(e => new DisplayEvent(e.Organizer, e.IsOrganizer, e.Subject, e.ResponseStatus, e.Start.DateTime, e.End.DateTime, e.Attendees))
-                                    .ExecuteAsync();
+                var dtStart = date.Date.ToUniversalTime();
+                var dtEnd = date.Date.AddDays(1).AddTicks(-1).ToUniversalTime();
 
-                do
+                var options = new List<QueryOption>
                 {
-                    foreach (var m in groups.CurrentPage.ToList())
+                    new QueryOption("startDateTime", dtStart.ToString("u")),
+                    new QueryOption("endDateTime", dtEnd.ToString("u")),
+                    //new QueryOption("select", "subject,body,bodyPreview,organizer,attendees,start,end,location"),
+                    //new QueryOption("$count", "true")
+                };
+                var result = await _client.Me.CalendarView.Request(options).GetAsync();
+                //var calendar = await _client.Me.Calendar.CalendarView.Request(options).GetAsync();
+
+                if (result?.Count > 0)
+                {
+                    var meetingsUnfiltered = new List<Event>();
+                    meetingsUnfiltered.AddRange(result.CurrentPage);
+                    while (result.NextPageRequest != null)
                     {
-                        // only add if the user attends the meeting
-                        if (!m.IsOrganizer && m.ResponseStatus != ResponseType.Accepted) continue;
-                        meetings.Add(m);
+                        result = await result.NextPageRequest.GetAsync();
+                        meetingsUnfiltered.AddRange(result.CurrentPage);
                     }
 
-                    groups = await groups.GetNextPageAsync();
+                    // remove unneeded meetings
+                    meetings = meetingsUnfiltered.Where(
+                                    m => (m.IsCancelled != null && m.IsCancelled.Value == false) // && // meeting is not cancelled
+                                         //(m.IsOrganizer != null && !m.IsOrganizer.Value && (m.ResponseStatus.Response == ResponseType.Accepted || m.ResponseStatus.Response == ResponseType.TentativelyAccepted))) // user attends meeting
+                                    ).ToList();
                 }
-                while (groups != null && groups.MorePagesAvailable);                
             }
             catch (Exception e)
             {
@@ -348,37 +344,39 @@ namespace MsOfficeTracker.Helpers
         #region Email Queries
 
         /// <summary>
+        /// In case the email result contains an odata count, return the value
+        /// </summary>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        private static long GetResultCount(IMailFolderMessagesCollectionPage result)
+        {
+            return result.AdditionalData.ContainsKey("@odata.count") ? long.Parse(result.AdditionalData["@odata.count"].ToString()) : Settings.NoValueDefault;
+            // here, we could also iterate through the result and manually count (if it didn't work), but why should we when the API does it?
+        }
+
+        /// <summary>
         /// Returns the number of unread emails currently in the inbox
         /// </summary>
         /// <returns>number of items, -1 in case of an error</returns>
         public async Task<long> GetNumberOfUnreadEmailsInInbox()
         {
-            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return -1;
+            if (await ConnectionToApiFailing()) return Settings.NoValueDefault;
 
             try
             {
-                var groups = await _client.Me.MailFolders.GetById("Inbox").Messages
-                    .Where(m => m.IsRead == false) // only unread emails
-                    .Take(20)
-                    .Select(m => new { m.From }) // only get single info (can get more if needed)
-                    .ExecuteAsync();
-
-                var inboxSize = 0;
-
-                do
+                var options = new List<QueryOption>
                 {
-                    var mailResults = groups.CurrentPage.ToList();
-                    inboxSize += mailResults.Count;
-                    groups = await groups.GetNextPageAsync(); // next page
-                }
-                while (groups != null); // && groups.MorePagesAvailable);
-
-                return inboxSize;
+                    new QueryOption("$filter", "isRead eq false"),
+                    new QueryOption("$count", "true")
+                };
+                var result = await _client.Me.MailFolders.Inbox.Messages.Request(options).GetAsync();
+                var unreadInboxSize = GetResultCount(result);
+                return unreadInboxSize;
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return -1;
+                return Settings.NoValueDefault;
             }
         }
 
@@ -388,31 +386,23 @@ namespace MsOfficeTracker.Helpers
         /// <returns>number of items, -1 in case of an error</returns>
         public async Task<long> GetTotalNumberOfEmailsInInbox()
         {
-            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return -1;
+            if (await ConnectionToApiFailing()) return Settings.NoValueDefault;
 
             try
             {
-                var groups = await _client.Me.MailFolders.GetById("Inbox").Messages
-                    .Take(20)
-                    .Select(m => new { m.From }) // only get single info (can get more if needed)
-                    .ExecuteAsync();
-
-                var inboxSize = 0;
-
-                do
+                var options = new List<QueryOption>
                 {
-                    var mailResults = groups.CurrentPage.ToList();
-                    inboxSize += mailResults.Count;
-                    groups = await groups.GetNextPageAsync(); // next page
-                }
-                while (groups != null); // && groups.MorePagesAvailable);
-
+                    //new QueryOption("$filter", "isRead eq false"), // we want the total list
+                    new QueryOption("$count", "true")
+                };
+                var result = await _client.Me.MailFolders.Inbox.Messages.Request(options).GetAsync();
+                var inboxSize = GetResultCount(result);
                 return inboxSize;
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return -1;
+                return Settings.NoValueDefault;
             }
         }
 
@@ -421,188 +411,163 @@ namespace MsOfficeTracker.Helpers
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public async Task<int> GetNumberOfEmailsSent(DateTimeOffset date)
+        public async Task<long> GetNumberOfEmailsSent(DateTimeOffset date)
         {
-            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return -1;
+            if (await ConnectionToApiFailing()) return Settings.NoValueDefault;
 
             try
             {
                 var dtStart = date.Date.ToUniversalTime();
                 var dtEnd = date.Date.AddDays(1).ToUniversalTime();
 
-                var groups = await _client.Me.MailFolders.GetById("SentItems").Messages
-                    .Where(m => m.SentDateTime.Value >= dtStart && m.SentDateTime.Value <= dtEnd)
-                    .Take(20)
-                    .Select(m => new { m.From }) //new DisplayEmail(m))
-                    .ExecuteAsync();
-
-                var numberEmailsSent = 0;
-                do
+                var options = new List<QueryOption>
                 {
-                    var mailResults = groups.CurrentPage.ToList();
-                    numberEmailsSent += mailResults.Count;
-                    groups = await groups.GetNextPageAsync(); // next page
-                }
-                while (groups != null); // && groups.MorePagesAvailable);
-
+                    new QueryOption("$filter", "sentDateTime ge " + dtStart.ToString("yyyy-MM-dd") + " and sentDateTime le " + dtEnd.ToString("yyyy-MM-dd")),
+                    new QueryOption("$count", "true")
+                };
+                var result = await _client.Me.MailFolders.SentItems.Messages.Request(options).GetAsync();
+                var numberEmailsSent = GetResultCount(result);
                 return numberEmailsSent;
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return -1;
+                return Settings.NoValueDefault;
             }
         }
 
         /// <summary>
-        /// Returns a list of emails which were received on a given date
-        /// AND are unread (and not in junk or delete folder)
+        /// Returns a list of emails which were received on a given date AND are unread 
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
         public async Task<int> GetNumberOfUnreadEmailsReceived(DateTimeOffset date)
         {
-            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return -1;
+            if (await ConnectionToApiFailing()) return Settings.NoValueDefault;
 
             try
             {
                 var dtStart = date.Date.ToUniversalTime();
                 var dtEnd = date.Date.AddDays(1).ToUniversalTime();
 
-                // TODO: bug: this query also includes sent items (and not just received ones)
-                var groups = await _client.Me.Messages
-                    .OrderByDescending(m => m.ReceivedDateTime)
-                    .Where(m => m.ReceivedDateTime.Value >= dtStart && m.ReceivedDateTime.Value <= dtEnd
-                             && m.IsDraft == false && m.IsRead == false)  // only unread emails                                                                                                                                                //todo: filter if not in Junk Email and Deleted Folder (maybe with ParentFolderId)
-                    .Take(20)
-                    .Select(m => new { m.ParentFolderId }) // new DisplayEmail(m)) // m.From
-                    .ExecuteAsync();
-
-                var deleteFolders = await GetDeleteAndJunkFolderIds();
-
-                var numberOfEmailsReceived = 0;
-                do
+                var options = new List<QueryOption>
                 {
-                    var mailResults = groups.CurrentPage.ToList();
+                    new QueryOption("$filter", "receivedDateTime ge " + dtStart.ToString("yyyy-MM-dd") + " and receivedDateTime le " + dtEnd.ToString("yyyy-MM-dd") + " and isRead eq false"),
+                };
+                var result = await _client.Me.Messages.Request(options).GetAsync();
 
-                    if (deleteFolders.Item1 == false)
+                if (result?.Count > 0)
+                {
+                    var receivedUnfilter = new List<Message>();
+                    receivedUnfilter.AddRange(result.CurrentPage);
+                    while (result.NextPageRequest != null)
                     {
-                        numberOfEmailsReceived += mailResults.Count;
-                    }
-                    else
-                    {
-                        numberOfEmailsReceived += mailResults.Where(m => m.ParentFolderId != deleteFolders.Item2 && m.ParentFolderId != deleteFolders.Item3 // not in deleted folder
-                                                                    && m.ParentFolderId != deleteFolders.Item4 && m.ParentFolderId != deleteFolders.Item5).ToList().Count; // not in junk folder
+                        result = await result.NextPageRequest.GetAsync();
+                        receivedUnfilter.AddRange(result.CurrentPage);
                     }
 
-                    groups = await groups.GetNextPageAsync();
+                    // delete emails in IgnoreFolders and Drafts and IM-copies from S4B/Teams
+                    var ignoreFolders = await GetFoldersToIgnoreIds();
+                    var unreadEmailsReceived = receivedUnfilter.Count(m => m.IsDraft == false && !ignoreFolders.Contains(m.ParentFolderId) && m.Subject != "IM");
+                    return unreadEmailsReceived;
                 }
-                while (groups != null); //&& groups.MorePagesAvailable);
-
-                return numberOfEmailsReceived;
+                return 0;
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return -1;
             }
+            return Settings.NoValueDefault;
         }
 
         /// <summary>
         /// Returns a list of emails which were received on a given date
-        /// (and not in junk or delete folder)
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
         public async Task<int> GetTotalNumberOfEmailsReceived(DateTimeOffset date)
         {
-            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return -1;
+            if (await ConnectionToApiFailing()) return Settings.NoValueDefault;
 
             try
             {
                 var dtStart = date.Date.ToUniversalTime();
                 var dtEnd = date.Date.AddDays(1).ToUniversalTime();
 
-                // TODO: bug: this query also includes sent items (and not just received ones)
-                var groups = await _client.Me.Messages
-                    .Where(m => m.ReceivedDateTime.Value >= dtStart && m.ReceivedDateTime.Value <= dtEnd && m.IsDraft == false)
-                    .OrderByDescending(m => m.ReceivedDateTime)
-                    .Take(20)
-                    .Select(m => new { m.ParentFolderId }) // new DisplayEmail(m)) // m.From
-                    .ExecuteAsync();
-
-                // filter if not in Junk Email and Deleted Folder (maybe with ParentFolderId)
-                var deleteFolders = await GetDeleteAndJunkFolderIds();
-                var numberOfEmailsReceived = 0;
-                do
+                var options = new List<QueryOption>
                 {
-                    var mailResults = groups.CurrentPage.ToList();
+                    new QueryOption("$filter", "receivedDateTime ge " + dtStart.ToString("yyyy-MM-dd") + " and receivedDateTime le " + dtEnd.ToString("yyyy-MM-dd")),
+                };
+                var result = await _client.Me.Messages.Request(options).GetAsync();
 
-                    if (deleteFolders.Item1 == false)
+                if (result?.Count > 0)
+                {
+                    var receivedUnfilter = new List<Message>();
+                    receivedUnfilter.AddRange(result.CurrentPage);
+                    while (result.NextPageRequest != null)
                     {
-                        numberOfEmailsReceived += mailResults.Count;
-                    }
-                    else
-                    {
-                        numberOfEmailsReceived += mailResults.Where(m => m.ParentFolderId != deleteFolders.Item2 && m.ParentFolderId != deleteFolders.Item3 // not in deleted folder
-                                                                    && m.ParentFolderId != deleteFolders.Item4 && m.ParentFolderId != deleteFolders.Item5).ToList().Count; // not in junk folder
+                        result = await result.NextPageRequest.GetAsync();
+                        receivedUnfilter.AddRange(result.CurrentPage);
                     }
 
-                    groups = await groups.GetNextPageAsync();
+                    // delete emails in IgnoreFolders and Drafts and IM-copies from S4B/Teams
+                    var ignoreFolders = await GetFoldersToIgnoreIds();
+                    var emailsReceived = receivedUnfilter.Count(m => m.IsDraft == false && !ignoreFolders.Contains(m.ParentFolderId) && m.Subject != "IM");
+
+                    return emailsReceived;
                 }
-                while (groups != null); //&& groups.MorePagesAvailable);
-
-                return numberOfEmailsReceived;
+                return 0;
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return -1;
             }
+            return Settings.NoValueDefault;
         }
 
+        private List<string> _emailFoldersToIgnore;
+
         /// <summary>
-        /// Loads a list of folders to find the Ids of the junk and deleted items folders
-        /// to filter them
+        /// Loads a list of folders to find the Ids of folders that should not be considered
+        /// (Spam, Sent, Clutter, Deleted, etc.)
+        /// Also caches it after first instantiation.
         /// </summary>
         /// <returns></returns>
-        private async Task<Tuple<bool, string, string, string, string>> GetDeleteAndJunkFolderIds()
+        private async Task<List<string>> GetFoldersToIgnoreIds()
         {
+            if (_emailFoldersToIgnore != null) return _emailFoldersToIgnore;
+            _emailFoldersToIgnore = new List<string>();
+
             try
             {
-                var deletedFolderIdEn = string.Empty;
-                var deletedFolderIdDe = string.Empty;
-                var junkFolderId1 = string.Empty;
-                var junkFolderId2 = string.Empty;
+                var folders = await _client.Me.MailFolders.Request().GetAsync();
 
-                var folders = await _client.Me.MailFolders.Take(10).Select(f => new { f.Id, f.DisplayName }).ExecuteAsync();
-                do
+                // get all mailbox-folders
+                var folderList = new List<MailFolder>();
+                folderList.AddRange(folders.CurrentPage);
+                while (folders.NextPageRequest != null)
                 {
-                    var res1 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("deleted")).FirstOrDefault();
-                    if (res1 != null && !string.IsNullOrEmpty(res1.Id)) deletedFolderIdEn = res1.Id;
-
-                    var res2 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("gelöscht")).FirstOrDefault();
-                    if (res2 != null && !string.IsNullOrEmpty(res2.Id)) deletedFolderIdDe = res2.Id;
-
-                    var res3 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("junk")).FirstOrDefault();
-                    if (res3 != null && !string.IsNullOrEmpty(res3.Id)) junkFolderId1 = res3.Id;
-
-                    var res4 = folders.CurrentPage.Where(f => f.DisplayName.ToLower().Contains("spam")).FirstOrDefault();
-                    if (res4 != null && !string.IsNullOrEmpty(res4.Id)) junkFolderId2 = res4.Id;
-
-                    if (!string.IsNullOrEmpty(deletedFolderIdEn) && !string.IsNullOrEmpty(deletedFolderIdDe) &&
-                        !string.IsNullOrEmpty(junkFolderId1) && !string.IsNullOrEmpty(junkFolderId2)) break;
-
-                    folders = await folders.GetNextPageAsync();
+                    folders = await folders.NextPageRequest.GetAsync();
+                    folderList.AddRange(folders.CurrentPage);
                 }
-                while (folders != null);
 
-                return new Tuple<bool, string, string, string, string>(true, deletedFolderIdEn, deletedFolderIdDe, junkFolderId1, junkFolderId2);
+                // filter folders we want to ignore
+                var foldersToIgnore = new List<string>{"deleted", "junk", "spam", "sent", "draft", "outbox", "clutter", "archive"};
+                foreach (var item in folderList)
+                {
+                    foreach (var ignoreFolder in foldersToIgnore)
+                    {
+                        if (!item.DisplayName.ToLower().Contains(ignoreFolder)) continue;
+                        _emailFoldersToIgnore.Add(item.Id);
+                    }
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                return new Tuple<bool, string, string, string, string>(false, "", "", "", "");
+                Logger.WriteToLogFile(ex);
             }
+
+            return _emailFoldersToIgnore;
         }
 
         //public async Task<List<ContactItem>> LoadPeopleFromEmails(DateTimeOffset date)
@@ -682,28 +647,27 @@ namespace MsOfficeTracker.Helpers
 
         #region Contact Queries
 
-        public async Task<string> GetPhotoForUser(string email)
-        {
-            if (!IsInternetAvailable() || !await TrySilentAuthentication() || _authResult == null) return string.Empty;
+        //public async Task<string> GetPhotoForUser(string email)
+        //{
+        //    if (await ConnectionToApiFailing()) return string.Empty;
 
-            try
-            {
-                //var userResult = await _client.Users.GetById(email).Photo.ExecuteAsync(); //.Select(u => u.Photo)
-                //var userResult = await _client.Users.Where(u => u.Id.Equals(email)).ExecuteAsync(); //.Select(u => u.Photo)
+        //    try
+        //    {
+        //        //var userResult = await _client.Users.GetById(email).Photo.ExecuteAsync(); //.Select(u => u.Photo)
+        //        //var userResult = await _client.Users.Where(u => u.Id.Equals(email)).ExecuteAsync(); //.Select(u => u.Photo)
 
-                //Console.WriteLine(userResult + userResult2.CurrentPage.ToString() + userResult3.CurrentPage.ToString());
+        //        //Console.WriteLine(userResult + userResult2.CurrentPage.ToString() + userResult3.CurrentPage.ToString());
 
-                // todo: handle current page
-                //var result = userResult.ToString();
+        //        //var result = userResult.ToString();
 
-                return "";
-            }
-            catch (Exception e)
-            {
-                Logger.WriteToLogFile(e); // todo; disable because many photos are not available
-                return string.Empty;
-            }
-        }
+        //        return "";
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Logger.WriteToLogFile(e); // disable because many photos are not available
+        //        return string.Empty;
+        //    }
+        //}
 
         #endregion
     }

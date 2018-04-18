@@ -16,8 +16,9 @@ namespace Shared
          * version 2 - update emails table in MsOfficeTracker (2016-06-20)
          * version 3 - update focus_state table in FlowTracker (2017-01-12)
          * version 4 - update windows_activity table in WindowsActivityTracker (2017-07-20)
+         * version 5 - update meetings table in MsOfficeTracker (2017-12-07)
          */
-        public const int DatabaseVersion = 4; // !!! update when existing database table changes (have a look at PerformDatabaseUpdatesIfNecessary() for details)
+        public const int DatabaseVersion = 5; // !!! update when existing database table changes (have a look at PerformDatabaseUpdatesIfNecessary() for details)
 
 
 #if Dev
@@ -83,13 +84,15 @@ namespace Shared
 
 
         ////////////////////////////////////////////////////////////
-        // contact emails
+        // contact emails & privacy statement URI
 #if PilotMSR
         public const string EmailAddress1 = "tzimmer@microsoft.com"; // main email address
         public const string EmailAddress2 = "ameyer@ifi.uzh.ch";
+        public const string PrivacyStatementUri = "";
 #else
         public const string EmailAddress1 = "ameyer@ifi.uzh.ch"; // main email address
         public static string EmailAddress2 = string.Empty;
+        public const string PrivacyStatementUri = @"https://pluto.ifi.uzh.ch/PersonalAnalytics";
 #endif
 
 
@@ -99,12 +102,12 @@ namespace Shared
         private static SolidColorBrush _retrospectionColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(RetrospectionColorHex));
         public static SolidColorBrush RetrospectionColorBrush { get { return _retrospectionColor; } }
 
-        public const string GrayColor = "#E8E8E8";
-        private static SolidColorBrush _grayColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(GrayColor));
+        public const string GrayColorHex = "#E8E8E8";
+        private static SolidColorBrush _grayColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(GrayColorHex));
         public static SolidColorBrush GrayColorBrush { get { return _grayColor; } }
 
-        public const string DarkGrayColor = "#808080";
-        private static SolidColorBrush _darkGrayColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(DarkGrayColor));
+        public const string DarkGrayColorHex = "#808080";
+        private static SolidColorBrush _darkGrayColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(DarkGrayColorHex));
         public static SolidColorBrush DarkGrayColorBrush { get { return _darkGrayColor; } }
 
     }

@@ -13,7 +13,7 @@ namespace Shared.Helpers
     {
         public static void SendFeedback(string subject = "Feedback", string body = "", string appVersion = "")
         {
-            var email = FeedbackHelper.CreateFeedbackMailtoString(subject, appVersion, body);
+            var email = CreateFeedbackMailtoString(subject, appVersion, body);
             Process.Start(email); // open email application
         }
 

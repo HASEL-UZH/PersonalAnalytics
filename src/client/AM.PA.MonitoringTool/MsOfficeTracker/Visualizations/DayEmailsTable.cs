@@ -46,7 +46,7 @@ namespace MsOfficeTracker.Visualizations
 
             // if database entry is outdated or not there, create a live API call and override entries
             if (emailsSnapshotResult.Item1 == DateTime.MinValue || // no emails stored yet
-                (isToday && lastUpdatedMinsAgo > Settings.SaveEmailCountsIntervalInMinutes)) // request is for today and saved results are too old // could not fetch sent emails
+                (isToday && lastUpdatedMinsAgo > Settings.SaveEmailCountsInterval_InMinutes)) // request is for today and saved results are too old // could not fetch sent emails
             {
                 // create and save a new email snapshot (inbox, sent, received)
                 var res = Queries.CreateEmailsSnapshot(_date.Date, false);
@@ -72,11 +72,12 @@ namespace MsOfficeTracker.Visualizations
             /////////////////////
 
             html += "<table>";
-            if (sent > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + sent + "</strong></td><td>emails sent" + FormatAverage(sent, averagesSnapshot.Item3) + "</td></tr>";
-            if (received > -1 && receivedUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + (received - receivedUnread) + "</strong></td><td>emails received that are read" + FormatAverage((received - receivedUnread), averagesSnapshot.Item4 - averagesSnapshot.Item5) + "</td></tr>";
-            if (received > -1 && receivedUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + receivedUnread + "</strong></td><td>emails received that are unread" + FormatAverage(receivedUnread, averagesSnapshot.Item5) + "</td></tr>";
-            if (inbox > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + inbox + "</strong></td><td>emails in your inbox" + FormatAverage(inbox, averagesSnapshot.Item1) + "</td></tr>";
-            if (inboxUnread > -1) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + inboxUnread + "</strong></td><td>unread emails in your inbox" + FormatAverage(inboxUnread, averagesSnapshot.Item2) + "</td></tr>";
+            if (sent > Settings.NoValueDefault) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + sent + "</strong></td><td>emails sent" + FormatAverage(sent, averagesSnapshot.Item3) + "</td></tr>";
+            if (received > Settings.NoValueDefault && receivedUnread > Settings.NoValueDefault) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + (received - receivedUnread) + "</strong></td><td>emails received that are read" + FormatAverage((received - receivedUnread), averagesSnapshot.Item4 - averagesSnapshot.Item5) + "</td></tr>";
+            if (received > Settings.NoValueDefault && receivedUnread > Settings.NoValueDefault) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + receivedUnread + "</strong></td><td>emails received that are unread" + FormatAverage(receivedUnread, averagesSnapshot.Item5) + "</td></tr>";
+            if (received > Settings.NoValueDefault && receivedUnread == Settings.NoValueDefault) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + received + "</strong></td><td>emails received" + FormatAverage(received, averagesSnapshot.Item4) + "</td></tr>";
+            if (inbox > Settings.NoValueDefault) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + inbox + "</strong></td><td>emails in your inbox" + FormatAverage(inbox, averagesSnapshot.Item1) + "</td></tr>";
+            if (inboxUnread > Settings.NoValueDefault) html += "<tr><td><strong style='font-size:2.5em; color:#007acc;'>" + inboxUnread + "</strong></td><td>unread emails in your inbox" + FormatAverage(inboxUnread, averagesSnapshot.Item2) + "</td></tr>";
             html += "</table>";
 
             return html;
