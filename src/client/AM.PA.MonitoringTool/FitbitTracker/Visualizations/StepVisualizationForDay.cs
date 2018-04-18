@@ -138,7 +138,7 @@ namespace FitbitTracker
             html += "})";
             html += ".attr('fill', '" + Shared.Settings.RetrospectionColorHex + "')";
             html += ".on('mouseover', function(d) {";
-            html += "d3.select(this).attr('fill', '" + Shared.Settings.GrayColor + "');";
+            html += "d3.select(this).attr('fill', '" + Shared.Settings.GrayColorHex + "');";
             html += "document.getElementById(d.x).style.opacity='0';";
             html += "document.getElementById('average').style.opacity='1';";
             html += "document.getElementById('avg' + d.x).style.opacity='1';";

@@ -22,7 +22,7 @@ namespace WindowsActivityTracker.Visualizations
 
             Title = "Time spent at Work and the Computer";
             IsEnabled = true; //todo: handle by user
-            Order = 2; //todo: handle by user
+            Order = 1; //todo: handle by user
             Size = VisSize.Square;
             Type = VisType.Week;
         }
