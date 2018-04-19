@@ -454,12 +454,12 @@ namespace PersonalAnalytics
             m6.Click += (o, i) => OpenSettings();
             TaskbarIcon.ContextMenu.Items.Add(m6);
 
-            var m3 = new MenuItem { Header = "Pause Tracker" };
+            var m3 = new MenuItem { Header = "Pause " + Dict.ToolName };
             m3.Click += (o, i) => PauseContinueTracker(m3);
             TaskbarIcon.ContextMenu.Items.Add(m3);
             _pauseContinueMenuItem = m3;
 
-            var m7 = new MenuItem { Header = "Shutdown Tracker" };
+            var m7 = new MenuItem { Header = "Shutdown " + Dict.ToolName };
             m7.Click += (o, i) => Stop(true);
             TaskbarIcon.ContextMenu.Items.Add(m7);
 
@@ -583,13 +583,13 @@ namespace PersonalAnalytics
             if (_isPaused)
             {
                 Continue();
-                item.Header = "Pause Tracker";
+                item.Header = "Pause " + Dict.ToolName;
             }
             // pause 
             else
             {
                 Pause();
-                item.Header = "Resume Tracker";
+                item.Header = "Resume " + Dict.ToolName;
             }
         }
 
