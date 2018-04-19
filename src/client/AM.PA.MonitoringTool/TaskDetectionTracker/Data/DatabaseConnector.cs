@@ -18,22 +18,27 @@ namespace TaskDetectionTracker.Data
     internal class DatabaseConnector
     {
         private static string QUERY_CREATE_SESSION = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Sessions + " (sessionId INTEGER PRIMARY KEY, time DATETIME, session_start DATETIME, session_end DATETIME, timePopUpFirstShown DATETIME, timePopUpResponded DATETIME, postponedInfo TEXT, comments TEXT, confidence_switch TEXT, confidence_type TEXT);";
-        private static string QUERY_CREATE_VALIDATION = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Validations + " (id INTEGER PRIMARY KEY, sessionId INTEGER, time DATETIME, task_start DATETIME, task_end DATETIME, task_detection_case TEXT, task_type_proposed TEXT, task_type_validated TEXT, is_main_task BOOLEAN);";
+        private static string QUERY_CREATE_PREDICTION = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Predictions + " (id INTEGER PRIMARY KEY, sessionId INTEGER, time DATETIME, task_start DATETIME, task_end DATETIME, task_type_predicted TEXT);";
+        private static string QUERY_CREATE_VALIDATION = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable_TaskDetection_Validations + " (id INTEGER PRIMARY KEY, sessionId INTEGER, time DATETIME, task_start DATETIME, task_end DATETIME, task_type_validated TEXT);";
 
-        private static string QUERY_INSERT_SESSION = "INSERT INTO " + Settings.DbTable_TaskDetection_Sessions + " (time, session_start, session_end, timePopUpFirstShown, timePopUpResponded, postponedInfo, comments, confidence_switch, confidence_type) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7}, {8});";
-        private static string QUERY_INSERT_VALIDATION = "INSERT INTO " + Settings.DbTable_TaskDetection_Validations + " (sessionId, time, task_start, task_end, task_detection_case, task_type_proposed, task_type_validated, is_main_task) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, {7});";
+        private static string QUERY_INSERT_SESSION = "INSERT INTO " + Settings.DbTable_TaskDetection_Sessions + " (time, session_start, session_end, timePopUpFirstShown) VALUES ({0}, {1}, {2}, {3});";
+        private static string QUERY_UPDATE_SESSION = "UPDATE " + Settings.DbTable_TaskDetection_Sessions + " SET timePopUpResponded = {1}, postponedInfo = {2}, comments = {3}, confidence_switch = {4}, confidence_type = {5} WHERE sessionId = {0};";
+        private static string QUERY_INSERT_PREDICTION = "INSERT INTO " + Settings.DbTable_TaskDetection_Predictions + " (sessionId, time, task_start, task_end, task_type_predicted) VALUES ({0}, {1}, {2}, {3}, {4});";
+        private static string QUERY_INSERT_VALIDATION = "INSERT INTO " + Settings.DbTable_TaskDetection_Validations + " (sessionId, time, task_start, task_end, task_type_validated) VALUES ({0}, {1}, {2}, {3}, {4});";
 
-        internal static void CreateTaskDetectionValidationTable()
+        internal static void CreateTaskDetectionValidationTables()
         {
             Database.GetInstance().ExecuteDefaultQuery(QUERY_CREATE_SESSION);
+            Database.GetInstance().ExecuteDefaultQuery(QUERY_CREATE_PREDICTION);
             Database.GetInstance().ExecuteDefaultQuery(QUERY_CREATE_VALIDATION);
         }
 
         /// <summary>
-        /// Saves the session information to DbTable_TaskDetection_Sessions (returns a sessionId)
+        /// Saves the session information to DbTable_TaskDetection_Sessions 
+        /// (returns a sessionId)
         /// </summary>
         /// <returns></returns>
-        internal static int TaskDetectionSession_SaveToDatabase(DateTime sessionStart, DateTime sessionEnd, DateTime timePopUpFirstShown, DateTime timePopUpResponded, string postponedInfo, string comment, int confidenceSwitch, int confidenceType)
+        internal static int TaskDetectionSession_Insert_SaveToDatabase(DateTime sessionStart, DateTime sessionEnd, DateTime timePopUpFirstShown)
         {
             try
             {
@@ -42,15 +47,12 @@ namespace TaskDetectionTracker.Data
                                           "strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')",
                                           db.QTime(sessionStart),
                                           db.QTime(sessionEnd),
-                                          db.QTime(timePopUpFirstShown),
-                                          db.QTime(timePopUpResponded),
-                                          db.Q(postponedInfo),
-                                          db.Q(comment),
-                                          db.Q(confidenceSwitch),
-                                          db.Q(confidenceType));
+                                          db.QTime(timePopUpFirstShown));
                 Database.GetInstance().ExecuteDefaultQuery(query);
 
-                var query2 = "SELECT last_insert_rowid();";
+                var query2 = "SELECT sessionId FROM " + Settings.DbTable_TaskDetection_Sessions + " ORDER BY sessionId DESC LIMIT 1;";
+                // this doesn't work properly in a multi-threaded environment: "SELECT last_insert_rowid();" 
+                // (could use the sqlite_sequence table, but it only exists when SequenceId is defined as an autoincrement field)
                 return Database.GetInstance().ExecuteScalar(query2);
             }
             catch (Exception e)
@@ -61,27 +63,77 @@ namespace TaskDetectionTracker.Data
         }
 
         /// <summary>
-        /// Saves the validated task detections for this session (with sessionId)
+        /// Updates the session information to DbTable_TaskDetection_Sessions 
+        /// (given the sessionId)
+        /// </summary>
+        /// <returns></returns>
+        internal static void TaskDetectionSession_Update_SaveToDatabase(int sessionId, DateTime timePopUpResponded, string postponedInfo, string comment, int confidenceSwitch, int confidenceType)
+        {
+            try
+            {
+                var db = Database.GetInstance();
+                var query = string.Format(QUERY_UPDATE_SESSION,
+                                          db.Q(sessionId),
+                                          db.QTime(timePopUpResponded),
+                                          db.Q(postponedInfo),
+                                          db.Q(comment),
+                                          db.Q(confidenceSwitch),
+                                          db.Q(confidenceType));
+                Database.GetInstance().ExecuteDefaultQuery(query);
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+        }
+
+        /// <summary>
+        /// Saves the predicted task detections for this session (with sessionId)
         /// </summary>
         /// <param name="sessionId"></param>
-        /// <param name="taskDetections"></param>
-        internal static void TaskDetectionValidationsPerSession_SaveToDatabase(int sessionId, List<TaskDetection> taskDetections)
+        /// <param name="taskDetections_predicted"></param>
+        internal static void TaskDetectionPredictionsPerSession_SaveToDatabase(int sessionId, List<TaskDetection> taskDetections_predicted)
         {
             var db = Database.GetInstance();
 
             try
             {
-                foreach (var task in taskDetections.OrderBy(t => t.Start))
+                foreach (var task in taskDetections_predicted.OrderBy(t => t.Start))
+                {
+                    var query = string.Format(QUERY_INSERT_PREDICTION,
+                                          sessionId,
+                                          "strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')",
+                                          db.QTime2(task.Start),
+                                          db.QTime2(task.End),
+                                          db.Q(task.TaskTypePredicted.ToString()));
+                    db.ExecuteDefaultQuery(query);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+        }
+
+        /// <summary>
+        /// Saves the validated task detections for this session (with sessionId)
+        /// </summary>
+        /// <param name="sessionId"></param>
+        /// <param name="taskdetections_validated"></param>
+        internal static void TaskDetectionValidationsPerSession_SaveToDatabase(int sessionId, List<TaskDetection> taskdetections_validated)
+        {
+            var db = Database.GetInstance();
+
+            try
+            {
+                foreach (var task in taskdetections_validated.OrderBy(t => t.Start))
                 {
                     var query = string.Format(QUERY_INSERT_VALIDATION,
-                                          sessionId, 
+                                          sessionId,
                                           "strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime')",
-                                          db.QTime2(task.Start), 
+                                          db.QTime2(task.Start),
                                           db.QTime2(task.End),
-                                          db.Q(task.TaskDetectionCase.ToString()),
-                                          db.Q(task.TaskTypeProposed.ToString()),
-                                          db.Q(task.TaskTypeValidated.ToString()),
-                                          db.Q(task.IsMainTask));
+                                          db.Q(task.TaskTypeValidated.ToString()));
                     db.ExecuteDefaultQuery(query);
                 }
             }

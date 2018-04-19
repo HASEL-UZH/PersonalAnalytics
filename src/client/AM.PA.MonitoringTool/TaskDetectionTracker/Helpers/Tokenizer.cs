@@ -28,7 +28,7 @@ namespace TaskDetectionTracker.Helpers
         public string[] Partition(string input)
         {
             Regex r = new Regex("([ \\t{}():;. \n/\\-\\&\\*\\\\_@\\?\\[\\]])");
-            input = input.ToLower();
+            input = input.ToLower(System.Globalization.CultureInfo.InvariantCulture);
 
             string[] tokens = r.Split(input);
 

@@ -83,8 +83,8 @@ namespace Shared.Data
         }
 
         /// <summary>
-        /// Executes a query scalar. Return 1 in case of an entry, or 0
-        /// in case of no entry or an error
+        /// Executes a query scalar. Returns the INT in case of an entry, 
+        /// or 0 in case of no entry or an error.
         /// </summary>
         /// <param name="query"></param>
         /// <returns></returns>
@@ -96,13 +96,54 @@ namespace Shared.Data
             var cmd = new SQLiteCommand(query, _connection);
             try
             {
-                var ans = Convert.ToInt32(cmd.ExecuteScalar());
-                return ans;
+                var res = cmd.ExecuteScalar();
+                return (DBNull.Value != res) ? Convert.ToInt32(res) : 0;
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
                 return 0;
+            }
+            finally
+            {
+                cmd.Dispose();
+            }
+        }
+
+
+        /// <summary>
+        /// Executes a query scalar and returns null if there was an error (or no entry)
+        /// used for settings. Somehow strange?
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        public object ExecuteScalar2(string query)
+        {
+            try { return new SQLiteCommand(query, _connection).ExecuteScalar(); }
+            catch { return null; }
+        }
+
+        /// <summary>
+        /// Executes a query scalar. Return the DOUBLE in case of an entry, 
+        /// or 0.0 in case of no entry or an error.
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        public double ExecuteScalar3(string query)
+        {
+            WriteQueryToLog(query);
+            if (_connection == null || _connection.State != ConnectionState.Open) return 0.0;
+
+            var cmd = new SQLiteCommand(query, _connection);
+            try
+            {
+                var res = cmd.ExecuteScalar();
+                return (DBNull.Value != res) ? Convert.ToDouble(res) : 0.0;
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+                return 0.0;
             }
             finally
             {
@@ -135,18 +176,6 @@ namespace Shared.Data
            // {
 
            // }
-        }
-
-        /// <summary>
-        /// Executes a query scalar and returns null if there was an error (or no entry)
-        /// used for settings. Somehow strange?
-        /// </summary>
-        /// <param name="query"></param>
-        /// <returns></returns>
-        public object ExecuteScalar2(string query)
-        {
-            try { return new SQLiteCommand(query, _connection).ExecuteScalar(); }
-            catch { return null; }
         }
 
         /// <summary>
@@ -186,7 +215,7 @@ namespace Shared.Data
             try
             {
                 WriteQueryToLog(message, true);
-                var query = "INSERT INTO " + Settings.LogDbTable + " (created, message, type) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " + Q(message) + ", " + Q(LogType.Error.ToString()) + ")";
+                var query = "INSERT INTO " + Settings.LogDbTable + " (created, message, type) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " + Q(message) + ", " + Q(LogType.Error.ToString(CultureInfo.InvariantCulture)) + ")";
                 ExecuteDefaultQuery(query);
             }
             catch (Exception e)
@@ -216,7 +245,7 @@ namespace Shared.Data
             try
             {
                 WriteQueryToLog(message, true);
-                var query = "INSERT INTO " + Settings.LogDbTable + " (created, message, type) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " + Q(message) + ", " + Q(LogType.Info.ToString()) + ")";
+                var query = "INSERT INTO " + Settings.LogDbTable + " (created, message, type) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " + Q(message) + ", " + Q(LogType.Info.ToString(CultureInfo.InvariantCulture)) + ")";
                 ExecuteDefaultQuery(query);
             }
             catch (Exception e)
@@ -235,7 +264,7 @@ namespace Shared.Data
             try
             {
                 WriteQueryToLog(message, true);
-                var query = "INSERT INTO " + Settings.LogDbTable + " (created, message, type) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " + Q(message) + ", " + Q(LogType.Warning.ToString()) + ")";
+                var query = "INSERT INTO " + Settings.LogDbTable + " (created, message, type) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " + Q(message) + ", " + Q(LogType.Warning.ToString(CultureInfo.InvariantCulture)) + ")";
                 ExecuteDefaultQuery(query);
             }
             catch (Exception e)

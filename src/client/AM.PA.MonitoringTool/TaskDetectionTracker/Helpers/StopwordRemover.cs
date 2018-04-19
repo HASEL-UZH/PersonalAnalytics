@@ -25,7 +25,7 @@ namespace TaskDetectionTracker.Helpers
 
         public bool IsStopword(string s)
         {
-            if (englishStopwords.Contains(s.ToLower())) return true;
+            if (englishStopwords.Contains(s.ToLower(System.Globalization.CultureInfo.InvariantCulture))) return true;
             return false;
         }
     }

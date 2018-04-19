@@ -5,6 +5,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using WindowsActivityTracker.Models;
 
@@ -84,8 +85,8 @@ namespace WindowsActivityTracker.Helpers
                 if (string.IsNullOrEmpty(processName) && string.IsNullOrEmpty(windowName))
                     return ActivityCategory.Unknown;
 
-                if (windowName != null) windowName = windowName.ToLower();
-                if (processName != null) processName = processName.ToLower();
+                if (windowName != null) windowName = windowName.ToLower(CultureInfo.InvariantCulture);
+                if (processName != null) processName = processName.ToLower(CultureInfo.InvariantCulture);
 
 
                 // all IDLE, will later manually check with more info to find meetings, breaks, etc.

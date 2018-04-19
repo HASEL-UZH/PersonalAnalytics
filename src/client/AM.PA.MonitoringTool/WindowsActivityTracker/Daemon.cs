@@ -115,7 +115,7 @@ namespace WindowsActivityTracker
             try
             {
                 // insert idle event (as last entry
-                SetCurrentAndStoreThisAndPrevious_WindowsActivityEvent(DateTime.Now, DateTime.MinValue, "Tracker stopped", Dict.Idle);
+                SetCurrentAndStoreThisAndPrevious_WindowsActivityEvent("Tracker stopped", Dict.Idle);
 
                 // Unregister for window events
                 NativeMethods.UnhookWinEvent(_hWinEventHookForWindowSwitch);
@@ -179,8 +179,9 @@ namespace WindowsActivityTracker
 
         public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)
         {
-            var vis = new WeekProgramsUsedTable(date);
-            return new List<IVisualization> { vis };
+            var vis1 = new WeekProgramsUsedTable(date);
+            var vis2 = new WeekWorkTimeBarChart(date);
+            return new List<IVisualization> { vis1, vis2 };
         }
 
         #endregion
@@ -233,18 +234,18 @@ namespace WindowsActivityTracker
         /// <param name="tsEnd"></param>
         /// <param name="windowTitle"></param>
         /// <param name="process"></param>
-        private void SetCurrentAndStoreThisAndPrevious_WindowsActivityEvent(DateTime tsStart, DateTime tsEnd, string windowTitle, string process)
+        private void SetCurrentAndStoreThisAndPrevious_WindowsActivityEvent(string windowTitle, string process)
         {
-            var tmpPreviousEntry = _previousEntry; // perf, because storing takes a moment
+            // store previous entry
+            //var tmpPreviousEntry = _previousEntry; // perf, because storing takes a moment
+
+            if (_previousEntry != null)
+            {
+                SetCurrentAndStorePrevious_WindowsActivityEvent(_previousEntry.TsStart, _previousEntry.WindowTitle, _previousEntry.Process, _previousEntry.Handle);
+            }
 
             // set current entry
-            _previousEntry = new WindowsActivityEntry(tsStart, windowTitle, process, IntPtr.Zero);
-
-            // store previous entry
-            if (tmpPreviousEntry != null)
-            {
-                SetCurrentAndStorePrevious_WindowsActivityEvent(tmpPreviousEntry.TsStart, tmpPreviousEntry.WindowTitle, tmpPreviousEntry.Process, tmpPreviousEntry.Handle);
-            }
+            _previousEntry = new WindowsActivityEntry(DateTime.Now, DateTime.Now, windowTitle, process, IntPtr.Zero); // tsEnd is right now
 
             // set store current entry
             Queries.InsertSnapshot(_previousEntry);
@@ -468,11 +469,11 @@ namespace WindowsActivityTracker
         {
             if (e.Reason == SessionEndReasons.Logoff)
             {
-                SetCurrentAndStoreThisAndPrevious_WindowsActivityEvent(DateTime.Now, DateTime.MinValue, "Logoff", Dict.Idle);
+                SetCurrentAndStoreThisAndPrevious_WindowsActivityEvent("Logoff", Dict.Idle);
             }
             else if (e.Reason == SessionEndReasons.SystemShutdown)
             {
-                SetCurrentAndStoreThisAndPrevious_WindowsActivityEvent(DateTime.Now, DateTime.MinValue, "SystemShutdown", Dict.Idle);
+                SetCurrentAndStoreThisAndPrevious_WindowsActivityEvent("SystemShutdown", Dict.Idle);
             }
         }
 

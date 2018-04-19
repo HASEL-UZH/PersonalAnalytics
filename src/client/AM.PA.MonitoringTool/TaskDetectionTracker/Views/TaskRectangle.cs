@@ -33,11 +33,11 @@ namespace TaskDetectionTracker.Views
         public double Height { get; set; }
         public TaskType TaskName { get { return Data.TaskTypeValidated; } set { Data.TaskTypeValidated = value; } }
         public string Timestamp { get; set; }
-        public bool IsUserDefined { get; set; }
+        //public bool IsUserDefined { get; set; }
         public TaskDetection Data { get { return _data; } set { _data = value; } }
         public string ID { get { return TaskName + Timestamp; } }
-        public TaskDetectionCase TaskDetectionCase { get { return Data.TaskDetectionCase; } set { Data.TaskDetectionCase = value; OnPropertyChanged("TaskDetectionCase"); } }
-        public bool IsMainTask { get { return Data.IsMainTask; } set { Data.IsMainTask = value; } }
+        //public TaskDetectionCase TaskDetectionCase { get { return Data.TaskDetectionCase; } set { Data.TaskDetectionCase = value; OnPropertyChanged("TaskDetectionCase"); } }
+        //public bool IsMainTask { get { return Data.IsMainTask; } set { Data.IsMainTask = value; } }
 
         //Task boundary
         private static double _taskBoundaryWidth = 5;

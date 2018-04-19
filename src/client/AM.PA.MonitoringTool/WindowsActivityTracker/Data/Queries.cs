@@ -135,7 +135,7 @@ namespace WindowsActivityTracker.Data
                 // if end time is missing, don't store anything
                 if (entry.TsEnd == DateTime.MinValue)
                 {
-                    Database.GetInstance().LogWarning("TsEnd of WindowsActivitySwtich was empty.");
+                    Database.GetInstance().LogWarning("TsEnd of WindowsActivitySwitch was empty.");
                     return;
                 }
 
@@ -403,6 +403,41 @@ namespace WindowsActivityTracker.Data
             }
 
             return dto;
+        }
+
+        /// <summary>
+        /// For a given date, return the total time spent at work (from first to last input)
+        /// and the total time spent on the computer.
+        /// In HOURS.
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        internal static Tuple<double, double> GetWorkTimeDetails(DateTimeOffset date)
+        {
+            try
+            {
+                var query = "SELECT sum(difference) / 60.0 / 60.0  as 'durInHrs' "
+                            + "FROM ( "
+                            + "SELECT (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'difference' "
+                            + "FROM " + Settings.DbTable + " "
+                            + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsStart") + " and " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsEnd")
+                            + "AND process <> 'IDLE' );";
+
+                var timeSpentActive = Database.GetInstance().ExecuteScalar3(query);
+                var timeFirstEntry = Database.GetInstance().GetUserWorkStart(date);
+                var timeLastEntry = Database.GetInstance().GetUserWorkEnd(date);
+                var totalWorkTime = (timeLastEntry - timeFirstEntry).TotalHours;
+
+                if (totalWorkTime < 0.2) totalWorkTime = 0.0;
+                if (timeSpentActive < 0.2) timeSpentActive = 0.0;
+
+                return new Tuple<double, double>(totalWorkTime, timeSpentActive);
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+                return null;
+            }
         }
 
         #endregion

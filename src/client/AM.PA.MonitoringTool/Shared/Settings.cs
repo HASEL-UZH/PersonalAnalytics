@@ -30,7 +30,7 @@ namespace Shared
         public const bool IsUploadReminderEnabled = true;
         public static bool IsFeedbackEnabled = false; // can be overwritten when starting the retrospection
         private const int _checkForToolUpdatesIntervalInMins = 6 * 60;
-#elif Pilot_TaskDetection_March17
+#elif Pilot_TaskDetection_March17 || Pilot_TaskDetection_MSR
         public const bool IsUploadEnabled = false;
         public const bool IsUploadReminderEnabled = false;
         public static bool IsFeedbackEnabled = false; // can be overwritten when starting the retrospection
@@ -83,13 +83,15 @@ namespace Shared
 
 
         ////////////////////////////////////////////////////////////
-        // contact emails
-#if PilotMSR
+        // contact emails & privacy statement URI
+#if Pilot_TaskDetection_MSR || Pilot_MSR
         public const string EmailAddress1 = "tzimmer@microsoft.com"; // main email address
         public const string EmailAddress2 = "ameyer@ifi.uzh.ch";
+        public const string PrivacyStatementUri = @"";
 #else
         public const string EmailAddress1 = "ameyer@ifi.uzh.ch"; // main email address
         public static string EmailAddress2 = string.Empty;
+        public const string PrivacyStatementUri = @"https://pluto.ifi.uzh.ch/PersonalAnalytics";
 #endif
 
 
@@ -99,12 +101,12 @@ namespace Shared
         private static SolidColorBrush _retrospectionColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(RetrospectionColorHex));
         public static SolidColorBrush RetrospectionColorBrush { get { return _retrospectionColor; } }
 
-        public const string GrayColor = "#E8E8E8";
-        private static SolidColorBrush _grayColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(GrayColor));
+        public const string GrayColorHex = "#E8E8E8";
+        private static SolidColorBrush _grayColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(GrayColorHex));
         public static SolidColorBrush GrayColorBrush { get { return _grayColor; } }
 
-        public const string DarkGrayColor = "#808080";
-        private static SolidColorBrush _darkGrayColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(DarkGrayColor));
+        public const string DarkGrayColorHex = "#808080";
+        private static SolidColorBrush _darkGrayColor = (SolidColorBrush)(new BrushConverter().ConvertFrom(DarkGrayColorHex));
         public static SolidColorBrush DarkGrayColorBrush { get { return _darkGrayColor; } }
 
     }
