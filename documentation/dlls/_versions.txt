@@ -65,9 +65,17 @@ WindowsActivityTracker.dll
 
 
 ***********************
-TimeSPentVisualizer.dll
+TimeSpentVisualizer.dll
 ***********************
 
 2017-09-13	V1.0.6465.29287	
 2017-07-21	V1.0.6411.19687	minor updates following WindowsActivityTracker-changes
 2017-04-20	V1.0.6319.30088	initial version
+
+
+************************
+TaskDetectionTracker.dll
+************************
+
+2018-04-19	V1.0.6683.30534	initial version (moved from public to private repo)
+
