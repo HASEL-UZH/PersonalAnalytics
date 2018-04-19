@@ -48,7 +48,7 @@
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <!-- <PublisherName>Andre Meyer %28MSR%29</PublisherName> -->
-	<O365ApiClientId>TodoAddViaBuild</O365ApiClientId>
+    <O365ApiClientId>TodoAddViaBuild</O365ApiClientId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -159,6 +159,10 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="TaskDetectionTracker, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>lib\TaskDetectionTracker.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
@@ -296,10 +300,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TaskDetectionTracker\TaskDetectionTracker.csproj">
-      <Project>{177b7b36-9b59-47da-9038-41fdb619ec6a}</Project>
-      <Name>TaskDetectionTracker</Name>
-    </ProjectReference>
     <ProjectReference Include="..\TimeSpentVisualizer\TimeSpentVisualizer.csproj">
       <Project>{8eba3b95-be0e-4498-9eac-20d417176a00}</Project>
       <Name>TimeSpentVisualizer</Name>
@@ -352,6 +352,7 @@
     <Content Include="lib\Microsoft.Lync.Model.dll" />
     <Content Include="lib\Microsoft.Office.Uc.dll" />
     <Content Include="lib\NLog.dll" />
+    <Content Include="lib\TaskDetectionTracker.dll" />
     <Content Include="lib\ThingM.Blink1.dll" />
     <Content Include="x64\SQLite.Interop.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
