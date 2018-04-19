@@ -48,6 +48,7 @@
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <!-- <PublisherName>Andre Meyer %28MSR%29</PublisherName> -->
+	<O365ApiClientId>TodoAddViaBuild</O365ApiClientId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
