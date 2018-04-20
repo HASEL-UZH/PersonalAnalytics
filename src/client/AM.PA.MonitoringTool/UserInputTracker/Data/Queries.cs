@@ -51,9 +51,9 @@ namespace UserInputTracker.Data
             sb.Append(Settings.DbTableUserInput_v2);
             sb.Append("' (time, tsStart, tsEnd, keyTotal, keyOther, keyBackspace, keyNavigate, clickTotal, clickOther, clickLeft, clickRight, scrollDelta, movedDistance) VALUES (");
 
-            sb.Append("strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), ");
-            sb.Append(Database.GetInstance().QTime(ma.TsStart)); sb.Append(",");
-            sb.Append(Database.GetInstance().QTime(ma.TsEnd)); sb.Append(",");
+            sb.Append("strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), ");
+            sb.Append(Database.GetInstance().QTime2(ma.TsStart)); sb.Append(",");
+            sb.Append(Database.GetInstance().QTime2(ma.TsEnd)); sb.Append(",");
 
             sb.Append(Database.GetInstance().Q(ma.KeyTotal)); sb.Append(",");
             sb.Append(Database.GetInstance().Q(ma.KeyOther)); sb.Append(",");
@@ -102,7 +102,7 @@ namespace UserInputTracker.Data
                     }
 
                     query += "SELECT strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
-                                Database.GetInstance().QTime(item.Timestamp) + ", " +
+                                Database.GetInstance().QTime2(item.Timestamp) + ", " +
                                 Database.GetInstance().Q((item).KeystrokeType.ToString()) + " "; // keystroke-type not keystroke, avoid key-logging!
 
                     //executing remaining lines
@@ -154,7 +154,7 @@ namespace UserInputTracker.Data
                     }
 
                     query += "SELECT strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
-                                Database.GetInstance().QTime(item.Timestamp) + ", " +
+                                Database.GetInstance().QTime2(item.Timestamp) + ", " +
                                        Database.GetInstance().Q(item.X) + ", " +
                                        Database.GetInstance().Q(item.Y) + ", " +
                                        Database.GetInstance().Q(Math.Abs(item.ScrollDelta)) + " ";
@@ -210,7 +210,7 @@ namespace UserInputTracker.Data
                     }
 
                     query += "SELECT strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
-                                Database.GetInstance().QTime(item.Timestamp) + ", " +
+                                Database.GetInstance().QTime2(item.Timestamp) + ", " +
                                 Database.GetInstance().Q(item.X) + ", " +
                                 Database.GetInstance().Q(item.Y) + ", " +
                                 Database.GetInstance().Q(item.Button.ToString()) + " ";
@@ -266,7 +266,7 @@ namespace UserInputTracker.Data
                     }
 
                     query += "SELECT strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " +
-                                Database.GetInstance().QTime(item.Timestamp) + ", " +
+                                Database.GetInstance().QTime2(item.Timestamp) + ", " +
                                 Database.GetInstance().Q(item.X) + ", " +
                                 Database.GetInstance().Q(item.Y) + ", " +
                                 Database.GetInstance().Q(item.MovedDistance) + " ";
