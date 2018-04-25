@@ -130,7 +130,7 @@ namespace Retrospection
             return CreateNavigateUri(uri);
         }
 
-        private string CreateNavigateUri(string parameters)
+        private static string CreateNavigateUri(string parameters)
         {
             return "http://localhost:" + Shared.Settings.Port + "/" + parameters;
         }
@@ -178,8 +178,7 @@ namespace Retrospection
 
         public void CloseRetrospection()
         {
-            if (_retrospection == null) return;
-            _retrospection.Close();
+            _retrospection?.Close();
         }
 
         public void SendFeedback(string subject = "Feedback", string body = "")

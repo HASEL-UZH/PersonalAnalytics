@@ -83,6 +83,7 @@
     <Compile Include="AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Feedback\InfoBox.cs" />
     <Compile Include="Feedback\FeedbackBox.cs" />
     <Compile Include="Handler.cs" />
     <Compile Include="HttpInterface.cs" />
