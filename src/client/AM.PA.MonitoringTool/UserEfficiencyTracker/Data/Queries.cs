@@ -168,7 +168,7 @@ namespace UserEfficiencyTracker.Data
             }
             finally
             {
-                table.Dispose();
+                table?.Dispose();
             }
 
             return ! hasRated;

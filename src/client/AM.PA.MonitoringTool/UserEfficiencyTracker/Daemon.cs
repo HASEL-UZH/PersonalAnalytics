@@ -192,7 +192,7 @@ namespace UserEfficiencyTracker
         {
             if (DateTime.Now.TimeOfDay >= Settings.DailyPopUpEarliestMoment && // not before 05.00 am
                 DateTime.Now.Date != _lastDailyPopUpResponse.Date &&  // no pop-up today yet (perf to save on more expensive queries)
-                (DateTime.Now.Date - Queries.GetPreviousActiveWorkDay()).TotalDays < 3 && // only if previous work day was max 3 days ago
+                (DateTime.Now.Date - Queries.GetPreviousActiveWorkDay()).TotalDays <= 3 && // only if previous work day was max 3 days ago
                 Queries.NotYetRatedProductivityForDate(Queries.GetPreviousActiveWorkDay())) // not yet rated previous work day
             {
                 RunSurvey(SurveyMode.DailyPopUp);
