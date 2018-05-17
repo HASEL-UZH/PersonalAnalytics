@@ -57,7 +57,7 @@ namespace Retrospection
             defaultTimeSpentShowProgramsEnabled = dto.TimeSpentShowProgramsEnabled.Value;
             defaultTimeSpentShowEmailsEnabled = dto.TimeSpentShowEmailsEnabled.Value;
 
-            
+
             // no changes yet, disable buttons by default
             SaveButtonsEnabled(false);
 
@@ -92,6 +92,7 @@ namespace Retrospection
             {
                 CbPopUpInterval.IsEnabled = true;
             }
+
             CbPopUpInterval.SelectionChanged += CbPopUpInterval_SelectionChanged;
 
             //PolarEnabled.IsChecked = defaultPolarTrackerEnabled;
@@ -103,74 +104,9 @@ namespace Retrospection
             //FitbitEnabled.Unchecked += CbChecked_Update;
 
             //FitbitRevoke.IsEnabled = defaultFitbitTokenRemoveEnabled;
-
-            CbFlowLightEnabled.IsChecked = defaultFlowLightEnabled;
-            CbFlowLightEnabled.Checked += CbChecked_Update;
-            CbFlowLightEnabled.Unchecked += CbChecked_Update;
-
-            CbFlowLightSkypeForBusinessEnabled.IsChecked = defaultSkypeForBusinessEnabled;
-            CbFlowLightSkypeForBusinessEnabled.Checked += CbChecked_Update;
-            CbFlowLightSkypeForBusinessEnabled.Unchecked += CbChecked_Update;
-
-            RbFlowLightAutomatic.IsChecked = defaultFlowLightAutomaticEnabled;
-            RbFlowLightManual.IsChecked = !defaultFlowLightAutomaticEnabled;
-            RbFlowLightAutomatic.Checked += CbChecked_Update;
-            RbFlowLightAutomatic.Unchecked += CbChecked_Update;
-
-            CbFlowLightAllowDnD.IsChecked = defaultFlowLightDnDEnabled;
-            CbFlowLightAllowDnD.Checked += CbChecked_Update;
-            CbFlowLightAllowDnD.Unchecked += CbChecked_Update;
-
-            SrFlowLightSensitivity.Value = defaultFlowLightSensitivityLevel;
-            SrFlowLightSensitivity.ValueChanged += CbChecked_Update;
-
-            foreach (string runningApplication in GetRunningApps())
-            {
-                LbFlowLightRunningApps.Items.Add(runningApplication);
-            }
-            foreach (string blacklistedApplication in defaultFlowLightBlacklist)
-            {
-                LbFlowLightBlacklistedApps.Items.Add(blacklistedApplication);
-            }
-
-            BtFlowLightMoveToBlacklist.Click += BtFlowLightMoveToBlacklist_Click;
-            BtFlowLightMoveFromBlacklist.Click += BtFlowLightMoveFromBlacklist_Click;
         }
 
-        private void BtFlowLightMoveFromBlacklist_Click(object sender, RoutedEventArgs e)
-        {
-            string selectedItem = LbFlowLightBlacklistedApps.SelectedValue.ToString();
-            int selectedIndex = LbFlowLightBlacklistedApps.SelectedIndex;
-            LbFlowLightBlacklistedApps.Items.RemoveAt(selectedIndex);
-            LbFlowLightRunningApps.Items.Add(selectedItem);
-
-            UpdateSettingsChanged();
-        }
-
-        private void BtFlowLightMoveToBlacklist_Click(object sender, RoutedEventArgs e)
-        {
-            string selectedItem = LbFlowLightRunningApps.SelectedValue.ToString();
-            int selectedIndex = LbFlowLightRunningApps.SelectedIndex;
-            LbFlowLightRunningApps.Items.RemoveAt(selectedIndex);
-            LbFlowLightBlacklistedApps.Items.Add(selectedItem);
-
-            UpdateSettingsChanged();
-        }
-
-        private List<string> GetRunningApps()
-        {
-            var ret = new List<string>();
-
-            foreach (var proc in Process.GetProcesses())
-            {
-                var handle = IntPtr.Zero;
-                try
-                {
-                    handle = proc.MainWindowHandle;
-                }
-                catch (Exception) { }
-
-        #region User Changed Values
+            #region User Changed Values
 
         private void CbPopUpsEnabled_Checked(object sender, RoutedEventArgs e)
         {

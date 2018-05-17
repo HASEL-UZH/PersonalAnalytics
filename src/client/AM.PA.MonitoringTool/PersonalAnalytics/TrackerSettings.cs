@@ -111,10 +111,10 @@ namespace Shared.Data
                 //var polarTracker = GetPolarTracker();
                 //dto.PolarTrackerEnabled = polarTracker.IsEnabled();
 
-                var fitbitTracker = GetFitbitTracker();
-                dto.FitbitTrackerEnabled = fitbitTracker.IsEnabled();
-                dto.FitbitTokenRevokEnabled = SecretStorage.GetAccessToken() != null && fitbitTracker.IsEnabled();
-                dto.FitbitTokenRevoked = dto.FitbitTokenRevokEnabled;
+                //var fitbitTracker = GetFitbitTracker();
+                //dto.FitbitTrackerEnabled = fitbitTracker.IsEnabled();
+                //dto.FitbitTokenRevokEnabled = SecretStorage.GetAccessToken() != null && fitbitTracker.IsEnabled();
+                //dto.FitbitTokenRevoked = dto.FitbitTokenRevokEnabled;
             } 
             catch { }
 
