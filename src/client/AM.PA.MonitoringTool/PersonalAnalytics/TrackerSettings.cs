@@ -67,30 +67,6 @@ namespace Shared.Data
                     if (GetMSOfficeTracker() != null) GetMSOfficeTracker().MsOfficeTrackerEnabled = updatedSettings.Office365ApiEnabled.Value;
                     //if (GetPeopleVisualizer() != null) GetPeopleVisualizer().PeopleVisualizerEnabled = updatedSettings.Office365ApiEnabled.Value;
                 }
-                if (updatedSettings.FlowLightEnabled.HasValue)
-                {
-                    FlowLight.Handler.GetInstance().FlowLightEnabled = updatedSettings.FlowLightEnabled.Value;
-                }
-                if (updatedSettings.FlowLightSkypeForBusinessEnabled.HasValue)
-                {
-                    FlowLight.Handler.GetInstance().SkypeForBusinessEnabled = updatedSettings.FlowLightSkypeForBusinessEnabled.Value;
-                }
-                if (updatedSettings.FlowLightAutomaticEnabled.HasValue)
-                {
-                    FlowLight.Handler.GetInstance().AutomaticEnabled = updatedSettings.FlowLightAutomaticEnabled.Value;
-                }
-                if (updatedSettings.FlowLightDnDEnabled.HasValue)
-                {
-                    FlowLight.Handler.GetInstance().DnDEnabled = updatedSettings.FlowLightDnDEnabled.Value;
-                }
-                if (updatedSettings.FlowLightSensitivityLevel.HasValue)
-                {
-                    FlowLight.Handler.GetInstance().SensitivityLevel = updatedSettings.FlowLightSensitivityLevel.Value;
-                }
-                if (updatedSettings.FlowLightBlacklist != null)
-                {
-                    GetFlowTracker().SetSetting_Application_Blacklist(updatedSettings.FlowLightBlacklist);
-                }
                 if (updatedSettings.PolarTrackerEnabled.HasValue)
                 {
                     if (GetPolarTracker() != null) GetPolarTracker().ChangeEnableState(updatedSettings.PolarTrackerEnabled);
@@ -150,20 +126,6 @@ namespace Shared.Data
                 dto.FitbitTrackerEnabled = fitbitTracker.IsEnabled();
                 dto.FitbitTokenRevokEnabled = SecretStorage.GetAccessToken() != null && fitbitTracker.IsEnabled();
                 dto.FitbitTokenRevoked = dto.FitbitTokenRevokEnabled;
-
-                var flowLight = FlowLight.Handler.GetInstance();
-                if (flowLight != null)
-                {
-                    dto.FlowLightAvailable = FlowLight.Settings.IsEnabledByDefault;
-                    dto.FlowLightEnabled = flowLight.FlowLightEnabled;
-                    dto.FlowLightSkypeForBusinessEnabled = flowLight.SkypeForBusinessEnabled;
-                    dto.FlowLightAutomaticEnabled = flowLight.AutomaticEnabled;
-                    dto.FlowLightDnDEnabled = flowLight.DnDEnabled;
-                    dto.FlowLightSensitivityLevel = flowLight.SensitivityLevel;            
-                }
-
-                var flowLightTracker = GetFlowTracker();
-                if (flowLightTracker != null) dto.FlowLightBlacklist = flowLightTracker.GetSetting_Application_Blacklist();
             } 
             catch { }
 
@@ -233,20 +195,6 @@ namespace Shared.Data
                 var tracker =
                     _trackers.Where(t => t.GetType() == typeof(MsOfficeTracker.Daemon))
                         .Cast<MsOfficeTracker.Daemon>()
-                        .FirstOrDefault();
-
-                return tracker;
-            }
-            catch { return null; }
-        }
-
-        private FlowTracker.Daemon GetFlowTracker()
-        {
-            try
-            {
-                var tracker =
-                    _trackers.Where(t => t.GetType() == typeof(FlowTracker.Daemon))
-                        .Cast<FlowTracker.Daemon>()
                         .FirstOrDefault();
 
                 return tracker;
