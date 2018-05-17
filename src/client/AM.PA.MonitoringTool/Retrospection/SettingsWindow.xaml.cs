@@ -27,16 +27,11 @@ namespace Retrospection
         private bool defaultOpenRetrospectionInFullScreen;
         private bool defaultTimeSpentShowProgramsEnabled;
         private bool defaultTimeSpentShowEmailsEnabled;
+        private bool defaultTimeSpentHideMeetingsWithoutAttendeesEnabled;
         //private bool defaultPolarTrackerEnabled;
         //private bool defaultFitbitTrackerEnabled;
         //private bool defaultFitbitTokenRemoveEnabled;
         //private bool defaultFitbitTokenRevoked;
-        private bool defaultFlowLightEnabled;
-        private bool defaultSkypeForBusinessEnabled;
-        private bool defaultFlowLightAutomaticEnabled;
-        private bool defaultFlowLightDnDEnabled;
-        private int defaultFlowLightSensitivityLevel;
-        private string[] defaultFlowLightBlacklist;
 
         private string minutesStr = " minutes";
         private List<ITracker> _trackers;
@@ -61,16 +56,7 @@ namespace Retrospection
             defaultOpenRetrospectionInFullScreen = dto.OpenRetrospectionInFullScreen.Value;
             defaultTimeSpentShowProgramsEnabled = dto.TimeSpentShowProgramsEnabled.Value;
             defaultTimeSpentShowEmailsEnabled = dto.TimeSpentShowEmailsEnabled.Value;
-            //defaultPolarTrackerEnabled = dto.PolarTrackerEnabled.Value;
-            //defaultFitbitTrackerEnabled = dto.FitbitTrackerEnabled.Value;
-            defaultFlowLightEnabled = dto.FlowLightEnabled.Value;
-            defaultSkypeForBusinessEnabled = dto.FlowLightSkypeForBusinessEnabled.Value;
-            defaultFlowLightAutomaticEnabled = dto.FlowLightAutomaticEnabled.Value;
-            defaultFlowLightDnDEnabled = dto.FlowLightDnDEnabled.Value;
-            defaultFlowLightSensitivityLevel = dto.FlowLightSensitivityLevel.Value;
-            defaultFlowLightBlacklist = dto.FlowLightBlacklist;
-            //defaultFitbitTokenRemoveEnabled = dto.FitbitTokenRevokEnabled.Value;
-            //defaultFitbitTokenRevoked = dto.FitbitTokenRevoked.Value;
+
             
             // no changes yet, disable buttons by default
             SaveButtonsEnabled(false);
@@ -184,15 +170,6 @@ namespace Retrospection
                 }
                 catch (Exception) { }
 
-                if (handle != IntPtr.Zero && proc.ProcessName != "explorer")
-                {
-                    ret.Add(proc.ProcessName);
-                }
-            }
-
-            return ret;
-        }
-
         #region User Changed Values
 
         private void CbPopUpsEnabled_Checked(object sender, RoutedEventArgs e)
@@ -215,24 +192,13 @@ namespace Retrospection
         {
             try
             {
-                string[] blacklist = new string[LbFlowLightBlacklistedApps.Items.Count];
-                LbFlowLightBlacklistedApps.Items.CopyTo(blacklist, 0);
-
                 if ((defaultPopUpIsEnabled != CbPopUpsEnabled.IsChecked.Value) ||
                  (defaultPopUpInterval + minutesStr != CbPopUpInterval.SelectedValue.ToString()) ||
                  (defaultOffice365ApiEnabled != CbOfficeApiEnabled.IsChecked.Value) ||
                  (defaultUserInputTrackerEnabled != CbUserInputTrackerEnabled.IsChecked.Value) ||
                  (defaultOpenRetrospectionInFullScreen != CbOpenRetrospectionInFullScreen.IsChecked.Value) ||
                  (defaultTimeSpentShowEmailsEnabled != CbTimeSpentShowEmailsEnabled.IsChecked.Value) ||
-                 (defaultTimeSpentShowProgramsEnabled != CbTimeSpentShowProgramsEnabled.IsChecked.Value) ||
-                 //(defaultPolarTrackerEnabled != PolarEnabled.IsChecked.Value) ||
-                 //(defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value) ||
-                 (defaultFlowLightEnabled != CbFlowLightEnabled.IsChecked.Value) ||
-                 (defaultSkypeForBusinessEnabled != CbFlowLightSkypeForBusinessEnabled.IsChecked.Value) ||
-                 (defaultFlowLightAutomaticEnabled != RbFlowLightAutomatic.IsChecked.Value) ||
-                 (defaultFlowLightDnDEnabled != CbFlowLightAllowDnD.IsChecked.Value) ||
-                 (defaultFlowLightSensitivityLevel != SrFlowLightSensitivity.Value) ||
-                 (!defaultFlowLightBlacklist.SequenceEqual(blacklist))
+                 (defaultTimeSpentShowProgramsEnabled != CbTimeSpentShowProgramsEnabled.IsChecked.Value)
                  )
                 {
                     SaveButtonsEnabled(true);
@@ -306,55 +272,7 @@ namespace Retrospection
                 }
                 else { dto.UserInputTrackerEnabled = null; }
 
-                //if (defaultPolarTrackerEnabled != PolarEnabled.IsChecked.Value)
-                //{
-                //    dto.PolarTrackerEnabled = PolarEnabled.IsChecked.Value;
-                //}
-                //else { dto.PolarTrackerEnabled = null; }
 
-                //if (defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value)
-                //{
-                //    dto.FitbitTrackerEnabled = FitbitEnabled.IsChecked.Value;
-                //}
-                //else { dto.FitbitTrackerEnabled = null; }
-
-                if (defaultFlowLightEnabled != CbFlowLightEnabled.IsChecked.Value)
-                {
-                    dto.FlowLightEnabled = CbFlowLightEnabled.IsChecked.Value;
-                }
-                else { dto.FlowLightEnabled = null; }
-
-                if (defaultSkypeForBusinessEnabled != CbFlowLightSkypeForBusinessEnabled.IsChecked.Value)
-                {
-                    dto.FlowLightSkypeForBusinessEnabled = CbFlowLightSkypeForBusinessEnabled.IsChecked.Value;
-                }
-                else { dto.FlowLightSkypeForBusinessEnabled = null; }
-
-                if (defaultFlowLightAutomaticEnabled != RbFlowLightAutomatic.IsChecked.Value)
-                {
-                    dto.FlowLightAutomaticEnabled = RbFlowLightAutomatic.IsChecked;
-                }
-                else { dto.FlowLightAutomaticEnabled = null; }
-
-                if (defaultFlowLightDnDEnabled != CbFlowLightAllowDnD.IsChecked.Value)
-                {
-                    dto.FlowLightDnDEnabled = CbFlowLightAllowDnD.IsChecked;
-                }
-                else { dto.FlowLightDnDEnabled = null; }
-
-                if (defaultFlowLightSensitivityLevel != SrFlowLightSensitivity.Value)
-                {
-                    dto.FlowLightSensitivityLevel = (int)SrFlowLightSensitivity.Value;
-                }
-                else { dto.FlowLightSensitivityLevel = null; }
-
-                string[] blacklist = new string[LbFlowLightBlacklistedApps.Items.Count];
-                LbFlowLightBlacklistedApps.Items.CopyTo(blacklist, 0);
-                if (!defaultFlowLightBlacklist.SequenceEqual(blacklist))
-                {
-                    dto.FlowLightBlacklist = blacklist;
-                }
-                else { dto.FlowLightBlacklist = null; }
             }
             catch { }
 
