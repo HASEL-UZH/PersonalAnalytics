@@ -15,6 +15,7 @@ using System.Linq;
 using System.Threading;
 using MsOfficeTracker.Helpers;
 using System.Reflection;
+using Microsoft.Graph;
 using MsOfficeTracker.Views;
 
 namespace MsOfficeTracker
@@ -207,11 +208,13 @@ namespace MsOfficeTracker
                 // save new meetings into the database
                 foreach (var meeting in meetings)
                 {
+
                     var start = DateTime.Parse(meeting.Start.DateTime).ToLocalTime(); 
                     var end = DateTime.Parse(meeting.End.DateTime).ToLocalTime(); 
                     var duration = (int)Math.Round(Math.Abs((start - end).TotalMinutes), 0);
                     if ((meeting.IsAllDay.HasValue && meeting.IsAllDay.Value) || duration > 24 * 60) continue; // only store if not all-day/multiple-day meeting
                     if (date.Date != start.Date) continue; // only store if the start of the meeting is the same day
+                    if (meeting.ShowAs == FreeBusyStatus.Tentative) continue; // only store if meeting was accepted
                     var numAttendees = meeting.Attendees.Count(a => a.EmailAddress.Address != meeting.Organizer.EmailAddress.Address);
                     Queries.SaveMeetingsSnapshot(start, meeting.Subject, duration, numAttendees);
                 }

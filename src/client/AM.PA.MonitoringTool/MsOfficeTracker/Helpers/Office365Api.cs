@@ -42,6 +42,8 @@ namespace MsOfficeTracker.Helpers
         private PublicClientApplication _app;
         private readonly string _authority = string.Format(CultureInfo.InvariantCulture, Settings.LoginApiEndpoint, "common"); // use microsoft.onmicrosoft.com for just this tenant, use "common" if used for everyone
 
+        private const string DateTimeToFormatString = "yyyy-MM-ddTHH:mm:ssK";
+
         /// <summary>
         /// Singleton
         /// </summary>
@@ -214,15 +216,14 @@ namespace MsOfficeTracker.Helpers
 
             try
             {
-                var dtStart = date.Date.ToUniversalTime();
-                var dtEnd = date.Date.AddDays(1).AddTicks(-1).ToUniversalTime();
+                var dtStart = date.Date.AddSeconds(1).ToUniversalTime();
+                var dtEnd = date.Date.AddDays(1).AddSeconds(-1).ToUniversalTime();
 
                 var options = new List<QueryOption>
                 {
-                    new QueryOption("startDateTime", dtStart.ToString("u")),
-                    new QueryOption("endDateTime", dtEnd.ToString("u")),
+                    new QueryOption("startDateTime", dtStart.ToString(DateTimeToFormatString)),
+                    new QueryOption("endDateTime", dtEnd.ToString(DateTimeToFormatString)),
                     //new QueryOption("select", "subject,body,bodyPreview,organizer,attendees,start,end,location"),
-                    //new QueryOption("$count", "true")
                 };
                 var result = await _client.Me.CalendarView.Request(options).GetAsync();
                 //var calendar = await _client.Me.Calendar.CalendarView.Request(options).GetAsync();
@@ -422,7 +423,7 @@ namespace MsOfficeTracker.Helpers
 
                 var options = new List<QueryOption>
                 {
-                    new QueryOption("$filter", "sentDateTime ge " + dtStart.ToString("yyyy-MM-dd") + " and sentDateTime le " + dtEnd.ToString("yyyy-MM-dd")),
+                    new QueryOption("$filter", "sentDateTime ge " + dtStart.ToString(DateTimeToFormatString) + " and sentDateTime le " + dtEnd.ToString(DateTimeToFormatString)),
                     new QueryOption("$count", "true")
                 };
                 var result = await _client.Me.MailFolders.SentItems.Messages.Request(options).GetAsync();
@@ -452,7 +453,7 @@ namespace MsOfficeTracker.Helpers
 
                 var options = new List<QueryOption>
                 {
-                    new QueryOption("$filter", "receivedDateTime ge " + dtStart.ToString("yyyy-MM-dd") + " and receivedDateTime le " + dtEnd.ToString("yyyy-MM-dd") + " and isRead eq false"),
+                    new QueryOption("$filter", "receivedDateTime ge " + dtStart.ToString(DateTimeToFormatString) + " and receivedDateTime le " + dtEnd.ToString(DateTimeToFormatString) + " and isRead eq false"),
                 };
                 var result = await _client.Me.Messages.Request(options).GetAsync();
 
@@ -496,7 +497,7 @@ namespace MsOfficeTracker.Helpers
 
                 var options = new List<QueryOption>
                 {
-                    new QueryOption("$filter", "receivedDateTime ge " + dtStart.ToString("yyyy-MM-dd") + " and receivedDateTime le " + dtEnd.ToString("yyyy-MM-dd")),
+                    new QueryOption("$filter", "receivedDateTime ge " + dtStart.ToString(DateTimeToFormatString) + " and receivedDateTime le " + dtEnd.ToString(DateTimeToFormatString)),
                 };
                 var result = await _client.Me.Messages.Request(options).GetAsync();
 

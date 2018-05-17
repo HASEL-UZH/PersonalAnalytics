@@ -168,7 +168,7 @@ namespace UserEfficiencyTracker.Data
             }
             finally
             {
-                table.Dispose();
+                table?.Dispose();
             }
 
             return ! hasRated;
@@ -200,11 +200,11 @@ namespace UserEfficiencyTracker.Data
                 if (table != null && table.Rows.Count == 1)
                 {
                     var row = table.Rows[0];
-                    date = DateTime.Parse((string)row["date"], CultureInfo.InvariantCulture);
+                    if (row != null) date = DateTime.Parse((string)row["date"], CultureInfo.InvariantCulture);
                 }
                 else
                 {
-                    table.Dispose();
+                    table?.Dispose();
                 }
             }
             catch (Exception e)
@@ -213,7 +213,7 @@ namespace UserEfficiencyTracker.Data
             }
             finally
             {
-                table.Dispose();
+                table?.Dispose();
             }
 
             return date;

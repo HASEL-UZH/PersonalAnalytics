@@ -122,6 +122,7 @@ namespace PersonalAnalytics
             var trackersString = string.Join(", ", _trackers.Where(t => t.IsRunning).ToList().ConvertAll(t => t.Name + " (" + t.GetVersion() + ")").ToArray());
             Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "TrackerManager (V{0}) started with {1} trackers: {2}.", _publishedAppVersion, _trackers.Where(t => t.IsRunning).ToList().Count, trackersString));
             SetTaskbarIconTooltip("Tracker started");
+            Application.Current.Dispatcher.Invoke(() => TaskbarIcon.ShowBalloonTip(Dict.ToolName, Dict.ToolName + " is running with " + _trackers.Where(t => t.IsRunning).ToList().Count + " data trackers.", BalloonIcon.Info));
 
             // Initialize & start the timer to update the taskbaricon toolitp
             _taskbarIconTimer = new DispatcherTimer();
@@ -331,8 +332,11 @@ namespace PersonalAnalytics
                 _remindToContinueTrackerTimer.Interval = Settings.RemindToResumeToolInterval;
                 _remindToContinueTrackerTimer.Tick += ((s, e) =>
                 {
-                    // show the popup (already registered for the click event)
-                    TaskbarIcon.ShowBalloonTip("Reminder", "PersonalAnalytics is still paused. Click here to resume it.", BalloonIcon.Warning); //TODO: bug #91: it doesn't show up on Windows 10
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        // show the popup (already registered for the click event)
+                        TaskbarIcon.ShowBalloonTip("Reminder", "PersonalAnalytics is still paused. Click here to resume it.", BalloonIcon.Warning);
+                    });
                 });
             }
             _remindToContinueTrackerTimer.IsEnabled = true;
@@ -387,9 +391,9 @@ namespace PersonalAnalytics
             return _trackers;
         }
 
-#endregion
+        #endregion
 
-#region Taskbar Icon Options
+        #region Taskbar Icon Options
 
         /// <summary>
         /// Dreates a taskbar icon to modify its tooltip and create the context menu options
@@ -412,7 +416,8 @@ namespace PersonalAnalytics
         /// <param name="e"></param>
         private void TrayBalloonTipClicked(object s, RoutedEventArgs e)
         {
-            PauseContinueTracker(_pauseContinueMenuItem);
+            // if tracker is currently paused, the user probably wants to continue the tracking
+            if (_isPaused) PauseContinueTracker(_pauseContinueMenuItem);
         }
 
         /// <summary>
@@ -465,12 +470,12 @@ namespace PersonalAnalytics
             m6.Click += (o, i) => OpenSettings();
             TaskbarIcon.ContextMenu.Items.Add(m6);
 
-            var m3 = new MenuItem { Header = "Pause Tracker" };
+            var m3 = new MenuItem { Header = "Pause " + Dict.ToolName };
             m3.Click += (o, i) => PauseContinueTracker(m3);
             TaskbarIcon.ContextMenu.Items.Add(m3);
             _pauseContinueMenuItem = m3;
 
-            var m7 = new MenuItem { Header = "Shutdown Tracker" };
+            var m7 = new MenuItem { Header = "Shutdown " + Dict.ToolName };
             m7.Click += (o, i) => Stop(true);
             TaskbarIcon.ContextMenu.Items.Add(m7);
 
@@ -516,7 +521,6 @@ namespace PersonalAnalytics
 
                 TaskbarIcon.ContextMenu.Items.Add(_flowLightEnforceMenuItem);
             }
-            
         }
 
         /// <summary>
@@ -579,7 +583,7 @@ namespace PersonalAnalytics
         {   
             if (_flowLightEnforceMenuItem != null && _flowLightResetMenuItem != null && _flowLightEnforceMenuItem.Items.Contains(_flowLightResetMenuItem))
             {
-                Application.Current.Dispatcher.Invoke(new Action(() => _flowLightEnforceMenuItem.Items.Remove(_flowLightResetMenuItem)));
+                Application.Current.Dispatcher.Invoke(() => _flowLightEnforceMenuItem.Items.Remove(_flowLightResetMenuItem));
             }        
         }
 
@@ -588,26 +592,26 @@ namespace PersonalAnalytics
         /// paused or continued
         /// </summary>
         /// <param name="item"></param>
-        private void PauseContinueTracker(System.Windows.Controls.MenuItem item)
+        private void PauseContinueTracker(MenuItem item)
         {
             // continue
             if (_isPaused)
             {
                 Continue();
-                item.Header = "Pause Tracker";
+                item.Header = "Pause " + Dict.ToolName;
             }
             // pause 
             else
             {
                 Pause();
-                item.Header = "Resume Tracker";
+                item.Header = "Resume " + Dict.ToolName;
             }
         }
 
         /// <summary>
         /// Opens the UI specified for the current retrospection
         /// </summary>
-        private void OpenRetrospection()
+        private static void OpenRetrospection()
         {
             Retrospection.Handler.GetInstance().OpenRetrospection();
         }
@@ -618,7 +622,7 @@ namespace PersonalAnalytics
         private static void OpenDataExportDirectory()
         {
             var path = Settings.ExportFilePath;
-            System.Diagnostics.Process.Start(path);
+            Process.Start(path);
         }
 
         /// <summary>

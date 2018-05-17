@@ -33,6 +33,6 @@ namespace MsOfficeTracker
         internal const string LoginApiEndpoint = "https://login.microsoftonline.com/{0}";       // default: "common"
         internal const string ClientId = "5a6e510c-f900-491e-bfb3-8a6151a49c04";                // register app here to get the ClientId: https://apps.dev.microsoft.com/#/appList
         internal static readonly string[] Scopes = { "mail.read", "calendars.read" };           
-        internal const string GraphApiEndpoint = "https://outlook.office.com/api/v2.0";         // old endpoint: "https://graph.microsoft.com/v1.0/me"; 
+        internal const string GraphApiEndpoint = "https://outlook.office.com/api/v2.0";
     }
 }

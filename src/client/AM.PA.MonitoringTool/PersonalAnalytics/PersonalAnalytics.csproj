@@ -49,6 +49,9 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <!-- <PublisherName>Andre Meyer %28MSR%29</PublisherName> -->
   </PropertyGroup>
+  <PropertyGroup>
+	<O365ApiClientId>GetFromBuildProcess</O365ApiClientId>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
@@ -370,12 +373,12 @@
   <ItemGroup>
     <PublishFile Include="Windows">
       <Visible>False</Visible>
-      <PublishState>Exclude</PublishState>
-      <IncludeHash>True</IncludeHash>
       <Group>
       </Group>
       <TargetPath>
       </TargetPath>
+      <PublishState>Exclude</PublishState>
+      <IncludeHash>True</IncludeHash>
       <FileType>Assembly</FileType>
     </PublishFile>
   </ItemGroup>
@@ -404,10 +407,4 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\System.Data.SQLite.Core.1.0.105.0\build\net45\System.Data.SQLite.Core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\System.Data.SQLite.Core.1.0.105.0\build\net45\System.Data.SQLite.Core.targets'))" />
   </Target>
-  <PropertyGroup>
-    <PreBuildEvent>p:O365ApiClientId="5a6e510c-f900-491e-bfb3-8a6151a49c04"</PreBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PostBuildEvent>p:O365ApiClientId="5a6e510c-f900-491e-bfb3-8a6151a49c04"</PostBuildEvent>
-  </PropertyGroup>
 </Project>

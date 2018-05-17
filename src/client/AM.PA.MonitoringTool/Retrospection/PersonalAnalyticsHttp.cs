@@ -138,7 +138,7 @@ namespace Retrospection
         /// <param name="visType"></param>
         /// <param name="date"></param>
         /// <returns></returns>
-        private string GetRetrospectionTitle(VisType visType, DateTimeOffset date)
+        private static string GetRetrospectionTitle(VisType visType, DateTimeOffset date)
         {
             switch (visType)
             {
@@ -178,9 +178,16 @@ namespace Retrospection
                 }
             }
 
+            // case: no visualizations
+            if (visualizations.Count == 0)
+            {
+                var infoBox = new InfoBox(type, "Please resume the trackers to enable the visualizations (hint: right-click the task-tray icon).");
+                visualizations.Add(infoBox);
+            }
+
             // add the feedback features (if enabled)
             var feedback = new FeedbackBox(type);
-            if (feedback.IsEnabled == true) visualizations.Add(feedback);
+            if (feedback.IsEnabled) visualizations.Add(feedback);
 
             // add visualizations in right order
             var html = string.Empty;

@@ -29,22 +29,6 @@ namespace PersonalAnalytics
         [STAThread]
         public static void Main(string[] args)
         {
-            //#ifdef O365ApiClientId
-
-            //var val = "${O365ApiClientId}";
-            //Console.WriteLine(val);
-
-            //ApplicationDeployment.CurrentDeployment.
-
-            //System.Console.WriteLine("--" +$(O365ApiClientId) + "--");
-
-            //var project = new Microsoft.Build.Evaluation.Project(@"my.vcxproj");
-            //foreach (var property in p.Properties)
-            //{
-            //    System.Console.WriteLine("{0} = {1}",
-            //        property.Name, property.EvaluatedValue);
-            //}
-
             // before actually starting up, check if there is already an instance running
             if (SingleInstance<App>.InitializeAsFirstInstance(UniqueAppName))
             {
@@ -118,6 +102,10 @@ namespace PersonalAnalytics
             // add a firewall exception
             //AddFirewallException(); // disabled because it causes problems if not system admin
 
+            //////////////////////////////////////////////////////
+            // initialize task bar icon & context menu
+            //////////////////////////////////////////////////////
+            TrackerManager.GetInstance().InitializeTaskBarIcon();
 
             //////////////////////////////////////////////////////
             // Start Tracker Manager (i.e. the monitoring tool)
@@ -126,13 +114,6 @@ namespace PersonalAnalytics
             TrackerManager.GetInstance().SetAppVersion(GetPublishedAppVersion());
             FlowLight.Handler.GetInstance().SetTrackers(trackers);
             TrackerManager.GetInstance().Start();
-
-
-            //////////////////////////////////////////////////////
-            // initialize task bar icon & context menu
-            //////////////////////////////////////////////////////
-            TrackerManager.GetInstance().InitializeTaskBarIcon();
-
 
             //////////////////////////////////////////////////////
             // Start the Retrospection
