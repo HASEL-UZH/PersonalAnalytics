@@ -109,7 +109,6 @@ namespace PersonalAnalytics
             //////////////////////////////////////////////////////
             var trackers = TrackerManager.GetInstance().RegisterTrackers();
             TrackerManager.GetInstance().SetAppVersion(GetPublishedAppVersion());
-            FlowLight.Handler.GetInstance().SetTrackers(trackers);
             TrackerManager.GetInstance().Start();
 
 
@@ -122,14 +121,9 @@ namespace PersonalAnalytics
             //////////////////////////////////////////////////////
             // Start the Retrospection
             //////////////////////////////////////////////////////
-            Retrospection.Handler.GetInstance().Start(trackers, GetPublishedAppVersion()); // register the same trackers from the monitoring tool for the retrospection
-
-            //////////////////////////////////////////////////////
-            // Start the FlowLight
-            //////////////////////////////////////////////////////
-            if (FlowLight.Handler.GetInstance().FlowLightEnabled)
+            if (Retrospection.Settings.IsEnabled)
             {
-                FlowLight.Handler.GetInstance().Start();
+                Retrospection.Handler.GetInstance().Start(trackers, GetPublishedAppVersion()); // register the same trackers from the monitoring tool for the retrospection
             }
         }
 
