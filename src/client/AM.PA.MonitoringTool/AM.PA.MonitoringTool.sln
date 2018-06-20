@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitbitTracker", "FitbitTrac
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitbitTrackerTests", "FitbitTrackerTests\FitbitTrackerTests.csproj", "{5A61DDD2-DE30-40D8-BFFF-8EF238BA65A5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlackTracker", "SlackTracker\SlackTracker.csproj", "{DAA23023-ED3E-4CFB-82DB-B8B227532322}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
