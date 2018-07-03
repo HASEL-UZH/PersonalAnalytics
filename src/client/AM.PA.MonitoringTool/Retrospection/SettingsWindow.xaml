@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Retrospection"
         xmlns:paColors="clr-namespace:Shared;assembly=Shared"
         mc:Ignorable="d"
-        Title="PersonalAnalytics: Settings" Height="750" Width="770" ResizeMode="NoResize">
+        Title="PersonalAnalytics: Settings" Height="800" Width="770" ResizeMode="NoResize">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -82,6 +82,10 @@
                     <CheckBox x:Name="FitbitEnabled" Margin="0 20 0 0" Content="Fitbit Tracker enabled" />
                     <TextBlock x:Name="FitbitHint" Margin="20 0 0 0" Foreground="Gray" Text="Hint: If enabled, this tracker collects your heartrate, sleep, activity and step data from your Fitbit account."></TextBlock>
                     <Button x:Name="FitbitRevoke" Margin="20 0 0 0" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" Foreground="White" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" VerticalAlignment="Center" HorizontalAlignment="Left" Click="FitbitRevoke_Click">Revoke Access Token</Button>
+                    
+                    <CheckBox x:Name="SlackEnabled" Margin="0 20 0 0" Content="Slack Tracker enabled" />
+                    <TextBlock x:Name="SlackHint" Margin="20 0 0 0" Foreground="Gray" Text="Hint: If enabled, this tracker collects your messages from slack channels."></TextBlock>
+
                 </StackPanel>
             </TabItem>
         </TabControl>

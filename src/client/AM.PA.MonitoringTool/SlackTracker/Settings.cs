@@ -8,7 +8,7 @@ namespace SlackTracker
 {
     internal class Settings
     {
-        internal const string Name = "Slack Tracker";
+        internal const string TRACKER_NAME = "Slack Tracker";
         internal const string TRACKER_ENEABLED_SETTING = "SlackTrackerEnabled";
 
         internal static readonly bool IsEnabledByDefault = true;

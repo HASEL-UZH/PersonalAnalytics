@@ -32,6 +32,7 @@ namespace Retrospection
         private bool defaultFitbitTrackerEnabled;
         private bool defaultFitbitTokenRemoveEnabled;
         private bool defaultFitbitTokenRevoked;
+        private bool defaultSlackTrackerEnabled;
 
         private string minutesStr = " minutes";
         private List<ITracker> _trackers;
@@ -61,6 +62,7 @@ namespace Retrospection
             defaultFitbitTrackerEnabled = dto.FitbitTrackerEnabled.Value;
             defaultFitbitTokenRemoveEnabled = dto.FitbitTokenRevokEnabled.Value;
             defaultFitbitTokenRevoked = dto.FitbitTokenRevoked.Value;
+            defaultSlackTrackerEnabled = dto.SlackTrackerEnabled.Value;
             
             // no changes yet, disable buttons by default
             SaveButtonsEnabled(false);
@@ -111,6 +113,10 @@ namespace Retrospection
             FitbitEnabled.Unchecked += CbChecked_Update;
 
             FitbitRevoke.IsEnabled = defaultFitbitTokenRemoveEnabled;
+
+            SlackEnabled.IsChecked = defaultSlackTrackerEnabled;
+            SlackEnabled.Checked += CbChecked_Update;
+            PolarEnabled.Unchecked += CbChecked_Update;
         }
 
         #region User Changed Values
@@ -234,6 +240,12 @@ namespace Retrospection
                     dto.FitbitTrackerEnabled = FitbitEnabled.IsChecked.Value;
                 }
                 else { dto.FitbitTrackerEnabled = null; }
+
+                if (defaultSlackTrackerEnabled != SlackEnabled.IsChecked.Value)
+                {
+                    dto.SlackTrackerEnabled = SlackEnabled.IsChecked.Value;
+                }
+                else { dto.SlackTrackerEnabled = null; }
             }
             catch { }
 

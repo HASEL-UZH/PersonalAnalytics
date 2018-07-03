@@ -81,6 +81,11 @@ namespace Shared.Data
                 {
                     FitbitConnector.RevokeAccessToken(SecretStorage.GetAccessToken());
                 }
+
+                if (updatedSettings.SlackTrackerEnabled.HasValue)
+                {
+                    if (GetSlackTracker() != null) GetSlackTracker().ChangeEnabledState(updatedSettings.SlackTrackerEnabled);
+                }
             }
             catch (Exception e)
             {
@@ -126,6 +131,10 @@ namespace Shared.Data
                 dto.FitbitTrackerEnabled = fitbitTracker.IsEnabled();
                 dto.FitbitTokenRevokEnabled = SecretStorage.GetAccessToken() != null && fitbitTracker.IsEnabled();
                 dto.FitbitTokenRevoked = dto.FitbitTokenRevokEnabled;
+
+                var slackTracker = GetSlackTracker();
+                dto.SlackTrackerEnabled = slackTracker.IsEnabled();
+
             } 
             catch { }
 
@@ -153,6 +162,20 @@ namespace Shared.Data
                 var tracker =
                     _trackers.Where(t => t.GetType() == typeof(PolarTracker.Deamon))
                         .Cast<PolarTracker.Deamon>()
+                        .FirstOrDefault();
+
+                return tracker;
+            }
+            catch { return null; }
+        }
+
+        private SlackTracker.Deamon GetSlackTracker()
+        {
+            try
+            {
+                var tracker =
+                    _trackers.Where(t => t.GetType() == typeof(SlackTracker.Deamon))
+                        .Cast<SlackTracker.Deamon>()
                         .FirstOrDefault();
 
                 return tracker;
