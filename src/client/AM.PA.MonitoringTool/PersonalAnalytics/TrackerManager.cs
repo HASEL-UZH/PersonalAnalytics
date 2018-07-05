@@ -63,7 +63,7 @@ namespace PersonalAnalytics
             Register(new MsOfficeTracker.Daemon());
             Register(new PolarTracker.Deamon());
             Register(new FitbitTracker.Deamon());
-            Register(new SlackTracker.Deamon());
+            Register(new SlackTracker.Daemon());
 
 #if Dev
             //Register(new PeopleVisualizer.PeopleVisualizer()); // disabled, as it's not finished and pretty slow

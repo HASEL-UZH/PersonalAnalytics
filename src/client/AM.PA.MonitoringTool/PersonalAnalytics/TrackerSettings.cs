@@ -169,13 +169,13 @@ namespace Shared.Data
             catch { return null; }
         }
 
-        private SlackTracker.Deamon GetSlackTracker()
+        private SlackTracker.Daemon GetSlackTracker()
         {
             try
             {
                 var tracker =
-                    _trackers.Where(t => t.GetType() == typeof(SlackTracker.Deamon))
-                        .Cast<SlackTracker.Deamon>()
+                    _trackers.Where(t => t.GetType() == typeof(SlackTracker.Daemon))
+                        .Cast<SlackTracker.Daemon>()
                         .FirstOrDefault();
 
                 return tracker;

@@ -116,7 +116,7 @@ namespace Retrospection
 
             SlackEnabled.IsChecked = defaultSlackTrackerEnabled;
             SlackEnabled.Checked += CbChecked_Update;
-            PolarEnabled.Unchecked += CbChecked_Update;
+            SlackEnabled.Unchecked += CbChecked_Update;
         }
 
         #region User Changed Values
@@ -150,7 +150,8 @@ namespace Retrospection
                  (defaultTimeSpentHideMeetingsWithoutAttendeesEnabled != CbTimeSpentHideMeetingsWithoutAttendeesEnabled.IsChecked.Value) ||
                  (defaultTimeSpentShowProgramsEnabled != CbTimeSpentShowProgramsEnabled.IsChecked.Value) ||
                  (defaultPolarTrackerEnabled != PolarEnabled.IsChecked.Value) ||
-                 (defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value)
+                 (defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value) ||
+                 (defaultSlackTrackerEnabled != SlackEnabled.IsChecked.Value)
                  )
                 {
                     SaveButtonsEnabled(true);
