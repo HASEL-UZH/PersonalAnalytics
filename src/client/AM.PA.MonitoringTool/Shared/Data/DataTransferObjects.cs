@@ -37,6 +37,9 @@ namespace Shared.Data
         public bool? FitbitTokenRevokEnabled { get; set; }
         public bool? FitbitTokenRevoked { get; set; }
         public bool? SlackTrackerEnabled { get; set; }
+        public bool? SlackTokenRevokEnabled { get; set; }
+        public bool? SlackTokenRevoked { get; set; }
+
     }
     public class StartEndTimeDto
     {

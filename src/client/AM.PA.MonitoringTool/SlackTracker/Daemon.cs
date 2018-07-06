@@ -73,6 +73,47 @@ namespace SlackTracker
             }));
         }
 
+        private void CheckIfSecretsAreAvailable()
+        {
+            //Check if credentials are there. If not, we get them from the server.
+            //Also check if credentials are meaningful or just dummy credentials. We had
+            //incidents where we stored a, b, or c as dummy credentials. In this case, the
+            //following check should detect these dummy credentials and replace them with the real ones.
+            if (SecretStorage.GetSlackClientID() == null ||
+                SecretStorage.GetSlackClientSecret() == null ||
+                SecretStorage.GetSlackClientID().Length <= 1 ||
+                SecretStorage.GetSlackClientSecret().Length <= 1)
+            {
+                try
+                {
+                    AccessDataService.AccessDataClient client = new AccessDataService.AccessDataClient();
+
+                    string authorizationCode = client.GetFitbitFirstAuthorizationCode();
+                    if (authorizationCode != null)
+                    {
+                        SecretStorage.SaveFitbitFirstAuthorizationCode(authorizationCode);
+                    }
+
+                    string clientID = client.GetFitbitClientID();
+                    if (clientID != null)
+                    {
+                        SecretStorage.SaveFitbitClientID(clientID);
+                    }
+
+                    string clientSecret = client.GetFitbitClientSecret();
+                    if (clientSecret != null)
+                    {
+                        SecretStorage.SaveFitbitClientSecret(clientSecret);
+                    }
+                }
+
+                catch (Exception e)
+                {
+                    Logger.WriteToLogFile(e);
+                }
+            }
+        }
+
         public override string GetVersion()
         {
             var v = new AssemblyName(Assembly.GetExecutingAssembly().FullName).Version;
@@ -117,11 +158,6 @@ namespace SlackTracker
         public override void UpdateDatabaseTables(int version)
         {
 
-        }
-
-        private void CheckIfSecretsAreAvailable()
-        {
-            throw new NotImplementedException();
         }
 
         public void ChangeEnabledState(bool? slackTrackerEnabled)

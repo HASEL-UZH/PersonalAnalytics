@@ -33,6 +33,8 @@ namespace Retrospection
         private bool defaultFitbitTokenRemoveEnabled;
         private bool defaultFitbitTokenRevoked;
         private bool defaultSlackTrackerEnabled;
+        private bool defaultSlackTokenRemoveEnabled;
+        private bool defaultSlackTokenRevoked;
 
         private string minutesStr = " minutes";
         private List<ITracker> _trackers;
@@ -277,6 +279,17 @@ namespace Retrospection
             //  FitbitConnector.RevokeAccessToken(SecretStorage.GetAccessToken());
             UpdatedSettingsDto = new SettingsDto();
             UpdatedSettingsDto.FitbitTokenRevoked = true;
+
+            DialogResult = true;
+            this.Close();
+        }
+
+        private void SlackRevoke_Click(object sender, RoutedEventArgs e)
+        {
+            SlackRevoke.IsEnabled = false;
+
+            UpdatedSettingsDto = new SettingsDto();
+            UpdatedSettingsDto.SlackTokenRevoked = true;
 
             DialogResult = true;
             this.Close();
