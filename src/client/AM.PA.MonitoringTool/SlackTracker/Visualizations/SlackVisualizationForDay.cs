@@ -1,12 +1,53 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Created by Rohit Kaushik (rohit.kaushik@uzh.ch) from the University of Zurich
+// Created: 2018-07-09
+// 
+// Licensed under the MIT License.
 
-namespace SlackTracker.Visualizations
+using Shared;
+using System;
+using SlackTracker.Data;
+using Shared.Helpers;
+
+namespace SlackTracker
 {
-    class SlackVisualizationForDay
+    internal class SlackVisualizationForDay : BaseVisualization, IVisualization
     {
+        private DateTimeOffset _date;
+
+        public SlackVisualizationForDay(DateTimeOffset date)
+        {
+            Title = "Slack";
+            this._date = date;
+            IsEnabled = true;
+            Size = VisSize.Square;
+            Order = 0;
+        }
+
+        public override string GetHtml()
+        {
+            var html = string.Empty;
+
+            //SleepVisualizationEntry value = DatabaseConnector.GetSleepDataForDay(DateTimeHelper.GetStartOfDay(_date), DateTimeHelper.GetEndOfDay(_date));
+
+            int? value = null;
+
+            if (value == null)
+            {
+                html += VisHelper.NotEnoughData();
+                return html;
+            }
+
+            //HTML
+            html += "<div id='chart' style='align: center; font-size: 1.15em;'>";
+            //html += "<p><b>Start:</b> " + value.StartTime.ToString(Settings.FORMAT_TIME) + "<span style='padding-left: 2em;'><b>End:</b> " + value.StartTime.AddMinutes(value.SleepDuration + value.AwakeDuration + value.RestlessDuration + value.AwakeAfterWakeUp).ToString(Settings.FORMAT_TIME) + "</span><span style='padding-left: 2em;'><b>Efficiency:</b> " + value.Efficiency + "%</span></p>";
+            //html += "<p><b>Slept for:</b> " + DurationToTime(value.SleepDuration) + "</p>";
+            //html += "<p><b>Time in bed after wakeup:</b> " + value.AwakeAfterWakeUp + " minutes</p>";
+            //html += "<p><b>Awake:</b> " + value.AwakeCount + " time(s). (Total duration: " + value.AwakeDuration + " minutes" + ")</p>";
+            //html += "<p><b>Restless:</b> " + value.RestlessCount + " time(s). (Total duration: " + value.RestlessDuration + " minutes" + ")</p>";
+            html += "</div>";
+            html += "<p style='text-align: center; font-size: 0.66em;'>Hint: Visualizes your sleep stats for the chosen day. For more detailed information,<br>visit: <a href='http://fitbit.com' target=_blank>fitbit.com</a>. (Last synced: " + DatabaseConnector.GetLastTimeSynced() + ").</p>";
+
+            return html;
+        }
     }
 }
