@@ -15,12 +15,10 @@ namespace SlackTracker.Data
     {
         private const string RESOURCE_NAME = "Slack_OAuth_Token";
         private const string ACCESS_TOKEN = "slack_accessToken";
-        private const string REFRESH_TOKEN = "slack_refreshToken";
 
         private const string SLACK_CREDENTIALS = "SlackCredentials";
         private const string SLACK_CLIENT_ID = "SlackClientID";
         private const string SLACK_CLIENT_SECRET = "SlackClientSecret";
-        private const string SLACK_FIRST_AUTHORIZATION_CODE = "SlackFirstAuthorizationCode";
 
         public static void SaveSlackClientID(string clientID)
         {

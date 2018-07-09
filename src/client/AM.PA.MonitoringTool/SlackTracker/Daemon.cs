@@ -3,12 +3,14 @@ using Shared.Data;
 using SlackTracker.Data;
 using SlackTracker.Views;
 using System;
+using System.Timers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using SlackTracker.Data.SlackModel;
 
 namespace SlackTracker
 {
@@ -16,11 +18,9 @@ namespace SlackTracker
     {
         private Window _browserWindow;
         private List<string> _channels;
-        private Dictionary<string, string> _channelstoken;
-        private bool _wasFirstStart = true;
+        private Timer _slackTimer;
         private bool _isPApaused = false;
-
-        public Dictionary<string, string> Channelstoken { get => _channelstoken; set => _channelstoken = value; }
+        private bool _wasFirstStart = true;
 
         #region Itracker Stuff
 
@@ -28,7 +28,6 @@ namespace SlackTracker
         {
             Name = Settings.TRACKER_NAME;
             _channels = new List<String>();
-            Channelstoken = new Dictionary<string, string>();
 
             SlackConnector.TokenRevoked += SlackConnector_TokenRevoked;
         }
@@ -53,7 +52,7 @@ namespace SlackTracker
             }
         }
 
-        //Gets new tokens from fitbit
+        //Gets new tokens from slack
         internal void GetNewTokens()
         {
             Application.Current.Dispatcher.Invoke((Action)(() =>
@@ -88,22 +87,18 @@ namespace SlackTracker
                 {
                     AccessDataService.AccessDataClient client = new AccessDataService.AccessDataClient();
 
-                    string authorizationCode = client.GetFitbitFirstAuthorizationCode();
-                    if (authorizationCode != null)
-                    {
-                        SecretStorage.SaveFitbitFirstAuthorizationCode(authorizationCode);
-                    }
-
-                    string clientID = client.GetFitbitClientID();
+                    //client.GetSlackClientID();
+                    string clientID = "12830536055.392728377956";
                     if (clientID != null)
                     {
-                        SecretStorage.SaveFitbitClientID(clientID);
+                        SecretStorage.SaveSlackClientID(clientID);
                     }
 
-                    string clientSecret = client.GetFitbitClientSecret();
+                    //client.GetSlackClientSecret();
+                    string clientSecret = "065f3a7b157bb73682366f0fe275da7f";
                     if (clientSecret != null)
                     {
-                        SecretStorage.SaveFitbitClientSecret(clientSecret);
+                        SecretStorage.SaveSlackClientSecret(clientSecret);
                     }
                 }
 
@@ -130,18 +125,38 @@ namespace SlackTracker
 
         public void InternalStart()
         {
+            try
+            {
+                CheckIfSecretsAreAvailable();
+                CheckIfTokenIsAvailable();
 
+                if (IsEnabled())
+                {
+                    Logger.WriteToConsole("Start Slack Tracker");
+                    CreateSlackPullTimer();
+                    IsRunning = true;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
         }
 
         public override void Start()
         {
             _isPApaused = false;
+            Logger.WriteToConsole(SecretStorage.GetAccessToken());
             InternalStart();
         }
 
         public void InternalStop()
         {
-
+            if (_slackTimer != null)
+            {
+                _slackTimer.Enabled = false;
+            }
+            IsRunning = false;
         }
 
         public override void Stop()
@@ -152,12 +167,75 @@ namespace SlackTracker
 
         public override void CreateDatabaseTablesIfNotExist()
         {
-
+            DatabaseConnector.CreateSlackTables();
         }
 
         public override void UpdateDatabaseTables(int version)
         {
 
+        }
+
+        //Called when new data should be pull from the slack API
+        private void OnPullFromSlack(object sender, ElapsedEventArgs eventArgs)
+        {
+            _slackTimer.Interval = Settings.SYNCHRONIZE_INTERVAL;
+
+            Logger.WriteToConsole("Try to sync with Slack");
+
+            try
+            {
+                DateTimeOffset latestSync = DateTimeOffset.Now;
+
+                if (Database.GetInstance().HasSetting(Settings.LAST_SYNCED_DATE))
+                {
+                    latestSync = Database.GetInstance().GetSettingsDate(Settings.LAST_SYNCED_DATE, DateTimeOffset.Now);
+                }
+                else
+                {
+                    Logger.WriteToConsole("Sync for the First Time with slack");
+                }
+
+                Logger.WriteToConsole("Latest sync date: " + latestSync.ToString(Settings.FORMAT_DAY_AND_TIME));
+                Database.GetInstance().SetSettings(Settings.LAST_SYNCED_DATE, latestSync.ToString(Settings.FORMAT_DAY_AND_TIME));
+                //latestSync = latestSync.AddDays(-1);
+
+                GetLogs(latestSync);
+                GetUsers(latestSync);
+                GetChannels(latestSync);
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+        }
+
+        private void GetLogs(DateTimeOffset _latestSync)
+        {
+            Logger.WriteToConsole(SecretStorage.GetAccessToken());
+        }
+
+        private void GetUsers(DateTimeOffset _latestSync)
+        {
+            //TODO: Implement
+        }
+
+        private void GetChannels(DateTimeOffset _latestSync)
+        {
+            IList<Channel> channels = SlackConnector.GetChannels();
+
+            foreach (Channel c in channels)
+            {
+                Logger.WriteToConsole(c.name);
+            }
+        }
+
+        //Creates a timer that is used to periodically pull data from the slack API
+        private void CreateSlackPullTimer()
+        {
+            _slackTimer = new Timer();
+            _slackTimer.Elapsed += OnPullFromSlack;
+            _slackTimer.Interval = Settings.SYNCHRONIZE_INTERVAL;
+            _slackTimer.Enabled = true;
         }
 
         public void ChangeEnabledState(bool? slackTrackerEnabled)
@@ -187,7 +265,7 @@ namespace SlackTracker
             Database.GetInstance().SetSettings(Settings.TRACKER_ENABLED_SETTING, false);
         }
 
-        //Called when new tokens were received from fitbit
+        //Called when new tokens were received from slack
         private void Browser_RegistrationTokenEvent(string token)
         {
             CheckIfSecretsAreAvailable();
@@ -210,8 +288,7 @@ namespace SlackTracker
 
         public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
         {
-            return null;
-            // Implement
+            return new List<IVisualization> { new SlackVisualizationForDay(date) };
         }
 
         public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)
@@ -227,16 +304,6 @@ namespace SlackTracker
         #endregion
 
         #region Events and Helpers
-        
-        public void AddChannel (String ch)
-        {
-            _channels.Add(ch);
-        }
-
-        public List<String> GetChannels ()
-        {
-            return _channels;
-        }
 
         #endregion
 
