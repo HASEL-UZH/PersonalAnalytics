@@ -1,4 +1,9 @@
-﻿using Shared;
+﻿// Created by Rohit Kaushik (f20150115@goa.bits-pilani.ac.in) at the University of Zurich
+// Created: 2018-07-07
+// 
+// Licensed under the MIT License.
+
+using Shared;
 using Shared.Data;
 using SlackTracker.Data;
 using SlackTracker.Views;
@@ -17,7 +22,6 @@ namespace SlackTracker
     public sealed class Daemon : BaseTracker, ITracker
     {
         private Window _browserWindow;
-        private List<string> _channels;
         private Timer _slackTimer;
         private bool _isPApaused = false;
         private bool _wasFirstStart = true;
@@ -27,7 +31,6 @@ namespace SlackTracker
         public Daemon ()
         {
             Name = Settings.TRACKER_NAME;
-            _channels = new List<String>();
 
             SlackConnector.TokenRevoked += SlackConnector_TokenRevoked;
         }
@@ -184,24 +187,25 @@ namespace SlackTracker
 
             try
             {
-                DateTimeOffset latestSync = DateTimeOffset.Now;
+                DateTimeOffset latestSync;
 
-                if (Database.GetInstance().HasSetting(Settings.LAST_SYNCED_DATE))
+                if (DatabaseConnector.GetLastTimeSynced() == "never")
                 {
-                    latestSync = Database.GetInstance().GetSettingsDate(Settings.LAST_SYNCED_DATE, DateTimeOffset.Now);
+                    Logger.WriteToConsole("Sync for the First Time with slack");
+                    latestSync = DateTimeOffset.MinValue;
                 }
                 else
                 {
-                    Logger.WriteToConsole("Sync for the First Time with slack");
+                    latestSync = DateTimeOffset.Parse(DatabaseConnector.GetLastTimeSynced());
                 }
 
                 Logger.WriteToConsole("Latest sync date: " + latestSync.ToString(Settings.FORMAT_DAY_AND_TIME));
-                Database.GetInstance().SetSettings(Settings.LAST_SYNCED_DATE, latestSync.ToString(Settings.FORMAT_DAY_AND_TIME));
+                Database.GetInstance().SetSettings(Settings.LAST_SYNCED_DATE, DateTimeOffset.Now.ToString(Settings.FORMAT_DAY_AND_TIME));
                 //latestSync = latestSync.AddDays(-1);
 
+                GetChannels(latestSync);
                 GetLogs(latestSync);
                 GetUsers(latestSync);
-                GetChannels(latestSync);
             }
             catch (Exception e)
             {
@@ -211,22 +215,37 @@ namespace SlackTracker
 
         private void GetLogs(DateTimeOffset _latestSync)
         {
-            Logger.WriteToConsole(SecretStorage.GetAccessToken());
+            List<Log> logs = SlackConnector.Get_Logs(_latestSync);
+
+            foreach (Log l in logs)
+            {
+                Logger.WriteToConsole(l.channel_id + " : " + l.message);
+            }
+
+            DatabaseConnector.SaveLogs(logs);
         }
 
         private void GetUsers(DateTimeOffset _latestSync)
         {
-            //TODO: Implement
+            List<User> users = SlackConnector.GetUsers();
+
+            foreach (User u in users)
+            {
+                Logger.WriteToConsole(u.name);
+            }
+
+            DatabaseConnector.SaveUsers(users);
         }
 
         private void GetChannels(DateTimeOffset _latestSync)
         {
-            IList<Channel> channels = SlackConnector.GetChannels();
-
+            List<Channel> channels = SlackConnector.GetChannels();
             foreach (Channel c in channels)
             {
                 Logger.WriteToConsole(c.name);
             }
+
+            DatabaseConnector.SaveChannels(channels);
         }
 
         //Creates a timer that is used to periodically pull data from the slack API

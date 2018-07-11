@@ -4,15 +4,16 @@
 // Licensed under the MIT License.
 
 using System;
-using System.IO;
 using System.Net;
-using Shared.Data;
-using System.Collections.Specialized;
 using System.Text;
 using Shared;
+using Shared.Data;
+using Shared.Helpers;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using SlackTracker.Data.SlackModel;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 using System.Linq;
 
@@ -34,39 +35,41 @@ namespace SlackTracker.Data
         public static event OnTokenAccessRevoked TokenRevoked;
 
 
-        //Returns the latest point in time a tracker was synchronized with slack
-        internal static DateTimeOffset GetLatestSyncDate()
-        {
-            return DateTimeOffset.MinValue;
-
-            //TODO: Implement
-        }
-
         #region Fetch Logs and Update
-        public static Dictionary<string, IList<Log>> Get_Logs(IList<Channel> _channels, DateTimeOffset _last_fetched)
+        public static List<Log> Get_Logs(DateTimeOffset _last_fetched)
         {
-            Dictionary<string, IList<Log>> channel_logs = new Dictionary<string, IList<Log>>;
+            List<Log> channel_logs = new List<Log>();
+            List<Channel> _channels = DatabaseConnector.GetChannels();
+
+            Logger.WriteToConsole("Fetching Logs");
 
             foreach (Channel c in _channels)
             {
+                Logger.WriteToConsole("Trying to fetch logs for channel " + c.name);
+
                 var values = new NameValueCollection();
                 values["token"] = SecretStorage.GetAccessToken();
                 values["channel"] = c.id;
-                //values["oldest"] = _last_fetched;
+                if (_last_fetched != DateTimeOffset.MinValue) { values["oldest"] = DateTimeHelper.JavascriptTimestampFromDateTime(_last_fetched.DateTime).ToString(); }
+                
 
-                Tuple<IList<Log>, bool> result = GetDataFromSlack<IList<Log>>(CHANNELS_HISTORY_URL, values, parse_log_response);
+                Tuple<List<Log>, bool> result = GetDataFromSlack<List<Log>>(CHANNELS_HISTORY_URL, values, parse_log_response);
 
-                IList<Log> logData = result.Item1;
+                List<Log> logData = result.Item1;
 
-                channel_logs[c.id] = logData;
+                // Update channel_id property
+                logData.ForEach(m => m.channel_id = c.id);
+
+                // Update receivers
+                //logData.ForEach(m => m.receiver = get_receiver(m.message));
+
+                channel_logs.AddRange(logData);
             }
-
-
 
             return channel_logs;
         }
 
-        private static IList<Log> parse_log_response (string response)
+        private static List<Log> parse_log_response (string response)
         {
             JObject response_object = JObject.Parse(response);
             JArray messages;
@@ -80,30 +83,30 @@ namespace SlackTracker.Data
             messages = (JArray)response_object["messages"];
 
 
-            IList<Log> _logs = messages.Select(p => new Log
+            List<Log> _logs = messages.Select(p => new Log
             {
                 type = (string)p["type"],
                 sender = (string)p["user"],
                 message = (string)p["text"],
-                timestamp = (string)p["ts"]
+                timestamp = DateTimeHelper.DateTimeFromSlackTimestamp((string)p["ts"])
             }).ToList();
 
             return _logs;
         }
 
-        public static IList<Channel> GetChannels()
+        public static List<Channel> GetChannels()
         {
             var values = new NameValueCollection();
             values["token"] = SecretStorage.GetAccessToken();
             values["exclude_archived"] = "true";
             values["exclude_members"] = "true";
             
-            Tuple<IList<Channel>, bool> result = GetDataFromSlack<IList<Channel>>(CHANNELS_LIST_URL, values, parse_channel_list);
+            Tuple<List<Channel>, bool> result = GetDataFromSlack<List<Channel>>(CHANNELS_LIST_URL, values, parse_channel_list);
 
             return result.Item1;
         }
 
-        private static IList<Channel> parse_channel_list (string response)
+        private static List<Channel> parse_channel_list (string response)
         {   
             JObject response_object = JObject.Parse(response);
             JArray channels;
@@ -117,29 +120,29 @@ namespace SlackTracker.Data
             channels = (JArray) response_object["channels"];
 
 
-            IList<Channel> _channels = channels.Select(p => new Channel
+            List<Channel> _channels = channels.Select(p => new Channel
             {
                 id = (string)p["id"],
                 name = (string)p["name"],
-                created = (int)p["created"],
+                created = (long)p["created"],
                 creator = (string)p["creator"]
             }).ToList();
 
             return _channels;
         }
 
-        private static IList<User> GetUsers()
+        public static List<User> GetUsers()
         {
             var values = new NameValueCollection();
             values["token"] = SecretStorage.GetAccessToken();
             values["include_locale"] = "true";
 
-            Tuple<IList<User>, bool> result = GetDataFromSlack<IList<User>>(USERS_LIST_URL, values, parse_user_list);
+            Tuple<List<User>, bool> result = GetDataFromSlack<List<User>>(USERS_LIST_URL, values, parse_user_list);
 
             return result.Item1;
         }
 
-        private static IList<User> parse_user_list (string response)
+        private static List<User> parse_user_list (string response)
         {
             JObject response_object = JObject.Parse(response);
             JArray members;
@@ -153,21 +156,19 @@ namespace SlackTracker.Data
             members = (JArray)response_object["members"];
 
 
-            IList<User> _users = members.Select(p => new User
+            List<User> _users = members.Select(p => new User
             {
                 id = (string)p["id"],
                 team_id = (string)p["team_id"],
                 name = (string)p["name"],
-                real_name = (string)p["real_name"],
-                is_bot = (bool)p["is_bot"],
-                is_admin = (bool)p["is_admin"],
-                is_owner = (bool)p["is_owner"]
+                real_name = (string)p["profile"]["real_name"],
+                is_bot = (bool)p["is_bot"]
             }).ToList();
 
             return _users;
         }
 
-        //Generic method that retrieves specific data from the fitbit. If an exception is thrown during this process, it checks whether the problem is an authorization problem. In this case, the tokens are refreshed.
+        //Generic method that retrieves specific data from the slack. If an exception is thrown during this process, it checks whether the problem is an authorization problem. In this case, the tokens are refreshed.
         //The method returns a tuple, consisting of two values. The first item in the tuple is the retrieved data set, or the default value in case an exception was thrown and the second item, indicates whether a caller
         //of this method should retry to call this method in case of an exception.
         private static Tuple<T, bool> GetDataFromSlack<T>(string url, NameValueCollection values, ResponseParser<T> parser)
@@ -286,8 +287,10 @@ namespace SlackTracker.Data
 
         #region Helpers
 
+        // Receivers occurs in message enclosed in <> and starting with a @ i.e <@C310FAE>
         private static string get_receiver (string text)
         {
+            Regex regex = new Regex(@"<[A-Z0-9]*>");
             return "not implemented";
         }
         #endregion
