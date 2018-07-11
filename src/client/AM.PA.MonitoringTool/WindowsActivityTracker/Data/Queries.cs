@@ -129,8 +129,8 @@ namespace WindowsActivityTracker.Data
             {
                 if (Shared.Settings.AnonymizeSensitiveData)
                 {
-                    var dto = new ContextDto { Context = new ContextInfos { ProgramInUse = entry.Process, WindowTitle = entry.WindowTitle } };
-                    entry.WindowTitle = Dict.Anonymized + " " + ContextMapper.GetContextCategory(dto);  // obfuscate window title
+                    var activityCategory = ProcessToActivityMapper.Map(entry.Process, entry.WindowTitle);
+                    entry.WindowTitle = string.Format("{0} (category: {1})", Dict.Anonymized, activityCategory);  // obfuscate window title
                 }
 
                 // if end time is missing, don't store anything
@@ -313,7 +313,7 @@ namespace WindowsActivityTracker.Data
                         //windowTitle = WindowTitleCodeExtractor.GetProjectName(windowTitle);
 
                         // map process and window to activity
-                        ProcessToActivityMapper.Map(e, processName, windowTitle);
+                        e.ActivityCategory = ProcessToActivityMapper.Map(processName, windowTitle);
 
 
                         // check if we add a new item, or merge with the previous one

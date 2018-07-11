@@ -48,6 +48,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Daemon.cs" />
+    <Compile Include="Helpers\ContextMapper.cs" />
+    <Compile Include="Helpers\ContextModels.cs" />
     <Compile Include="Helpers\ScreenCapture.cs" />
     <Compile Include="Helpers\ScreenshotChangedTracker.cs" />
     <Compile Include="Settings.cs" />
@@ -85,8 +87,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-<PropertyGroup>
-<BuildEnvironment>DEV</BuildEnvironment>
-</PropertyGroup>
-<Import Project="../../../web/Customized.targets" Condition=" '$(BuildEnvironment)' == 'DEPLOY' "/>
+  <PropertyGroup>
+    <BuildEnvironment>DEV</BuildEnvironment>
+  </PropertyGroup>
+  <Import Project="../../../web/Customized.targets" Condition=" '$(BuildEnvironment)' == 'DEPLOY' " />
 </Project>

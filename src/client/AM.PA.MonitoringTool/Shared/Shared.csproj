@@ -95,8 +95,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\ContextMapper.cs" />
-    <Compile Include="Data\ContextModels.cs" />
     <Compile Include="Data\Database.cs" />
     <Compile Include="Data\DatabaseImplementation.cs" />
     <Compile Include="Data\DataTransferObjects.cs" />
