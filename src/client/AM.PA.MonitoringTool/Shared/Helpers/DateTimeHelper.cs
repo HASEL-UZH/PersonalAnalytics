@@ -145,5 +145,17 @@ namespace Shared.Helpers
             var newUniversalTime = new DateTime((date*10000) + datetimeMinTimeTicks).ToUniversalTime();
             return newUniversalTime;
         }
+
+        /// <summary>
+        /// C# DateTime from Slack message timestamp 
+        /// </summary>
+        /// <param name="ts"></param>
+        /// <returns></returns>
+        public static DateTime DateTimeFromSlackTimestamp (string ts)
+        {
+            long date = Int64.Parse(ts.Split('.')[0]);
+
+            return DateTimeFromJavascriptTimestamp(date);
+        }
     }
 }
