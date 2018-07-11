@@ -313,7 +313,7 @@ namespace WindowsActivityTracker.Data
                         //windowTitle = WindowTitleCodeExtractor.GetProjectName(windowTitle);
 
                         // map process and window to activity
-                        ProcessToActivityMapper.Map(e, processName, windowTitle);
+                        e.ActivityCategory = ProcessToActivityMapper.Map(processName, windowTitle);
 
 
                         // check if we add a new item, or merge with the previous one
