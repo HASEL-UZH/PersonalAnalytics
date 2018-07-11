@@ -62,11 +62,11 @@ namespace Shared.Data
         public long Time { get; set; }
     }
 
-    public class ContextDto
-    {
-        public long StartTime { get; set; }
-        public long EndTime { get; set; }
+    //public class ContextDto
+    //{
+    //    public long StartTime { get; set; }
+    //    public long EndTime { get; set; }
 
-        public ContextInfos Context { get; set; }
-    }
+    //    public ContextInfos Context { get; set; }
+    //}
 }
