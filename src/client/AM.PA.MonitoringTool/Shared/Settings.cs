@@ -43,7 +43,7 @@ namespace Shared
         private const int _checkForToolUpdatesIntervalInMins = 6 * 60;
 #endif
 
-        public static bool AnonymizeSensitiveData = false;
+        public static bool AnonymizeSensitiveData = false; // default: disabled
         public const bool PrintQueriesToConsole = false;
 
         internal const string LogDbTable = "log";

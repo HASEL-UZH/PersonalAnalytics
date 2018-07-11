@@ -129,8 +129,8 @@ namespace WindowsActivityTracker.Data
             {
                 if (Shared.Settings.AnonymizeSensitiveData)
                 {
-                    var dto = new ContextDto { Context = new ContextInfos { ProgramInUse = entry.Process, WindowTitle = entry.WindowTitle } };
-                    entry.WindowTitle = Dict.Anonymized + " " + ContextMapper.GetContextCategory(dto);  // obfuscate window title
+                    var activityCategory = ProcessToActivityMapper.Map(entry.Process, entry.WindowTitle);
+                    entry.WindowTitle = string.Format("{0} (category: {1})", Dict.Anonymized, activityCategory);  // obfuscate window title
                 }
 
                 // if end time is missing, don't store anything
