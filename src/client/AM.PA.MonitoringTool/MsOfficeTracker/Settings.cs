@@ -28,10 +28,11 @@ namespace MsOfficeTracker
         public const string EmailsTable = "emails";
         public const string MeetingsTable = "meetings";
 
+
         ////////////////////////////////////////////////////////////
         // constants for using the Office 365 API
-        internal const string LoginApiEndpoint = "https://login.microsoftonline.com/{0}";       // default: "common"
-        internal const string ClientId = "5a6e510c-f900-491e-bfb3-8a6151a49c04";                // register app here to get the ClientId: https://apps.dev.microsoft.com/#/appList
+        internal const string LoginApiEndpoint = "https://login.microsoftonline.com/{0}"; // default: "common"
+        //internal const string ClientId = ""; // register app here to get the ClientId: https://apps.dev.microsoft.com/#/appList
         internal static readonly string[] Scopes = { "mail.read", "calendars.read" };           
         internal const string GraphApiEndpoint = "https://outlook.office.com/api/v2.0";
     }

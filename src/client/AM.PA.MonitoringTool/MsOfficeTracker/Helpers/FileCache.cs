@@ -61,7 +61,7 @@ namespace MsOfficeTracker.Helpers
         /// <summary>
         /// Path to the token cache
         /// </summary>
-        public static string CacheFilePath = Path.Combine(Shared.Settings.ExportFilePath, @"Office365TokenCache.cch"); //System.Reflection.Assembly.GetExecutingAssembly().Location + "msalcache.txt";
+        public static string CacheFilePath = Path.Combine(Shared.Settings.ExportFilePath, @"Office365TokenCache.cch");
 
         public static void BeforeAccessNotification(TokenCacheNotificationArgs args)
         {

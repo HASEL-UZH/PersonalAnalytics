@@ -37,6 +37,7 @@ namespace MsOfficeTracker.Helpers
     {
         private static Office365Api _api;
 
+        private string _clientId;
         private AuthenticationResult _authResult;
         private GraphServiceClient _client;
         private PublicClientApplication _app;
@@ -101,10 +102,17 @@ namespace MsOfficeTracker.Helpers
 
             try
             {
+                // receive API client ID
+                if (_clientId == null)
+                {
+                    _clientId = GetOffice365ApiClientId();
+                    if (_clientId == null) return false; 
+                }
+
                 // register app (if not yet done)
                 if (_app == null)
                 { 
-                    _app = new PublicClientApplication(Settings.ClientId, _authority, FileCache.GetUserCache());
+                    _app = new PublicClientApplication(_clientId, _authority, FileCache.GetUserCache());
                 }
 
                 // Here, we try to get an access token to call the service without invoking any UI prompt.
@@ -135,6 +143,30 @@ namespace MsOfficeTracker.Helpers
                 Logger.WriteToLogFile(e);
                 return false;
             }
+        }
+
+        /// <summary>
+        /// This method fetches the OFfice 365 API client secret from the PA-service server
+        /// TODO: store it
+        /// </summary>
+        /// <returns></returns>
+        private string GetOffice365ApiClientId()
+        {
+            try
+            {
+                AccessDataService.AccessDataClient client = new AccessDataService.AccessDataClient();
+                string clientId = client.GetOffice365ClientId();
+                if (clientId != null)
+                {
+                     return clientId;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+
+            return null;
         }
 
         /// <summary>
