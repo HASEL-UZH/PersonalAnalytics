@@ -155,7 +155,20 @@ namespace Shared.Helpers
         {
             long date = Int64.Parse(ts.Split('.')[0]);
 
-            return DateTimeFromJavascriptTimestamp(date);
+            var datetimeMinTimeTicks = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).Ticks;
+            var newUniversalTime = new DateTime((date * 10000000) + datetimeMinTimeTicks).ToUniversalTime();
+            return newUniversalTime;
+        }
+
+        /// <summary>
+        /// JavaScript Timestamp from C# DateTime 
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public static long SlackTimestampFromDateTime(DateTime date)
+        {
+            var datetimeMinTimeTicks = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).Ticks;
+            return ((date.ToUniversalTime().Ticks - datetimeMinTimeTicks) / 10000000);
         }
     }
 }
