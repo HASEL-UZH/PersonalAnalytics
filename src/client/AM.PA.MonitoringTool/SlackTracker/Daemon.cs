@@ -90,15 +90,13 @@ namespace SlackTracker
                 {
                     AccessDataService.AccessDataClient client = new AccessDataService.AccessDataClient();
 
-                    //client.GetSlackClientID();
-                    string clientID = "12830536055.392728377956";
+                    string clientID = client.GetSlackClientId();
                     if (clientID != null)
                     {
                         SecretStorage.SaveSlackClientID(clientID);
                     }
 
-                    //client.GetSlackClientSecret();
-                    string clientSecret = "065f3a7b157bb73682366f0fe275da7f";
+                    string clientSecret = client.GetSlackClientSecret();
                     if (clientSecret != null)
                     {
                         SecretStorage.SaveSlackClientSecret(clientSecret);
@@ -296,7 +294,7 @@ namespace SlackTracker
             throw new NotImplementedException();
         }
 
-        //Called when the browser window used to retrieve tokens from fitbit should be closed
+        //Called when the browser window used to retrieve tokens from slack should be closed
         private void Browser_FinishEvent()
         {
             Application.Current.Dispatcher.Invoke((Action)(() =>

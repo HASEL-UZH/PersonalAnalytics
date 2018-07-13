@@ -13,11 +13,11 @@ namespace SlackTracker.Data.SlackModel
 {
     class Log
     {
-        public string type { get; set; }
+        public int id;
+        public DateTime timestamp { get; set; }
+        public string channel_id { get; set; }
         public string sender { get; set; }
         public string receiver { get; set; }
-        public string channel_id { get; set; }
         public string message { get; set; }
-        public DateTime timestamp { get; set; }
     }
 }

@@ -21,7 +21,7 @@ namespace SlackTracker
         //Database Tables names
         internal const string CHANNELS_TABLE_NAME = "SlackChannels";
         internal const string LOG_TABLE_NAME = "SlackLogs";
-        internal const string USER_TABLE_NAME = "SkackUsers";
+        internal const string USER_TABLE_NAME = "SlackUsers";
 
         internal static readonly bool IsEnabledByDefault = true;
         internal static readonly bool IsDetailedCollectionEnabled = false; // default: disabled

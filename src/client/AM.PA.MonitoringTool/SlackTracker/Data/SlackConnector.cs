@@ -47,11 +47,13 @@ namespace SlackTracker.Data
             {
                 Logger.WriteToConsole("Trying to fetch logs for channel " + c.name);
 
+
                 var values = new NameValueCollection();
                 values["token"] = SecretStorage.GetAccessToken();
                 values["channel"] = c.id;
+                values["count"] = "1000";
                 if (_last_fetched != DateTimeOffset.MinValue) { values["oldest"] = DateTimeHelper.JavascriptTimestampFromDateTime(_last_fetched.DateTime).ToString(); }
-                
+
 
                 Tuple<List<Log>, bool> result = GetDataFromSlack<List<Log>>(CHANNELS_HISTORY_URL, values, parse_log_response);
 
@@ -63,9 +65,11 @@ namespace SlackTracker.Data
                 // Update receivers
                 //logData.ForEach(m => m.receiver = get_receiver(m.message));
 
+                //Reverse so that message are in ordered by send time
+                logData.Reverse();
+
                 channel_logs.AddRange(logData);
             }
-
             return channel_logs;
         }
 
@@ -85,7 +89,6 @@ namespace SlackTracker.Data
 
             List<Log> _logs = messages.Select(p => new Log
             {
-                type = (string)p["type"],
                 sender = (string)p["user"],
                 message = (string)p["text"],
                 timestamp = DateTimeHelper.DateTimeFromSlackTimestamp((string)p["ts"])
@@ -102,6 +105,12 @@ namespace SlackTracker.Data
             values["exclude_members"] = "true";
             
             Tuple<List<Channel>, bool> result = GetDataFromSlack<List<Channel>>(CHANNELS_LIST_URL, values, parse_channel_list);
+            bool retry = result.Item2;
+
+            if (result.Item1 == null && retry)
+            {
+                result = GetDataFromSlack<List<Channel>>(CHANNELS_LIST_URL, values, parse_channel_list);
+            }
 
             return result.Item1;
         }
@@ -118,7 +127,6 @@ namespace SlackTracker.Data
                 return null;
 
             channels = (JArray) response_object["channels"];
-
 
             List<Channel> _channels = channels.Select(p => new Channel
             {
@@ -138,6 +146,12 @@ namespace SlackTracker.Data
             values["include_locale"] = "true";
 
             Tuple<List<User>, bool> result = GetDataFromSlack<List<User>>(USERS_LIST_URL, values, parse_user_list);
+            bool retry = result.Item2;
+
+            if (result.Item1 == null && retry)
+            {
+                result = GetDataFromSlack<List<User>>(USERS_LIST_URL, values, parse_user_list);
+            }
 
             return result.Item1;
         }

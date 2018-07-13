@@ -44,16 +44,16 @@ namespace SlackTracker.Data
                                                                      + CREATOR + " TEXT)";
 
         private static readonly string CREATE_LOGS_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.LOG_TABLE_NAME + " ("
-                                                                 + ID + " INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY, "
+                                                                 + ID + " INTEGER PRIMARY KEY, "
+                                                                 + TIMESTAMP + " TEXT, "
                                                                  + CHANNEL + " TEXT, "
                                                                  + SENDER + " TEXT, "
                                                                  + RECEIVER + " TEXT, "
-                                                                 + TIMESTAMP + " TEXT, "
                                                                  + MESSAGE + " TEXT)";
 
         private static readonly string CREATE_USERS_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.USER_TABLE_NAME + " ("
                                                                   + USER_ID + " TEXT PRIMARY KEY, "
-                                                                  + TEAM_ID + " TEXT UNIQUE, "
+                                                                  + TEAM_ID + " TEXT, "
                                                                   + NAME + " TEXT, "
                                                                   + REAL_NAME + " TEXT, "
                                                                   + IS_BOT + " BIT NOT NULL)";
@@ -74,10 +74,10 @@ namespace SlackTracker.Data
                                                            + IS_BOT + ") VALUES ({0}, {1}, {2}, {3}, {4})";
 
         private static readonly string INSERT_LOG_QUERY = "INSERT OR IGNORE INTO " + Settings.LOG_TABLE_NAME
-                                                          + " (" + CHANNEL + ", "
+                                                          + " (" + TIMESTAMP + ", " 
+                                                          + CHANNEL + ", "
                                                           + SENDER + ", "
                                                           + RECEIVER + ", "
-                                                          + TIMESTAMP + ", "
                                                           + MESSAGE + ") VALUES ({0}, {1}, {2}, {3}, {4})";
 
 
@@ -126,7 +126,7 @@ namespace SlackTracker.Data
             foreach(Log log in logs)
             {
                 String query = String.Empty;
-                query += String.Format(INSERT_LOG_QUERY, "'" + log.channel_id + "'", "'" + log.sender + "'", "'" + "null" + "'", "'" + log.timestamp.ToString(Settings.FORMAT_DAY) + "'", "'" + log.message.Replace("'", "''") + "'");
+                query += String.Format(INSERT_LOG_QUERY,  "'" + log.timestamp.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + log.channel_id + "'", "'" + log.sender + "'", "'" + "null" + "'", "'" + log.message.Replace("'", "''") + "'");
                 Logger.WriteToConsole("query: " + query);
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }
@@ -181,7 +181,7 @@ namespace SlackTracker.Data
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public static List<Log> GetLogForDate (DateTime date)
+        public static List<Log> GetLogForDate (DateTime date, Channel channel)
         {
             var result = new List<Log>();
 
@@ -196,8 +196,12 @@ namespace SlackTracker.Data
                 {
                     result.Add(new Log
                     {
-                        sender = row[0].ToString(),
-                        channel_id = row[1].ToString()
+                        id = (int)row[0],
+                        channel_id = row[1].ToString(),
+                        sender = row[2].ToString(),
+                        receiver = row[3].ToString(),
+                        timestamp = DateTime.Parse(row[4].ToString()),
+                        message = row[5].ToString()
                     });
                 }
             }
@@ -209,7 +213,7 @@ namespace SlackTracker.Data
             return result;
         }
 
-        public static void GetLogForWeek (DateTime date)
+        public static void GetLogForWeek (DateTime date, Channel channel)
         {
 
         }

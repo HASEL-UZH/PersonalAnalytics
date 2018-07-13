@@ -78,7 +78,7 @@
     <ManifestKeyFile>PersonalAnalytics_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <GenerateManifests>true</GenerateManifests>
+    <GenerateManifests>false</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
     <SignManifests>false</SignManifests>
@@ -109,6 +109,12 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -241,6 +247,7 @@
     <None Include="bin\Release\tessdata\eng.word-dawg" /> -->
     <None Include="packages.config" />
     <None Include="PersonalAnalytics_TemporaryKey.pfx" />
+    <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -282,6 +289,10 @@
     <ProjectReference Include="..\PolarTracker\PolarTracker.csproj">
       <Project>{c42cc860-6372-469f-a52b-5d675f2650d6}</Project>
       <Name>PolarTracker</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SlackTracker\SlackTracker.csproj">
+      <Project>{daa23023-ed3e-4cfb-82db-b8b227532322}</Project>
+      <Name>SlackTracker</Name>
     </ProjectReference>
     <ProjectReference Include="..\TimeSpentVisualizer\TimeSpentVisualizer.csproj">
       <Project>{8eba3b95-be0e-4498-9eac-20d417176a00}</Project>
