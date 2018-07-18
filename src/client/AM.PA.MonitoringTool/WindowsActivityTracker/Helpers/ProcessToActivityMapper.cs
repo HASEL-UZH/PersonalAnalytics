@@ -48,27 +48,15 @@ namespace WindowsActivityTracker.Helpers
         #region Context Mapping Logic
 
         /// <summary>
-        /// For each (uncategorized) item in the category-list
-        /// map the activity category.
+        /// Map a windowsactivity-entry (given process and window name) to 
+        /// an activity category.
         /// </summary>
-        /// <param name="activities"></param>
+        /// <param name="process"></param>
+        /// <param name="window"></param>
         /// <returns></returns>
-        //public static void Map(List<WindowsActivityEntry> activities)
-        //{
-        //    foreach (var item in activities)
-        //    {
-        //        MapAndSetActivityCategory(item);
-        //    }
-        //    //return activities;
-        //}
-
-        /// <summary>
-        /// Map a single WindowsActivityEntry-item
-        /// </summary>
-        /// <param name="item"></param>
-        public static void Map(WindowsActivity item, string process, string window)
+        public static ActivityCategory Map(string process, string window)
         {
-            item.ActivityCategory = GetCategory(process, window);
+            return GetCategory(process, window);
         }
 
         /// <summary>

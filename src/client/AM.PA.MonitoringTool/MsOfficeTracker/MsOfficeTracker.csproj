@@ -74,7 +74,9 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
@@ -86,6 +88,11 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Connected Services\AccessDataService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="Daemon.cs" />
     <Compile Include="Data\Queries.cs" />
     <Compile Include="Helpers\FileCache.cs" />
@@ -109,6 +116,13 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Connected Services\AccessDataService\AccessData.wsdl" />
+    <None Include="Connected Services\AccessDataService\AccessData.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Connected Services\AccessDataService\AccessData1.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -116,6 +130,27 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Connected Services\AccessDataService\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connected Services\AccessDataService\AccessData.disco" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connected Services\AccessDataService\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connected Services\AccessDataService\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connected Services\AccessDataService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

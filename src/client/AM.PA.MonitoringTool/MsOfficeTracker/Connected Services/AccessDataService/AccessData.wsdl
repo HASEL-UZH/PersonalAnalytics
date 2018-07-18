@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="AccessData" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import schemaLocation="http://pluto.ifi.uzh.ch/HostedServices/AccessData.svc?xsd=xsd0" namespace="http://tempuri.org/" />
+      <xsd:import schemaLocation="http://pluto.ifi.uzh.ch/HostedServices/AccessData.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="IAccessData_GetFitbitClientID_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetFitbitClientID" />
+  </wsdl:message>
+  <wsdl:message name="IAccessData_GetFitbitClientID_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetFitbitClientIDResponse" />
+  </wsdl:message>
+  <wsdl:message name="IAccessData_GetFitbitClientSecret_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetFitbitClientSecret" />
+  </wsdl:message>
+  <wsdl:message name="IAccessData_GetFitbitClientSecret_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetFitbitClientSecretResponse" />
+  </wsdl:message>
+  <wsdl:message name="IAccessData_GetFitbitFirstAuthorizationCode_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetFitbitFirstAuthorizationCode" />
+  </wsdl:message>
+  <wsdl:message name="IAccessData_GetFitbitFirstAuthorizationCode_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetFitbitFirstAuthorizationCodeResponse" />
+  </wsdl:message>
+  <wsdl:message name="IAccessData_GetGarminConsumerKey_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetGarminConsumerKey" />
+  </wsdl:message>
+  <wsdl:message name="IAccessData_GetGarminConsumerKey_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetGarminConsumerKeyResponse" />
+  </wsdl:message>
+  <wsdl:message name="IAccessData_GetGarminConsumerSecret_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetGarminConsumerSecret" />
+  </wsdl:message>
+  <wsdl:message name="IAccessData_GetGarminConsumerSecret_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetGarminConsumerSecretResponse" />
+  </wsdl:message>
+  <wsdl:message name="IAccessData_GetOffice365ClientId_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetOffice365ClientId" />
+  </wsdl:message>
+  <wsdl:message name="IAccessData_GetOffice365ClientId_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetOffice365ClientIdResponse" />
+  </wsdl:message>
+  <wsdl:portType name="IAccessData">
+    <wsdl:operation name="GetFitbitClientID">
+      <wsdl:input wsaw:Action="http://tempuri.org/IAccessData/GetFitbitClientID" message="tns:IAccessData_GetFitbitClientID_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IAccessData/GetFitbitClientIDResponse" message="tns:IAccessData_GetFitbitClientID_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetFitbitClientSecret">
+      <wsdl:input wsaw:Action="http://tempuri.org/IAccessData/GetFitbitClientSecret" message="tns:IAccessData_GetFitbitClientSecret_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IAccessData/GetFitbitClientSecretResponse" message="tns:IAccessData_GetFitbitClientSecret_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetFitbitFirstAuthorizationCode">
+      <wsdl:input wsaw:Action="http://tempuri.org/IAccessData/GetFitbitFirstAuthorizationCode" message="tns:IAccessData_GetFitbitFirstAuthorizationCode_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IAccessData/GetFitbitFirstAuthorizationCodeResponse" message="tns:IAccessData_GetFitbitFirstAuthorizationCode_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGarminConsumerKey">
+      <wsdl:input wsaw:Action="http://tempuri.org/IAccessData/GetGarminConsumerKey" message="tns:IAccessData_GetGarminConsumerKey_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IAccessData/GetGarminConsumerKeyResponse" message="tns:IAccessData_GetGarminConsumerKey_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetGarminConsumerSecret">
+      <wsdl:input wsaw:Action="http://tempuri.org/IAccessData/GetGarminConsumerSecret" message="tns:IAccessData_GetGarminConsumerSecret_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IAccessData/GetGarminConsumerSecretResponse" message="tns:IAccessData_GetGarminConsumerSecret_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetOffice365ClientId">
+      <wsdl:input wsaw:Action="http://tempuri.org/IAccessData/GetOffice365ClientId" message="tns:IAccessData_GetOffice365ClientId_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IAccessData/GetOffice365ClientIdResponse" message="tns:IAccessData_GetOffice365ClientId_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BasicHttpBinding_IAccessData" type="tns:IAccessData">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetFitbitClientID">
+      <soap:operation soapAction="http://tempuri.org/IAccessData/GetFitbitClientID" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFitbitClientSecret">
+      <soap:operation soapAction="http://tempuri.org/IAccessData/GetFitbitClientSecret" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFitbitFirstAuthorizationCode">
+      <soap:operation soapAction="http://tempuri.org/IAccessData/GetFitbitFirstAuthorizationCode" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGarminConsumerKey">
+      <soap:operation soapAction="http://tempuri.org/IAccessData/GetGarminConsumerKey" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetGarminConsumerSecret">
+      <soap:operation soapAction="http://tempuri.org/IAccessData/GetGarminConsumerSecret" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetOffice365ClientId">
+      <soap:operation soapAction="http://tempuri.org/IAccessData/GetOffice365ClientId" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="AccessData">
+    <wsdl:port name="BasicHttpBinding_IAccessData" binding="tns:BasicHttpBinding_IAccessData">
+      <soap:address location="http://pluto.ifi.uzh.ch/HostedServices/AccessData.svc" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

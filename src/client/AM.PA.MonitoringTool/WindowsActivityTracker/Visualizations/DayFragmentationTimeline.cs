@@ -306,10 +306,8 @@ namespace WindowsActivityTracker.Visualizations
                 case ActivityCategory.DevReview:
                     return "#D7ADEB"; //"#1484CE"; //fairest blue
                 case ActivityCategory.DevVc:
-                    return "#F9D1F8";// "#1484CE"; //fairest blue   !!!
+                    return "#F9D1F8";// "#1484CE"; //fairest blue  
                 case ActivityCategory.ReadWriteDocument:
-                //case ActivityCategory.ManualEditor:
-                //return "#00cc00";//"#36c1c4"; // another blue
                 case ActivityCategory.PlannedMeeting:
                     return "#99EBFF";//#87CEEB";// "#3258E6";//  "#00b300"; // dark green
                 case ActivityCategory.InformalMeeting:
@@ -328,7 +326,6 @@ namespace WindowsActivityTracker.Visualizations
                     return "#d3d3d3"; // light gray
                 case ActivityCategory.Other:
                 case ActivityCategory.OtherRdp:
-                //case ActivityCategory.OtherMusic:
                 case ActivityCategory.Unknown:
                     return "gray";
                 case ActivityCategory.Idle:
@@ -378,8 +375,6 @@ namespace WindowsActivityTracker.Visualizations
                     return "Navigation in File Explorer";
                 case ActivityCategory.Other:
                     return "Other";
-                //case ActivityCategory.OtherMusic:
-                //    return "OtherMusic";
                 case ActivityCategory.Unknown:
                     return "Uncategorized";
                 case ActivityCategory.OtherRdp:
