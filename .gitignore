@@ -12,3 +12,7 @@ obj/
 Debug/
 /deployment/PersonalDeveloperAnalytics.old.rar
 *.DS_Store
+*.lock
+*.ide-wal
+*.ide-shm
+*.ide
