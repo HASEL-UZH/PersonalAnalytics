@@ -25,7 +25,7 @@ namespace PolarTracker
 #if PilotManu_March17
         internal static readonly bool IsEnabledByDefault = true;
         internal static readonly bool IsDetailedCollectionEnabled = true;
-#elif Pilot_TaskDetection_March17
+#elif Pilot_TaskDetection_March17 || Pilot_Andre_July18
         internal static readonly bool IsEnabledByDefault = false;
         internal static readonly bool IsDetailedCollectionEnabled = false;
 #else
