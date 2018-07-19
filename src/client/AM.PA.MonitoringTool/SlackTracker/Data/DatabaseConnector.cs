@@ -35,6 +35,9 @@ namespace SlackTracker.Data
         private const string REAL_NAME = "real_name";
         private const string IS_BOT = "is_bot";
 
+        //Summary Fields
+        private const string DATE = "summary_for";
+
 
         //Create Queries
         private static readonly string CREATE_CHANNELS_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.CHANNELS_TABLE_NAME + " ("
@@ -57,6 +60,10 @@ namespace SlackTracker.Data
                                                                   + NAME + " TEXT, "
                                                                   + REAL_NAME + " TEXT, "
                                                                   + IS_BOT + " BIT NOT NULL)";
+
+        private static readonly string CREATE_KEYWORDS_TABLE_QUERY
+
+        //private static readonly string CREATE_SUMMARY_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.SUMMARY_TABLE_NAME + " (";
 
 
         //Insert Queries
@@ -188,7 +195,7 @@ namespace SlackTracker.Data
             try
             {
                 string tableName = Settings.LOG_TABLE_NAME;
-                string query = "SELECT * FROM " + tableName + " WHERE TIMESTAMP = " + "'" + date.ToString(Settings.FORMAT_DAY) + "'" + " ORDER BY " + ID;
+                string query = "SELECT * FROM " + tableName + " WHERE DATE(" + TIMESTAMP + ") = " + "'" + date.ToString(Settings.FORMAT_DAY) + "'" + " ORDER BY " + ID;
 
                 var table = Database.GetInstance().ExecuteReadQuery(query);
 
@@ -196,11 +203,11 @@ namespace SlackTracker.Data
                 {
                     result.Add(new Log
                     {
-                        id = (int)row[0],
-                        channel_id = row[1].ToString(),
-                        sender = row[2].ToString(),
-                        receiver = row[3].ToString(),
-                        timestamp = DateTime.Parse(row[4].ToString()),
+                        id = Int32.Parse(row[0].ToString()),
+                        timestamp = DateTime.Parse(row[1].ToString()),
+                        channel_id = row[2].ToString(),
+                        sender = row[3].ToString(),
+                        receiver = null,
                         message = row[5].ToString()
                     });
                 }
