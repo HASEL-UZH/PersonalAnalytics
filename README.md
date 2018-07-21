@@ -19,7 +19,7 @@ André Meyer (ameyer@ifi.uzh.ch)
 - December, 2016: Started working on integrating several other biometric sensors (Polar, Garmin, Fitbit) (on the 'biometrics' branch). The PolarTracker and GarminTracker are available and stable on the master branch. GarminTracker is still in development.
 - February, 2017: Integrated the (privately developed) [FlowLight](https://www.andre-meyer.ch/flowlight) to avoid interruptions at inopportune moments. It has since then been removed from the repository, as it was licensed to [Embrava](https://embrava.com/pages/flow).
 - March, 2017: Started working on task type detection (on the 'taskdetection' branch), still in development.
-- June, 2018: [Rohit Kaushik](https://github.com/rohangoel96) (master student at BITS Pilani, India) started working on a SlackTracker.
+- June, 2018: [Rohit Kaushik](https://github.com/kaushik-rohit) (bachelor student at BITS Pilani, India) started working on a SlackTracker.
 - July, 2018: [Chris Satterfield](https://github.com/csatterfield) (master student at University of British Columbia, Canada) started integrating his port from Windows to Mac. Expected availability in October, 2018.
 
 
@@ -30,7 +30,7 @@ André Meyer (ameyer@ifi.uzh.ch)
 - Prof. Dr. Gail C. Murphy (University of British Columbia)
 - [Manuela Züger](http://www.ifi.uzh.ch/en/seal/people/zueger.html) and [Sebastian Müller](http://www.ifi.uzh.ch/en/seal/people/mueller.html) (University of Zurich)
 - Paige Rodeghero, Boyang Li and Dave Shepherd (ABB Research)
-- [Rohit Kaushik](https://github.com/rohangoel96) (responsible for SlackTracker)
+- [Rohit Kaushik](https://github.com/kaushik-rohit) (responsible for SlackTracker)
 - [Chris Satterfield](https://github.com/csatterfield) (main contributor of Mac version)
 
 
@@ -45,3 +45,4 @@ We want to thank the following developers for providing us with the fantastic li
 - C3.js https://github.com/masayuki0812/c3 MIT License 
 - HTML FilterTable https://github.com/koalyptus/TableFilter MIT license
 - Newtonsoft Json http://www.newtonsoft.com/json MIT license
+- OpenNLP https://github.com/AlexPoint/OpenNlp MIT license 
