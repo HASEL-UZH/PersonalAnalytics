@@ -130,7 +130,7 @@ namespace SlackTracker
                 CheckIfSecretsAreAvailable();
                 CheckIfTokenIsAvailable();
                 List<Channel> channel = DatabaseConnector.GetChannels();
-                SlackTracker.Analysis.Helpers.getKeywordForDate(new DateTime(2018, 3, 21), channel[0]);
+
                 if (IsEnabled())
                 {
                     Logger.WriteToConsole("Start Slack Tracker");

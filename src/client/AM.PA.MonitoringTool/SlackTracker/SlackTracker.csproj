@@ -68,7 +68,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Analysis\Helpers.cs" />
-    <Compile Include="Analysis\TopicSummarization\Rake.cs" />
     <Compile Include="Analysis\TopicSummarization\TextRank.cs" />
     <Compile Include="Connected Services\AccessDataService\Reference.cs">
       <AutoGen>True</AutoGen>

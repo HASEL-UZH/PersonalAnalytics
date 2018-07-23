@@ -61,8 +61,6 @@ namespace SlackTracker.Data
                                                                   + REAL_NAME + " TEXT, "
                                                                   + IS_BOT + " BIT NOT NULL)";
 
-        private static readonly string CREATE_KEYWORDS_TABLE_QUERY
-
         //private static readonly string CREATE_SUMMARY_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.SUMMARY_TABLE_NAME + " (";
 
 
