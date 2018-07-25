@@ -127,6 +127,13 @@ namespace WindowsActivityTracker.Data
         {
             try
             {
+                // if user is browsing in InPrivate-mode, obfuscate window title (doesn't work in Google Chrome!)
+                if (ProcessToActivityMapper.IsBrowser(entry.Process) && Settings.InkognitoBrowsingTerms.Any(entry.WindowTitle.ToLower().Contains))
+                {
+                    entry.WindowTitle = Dict.Anonymized;  // obfuscate window title
+                }
+
+                // if user enabled private tracking, obfuscate window title
                 if (Shared.Settings.AnonymizeSensitiveData)
                 {
                     var activityCategory = ProcessToActivityMapper.Map(entry.Process, entry.WindowTitle);

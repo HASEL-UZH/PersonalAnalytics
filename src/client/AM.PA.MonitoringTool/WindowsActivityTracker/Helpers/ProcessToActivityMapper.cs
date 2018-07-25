@@ -33,8 +33,8 @@ namespace WindowsActivityTracker.Helpers
         private static readonly List<string> ReadingWritingAppsAndKeywords = new List<string> { "aether", "insight3", "snagiteditor", "confluence", "picasa", "quora", "windows photo viewer", "visio", "flashmedialiveencoder", "photofiltre", "jmp", "treepad", "winword", "word", "leo", "translate", "übersetzer", "wordpress", "mspub", ".doc", ".xls", ".ppt", ".pub", "excel", "powerpnt", "onenote", "evernote", "acrord", "sharepoint", "pdf", "foxitreader", "adobe reader", "reader", "glcnd", "wiki", "keep", "google docs", "yammer", "docs", "office", "paint", "gimp", "photoshop", "lightroom", "miktex", "texmaker", "latex", "texstudio", "latech studio", "photo", "foto" }; //not "note" as notepad is more coding
         private static readonly List<string> InstantMessagingAppsAndKeywords = new List<string> { "slack", "skype", "lync", "wechat", "sip", "g2mlauncher", "ciscowebexstart", "nbrplay", "g2mui", "chatter", "atmgr", "hangout", "viber", "messaging", "whatsapp", "messenger" }; // includes skype for business
 
-        private static readonly List<string> BrowserApps = new List<string> { "iexplore", "instagram", "chrome", "firefox", "opera", "safari", "applicationframehost", "edge" }; // ApplicationFrameHost stands for Edge
-        private static readonly List<string> WorkUnrelatedBrowsingKeywords = new List<string> { "yelp", "verge", "season", "food", "vincere", "agar.io", "gopro", "saldo", "halo", "book", "party", "swag", "birthday", "therapy", "vacation", "wohnung", "flat", "airbnb", "money", "hotel", "mietwagen", "rental", "credit", "hockeybuzz.com", "empatica", "wallpaper", "flight", "travel", "store", "phone", "buy", "engadget", "motorcycle", "car", "auto", "honda", "bmw", "nissan", "subaru", "winter", "summer", "bike", "bicycle", "arcgis", "finance", "portfolio", "toy", "gadget", "geek", "wellness", "health", "saturday", "sunday", "weekend", "sushi", "eat", "dessert", "restaurant", "holiday", "hotel", "cafe", "gas", "deal", "shop", "shopping", "craigslist", "vancouver", "indoor", "club", "loan", "maps", "flower", "florist", "valentine", "zalando", "tripadvisor", "golem", "tilllate", "heise", "jedipedia", "blick", "daydeal.ch", "renovero", "brack.ch", "skyscanner", "easyjet", "booking.com", "meteocheck", "scientific american", "ars technica", "national post", "sensecore", "core pro", "| time", "hockey inside/out", "netflix", "wired", "popular science", "habsrus", "flickr", "imdb", "xkcd", "derStandard.at", "amazon", "nhl.com", "20 minuten", "facebook", "reddit", "twitter", "google+", "news", "aktuell", "9gag", "yahoo", "comic", "ebay", "ricardo", "stream", "movie", "cinema", "kino", "tumblr" };
+        private static readonly List<string> BrowserApps = new List<string> { "iexplore", "chrome", "firefox", "opera", "safari", "applicationframehost", "edge" }; // ApplicationFrameHost stands for Edge
+        private static readonly List<string> WorkUnrelatedBrowsingKeywords = new List<string> { "yelp", "instagram", "verge", "season", "food", "vincere", "agar.io", "gopro", "saldo", "halo", "book", "party", "swag", "birthday", "therapy", "vacation", "wohnung", "flat", "airbnb", "money", "hotel", "mietwagen", "rental", "credit", "hockeybuzz.com", "empatica", "wallpaper", "flight", "travel", "store", "phone", "buy", "engadget", "motorcycle", "car", "auto", "honda", "bmw", "nissan", "subaru", "winter", "summer", "bike", "bicycle", "arcgis", "finance", "portfolio", "toy", "gadget", "geek", "wellness", "health", "saturday", "sunday", "weekend", "sushi", "eat", "dessert", "restaurant", "holiday", "hotel", "cafe", "gas", "deal", "shop", "shopping", "craigslist", "vancouver", "indoor", "club", "loan", "maps", "flower", "florist", "valentine", "zalando", "tripadvisor", "golem", "tilllate", "heise", "jedipedia", "blick", "daydeal.ch", "renovero", "brack.ch", "skyscanner", "easyjet", "booking.com", "meteocheck", "scientific american", "ars technica", "national post", "sensecore", "core pro", "| time", "hockey inside/out", "netflix", "wired", "popular science", "habsrus", "flickr", "imdb", "xkcd", "derStandard.at", "amazon", "nhl.com", "20 minuten", "facebook", "reddit", "twitter", "google+", "news", "aktuell", "9gag", "yahoo", "comic", "ebay", "ricardo", "stream", "movie", "cinema", "kino", "tumblr" };
         private static readonly List<string> WorkRelatedBrowsingKeywords = new List<string> { "linkedin", "techready", "powerapps", "angular", "connect", "typescript", "release", "batmon", "calculator", "analytics", "azure", "power bi", "business", "googleearth", "php", "proffix", "centmin", "picturex", "ios", "schmelzmetall", "natur- und tierpark goldau", "tierpark", "amazon web service", "cyon", "salesforce.com", "silverlight", "issue", "junit", "mylyn", "jetbrains", "telerik", "testcomplete", "application lifecycle management", "all reports", "advanced search", ".net", "c#", "java", "vbforums", "dashboard", "virtualbox", "document", "dropbox", "onedrive", "proxy", "jenkins", "databasics", "suite", "abb", "shadowbot", "office", "windows", "namespace", "ventyx", "api", "apache", "oracle", "server", "system", "ibm", "code", "codeplex", "retrospection", "stack overflow", "msdn", "developer", "documentation", "blog", "coding", "programmer" };
 
         private static readonly List<string> FileNavigationExplorerApps = new List<string> { "explorer" };
@@ -191,32 +191,32 @@ namespace WindowsActivityTracker.Helpers
         // only look for process
         private static bool IsEditor(string processName) //, string windowName)
         {
-            return EditorApps.Any(processName.Contains); // || EditorApps.Any(windowName.Contains);
+            return EditorApps.Any(processName.ToLower().Contains); // || EditorApps.Any(windowName.Contains);
         }
 
-        private static bool IsBrowser(string processName)
+        internal static bool IsBrowser(string processName)
         {
-            return BrowserApps.Any(processName.Contains);
+            return BrowserApps.Any(processName.ToLower().Contains);
         }
 
         private static bool IsWebsiteWorkRelated(string windowName)
         {
-            return WorkRelatedBrowsingKeywords.Any(windowName.Contains);
+            return WorkRelatedBrowsingKeywords.Any(windowName.ToLower().Contains);
         }
 
         private static bool IsWebsiteWorkUnrelated(string windowName)
         {
-            return WorkUnrelatedBrowsingKeywords.Any(windowName.Contains);
+            return WorkUnrelatedBrowsingKeywords.Any(windowName.ToLower().Contains);
         }
 
         private static bool IsCodeFile(string windowName)
         {
-            return CodeFileTypes.Any(windowName.Contains);
+            return CodeFileTypes.Any(windowName.ToLower().Contains);
         }
 
         private static bool EditorNotEnoughInfo(string windowName)
         {
-            return string.IsNullOrEmpty(windowName) || EditorNotEnoughInfoList.Any(windowName.Contains) || EditorApps.Any(windowName.Equals);
+            return string.IsNullOrEmpty(windowName) || EditorNotEnoughInfoList.Any(windowName.ToLower().Contains) || EditorApps.Any(windowName.Equals);
         }
 
         private static List<string> GetListForCategory(ActivityCategory cat)
