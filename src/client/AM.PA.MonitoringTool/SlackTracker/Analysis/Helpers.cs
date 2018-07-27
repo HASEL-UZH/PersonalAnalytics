@@ -12,17 +12,18 @@ namespace SlackTracker.Analysis
     {
         public static List<string> getKeywordForDate (DateTime date, Channel channel)
         {
+            List<string> keywords = null;
             try
             {
                 List<Log> log_for_date = DatabaseConnector.GetLogForDate(date, channel);
                 string log = string.Join("\n", log_for_date.Select(p => p.message));
-                List<string> keywords = TopicSummarization.TextRank.getKeywords(log);
+                keywords = TopicSummarization.TextRank.getKeywords(log);
             }
             catch(Exception e)
             {
                 Logger.WriteToLogFile(e);
             }
-            return new List<string>();
+            return keywords;
         }
 
         public static void getKeywordsForWeek (DateTime date)

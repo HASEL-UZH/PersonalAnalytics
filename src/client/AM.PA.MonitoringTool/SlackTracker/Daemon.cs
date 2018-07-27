@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Windows;
 using SlackTracker.Data.SlackModel;
 using SlackTracker.Analysis.TopicSummarization;
+using SlackTracker.Analysis;
 
 namespace SlackTracker
 {
@@ -130,6 +131,8 @@ namespace SlackTracker
                 CheckIfSecretsAreAvailable();
                 CheckIfTokenIsAvailable();
                 List<Channel> channel = DatabaseConnector.GetChannels();
+                //Helpers.getKeywordForDate(new DateTime(2018, 3, 23), channel[0]);
+                Helpers.getSummaryForDay(new DateTime(2018, 3, 23), channel[0]);
 
                 if (IsEnabled())
                 {

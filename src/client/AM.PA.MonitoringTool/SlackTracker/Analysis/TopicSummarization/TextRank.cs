@@ -10,6 +10,8 @@ using System.Linq;
 using OpenNLP.Tools.Tokenize;
 using OpenNLP.Tools.SentenceDetect;
 using OpenNLP.Tools.PosTagger;
+using System.Text.RegularExpressions;
+using System.IO;
 
 namespace SlackTracker.Analysis.TopicSummarization
 {
@@ -25,17 +27,13 @@ namespace SlackTracker.Analysis.TopicSummarization
 
             try
             {
-                List<string> words = tokenize(sentenceSplitter(doc));
+                List<string> sentences = sentenceSplitter(doc);
+                sentences = filterSentences(sentences);
+                List<string> words = tokenize(sentences);
                 List<string> tags = getPosTags(words);
 
                 List<candidateWord> candidateWords = filterWords(words, tags);
                 keywords = rankWords(words, candidateWords);
-                /*
-                for(int i = 0; i < words.Count; i++)
-                {
-                    Logger.WriteToConsole("word: " + words[i] + " tag: " + tags[i]);
-                }
-                */
 
                 foreach (string word in keywords)
                 {
@@ -65,22 +63,27 @@ namespace SlackTracker.Analysis.TopicSummarization
 
             List<string> include = new List<string>() { "JJ", "NN", "NNP"};
             Dictionary<string, candidateWord> wordDict = new Dictionary<string, candidateWord>();
+            List<string> smileyList = File.ReadLines(AppDomain.CurrentDomain.BaseDirectory + @"../../../SlackTracker/Analysis/resources/wordnet/dict/smileys.txt").ToList();
             int word_count = words.Count;
             int tag_count = tags.Count;
-            int i = 0;
 
             if (word_count != tag_count)
             {
                 throw new Exception("words and tags list do not match");
             }
 
-            for (i = 0; i < word_count; i++)
+            for (int i = 0; i < word_count; i++)
             {
                 string word = words[i];
                 string tag = tags[i];
+                Regex rgx = new Regex("<@[A-Z0-9]+>");
 
                 //continue if word pos is not in include list
                 if (!include.Contains(tag) || word.Length < 3)
+                    continue;
+
+                //Remove user mention and smileys
+                if (rgx.IsMatch(word) || smileyList.Contains(word))
                     continue;
 
                 if (!wordDict.ContainsKey(word))
@@ -281,6 +284,7 @@ namespace SlackTracker.Analysis.TopicSummarization
             try
             {
                 List<string> sentences = sentenceSplitter(doc);
+                sentences = filterSentences(sentences);
                 summary = summarizeDoc(sentences);
 
                 Logger.WriteToConsole("summary: \n" + summary);
@@ -291,6 +295,27 @@ namespace SlackTracker.Analysis.TopicSummarization
             }
 
             return summary;
+        }
+
+        private static List<string> filterSentences(List<string> sentences)
+        {
+            var result = new List<string>();
+            int n_sentences = sentences.Count;
+            List<int> toRemove = new List<int>();
+
+            for(int i = 0; i < n_sentences; i++)
+            {
+                //Remove non user setences
+                //Remove sentences with length <= 3 since it is unlikely they contain
+                //any keyword or are part of summary.
+
+                if (sentences[i].Contains("has joined the channel")) { continue; }
+                if (sentences[i].Length <= 3) { continue; }
+
+                result.Add(sentences[i]);
+            }
+
+            return result;
         }
 
         private static List<SentenceNode> getSimilarityGraph(List<string> sentences)
@@ -362,7 +387,7 @@ namespace SlackTracker.Analysis.TopicSummarization
 
             Logger.WriteToConsole("Number of sentences: " + sentence_count);
 
-            while (_convergence_reached)
+            while (!_convergence_reached)
             {
                 int iteration = 0;
                 iteration++;
@@ -381,12 +406,11 @@ namespace SlackTracker.Analysis.TopicSummarization
                     {
                         Tuple<SentenceNode, double> neighbour = neightbours[j];
                         SentenceNode n = neighbour.Item1;
-                        int n_count = n.neighbours.Count;
                         double weight = neighbour.Item2;
                         double denominator = 0;
                         List<Tuple<SentenceNode, double>> n2 = n.neighbours;
-
-                        for (int k = 0; k <= n_count; k++)
+                        int n_count = n2.Count;
+                        for (int k = 0; k < n_count; k++)
                         {
                             denominator += n2[k].Item2; 
                         }
@@ -401,7 +425,7 @@ namespace SlackTracker.Analysis.TopicSummarization
             graph.Sort((a, b) => -1 * a.score.CompareTo(b.score));
 
 
-            return string.Join(". ", graph.GetRange(0, top_n).Select(node => node.sentence).ToList());
+            return string.Join("\n", graph.GetRange(0, top_n).Select(node => node.sentence).ToList());
         }
         #endregion
 
