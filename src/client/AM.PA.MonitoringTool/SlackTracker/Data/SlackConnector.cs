@@ -36,7 +36,7 @@ namespace SlackTracker.Data
 
 
         #region Fetch Logs and Update
-        public static List<Log> Get_Logs(DateTimeOffset _last_fetched)
+        public static List<LogData> Get_Logs(DateTimeOffset _last_fetched)
         {
             List<Log> channel_logs = new List<Log>();
             List<Channel> _channels = DatabaseConnector.GetChannels();
@@ -46,7 +46,6 @@ namespace SlackTracker.Data
             foreach (Channel c in _channels)
             {
                 Logger.WriteToConsole("Trying to fetch logs for channel " + c.name);
-
 
                 var values = new NameValueCollection();
                 values["token"] = SecretStorage.GetAccessToken();
@@ -62,15 +61,13 @@ namespace SlackTracker.Data
                 // Update channel_id property
                 logData.ForEach(m => m.channel_id = c.id);
 
-                // Update receivers
-                //logData.ForEach(m => m.receiver = get_receiver(m.message));
-
                 //Reverse so that message are in ordered by send time
                 logData.Reverse();
 
                 channel_logs.AddRange(logData);
             }
-            return channel_logs;
+
+            return ConvertTempLog(channel_logs);
         }
 
         private static List<Log> parse_log_response (string response)
@@ -91,7 +88,7 @@ namespace SlackTracker.Data
             {
                 sender = (string)p["user"],
                 message = (string)p["text"],
-                timestamp = DateTimeHelper.DateTimeFromSlackTimestamp((string)p["ts"])
+                timestamp = (string)p["ts"]
             }).ToList();
 
             return _logs;
@@ -300,13 +297,51 @@ namespace SlackTracker.Data
         #endregion
 
         #region Helpers
+        private static List<LogData> ConvertTempLog(List<Log> logs)
+        {
+            List<LogData> logData = new List<LogData>();
+            int n_log = 1;
+
+            foreach (Log log in logs)
+            {
+                logData.Add(new LogData
+                {
+                    id = n_log++,
+                    timestamp = DateTimeHelper.DateTimeFromSlackTimestamp(log.timestamp),
+                    channel_id = log.channel_id,
+                    author = log.sender,
+                    mentions = get_user_mentions(log.message),
+                    message = log.message
+                });
+            }
+
+            return logData;
+        }
 
         // Receivers occurs in message enclosed in <> and starting with a @ i.e <@C310FAE>
-        private static string get_receiver (string text)
+        private static List<string> get_user_mentions (string text)
         {
-            Regex regex = new Regex(@"<[A-Z0-9]*>");
-            return "not implemented";
+            List<string> mentions = new List<string>();
+            string pattern = @"<@[A-Z0-9]+>";
+            foreach (Match m in Regex.Matches(text, pattern))
+            {
+                string mention = m.Value;
+                int len = mention.Length;
+
+                //remove <@>
+                mentions.Add(mention.Substring(2, len - 3));
+            }
+
+            return mentions;
         }
         #endregion
+    }
+
+    internal class Log
+    {
+        public string timestamp { get; set; }
+        public string channel_id { get; set; }
+        public string sender { get; set; }
+        public string message { get; set; }
     }
 }
