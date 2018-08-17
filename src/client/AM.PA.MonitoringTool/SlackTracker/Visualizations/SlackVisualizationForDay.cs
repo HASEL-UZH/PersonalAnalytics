@@ -7,6 +7,7 @@ using Shared;
 using System;
 using SlackTracker.Data;
 using Shared.Helpers;
+using System.Collections.Generic;
 
 namespace SlackTracker
 {
@@ -23,29 +24,62 @@ namespace SlackTracker
             Order = 0;
         }
 
+        private string GenerateJSData(List<string> words)
+        {
+            string data = "[";
+            int len = words.Count;
+
+            for (int i = 0; i < len; i++)
+            {
+                data += "\"" + words[i] +"\"";
+
+                if (i < len - 1) { data += ", ";}
+            }
+
+            data += "]";
+
+            return data;
+        }
+
         public override string GetHtml()
         {
             var html = string.Empty;
 
-            //SleepVisualizationEntry value = DatabaseConnector.GetSleepDataForDay(DateTimeHelper.GetStartOfDay(_date), DateTimeHelper.GetEndOfDay(_date));
+            List<string> value = DatabaseConnector.GetKeywordsForDate(_date.DateTime);
 
-            int? value = null;
-
-            if (value == null)
+            if (value.Count == 0)
             {
                 html += VisHelper.NotEnoughData();
                 return html;
             }
+            var key = GenerateJSData(value);
 
             //HTML
-            html += "<div id='chart' style='align: center; font-size: 1.15em;'>";
-            //html += "<p><b>Start:</b> " + value.StartTime.ToString(Settings.FORMAT_TIME) + "<span style='padding-left: 2em;'><b>End:</b> " + value.StartTime.AddMinutes(value.SleepDuration + value.AwakeDuration + value.RestlessDuration + value.AwakeAfterWakeUp).ToString(Settings.FORMAT_TIME) + "</span><span style='padding-left: 2em;'><b>Efficiency:</b> " + value.Efficiency + "%</span></p>";
-            //html += "<p><b>Slept for:</b> " + DurationToTime(value.SleepDuration) + "</p>";
-            //html += "<p><b>Time in bed after wakeup:</b> " + value.AwakeAfterWakeUp + " minutes</p>";
-            //html += "<p><b>Awake:</b> " + value.AwakeCount + " time(s). (Total duration: " + value.AwakeDuration + " minutes" + ")</p>";
-            //html += "<p><b>Restless:</b> " + value.RestlessCount + " time(s). (Total duration: " + value.RestlessDuration + " minutes" + ")</p>";
-            html += "</div>";
-            html += "<p style='text-align: center; font-size: 0.66em;'>Hint: Visualizes your sleep stats for the chosen day. For more detailed information,<br>visit: <a href='http://fitbit.com' target=_blank>fitbit.com</a>. (Last synced: " + DatabaseConnector.GetLastTimeSynced() + ").</p>";
+            html += "<svg id='visualization'></svg>";
+
+            //SCRIPT
+            html += "<script>";
+
+            html += "var layout = d3.layout.cloud().size([500, 500]).words(" + key + ".map(function(d) {";
+            html += "return {text: d, size: 10 + Math.random() * 90, test: \"haha\"};";
+            html += "})).padding(5).rotate(function() {return ~~(Math.random() * 2) * 90; })";
+            html += ".font(\"Impact\").fontSize(function(d) { return d.size; }).on(\"end\", draw);";
+
+            html += "layout.start();";
+            html += "function draw(words) {";
+            html += "d3.select('#visualization')";
+            html += ".attr(\"width\", layout.size()[0])";
+            html += ".attr(\"height\", layout.size()[1])";
+            html += ".append(\"g\")";
+            html += ".attr(\"transform\", \"translate(\" + layout.size()[0] / 2 + \",\" + layout.size()[1] / 2 + \")\")";
+            html += ".selectAll(\"text\").data(words).enter().append('text')";
+            html += ".style(\"font-size\", function(d) { return d.size + \"px\"; })";
+            html += ".style(\"font-family\", \"Impact\")";
+            html += ".attr(\"text-anchor\", \"middle\")";
+            html += ".attr(\"transform\", function(d) { return \"translate(\" + [d.x, d.y] + \")rotate(\" + d.rotate + \")\";})";
+            html += ".text(function(d) { return d.text; });}";
+
+            html += "</script>";
 
             return html;
         }

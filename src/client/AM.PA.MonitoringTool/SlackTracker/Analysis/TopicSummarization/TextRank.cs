@@ -21,25 +21,30 @@ namespace SlackTracker.Analysis.TopicSummarization
         #region Keyword Extraction
 
         //perform Text Rank algo on doc and retrieves keywords
+        //returns an empty list if no keywords are found
         public static List<string> getKeywords(string doc, int n = 10)
         {
-            List<string> keywords = null;
+            List<string> keywords = new List<string>();
+
+            if (string.IsNullOrEmpty(doc)) {return keywords;}
 
             try
             {
                 List<string> sentences = sentenceSplitter(doc);
                 sentences = filterSentences(sentences);
+
+                if(!sentences.Any()) {return keywords;}
+
                 List<string> words = tokenize(sentences);
                 List<string> tags = getPosTags(words);
 
+                if (words.Count == 0) {return keywords;}
+
                 List<candidateWord> candidateWords = filterWords(words, tags);
-                keywords = rankWords(words, candidateWords);
 
-                foreach (string word in keywords)
-                {
-                    Logger.WriteToConsole(word + "\n");
-                }
+                if (candidateWords.Count == 0) {return keywords;}
 
+                keywords.AddRange(rankWords(words, candidateWords));
             }
             catch (Exception e)
             {

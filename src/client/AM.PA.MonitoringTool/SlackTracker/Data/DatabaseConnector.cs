@@ -7,8 +7,10 @@ using Shared;
 using Shared.Data;
 using System;
 using System.Data;
+using System.Linq;
 using System.Collections.Generic;
 using SlackTracker.Data.SlackModel;
+using SlackTracker.Analysis.TopicSummarization;
 
 namespace SlackTracker.Data
 {
@@ -223,6 +225,19 @@ namespace SlackTracker.Data
 
         }
 
+        public static List<string> GetKeywordsForDate(DateTime date)
+        {
+            List<Channel> _channels = GetChannels();
+            List<Log> _logs = GetLogForDate(date, _channels[0]);
+
+            if (_logs.Count == 0) {return new List<string>();}
+
+            List<string> messages = _logs.Select(o => o.message).ToList();
+
+            List<string> keywords = TextRank.getKeywords(string.Join(" ", messages));
+
+            return keywords;
+        }
         #endregion
     }
 }

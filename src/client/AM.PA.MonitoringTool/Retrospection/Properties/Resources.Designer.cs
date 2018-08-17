@@ -103,6 +103,15 @@ namespace Retrospection.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] d3_layout_cloud_js {
+            get {
+                object obj = ResourceManager.GetObject("d3_layout_cloud_js", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] jquery_1_11_3_min_js {
             get {
                 object obj = ResourceManager.GetObject("jquery_1_11_3_min_js", resourceCulture);
