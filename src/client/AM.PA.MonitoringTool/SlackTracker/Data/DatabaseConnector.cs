@@ -37,6 +37,11 @@ namespace SlackTracker.Data
         private const string REAL_NAME = "real_name";
         private const string IS_BOT = "is_bot";
 
+        //User Mention Fields
+        private const string MENTION_ID = "mention_id";
+        private const string LOG_ID = "log_mentioned_in";
+        private const string USER_MENTION_ID = "user_mentioned";
+
         //Summary Fields
         private const string DATE = "summary_for";
 
@@ -63,7 +68,10 @@ namespace SlackTracker.Data
                                                                   + REAL_NAME + " TEXT, "
                                                                   + IS_BOT + " BIT NOT NULL)";
 
-        //private static readonly string CREATE_SUMMARY_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.SUMMARY_TABLE_NAME + " (";
+        private static readonly string CREATE_USER_MENTION_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS " + Settings.USER_MENTION_TABLE_NAME + " ("
+                                                                         + MENTION_ID + " INTEGER PRIMARY KEY, "
+                                                                         + LOG_ID + " INTEGER, "
+                                                                         + USER_MENTION_ID + " TEXT)";
 
 
         //Insert Queries
@@ -87,6 +95,10 @@ namespace SlackTracker.Data
                                                           + RECEIVER + ", "
                                                           + MESSAGE + ") VALUES ({0}, {1}, {2}, {3}, {4})";
 
+        private static readonly string INSERT_USER_MENTION_QUERY = "INSERT OR IGNORE INTO " + Settings.USER_MENTION_TABLE_NAME
+                                                          + " (" + LOG_ID + ", "
+                                                          + USER_MENTION_ID + ") VALUES ({0}, {1})";
+
 
 
         #region create
@@ -97,6 +109,7 @@ namespace SlackTracker.Data
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_CHANNELS_TABLE_QUERY);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_LOGS_TABLE_QUERY);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_USERS_TABLE_QUERY);
+                Database.GetInstance().ExecuteDefaultQuery(CREATE_USER_MENTION_TABLE_QUERY);
             }
             catch (Exception e)
             {
@@ -128,14 +141,23 @@ namespace SlackTracker.Data
             }
         }
 
-        public static void SaveLogs (IList<Log> logs)
+        public static void SaveLogs (List<LogData> logs)
         {
-            foreach(Log log in logs)
+            foreach(LogData log in logs)
             {
+                List<string> mentions = log.mentions;
+
                 String query = String.Empty;
-                query += String.Format(INSERT_LOG_QUERY,  "'" + log.timestamp.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + log.channel_id + "'", "'" + log.sender + "'", "'" + "null" + "'", "'" + log.message.Replace("'", "''") + "'");
-                Logger.WriteToConsole("query: " + query);
+                query += String.Format(INSERT_LOG_QUERY,  "'" + log.timestamp.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + log.channel_id + "'", "'" + log.author + "'", "'" + "null" + "'", "'" + log.message.Replace("'", "''") + "'");
                 Database.GetInstance().ExecuteDefaultQuery(query);
+
+                //Update user mentions tables
+                foreach (string mention in mentions)
+                {
+                    String query2 = String.Empty;
+                    query2 += String.Format(INSERT_USER_MENTION_QUERY, "'" + log.id + "'", "'" + mention + "'");
+                    Database.GetInstance().ExecuteDefaultQuery(query2);
+                }
             }
         }
         #endregion
@@ -183,14 +205,39 @@ namespace SlackTracker.Data
             return result;
         }
 
+        private static List<string> getUserMention(int log_id)
+        {
+            var result = new List<string>();
+
+            try
+            {
+                string tableName = Settings.USER_MENTION_TABLE_NAME;
+
+                string query = "SELECT " + USER_MENTION_ID +  " FROM " + tableName + " WHERE " + LOG_ID + " = " + "'" + log_id;
+
+                var table = Database.GetInstance().ExecuteReadQuery(query);
+
+                foreach (DataRow row in table.Rows)
+                {
+                    result.Add(row[0].ToString());
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Return Log in sequential order for the day
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public static List<Log> GetLogForDate (DateTime date, Channel channel)
+        public static List<LogData> GetLogForDate (DateTime date, Channel channel)
         {
-            var result = new List<Log>();
+            var result = new List<LogData>();
 
             try
             {
@@ -201,13 +248,13 @@ namespace SlackTracker.Data
 
                 foreach (DataRow row in table.Rows)
                 {
-                    result.Add(new Log
+                    result.Add(new LogData
                     {
                         id = Int32.Parse(row[0].ToString()),
                         timestamp = DateTime.Parse(row[1].ToString()),
                         channel_id = row[2].ToString(),
-                        sender = row[3].ToString(),
-                        receiver = null,
+                        author = row[3].ToString(),
+                        mentions = getUserMention(Int32.Parse(row[0].ToString())),
                         message = row[5].ToString()
                     });
                 }

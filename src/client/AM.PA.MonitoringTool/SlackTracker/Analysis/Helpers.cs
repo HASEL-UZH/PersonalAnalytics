@@ -15,7 +15,7 @@ namespace SlackTracker.Analysis
             List<string> keywords = null;
             try
             {
-                List<Log> log_for_date = DatabaseConnector.GetLogForDate(date, channel);
+                List<LogData> log_for_date = DatabaseConnector.GetLogForDate(date, channel);
                 string log = string.Join("\n", log_for_date.Select(p => p.message));
                 keywords = TopicSummarization.TextRank.getKeywords(log);
             }
@@ -36,7 +36,7 @@ namespace SlackTracker.Analysis
             string summary = "Not Enough Data";
             try
             {
-                List<Log> log_for_date = DatabaseConnector.GetLogForDate(date, channel);
+                List<LogData> log_for_date = DatabaseConnector.GetLogForDate(date, channel);
                 string log = string.Join("\n", log_for_date.Select(p => p.message));
                 summary = TopicSummarization.TextRank.getSummary(log);
             }

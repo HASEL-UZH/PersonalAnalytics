@@ -213,9 +213,9 @@ namespace SlackTracker
 
         private void GetLogs(DateTimeOffset _latestSync)
         {
-            List<Log> logs = SlackConnector.Get_Logs(_latestSync);
+            List<LogData> logs = SlackConnector.Get_Logs(_latestSync);
 
-            foreach (Log l in logs)
+            foreach (LogData l in logs)
             {
                 Logger.WriteToConsole(l.channel_id + " : " + l.message);
             }

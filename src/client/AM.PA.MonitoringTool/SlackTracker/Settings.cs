@@ -21,6 +21,7 @@ namespace SlackTracker
         //Database Tables names
         internal const string CHANNELS_TABLE_NAME = "SlackChannels";
         internal const string LOG_TABLE_NAME = "SlackLogs";
+        internal const string USER_MENTION_TABLE_NAME = "MessageDirectedTo";
         internal const string USER_TABLE_NAME = "SlackUsers";
         internal const string SUMMARY_TABLE_NAME = "SlackSummary";
 
