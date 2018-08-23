@@ -7,9 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using WindowsActivityTracker.Models;
 
-namespace WindowsActivityTracker.Helpers
+namespace ActivityMapper
 {
     /// <summary>
     /// This helper class is used to map a program to an activity
@@ -26,7 +25,7 @@ namespace WindowsActivityTracker.Helpers
         private static readonly List<string> CodeFileTypes = new List<string> { "src", ".proj", ".cmd", ".ps1", ".ini", ".ts", ".err", ".sql", ".ksh", ".dat", ".xaml", ".rb", ".kml", ".log", ".bat", ".cs", ".vb", ".py", ".xml", ".dtd", ".xs", ".h", ".cpp", ".java", ".class", ".js", ".asp", ".aspx", ".nuspec", ".css", ".html", ".htm", ".psm1", ".view", ".script", ".ccproj", "js", ".php", ".xhtml", ".sh", ".sln", ".vcxproj", ".pl", ".gitignore", ".exe", ".config" };
         private static readonly List<string> CodingDebugAppsAndKeywords = new List<string> { "vshost", "xde", "javaw", "debug", "bugger", "windbg", "perfview", "cdb", "msmunittest", "bug" }; // works for visual studio, eclipse (if view changes)
         private static readonly List<string> CodingReviewApps = new List<string> { "codeflow", "gerrit", "stash", "kallithea", "code review", "rhodecode", "rietveld", "crucible", "phabricator" };
-        private static readonly List<string> CodingVersionControlApps = new List<string> { "diff", "repository", "cleardiffbl", "cleardlg", "cleardiffmrg", "clearhistory", "clearvtree", "sourcetree", "svn", "tortoiseproc", "scm", "tfs", "push", "pull", "commit", "git", "bitbucket", "visual studio online" };
+        private static readonly List<string> CodingVersionControlApps = new List<string> { "diff", "repository", "cleardiffbl", "cleardlg", "cleardiffmrg", "clearhistory", "clearvtree", "sourcetree", "svn", "tortoiseproc", "scm", "tfs", "push", "pull", "commit", "git", "bitbucket", "visual studio online" , "thgw", "thg" };
 
         private static readonly List<string> EmailAppsAndKeywords = new List<string> { "mail", "outlook", "thunderbird", "outlook.com" }; // incudes gmail, yahoo mail, mac mail, outlook.com
         private static readonly List<string> PlanningAppsAndKeywords = new List<string> { "backlog", "winproj", "trello", "wunderlist", "todoist", "personalanalytics", "time tracking", "track time", "rescuetime", "clearquest", "scrum", "kanban", "codealike", "jira", "rally", "versionone", "calendar", "kalender", "sprint", "user story", "plan", "to-do", "todo", "task", "aufgabe", "vorgangsliste", "work item" };
@@ -73,8 +72,8 @@ namespace WindowsActivityTracker.Helpers
                 if (string.IsNullOrEmpty(processName) && string.IsNullOrEmpty(windowName))
                     return ActivityCategory.Unknown;
 
-                if (windowName != null) windowName = windowName.ToLower(CultureInfo.InvariantCulture);
-                if (processName != null) processName = processName.ToLower(CultureInfo.InvariantCulture);
+                windowName = windowName?.ToLower();
+                processName = processName?.ToLower();
 
 
                 // all IDLE, will later manually check with more info to find meetings, breaks, etc.
@@ -175,7 +174,7 @@ namespace WindowsActivityTracker.Helpers
             }
             catch (Exception e)
             {
-                Console.WriteLine("> ERROR while Mapping: {0}", e.Message);
+                //Console.WriteLine("> ERROR while Mapping: {0}", e.Message);
             }
 
             return ActivityCategory.Unknown;
@@ -194,7 +193,7 @@ namespace WindowsActivityTracker.Helpers
             return EditorApps.Any(processName.ToLower().Contains); // || EditorApps.Any(windowName.Contains);
         }
 
-        internal static bool IsBrowser(string processName)
+        public static bool IsBrowser(string processName)
         {
             return BrowserApps.Any(processName.ToLower().Contains);
         }

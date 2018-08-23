@@ -11,6 +11,7 @@ using Shared;
 using Shared.Helpers;
 using WindowsActivityTracker.Data;
 using WindowsActivityTracker.Models;
+using ActivityMapper;
 using Shared.Data.Extractors;
 
 namespace WindowsActivityTracker.Visualizations

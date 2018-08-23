@@ -3,7 +3,7 @@
 // 
 // Licensed under the MIT License.
 
-namespace WindowsActivityTracker.Models
+namespace ActivityMapper
 {
     /// <summary>
     /// Activitiy categories which are automatically mapped for the retrospection
@@ -25,10 +25,12 @@ namespace WindowsActivityTracker.Models
         //WebBrowsing, // uncategorized web browsing
         WorkRelatedBrowsing,
         WorkUnrelatedBrowsing,
+        //ManualEditor, // TODO: manually map & delete later
         FileNavigationInExplorer,
         Other,
         OtherRdp,
+        //OtherMusic, // will be mapped to Other
+        Unknown, // subcategory of Other, if it can't be mapped ...
         Idle, // all IDLE events that can't be mapped elsewhere
-        Unknown
     }
 }
