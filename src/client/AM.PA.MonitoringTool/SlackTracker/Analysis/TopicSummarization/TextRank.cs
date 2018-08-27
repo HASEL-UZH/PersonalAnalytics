@@ -7,11 +7,9 @@ using Shared;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using OpenNLP.Tools.Tokenize;
-using OpenNLP.Tools.SentenceDetect;
-using OpenNLP.Tools.PosTagger;
 using System.Text.RegularExpressions;
 using System.IO;
+using SlackTracker.Analysis;
 
 namespace SlackTracker.Analysis.TopicSummarization
 {
@@ -30,13 +28,13 @@ namespace SlackTracker.Analysis.TopicSummarization
 
             try
             {
-                List<string> sentences = sentenceSplitter(doc);
+                List<string> sentences = Helpers.sentenceSplitter(doc);
                 sentences = filterSentences(sentences);
 
                 if(!sentences.Any()) {return keywords;}
 
-                List<string> words = tokenize(sentences);
-                List<string> tags = getPosTags(words);
+                List<string> words = Helpers.tokenize(sentences);
+                List<string> tags = Helpers.getPosTags(words);
 
                 if (words.Count == 0) {return keywords;}
 
@@ -288,7 +286,7 @@ namespace SlackTracker.Analysis.TopicSummarization
 
             try
             {
-                List<string> sentences = sentenceSplitter(doc);
+                List<string> sentences = Helpers.sentenceSplitter(doc);
                 sentences = filterSentences(sentences);
                 summary = summarizeDoc(sentences);
 
@@ -365,8 +363,8 @@ namespace SlackTracker.Analysis.TopicSummarization
         private static double getSimilarityScore(string sentence1, string sentence2)
         {
             int n_common_words = 0;
-            List<string> words1 = splitSentence(sentence1);
-            List<string> words2 = splitSentence(sentence2);
+            List<string> words1 = Helpers.splitSentence(sentence1);
+            List<string> words2 = Helpers.splitSentence(sentence2);
             int wordCount1 = words1.Count;
             int wordCount2 = words2.Count;
 
@@ -431,81 +429,6 @@ namespace SlackTracker.Analysis.TopicSummarization
 
 
             return string.Join("\n", graph.GetRange(0, top_n).Select(node => node.sentence).ToList());
-        }
-        #endregion
-
-        #region Helpers
-        /// <summary>
-        /// Gets Parts of Speech tags for words in document
-        /// </summary>
-        /// <param name="tokens"></param>
-        /// <returns>A list of POS tags</returns>
-        private static List<string> getPosTags(List<string> tokens)
-        {
-            List<string> tags = new List<string>();
-
-            var _modelPath = AppDomain.CurrentDomain.BaseDirectory + "../../../SlackTracker/Analysis/resources/models/";
-
-            try
-            {
-                var _posTagger = new EnglishMaximumEntropyPosTagger(_modelPath + "EnglishPOS.nbin", _modelPath + @"Parser\tagdict");
-
-                tags.AddRange(_posTagger.Tag(tokens.ToArray()));
-            }
-            catch (Exception e)
-            {
-                Logger.WriteToLogFile(e);
-            }
-
-            return tags;
-        }
-
-        /// <summary>
-        /// Tokenizes sentences into words. These words form
-        /// the vertext of graph.
-        /// </summary>
-        /// <param name="sentences"></param>
-        /// <returns>A list of words(string)</returns>
-        private static List<string> tokenize(List<string> sentences)
-        {
-            List<string> tokens = new List<string>();
-            var _tokenizer = new EnglishRuleBasedTokenizer(false);
-
-            foreach (string sentence in sentences)
-            {
-                tokens.AddRange(_tokenizer.Tokenize(sentence));
-            }
-
-            return tokens;
-        }
-
-        private static List<string> splitSentence(string sentence)
-        {
-            var _tokenizer = new EnglishRuleBasedTokenizer(false);
-
-            return _tokenizer.Tokenize(sentence).ToList();
-        }
-        /// <summary>
-        /// Splits the document into sentences
-        /// </summary>
-        /// <param name="doc"></param>
-        /// <returns>A List of sentences in doc</returns>
-        private static List<string> sentenceSplitter(string doc)
-        {
-            var _modelPath = AppDomain.CurrentDomain.BaseDirectory + "../../../SlackTracker/Analysis/resources/models/";
-            List<string> sentences = new List<string>();
-            try
-            {
-                var _sentenceDetector = new EnglishMaximumEntropySentenceDetector(_modelPath + "EnglishSD.nbin");
-
-                sentences.AddRange(_sentenceDetector.SentenceDetect(doc));
-            }
-            catch (Exception e)
-            {
-                Logger.WriteToLogFile(e);
-            }
-
-            return sentences;
         }
         #endregion
     }

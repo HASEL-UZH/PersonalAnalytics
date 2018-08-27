@@ -235,7 +235,7 @@ namespace SlackTracker.Data
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        public static List<LogData> GetLogForDate (DateTime date, Channel channel)
+        public static List<LogData> GetLog (DateTime date, Channel channel)
         {
             var result = new List<LogData>();
 
@@ -243,6 +243,41 @@ namespace SlackTracker.Data
             {
                 string tableName = Settings.LOG_TABLE_NAME;
                 string query = "SELECT * FROM " + tableName + " WHERE DATE(" + TIMESTAMP + ") = " + "'" + date.ToString(Settings.FORMAT_DAY) + "'" + " ORDER BY " + ID;
+
+                var table = Database.GetInstance().ExecuteReadQuery(query);
+
+                foreach (DataRow row in table.Rows)
+                {
+                    result.Add(new LogData
+                    {
+                        id = Int32.Parse(row[0].ToString()),
+                        timestamp = DateTime.Parse(row[1].ToString()),
+                        channel_id = row[2].ToString(),
+                        author = row[3].ToString(),
+                        mentions = getUserMention(Int32.Parse(row[0].ToString())),
+                        message = row[5].ToString()
+                    });
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+
+            return result;
+        }
+
+        public static List<LogData> GetLog(DateTime startdate, DateTime enddate)
+        {
+            var result = new List<LogData>();
+
+            try
+            {
+                string tableName = Settings.LOG_TABLE_NAME;
+                string query = "SELECT * FROM " + tableName + " WHERE DATE(" + TIMESTAMP + ") >= "
+                               + "'" + startdate.ToString(Settings.FORMAT_DAY) + "'"
+                               + " AND DATE(" + TIMESTAMP + ") <= " + "'" + enddate.ToString(Settings.FORMAT_DAY) + "'"
+                               + " ORDER BY " + ID;
 
                 var table = Database.GetInstance().ExecuteReadQuery(query);
 
@@ -275,7 +310,7 @@ namespace SlackTracker.Data
         public static List<string> GetKeywordsForDate(DateTime date)
         {
             List<Channel> _channels = GetChannels();
-            List<Log> _logs = GetLogForDate(date, _channels[0]);
+            List<LogData> _logs = GetLog(date, _channels[0]);
 
             if (_logs.Count == 0) {return new List<string>();}
 
