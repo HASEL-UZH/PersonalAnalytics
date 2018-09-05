@@ -10,7 +10,7 @@ namespace MsOfficeTracker
         public const string TrackerName = "Office 365 Tracker";
         public const int NoValueDefault = -1;
 
-#if Pilot_TaskDetection_March17 || Pilot_Andre_July18 
+#if Pilot_TaskDetection_March17 || Pilot_Andre_July18 || Pilot_Raphael_Sept18
         public static bool IsEnabledByDefault = false;
 #else
         public static bool IsEnabledByDefault = true; // user will see a pop-up (the first start) to decide whether to use it or not

@@ -9,7 +9,7 @@ namespace UserEfficiencyTracker
 {
     public static class Settings
     {
-#if Pilot_TaskDetection_March17 || Pilot_Andre_July18
+#if Pilot_TaskDetection_March17 || Pilot_Andre_July18 || Pilot_Raphael_Sept18
         public static bool DefaultPopUpIsEnabled = false;
 #else // default:
         public static bool DefaultPopUpIsEnabled = true;

@@ -59,7 +59,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;Pilot_Raphael_Sept18</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -299,6 +299,10 @@
     <ProjectReference Include="..\Shared\Shared.csproj">
       <Project>{2bbdfa6d-20dd-4a7b-893e-43c388382c9a}</Project>
       <Name>Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TobiiEyeTracker\TobiiEyeTracker.csproj">
+      <Project>{346c50f3-d38a-4989-8446-6c1f2580433e}</Project>
+      <Name>TobiiEyeTracker</Name>
     </ProjectReference>
     <ProjectReference Include="..\UserEfficiencyTracker\UserEfficiencyTracker.csproj">
       <Project>{30dda905-2068-4985-8372-ffb11c8ad4d9}</Project>

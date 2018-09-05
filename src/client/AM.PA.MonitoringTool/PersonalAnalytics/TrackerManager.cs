@@ -63,7 +63,9 @@ namespace PersonalAnalytics
             Register(new MsOfficeTracker.Daemon());
             Register(new PolarTracker.Deamon());
             Register(new FitbitTracker.Deamon());
-
+#if Pilot_Raphael_Sept18
+            Register(new TobiiEyeTracker.Deamon());
+#endif
 #if Dev
             //Register(new PeopleVisualizer.PeopleVisualizer()); // disabled, as it's not finished and pretty slow
             //Register(new WindowsContextTracker.Daemon();); // implementation not finished
