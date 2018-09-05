@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Shared;
 using Shared.Helpers;
@@ -345,6 +346,8 @@ namespace WindowsActivityTracker.Visualizations
         /// <returns></returns>
         private static string GetDescriptionForContextCategory(ActivityCategory category)
         {
+
+
             switch (category)
             {
                 case ActivityCategory.DevCode:

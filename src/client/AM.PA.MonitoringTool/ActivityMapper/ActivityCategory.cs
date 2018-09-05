@@ -11,24 +11,58 @@ namespace ActivityMapper
     /// </summary>
     public enum ActivityCategory
     {
+        [Description("Uncategorized")]
         Uncategorized, // default
+
+        [Description("Development")]
         DevCode,
+
+        [Description("Debugger Use")]
         DevDebug,
+
+        [Description("Code Reviewing")]
         DevReview,
+
+        [Description("Version Control")]
         DevVc,
+
+        [Description("Emails")]
         Email,
+
+        [Description("Planning")]
         Planning,
+
+        [Description("Reading/Editing Documents")]
         ReadWriteDocument,
+
+        [Description("Scheduled meetings")]
         PlannedMeeting,
+
+        [Description("Instant Messaging")]
         InformalMeeting,
+
+        [Description("Instant Messaging")]
         InstantMessaging, // subcategory of InformalMeeting
-        //WebBrowsing, // uncategorized web browsing
+                          //WebBrowsing, // uncategorized web browsing
+        [Description("Browsing work-related")]
         WorkRelatedBrowsing,
+
+        [Description("Browsing work-unrelated")]
         WorkUnrelatedBrowsing,
+
+        [Description("Navigation in File Explorer")]
         FileNavigationInExplorer,
+
+        [Description("Other")]
         Other,
+
+        [Description("RDP (uncategorized)")]
         OtherRdp,
+
+        [Description("Idle (e.g. break, lunch, meeting)")]
         Idle, // all IDLE events that can't be mapped elsewhere
+
+        [Description("Uncategorized")]
         Unknown
     }
 }
