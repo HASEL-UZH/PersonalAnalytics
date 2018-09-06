@@ -20,7 +20,7 @@ André Meyer (ameyer@ifi.uzh.ch)
 - February, 2017: Integrated the (privately developed) [FlowLight](https://www.andre-meyer.ch/flowlight) to avoid interruptions at inopportune moments. It has since then been removed from the repository, as it was licensed to [Embrava](https://embrava.com/pages/flow).
 - March, 2017: Started working on task type detection (on the 'taskdetection' branch), still in development.
 - June, 2018: [Rohit Kaushik](https://github.com/kaushik-rohit) (bachelor student at BITS Pilani, India) started working on a SlackTracker.
-- July, 2018: [Chris Satterfield](https://github.com/csatterfield) (master student at University of British Columbia, Canada) started integrating his port from Windows to Mac. Expected availability in October, 2018.
+- September, 2018: [Chris Satterfield](https://github.com/csatterfield) and [Anna Scholtz](https://github.com/scholtzan) (master students at University of British Columbia, Canada) started integrating their port from Windows to Mac. Work in progress.
 
 
 # Collaborators & Contributors
