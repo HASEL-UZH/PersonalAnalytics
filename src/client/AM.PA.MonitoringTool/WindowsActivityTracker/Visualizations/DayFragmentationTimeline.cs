@@ -6,14 +6,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using Shared;
 using Shared.Helpers;
 using WindowsActivityTracker.Data;
 using WindowsActivityTracker.Models;
 using ActivityMapper;
-using Shared.Data.Extractors;
 
 namespace WindowsActivityTracker.Visualizations
 {
@@ -186,7 +184,7 @@ namespace WindowsActivityTracker.Visualizations
                     times.Append(", 'window_titles': '"); times.Append(ReadableWindowTitles(activityEntry.WindowProcessList));
                     times.Append("', 'processes': '"); times.Append(ReadableProcesses(activityEntry.WindowProcessList));
                     times.Append("', 'color': '"); times.Append(GetHtmlColorForContextCategory(activityEntry.ActivityCategory));
-                    times.Append("', 'activity': '"); times.Append(GetDescriptionForContextCategory(activityEntry.ActivityCategory));
+                    times.Append("', 'activity': '"); times.Append(activityEntry.ActivityCategory.GetDescription());
                     times.Append("'}, ");
                 }
 
@@ -264,7 +262,7 @@ namespace WindowsActivityTracker.Visualizations
                     </style>";
 
             html += "<div><ul id='legend' align='center'>" // style='width:" + visWidth + "px'
-                   +  categoryList.Where(c => c != ActivityCategory.Idle).Aggregate(string.Empty, (current, cat) => current + ("<li style='color:" + GetHtmlColorForContextCategory(cat) + "'><span>" + GetDescriptionForContextCategory(cat) + "</span></li>"))
+                   +  categoryList.Where(c => c != ActivityCategory.Idle).Aggregate(string.Empty, (current, cat) => current + ("<li style='color:" + GetHtmlColorForContextCategory(cat) + "'><span>" + cat.GetDescription() + "</span></li>"))
                    +  "</ul></div>";
 
             return html;
@@ -337,57 +335,6 @@ namespace WindowsActivityTracker.Visualizations
             }
 
             return noneColor; // default color
-        }
-
-        /// <summary>
-        /// Return a screen name for the activity category
-        /// </summary>
-        /// <param name="category"></param>
-        /// <returns></returns>
-        private static string GetDescriptionForContextCategory(ActivityCategory category)
-        {
-
-
-            switch (category)
-            {
-                case ActivityCategory.DevCode:
-                    return "Development";
-                case ActivityCategory.DevDebug:
-                    return "Debugger Use";
-                case ActivityCategory.DevVc:
-                    return "Version Control";
-                case ActivityCategory.DevReview:
-                    return "Code Reviewing";
-                case ActivityCategory.ReadWriteDocument:
-                    return "Reading/Editing Documents";
-                case ActivityCategory.InformalMeeting:
-                case ActivityCategory.InstantMessaging:
-                    return "Instant Messaging"; // Ad-Hoc Meeting
-                case ActivityCategory.PlannedMeeting:
-                    return "Scheduled meetings";
-                case ActivityCategory.Planning:
-                    return "Planning";
-                case ActivityCategory.Email:
-                    return "Emails";
-                //case ActivityCategory.WebBrowsing:
-                //    return "Browsing (uncategorized)";
-                case ActivityCategory.WorkRelatedBrowsing:
-                    return "Browsing work-related";// "Work related browsing";
-                case ActivityCategory.WorkUnrelatedBrowsing:
-                    return "Browsing work-unrelated";// "Work un-related browsing";
-                case ActivityCategory.FileNavigationInExplorer:
-                    return "Navigation in File Explorer";
-                case ActivityCategory.Other:
-                    return "Other";
-                case ActivityCategory.Unknown:
-                    return "Uncategorized";
-                case ActivityCategory.OtherRdp:
-                    return "RDP (uncategorized)";
-                case ActivityCategory.Idle:
-                    return "Idle (e.g. break, lunch, meeting)";
-            }
-
-            return "??"; // default color
         }
 
         #endregion

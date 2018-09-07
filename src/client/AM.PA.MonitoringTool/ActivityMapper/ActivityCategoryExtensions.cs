@@ -10,7 +10,8 @@ namespace ActivityMapper
             var type = typeof(ActivityCategory);
             var field = type.GetRuntimeField(activityCategory.ToString());
             var attributes = field.GetCustomAttributes(typeof(DescriptionAttribute), false);
-            return ((DescriptionAttribute)attributes.First()).Description;
+            var description = ((DescriptionAttribute)attributes.First())?.Description;
+            return string.IsNullOrWhiteSpace(description) ? "??" : description;
         }
     }
 }
