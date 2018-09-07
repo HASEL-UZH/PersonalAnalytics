@@ -1,4 +1,9 @@
-﻿using System.Linq;
+﻿// Created at the University of Zurich
+// Created: 2018-09-07
+// 
+// Licensed under the MIT License.
+
+using System.Linq;
 using System.Reflection;
 
 namespace ActivityMapper
