@@ -111,7 +111,7 @@ namespace PolarTracker
             
             html += "var heatmapChart = function(data) {";
             
-            html += "var colorScale = d3.scale.quantize().domain([d3.min(data, function(d) { return d.value; }), buckets - 1, d3.max(data, function(d) { return d.value; })]).range(colors);";
+            html += "var colorScale = d3.scaleQuantize().domain([d3.min(data, function(d) { return d.value; }), buckets - 1, d3.max(data, function(d) { return d.value; })]).range(colors);";
 
             html += "svg.selectAll('.hour').remove();";
             html += "var cards = svg.selectAll('.hour').data(data, function(d) { return d.day + ':' + d.hour; });";

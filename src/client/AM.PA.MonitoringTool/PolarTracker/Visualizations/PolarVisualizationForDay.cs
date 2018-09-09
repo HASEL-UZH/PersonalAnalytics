@@ -57,32 +57,32 @@ namespace PolarTracker.Visualizations
             html += "var actualHeight = document.getElementsByClassName('item Wide')[0].offsetHeight;";
             html += "var actualWidth = document.getElementsByClassName('item Wide')[0].offsetWidth;";
             html += "var margin = {top: 30, right: 30, bottom: 30, left: 30}, width = (actualWidth * 0.97)- margin.left - margin.right, height = (actualHeight * 0.73) - margin.top - margin.bottom;";
-            html += "var parseDate = d3.time.format('%Y-%m-%d %H:%M').parse;";
+            html += "var parseDate = d3.timeFormat('%Y-%m-%d %H:%M').parse;";
 
             html += GetDataAsJSString(values);
             
-            html += "var x = d3.time.scale().range([0, width]);";
-            html += "var y0 = d3.scale.linear().range([height, 0]);";
-            html += "var y1 = d3.scale.linear().range([height, 0]);";
+            html += "var x = d3.scaleTime().range([0, width]);";
+            html += "var y0 = d3.scaleLinear().range([height, 0]);";
+            html += "var y1 = d3.scaleLinear().range([height, 0]);";
 
             if (GetDurationInHours(values) >= 12)
             {
-                html += "var xAxis = d3.svg.axis().scale(x).orient('bottom').ticks(d3.time.hours, 2).tickFormat(d3.time.format('%H:%M'));";
+                html += "var xAxis = d3.axisBottom().scale(x).ticks(d3.time.hours, 2).tickFormat(d3.time.format('%H:%M'));";
             }
             else if (GetDurationInHours(values) > 3)
             {
-                html += "var xAxis = d3.svg.axis().scale(x).orient('bottom').ticks(d3.time.hours, 1).tickFormat(d3.time.format('%H:%M'));";
+                html += "var xAxis = d3.axisBottom().scale(x).ticks(d3.time.hours, 1).tickFormat(d3.time.format('%H:%M'));";
             }
             else
             {
-                html += "var xAxis = d3.svg.axis().scale(x).orient('bottom').ticks(d3.time.minutes, 15).tickFormat(d3.time.format('%H:%M'));";
+                html += "var xAxis = d3.axisBottom().scale(x).ticks(d3.time.minutes, 15).tickFormat(d3.time.format('%H:%M'));";
             }
             
-            html += "var yAxisLeft = d3.svg.axis().scale(y0).orient('left').ticks(5);";
-            html += "var yAxisRight = d3.svg.axis().scale(y1).orient('right').ticks(5);";
+            html += "var yAxisLeft = d3.axisLeft().scale(y0).ticks(5);";
+            html += "var yAxisRight = d3.axisRight().scale(y1).ticks(5);";
 
-            html += "var valueLine1 = d3.svg.line().interpolate('basis').defined(function(d) {return d.hr != null; }).x(function(d) {return x(d.ts); }).y(function(d) { return y0(d.hr); });";
-            html += "var valueLine2 = d3.svg.line().interpolate('basis').defined(function(d) {return d.rmssd != null; }).x(function(d) {return x(d.ts); }).y(function(d) { return y1(d.rmssd); });";
+            html += "var valueLine1 = d3.line().interpolate('basis').defined(function(d) {return d.hr != null; }).x(function(d) {return x(d.ts); }).y(function(d) { return y0(d.hr); });";
+            html += "var valueLine2 = d3.line().interpolate('basis').defined(function(d) {return d.rmssd != null; }).x(function(d) {return x(d.ts); }).y(function(d) { return y1(d.rmssd); });";
 
             html += "var svg = d3.select('#chart').append('svg').attr('width', width + margin.left + margin.righ).attr('height', height + margin.top + margin.bottom).append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');";
             

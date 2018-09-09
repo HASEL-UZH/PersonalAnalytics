@@ -106,11 +106,11 @@ namespace FitbitTracker
             html += "MARGINS = {top: 20, right: 20, bottom: 20, left: 50";
             html += "},";
             
-            html += "xRange = d3.scale.ordinal().rangeRoundBands([MARGINS.left, WIDTH - MARGINS.right], 0.1).domain(barData.map(function(d) {";
+            html += "xRange = d3.scaleOrdinal().rangeRoundBands([MARGINS.left, WIDTH - MARGINS.right], 0.1).domain(barData.map(function(d) {";
             html += "return d.x;";
             html += "})),";
             
-            html += "yRange = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([0,";
+            html += "yRange = d3.scaleLinear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([0,";
             html += "d3.max(barData, function(d) {";
             html += "return d.y;";
             html += "})]),";
@@ -151,7 +151,7 @@ namespace FitbitTracker
             html += "document.getElementById('avg' + d.x).style.opacity='0';";
             html += "});";
 
-            html += "var valueLine1 = d3.svg.line().x(function(d) {return xRange(d.x); }).y(function(d) { return yRange(d.a); });";
+            html += "var valueLine1 = d3.line().x(function(d) {return xRange(d.x); }).y(function(d) { return yRange(d.a); });";
             html += "vis.append('path').style('stroke', '" + Shared.Settings.RetrospectionColorHex + "').attr('d', valueLine1(barData)).attr('fill', 'none').attr('id', 'average').attr('opacity', 0);";
 
             html += "vis.selectAll('avgText').data(barData).enter().append('text')";

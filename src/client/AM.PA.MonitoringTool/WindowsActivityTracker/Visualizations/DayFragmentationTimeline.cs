@@ -283,7 +283,7 @@ namespace WindowsActivityTracker.Visualizations
             var rangeString = categories.Aggregate(string.Empty, (current, item) => current + ("'" + GetHtmlColorForContextCategory(item) + "', "));
             var activityString = categories.Aggregate(string.Empty, (current, item) => current + ("'" + item + "', "));
 
-            var html = "var colorScale = d3.scale.ordinal().range([" + rangeString + "]).domain([" + activityString + "]); ";
+            var html = "var colorScale = d3.scaleOrdinal().range([" + rangeString + "]).domain([" + activityString + "]); ";
 
             return html;
         }

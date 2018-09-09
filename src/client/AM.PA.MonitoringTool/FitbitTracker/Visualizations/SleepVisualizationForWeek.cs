@@ -47,7 +47,7 @@ namespace FitbitTracker
             html += "var actualHeight = document.getElementsByClassName('item Wide')[0].offsetHeight;";
             html += "var actualWidth = document.getElementsByClassName('item Wide')[0].offsetWidth;";
 
-            html += "var color1 = d3.scale.category10();";
+            html += "var color1 = d3.scaleOrdinal(d3.schemeCategory10);";
 
             html += "var svg = d3.select('#legend').append('svg').attr('width', actualWidth * 1.1).attr('height', 30);";
             html += "svg.selectAll('legRec')";
@@ -88,11 +88,11 @@ namespace FitbitTracker
             html += "width = actualWidth * 1.1 - margin.left - margin.right,";
             html += "height = (actualHeight * 0.65) - margin.top - margin.bottom;";
 
-            html += "var x = d3.scale.ordinal().rangeRoundBands([0, width], .35);";
-            html += "var y = d3.scale.linear().rangeRound([height, 0]);";
+            html += "var x = d3.scaleOordinal().rangeRoundBands([0, width], .35);";
+            html += "var y = d3.scaleLinear().rangeRound([height, 0]);";
 
-            html += "var color = d3.scale.category10();";
-            html += "var xAxis = d3.svg.axis().scale(x).orient('bottom');";
+            html += "var color = d3.scaleOrdinal(d3.schemeCategory10);";
+            html += "var xAxis = d3.axisBottom().scale(x);";
 
             html += "var svg = d3.select('#sleepVis').append('svg')";
             html += ".attr('width', width + margin.left + margin.right)";
@@ -105,7 +105,7 @@ namespace FitbitTracker
             html += "return { x: d.day, y: d[c]};";
             html += "});});";
 
-            html += "var dataStackLayout = d3.layout.stack()(dataIntermediate);";
+            html += "var dataStackLayout = d3.stack()(dataIntermediate);";
             html += "x.domain(dataStackLayout[0].map(function(d) {";
             html += "return d.x;";
             html += "}));";

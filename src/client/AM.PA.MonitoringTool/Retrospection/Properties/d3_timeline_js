@@ -18,13 +18,13 @@
         height = null,
         rowSeparatorsColor = null,
         backgroundColor = null,
-        tickFormat = { format: d3.time.format("%I %p"),
-          tickTime: d3.time.hours,
+        tickFormat = { format: d3.timeFormat("%I %p"),
+          tickTime: d3.timeHour,
           tickInterval: 1,
           tickSize: 8,
           tickValues: null
         },
-        colorCycle = d3.scale.category20(),
+        colorCycle = d3.scaleOrdinal(d3.schemeCategory20),
         colorPropertyName = null,
         display = "rect",
         beginning = 0,
@@ -63,6 +63,7 @@
         .attr("class", "axis")
         .attr("transform", "translate(" + 0 + "," + yPosition + ")")
         .call(xAxis);
+		return axis;
     };
 
     var appendTimeAxisCalendarYear = function (nav) {
@@ -160,9 +161,9 @@
 
     function timeline (gParent) {
       var g = gParent.append("g");
-      var gParentSize = gParent[0][0].getBoundingClientRect();
+      var gParentSize = gParent.node().getBoundingClientRect();
 
-      var gParentItem = d3.select(gParent[0][0]);
+      var gParentItem = d3.select(gParent.node());
 
       var yAxisMapping = {},
         maxStack = 1,
@@ -225,20 +226,28 @@
       var scaleFactor = (1/(ending - beginning)) * (width - margin.left - margin.right);
 
       // draw the axis
-      var xScale = d3.time.scale()
+      var xScale = d3.scaleTime()
         .domain([beginning, ending])
         .range([margin.left, width - margin.right]);
 
-      var xAxis = d3.svg.axis()
-        .scale(xScale)
-        .orient(orient)
-        .tickFormat(tickFormat.format)
+	 var xAxis = null;
+
+	 if (orient == "bottom") {
+            xAxis = d3.axisBottom();
+        } else if (orient == "top") {
+            xAxis = d3.axisTop();
+        }
+	xAxis.scale(xScale)
+		.tickFormat(tickFormat.format)
         .tickSize(tickFormat.tickSize);
 
+	 // append a view for zoom/pan support
+    var view = g.append("g")
+        .attr("class", "view");
       if (tickFormat.tickValues != null) {
         xAxis.tickValues(tickFormat.tickValues);
       } else {
-        xAxis.ticks(tickFormat.numTicks || tickFormat.tickTime, tickFormat.tickInterval);
+        xAxis.tickArguments(tickFormat.numTicks || [tickFormat.tickTime, tickFormat.tickInterval]);
       }
 
       // draw the chart
@@ -257,7 +266,7 @@
 
           g.selectAll("svg").data(data).enter()
             .append(function(d, i) {
-                return document.createElementNS(d3.ns.prefix.svg, "display" in d? d.display:display);
+                return document.createElementNS(d3.namespaces.svg, "display" in d? d.display:display);
             })
             .attr("x", getXPos)
             .attr("y", getStackPosition)
@@ -364,17 +373,44 @@
 
       if (width > gParentSize.width) {
         var move = function() {
-          var x = Math.min(0, Math.max(gParentSize.width - width, d3.event.translate[0]));
-          zoom.translate([x, 0]);
-          g.attr("transform", "translate(" + x + ",0)");
-          scroll(x*scaleFactor, xScale);
+          var x = Math.min(0, Math.max(gParentSize.width - width, d3.event.transform.x));
+          //zoom.translateTo([x, 0]);
+          g.select(".view")
+                    .attr("transform", "translate(" + x + ",0)"
+                            + "scale(" + d3.event.transform.k + " 1)");//g.attr("transform", "translate(" + x + ",0)");
+
+		    g.selectAll(".xAxis")
+                .attr("transform", function(d) {
+                        return "translate(" + d3.event.transform.x + ", " + timeAxisYPosition + ")"
+                                + "scale(" + d3.event.transform.k + " 1)";
+                });
+ 
+            var new_xScale = event.transform.rescaleX(xScale);
+            g.selectAll('.xAxis').call(function(d) { xAxis.scale(new_xScale); });
+ 
+            var xpos = -d3.event.transform.x;
+            scroll(xpos, xScale);
+
+          //scroll(x*scaleFactor, xScale);
         };
 
-        var zoom = d3.behavior.zoom().x(xScale).on("zoom", move);
+        var zoom = d3.zoom()
+		            .scaleExtent([0, 5]) // max zoom defaults to 5
+                    .translateExtent([[0, 0], [width, 0]])
+					.on("zoom", move);
 
         gParent
           .attr("class", "scrollable")
           .call(zoom);
+
+		g.on("wheel", function() {
+            d3.event.preventDefault();
+            d3.event.stopImmediatePropagation();
+        });
+        g.on("dblclick.zoom", function() {
+            d3.event.preventDefault();
+            d3.event.stopImmediatePropagation();
+        });
       }
 
       if (rotateTicks) {
@@ -386,7 +422,7 @@
           });
       }
 
-      var gSize = g[0][0].getBoundingClientRect();
+      var gSize = g.node().getBoundingClientRect();
       setHeight();
 
       if (showBorderLine) {
@@ -420,7 +456,7 @@
             // set height based off of item height
             height = gSize.height + gSize.top - gParentSize.top;
             // set bounding rectangle height
-            d3.select(gParent[0][0]).attr("height", height);
+            d3.select(gParent.node()).attr("height", height);
           } else {
             throw "height of the timeline is not set";
           }
