@@ -4,16 +4,16 @@ using System.Collections.Generic;
 using Accord.IO;
 using Accord.Statistics.Models.Regression;
 using System.Linq;
-using SlackTracker.Analysis.TopicSummarization;
+using SlackTracker.Analysis;
 using Shared;
 
 namespace SlackTracker.Analysis
 {
     class ChatDisentanglment
     {
-        public static List<Cluster> getThreads(List<LogData> messages)
+        public static List<Thread> getThreads(List<LogData> messages, bool detailed = false)
         {
-            List<Cluster> threads = new List<Cluster>();
+            List<Thread> threads = new List<Thread>();
 
             try
             {
@@ -28,7 +28,7 @@ namespace SlackTracker.Analysis
 
                     for (int c = 1; c < k; c++)
                     {
-                        Cluster thread = threads[c - 1];
+                        Thread thread = threads[c - 1];
                         List<LogData> m = thread.messages;
 
                         double quality = 0;
@@ -51,18 +51,18 @@ namespace SlackTracker.Analysis
                     }
                     else
                     {
-                        Cluster thread = new Cluster();
+                        Thread thread = new Thread();
                         thread.messages.Add(message);
                         threads.Add(thread);
                         k++; //increase count of number of clusters
                     }
                 }
+                if (detailed) { postAnalysis(threads); }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
             }
-
 
             return threads;
         }
@@ -70,7 +70,7 @@ namespace SlackTracker.Analysis
         private static double[] feature_vector(LogData message1, LogData message2, List<string> keywords_for_doc)
         {
             double[] feature = new double[16];
-            List<string> greetings = new List<string>() { "Hi", "Hello", "Hey"};
+            List<string> greetings = new List<string>() { "Hi", "Hello", "Hey" };
             List<string> thanks = new List<string>() { "Thanks", "Thankyou", "Thanks", "Thnx" };
             List<string> answer = new List<string>() { "yes", "no", "nopes", "yeah" };
 
@@ -98,8 +98,36 @@ namespace SlackTracker.Analysis
             feature[13] = message2.message.Split().Intersect(answer).Any() ? 1.0 : 0.0; //message1 is an answer to a previous message
             feature[14] = message2.message.Split().Intersect(answer).Any() ? 1.0 : 0.0; //message2 is an answer to a previous message
             feature[15] = keyword_similarity(message1.message, message2.message, keywords_for_doc); //keyword similarity
-            Logger.WriteToConsole(feature[0] + " : " + feature[15]);
             return feature;
+        }
+
+        public static void postAnalysis(List<Thread> threads)
+        {
+            foreach(Thread thread in threads)
+            {
+                List<LogData> SortedList = thread.messages.OrderBy(o => o.timestamp).ToList();
+                thread.start_time = SortedList.First().timestamp;
+                thread.end_time = SortedList.Last().timestamp;
+
+                List<string> author = SortedList.Select(m => m.author).ToList();
+                List<List<string>> mentions = SortedList.Select(m => m.mentions).ToList();
+                HashSet<string> user_participated = new HashSet<string>();
+                foreach (string user in author)
+                {
+                    user_participated.Add(user);
+                }
+
+                foreach (List<string> mention in mentions)
+                {
+                    foreach (string user in mention)
+                    {
+                        user_participated.Add(user);
+                    }
+                }
+
+                thread.user_participated = user_participated.ToList();
+                thread.keywords = TextRank.getKeywords(string.Join(" ", SortedList.Select(l => l.message).ToList()));
+            }
         }
 
         #region Helpers
@@ -115,15 +143,5 @@ namespace SlackTracker.Analysis
             return (keys1.Intersect(keys2)).ToList().Count / Math.Max(keys1.Count, keys2.Count);
         }
         #endregion
-    }
-
-    internal class Cluster
-    {
-        public List<LogData> messages { get; set; }
-
-        public Cluster()
-        {
-            messages = new List<LogData>();
-        }
     }
 }

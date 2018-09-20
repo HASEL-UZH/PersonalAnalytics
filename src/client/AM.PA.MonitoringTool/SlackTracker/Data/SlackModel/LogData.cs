@@ -14,5 +14,6 @@ namespace SlackTracker.Data.SlackModel
         public string author { get; set; }
         public List<string> mentions { get; set; }
         public string message { get; set; }
+        public int cluster_id { get; set; }
     }
 }

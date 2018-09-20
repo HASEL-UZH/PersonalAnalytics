@@ -19,6 +19,11 @@ using System.Linq;
 
 namespace SlackTracker.Data
 {
+    public enum AnalysisType
+    {
+       THREAD, USER_ACTIVITY
+    };
+
     class SlackConnector
     {
         private delegate T ResponseParser<T>(string response);
@@ -36,7 +41,8 @@ namespace SlackTracker.Data
 
 
         #region Fetch Logs and Update
-        public static List<LogData> Get_Logs(DateTimeOffset _last_fetched)
+
+        public static List<LogData> GetLogs(DateTimeOffset latestSync)
         {
             List<Log> channel_logs = new List<Log>();
             List<Channel> _channels = DatabaseConnector.GetChannels();
@@ -45,33 +51,43 @@ namespace SlackTracker.Data
 
             foreach (Channel c in _channels)
             {
-                Logger.WriteToConsole("Trying to fetch logs for channel " + c.name);
+                DateTimeOffset oldest = latestSync;
+                bool has_more = true;
 
-                var values = new NameValueCollection();
-                values["token"] = SecretStorage.GetAccessToken();
-                values["channel"] = c.id;
-                values["count"] = "1000";
-                if (_last_fetched != DateTimeOffset.MinValue) { values["oldest"] = DateTimeHelper.JavascriptTimestampFromDateTime(_last_fetched.DateTime).ToString(); }
+                while (has_more)
+                {
+                    var values = new NameValueCollection();
+                    values["token"] = SecretStorage.GetAccessToken();
+                    values["channel"] = c.id;
+                    values["count"] = "1000";
+                    if (oldest != DateTimeOffset.MinValue) { values["oldest"] = DateTimeHelper.JavascriptTimestampFromDateTime(oldest.DateTime).ToString(); }
 
+                    Tuple<LogResponse, bool> result = GetDataFromSlack<LogResponse>(CHANNELS_HISTORY_URL, values, parse_log_response);
 
-                Tuple<List<Log>, bool> result = GetDataFromSlack<List<Log>>(CHANNELS_HISTORY_URL, values, parse_log_response);
+                    if (result.Item1 == null && result.Item2)
+                    {
+                        result = GetDataFromSlack<LogResponse>(CHANNELS_HISTORY_URL, values, parse_log_response);
+                    }
+                    List<Log> logData = result.Item1.log;
+                    has_more = result.Item1.has_more;
+                    oldest = result.Item1.last_timestamp;
 
-                List<Log> logData = result.Item1;
+                    // Update channel_id property
+                    logData.ForEach(m => m.channel_id = c.id);
 
-                // Update channel_id property
-                logData.ForEach(m => m.channel_id = c.id);
+                    //Reverse so that message are in ordered by send time
+                    logData.Reverse();
 
-                //Reverse so that message are in ordered by send time
-                logData.Reverse();
-
-                channel_logs.AddRange(logData);
+                    channel_logs.AddRange(logData);
+                }
             }
 
             return ConvertTempLog(channel_logs);
         }
 
-        private static List<Log> parse_log_response (string response)
+        private static LogResponse parse_log_response (string response)
         {
+            LogResponse ret = new LogResponse();
             JObject response_object = JObject.Parse(response);
             JArray messages;
             bool status;
@@ -82,7 +98,7 @@ namespace SlackTracker.Data
                 return null;
 
             messages = (JArray)response_object["messages"];
-
+            ret.has_more = (bool) response_object["has_more"];
 
             List<Log> _logs = messages.Select(p => new Log
             {
@@ -91,7 +107,12 @@ namespace SlackTracker.Data
                 timestamp = (string)p["ts"]
             }).ToList();
 
-            return _logs;
+            _logs = _logs.Where(x => !(x.message.Contains("has joined the channel") || x.message.Contains("has left the channel"))).ToList();
+            ret.log = _logs;
+            Logger.WriteToConsole(_logs.Min(l => l.timestamp));
+            if(ret.has_more) {ret.last_timestamp = DateTimeHelper.DateTimeFromSlackTimestamp(_logs.Min(l => l.timestamp).Split('.')[0]);}
+            else { ret.last_timestamp = DateTimeOffset.Now;}
+            return ret;
         }
 
         public static List<Channel> GetChannels()
@@ -192,8 +213,6 @@ namespace SlackTracker.Data
 
                 var response = client.UploadValues(url, values);
                 var responseString = Encoding.Default.GetString(response);
-
-                Logger.WriteToConsole("Response: " + responseString);
 
                 T dataObject = parser(responseString);
                 return Tuple.Create<T, bool>(dataObject, false);
@@ -343,5 +362,12 @@ namespace SlackTracker.Data
         public string channel_id { get; set; }
         public string sender { get; set; }
         public string message { get; set; }
+    }
+
+    internal class LogResponse
+    {
+        public List<Log> log { get; set; }
+        public bool has_more { get; set; }
+        public DateTimeOffset last_timestamp { get; set; }
     }
 }

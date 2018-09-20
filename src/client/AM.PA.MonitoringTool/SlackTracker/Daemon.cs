@@ -14,8 +14,9 @@ using System.Linq;
 using System.Reflection;
 using System.Windows;
 using SlackTracker.Data.SlackModel;
-using SlackTracker.Analysis.TopicSummarization;
 using SlackTracker.Analysis;
+using SlackTracker.Visualizations;
+using System.Threading.Tasks;
 
 namespace SlackTracker
 {
@@ -186,7 +187,7 @@ namespace SlackTracker
             try
             {
                 DateTimeOffset latestSync;
-
+                
                 if (DatabaseConnector.GetLastTimeSynced() == "never")
                 {
                     Logger.WriteToConsole("Sync for the First Time with slack");
@@ -198,12 +199,15 @@ namespace SlackTracker
                 }
 
                 Logger.WriteToConsole("Latest sync date: " + latestSync.ToString(Settings.FORMAT_DAY_AND_TIME));
-                Database.GetInstance().SetSettings(Settings.LAST_SYNCED_DATE, DateTimeOffset.Now.ToString(Settings.FORMAT_DAY_AND_TIME));
-                //latestSync = latestSync.AddDays(-1);
+                if(latestSync != DateTimeOffset.MinValue) {latestSync = latestSync.AddDays(-1);}
+
 
                 GetChannels(latestSync);
                 GetLogs(latestSync);
                 GetUsers(latestSync);
+                AnalyseLogs();
+
+                Database.GetInstance().SetSettings(Settings.LAST_SYNCED_DATE, DateTimeOffset.Now.ToString(Settings.FORMAT_DAY_AND_TIME));
             }
             catch (Exception e)
             {
@@ -211,14 +215,32 @@ namespace SlackTracker
             }
         }
 
-        private void GetLogs(DateTimeOffset _latestSync)
+        private void AnalyseLogs()
         {
-            List<LogData> logs = SlackConnector.Get_Logs(_latestSync);
+            List<DateTime> daysToAnalyse = DatabaseConnector.GetDaysToAnalyze();
 
-            foreach (LogData l in logs)
+            foreach (DateTime date in daysToAnalyse)
             {
-                Logger.WriteToConsole(l.channel_id + " : " + l.message);
+                Logger.WriteToConsole("Analysing SlackLog: " + date.ToString(Settings.FORMAT_DAY));
+
+                List<LogData> logs = DatabaseConnector.GetLog(date);
+                List<Thread> threads = ChatDisentanglment.getThreads(logs, true);
+
+                //Save Threads
+                DatabaseConnector.SaveThreads(threads);
+
+                List<UserActivity> user_activity = Activity.GetUserActivities(threads);
+                DatabaseConnector.SaveUserActivity(user_activity);
+                DatabaseConnector.SetAnalyzedDay(date);
             }
+        }
+
+        private void GetLogs(DateTimeOffset latestSync)
+        {
+
+            List<LogData> logs = SlackConnector.GetLogs(latestSync);
+
+            if(logs == null || logs.Count == 0) { return;}
 
             DatabaseConnector.SaveLogs(logs);
         }
@@ -227,21 +249,12 @@ namespace SlackTracker
         {
             List<User> users = SlackConnector.GetUsers();
 
-            foreach (User u in users)
-            {
-                Logger.WriteToConsole(u.name);
-            }
-
             DatabaseConnector.SaveUsers(users);
         }
 
         private void GetChannels(DateTimeOffset _latestSync)
         {
             List<Channel> channels = SlackConnector.GetChannels();
-            foreach (Channel c in channels)
-            {
-                Logger.WriteToConsole(c.name);
-            }
 
             DatabaseConnector.SaveChannels(channels);
         }
@@ -254,7 +267,6 @@ namespace SlackTracker
             _slackTimer.Interval = Settings.SYNCHRONIZE_INTERVAL;
             _slackTimer.Enabled = true;
         }
-
         public void ChangeEnabledState(bool? slackTrackerEnabled)
         {
             Console.WriteLine(Settings.TRACKER_NAME + " is now " + (slackTrackerEnabled.Value ? "enabled" : "disabled"));
@@ -305,7 +317,7 @@ namespace SlackTracker
 
         public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
         {
-            return new List<IVisualization> { new SlackVisualizationForDay(date) };
+            return new List<IVisualization> { new UserActivityVisualization(date)};
         }
 
         public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)

@@ -156,6 +156,10 @@
       <Project>{2bbdfa6d-20dd-4a7b-893e-43c388382c9a}</Project>
       <Name>Shared</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SlackTracker\SlackTracker.csproj">
+      <Project>{daa23023-ed3e-4cfb-82db-b8b227532322}</Project>
+      <Name>SlackTracker</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Properties\personalanalytics.html" />
