@@ -7,8 +7,7 @@ namespace EyeCatcherDatabase
     public interface IWriteAsyncDatabase
     {
         Task InsertAsync(ScreenLayoutRecord screens);
-        Task InsertAllAsync(IEnumerable<DesktopPointRecord> desktopPoints);
-        Task InsertAllAsync(IEnumerable<LastUserInputRecord> lastUserInputRecords);
+        Task InsertAllAsync<T>(IEnumerable<T> records) where T : Record;
         Task InsertOrReplaceAsync(DesktopRecord desktopRecord);
         Task InsertAsync(CopyPasteRecord copyPasteRecord);
         Task InsertAsync(UserPresenceRecord userPresence);

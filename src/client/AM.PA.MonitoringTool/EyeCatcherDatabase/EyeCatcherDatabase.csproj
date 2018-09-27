@@ -67,7 +67,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ParticipantRecords\PaHeadPoseRecord.cs" />
+    <Compile Include="ParticipantRecords\PaEyePositionRecord.cs" />
     <Compile Include="ParticipantRecords\PaLastUserInputRecord.cs" />
+    <Compile Include="Records\EyePositionRecord.cs" />
+    <Compile Include="Records\HeadPoseRecord.cs" />
     <Compile Include="Records\LastUserInputRecord.cs" />
     <Compile Include="SqLiteAsyncDatabaseMerger.cs" />
     <Compile Include="Enums\DesktopPointType.cs" />

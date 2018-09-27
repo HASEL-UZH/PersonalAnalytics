@@ -107,6 +107,7 @@
     <Compile Include="ObservableWindowRecordCollection.cs" />
     <Compile Include="Providers\CursorPointProvider.cs" />
     <Compile Include="Providers\DisposableBase.cs" />
+    <Compile Include="Providers\EyePositionProvider.cs" />
     <Compile Include="Providers\EyeTrackingProvider.cs" />
     <Compile Include="Providers\FixationPointTime.cs" />
     <Compile Include="Providers\FixationPointProvider.cs" />
@@ -115,6 +116,7 @@
     <Compile Include="InfoCollectors\Windows10AppInfoCollector.cs" />
     <Compile Include="InfoCollectors\ApplicationInfoCollector.cs" />
     <Compile Include="Native\RECT.cs" />
+    <Compile Include="Providers\HeadPoseProvider.cs" />
     <Compile Include="Providers\LastUserInputTicksProvider.cs" />
     <Compile Include="PointTime.cs" />
     <Compile Include="Providers\UserPresenceProvider.cs" />

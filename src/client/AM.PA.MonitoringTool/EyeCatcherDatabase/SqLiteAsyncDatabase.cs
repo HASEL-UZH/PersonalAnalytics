@@ -43,9 +43,17 @@ namespace EyeCatcherDatabase
             await _dbConnection.CreateTableAsync<DesktopRecord>();
             await _dbConnection.CreateTableAsync<UserPresenceRecord>();
             await _dbConnection.CreateTableAsync<LastUserInputRecord>();
+            await _dbConnection.CreateTableAsync<HeadPoseRecord>();
+            await _dbConnection.CreateTableAsync<EyePositionRecord>();
         }
 
         #region Insert
+
+        public async Task InsertAllAsync<T>(IEnumerable<T> records) where T : Record
+        {
+            await Initialize();
+            await _dbConnection.RunInTransactionAsync(connection => connection.InsertAllWithChildren(records));
+        }
 
         public async Task InsertAsync(ScreenLayoutRecord screens)
         {
@@ -58,19 +66,6 @@ namespace EyeCatcherDatabase
             await Initialize();
             await _dbConnection.RunInTransactionAsync(connection => connection.InsertWithChildren(userPresence));
         }
-
-        public async Task InsertAllAsync(IEnumerable<DesktopPointRecord> desktopPoints)
-        {
-            await Initialize();
-            await _dbConnection.RunInTransactionAsync(connection => connection.InsertAllWithChildren(desktopPoints));
-        }
-
-        public async Task InsertAllAsync(IEnumerable<LastUserInputRecord> lastUserInputRecords)
-        {
-            await Initialize();
-            await _dbConnection.RunInTransactionAsync(connection => connection.InsertAllWithChildren(lastUserInputRecords));
-        }
-
 
         /// <summary>
         /// Need InsertOrReplace here, sinde WindowRecords should stay unique.

@@ -44,7 +44,9 @@ namespace EyeCatcherDatabase
                 await GetParticipantTable<CopyPasteRecord>(sourceDbConnection, ParticipantNumber, oldPkMappingByType),
                 await GetParticipantTable<DesktopTransitionRecord>(sourceDbConnection, ParticipantNumber, oldPkMappingByType),
                 await GetParticipantTable<DesktopWindowLinkRecord>(sourceDbConnection, ParticipantNumber, oldPkMappingByType),
-                await GetParticipantTable<DesktopRecord>(sourceDbConnection, ParticipantNumber, oldPkMappingByType)
+                await GetParticipantTable<DesktopRecord>(sourceDbConnection, ParticipantNumber, oldPkMappingByType),
+                await GetParticipantTable<HeadPoseRecord>(sourceDbConnection, ParticipantNumber, oldPkMappingByType),
+                await GetParticipantTable<EyePositionRecord>(sourceDbConnection, ParticipantNumber, oldPkMappingByType)
             };
 
             foreach (var records in tables)
