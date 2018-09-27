@@ -21,6 +21,7 @@ André Meyer (ameyer@ifi.uzh.ch)
 - March, 2017: Started working on task type detection (on the 'taskdetection' branch), still in development.
 - June, 2018: [Rohit Kaushik](https://github.com/kaushik-rohit) (bachelor student at BITS Pilani, India) started working on a SlackTracker.
 - September, 2018: [Chris Satterfield](https://github.com/csatterfield) and [Anna Scholtz](https://github.com/scholtzan) (master students at University of British Columbia, Canada) started integrating their port from Windows to Mac. Work in progress.
+- September 2018: [Jan Pilzer](https://github.com/hirse) and [Raphael Rosenast](https://github.com/raphaelro) started integrating their work on Tobii Eytracking. Work in progress.
 
 
 # Collaborators & Contributors
