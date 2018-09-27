@@ -24,6 +24,8 @@ namespace EyeCatcher
             Container.Register<CursorPointProvider>(Reuse.Singleton);
             Container.Register<LastUserInputTicksProvider>(Reuse.Singleton);
             Container.Register<FixationPointProvider>(Reuse.Singleton);
+            Container.Register<EyePositionProvider>(Reuse.Singleton);
+            Container.Register<HeadPoseProvider>(Reuse.Singleton);
             Container.Register<IWriteAsyncDatabase, SqLiteAsyncDatabase>(Made.Of(() => new SqLiteAsyncDatabase(Arg.Index<string>(0)), dbFilePath => databaseFile));
             Container.Register<IWindowRecordProvider, WindowRecordProvider>(Reuse.Singleton);
             Container.Register<IWindowRecordCollection, WindowRecordCollection>();
