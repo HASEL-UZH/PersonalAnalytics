@@ -18,7 +18,7 @@ namespace SlackTracker
         // Daemon
         internal const string TRACKER_NAME = "Slack Tracker";
         internal const string TRACKER_ENABLED_SETTING = "SlackTrackerEnabled";
-        internal const int SYNCHRONIZE_INTERVAL = 100*20 * 1000; //1 minutes
+        internal const int SYNCHRONIZE_INTERVAL = 8 * 20 * 1000; //1 minutes
 
         //Database Tables names
         internal static readonly string DOWNLOAD_TABLE_NAME = "slack_downloads";
@@ -28,6 +28,7 @@ namespace SlackTracker
         internal const string USER_TABLE_NAME = "SlackUsers";
         internal const string THREADS_TABLE_NAME = "SlackThreads";
         internal const string USER_ACTIVITY_TABLE_NAME = "SlackUserActivity";
+        internal const string USER_INTERACTION_TABLE_NAME = "SlackUserInteraction";
         internal const string KEYWORDS_TABLE_NAME = "SlackKeywords";
         internal const string ANALYSIS_TABLE_NAME = "SlackAnalysis";
 

@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 
 namespace SlackTracker.Data.SlackModel
 {
-    class UserActivity
+    class UserInteraction
     {
-        public DateTime time { get; set; }
+        public string channel_id { get; set; }
         public string from { get; set; }
         public string to { get; set; }
-        public double intensity { get; set; }
+        public List<string> topics { get; set; }
+        public DateTime date { get; set; }
+        public double duration { get; set; }
     }
 }

@@ -26,38 +26,42 @@ namespace SlackTracker.Visualizations
 
         private string convertDatatoJson(List<UserActivity> activities)
         {
+            JObject json = new JObject();
             HashSet<string> users = new HashSet<string>();
-            users.UnionWith(activities.Select(a => a.from).ToList());
-            users.UnionWith(activities.Select(a => a.to).ToList());
-
-            JObject graph = new JObject();
-            JArray nodes = new JArray();
-            JArray links = new JArray();
-
-            foreach (string user in users)
-            {
-                JObject node = new JObject();
-                node["id"] = user;
-                nodes.Add(node);
-            }
-
-            graph["nodes"] = nodes;
+            
+            //first get all the unique users
             foreach (UserActivity activity in activities)
             {
-                JObject link = new JObject();
-                link["source"] = activity.from;
-                link["target"] = activity.to;
-                link["start_time"] = activity.start_time;
-                link["end_time"] = activity.end_time;
-                link["channel_id"] = activity.channel_id;
-                link["words"] = string.Join(" ", activity.words);
-
-                links.Add(link);
+                users.Add(activity.from);
+                users.Add(activity.to);
             }
 
-            graph["links"] = links;
+            //add a key and value for users to json
+            json["users"] = new JArray(users.ToList());
 
-            return graph.ToString(Formatting.None);
+            //then for all the users add a new element to the json
+            foreach (string user in users)
+            {
+                List<UserActivity> activity_for_user = activities.Where(a => a.from == user).ToList();
+
+                if(activity_for_user.Count == 0) { continue;}
+
+                JArray user_activity = new JArray();
+
+                foreach (UserActivity activity in activity_for_user)
+                {
+                    JObject o = new JObject();
+                    o["to"] = activity.to;
+                    o["time"] = activity.time.ToString("HH:MM");
+                    o["intensity"] = activity.intensity;
+
+                    user_activity.Add(o);
+                }
+
+                json[user] = user_activity;
+            }
+
+            return json.ToString(Formatting.None);
         }
 
         public override string GetHtml()
@@ -72,105 +76,151 @@ namespace SlackTracker.Visualizations
             }
 
             string flat_data = convertDatatoJson(data);
-
-            //CSS
-            html += "<style>";
-            html += @"		
-            div.tooltip {	
-                position: absolute;			
-                text-align: left;			
-                width: 120px;					
-                height: 120px;					
-                padding: 2px;				
-                font: 12px sans-serif;		
-                background: lightsteelblue;	
-                border: 0px;		
-                border-radius: 8px;			
-                pointer-events: none;";
-            html += "</style>";
+            Logger.WriteToConsole(flat_data);
 
             //HTML
-            html += "<svg width='819' height='404'></svg>";
-            
+            html += "<div id='activity' width='819' height='404'></div>";
+
             //SCRIPT
             html += "<script>";
-            html += "var graph = JSON.parse('" + flat_data + "');";
-            html += @"
-		            var svg = d3.select('svg'),
-		            width = +svg.attr('width'),
-		            height = +svg.attr('height');
+            html += "var data = JSON.parse('" + flat_data + "');";
+            html += @"		var svg = d3.select('svg'),
 
-            var simulation = d3.forceSimulation()
-                .force('charge', d3.forceManyBody().strength(-200))
-                .force('link', d3.forceLink().id(function(d) { return d.id;
-                }).distance(80))
-			    .force('x', d3.forceX(width / 2))
-                .force('y', d3.forceY(height / 2))
-                .on('tick', ticked);
+            margin = { top: 20, right: 80, bottom: 30, left: 50},
+			width = svg.attr('width') - margin.left - margin.right,
+			height = svg.attr('height') - margin.top - margin.bottom,
+			g = svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-            var link = svg.selectAll('.link'),
-                node = svg.selectAll('.node');
+            var offset = 5;
 
-            var div = d3.select('body').append('div')
-                .attr('class', 'tooltip')
-                .style('opacity', 0);
-            var body = d3.select('body');
-            
-                simulation.nodes(graph.nodes);
-                simulation.force('link').links(graph.links);
+            var parseTime = d3.utcParse('%H:%M');
+            var midnight = parseTime('00:00');
 
-                link = link
-                  .data(graph.links)
-                  .enter().append('line')
-                  .attr('class', 'link')
-                  .attr('stroke', 'black')
-                  .attr('stroke-width', '1%')
-                  .on('mouseover', function(d, i) {
-                       d3.select(this).attr('stroke', 'blue');
-			            d3.select('#' + d.source.id)
-				            .style('fill', 'blue')
-			            d3.select('#' + d.target.id)
-				            .style('fill', 'red')
-                        div.transition()
-                           .duration(200)
-                           .style('opacity', .9);
-                        div.html('from ' + d.source.id + '<br/>' + ' to ' + d.target.id + '<br/>' + ' about: ' + d.words)
-                           .style('left', (d3.event.pageX) + 'px')		
-                           .style('top', (d3.event.pageY - 28) + 'px');
-                  })				
-                .on('mouseout', function(d) {
-                    d3.select(this).attr('stroke', 'black');
-				    d3.select('#' + d.source.id)
-				        .style('fill', 'black')
-				    d3.select('#' + d.target.id)
-				        .style('fill', 'black')
-                    div.transition()
-                        .duration(500)
-                        .style('opacity', 0);
+            var x = d3.scaleUtc()
+                      .domain([midnight, d3.utcDay.offset(midnight, 1)])
+				  .range([0, width]),
+			y = d3.scaleLinear().range([height, 0]);
+            var line = d3.line()
+                .x(function(d) { return x(parseTime(d['time'])); })
+			.y(function(d) { return y(d['intensity']); });
+
+            d3.json('data.json').then(function(data) {
+                y.domain([0, 10]);
+
+                var user_list = data['users'];
+
+                for (user in user_list)
+                {
+                    user_list[user]['color'] = getRandomColor();
+                }
+
+                //apend the legend
+                var users = svg.selectAll('.users')
+                            .data(user_list)
+                            .enter().append('g')
+                            .attr('class', 'users')
+                            .attr('id', function(d, i) { return user_list[i].name; });
+
+                //apend the axis
+                g.append('g')
+                  .attr('class', 'axis axis--x')
+                  .attr('transform', 'translate(0,' + height + ')')
+                  .call(d3.axisBottom(x));
+
+                g.append('g')
+                  .attr('class', 'axis axis--y')
+                  .call(d3.axisLeft(y))
+                  .append('text')
+                  .attr('transform', 'rotate(-90)')
+                  .attr('y', 6)
+                  .attr('dy', '0.71em')
+                  .attr('fill', '#000')
+                  .text('Intensity');
+
+                users.append('path')
+                  .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+                  .attr('fill', 'none')
+                  .attr('stroke', function(d){ return d.color; })
+			  .attr('stroke-linejoin', 'round')
+              .attr('stroke-linecap', 'round')
+              .attr('stroke-width', 1.5)
+              .attr('d', function(d){
+                    return d.visible ? line(data[d.name]) : null;
                 });
-				
-			  node = node
-                  .data(graph.nodes)
-				  .enter().append('circle')
-				  .attr('class', 'node')
-                  .attr('id', function(d) { return d.id})
-				  .attr('r', 8)
-				  .style('fill', 'black');
-			  
-			  
-		function ticked() {
-            link.attr('x1', function(d) { return d.source.x; })
-			      .attr('y1', function(d) { return d.source.y; })
-			      .attr('x2', function(d) { return d.target.x; })
-			      .attr('y2', function(d) { return d.target.y; });
 
-            node.attr('cx', function(d) { return d.x; })
-			      .attr('cy', function(d) { return d.y; });}";
+                users.append('rect')
+                  .attr('width', 10)
+                  .attr('height', 10)
+                  .attr('x', width + (margin.right / 3) - 15)
+                  .attr('y', function(d, i){ return 20 + 20 * i - 8; })
+			  .attr('fill', function(d){ return d.visible ? '#000000' : '#F1F1F2'; })
+			  .attr('class', 'legend-box')
+              .on('click', function(d){
+                    d.visible = !d.visible;
 
+                    users.select('path')
+                        .transition()
+                        .attr('d', function(d){
+                        return d.visible ? line(data[d.name]) : null;
+                    })
+					
+				users.select('.nodes')
+                        .transition()
+                        .attr('visibility', function(d) { return d.visible ? 'visible' : 'hidden'});
+                })
+			  .on('mouseover', function(d) {
+                    d3.select(this)
+                        .transition()
+                        .attr('fill', function(d) { return d.color; });
+                })
+			   .on('mouseout', function(d){
+                    d3.select(this)
+                        .transition()
+                        .attr('fill', function(d){
+                        return d.visible ? d.color : '#F1F1F2';
+                    });
+                });
+
+                users.append('text')
+                 .attr('x', width + (margin.right / 3))
+                 .attr('y', function(d, i) { return 20 * i + 20; })
+			 .text(function(d){ return d.name});
+
+                var nodes = users.append('g')
+                    .attr('class', 'nodes')
+                    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+                var dots = nodes.selectAll('circle')
+                     .data(function(d) { console.log(d); return data[d.name]; })
+				 .enter();
+
+                dots.append('circle')
+                     .attr('class', 'dot')
+                     .attr('id', function(d) { return d.name; })
+				 .attr('r', 3.5)
+                 .attr('cx', function(d) { return x(parseTime(d.time)); })
+				 .attr('cy', function(d) { return y(d.intensity); })
+				 .attr('visibility', 'hidden');
+
+                dots.append('svg:text')
+                     .text(function(d){ return d.to})
+				 .attr('x', function(d) { return x(parseTime(d.time)); })
+				 .attr('y', function(d) { return y(d.intensity); })
+				 .attr('class', 'node-labels')
+                 .visibility;
+            });
+
+            function getRandomColor()
+            {
+                var letters = '0123456789ABCDEF';
+                var color = '#';
+                for (var i = 0; i < 6; i++)
+                {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }";
             html += "</script>";
-
-
-            Logger.WriteToConsole(flat_data);
 
             return html;
         }

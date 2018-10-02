@@ -109,7 +109,6 @@ namespace SlackTracker.Data
 
             _logs = _logs.Where(x => !(x.message.Contains("has joined the channel") || x.message.Contains("has left the channel"))).ToList();
             ret.log = _logs;
-            Logger.WriteToConsole(_logs.Min(l => l.timestamp));
             if(ret.has_more) {ret.last_timestamp = DateTimeHelper.DateTimeFromSlackTimestamp(_logs.Min(l => l.timestamp).Split('.')[0]);}
             else { ret.last_timestamp = DateTimeOffset.Now;}
             return ret;
@@ -286,7 +285,7 @@ namespace SlackTracker.Data
 
                 var response = client.UploadValues(REFRESH_URL, values);
                 var responseString = Encoding.Default.GetString(response);
-                Logger.WriteToConsole(responseString);
+
                 AccessResponse accessResponse = JsonConvert.DeserializeObject<AccessResponse>(responseString);
 
                 Database.GetInstance().LogInfo("Retreived new access" + accessResponse.access_token);

@@ -148,7 +148,6 @@ namespace SlackTracker
         public override void Start()
         {
             _isPApaused = false;
-            Logger.WriteToConsole(SecretStorage.GetAccessToken());
             InternalStart();
         }
 
@@ -224,13 +223,19 @@ namespace SlackTracker
                 Logger.WriteToConsole("Analysing SlackLog: " + date.ToString(Settings.FORMAT_DAY));
 
                 List<LogData> logs = DatabaseConnector.GetLog(date);
-                List<Thread> threads = ChatDisentanglment.getThreads(logs, true);
+                //List<Thread> threads = ChatDisentanglment.getThreads(logs, true);
 
                 //Save Threads
-                DatabaseConnector.SaveThreads(threads);
+                //DatabaseConnector.SaveThreads(threads);
 
-                List<UserActivity> user_activity = Activity.GetUserActivities(threads);
+                //User Interaction Summary for Day
+                List<UserInteraction> user_interaction = Activity.GetUserInteractions(logs);
+                DatabaseConnector.SaveUserInteraction(user_interaction);
+
+                //User Activity Summary for Day
+                List<UserActivity> user_activity = Activity.GetUserActivity(logs);
                 DatabaseConnector.SaveUserActivity(user_activity);
+
                 DatabaseConnector.SetAnalyzedDay(date);
             }
         }
@@ -317,7 +322,7 @@ namespace SlackTracker
 
         public override List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
         {
-            return new List<IVisualization> { new UserActivityVisualization(date)};
+            return new List<IVisualization> { new UserInteractionVisualization(date), new UserActivityVisualization(date)};
         }
 
         public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)

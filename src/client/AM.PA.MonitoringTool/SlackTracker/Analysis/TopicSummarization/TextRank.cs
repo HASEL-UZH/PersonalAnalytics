@@ -27,7 +27,7 @@ namespace SlackTracker.Analysis
 
             try
             {
-                List<string> sentences = Helpers.sentenceSplitter(doc);
+                List<string> sentences = Helpers.sentenceSplitter(doc.ToLower());
                 sentences = filterSentences(sentences);
 
                 if(!sentences.Any()) {return keywords;}
@@ -78,7 +78,7 @@ namespace SlackTracker.Analysis
             {
                 string word = words[i];
                 string tag = tags[i];
-                Regex rgx = new Regex("<@[A-Z0-9]+>");
+                Regex rgx = new Regex("<@[a-z0-9]+>");
 
                 //continue if word pos is not in include list
                 if (!include.Contains(tag) || word.Length < 3)
@@ -148,6 +148,7 @@ namespace SlackTracker.Analysis
                         //check for co-occurance of word1 & word2
                         for (int k = 0; k < count1; k++)
                         {
+                            bool end = false;
                             for (int l = 0; l < count2; l++)
                             {
                                 int index1 = occursAt1[k];
@@ -157,9 +158,12 @@ namespace SlackTracker.Analysis
                                 {
                                     graph[i].neighbours.Add(graph[j]);
                                     graph[j].neighbours.Add(graph[i]);
+                                    end = true;
                                     break;
                                 }
                             }
+
+                            if (end) break;
                         }
                     }
                 }

@@ -54,8 +54,9 @@ namespace SlackTracker.Data
         private const string FROM = "from_user_id";
         private const string TO = "to_user_id";
         private const string ABOUT = "topics_discussed";
-        private const string START = "start_time";
-        private const string END = "end";
+        private const string DATE = "date";
+        private const string DURATION = "duration";
+        private const string INTENSITY = "intensity";
 
         //Keywords
         private const string KEY_ID = "keyword_id";
@@ -113,17 +114,25 @@ namespace SlackTracker.Data
                                                               + START_TIME + "DATETIME, "
                                                               + END_TIME + "DATETIME)";
 
-        private static readonly string CREATE_USER_ACTIVITY_TABLE = "CREATE TABLE IF NOT EXISTS " + Settings.USER_ACTIVITY_TABLE_NAME + " ("
-                                                                    + ID + " INTEGER PRIMARY KEY, "
-                                                                    + FROM + " TEXT, "
-                                                                    + TO + " TEXT, "
-                                                                    + ABOUT + " TEXT, "
-                                                                    + START + " DATETIME, "
-                                                                    + END + " DATETIME)";
+        private static readonly string CREATE_USER_INTERACTION_TABLE = "CREATE TABLE IF NOT EXISTS " + Settings.USER_INTERACTION_TABLE_NAME + " ("
+                                                                       + ID + " INTEGER PRIMARY KEY, "
+                                                                       + CHANNEL_ID + " TEXT, "
+                                                                       + FROM + " TEXT, "
+                                                                       + TO + " TEXT, "
+                                                                       + ABOUT + " TEXT, "
+                                                                       + DATE + " DATETIME, "
+                                                                       + DURATION + " INTEGER)";
+
+        public static readonly string CREATE_USER_ACTIVITY_TABLE = "CREATE TABLE IF NOT EXISTS " + Settings.USER_ACTIVITY_TABLE_NAME + " ("
+                                                                + ID + " INTEGER PRIMARY KEY, "
+                                                                + FROM + " TEXT, "
+                                                                + TO + " TEXT, "
+                                                                + TIMESTAMP + " DATETIME, "
+                                                                + INTENSITY + " INTEGER)";
 
         private static readonly string CREATE_KEYWORDS_TABLE = "CREATE TABLE IF NOT EXISTS " + Settings.KEYWORDS_TABLE_NAME + " ("
-                                                         + KEY_ID + " INTEGER PRIMARY KEY, "
-                                                         + KEYWORD + " INTEGER)";
+                                                               + KEY_ID + " INTEGER PRIMARY KEY, "
+                                                               + KEYWORD + " INTEGER)";
 
         private static readonly string CREATE_ANALYSIS_TABLE = "CREATE TABLE IF NOT EXISTS " + Settings.ANALYSIS_TABLE_NAME + " ("
                                                                + ID + " INTEGER PRIMARY KEY, "
@@ -132,8 +141,8 @@ namespace SlackTracker.Data
 
         //Update Queries
         private static readonly string UPDATE_LOG_CLUSTER = "UPDATE " + Settings.LOG_TABLE_NAME
-                                                                      + " SET " + CLUSTER + " = {0}, "
-                                                                      + "WHERE " + LOG_ID + " = {1};";
+                                                            + " SET " + CLUSTER + " = {0}, "
+                                                            + "WHERE " + LOG_ID + " = {1};";
         //Insert Queries
         private static readonly string INSERT_CHANNEL_QUERY = "INSERT OR IGNORE INTO " + Settings.CHANNELS_TABLE_NAME
                                                               + " (" + CHANNEL_ID + ", "
@@ -163,21 +172,27 @@ namespace SlackTracker.Data
                                                              ") VALUES ({0}, {1}, {2}, {3}, {4})";
 
         private static readonly string INSERT_ANALYZED_DAY_QUERY = "INSERT INTO " + Settings.ANALYSIS_TABLE_NAME
-                                                                                      + "(" + SAVE_TIME + ", "
-                                                                                      + DAY + ") VALUES ({0}, {1})";
+                                                                   + "(" + SAVE_TIME + ", "
+                                                                   + DAY + ") VALUES ({0}, {1})";
 
-        private static readonly string INSERT_USER_ACTIVITY_QUERY =
-            "INSERT OR IGNORE INTO " + Settings.USER_ACTIVITY_TABLE_NAME
-                                     + " (" + FROM + ", "
-                                     + TO + ", "
-                                     + ABOUT + ", "
-                                     + START + ", "
-                                     + END + ") VALUES ({0}, {1}, {2}, {3}, {4})";
+        private static readonly string INSERT_USER_INTERACTION_QUERY = "INSERT OR IGNORE INTO " + Settings.USER_INTERACTION_TABLE_NAME
+                                                                        + " (" + CHANNEL_ID + ", "
+                                                                        + FROM + ", "
+                                                                        + TO + ", "
+                                                                        + ABOUT + ", "
+                                                                        + DATE + ", "
+                                                                        + DURATION + ") VALUES ({0}, {1}, {2}, {3}, {4}, {5})";
+
+        private static readonly string INSERT_USER_ACTIVITY_QUERY = "INSERT OR IGNORE INTO " + Settings.USER_ACTIVITY_TABLE_NAME
+                                                                    + " (" + FROM + ", "
+                                                                    + TO + ", "
+                                                                    + TIMESTAMP + ", "
+                                                                    + INTENSITY + ") VALUES ({0}, {1}, {2}, {3})";
 
 
         private static readonly string INSERT_USER_MENTION_QUERY = "INSERT OR IGNORE INTO " + Settings.USER_MENTION_TABLE_NAME
-                                                                                            + " (" + LOG_ID + ", "
-                                                                                            + USER_MENTION_ID + ") VALUES ({0}, {1})";
+                                                                   + " (" + LOG_ID + ", "
+                                                                   + USER_MENTION_ID + ") VALUES ({0}, {1})";
 
 
         #region create
@@ -192,6 +207,7 @@ namespace SlackTracker.Data
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_KEYWORDS_TABLE);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_THREADS_TABLE);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_ANALYSIS_TABLE);
+                Database.GetInstance().ExecuteDefaultQuery(CREATE_USER_INTERACTION_TABLE);
                 Database.GetInstance().ExecuteDefaultQuery(CREATE_USER_ACTIVITY_TABLE);
             }
             catch (Exception e)
@@ -201,6 +217,8 @@ namespace SlackTracker.Data
         }
         #endregion
 
+        #region insert
+
         internal static void SetAnalyzedDay(DateTime day)
         {
             string query = String.Empty;
@@ -208,7 +226,6 @@ namespace SlackTracker.Data
             Database.GetInstance().ExecuteDefaultQuery(query);
         }
 
-        #region insert
         public static void SaveUsers (IList<User> users)
         {
             foreach(User user in users)
@@ -257,12 +274,23 @@ namespace SlackTracker.Data
             }
         }
 
+        public static void SaveUserInteraction(List<UserInteraction> activities)
+        {
+            foreach (UserInteraction activity in activities)
+            {
+                String query = String.Empty;
+                query += String.Format(INSERT_USER_INTERACTION_QUERY, "'" + activity.channel_id + "'", "'" + activity.from + "'", "'" + activity.to + "'", activity.topics.Count == 0 ? "null" : "'" + string.Join(",", activity.topics).Replace("'", "") + "'", "'" + activity.date.ToString(Settings.FORMAT_DAY) + "'", "'" + activity.duration + "'");
+
+                Database.GetInstance().ExecuteDefaultQuery(query);
+            }
+        }
+
         public static void SaveUserActivity(List<UserActivity> activities)
         {
             foreach (UserActivity activity in activities)
             {
                 String query = String.Empty;
-                query += String.Format(INSERT_USER_ACTIVITY_QUERY, "'" + activity.from + "'", "'" + activity.to + "'", "'" + string.Join(",", activity.words).Replace("'", "") + "'", "'" + activity.start_time.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + activity.end_time.ToString(Settings.FORMAT_DAY_AND_TIME) + "'");
+                query += String.Format(INSERT_USER_ACTIVITY_QUERY, "'" + activity.from + "'", "'" + activity.to + "'", "'" + activity.time.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + activity.intensity + "'");
 
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }
@@ -274,6 +302,32 @@ namespace SlackTracker.Data
         public static string GetLastTimeSynced()
         {
             return Database.GetInstance().GetSettingsString(Settings.LAST_SYNCED_DATE, "never");
+        }
+
+        internal static List<DateTime> GetDaysToAnalyze()
+        {
+            string query1 = string.Empty;
+            string query2 = string.Empty;
+            List<DateTime> daysInDatabase = new List<DateTime>();
+            List<DateTime> daysAnalysed = new List<DateTime>();
+
+            query1 += "SELECT DISTINCT DATE(" + TIMESTAMP + ") FROM " + Settings.LOG_TABLE_NAME + " ORDER BY " + TIMESTAMP;
+            var table = Database.GetInstance().ExecuteReadQuery(query1);
+
+            foreach (DataRow row in table.Rows)
+            {
+                daysInDatabase.Add(DateTime.ParseExact(row[0].ToString(), Settings.FORMAT_DAY, CultureInfo.InvariantCulture));
+            }
+
+            query2 += "SELECT " + DAY + " FROM " + Settings.ANALYSIS_TABLE_NAME;
+            var table2 = Database.GetInstance().ExecuteReadQuery(query2);
+
+            foreach (DataRow row in table2.Rows)
+            {
+                daysAnalysed.Add(DateTime.ParseExact(row[0].ToString(), Settings.FORMAT_DAY, CultureInfo.InvariantCulture));
+            }
+
+            return daysInDatabase.Where(f => !daysAnalysed.Any(t => t.Day == f.Day && t.Year == f.Year && t.Month == f.Month)).ToList();
         }
 
         public static List<Channel> GetChannels()
@@ -437,30 +491,48 @@ namespace SlackTracker.Data
             return result;
         }
 
-        public static void GetLogForWeek (DateTime date, Channel channel)
+        public static List<UserInteraction> GetUserInteractionsForDay(DateTime date)
         {
+            List<UserInteraction> user_activity = new List<UserInteraction>();
+            string query = string.Empty;
+            query += "SELECT * FROM " + Settings.USER_INTERACTION_TABLE_NAME + " WHERE DATE(" + DATE + ") == " +
+                     "'" + date.ToString(Settings.FORMAT_DAY) + "'";
+ 
+            var table = Database.GetInstance().ExecuteReadQuery(query);
 
+            foreach (DataRow row in table.Rows)
+            {
+                user_activity.Add(new UserInteraction
+                {
+                    channel_id = row[1].ToString(),
+                    from = row[2].ToString(),
+                    to = row[3].ToString(),
+                    topics = row[4].ToString().Split(',').ToList(),
+                    date = DateTime.Parse(row[5].ToString()),
+                    duration = Int32.Parse(row[6].ToString())
+                });
+            }
+
+            return user_activity;
         }
 
         public static List<UserActivity> GetUserActivitiesForDay(DateTime date)
         {
             List<UserActivity> user_activity = new List<UserActivity>();
             string query = string.Empty;
-            query += "SELECT * FROM " + Settings.USER_ACTIVITY_TABLE_NAME + " WHERE DATE(" + START + ") >= " +
-                    "'" + date.ToString(Settings.FORMAT_DAY) + "'" + " AND DATE(" + END + ") <= " + "'" + date.ToString(Settings.FORMAT_DAY) + "'";
+            query += "SELECT * FROM " + Settings.USER_ACTIVITY_TABLE_NAME + " WHERE DATE(" + TIMESTAMP + ") == " +
+                     "'" + date.ToString(Settings.FORMAT_DAY) + "'";
 
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
             foreach (DataRow row in table.Rows)
             {
-                user_activity.Add(new UserActivity
+                user_activity.Add(new UserActivity()
                 {
-                    channel_id = row[0].ToString(),
                     from = row[1].ToString(),
                     to = row[2].ToString(),
-                    words = row[3].ToString().Split(',').ToList(),
-                    start_time = DateTime.Parse(row[4].ToString()),
-                    end_time = DateTime.Parse(row[5].ToString())
+                    time = DateTime.Parse(row[3].ToString()),
+                    intensity = Int32.Parse(row[4].ToString())
                 });
             }
 
@@ -481,31 +553,5 @@ namespace SlackTracker.Data
             return keywords;
         }
         #endregion
-
-        internal static List<DateTime> GetDaysToAnalyze()
-        {
-            string query1 = string.Empty;
-            string query2 = string.Empty;
-            List<DateTime> daysInDatabase = new List<DateTime>();
-            List<DateTime> daysAnalysed = new List<DateTime>();
-
-            query1 += "SELECT DISTINCT DATE(" + TIMESTAMP + ") FROM " + Settings.LOG_TABLE_NAME + " ORDER BY " + TIMESTAMP;
-            var table = Database.GetInstance().ExecuteReadQuery(query1);
-
-            foreach (DataRow row in table.Rows)
-            {
-                daysInDatabase.Add(DateTime.ParseExact(row[0].ToString(), Settings.FORMAT_DAY, CultureInfo.InvariantCulture));
-            }
-
-            query2 += "SELECT " + DAY + " FROM " + Settings.ANALYSIS_TABLE_NAME;
-            var table2 = Database.GetInstance().ExecuteReadQuery(query2);
-
-            foreach (DataRow row in table2.Rows)
-            {
-                daysAnalysed.Add(DateTime.ParseExact(row[0].ToString(), Settings.FORMAT_DAY, CultureInfo.InvariantCulture));
-            }
-
-            return daysInDatabase.Where(f => !daysAnalysed.Any(t => t.Day == f.Day && t.Year == f.Year && t.Month == f.Month)).ToList();
-        }
     }
 }
