@@ -130,6 +130,9 @@ namespace PersonalAnalytics
             Database.GetInstance().CreateTimeZoneTable();
             SaveCurrentTimeZone(null, null);
             SystemEvents.TimeChanged += SaveCurrentTimeZone;
+
+            // update taskbar icons (e.g. menu items that are added later)
+            SetContextMenuOptions();
         }
 
         /// <summary>
