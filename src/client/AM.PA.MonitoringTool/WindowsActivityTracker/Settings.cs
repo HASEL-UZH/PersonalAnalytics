@@ -3,6 +3,8 @@
 // 
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+
 namespace WindowsActivityTracker
 {
     public static class Settings
@@ -19,5 +21,7 @@ namespace WindowsActivityTracker
         internal const int IdleSleepValidate_ThresholdBack_long_d = 70; // if not checked in the near past -> go back 70 days (not more: perf!)
         internal const string ManualSleepIdle = "ManualSleep";
         internal const string IdleSleepLastValidated = "IdleSleepLastValidated";
+
+        internal static List<string> InkognitoBrowsingTerms = new List<string> { "inprivate", "private browsing", "incognito" }; // works in Edge, Firefox, NOT: Chrome
     }
 }

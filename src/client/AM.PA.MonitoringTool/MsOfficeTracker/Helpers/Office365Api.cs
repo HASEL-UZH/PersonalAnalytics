@@ -146,8 +146,8 @@ namespace MsOfficeTracker.Helpers
         }
 
         /// <summary>
-        /// This method fetches the OFfice 365 API client secret from the PA-service server
-        /// TODO: store it
+        /// This method fetches the Office 365 API client secret from the PA-service server
+        /// TODO: store it somewhere safely (e.g. see SecretStorage in FitbitTracker)
         /// </summary>
         /// <returns></returns>
         private string GetOffice365ApiClientId()

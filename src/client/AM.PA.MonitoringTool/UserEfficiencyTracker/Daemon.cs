@@ -190,6 +190,18 @@ namespace UserEfficiencyTracker
         /// </summary>
         private void TimerTick(object sender, EventArgs args)
         {
+            CheckAndRunDailySurvey();
+            CheckAndRunIntervalSurvey();
+        }
+
+        /// <summary>
+        /// Opens the daily pop-up in case:
+        /// 1. it's later than DailyPopUpEarliestMoment (e.g. 5am, since a person might still be working from the day before)
+        /// 2. no pop-up was answered at that day before 
+        /// 3. if previous workday was not more than 3 days ago (otherwise, people might not remember it)
+        /// </summary>
+        private void CheckAndRunDailySurvey()
+        {
             if (DateTime.Now.TimeOfDay >= Settings.DailyPopUpEarliestMoment && // not before 05.00 am
                 DateTime.Now.Date != _lastDailyPopUpResponse.Date &&  // no pop-up today yet (perf to save on more expensive queries)
                 (DateTime.Now.Date - Queries.GetPreviousActiveWorkDay()).TotalDays <= 3 && // only if previous work day was max 3 days ago
@@ -198,8 +210,14 @@ namespace UserEfficiencyTracker
                 RunSurvey(SurveyMode.DailyPopUp);
                 return; // don't immediately show interval survey
             }
+        }
 
-            // inverval survey
+        /// <summary>
+        /// Opens the interval pop-up in case the time until the next survey is smaller
+        /// than the SurveyCheckerInterval.
+        /// </summary>
+        private void CheckAndRunIntervalSurvey()
+        {
             if (_timeRemainingUntilNextSurvey > Settings.SurveyCheckerInterval)
             {
                 _timeRemainingUntilNextSurvey = _timeRemainingUntilNextSurvey.Subtract(Settings.SurveyCheckerInterval);

@@ -392,8 +392,8 @@ namespace Shared.Data
             try
             {
                 var firstEntryReader = new SQLiteCommand("SELECT tsStart FROM " + Settings.WindowsActivityTable +
-                                                         " WHERE STRFTIME('%s', DATE(time))==STRFTIME('%s', DATE('" + date.Date.ToString("u") + "'))" +
-                                                         " AND STRFTIME('%H', TIME(time)) >= STRFTIME('%H', TIME('04:00:00'))" + // day start should be after 04 am
+                                                         " WHERE STRFTIME('%s', DATE(tsStart))==STRFTIME('%s', DATE('" + date.Date.ToString("u") + "'))" +
+                                                         " AND STRFTIME('%H', TIME(tsStart)) >= STRFTIME('%H', TIME('04:00:00'))" + // day start should be after 04 am
                                                          " AND process != '" + Dict.Idle +
                                                          "' ORDER BY tsStart ASC LIMIT 1;", _connection).ExecuteReader();
 
