@@ -1,5 +1,5 @@
 # PersonalAnalytics - Building the Fitbit for Knowledge Workers
-Personal Analytics project was originally initiated by [Prof. Dr. Thomas Fritz](http://www.ifi.uzh.ch/en/seal/people/fritz.html) and [André N. Meyer](http://www.ifi.uzh.ch/en/seal/people/meyer.html) from the SEAL Lab at the University of Zurich (UZH). Our goal is to build a self-monitoring tool that knowledge workers (e.g. developers, designers, administrators) install on their computer and that allows them to get insights into their work and productivity, and come up with positive behavior changes. The basis are a number of computer interaction trackers (e.g. application usage, emails/meetings, user input) and biometric trackers (e.g. Fitbit, Polar, Garmin, Muse, Tobii) that non-intrusively track data, store them locally on the users machine (to avoid privacy issues!) and then visualize them in a daily/weekly summary, the retrospection. 
+Personal Analytics project was originally initiated by [Prof. Dr. Thomas Fritz](http://www.ifi.uzh.ch/en/seal/people/fritz.html) and [André N. Meyer](https://www.andre-meyer.ch) from the SEAL Lab at the University of Zurich (UZH). Our goal is to build a self-monitoring tool that knowledge workers (e.g. developers, designers, administrators) install on their computer and that allows them to get insights into their work and productivity, and come up with positive behavior changes. The basis are a number of computer interaction trackers (e.g. application usage, emails/meetings, user input) and biometric trackers (e.g. Fitbit, Polar, Garmin, Muse, Tobii) that non-intrusively track data, store them locally on the users machine (to avoid privacy issues!) and then visualize them in a daily/weekly summary, the retrospection. 
 
 Anyone is welcome to extend PersonalAnalytics with new trackers or improve existing ones. Feel free to use PersonalAnalytics to get insights into your own work habits, or use it for research studies. In case you re-use PersonalAnalytics, make sure to cite our work.
 
@@ -9,8 +9,7 @@ The current public release can be downloaded from: http://pluto.ifi.uzh.ch/Perso
 André Meyer (ameyer@ifi.uzh.ch)
 
 # Updates & Branches
-
-- September 2014: Initiated by André Meyer and regularly updated since then.
+- September 2014: Initiated by [André Meyer](https://www.andre-meyer.ch) and regularly updated since then.
 - November, 2015: OpenSourced the project (license: MIT).
 - February, 2016: Improved the retrospection and added the Office 365 tracker during an internship at Microsoft Research between November, 2015 and February, 2016
 - April, 2016: Merged the branch (from Microsoft Research) with the original version, following the open sourcing of the code.
@@ -20,7 +19,8 @@ André Meyer (ameyer@ifi.uzh.ch)
 - February, 2017: Integrated the (privately developed) [FlowLight](https://www.andre-meyer.ch/flowlight) to avoid interruptions at inopportune moments. It has since then been removed from the repository, as it was licensed to [Embrava](https://embrava.com/pages/flow).
 - March, 2017: Started working on task type detection (on the 'taskdetection' branch), still in development.
 - June, 2018: [Rohit Kaushik](https://github.com/kaushik-rohit) (bachelor student at BITS Pilani, India) started working on a SlackTracker.
-- July, 2018: [Chris Satterfield](https://github.com/csatterfield) (master student at University of British Columbia, Canada) started integrating his port from Windows to Mac. Expected availability in October, 2018.
+- September, 2018: [Chris Satterfield](https://github.com/csatterfield) and [Anna Scholtz](https://github.com/scholtzan) (master students at University of British Columbia, Canada) started integrating their port from Windows to Mac. Work in progress.
+- September 2018: [Jan Pilzer](https://github.com/hirse) and [Raphael](https://github.com/raphaelro) started integrating their work on Tobii Eytracking. Work in progress.
 
 
 # Collaborators & Contributors
