@@ -31,7 +31,7 @@ namespace SlackTracker.Visualizations
             foreach (UserInteraction activity in activities)
             {
                 JObject link = new JObject();
-                link["channel"] = activity.channel_id;
+                link["channel"] = activity.channel_name;
                 link["from"] = activity.from;
                 link["to"] = activity.to;
                 link["duration"] = activity.duration;

@@ -12,7 +12,9 @@ using System.Collections.Generic;
 using SlackTracker.Data.SlackModel;
 using SlackTracker.Analysis;
 using System.Globalization;
+using System.ServiceModel.Channels;
 using System.Web.UI.WebControls;
+using System.Diagnostics;
 
 namespace SlackTracker.Data
 {
@@ -279,7 +281,7 @@ namespace SlackTracker.Data
             foreach (UserInteraction activity in activities)
             {
                 String query = String.Empty;
-                query += String.Format(INSERT_USER_INTERACTION_QUERY, "'" + activity.channel_id + "'", "'" + activity.from + "'", "'" + activity.to + "'", activity.topics.Count == 0 ? "null" : "'" + string.Join(",", activity.topics).Replace("'", "") + "'", "'" + activity.date.ToString(Settings.FORMAT_DAY) + "'", "'" + activity.duration + "'");
+                query += String.Format(INSERT_USER_INTERACTION_QUERY, "'" + activity.channel_name + "'", "'" + activity.from + "'", "'" + activity.to + "'", activity.topics.Count == 0 ? "null" : "'" + string.Join(",", activity.topics).Replace("'", "") + "'", "'" + activity.date.ToString(Settings.FORMAT_DAY) + "'", "'" + activity.duration + "'");
 
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }
@@ -495,8 +497,7 @@ namespace SlackTracker.Data
         {
             List<UserInteraction> user_activity = new List<UserInteraction>();
             string query = string.Empty;
-            query += "SELECT * FROM " + Settings.USER_INTERACTION_TABLE_NAME + " WHERE DATE(" + DATE + ") == " +
-                     "'" + date.ToString(Settings.FORMAT_DAY) + "'";
+            query += "SELECT * FROM " + Settings.USER_INTERACTION_TABLE_NAME;
  
             var table = Database.GetInstance().ExecuteReadQuery(query);
 
@@ -504,10 +505,10 @@ namespace SlackTracker.Data
             {
                 user_activity.Add(new UserInteraction
                 {
-                    channel_id = row[1].ToString(),
+                    channel_name = row[1].ToString(),
                     from = row[2].ToString(),
                     to = row[3].ToString(),
-                    topics = row[4].ToString().Split(',').ToList(),
+                    topics = new HashSet<string>(row[4].ToString().Split(',').ToList()),
                     date = DateTime.Parse(row[5].ToString()),
                     duration = Int32.Parse(row[6].ToString())
                 });
@@ -551,6 +552,44 @@ namespace SlackTracker.Data
             List<string> keywords = TextRank.getKeywords(string.Join(" ", messages));
 
             return keywords;
+        }
+
+        public static string GetUserNameFromId(string user_id)
+        {
+            string query = string.Empty;
+            query += "SELECT " + NAME + " FROM " + Settings.USER_TABLE_NAME + " WHERE " + USER_ID + " == " + "'" +
+                     user_id + "'";
+            Logger.WriteToConsole(query);
+            var table = Database.GetInstance().ExecuteReadQuery(query);
+
+            foreach (DataRow dataRow in table.Rows)
+            {
+                foreach (var item in dataRow.ItemArray)
+                {
+                    Logger.WriteToConsole(string.Join(" ", item));
+                }
+            }
+
+            return table.Rows[0][0].ToString();
+        }
+
+        public static string GetChannelNameFromId(string channel_id)
+        {
+            string query = string.Empty;
+            query += "SELECT " + CHANNEL_NAME + " FROM " + Settings.CHANNELS_TABLE_NAME + " WHERE " + CHANNEL_ID +
+                     " == " + "'" + channel_id + "'";
+
+            var table = Database.GetInstance().ExecuteReadQuery(query);
+
+            foreach (DataRow dataRow in table.Rows)
+            {
+                foreach (var item in dataRow.ItemArray)
+                {
+                    Logger.WriteToConsole(string.Join(" ", item));
+                }
+            }
+
+            return table.Rows[0][0].ToString();
         }
         #endregion
     }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Shared;
+using SlackTracker.Data;
 using SlackTracker.Data.SlackModel;
 
 namespace SlackTracker.Analysis
@@ -34,26 +35,36 @@ namespace SlackTracker.Analysis
 
             foreach (LogData log in logs)
             {
+                if (log.author == "") continue;
+                string channel_name = DatabaseConnector.GetChannelNameFromId(log.channel_id);
+                string author_name = DatabaseConnector.GetUserNameFromId(log.author);
                 foreach (string mention in log.mentions)
                 {
+                    if (mention == "") continue;
+                    string mention_name = DatabaseConnector.GetUserNameFromId(mention);
+
                     UserInteraction activity = activities.FirstOrDefault(p =>
-                        p.from == log.author && p.to == mention && p.channel_id == log.channel_id && p.date.ToString(Settings.FORMAT_DAY) == log.timestamp.ToString(Settings.FORMAT_DAY));
+                        p.from == author_name && p.to == mention_name && p.channel_name == channel_name && p.date.ToString(Settings.FORMAT_DAY) == log.timestamp.ToString(Settings.FORMAT_DAY));
 
                     if (activity == null)
                     {
                         activity = new UserInteraction();
-                        activity.channel_id = log.channel_id;
-                        activity.from = log.author;
-                        activity.to = mention;
+                        activity.channel_name = channel_name;
+                        activity.from = author_name;
+                        activity.to = mention_name;
                         activity.duration = log.message.Length * 5;
-                        activity.topics = TextRank.getKeywords(log.message.ToLower());
+                        activity.topics = new HashSet<string>(TextRank.getKeywords(log.message.ToLower()));
                         activity.date = log.timestamp;
                         activities.Add(activity);
                     }
                     else
                     {
                         activity.duration += log.message.Length * 5;
-                        activity.topics.AddRange(TextRank.getKeywords(log.message.ToLower()));
+                        List<string> keys = TextRank.getKeywords(log.message.ToLower());
+                        foreach (string key in keys)
+                        {
+                            activity.topics.Add(key);
+                        }
                     }
                 }
             }
