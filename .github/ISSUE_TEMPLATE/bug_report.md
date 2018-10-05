@@ -23,3 +23,8 @@ If applicable, add screenshots to help explain your problem.
 **Desktop (please complete the following information):**
  - OS: [e.g. Windows or MacOS]
  - Build-Version [very important since different builds have different features, e.g. 0.9.6.138]
+
+**GitHub issue Labels**
+- Please select the label "bug". 
+- If the bug is on Windows, select the label "DataTracker-WIN" if it has something todo with the data that is tracked, or "Retrospection-WIN" if it's with respect to visualizations or other UI components.
+- If the bug is on MacOs, select the label "DataTracker-MAC" if it has something todo with the data that is tracked, or "Retrospection-MAC" if it's with respect to visualizations or other UI components.
