@@ -233,7 +233,7 @@ namespace SlackTracker.Data
             foreach(User user in users)
             {
                 string query = String.Empty;
-                query += String.Format(INSERT_USER_QUERY, "'" + user.id + "'", "'" + user.team_id + "'", "'" + user.name.Replace("'", "''") + "'", "'" + user.real_name.Replace("'", "''") + "'", "'" + user.is_bot + "'");
+                query += String.Format(INSERT_USER_QUERY, "'" + user.Id + "'", "'" + user.TeamId + "'", "'" + user.Name.Replace("'", "''") + "'", "'" + user.RealName.Replace("'", "''") + "'", "'" + user.IsBot + "'");
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }
         }
@@ -243,7 +243,7 @@ namespace SlackTracker.Data
             foreach(Channel channel in channels)
             {
                 String query = String.Empty;
-                query += String.Format(INSERT_CHANNEL_QUERY, "'" + channel.id + "'", "'" + channel.name + "'", "'" + channel.created + "'", "'" + channel.creator + "'");
+                query += String.Format(INSERT_CHANNEL_QUERY, "'" + channel.Id + "'", "'" + channel.Name + "'", "'" + channel.Created + "'", "'" + channel.Creator + "'");
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }
         }
@@ -252,17 +252,17 @@ namespace SlackTracker.Data
         {
             foreach(LogData log in logs)
             {
-                List<string> mentions = log.mentions;
+                List<string> mentions = log.Mentions;
 
                 String query = String.Empty;
-                query += String.Format(INSERT_LOG_QUERY,  "'" + log.timestamp.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + log.channel_id + "'", "'" + log.author + "'","'" + log.message.Replace("'", "''") + "'");
+                query += String.Format(INSERT_LOG_QUERY,  "'" + log.Timestamp.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + log.ChannelId + "'", "'" + log.Author + "'","'" + log.Message.Replace("'", "''") + "'");
                 Database.GetInstance().ExecuteDefaultQuery(query);
 
                 //Update user mentions tables
                 foreach (string mention in mentions)
                 {
                     String query2 = String.Empty;
-                    query2 += String.Format(INSERT_USER_MENTION_QUERY, "'" + log.id + "'", "'" + mention + "'");
+                    query2 += String.Format(INSERT_USER_MENTION_QUERY, "'" + log.Id + "'", "'" + mention + "'");
                     Database.GetInstance().ExecuteDefaultQuery(query2);
                 }
             }
@@ -281,7 +281,7 @@ namespace SlackTracker.Data
             foreach (UserInteraction activity in activities)
             {
                 String query = String.Empty;
-                query += String.Format(INSERT_USER_INTERACTION_QUERY, "'" + activity.channel_name + "'", "'" + activity.from + "'", "'" + activity.to + "'", activity.topics.Count == 0 ? "null" : "'" + string.Join(",", activity.topics).Replace("'", "") + "'", "'" + activity.date.ToString(Settings.FORMAT_DAY) + "'", "'" + activity.duration + "'");
+                query += String.Format(INSERT_USER_INTERACTION_QUERY, "'" + activity.ChannelName + "'", "'" + activity.From + "'", "'" + activity.To + "'", activity.Topics.Count == 0 ? "null" : "'" + string.Join(",", activity.Topics).Replace("'", "") + "'", "'" + activity.Date.ToString(Settings.FORMAT_DAY) + "'", "'" + activity.Duration + "'");
 
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }
@@ -292,7 +292,7 @@ namespace SlackTracker.Data
             foreach (UserActivity activity in activities)
             {
                 String query = String.Empty;
-                query += String.Format(INSERT_USER_ACTIVITY_QUERY, "'" + activity.from + "'", "'" + activity.to + "'", "'" + activity.time.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + activity.intensity + "'");
+                query += String.Format(INSERT_USER_ACTIVITY_QUERY, "'" + activity.From + "'", "'" + activity.To + "'", "'" + activity.Time.ToString(Settings.FORMAT_DAY_AND_TIME) + "'", "'" + activity.Intensity + "'");
 
                 Database.GetInstance().ExecuteDefaultQuery(query);
             }
@@ -347,10 +347,10 @@ namespace SlackTracker.Data
                 {
                     result.Add(new Channel
                     {
-                        id = row[0].ToString(),
-                        name = row[1].ToString(),
-                        created = Int64.Parse(row[2].ToString()),
-                        creator = row[3].ToString()
+                        Id = row[0].ToString(),
+                        Name = row[1].ToString(),
+                        Created = Int64.Parse(row[2].ToString()),
+                        Creator = row[3].ToString()
                     });
                 }
             }
@@ -362,7 +362,7 @@ namespace SlackTracker.Data
             return result;
         }
 
-        private static List<string> getUserMention(int log_id)
+        private static List<string> GetUserMention(int log_id)
         {
             var result = new List<string>();
 
@@ -404,12 +404,12 @@ namespace SlackTracker.Data
                 {
                     result.Add(new LogData
                     {
-                        id = Int32.Parse(row[0].ToString()),
-                        timestamp = DateTime.Parse(row[1].ToString()),
-                        channel_id = row[2].ToString(),
-                        author = row[3].ToString(),
-                        mentions = getUserMention(Int32.Parse(row[0].ToString())),
-                        message = row[4].ToString()
+                        Id = Int32.Parse(row[0].ToString()),
+                        Timestamp = DateTime.Parse(row[1].ToString()),
+                        ChannelId = row[2].ToString(),
+                        Author = row[3].ToString(),
+                        Mentions = GetUserMention(Int32.Parse(row[0].ToString())),
+                        Message = row[4].ToString()
                     });
                 }
             }
@@ -441,12 +441,12 @@ namespace SlackTracker.Data
                 {
                     result.Add(new LogData
                     {
-                        id = Int32.Parse(row[0].ToString()),
-                        timestamp = DateTime.Parse(row[1].ToString()),
-                        channel_id = row[2].ToString(),
-                        author = row[3].ToString(),
-                        mentions = getUserMention(Int32.Parse(row[0].ToString())),
-                        message = row[4].ToString()
+                        Id = Int32.Parse(row[0].ToString()),
+                        Timestamp = DateTime.Parse(row[1].ToString()),
+                        ChannelId = row[2].ToString(),
+                        Author = row[3].ToString(),
+                        Mentions = GetUserMention(Int32.Parse(row[0].ToString())),
+                        Message = row[4].ToString()
                     });
                 }
             }
@@ -476,12 +476,12 @@ namespace SlackTracker.Data
                 {
                     result.Add(new LogData
                     {
-                        id = Int32.Parse(row[0].ToString()),
-                        timestamp = DateTime.Parse(row[1].ToString()),
-                        channel_id = row[2].ToString(),
-                        author = row[3].ToString(),
-                        mentions = getUserMention(Int32.Parse(row[0].ToString())),
-                        message = row[4].ToString()
+                        Id = Int32.Parse(row[0].ToString()),
+                        Timestamp = DateTime.Parse(row[1].ToString()),
+                        ChannelId = row[2].ToString(),
+                        Author = row[3].ToString(),
+                        Mentions = GetUserMention(Int32.Parse(row[0].ToString())),
+                        Message = row[4].ToString()
                     });
                 }
             }
@@ -505,12 +505,12 @@ namespace SlackTracker.Data
             {
                 user_activity.Add(new UserInteraction
                 {
-                    channel_name = row[1].ToString(),
-                    from = row[2].ToString(),
-                    to = row[3].ToString(),
-                    topics = new HashSet<string>(row[4].ToString().Split(',').ToList()),
-                    date = DateTime.Parse(row[5].ToString()),
-                    duration = Int32.Parse(row[6].ToString())
+                    ChannelName = row[1].ToString(),
+                    From = row[2].ToString(),
+                    To = row[3].ToString(),
+                    Topics = new HashSet<string>(row[4].ToString().Split(',').ToList()),
+                    Date = DateTime.Parse(row[5].ToString()),
+                    Duration = Int32.Parse(row[6].ToString())
                 });
             }
 
@@ -530,10 +530,10 @@ namespace SlackTracker.Data
             {
                 user_activity.Add(new UserActivity()
                 {
-                    from = row[1].ToString(),
-                    to = row[2].ToString(),
-                    time = DateTime.Parse(row[3].ToString()),
-                    intensity = Int32.Parse(row[4].ToString())
+                    From = row[1].ToString(),
+                    To = row[2].ToString(),
+                    Time = DateTime.Parse(row[3].ToString()),
+                    Intensity = Int32.Parse(row[4].ToString())
                 });
             }
 
@@ -543,13 +543,13 @@ namespace SlackTracker.Data
         public static List<string> GetKeywordsForDate(DateTime date)
         {
             List<Channel> _channels = GetChannels();
-            List<LogData> _logs = GetLog(date, _channels[0].id);
+            List<LogData> _logs = GetLog(date, _channels[0].Id);
 
             if (_logs.Count == 0) {return new List<string>();}
 
-            List<string> messages = _logs.Select(o => o.message).ToList();
+            List<string> messages = _logs.Select(o => o.Message).ToList();
 
-            List<string> keywords = TextRank.getKeywords(string.Join(" ", messages));
+            List<string> keywords = TextRank.GetKeywords(string.Join(" ", messages));
 
             return keywords;
         }

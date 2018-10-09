@@ -8,11 +8,11 @@ namespace SlackTracker.Data.SlackModel
 {
     class UserInteraction
     {
-        public string channel_name { get; set; }
-        public string from { get; set; }
-        public string to { get; set; }
-        public HashSet<string> topics { get; set; }
-        public DateTime date { get; set; }
-        public double duration { get; set; }
+        public string ChannelName { get; set; }
+        public string From { get; set; }
+        public string To { get; set; }
+        public HashSet<string> Topics { get; set; }
+        public DateTime Date { get; set; }
+        public double Duration { get; set; }
     }
 }

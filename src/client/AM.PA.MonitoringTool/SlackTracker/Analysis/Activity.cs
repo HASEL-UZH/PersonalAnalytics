@@ -10,7 +10,7 @@ using SlackTracker.Data.SlackModel;
 
 namespace SlackTracker.Analysis
 {
-    class Activity
+    internal class Activity
     {
         public static List<UserInteraction> GetUserInteractions(List<LogData> logs)
         {
@@ -22,8 +22,8 @@ namespace SlackTracker.Analysis
             //get all the users that participated in the chat
             foreach (LogData log in logs)
             {
-                users.Add(log.author);
-                foreach (string mention in log.mentions)
+                users.Add(log.Author);
+                foreach (string mention in log.Mentions)
                 {
                     users.Add(mention);
                 }
@@ -35,35 +35,35 @@ namespace SlackTracker.Analysis
 
             foreach (LogData log in logs)
             {
-                if (log.author == "") continue;
-                string channel_name = DatabaseConnector.GetChannelNameFromId(log.channel_id);
-                string author_name = DatabaseConnector.GetUserNameFromId(log.author);
-                foreach (string mention in log.mentions)
+                if (log.Author == "") continue;
+                string channel_name = DatabaseConnector.GetChannelNameFromId(log.ChannelId);
+                string author_name = DatabaseConnector.GetUserNameFromId(log.Author);
+                foreach (string mention in log.Mentions)
                 {
                     if (mention == "") continue;
                     string mention_name = DatabaseConnector.GetUserNameFromId(mention);
 
                     UserInteraction activity = activities.FirstOrDefault(p =>
-                        p.from == author_name && p.to == mention_name && p.channel_name == channel_name && p.date.ToString(Settings.FORMAT_DAY) == log.timestamp.ToString(Settings.FORMAT_DAY));
+                        p.From == author_name && p.To == mention_name && p.ChannelName == channel_name && p.Date.ToString(Settings.FORMAT_DAY) == log.Timestamp.ToString(Settings.FORMAT_DAY));
 
                     if (activity == null)
                     {
                         activity = new UserInteraction();
-                        activity.channel_name = channel_name;
-                        activity.from = author_name;
-                        activity.to = mention_name;
-                        activity.duration = log.message.Length * 5;
-                        activity.topics = new HashSet<string>(TextRank.getKeywords(log.message.ToLower()));
-                        activity.date = log.timestamp;
+                        activity.ChannelName = channel_name;
+                        activity.From = author_name;
+                        activity.To = mention_name;
+                        activity.Duration = log.Message.Length * 5;
+                        activity.Topics = new HashSet<string>(TextRank.GetKeywords(log.Message.ToLower()));
+                        activity.Date = log.Timestamp;
                         activities.Add(activity);
                     }
                     else
                     {
-                        activity.duration += log.message.Length * 5;
-                        List<string> keys = TextRank.getKeywords(log.message.ToLower());
+                        activity.Duration += log.Message.Length * 5;
+                        List<string> keys = TextRank.GetKeywords(log.Message.ToLower());
                         foreach (string key in keys)
                         {
-                            activity.topics.Add(key);
+                            activity.Topics.Add(key);
                         }
                     }
                 }
@@ -71,7 +71,7 @@ namespace SlackTracker.Analysis
 
             foreach(UserInteraction a in activities)
             {
-                Logger.WriteToConsole(a.from + " to " + a.to + " duration " + a.duration + " topics " + string.Join(", ", a.topics));
+                Logger.WriteToConsole(a.From + " to " + a.To + " duration " + a.Duration + " topics " + string.Join(", ", a.Topics));
             }
             return activities;
         }
@@ -82,25 +82,25 @@ namespace SlackTracker.Analysis
 
             foreach (LogData log in data)
             {
-                if (log.mentions == null || log.mentions.Count == 0)
+                if (log.Mentions == null || log.Mentions.Count == 0)
                 {
                     continue;
                 }
 
-                foreach (string mention in log.mentions)
+                foreach (string mention in log.Mentions)
                 {
                     UserActivity activity = new UserActivity();
-                    activity.time = log.timestamp;
-                    activity.from = log.author;
-                    activity.to = mention;
-                    activity.intensity = 3;
+                    activity.Time = log.Timestamp;
+                    activity.From = log.Author;
+                    activity.To = mention;
+                    activity.Intensity = 3;
                     result.Add(activity);
                 }
             }
             return result;
         }
 
-        public static List<string> getTopicsFromMessage(string log, List<string> keywords)
+        public static List<string> GetTopicsFromMessage(string log, List<string> keywords)
         {
             List<string> topics = new List<string>();
             foreach (string key in keywords)

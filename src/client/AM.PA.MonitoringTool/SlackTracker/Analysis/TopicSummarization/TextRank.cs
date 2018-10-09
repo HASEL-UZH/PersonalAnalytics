@@ -12,14 +12,14 @@ using System.IO;
 
 namespace SlackTracker.Analysis
 {
-    class TextRank
+    internal class TextRank
     {
 
         #region Keyword Extraction
 
-        //perform Text Rank algo on doc and retrieves keywords
-        //returns an empty list if no keywords are found
-        public static List<string> getKeywords(string doc, int n = 10)
+        ///perform Text Rank algo on doc and retrieves keywords
+        ///returns an empty list if no keywords are found
+        public static List<string> GetKeywords(string doc, int n = 10)
         {
             List<string> keywords = new List<string>();
 
@@ -27,21 +27,21 @@ namespace SlackTracker.Analysis
 
             try
             {
-                List<string> sentences = Helpers.sentenceSplitter(doc.ToLower());
-                sentences = filterSentences(sentences);
+                List<string> sentences = Helpers.SentenceSplitter(doc.ToLower());
+                sentences = FilterSentences(sentences);
 
                 if(!sentences.Any()) {return keywords;}
 
-                List<string> words = Helpers.tokenize(sentences);
-                List<string> tags = Helpers.getPosTags(words);
+                List<string> words = Helpers.Tokenize(sentences);
+                List<string> tags = Helpers.GetPosTags(words);
 
                 if (words.Count == 0) {return keywords;}
 
-                List<candidateWord> candidateWords = filterWords(words, tags);
+                List<CandidateWord> CandidateWords = FilterWords(words, tags);
 
-                if (candidateWords.Count == 0) {return keywords;}
+                if (CandidateWords.Count == 0) {return keywords;}
 
-                keywords.AddRange(rankWords(words, candidateWords));
+                keywords.AddRange(RankWords(words, CandidateWords));
             }
             catch (Exception e)
             {
@@ -58,13 +58,13 @@ namespace SlackTracker.Analysis
         /// <param name="words"></param>
         /// <param name="tags"></param>
         /// <returns></returns>
-        private static List<candidateWord> filterWords(List<string> words, List<string> tags)
+        private static List<CandidateWord> FilterWords(List<string> words, List<string> tags)
         {
             //List of POS tags to be included in candidate keywords
             //List<string> include = new List<string>() { "JJ", "NN", "NNP", "NNS", "VB", "VBN", "VBG"};
 
             List<string> include = new List<string>() { "JJ", "NN", "NNP"};
-            Dictionary<string, candidateWord> wordDict = new Dictionary<string, candidateWord>();
+            Dictionary<string, CandidateWord> wordDict = new Dictionary<string, CandidateWord>();
             List<string> smileyList = File.ReadLines(AppDomain.CurrentDomain.BaseDirectory + @"../../../SlackTracker/Analysis/resources/wordnet/dict/smileys.txt").ToList();
             int word_count = words.Count;
             int tag_count = tags.Count;
@@ -90,14 +90,14 @@ namespace SlackTracker.Analysis
 
                 if (!wordDict.ContainsKey(word))
                 {
-                    candidateWord candidate = new candidateWord(word);
-                    candidate.index.Add(i);
+                    CandidateWord candidate = new CandidateWord(word);
+                    candidate.Index.Add(i);
                     wordDict[word] = candidate;
                 }
                 else
                 {
-                    candidateWord candidate = wordDict[word];
-                    candidate.index.Add(i);
+                    CandidateWord candidate = wordDict[word];
+                    candidate.Index.Add(i);
                 }
             }
 
@@ -112,7 +112,7 @@ namespace SlackTracker.Analysis
         /// <param name="candidate_words"></param>
         /// <returns>A Graph with vertices as words in doc
         /// and edges between co-occuring words in distance of N </returns>
-        private static List<Node> getCooccurenceGraph(List<string> segmented_doc, List<candidateWord> candidate_words)
+        private static List<Node> GetCooccurenceGraph(List<string> segmented_doc, List<CandidateWord> candidate_words)
         {
             int N = 5; //Distance parameter
             int n_candidate = candidate_words.Count;
@@ -125,8 +125,8 @@ namespace SlackTracker.Analysis
                 {
                     Node node = new Node
                     {
-                        word = candidate_words[i],
-                        neighbours = new List<Node>(),
+                        Word = candidate_words[i],
+                        Neighbours = new List<Node>(),
                     };
 
                     graph.Add(node);
@@ -137,11 +137,11 @@ namespace SlackTracker.Analysis
                 {
                     for (int j = i + 1; j < n_candidate; j++)
                     {
-                        candidateWord word1 = candidate_words[i];
-                        candidateWord word2 = candidate_words[j];
+                        CandidateWord word1 = candidate_words[i];
+                        CandidateWord word2 = candidate_words[j];
 
-                        List<int> occursAt1 = word1.index;
-                        List<int> occursAt2 = word2.index;
+                        List<int> occursAt1 = word1.Index;
+                        List<int> occursAt2 = word2.Index;
                         int count1 = occursAt1.Count;
                         int count2 = occursAt2.Count;
 
@@ -156,8 +156,8 @@ namespace SlackTracker.Analysis
 
                                 if (Math.Abs(index1 - index2) <= N)
                                 {
-                                    graph[i].neighbours.Add(graph[j]);
-                                    graph[j].neighbours.Add(graph[i]);
+                                    graph[i].Neighbours.Add(graph[j]);
+                                    graph[j].Neighbours.Add(graph[i]);
                                     end = true;
                                     break;
                                 }
@@ -186,9 +186,9 @@ namespace SlackTracker.Analysis
         /// <param name="segmentedDoc"></param>
         /// <param name="words"></param>
         /// <returns></returns>
-        private static List<string> rankWords(List<string> segmentedDoc, List<candidateWord> words)
+        private static List<string> RankWords(List<string> segmentedDoc, List<CandidateWord> words)
         {
-            List<Node> graph = getCooccurenceGraph(segmentedDoc, words);
+            List<Node> graph = GetCooccurenceGraph(segmentedDoc, words);
             bool _convergence_reached = false;
             double _convergence_threshold = 0.0001;
             double _dampning_factor = 0.85;
@@ -206,19 +206,19 @@ namespace SlackTracker.Analysis
                     for (int i = 0; i < n_nodes; i++)
                     {
                         Node node = graph[i];
-                        List<Node> neighbours = node.neighbours;
-                        double initial_score = node.word.score;
+                        List<Node> neighbours = node.Neighbours;
+                        double initial_score = node.Word.Score;
 
-                        node.word.score = 1 - _dampning_factor;
+                        node.Word.Score = 1 - _dampning_factor;
 
                         for (int j = 0; j < neighbours.Count; j++)
                         {
                             Node neighbour = neighbours[j];
 
-                            node.word.score += _dampning_factor * neighbour.word.score / neighbour.neighbours.Count;
+                            node.Word.Score += _dampning_factor * neighbour.Word.Score / neighbour.Neighbours.Count;
                         }
 
-                        if (!_convergence_reached && Math.Abs(node.word.score - initial_score) <= _convergence_threshold) { _convergence_reached = true; }
+                        if (!_convergence_reached && Math.Abs(node.Word.Score - initial_score) <= _convergence_threshold) { _convergence_reached = true; }
                     }
                 }
             }
@@ -228,10 +228,10 @@ namespace SlackTracker.Analysis
             }
 
             // sort nodes in descending order by score
-            graph.Sort((a, b) => -1 * a.word.score.CompareTo(b.word.score));
+            graph.Sort((a, b) => -1 * a.Word.Score.CompareTo(b.Word.Score));
 
             //Select top n nodes and perform post processing
-            var result = postProcessing(graph.GetRange(0, Math.Min(n, n_nodes)).Select(node => node.word).ToList());
+            var result = PostProcessing(graph.GetRange(0, Math.Min(n, n_nodes)).Select(node => node.Word).ToList());
 
             return result;
         }
@@ -241,18 +241,18 @@ namespace SlackTracker.Analysis
         /// </summary>
         /// <param name="keywords"></param>
         /// <returns>List(string) of keywords</returns>
-        private static List<string> postProcessing (List<candidateWord> keywords)
+        private static List<string> PostProcessing (List<CandidateWord> keywords)
         {
             HashSet<string> finalKeywords = new HashSet<string>();
             List<Tuple<string, int>> words_with_index = new List<Tuple<string, int>>();
             int n_keywords = keywords.Count;
 
-            foreach(candidateWord key in keywords)
+            foreach(CandidateWord key in keywords)
             {
-                int occuranceCount = key.index.Count;
+                int occuranceCount = key.Index.Count;
                 for (int i = 0; i < occuranceCount; i++)
                 {
-                    words_with_index.Add(Tuple.Create(key.word, key.index[i]));
+                    words_with_index.Add(Tuple.Create(key.Word, key.Index[i]));
                 }
             }
 
@@ -283,15 +283,15 @@ namespace SlackTracker.Analysis
 
         #region Summarization
 
-        public static string getSummary(string doc)
+        public static string GetSummary(string doc)
         {
             string summary = "Not enough data for summarizing conversation";
 
             try
             {
-                List<string> sentences = Helpers.sentenceSplitter(doc);
-                sentences = filterSentences(sentences);
-                summary = summarizeDoc(sentences);
+                List<string> sentences = Helpers.SentenceSplitter(doc);
+                sentences = FilterSentences(sentences);
+                summary = SummarizeDoc(sentences);
 
                 Logger.WriteToConsole("summary: \n" + summary);
             }
@@ -303,7 +303,7 @@ namespace SlackTracker.Analysis
             return summary;
         }
 
-        private static List<string> filterSentences(List<string> sentences)
+        private static List<string> FilterSentences(List<string> sentences)
         {
             var result = new List<string>();
             int n_sentences = sentences.Count;
@@ -324,7 +324,7 @@ namespace SlackTracker.Analysis
             return result;
         }
 
-        private static List<SentenceNode> getSimilarityGraph(List<string> sentences)
+        private static List<SentenceNode> GetSimilarityGraph(List<string> sentences)
         {
             int n_sentences = sentences.Count;
             List<SentenceNode> similarityGraph = new List<SentenceNode>();
@@ -334,9 +334,9 @@ namespace SlackTracker.Analysis
             {
                 SentenceNode node = new SentenceNode
                 {
-                    sentence = sentence,
-                    score = 1,
-                    neighbours = new List<Tuple<SentenceNode, double>>()
+                    Sentence = sentence,
+                    Score = 1,
+                    Neighbours = new List<Tuple<SentenceNode, double>>()
                 };
 
                 similarityGraph.Add(node);
@@ -350,12 +350,12 @@ namespace SlackTracker.Analysis
                     SentenceNode node1 = similarityGraph[i];
                     SentenceNode node2 = similarityGraph[j];
 
-                    double similarity = getSimilarityScore(node1.sentence, node2.sentence);
+                    double similarity = GetSimilarityScore(node1.Sentence, node2.Sentence);
 
                     if (similarity != 0)
                     {
-                        node1.neighbours.Add(Tuple.Create(node2, similarity));
-                        node2.neighbours.Add(Tuple.Create(node1, similarity));
+                        node1.Neighbours.Add(Tuple.Create(node2, similarity));
+                        node2.Neighbours.Add(Tuple.Create(node1, similarity));
                     }
                 }
             }
@@ -363,11 +363,11 @@ namespace SlackTracker.Analysis
             return similarityGraph;
         }
 
-        private static double getSimilarityScore(string sentence1, string sentence2)
+        private static double GetSimilarityScore(string sentence1, string sentence2)
         {
             int n_common_words = 0;
-            List<string> words1 = Helpers.splitSentence(sentence1);
-            List<string> words2 = Helpers.splitSentence(sentence2);
+            List<string> words1 = Helpers.SplitSentence(sentence1);
+            List<string> words2 = Helpers.SplitSentence(sentence2);
             int wordCount1 = words1.Count;
             int wordCount2 = words2.Count;
 
@@ -381,9 +381,9 @@ namespace SlackTracker.Analysis
             return n_common_words / (Math.Log(wordCount1) + Math.Log(wordCount2));
         }
 
-        private static string summarizeDoc(List<string> sentences)
+        private static string SummarizeDoc(List<string> sentences)
         {
-            List<SentenceNode> graph = getSimilarityGraph(sentences);
+            List<SentenceNode> graph = GetSimilarityGraph(sentences);
             int sentence_count = graph.Count();
 
             double _dampning_factor = 0.85;
@@ -401,10 +401,10 @@ namespace SlackTracker.Analysis
                 for (int i = 0; i < sentence_count; i++)
                 {
                     SentenceNode node = graph[i];
-                    List<Tuple<SentenceNode, double>> neightbours = node.neighbours;
+                    List<Tuple<SentenceNode, double>> neightbours = node.Neighbours;
                     int n_neighbour = neightbours.Count();
-                    double initial_score = node.score;
-                    node.score = 1 - _dampning_factor;
+                    double initial_score = node.Score;
+                    node.Score = 1 - _dampning_factor;
 
                     Logger.WriteToConsole("Iteration: " + iteration);
                     Logger.WriteToConsole("Update score for " + i + "th sentence");
@@ -414,53 +414,53 @@ namespace SlackTracker.Analysis
                         SentenceNode n = neighbour.Item1;
                         double weight = neighbour.Item2;
                         double denominator = 0;
-                        List<Tuple<SentenceNode, double>> n2 = n.neighbours;
+                        List<Tuple<SentenceNode, double>> n2 = n.Neighbours;
                         int n_count = n2.Count;
                         for (int k = 0; k < n_count; k++)
                         {
                             denominator += n2[k].Item2; 
                         }
 
-                        node.score += _dampning_factor * (weight / denominator) * n.score;
+                        node.Score += _dampning_factor * (weight / denominator) * n.Score;
                     }
 
-                    if (!_convergence_reached && Math.Abs(node.score - initial_score) <= _convergence_threshold) { _convergence_reached = true; }
+                    if (!_convergence_reached && Math.Abs(node.Score - initial_score) <= _convergence_threshold) { _convergence_reached = true; }
                 }
             }
 
-            graph.Sort((a, b) => -1 * a.score.CompareTo(b.score));
+            graph.Sort((a, b) => -1 * a.Score.CompareTo(b.Score));
 
 
-            return string.Join("\n", graph.GetRange(0, top_n).Select(node => node.sentence).ToList());
+            return string.Join("\n", graph.GetRange(0, top_n).Select(node => node.Sentence).ToList());
         }
         #endregion
     }
 
     #region internal class
-    internal class candidateWord
+    internal class CandidateWord
     {
-        public string word { get; set; }
-        public double score { get; set; }
-        public List<int> index { get; set; }
+        public string Word { get; set; }
+        public double Score { get; set; }
+        public List<int> Index { get; set; }
 
-        public candidateWord(string word, double score = 1.0)
+        public CandidateWord(string word, double score = 1.0)
         {
-            this.word = word;
-            index = new List<int>();
+            Word = word;
+            Index = new List<int>();
         }
     }
 
     internal class Node
     {
-        public candidateWord word { get; set; }
-        public List<Node> neighbours { get; set; }
+        public CandidateWord Word { get; set; }
+        public List<Node> Neighbours { get; set; }
     }
 
     internal class SentenceNode
     {
-        public string sentence { get; set; }
-        public double score { get; set; }
-        public List<Tuple<SentenceNode, double>> neighbours;
+        public string Sentence { get; set; }
+        public double Score { get; set; }
+        public List<Tuple<SentenceNode, double>> Neighbours;
     }
     #endregion
 }

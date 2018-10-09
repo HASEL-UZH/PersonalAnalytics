@@ -24,7 +24,7 @@ namespace SlackTracker.Visualizations
             Order = 0;
         }
 
-        private string convertDatatoJson(List<UserActivity> activities)
+        private string ConvertDataToJson(List<UserActivity> activities)
         {
             JObject json = new JObject();
             HashSet<string> users = new HashSet<string>();
@@ -32,8 +32,8 @@ namespace SlackTracker.Visualizations
             //first get all the unique users
             foreach (UserActivity activity in activities)
             {
-                users.Add(activity.from);
-                users.Add(activity.to);
+                users.Add(activity.From);
+                users.Add(activity.To);
             }
 
             //add a key and value for users to json
@@ -42,7 +42,7 @@ namespace SlackTracker.Visualizations
             //then for all the users add a new element to the json
             foreach (string user in users)
             {
-                List<UserActivity> activity_for_user = activities.Where(a => a.from == user).ToList();
+                List<UserActivity> activity_for_user = activities.Where(a => a.From == user).ToList();
 
                 if(activity_for_user.Count == 0) { continue;}
 
@@ -51,9 +51,9 @@ namespace SlackTracker.Visualizations
                 foreach (UserActivity activity in activity_for_user)
                 {
                     JObject o = new JObject();
-                    o["to"] = activity.to;
-                    o["time"] = activity.time.ToString("HH:MM");
-                    o["intensity"] = activity.intensity;
+                    o["to"] = activity.To;
+                    o["time"] = activity.Time.ToString("HH:MM");
+                    o["intensity"] = activity.Intensity;
 
                     user_activity.Add(o);
                 }
@@ -75,7 +75,7 @@ namespace SlackTracker.Visualizations
                 return html;
             }
 
-            string flat_data = convertDatatoJson(data);
+            string flat_data = ConvertDataToJson(data);
             Logger.WriteToConsole(flat_data);
 
             //HTML

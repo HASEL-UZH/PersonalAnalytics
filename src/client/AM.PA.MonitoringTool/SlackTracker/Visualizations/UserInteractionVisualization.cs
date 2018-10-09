@@ -24,18 +24,18 @@ namespace SlackTracker.Visualizations
             Order = 0;
         }
 
-        private string convertDatatoJson(List<UserInteraction> activities)
+        private string ConvertDatatoJson(List<UserInteraction> activities)
         {
             JArray links = new JArray();
 
             foreach (UserInteraction activity in activities)
             {
                 JObject link = new JObject();
-                link["channel"] = activity.channel_name;
-                link["from"] = activity.from;
-                link["to"] = activity.to;
-                link["duration"] = activity.duration;
-                link["topics"] = string.Join(" ", activity.topics);
+                link["channel"] = activity.ChannelName;
+                link["from"] = activity.From;
+                link["to"] = activity.To;
+                link["duration"] = activity.Duration;
+                link["topics"] = string.Join(" ", activity.Topics);
                 links.Add(link);
             }
 
@@ -53,7 +53,7 @@ namespace SlackTracker.Visualizations
                 return html;
             }
 
-            string flat_data = convertDatatoJson(data);
+            string flat_data = ConvertDatatoJson(data);
             Logger.WriteToConsole(flat_data);
 
             //HTML

@@ -8,9 +8,9 @@ namespace SlackTracker.Data.SlackModel
 {
     class UserActivity
     {
-        public DateTime time { get; set; }
-        public string from { get; set; }
-        public string to { get; set; }
-        public double intensity { get; set; }
+        public DateTime Time { get; set; }
+        public string From { get; set; }
+        public string To { get; set; }
+        public double Intensity { get; set; }
     }
 }

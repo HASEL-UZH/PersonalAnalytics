@@ -8,8 +8,8 @@ namespace SlackTracker.Data
 
     class AccessResponse
     {
-        public string access_token { get; set; }
-        public string scope { get; set; }
+        public string AccessToken { get; set; }
+        public string Scope { get; set; }
     }
 
 }

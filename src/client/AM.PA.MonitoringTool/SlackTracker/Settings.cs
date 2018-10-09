@@ -21,10 +21,10 @@ namespace SlackTracker
         internal const int SYNCHRONIZE_INTERVAL = 8 * 20 * 1000; //1 minutes
 
         //Database Tables names
-        internal static readonly string DOWNLOAD_TABLE_NAME = "slack_downloads";
+        internal static readonly string DOWNLOAD_TABLE_NAME = "SlackDownloads";
         internal const string CHANNELS_TABLE_NAME = "SlackChannels";
         internal const string LOG_TABLE_NAME = "SlackLogs";
-        internal const string USER_MENTION_TABLE_NAME = "MessageDirectedTo";
+        internal const string USER_MENTION_TABLE_NAME = "SlackMessageDirectedTo";
         internal const string USER_TABLE_NAME = "SlackUsers";
         internal const string THREADS_TABLE_NAME = "SlackThreads";
         internal const string USER_ACTIVITY_TABLE_NAME = "SlackUserActivity";

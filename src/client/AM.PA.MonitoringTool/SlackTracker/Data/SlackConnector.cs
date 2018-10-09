@@ -58,22 +58,22 @@ namespace SlackTracker.Data
                 {
                     var values = new NameValueCollection();
                     values["token"] = SecretStorage.GetAccessToken();
-                    values["channel"] = c.id;
+                    values["channel"] = c.Id;
                     values["count"] = "1000";
                     if (oldest != DateTimeOffset.MinValue) { values["oldest"] = DateTimeHelper.JavascriptTimestampFromDateTime(oldest.DateTime).ToString(); }
 
-                    Tuple<LogResponse, bool> result = GetDataFromSlack<LogResponse>(CHANNELS_HISTORY_URL, values, parse_log_response);
+                    Tuple<LogResponse, bool> result = GetDataFromSlack<LogResponse>(CHANNELS_HISTORY_URL, values, ParseLogResponse);
 
                     if (result.Item1 == null && result.Item2)
                     {
-                        result = GetDataFromSlack<LogResponse>(CHANNELS_HISTORY_URL, values, parse_log_response);
+                        result = GetDataFromSlack<LogResponse>(CHANNELS_HISTORY_URL, values, ParseLogResponse);
                     }
-                    List<Log> logData = result.Item1.log;
-                    has_more = result.Item1.has_more;
-                    oldest = result.Item1.last_timestamp;
+                    List<Log> logData = result.Item1.Log;
+                    has_more = result.Item1.HasMore;
+                    oldest = result.Item1.LastTimestamp;
 
                     // Update channel_id property
-                    logData.ForEach(m => m.channel_id = c.id);
+                    logData.ForEach(m => m.ChannelId = c.Id);
 
                     //Reverse so that message are in ordered by send time
                     logData.Reverse();
@@ -85,7 +85,7 @@ namespace SlackTracker.Data
             return ConvertTempLog(channel_logs);
         }
 
-        private static LogResponse parse_log_response(string response)
+        private static LogResponse ParseLogResponse(string response)
         {
             LogResponse ret = new LogResponse();
             JObject response_object = JObject.Parse(response);
@@ -98,19 +98,19 @@ namespace SlackTracker.Data
                 return null;
 
             messages = (JArray)response_object["messages"];
-            ret.has_more = (bool)response_object["has_more"];
+            ret.HasMore = (bool)response_object["has_more"];
 
             List<Log> _logs = messages.Select(p => new Log
             {
-                sender = (string)p["user"],
-                message = (string)p["text"],
-                timestamp = (string)p["ts"]
+                Sender = (string)p["user"],
+                Message = (string)p["text"],
+                Timestamp = (string)p["ts"]
             }).ToList();
 
-            _logs = _logs.Where(x => !(x.message.Contains("has joined the channel") || x.message.Contains("has left the channel"))).ToList();
-            ret.log = _logs;
-            if (ret.has_more) { ret.last_timestamp = DateTimeHelper.DateTimeFromSlackTimestamp(_logs.Min(l => l.timestamp).Split('.')[0]); }
-            else { ret.last_timestamp = DateTimeOffset.Now; }
+            _logs = _logs.Where(x => !(x.Message.Contains("has joined the channel") || x.Message.Contains("has left the channel"))).ToList();
+            ret.Log = _logs;
+            if (ret.HasMore) { ret.LastTimestamp = DateTimeHelper.DateTimeFromSlackTimestamp(_logs.Min(l => l.Timestamp).Split('.')[0]); }
+            else { ret.LastTimestamp = DateTimeOffset.Now; }
             return ret;
         }
 
@@ -121,18 +121,18 @@ namespace SlackTracker.Data
             values["exclude_archived"] = "true";
             values["exclude_members"] = "true";
 
-            Tuple<List<Channel>, bool> result = GetDataFromSlack<List<Channel>>(CHANNELS_LIST_URL, values, parse_channel_list);
+            Tuple<List<Channel>, bool> result = GetDataFromSlack<List<Channel>>(CHANNELS_LIST_URL, values, ParseChannelList);
             bool retry = result.Item2;
 
             if (result.Item1 == null && retry)
             {
-                result = GetDataFromSlack<List<Channel>>(CHANNELS_LIST_URL, values, parse_channel_list);
+                result = GetDataFromSlack<List<Channel>>(CHANNELS_LIST_URL, values, ParseChannelList);
             }
 
             return result.Item1;
         }
 
-        private static List<Channel> parse_channel_list(string response)
+        private static List<Channel> ParseChannelList(string response)
         {
             JObject response_object = JObject.Parse(response);
             JArray channels;
@@ -147,10 +147,10 @@ namespace SlackTracker.Data
 
             List<Channel> _channels = channels.Select(p => new Channel
             {
-                id = (string)p["id"],
-                name = (string)p["name"],
-                created = (long)p["created"],
-                creator = (string)p["creator"]
+                Id = (string)p["id"],
+                Name = (string)p["name"],
+                Created = (long)p["created"],
+                Creator = (string)p["creator"]
             }).ToList();
 
             return _channels;
@@ -162,18 +162,18 @@ namespace SlackTracker.Data
             values["token"] = SecretStorage.GetAccessToken();
             values["include_locale"] = "true";
 
-            Tuple<List<User>, bool> result = GetDataFromSlack<List<User>>(USERS_LIST_URL, values, parse_user_list);
+            Tuple<List<User>, bool> result = GetDataFromSlack<List<User>>(USERS_LIST_URL, values, ParseUserList);
             bool retry = result.Item2;
 
             if (result.Item1 == null && retry)
             {
-                result = GetDataFromSlack<List<User>>(USERS_LIST_URL, values, parse_user_list);
+                result = GetDataFromSlack<List<User>>(USERS_LIST_URL, values, ParseUserList);
             }
 
             return result.Item1;
         }
 
-        private static List<User> parse_user_list(string response)
+        private static List<User> ParseUserList(string response)
         {
             JObject response_object = JObject.Parse(response);
             JArray members;
@@ -189,11 +189,11 @@ namespace SlackTracker.Data
 
             List<User> _users = members.Select(p => new User
             {
-                id = (string)p["id"],
-                team_id = (string)p["team_id"],
-                name = (string)p["name"],
-                real_name = (string)p["profile"]["real_name"],
-                is_bot = (bool)p["is_bot"]
+                Id = (string)p["id"],
+                TeamId = (string)p["team_id"],
+                Name = (string)p["name"],
+                RealName = (string)p["profile"]["real_name"],
+                IsBot = (bool)p["is_bot"]
             }).ToList();
 
             return _users;
@@ -288,8 +288,8 @@ namespace SlackTracker.Data
 
                 AccessResponse accessResponse = JsonConvert.DeserializeObject<AccessResponse>(responseString);
 
-                Database.GetInstance().LogInfo("Retreived new access" + accessResponse.access_token);
-                SecretStorage.SaveAccessToken(accessResponse.access_token);
+                Database.GetInstance().LogInfo("Retreived new access" + accessResponse.AccessToken);
+                SecretStorage.SaveAccessToken(accessResponse.AccessToken);
 
                 client.Dispose();
             }
@@ -324,12 +324,12 @@ namespace SlackTracker.Data
             {
                 logData.Add(new LogData
                 {
-                    id = n_log++,
-                    timestamp = DateTimeHelper.DateTimeFromSlackTimestamp(log.timestamp),
-                    channel_id = log.channel_id,
-                    author = log.sender,
-                    mentions = get_user_mentions(log.message),
-                    message = log.message
+                    Id = n_log++,
+                    Timestamp = DateTimeHelper.DateTimeFromSlackTimestamp(log.Timestamp),
+                    ChannelId = log.ChannelId,
+                    Author = log.Sender,
+                    Mentions = GetUserMentions(log.Message),
+                    Message = log.Message
                 });
             }
 
@@ -337,7 +337,7 @@ namespace SlackTracker.Data
         }
 
         // Receivers occurs in message enclosed in <> and starting with a @ i.e <@C310FAE>
-        private static List<string> get_user_mentions(string text)
+        private static List<string> GetUserMentions(string text)
         {
             List<string> mentions = new List<string>();
             string pattern = @"<@[A-Z0-9]+>";
@@ -357,16 +357,16 @@ namespace SlackTracker.Data
 
     internal class Log
     {
-        public string timestamp { get; set; }
-        public string channel_id { get; set; }
-        public string sender { get; set; }
-        public string message { get; set; }
+        public string Timestamp { get; set; }
+        public string ChannelId { get; set; }
+        public string Sender { get; set; }
+        public string Message { get; set; }
     }
 
     internal class LogResponse
     {
-        public List<Log> log { get; set; }
-        public bool has_more { get; set; }
-        public DateTimeOffset last_timestamp { get; set; }
+        public List<Log> Log { get; set; }
+        public bool HasMore { get; set; }
+        public DateTimeOffset LastTimestamp { get; set; }
     }
 }

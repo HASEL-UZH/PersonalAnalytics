@@ -9,16 +9,16 @@ using Shared;
 
 namespace SlackTracker.Analysis
 {
-    class ChatDisentanglment
+    internal class ChatDisentanglment
     {
-        public static List<Thread> getThreads(List<LogData> messages, bool detailed = false)
+        public static List<Thread> GetThreads(List<LogData> messages, bool detailed = false)
         {
             List<Thread> threads = new List<Thread>();
 
             try
             {
                 LogisticRegression classifier = Serializer.Load<LogisticRegression>(AppDomain.CurrentDomain.BaseDirectory + "../../../SlackTracker/Analysis/resources/models/threadClassifier");
-                List<string> keywords = TextRank.getKeywords(string.Join(" ", messages.Select(m => m.message)));
+                List<string> keywords = TextRank.GetKeywords(string.Join(" ", messages.Select(m => m.Message)));
                 int k = 0;
 
                 foreach (LogData message in messages)
@@ -29,13 +29,13 @@ namespace SlackTracker.Analysis
                     for (int c = 1; c < k; c++)
                     {
                         Thread thread = threads[c - 1];
-                        List<LogData> m = thread.messages;
+                        List<LogData> m = thread.Messages;
 
                         double quality = 0;
 
                         foreach (LogData l in m)
                         {
-                            quality += classifier.Probabilities(feature_vector(message, l, keywords))[1];
+                            quality += classifier.Probabilities(FeatureVector(message, l, keywords))[1];
                         }
 
                         if (quality > optimal_vote)
@@ -47,17 +47,17 @@ namespace SlackTracker.Analysis
 
                     if (optimal_vote > 0.5)
                     {
-                        threads[optimal_cluster_index].messages.Add(message);
+                        threads[optimal_cluster_index].Messages.Add(message);
                     }
                     else
                     {
                         Thread thread = new Thread();
-                        thread.messages.Add(message);
+                        thread.Messages.Add(message);
                         threads.Add(thread);
                         k++; //increase count of number of clusters
                     }
                 }
-                if (detailed) { postAnalysis(threads); }
+                if (detailed) { PostAnalysis(threads); }
             }
             catch (Exception e)
             {
@@ -67,7 +67,7 @@ namespace SlackTracker.Analysis
             return threads;
         }
 
-        private static double[] feature_vector(LogData message1, LogData message2, List<string> keywords_for_doc)
+        private static double[] FeatureVector(LogData message1, LogData message2, List<string> keywords_for_doc)
         {
             double[] feature = new double[16];
             List<string> greetings = new List<string>() { "Hi", "Hello", "Hey" };
@@ -75,42 +75,42 @@ namespace SlackTracker.Analysis
             List<string> answer = new List<string>() { "yes", "no", "nopes", "yeah" };
 
             //swap message1 with message2 if message1 is sent after message2
-            if (DateTime.Compare(message1.timestamp, message2.timestamp) > 0)
+            if (DateTime.Compare(message1.Timestamp, message2.Timestamp) > 0)
             {
                 LogData temp = message1;
                 message1 = message2;
                 message2 = temp;
             }
 
-            feature[0] = (message2.timestamp - message1.timestamp).TotalSeconds; //time difference between messages
-            feature[1] = message1.author == message2.author ? 1.0 : 0.0; //same author
-            feature[2] = message1.mentions.Contains(message2.author) ? 1.0 : 0.0;//author of message1 mentions author of message2
-            feature[3] = message2.mentions.Contains(message1.author) ? 1.0 : 0.0; //author of message2 mentions author of message1
-            feature[4] = message1.mentions.Intersect(message2.mentions).Any() ? 1.0 : 0.0; //mentions same users
-            feature[5] = message1.message.Split().Intersect(greetings).Any() ? 1.0 : 0.0;//message1 uses greetings
-            feature[6] = message2.message.Split().Intersect(greetings).Any() ? 1.0 : 0.0; //message2 uses greetings
-            feature[7] = message1.message.Split().Count() > 10 ? 1.0 : 0.0; //message1 is long > 10 words
-            feature[8] = message2.message.Split().Count() > 10 ? 1.0 : 0.0; //message2 is long > 10 words
-            feature[9] = message2.message.Split().Intersect(thanks).Any() ? 1.0 : 0.0; //message2 uses greetings
-            feature[10] = message2.message.Split().Intersect(thanks).Any() ? 1.0 : 0.0; //message2 uses greetings
-            feature[11] = message1.message.Contains("?") ? 1.0 : 0.0; //message1 contains question
-            feature[12] = message2.message.Contains("?") ? 1.0 : 0.0; //message2 contains question
-            feature[13] = message2.message.Split().Intersect(answer).Any() ? 1.0 : 0.0; //message1 is an answer to a previous message
-            feature[14] = message2.message.Split().Intersect(answer).Any() ? 1.0 : 0.0; //message2 is an answer to a previous message
-            feature[15] = keyword_similarity(message1.message, message2.message, keywords_for_doc); //keyword similarity
+            feature[0] = (message2.Timestamp - message1.Timestamp).TotalSeconds; //time difference between messages
+            feature[1] = message1.Author == message2.Author ? 1.0 : 0.0; //same author
+            feature[2] = message1.Mentions.Contains(message2.Author) ? 1.0 : 0.0;//author of message1 mentions author of message2
+            feature[3] = message2.Mentions.Contains(message1.Author) ? 1.0 : 0.0; //author of message2 mentions author of message1
+            feature[4] = message1.Mentions.Intersect(message2.Mentions).Any() ? 1.0 : 0.0; //mentions same users
+            feature[5] = message1.Message.Split().Intersect(greetings).Any() ? 1.0 : 0.0;//message1 uses greetings
+            feature[6] = message2.Message.Split().Intersect(greetings).Any() ? 1.0 : 0.0; //message2 uses greetings
+            feature[7] = message1.Message.Split().Count() > 10 ? 1.0 : 0.0; //message1 is long > 10 words
+            feature[8] = message2.Message.Split().Count() > 10 ? 1.0 : 0.0; //message2 is long > 10 words
+            feature[9] = message2.Message.Split().Intersect(thanks).Any() ? 1.0 : 0.0; //message2 uses greetings
+            feature[10] = message2.Message.Split().Intersect(thanks).Any() ? 1.0 : 0.0; //message2 uses greetings
+            feature[11] = message1.Message.Contains("?") ? 1.0 : 0.0; //message1 contains question
+            feature[12] = message2.Message.Contains("?") ? 1.0 : 0.0; //message2 contains question
+            feature[13] = message2.Message.Split().Intersect(answer).Any() ? 1.0 : 0.0; //message1 is an answer to a previous message
+            feature[14] = message2.Message.Split().Intersect(answer).Any() ? 1.0 : 0.0; //message2 is an answer to a previous message
+            feature[15] = KeywordSimilarity(message1.Message, message2.Message, keywords_for_doc); //keyword similarity
             return feature;
         }
 
-        public static void postAnalysis(List<Thread> threads)
+        public static void PostAnalysis(List<Thread> threads)
         {
             foreach(Thread thread in threads)
             {
-                List<LogData> SortedList = thread.messages.OrderBy(o => o.timestamp).ToList();
-                thread.start_time = SortedList.First().timestamp;
-                thread.end_time = SortedList.Last().timestamp;
+                List<LogData> SortedList = thread.Messages.OrderBy(o => o.Timestamp).ToList();
+                thread.StartTime = SortedList.First().Timestamp;
+                thread.EndTime = SortedList.Last().Timestamp;
 
-                List<string> author = SortedList.Select(m => m.author).ToList();
-                List<List<string>> mentions = SortedList.Select(m => m.mentions).ToList();
+                List<string> author = SortedList.Select(m => m.Author).ToList();
+                List<List<string>> mentions = SortedList.Select(m => m.Mentions).ToList();
                 HashSet<string> user_participated = new HashSet<string>();
                 foreach (string user in author)
                 {
@@ -125,13 +125,13 @@ namespace SlackTracker.Analysis
                     }
                 }
 
-                thread.user_participated = user_participated.ToList();
-                thread.keywords = TextRank.getKeywords(string.Join(" ", SortedList.Select(l => l.message).ToList()));
+                thread.UserParticipated = user_participated.ToList();
+                thread.Keywords = TextRank.GetKeywords(string.Join(" ", SortedList.Select(l => l.Message).ToList()));
             }
         }
 
         #region Helpers
-        private static double keyword_similarity(string m1, string m2, List<string> keywords_for_doc)
+        private static double KeywordSimilarity(string m1, string m2, List<string> keywords_for_doc)
         {
             List<string> words1 = m1.Split(' ').ToList();
             List<string> words2 = m2.Split(' ').ToList();

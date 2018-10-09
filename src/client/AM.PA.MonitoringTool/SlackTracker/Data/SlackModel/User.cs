@@ -11,10 +11,10 @@ namespace SlackTracker.Data.SlackModel
 {
     class User
     {
-        public string id { get; set; }
-        public string team_id { get; set; }
-        public string name { get; set; }
-        public string real_name { get; set; }
-        public bool is_bot { get; set; }
+        public string Id { get; set; }
+        public string TeamId { get; set; }
+        public string Name { get; set; }
+        public string RealName { get; set; }
+        public bool IsBot { get; set; }
     }
 }

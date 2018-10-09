@@ -13,9 +13,9 @@ namespace SlackTracker.Data.SlackModel
 {
     class Channel
     {
-        public string id { get; set; }
-        public string name { get; set; }
-        public long created { get; set; }
-        public string creator { get; set; }
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public long Created { get; set; }
+        public string Creator { get; set; }
     }
 }

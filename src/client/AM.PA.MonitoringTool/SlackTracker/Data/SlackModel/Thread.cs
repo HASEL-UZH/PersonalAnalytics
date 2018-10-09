@@ -9,18 +9,18 @@ namespace SlackTracker.Data.SlackModel
 {
     class Thread
     {
-        public int id { get; set; }
-        public List<LogData> messages { get; set; }
-        public DateTime start_time { get; set; }
-        public DateTime end_time { get; set; }
-        public List<string> user_participated { get; set; }
-        public List<string> keywords { get; set; }
+        public int Id { get; set; }
+        public List<LogData> Messages { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+        public List<string> UserParticipated { get; set; }
+        public List<string> Keywords { get; set; }
 
         public Thread()
         {
-            messages = new List<LogData>();
-            user_participated = new List<string>();
-            keywords = new List<string>();
+            Messages = new List<LogData>();
+            UserParticipated = new List<string>();
+            Keywords = new List<string>();
         }
     }
 }

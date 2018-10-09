@@ -93,7 +93,7 @@
     <Compile Include="Daemon.cs" />
     <Compile Include="Data\SecretStorage.cs" />
     <Compile Include="Data\SlackConnector.cs" />
-    <Compile Include="Data\SlackModel\AccesResponse.cs" />
+    <Compile Include="Data\SlackModel\AccessResponse.cs" />
     <Compile Include="Data\SlackModel\Channel.cs" />
     <Compile Include="Data\SlackModel\LogData.cs" />
     <Compile Include="Data\SlackModel\Thread.cs" />
