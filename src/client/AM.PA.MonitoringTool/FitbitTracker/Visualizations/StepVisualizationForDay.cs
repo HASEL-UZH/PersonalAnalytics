@@ -106,7 +106,7 @@ namespace FitbitTracker
             html += "MARGINS = {top: 20, right: 20, bottom: 20, left: 50";
             html += "},";
             
-            html += "xRange = d3.scaleOrdinal().rangeRoundBands([MARGINS.left, WIDTH - MARGINS.right], 0.1).domain(barData.map(function(d) {";
+            html += "xRange = d3.scaleBand().rangeRound([MARGINS.left, WIDTH - MARGINS.right]).padding(0.1).domain(barData.map(function(d) {";
             html += "return d.x;";
             html += "})),";
             
@@ -115,12 +115,11 @@ namespace FitbitTracker
             html += "return d.y;";
             html += "})]),";
             
-            html += "xAxis = d3.svg.axis()";
-            html += ".scale(xRange)";
+            html += "xAxis = d3.axisBottom(xRange)";
             html += ".tickValues([" + GenerateTicks(values) + "])";
             html += ".tickSize(5),";
            
-            html += "yAxis = d3.svg.axis().scale(yRange).tickSize(5).orient('left').tickSubdivide(true);";
+            html += "yAxis = d3.axisLeft(yRange).tickSize(5);";
 
             html += "vis.attr('height', HEIGHT).attr('width', WIDTH);";
             html += "vis.append('svg:g').attr('class', 'x axis').attr('transform', 'translate(0,' + (HEIGHT - MARGINS.bottom) + ')').call(xAxis);";
@@ -132,7 +131,7 @@ namespace FitbitTracker
             html += ".attr('y', function(d) {";
             html += "return yRange(d.y);";
             html += "})";
-            html += ".attr('width', xRange.rangeBand())";
+            html += ".attr('width', xRange.bandwidth())";
             html += ".attr('height', function(d) {";
             html += "return ((HEIGHT - MARGINS.bottom) - yRange(d.y));";
             html += "})";
@@ -155,7 +154,7 @@ namespace FitbitTracker
             html += "vis.append('path').style('stroke', '" + Shared.Settings.RetrospectionColorHex + "').attr('d', valueLine1(barData)).attr('fill', 'none').attr('id', 'average').attr('opacity', 0);";
 
             html += "vis.selectAll('avgText').data(barData).enter().append('text')";
-            html += ".attr('x', function(d){return xRange(d.x) + xRange.rangeBand() / 2;})";
+            html += ".attr('x', function(d){return xRange(d.x) + xRange.bandwidth() / 2;})";
             html += ".attr('y', function(d){return yRange(d.a) - 5;})";
             html += ".attr('fill', '" + Shared.Settings.RetrospectionColorHex + "')";
             html += ".attr('text-anchor', 'middle')";
@@ -164,7 +163,7 @@ namespace FitbitTracker
             html += ".text(function(d){return (d.y - d.a).toFixed(0);});";
 
             html += "vis.selectAll('legText').data(barData).enter().append('text').attr('x', function(d) {";
-            html += "return xRange(d.x) + xRange.rangeBand() / 2;";
+            html += "return xRange(d.x) + xRange.bandwidth() / 2;";
             html += "})";
             html += ".attr('id', function(d) {";
             html += "return d.x";

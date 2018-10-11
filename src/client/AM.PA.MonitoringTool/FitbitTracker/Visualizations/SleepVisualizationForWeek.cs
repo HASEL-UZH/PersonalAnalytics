@@ -88,11 +88,11 @@ namespace FitbitTracker
             html += "width = actualWidth * 1.1 - margin.left - margin.right,";
             html += "height = (actualHeight * 0.65) - margin.top - margin.bottom;";
 
-            html += "var x = d3.scaleOordinal().rangeRoundBands([0, width], .35);";
-            html += "var y = d3.scaleLinear().rangeRound([height, 0]);";
+            html += "var x = d3.scaleBand().rangeRound([0, width]).padding(.35);";
+            html += "var y = d3.scaleBand().rangeRound([height, 0]);";
 
             html += "var color = d3.scaleOrdinal(d3.schemeCategory10);";
-            html += "var xAxis = d3.axisBottom().scale(x);";
+            html += "var xAxis = d3.axisBottom(x);";
 
             html += "var svg = d3.select('#sleepVis').append('svg')";
             html += ".attr('width', width + margin.left + margin.right)";
@@ -138,7 +138,7 @@ namespace FitbitTracker
             html += ".attr('height', function(d) {";
             html += "return y(d.y0) - y(d.y + d.y0);";
             html += "})";
-            html += ".attr('width', x.rangeBand());";
+            html += ".attr('width', x.bandwidth());";
 
             html += "var yTextPadding = 30;";
             html += "svg.selectAll('.bartext')";
@@ -148,7 +148,7 @@ namespace FitbitTracker
             html += ".attr('text-anchor', 'middle')";
             html += ".attr('fill', 'white')";
             html += ".attr('x', function(d) {";
-            html += "return x(d.day) + x.rangeBand() / 2;";
+            html += "return x(d.day) + x.bandwidth() / 2;";
             html += "})";
             html += ".attr('y', function(d) {";
             html += "return height - yTextPadding;";
@@ -165,7 +165,7 @@ namespace FitbitTracker
             html += ".attr('text-anchor', 'middle')";
             html += ".attr('fill', 'white')";
             html += ".attr('x', function(d) {";
-            html += "return x(d.day) + x.rangeBand() / 2;";
+            html += "return x(d.day) + x.bandwidth() / 2;";
             html += "})";
             html += ".attr('y', function(d) {";
             html += "return height - yTextPadding;";
