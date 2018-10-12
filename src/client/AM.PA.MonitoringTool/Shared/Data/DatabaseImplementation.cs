@@ -3,6 +3,7 @@
 // 
 // Licensed under the MIT License.
 using System;
+using System.Collections;
 using System.Data;
 using System.Data.SQLite;
 using System.Globalization;
@@ -35,12 +36,14 @@ namespace Shared.Data
         /// <returns></returns>
         public bool HasTable(string tableName)
         {
-            if (_connection == null || _connection.State != ConnectionState.Open) throw new Exception("Connection to database not established.");
+            if (!IsConnected())
+            {
+                throw new Exception("Connection to database not established.");
+            }
             try
             {
-                var query = "SELECT name FROM sqlite_master WHERE type ='table' AND name='" + tableName + "';";
-
-                var result = ExecuteReadQuery(query);
+                const string query = "SELECT name FROM sqlite_master WHERE type='table' AND name=?;";
+                var result = ExecuteReadQuery(query, new object[] { tableName });
                 return result != null && result.Rows.Count != 0;
             }
             catch
@@ -54,27 +57,27 @@ namespace Shared.Data
         /// Also logs the query.
         /// </summary>
         /// <param name="query"></param>
-        /// <returns>an int if it was successful or not</returns>
-        public int ExecuteDefaultQuery(string query)
+        /// <param name="parameter"></param>
+        /// <returns>The number of affected rows or 0 if unsuccessful</returns>
+        public int ExecuteDefaultQuery(string query, object[] parameter = null)
         {
-            WriteQueryToLog(query);
-            if (_connection == null || _connection.State != ConnectionState.Open) return 0;
-
-            var cmd = new SQLiteCommand(query, _connection);
+            SQLiteCommand cmd = null;
             try
             {
-                var ans = cmd.ExecuteNonQuery();
-                return ans;
+                cmd = GetCommand(query, parameter);
+                var affectedRowCount = cmd.ExecuteNonQuery();
+                return affectedRowCount;
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                Logger.WriteToLogFile(new Exception("Query: " + query));
+                Logger.WriteToLogFile(new Exception($@"Query: {query}"));
+                Logger.WriteToLogFile(new Exception($@"Parameter: {parameter}"));
                 return 0;
             }
             finally
             {
-                cmd.Dispose();
+                cmd?.Dispose();
             }
         }
 
@@ -83,17 +86,16 @@ namespace Shared.Data
         /// or 0 in case of no entry or an error.
         /// </summary>
         /// <param name="query"></param>
+        /// <param name="parameter"></param>
         /// <returns></returns>
-        public int ExecuteScalar(string query)
+        public int ExecuteScalar(string query, object[] parameter = null)
         {
-            WriteQueryToLog(query);
-            if (_connection == null || _connection.State != ConnectionState.Open) return 0;
-
-            var cmd = new SQLiteCommand(query, _connection);
+            SQLiteCommand cmd = null;
             try
             {
+                cmd = GetCommand(query, parameter);
                 var res = cmd.ExecuteScalar();
-                return (DBNull.Value != res) ? Convert.ToInt32(res) : 0;
+                return DBNull.Value != res ? Convert.ToInt32(res) : 0;
             }
             catch (Exception e)
             {
@@ -102,7 +104,7 @@ namespace Shared.Data
             }
             finally
             {
-                cmd.Dispose();
+                cmd?.Dispose();
             }
         }
 
@@ -111,11 +113,24 @@ namespace Shared.Data
         /// used for settings. Somehow strange?
         /// </summary>
         /// <param name="query"></param>
+        /// <param name="parameter"></param>
         /// <returns></returns>
-        public object ExecuteScalar2(string query)
+        public object ExecuteScalar2(string query, object[] parameter = null)
         {
-            try { return new SQLiteCommand(query, _connection).ExecuteScalar(); }
-            catch { return null; }
+            SQLiteCommand cmd = null;
+            try
+            {
+                cmd = GetCommand(query, parameter);
+                return cmd.ExecuteScalar();
+            }
+            catch
+            {
+                return null;
+            }
+            finally
+            {
+                cmd?.Dispose();
+            }
         }
 
         /// <summary>
@@ -123,17 +138,16 @@ namespace Shared.Data
         /// or 0.0 in case of no entry or an error.
         /// </summary>
         /// <param name="query"></param>
+        /// <param name="parameter"></param>
         /// <returns></returns>
-        public double ExecuteScalar3(string query)
+        public double ExecuteScalar3(string query, object[] parameter = null)
         {
-            WriteQueryToLog(query);
-            if (_connection == null || _connection.State != ConnectionState.Open) return 0.0;
-
-            var cmd = new SQLiteCommand(query, _connection);
+            SQLiteCommand cmd = null;
             try
             {
+                cmd = GetCommand(query, parameter);
                 var res = cmd.ExecuteScalar();
-                return (DBNull.Value != res) ? Convert.ToDouble(res) : 0.0;
+                return DBNull.Value != res ? Convert.ToDouble(res) : 0.0;
             }
             catch (Exception e)
             {
@@ -142,7 +156,7 @@ namespace Shared.Data
             }
             finally
             {
-                cmd.Dispose();
+                cmd?.Dispose();
             }
         }
 
@@ -150,17 +164,16 @@ namespace Shared.Data
         /// Executes a query (given as a parameter).
         /// </summary>
         /// <param name="query"></param>
+        /// <param name="parameter"></param>
         /// <returns>the first table as a result or null if there was no result</returns>
-        public DataTable ExecuteReadQuery(string query)
+        public DataTable ExecuteReadQuery(string query, object[] parameter = null)
         {
-            WriteQueryToLog(query);
-
-            if (_connection == null || _connection.State != ConnectionState.Open) return null;
-            var cmd = new SQLiteCommand(query, _connection);
-            var da = new SQLiteDataAdapter(cmd);
-            var ds = new DataSet();
+            SQLiteCommand cmd = null;
             try
             {
+                cmd = GetCommand(query, parameter);
+                var da = new SQLiteDataAdapter(cmd);
+                var ds = new DataSet();
                 da.Fill(ds);
                 return ds.Tables[0];
             }
@@ -170,7 +183,44 @@ namespace Shared.Data
             }
             finally
             {
-                cmd.Dispose();
+                cmd?.Dispose();
+            }
+        }
+
+        private SQLiteCommand GetCommand(string query, object[] parameter = null)
+        {
+            WriteQueryToLog(query, parameter);
+            if (!IsConnected())
+            {
+                throw new Exception("Connection has to be opened");
+            }
+            var cmd = new SQLiteCommand(query, _connection);
+            if (parameter != null)
+            {
+                foreach (var parameterValue in parameter)
+                {
+                    cmd.Parameters.AddWithValue(null, parameterValue);
+                }
+            }
+            return cmd;
+        }
+
+        /// <summary>
+        /// Inserts the message (given as a parameter) into the log-database-table (flag: Error).
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="type"></param>
+        private void LogToDatabase(string message, LogType type)
+        {
+            try
+            {
+                WriteQueryToLog(message, null, true);
+                var query = $@"INSERT INTO {Settings.LogDbTable} (created, message, type) VALUES (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), ?, ?)";
+                ExecuteDefaultQuery(query, new object[] { message, type.ToString() });
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
             }
         }
 
@@ -180,16 +230,7 @@ namespace Shared.Data
         /// <param name="message"></param>
         public void LogError(string message)
         {
-            try
-            {
-                WriteQueryToLog(message, true);
-                var query = "INSERT INTO " + Settings.LogDbTable + " (created, message, type) VALUES (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " + Q(message) + ", " + Q(LogType.Error.ToString()) + ")";
-                ExecuteDefaultQuery(query);
-            }
-            catch (Exception e)
-            {
-                Logger.WriteToLogFile(e);
-            }
+            LogToDatabase(message, LogType.Error);
         }
 
         /// <summary>
@@ -210,16 +251,7 @@ namespace Shared.Data
         /// <param name="message"></param>
         public void LogInfo(string message)
         {
-            try
-            {
-                WriteQueryToLog(message, true);
-                var query = "INSERT INTO " + Settings.LogDbTable + " (created, message, type) VALUES (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " + Q(message) + ", " + Q(LogType.Info.ToString()) + ")";
-                ExecuteDefaultQuery(query);
-            }
-            catch (Exception e)
-            {
-                Logger.WriteToLogFile(e);
-            }
+            LogToDatabase(message, LogType.Info);
         }
 
         /// <summary>
@@ -229,16 +261,7 @@ namespace Shared.Data
         /// <param name="message"></param>
         public void LogWarning(string message)
         {
-            try
-            {
-                WriteQueryToLog(message, true);
-                var query = "INSERT INTO " + Settings.LogDbTable + " (created, message, type) VALUES (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'), " + Q(message) + ", " + Q(LogType.Warning.ToString()) + ")";
-                ExecuteDefaultQuery(query);
-            }
-            catch (Exception e)
-            {
-                Logger.WriteToLogFile(e);
-            }
+            LogToDatabase(message, LogType.Warning);
         }
 
         /// <summary>
@@ -321,15 +344,18 @@ namespace Shared.Data
 
         /// <summary>
         /// Logs the query if the global setting allows it and it's not
-        /// enforced my the calling method.
+        /// enforced by the calling method.
         /// </summary>
         /// <param name="query"></param>
+        /// <param name="parameter"></param>
         /// <param name="force"></param>
-        private static void WriteQueryToLog(string query, bool force = false)
+        private static void WriteQueryToLog(string query, IEnumerable parameter = null, bool force = false)
         {
             // ReSharper disable once RedundantLogicalConditionalExpressionOperand
             if (Settings.PrintQueriesToConsole == false && force == false) return;
-            Logger.WriteToConsole("Query: " + query);
+            Logger.WriteToConsole($@"Query: {query}");
+            if (parameter != null)
+                Logger.WriteToConsole($@"Parameter: {parameter}");
         }
 
         #endregion
@@ -421,12 +447,18 @@ namespace Shared.Data
         {
             try
             {
-                var hasKeyQuery = "SELECT value FROM " + Settings.SettingsDbTable + " WHERE key=" + Q(key) + ";";
-                var insertKeyQuery = "INSERT INTO " + Settings.SettingsDbTable + " (key, value) VALUES (" + Q(key) + ", " + Q(value) + ");";
-                var updateKeyQuery = "UPDATE " + Settings.SettingsDbTable + " SET value=" + Q(value) + " WHERE key=" + Q(key) + ";";
+                var hasKeyQuery = $@"SELECT value FROM {Settings.SettingsDbTable} WHERE key=?;";
+                var insertKeyQuery = $@"INSERT INTO {Settings.SettingsDbTable} (key, value) VALUES (?, ?);";
+                var updateKeyQuery = $@"UPDATE {Settings.SettingsDbTable} SET value=? WHERE key=?;";
 
-                var keyStored = ExecuteScalar2(hasKeyQuery);
-                ExecuteDefaultQuery(keyStored == null ? insertKeyQuery : updateKeyQuery);
+                if (ExecuteScalar2(hasKeyQuery, new object[] { key }) == null)
+                {
+                    ExecuteDefaultQuery(insertKeyQuery, new object[] { key, value });
+                }
+                else
+                {
+                    ExecuteDefaultQuery(updateKeyQuery, new object[] { value, key });
+                }
             }
             catch (Exception e)
             {
@@ -455,9 +487,8 @@ namespace Shared.Data
         {
             try
             {
-                var query = "SELECT value FROM " + Settings.SettingsDbTable + " WHERE key=" + Q(key) + ";";
-                var ret = ExecuteScalar(query);
-
+                var query = $@"SELECT value FROM {Settings.SettingsDbTable} WHERE key=?;";
+                var ret = ExecuteScalar(query, new object[] { key });
                 return ret > 0 ? ret : byDefault;
             }
             catch
@@ -470,8 +501,8 @@ namespace Shared.Data
         {
             try
             {
-                var query = "SELECT value FROM " + Settings.SettingsDbTable + " WHERE key=" + Q(key) + ";";
-                var ret = ExecuteScalar2(query);
+                var query = $@"SELECT value FROM {Settings.SettingsDbTable} WHERE key=?;";
+                var ret = ExecuteScalar2(query, new object[] { key });
                 if (ret == null) return byDefault;
 
                 var retDt = DateTimeOffset.Parse((string)ret);
@@ -493,9 +524,8 @@ namespace Shared.Data
         {
             try
             {
-                var query = "SELECT value FROM " + Settings.SettingsDbTable + " WHERE key=" + Q(key) + ";";
-                var ret = ExecuteScalar2(query);
-
+                var query = $@"SELECT value FROM {Settings.SettingsDbTable} WHERE key=?;";
+                var ret = ExecuteScalar2(query, new object[] { key });
                 if (ret == null) return byDefault;
                 return (string)ret == "1";
             }
@@ -515,9 +545,8 @@ namespace Shared.Data
         {
             try
             {
-                var query = "SELECT value FROM " + Settings.SettingsDbTable + " WHERE key=" + Q(key) + ";";
-                var ret = ExecuteScalar2(query);
-
+                var query = $@"SELECT value FROM {Settings.SettingsDbTable} WHERE key=?;";
+                var ret = ExecuteScalar2(query, new object[] { key });
                 return ret != null ? ret.ToString() : byDefault;
             }
             catch
@@ -537,9 +566,8 @@ namespace Shared.Data
         {
             try
             {
-                var query = "SELECT value FROM " + Settings.SettingsDbTable + " WHERE key=" + Q(key) + ";";
-                var ret = ExecuteScalar2(query);
-
+                var query = $@"SELECT value FROM {Settings.SettingsDbTable} WHERE key=?;";
+                var ret = ExecuteScalar2(query, new object[] { key });
                 return ret != null;
             }
             catch
@@ -569,7 +597,7 @@ namespace Shared.Data
         /// <param name="version"></param>
         public void UpdateDbPragmaVersion(int version)
         {
-            ExecuteDefaultQuery("PRAGMA user_version = " + version);
+            ExecuteDefaultQuery($@"PRAGMA user_version = {version}");
         }
 
         #endregion
@@ -589,7 +617,7 @@ namespace Shared.Data
             var dbJustCreated = !File.Exists(_currentDatabaseDumpFile);
 
             // Open the Database connection
-            _connection = new SQLiteConnection("Data Source=" + _currentDatabaseDumpFile);
+            _connection = new SQLiteConnection($@"Data Source={_currentDatabaseDumpFile}");
             _connection.Open();
 
             // Update database version if db was newly created
@@ -601,7 +629,7 @@ namespace Shared.Data
             // Create a settings table if it doesn't exist
             CreateSettingsTable();
 
-            LogInfo(string.Format(CultureInfo.InvariantCulture, "Opened the connection to the database (File={0}).", _currentDatabaseDumpFile));
+            LogInfo($@"Opened the connection to the database (File = { _currentDatabaseDumpFile}).");
         }
 
         public void Reconnect()
@@ -622,11 +650,16 @@ namespace Shared.Data
         /// </summary>
         public void Disconnect()
         {
-            LogInfo(string.Format(CultureInfo.InvariantCulture, "Closed the connection to the database (File={0}).", _currentDatabaseDumpFile));
+            LogInfo($@"Closed the connection to the database (File = { _currentDatabaseDumpFile}).");
             if (_connection == null || _connection.State == ConnectionState.Closed) return;
             _connection.Close();
             _connection.Dispose();
             _connection = null;
+        }
+
+        private bool IsConnected()
+        {
+            return _connection != null && _connection.State == ConnectionState.Open;
         }
 
         /// <summary>
@@ -636,7 +669,7 @@ namespace Shared.Data
         {
             try
             {
-                const string query = "CREATE TABLE IF NOT EXISTS " + Settings.LogDbTable + " (id INTEGER PRIMARY KEY, created INTEGER, message TEXT, type TEXT);";
+                var query = $@"CREATE TABLE IF NOT EXISTS {Settings.LogDbTable} (id INTEGER PRIMARY KEY, created INTEGER, message TEXT, type TEXT);";
                 ExecuteDefaultQuery(query);
             }
             catch (Exception e)
@@ -652,11 +685,11 @@ namespace Shared.Data
         {
             try
             {
-                const string query = "CREATE TABLE IF NOT EXISTS " + Settings.SettingsDbTable + " (id INTEGER PRIMARY KEY, key TEXT, value TEXT);";
-                var ans = ExecuteDefaultQuery(query);
+                var query = $@"CREATE TABLE IF NOT EXISTS {Settings.SettingsDbTable} (id INTEGER PRIMARY KEY, key TEXT, value TEXT);";
+                var affectedRowCount = ExecuteDefaultQuery(query);
 
                 // creating the settings table means the database file was newly created => log this
-                if (ans == 0)
+                if (affectedRowCount == 0)
                 {
                     SetSettings("SettingsTableCreatedDate", DateTime.Now.Date.ToShortDateString());
                 }
