@@ -13,3 +13,4 @@ Debug/
 /deployment/PersonalDeveloperAnalytics.old.rar
 *.DS_Store
 /src/client/AM.PA.MonitoringTool/.vs/AM.PA.MonitoringTool/v15/Server/sqlite3
+/src/client/AM.PA.MonitoringTool/TestResults

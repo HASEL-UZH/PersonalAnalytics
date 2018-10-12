@@ -421,12 +421,12 @@ namespace Shared.Data
         {
             try
             {
-                var hasKeyQuery = "SELECT value FROM " + Settings.SettingsDbTable + " WHERE key=" + Database.GetInstance().Q(key) + ";";
-                var insertKeyQuery = "INSERT INTO " + Settings.SettingsDbTable + " (key, value) VALUES (" + Database.GetInstance().Q(key) + ", " + Database.GetInstance().Q(value) + ");";
-                var updateKeyQuery = "UPDATE " + Settings.SettingsDbTable + " SET value=" + Database.GetInstance().Q(value) + " WHERE key=" + Database.GetInstance().Q(key) + ";";
+                var hasKeyQuery = "SELECT value FROM " + Settings.SettingsDbTable + " WHERE key=" + Q(key) + ";";
+                var insertKeyQuery = "INSERT INTO " + Settings.SettingsDbTable + " (key, value) VALUES (" + Q(key) + ", " + Q(value) + ");";
+                var updateKeyQuery = "UPDATE " + Settings.SettingsDbTable + " SET value=" + Q(value) + " WHERE key=" + Q(key) + ";";
 
-                var keyStored = Database.GetInstance().ExecuteScalar2(hasKeyQuery);
-                Database.GetInstance().ExecuteDefaultQuery(keyStored == null ? insertKeyQuery : updateKeyQuery);
+                var keyStored = ExecuteScalar2(hasKeyQuery);
+                ExecuteDefaultQuery(keyStored == null ? insertKeyQuery : updateKeyQuery);
             }
             catch (Exception e)
             {
@@ -455,8 +455,8 @@ namespace Shared.Data
         {
             try
             {
-                var query = "SELECT value FROM " + Settings.SettingsDbTable + " WHERE key=" + Database.GetInstance().Q(key) + ";";
-                var ret = Database.GetInstance().ExecuteScalar(query);
+                var query = "SELECT value FROM " + Settings.SettingsDbTable + " WHERE key=" + Q(key) + ";";
+                var ret = ExecuteScalar(query);
 
                 return ret > 0 ? ret : byDefault;
             }
@@ -470,8 +470,8 @@ namespace Shared.Data
         {
             try
             {
-                var query = "SELECT value FROM " + Settings.SettingsDbTable + " WHERE key=" + Database.GetInstance().Q(key) + ";";
-                var ret = Database.GetInstance().ExecuteScalar2(query);
+                var query = "SELECT value FROM " + Settings.SettingsDbTable + " WHERE key=" + Q(key) + ";";
+                var ret = ExecuteScalar2(query);
                 if (ret == null) return byDefault;
 
                 var retDt = DateTimeOffset.Parse((string)ret);
@@ -493,8 +493,8 @@ namespace Shared.Data
         {
             try
             {
-                var query = "SELECT value FROM " + Settings.SettingsDbTable + " WHERE key=" + Database.GetInstance().Q(key) + ";";
-                var ret = Database.GetInstance().ExecuteScalar2(query);
+                var query = "SELECT value FROM " + Settings.SettingsDbTable + " WHERE key=" + Q(key) + ";";
+                var ret = ExecuteScalar2(query);
 
                 if (ret == null) return byDefault;
                 return (string)ret == "1";
@@ -515,8 +515,8 @@ namespace Shared.Data
         {
             try
             {
-                var query = "SELECT value FROM " + Settings.SettingsDbTable + " WHERE key=" + Database.GetInstance().Q(key) + ";";
-                var ret = Database.GetInstance().ExecuteScalar2(query);
+                var query = "SELECT value FROM " + Settings.SettingsDbTable + " WHERE key=" + Q(key) + ";";
+                var ret = ExecuteScalar2(query);
 
                 return ret != null ? ret.ToString() : byDefault;
             }
@@ -537,8 +537,8 @@ namespace Shared.Data
         {
             try
             {
-                var query = "SELECT value FROM " + Settings.SettingsDbTable + " WHERE key=" + Database.GetInstance().Q(key) + ";";
-                var ret = Database.GetInstance().ExecuteScalar2(query);
+                var query = "SELECT value FROM " + Settings.SettingsDbTable + " WHERE key=" + Q(key) + ";";
+                var ret = ExecuteScalar2(query);
 
                 return ret != null;
             }
@@ -593,7 +593,7 @@ namespace Shared.Data
             _connection.Open();
 
             // Update database version if db was newly created
-            if (dbJustCreated) Database.GetInstance().UpdateDbPragmaVersion(Settings.DatabaseVersion);
+            if (dbJustCreated) UpdateDbPragmaVersion(Settings.DatabaseVersion);
 
             // Create log table if it doesn't exist
             CreateLogTable();
@@ -626,6 +626,7 @@ namespace Shared.Data
             if (_connection == null || _connection.State == ConnectionState.Closed) return;
             _connection.Close();
             _connection.Dispose();
+            _connection = null;
         }
 
         /// <summary>
@@ -657,7 +658,7 @@ namespace Shared.Data
                 // creating the settings table means the database file was newly created => log this
                 if (ans == 0)
                 {
-                    Database.GetInstance().SetSettings("SettingsTableCreatedDate", DateTime.Now.Date.ToShortDateString());
+                    SetSettings("SettingsTableCreatedDate", DateTime.Now.Date.ToShortDateString());
                 }
             }
             catch (Exception e)
@@ -711,7 +712,7 @@ namespace Shared.Data
         {
             try
             {
-                Database.GetInstance().ExecuteDefaultQuery("INSERT INTO " + Settings.TimeZoneTable + " (time, timezone, offset, localTime, utcTime) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " +
+                ExecuteDefaultQuery("INSERT INTO " + Settings.TimeZoneTable + " (time, timezone, offset, localTime, utcTime) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " +
                 Q(currentTimeZone.Id) + ", " + Q(currentTimeZone.BaseUtcOffset.ToString()) + ", " + QTime(DateTime.Now.ToLocalTime()) + ", " + QTime(DateTime.Now.ToUniversalTime()) + ")");
 
                 Logger.WriteToConsole(string.Format(CultureInfo.InvariantCulture, "TimeZoneInfo: local=[{0}], utc=[{1}], zone=[{2}], offset=[{3}].",
