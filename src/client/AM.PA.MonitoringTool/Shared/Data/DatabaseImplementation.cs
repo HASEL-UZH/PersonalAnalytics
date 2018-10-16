@@ -4,15 +4,18 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 namespace Shared.Data
 {
     internal enum LogType { Info, Warning, Error }
 
+    /// <inheritdoc />
     /// <summary>
     /// This is the implementation of the database with all queries, commands, etc.
     /// </summary>
@@ -185,6 +188,31 @@ namespace Shared.Data
             {
                 cmd?.Dispose();
             }
+        }
+
+        /// <summary>
+        /// Executes a query for each set of parameters inside a transaction.
+        /// Provides consistency as well as performance improvements when used for batch inserts.
+        /// </summary>
+        /// <param name="query">Query with ?-placeholders.</param>
+        /// <param name="parameterList">List of parameter values.</param>
+        /// <returns>Returns the sum of the number of affected rows of all queries or 0 in case of failure.</returns>
+        public int ExecuteBatchQueries(string query, IEnumerable<object[]> parameterList)
+        {
+            var affectedRowCount = 0;
+            try
+            {
+                using (var transaction = _connection.BeginTransaction())
+                {
+                    affectedRowCount = parameterList.Sum(parameter => ExecuteDefaultQuery(query, parameter));
+                    transaction.Commit();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+            return affectedRowCount;
         }
 
         private SQLiteCommand GetCommand(string query, object[] parameter = null)
