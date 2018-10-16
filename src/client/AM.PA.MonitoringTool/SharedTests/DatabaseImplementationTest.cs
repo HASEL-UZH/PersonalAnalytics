@@ -2,6 +2,7 @@
 using Shared;
 using Shared.Data;
 using System;
+using System.Collections.Generic;
 
 namespace SharedTests
 {
@@ -46,7 +47,7 @@ namespace SharedTests
             Assert.AreEqual(null, _db.ExecuteScalar2(""));
             Assert.AreEqual(0.0, _db.ExecuteScalar3(""));
             Assert.AreEqual(null, _db.ExecuteReadQuery(""));
-            Assert.AreEqual(0, _db.ExecuteBatchQueries(new[] { "" }));
+            Assert.AreEqual(0, _db.ExecuteBatchQueries("", new List<object[]>()));
         }
 
         [TestMethod]
@@ -199,37 +200,12 @@ namespace SharedTests
         [TestMethod]
         public void TransactionWithParameterTest()
         {
-            const string insertQuery = "INSERT INTO transaction_test VALUES (?);";
             var parameter = new object[] { "__test-value__" };
 
             _db.ExecuteDefaultQuery("CREATE TABLE transaction_test (value TEXT);");
             Assert.AreEqual(0, _db.ExecuteScalar("SELECT COUNT(*) FROM transaction_test WHERE value LIKE ?;", parameter));
-            Assert.AreEqual(2, _db.ExecuteBatchQueries(new[] { insertQuery, insertQuery }, new[] { parameter, parameter }));
+            Assert.AreEqual(2, _db.ExecuteBatchQueries("INSERT INTO transaction_test VALUES (?);", new[] { parameter, parameter }));
             Assert.AreEqual(2, _db.ExecuteScalar("SELECT COUNT(*) FROM transaction_test WHERE value LIKE ?;", parameter));
-        }
-
-        [TestMethod]
-        public void TransactionWithFewerParameterTest()
-        // When the number of queries and number of parameter arrays don't match, only the lower number of statements are executed.
-        {
-            const string insertQuery = "INSERT INTO transaction_test VALUES (?);";
-            var parameter = new object[] { "__test-value__" };
-
-            _db.ExecuteDefaultQuery("CREATE TABLE transaction_test (value TEXT);");
-            Assert.AreEqual(0, _db.ExecuteScalar("SELECT COUNT(*) FROM transaction_test WHERE value LIKE ?;", parameter));
-            Assert.AreEqual(1, _db.ExecuteBatchQueries(new[] { insertQuery, insertQuery }, new[] { parameter }));
-            Assert.AreEqual(1, _db.ExecuteScalar("SELECT COUNT(*) FROM transaction_test WHERE value LIKE ?;", parameter));
-        }
-
-        [TestMethod]
-        public void TransactionWithoutParameterTest()
-        {
-            const string insertQuery = "INSERT INTO transaction_test VALUES ('__test-value__');";
-
-            _db.ExecuteDefaultQuery("CREATE TABLE transaction_test (value TEXT);");
-            Assert.AreEqual(0, _db.ExecuteScalar("SELECT COUNT(*) FROM transaction_test WHERE value LIKE '__test-value__';"));
-            Assert.AreEqual(2, _db.ExecuteBatchQueries(new[] { insertQuery, insertQuery }));
-            Assert.AreEqual(2, _db.ExecuteScalar("SELECT COUNT(*) FROM transaction_test WHERE value LIKE '__test-value__';"));
         }
     }
 }

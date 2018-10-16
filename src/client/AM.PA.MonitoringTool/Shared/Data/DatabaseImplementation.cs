@@ -191,28 +191,20 @@ namespace Shared.Data
         }
 
         /// <summary>
-        /// Executes a list of queries inside a transaction.
+        /// Executes a query for each set of parameters inside a transaction.
         /// Provides consistency as well as performance improvements when used for batch inserts.
-        /// When providing parameter, both lists have to be of the same length.
         /// </summary>
-        /// <param name="queries">List of queries, optionally with ?-placeholders.</param>
-        /// <param name="parameterList">Optional list of parameter arrays. When provided the length has to match the length of the query list, but can contain null-values.</param>
+        /// <param name="query">Query with ?-placeholders.</param>
+        /// <param name="parameterList">List of parameter values.</param>
         /// <returns>Returns the sum of the number of affected rows of all queries or 0 in case of failure.</returns>
-        public int ExecuteBatchQueries(IEnumerable<string> queries, IEnumerable<object[]> parameterList = null)
+        public int ExecuteBatchQueries(string query, IEnumerable<object[]> parameterList)
         {
             var affectedRowCount = 0;
             try
             {
                 using (var transaction = _connection.BeginTransaction())
                 {
-                    if (parameterList == null)
-                    {
-                        affectedRowCount = queries.Select(query => ExecuteDefaultQuery(query)).Sum();
-                    }
-                    else
-                    {
-                        affectedRowCount = queries.Zip(parameterList, ExecuteDefaultQuery).Sum();
-                    }
+                    affectedRowCount = parameterList.Sum(parameter => ExecuteDefaultQuery(query, parameter));
                     transaction.Commit();
                 }
             }
