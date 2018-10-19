@@ -46,3 +46,4 @@ We want to thank the following developers for providing us with the fantastic li
 - HTML FilterTable https://github.com/koalyptus/TableFilter MIT license
 - Newtonsoft Json http://www.newtonsoft.com/json MIT license
 - OpenNLP https://github.com/AlexPoint/OpenNlp MIT license 
+- Accord.NET http://accord-framework.net LGPL
