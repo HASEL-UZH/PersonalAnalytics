@@ -1,0 +1,28 @@
+/* =============================
+   GENERAL
+   ============================= */
+body { font-family: Segoe UI Light, Segoe UI, Tahoma, Arial, Verdana; font-size: 1em; margin: 0; padding: 0; color: #000; background-color: #E8E8E8; }
+td, th { font-family: Segoe UI Light, Segoe UI, Tahoma, Arial, Verdana; font-size: 1em;  }
+h1 { font-family: Segoe UI Light, Segoe UI, Tahoma, Arial, Verdana; font-size: 1.17em; font-weight: bold; margin: 0; padding: 0.3125em; }
+h2 { font-family: Segoe UI Light, Segoe UI, Tahoma, Arial, Verdana; font-size: 1em; font-weight: bold; }
+h3 { font-family: Segoe UI Light, Segoe UI, Tahoma, Arial, Verdana; font-size: 1em; font-weight: bold; margin-top: 0; padding-top: 0.3125em; padding-bottom: 0.625em; border-bottom: 1px solid #E8E8E8; }
+img { border: 0; }
+#container { margin: 0; padding: 0.3125em; }
+.item { margin:0.3125em; padding:0.3125em; background-color: #ffffff; float: left; overflow:hidden; } /* border:1px solid #B0B0B0;  */
+
+/* Hint: any changes in these sizes must also be made in the Retrospection.Settings.cs file */
+.item.Small { width:11.875em; height:10em; }
+.item.Square { width:25em; height:21.25em; }
+.item.Wide { width:51.25em; height:21.25em; }
+
+
+.thumbsOverlay { display:block; margin-left:-1.7em; float:right; z-index:1; margin-right:0; margin-top:0.325em; }
+.thumb {width:1.1em; height:1.1em;}
+.thumb:hover { width:1.1em; height:1.1em; cursor: pointer; cursor: hand; }
+
+
+
+/*#header { color: #ffffff; background-color: #007acc; padding: 0px 20px; line-height: 35px; height: 35px; }*/
+/*#menu { padding-top: 30px; padding-bottom: 5px; }*/
+/*#menu a { padding-left: 15px; }*/
+/*#footer { margin-top: 20px; margin-bottom: 10px; text-align: center; color: #666; }*/

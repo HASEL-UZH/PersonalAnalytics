@@ -1,0 +1,5 @@
+target 'PersonalAnalytics' do
+	use_frameworks!
+	pod 'GRDB.swift'
+	pod 'Swifter', '~> 1.4.0'
+end

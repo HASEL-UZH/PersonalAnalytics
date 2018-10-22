@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12121"/>
+        <plugIn identifier="com.apple.WebKit2IBPlugin" version="12121"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+        <capability name="system font weights other than Regular or Bold" minToolsVersion="7.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="RetrospectiveViewController" customModule="Collector" customModuleProvider="target">
+            <connections>
+                <outlet property="datePicker" destination="4C3-JY-0C7" id="pJk-i7-sjM"/>
+                <outlet property="retrospectiveTitle" destination="2vy-C2-thg" id="GW8-X3-nb9"/>
+                <outlet property="titleBar" destination="sWp-HH-yKg" id="xhb-hm-fjU"/>
+                <outlet property="toggleButton" destination="5zY-DF-0nb" id="63L-BY-Mam"/>
+                <outlet property="view" destination="wK6-Jk-44r" id="mvz-j8-oh4"/>
+                <outlet property="webView" destination="Sfr-Fc-P1c" id="i6j-a8-K4z"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="wK6-Jk-44r">
+            <rect key="frame" x="0.0" y="0.0" width="1100" height="600"/>
+            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sWp-HH-yKg">
+                    <rect key="frame" x="0.0" y="547" width="1100" height="53"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2vy-C2-thg">
+                            <rect key="frame" x="18" y="15" width="639" height="23"/>
+                            <autoresizingMask key="autoresizingMask"/>
+                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" id="zuP-kA-84S">
+                                <font key="font" metaFont="systemSemibold" size="19"/>
+                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
+                        <datePicker verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4C3-JY-0C7" customClass="ASHDatePicker">
+                            <rect key="frame" x="903" y="15" width="103" height="27"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                            <datePickerCell key="cell" borderStyle="bezel" alignment="left" id="7gm-EU-gvH">
+                                <font key="font" metaFont="system"/>
+                                <date key="date" timeIntervalSinceReferenceDate="536457600">
+                                    <!--2018-01-01 00:00:00 +0000-->
+                                </date>
+                                <date key="minDate" timeIntervalSinceReferenceDate="505008000">
+                                    <!--2017-01-02 00:00:00 +0000-->
+                                </date>
+                                <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            </datePickerCell>
+                        </datePicker>
+                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Bj8-L4-qjs">
+                            <rect key="frame" x="1005" y="10" width="60" height="32"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                            <buttonCell key="cell" type="push" title="Go" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="dOP-9r-bx7">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                            <connections>
+                                <action selector="loadButtonPressed:" target="-2" id="TWN-dv-HFL"/>
+                            </connections>
+                        </button>
+                        <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5zY-DF-0nb">
+                            <rect key="frame" x="651" y="10" width="233" height="32"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                            <buttonCell key="cell" type="push" title="Switch to Weekly Retrospection" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="gzd-FF-M6c">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                            <connections>
+                                <action selector="toggleWeekly:" target="-2" id="LsZ-ih-pBN"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                </customView>
+                <wkWebView wantsLayer="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Sfr-Fc-P1c">
+                    <rect key="frame" x="0.0" y="20" width="1100" height="529"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    <wkWebViewConfiguration key="configuration">
+                        <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
+                        <wkPreferences key="preferences"/>
+                    </wkWebViewConfiguration>
+                </wkWebView>
+                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Nvv-33-hMW">
+                    <rect key="frame" x="1040" y="0.0" width="60" height="19"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                    <buttonCell key="cell" type="roundRect" title="Refresh" bezelStyle="roundedRect" alignment="center" state="on" imageScaling="proportionallyDown" inset="2" id="xKq-sB-4SD">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="cellTitle"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="reload:" target="Sfr-Fc-P1c" id="9WN-Ke-qZ6"/>
+                    </connections>
+                </button>
+            </subviews>
+            <point key="canvasLocation" x="-93" y="88"/>
+        </customView>
+    </objects>
+</document>

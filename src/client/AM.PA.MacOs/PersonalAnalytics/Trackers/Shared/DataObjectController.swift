@@ -1,0 +1,343 @@
+//
+//  DataObjectController.swift
+//  PersonalAnalytics
+//
+//  Created by Jonathan Stiansen on 2015-10-16.
+//
+
+import Cocoa
+import CoreData
+
+/**
+* Responsible for managing saving, and management of coredata objects
+**/
+class DataObjectController: NSObject{
+    
+    fileprivate weak var managedContext: NSManagedObjectContext?
+    fileprivate var lastSummary: NSManagedObject?
+    
+    var acceptingWebsites = true
+
+    static let sharedInstance : DataObjectController = DataObjectController()
+    internal var currentUser: NSManagedObject
+    internal var previousTask: String {
+        if let summary = lastSummary{
+            return summary.value(forKey: taskNameKey) as! String
+        } else {
+            return ""
+        }
+    }
+    let lockQueue = DispatchQueue(label: "saveQueue")
+
+    
+    // MARK: Constants
+    let taskNameKey = "taskName"
+
+    fileprivate override init(){
+        
+        let appDelegate = NSApplication.shared.delegate as? AppDelegate
+        self.managedContext = appDelegate!.managedObjectContext
+        // Is user stored in defaults?
+        let defaults = UserDefaults()
+        if (defaults.integer(forKey: AppConstants.currentUserKey) == 0){
+            let randomInt = Int(arc4random())
+            defaults.set(randomInt, forKey: AppConstants.currentUserKey)
+            // Save user to core data
+            let entity = NSEntityDescription.entity(forEntityName: "User", in: managedContext!)
+            let user = NSManagedObject(entity: entity!, insertInto: managedContext!)
+            user.setValue(randomInt, forKey: "id")
+            do{
+                try managedContext?.save()
+            } catch {
+                print("couldn't save")
+            }
+        }
+      
+        // Check if user is in database
+        let currentUserId = defaults.integer(forKey: AppConstants.currentUserKey)
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "User")
+        fetchRequest.predicate = NSPredicate(format: "id == %@", argumentArray: [currentUserId])
+        do{
+            let userFetchResults = try managedContext?.fetch(fetchRequest)
+            if !userFetchResults!.isEmpty {
+                if let user = userFetchResults?.first!{
+                    currentUser = user as! NSManagedObject
+                } else {
+                    currentUser = NSEntityDescription.insertNewObject(forEntityName: "User", into: managedContext!)
+                    currentUser.setValue(currentUserId, forKey: "id")
+                }
+            } else {
+                let entity = NSEntityDescription.entity(forEntityName: "User", in: managedContext!)
+                let user = NSManagedObject(entity: entity!, insertInto: managedContext!)
+                user.setValue(currentUserId, forKey: "id")
+                do{
+                    try managedContext?.save()
+                } catch {
+                    print("couldn't save")
+                }
+                currentUser = user
+            }
+            } catch {
+                print("something went wrong when we were working with core data - sucks")
+                currentUser = NSManagedObject()
+            }
+        super.init()
+    
+        
+        //save before power off/switch user
+        NSWorkspace.shared.notificationCenter.addObserver(self,
+                                                            selector: #selector(saveContext),
+                                                            name: NSWorkspace.willPowerOffNotification,
+                                                            object: nil)
+        NSWorkspace.shared.notificationCenter.addObserver(self,
+                                                            selector: #selector(saveContext),
+                                                            name: NSWorkspace.willSleepNotification,
+                                                            object: nil)
+        NSWorkspace.shared.notificationCenter.addObserver(self,
+                                                            selector: #selector(saveContext),
+                                                            name: NSWorkspace.sessionDidResignActiveNotification,
+                                                            object: nil)
+    }
+    
+    func getCurrentUser() -> NSManagedObject
+    {
+        return currentUser
+    }
+ 
+    @objc func saveContext(){
+        lockQueue.sync {
+            print("saving context of data objects")
+            do {
+                try managedContext?.save()
+                
+                print("saved")
+            } catch {
+                print(error)
+            }
+        }
+    }
+    // (Percent)
+    typealias Percent = Int
+    
+    // MARK: - Save current object models
+    
+    // Gets current user from context, and automatically adds it
+    func saveSummary(_ taskName: String, totalEsimatedTime: Double, percentageDone: Percent, percentSimilarToBefore: Percent, createdByUser userFlag: Bool, percievedProductivity: Int){
+        lockQueue.sync {
+            let entity = NSEntityDescription.entity(forEntityName: "Summary", in: managedContext!)
+            if let entity = entity{
+                let summary = NSManagedObject(entity: entity, insertInto: managedContext)
+                summary.setValue(taskName, forKey: taskNameKey)
+                summary.setValue(totalEsimatedTime, forKey: "totalEstimatedTime")
+                summary.setValue(percentageDone, forKey: "percentageDone")
+                summary.setValue(percentSimilarToBefore, forKey: "percentSimilarToPrevious")
+                summary.setValue(Date().timeIntervalSince1970, forKey: "submissionTime")
+                summary.setValue(userFlag, forKey: "createdByUser")
+                summary.setValue(currentUser, forKey:"createdBy")
+                summary.setValue(percievedProductivity, forKey: "percievedProductivity")
+                // This is so we can retrieve information again and tell if there was a task before hand.
+                lastSummary = summary;
+            }
+        }
+        print("saving summary")
+
+        self.saveContext()
+    }
+    
+    func saveCurrentWebsite(_ title:String, url:String, html:String, datetime: Date){
+        if(!acceptingWebsites){
+            return
+        }
+        lockQueue.sync {
+            let entity = NSEntityDescription.entity(forEntityName: "Website", in: managedContext!)
+            if let entity = entity {
+                let currentWebsite = NSManagedObject(entity: entity, insertInto: managedContext!)
+                currentWebsite.setValue(title, forKey: "title")
+                currentWebsite.setValue(url, forKey: "url")
+                currentWebsite.setValue(html, forKey: "html")
+                currentWebsite.setValue(datetime.timeIntervalSince1970, forKey: "time")
+                currentWebsite.setValue(currentUser, forKey: "viewedBy")
+            }
+            print("saving website")
+        }
+
+        self.saveContext()
+    }
+    
+    func saveActiveApplication(_ name: String, startTime: Date, endTime: Date?){
+        lockQueue.sync {
+            let entity = NSEntityDescription.entity(forEntityName: "ActiveApplication", in: managedContext!)
+            if let entity = entity{
+                let activeApp = NSManagedObject(entity: entity, insertInto: managedContext)
+                activeApp.setValue(name, forKey: "name")
+                activeApp.setValue(startTime.timeIntervalSince1970, forKey: "startTime")
+                activeApp.setValue(endTime?.timeIntervalSince1970, forKey: "endTime")
+                activeApp.setValue(currentUser, forKey: "usedBy")
+                print(activeApp)
+            }
+        }
+        print("saving active")
+        self.saveContext()
+    }
+    
+    func saveKeystrokes(_ keys: String, time: Date){
+        lockQueue.sync {
+            let entity = NSEntityDescription.entity(forEntityName: "KeyStrokes", in: managedContext!)
+            if let entity = entity{
+                let keystokes = NSManagedObject(entity: entity, insertInto: managedContext)
+                keystokes.setValue(time, forKey: "time")
+                keystokes.setValue(keys, forKey: "typing")
+                keystokes.setValue(currentUser, forKeyPath: "madeBy")
+            }
+        }
+        print("saving keystrokes")
+        self.saveContext()
+    }
+    
+    func saveMouseAction(clickCount: Int, distance: Int, scrollDelta: Int, time:Date){
+        lockQueue.sync {
+            let entity = NSEntityDescription.entity(forEntityName: "MouseAction", in: managedContext!)
+            if let entity = entity{
+                let mouseAction = NSManagedObject(entity: entity, insertInto: managedContext)
+                mouseAction.setValue(time, forKey: "time")
+                mouseAction.setValue(clickCount, forKey: "clickCount")
+                mouseAction.setValue(distance, forKey: "distance")
+                mouseAction.setValue(scrollDelta, forKey: "scrollDelta")
+            }
+        }
+        self.saveContext()
+    }
+    
+    func newActiveApplication(_ name: String, title: String) -> ActiveApplication {
+        
+        return lockQueue.sync{
+            let appDelegate = NSApplication.shared.delegate as! AppDelegate
+        
+            let activeApp = NSEntityDescription.insertNewObject(forEntityName: "ActiveApplication", into: appDelegate.managedObjectContext) as! ActiveApplication
+            activeApp.name = name
+            activeApp.startTime = Date().timeIntervalSince1970
+        
+            activeApp.title = title
+            activeApp.endTime = Date().timeIntervalSince1970
+            activeApp.usedBy = currentUser as! User
+        
+            return activeApp
+        }
+    }
+    
+    func saveUserInput(aggregatedInput:UserInputTracker){
+        lockQueue.sync {
+            let entity = NSEntityDescription.entity(forEntityName: "AggregatedInput", in: managedContext!)
+            let keyTotal = aggregatedInput.keyCount + aggregatedInput.deleteCount + aggregatedInput.navigateCount
+            if let entity = entity{
+                let aggregate = NSManagedObject(entity: entity, insertInto: managedContext)
+                aggregate.setValue(aggregatedInput.time.timeIntervalSince1970, forKey: "time")
+                aggregate.setValue(aggregatedInput.clickCount, forKey: "clickCount")
+                aggregate.setValue(aggregatedInput.distance, forKey: "distance")
+                aggregate.setValue(aggregatedInput.scrollDelta, forKey: "scrollDelta")
+                aggregate.setValue(aggregatedInput.keyCount, forKey: "keyOther")
+                aggregate.setValue(aggregatedInput.deleteCount, forKey:"keyDelete")
+                aggregate.setValue(aggregatedInput.navigateCount, forKey:"keyNavigate")
+                aggregate.setValue(keyTotal, forKey:"keyTotal")
+                aggregate.setValue(currentUser, forKeyPath: "madeBy")
+                
+            }
+        }
+        
+        self.saveContext()
+    }
+    
+    func getRecentObject(type: String, sortOn: String) throws -> NSManagedObject {
+        var managedObject: [Any]?
+        lockQueue.sync {
+            let request = NSFetchRequest<NSFetchRequestResult>(entityName: type)
+            request.sortDescriptors = [NSSortDescriptor(key: sortOn, ascending: false)]
+            request.fetchLimit = 1
+            
+            do{
+                managedObject = try managedContext?.fetch(request)
+            }
+            catch{
+                print("couldnt fetch recent object")
+            }
+        }
+        return managedObject![0] as! NSManagedObject
+
+    }
+
+    
+    func getAllUsersRecords() -> [AnyObject] {
+            let request = NSFetchRequest<NSFetchRequestResult>(entityName: "User")
+            print("starting print of all users")
+            do{
+                let managedObjects = try managedContext?.fetch(request)
+                return managedObjects! as [AnyObject]
+            } catch {
+                print("***Core data retrieval DIDN'T WORK***")
+                return []
+            }
+        
+    }
+    
+    func saveFocusState(userInputLevel: Double, focusState: String, smoothedFocusState: String){
+        lockQueue.sync {
+            let entity = NSEntityDescription.entity(forEntityName: "FocusState", in: managedContext!)
+            if let entity = entity{
+                let focus = NSManagedObject(entity: entity, insertInto: managedContext)
+                focus.setValue(Date().timeIntervalSince1970, forKey: "time")
+                focus.setValue(userInputLevel, forKey: "userinputlevel")
+                focus.setValue(focusState, forKey: "focusstate")
+                focus.setValue(smoothedFocusState, forKey: "smoothedfocusstate")
+            }
+        }
+        self.saveContext()
+    }
+    
+    deinit{
+        saveContext()
+    }
+    
+    func buildCSVString(input: [SQLController.AggregatedInputEntry]) -> String{
+        var result = "Time,KeyTotal,ClickCount,Distance,ScrollDelta\n"
+        for row in input {
+            result += String(row.time) + ","
+            result += String(row.keyTotal) + ","
+            result += String(row.clickCount) + ","
+            result += String(row.distance) + ","
+            result += String(row.scrollDelta) + "\n"
+        }
+        return result
+    }
+    
+    func buildCSVString(input: [SQLController.ActiveApplicationEntry]) -> String{
+        var result = "StartTime,EndTime,AppName,WindowTitle\n"
+        for row in input {
+            result += String(row.startTime) + ","
+            result += String(row.endTime) + ","
+            result += String(row.appName) + ","
+            result += String(row.windowTitle) + "\n"
+        }
+        return result
+    }
+    
+    func exportStudyData(startTime: Double){
+        do{
+            let sql = try SQLController()
+            let aggregatedInput = sql.fetchAggregatedInputSince(time: startTime)
+            let activeApplications = sql.fetchActiveApplicationsSince(time: startTime)
+            
+            let inputString = buildCSVString(input: aggregatedInput)
+            let appString = buildCSVString(input: activeApplications)
+            
+            let dir = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Study Data")
+            let inputData = inputString.data(using: String.Encoding.utf8)!
+            try inputData.write(to: dir.appendingPathComponent("input.csv"))
+            
+            let appData = appString.data(using: String.Encoding.utf8)!
+            try appData.write(to: dir.appendingPathComponent("appdata.csv"))
+        }
+        catch{
+            print(error)
+        }
+    }
+}

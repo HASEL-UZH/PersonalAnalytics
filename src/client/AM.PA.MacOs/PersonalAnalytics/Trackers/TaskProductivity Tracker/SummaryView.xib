@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14109" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14109"/>
+        <capability name="Alignment constraints to the first baseline" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="SummaryViewController" customModule="Collector" customModuleProvider="target">
+            <connections>
+                <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="Hz6-mo-xeY">
+            <rect key="frame" x="0.0" y="0.0" width="474" height="427"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="3LC-QB-fc9">
+                    <rect key="frame" x="201" y="49" width="72" height="17"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="68" id="OSQ-Qe-Rr6"/>
+                    </constraints>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Thank you!" id="XhP-A6-nhG">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <button identifier="submit" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="dW1-Wy-CNC">
+                    <rect key="frame" x="25" y="13" width="424" height="32"/>
+                    <buttonCell key="cell" type="push" title="Submit" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="kns-2m-h5R">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="submit:" target="-2" id="RKp-Ce-xjC"/>
+                    </connections>
+                </button>
+                <slider identifier="percentSimilarToPrevious" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gzJ-cT-9Rn">
+                    <rect key="frame" x="55" y="350" width="324" height="24"/>
+                    <sliderCell key="cell" continuous="YES" state="on" alignment="left" minValue="1" maxValue="7" doubleValue="4" tickMarkPosition="above" numberOfTickMarks="7" allowsTickMarkValuesOnly="YES" sliderType="linear" id="nMl-nB-Cts"/>
+                    <connections>
+                        <action selector="sliderMoved:" target="-2" id="F0G-j3-LAB"/>
+                        <binding destination="-2" name="value" keyPath="self.percievedProductivity" id="1c9-rP-eHH"/>
+                    </connections>
+                </slider>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hfG-ID-muC">
+                    <rect key="frame" x="386" y="352" width="83" height="22"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="79" id="4Kk-Wm-gDS"/>
+                    </constraints>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" id="bu2-XB-hdr">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="hidden" keyPath="self.hidePreviousTaskElements" id="O2H-BC-poe"/>
+                        <binding destination="-2" name="displayPatternValue1" keyPath="self.percievedProductivity" id="vAv-B0-DQt">
+                            <dictionary key="options">
+                                <string key="NSDisplayPattern">%{value1}@</string>
+                            </dictionary>
+                        </binding>
+                    </connections>
+                </textField>
+                <textField identifier="taskName" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="10h-pF-Ky2">
+                    <rect key="frame" x="54" y="281" width="366" height="22"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" continuous="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="task word or sentence" drawsBackground="YES" id="ATJ-1U-2IG">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        <connections>
+                            <binding destination="-2" name="value" keyPath="self.taskName" id="QyK-FA-t0a">
+                                <dictionary key="options">
+                                    <bool key="NSContinuouslyUpdatesValue" value="YES"/>
+                                    <string key="NSNullPlaceholder">task word or sentence</string>
+                                </dictionary>
+                            </binding>
+                        </connections>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.taskName" id="xmh-rD-Zf1">
+                            <dictionary key="options">
+                                <string key="NSMultipleValuesPlaceholder">task work or sentence</string>
+                                <string key="NSNoSelectionPlaceholder">task work or sentence</string>
+                                <string key="NSNotApplicablePlaceholder">task work or sentence</string>
+                                <string key="NSNullPlaceholder">task work or sentence</string>
+                            </dictionary>
+                        </binding>
+                    </connections>
+                </textField>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="v13-Iq-axc">
+                    <rect key="frame" x="51" y="311" width="391" height="23"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="23" id="2BK-Lv-bRQ"/>
+                    </constraints>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Please enter the task you're currently working on:" id="eey-S3-Qip">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bI2-Ml-Xia">
+                    <rect key="frame" x="52" y="249" width="370" height="17"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="How long do you think this task will take in total?" id="6q9-dp-nkV">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <slider identifier="totalEstimatedTime" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bv6-Ae-VCH">
+                    <rect key="frame" x="52" y="213" width="315" height="24"/>
+                    <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="4" doubleValue="1.75" tickMarkPosition="above" numberOfTickMarks="17" allowsTickMarkValuesOnly="YES" sliderType="linear" id="Odo-yu-K9Y"/>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.estimatedTotalTime" id="ZcA-fk-S1h"/>
+                    </connections>
+                </slider>
+                <slider identifier="totalPercentageCompleted" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="mTK-9K-7KK">
+                    <rect key="frame" x="51" y="149" width="315" height="24"/>
+                    <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="100" tickMarkPosition="above" numberOfTickMarks="5" allowsTickMarkValuesOnly="YES" sliderType="linear" id="dnU-ml-nsO"/>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.estimatedTaskCompletionPercent" id="PVN-Ly-wML"/>
+                    </connections>
+                </slider>
+                <slider identifier="percentSimilarToPrevious" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="E6S-rD-Tg1">
+                    <rect key="frame" x="52" y="72" width="315" height="20"/>
+                    <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="100" tickMarkPosition="above" numberOfTickMarks="5" allowsTickMarkValuesOnly="YES" sliderType="linear" id="L73-d2-lq3"/>
+                    <connections>
+                        <binding destination="-2" name="hidden" keyPath="self.hidePreviousTaskElements" id="kq6-nb-unc"/>
+                        <binding destination="-2" name="value" keyPath="self.similarityToPreviousTask" id="KlK-gF-p9D"/>
+                    </connections>
+                </slider>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Zv7-fb-hZa">
+                    <rect key="frame" x="54" y="182" width="367" height="17"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Roughly, how far do you estimate you are through the task? " id="kme-PK-yVn">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="V6v-B7-Xmj">
+                    <rect key="frame" x="51" y="98" width="334" height="26"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="330" id="X9Y-Ed-EVf"/>
+                    </constraints>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" id="72i-pj-oER">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="hidden" keyPath="self.hidePreviousTaskElements" id="1yy-FG-akw"/>
+                        <binding destination="-2" name="displayPatternValue1" keyPath="self.previousTask" id="mZc-Z9-M7u">
+                            <dictionary key="options">
+                                <string key="NSDisplayPattern">"%{value1}@"?</string>
+                            </dictionary>
+                        </binding>
+                    </connections>
+                </textField>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="SWD-VM-lvL">
+                    <rect key="frame" x="52" y="112" width="325" height="26"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="How similar was it to your last task: " id="wh9-eg-aRb">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="hidden" keyPath="self.hidePreviousTaskElements" id="lzg-5R-HYe">
+                            <dictionary key="options">
+                                <bool key="NSRaisesForNotApplicableKeys" value="NO"/>
+                            </dictionary>
+                        </binding>
+                    </connections>
+                </textField>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="748" translatesAutoresizingMaskIntoConstraints="NO" id="YQ6-vk-e5N">
+                    <rect key="frame" x="373" y="215" width="83" height="23"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="79" id="WNb-Je-zmD"/>
+                    </constraints>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" id="XT9-dG-Fit">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="displayPatternValue1" keyPath="self.estimatedTotalTime" id="m1t-c5-rWY">
+                            <dictionary key="options">
+                                <string key="NSDisplayPattern">%{value1}@ hours</string>
+                            </dictionary>
+                        </binding>
+                    </connections>
+                </textField>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="uG9-Ly-UzI">
+                    <rect key="frame" x="373" y="151" width="83" height="23"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" id="Khf-2V-bCI">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="displayPatternValue1" keyPath="self.estimatedTaskCompletionPercent" id="ak3-aV-yHZ">
+                            <dictionary key="options">
+                                <string key="NSDisplayPattern">%{value1}@%</string>
+                            </dictionary>
+                        </binding>
+                    </connections>
+                </textField>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vyP-Uu-56D">
+                    <rect key="frame" x="373" y="74" width="83" height="18"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" id="KQq-Lj-Bau">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="hidden" keyPath="self.hidePreviousTaskElements" id="Z3s-eC-b11"/>
+                        <binding destination="-2" name="displayPatternValue1" keyPath="self.similarityToPreviousTask" id="u96-8l-cyV">
+                            <dictionary key="options">
+                                <string key="NSDisplayPattern">%{value1}@%</string>
+                            </dictionary>
+                        </binding>
+                    </connections>
+                </textField>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HbT-a0-L3h">
+                    <rect key="frame" x="55" y="382" width="308" height="17"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="How productive were you since the last summary?" id="IMy-pI-Szy">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+            </subviews>
+            <constraints>
+                <constraint firstItem="v13-Iq-axc" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="97" id="0CE-wE-n9D"/>
+                <constraint firstItem="Zv7-fb-hZa" firstAttribute="top" secondItem="bv6-Ae-VCH" secondAttribute="bottom" constant="16" id="0kO-cF-aU6"/>
+                <constraint firstItem="hfG-ID-muC" firstAttribute="baseline" secondItem="gzJ-cT-9Rn" secondAttribute="firstBaseline" id="1Zd-IY-M1q"/>
+                <constraint firstItem="uG9-Ly-UzI" firstAttribute="trailing" secondItem="YQ6-vk-e5N" secondAttribute="trailing" id="53P-ah-BAH"/>
+                <constraint firstItem="vyP-Uu-56D" firstAttribute="top" secondItem="uG9-Ly-UzI" secondAttribute="bottom" constant="59" id="5hd-zp-8Ka"/>
+                <constraint firstItem="3LC-QB-fc9" firstAttribute="centerX" secondItem="Hz6-mo-xeY" secondAttribute="centerX" id="7ya-ig-mbw"/>
+                <constraint firstItem="gzJ-cT-9Rn" firstAttribute="top" secondItem="hfG-ID-muC" secondAttribute="top" id="86X-1b-836"/>
+                <constraint firstItem="bv6-Ae-VCH" firstAttribute="baseline" secondItem="YQ6-vk-e5N" secondAttribute="baseline" id="8eu-jB-AEd"/>
+                <constraint firstItem="mTK-9K-7KK" firstAttribute="leading" secondItem="v13-Iq-axc" secondAttribute="leading" id="91W-Mk-Shx"/>
+                <constraint firstItem="bv6-Ae-VCH" firstAttribute="leading" secondItem="SWD-VM-lvL" secondAttribute="leading" id="Alc-Ae-XQn"/>
+                <constraint firstItem="hfG-ID-muC" firstAttribute="leading" secondItem="gzJ-cT-9Rn" secondAttribute="trailing" constant="11" id="Cn6-dc-h9Z"/>
+                <constraint firstItem="SWD-VM-lvL" firstAttribute="leading" secondItem="E6S-rD-Tg1" secondAttribute="leading" id="Dyn-rA-LVi"/>
+                <constraint firstAttribute="bottom" secondItem="dW1-Wy-CNC" secondAttribute="bottom" constant="20" symbolic="YES" id="F9T-EL-tyI"/>
+                <constraint firstItem="10h-pF-Ky2" firstAttribute="top" secondItem="v13-Iq-axc" secondAttribute="bottom" constant="8" symbolic="YES" id="GEo-25-eeO"/>
+                <constraint firstItem="bv6-Ae-VCH" firstAttribute="leading" secondItem="bI2-Ml-Xia" secondAttribute="leading" id="HuT-M9-YxM"/>
+                <constraint firstItem="v13-Iq-axc" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="53" id="IZ5-Vh-FpM"/>
+                <constraint firstItem="V6v-B7-Xmj" firstAttribute="leading" secondItem="mTK-9K-7KK" secondAttribute="leading" id="JNo-pr-e3O"/>
+                <constraint firstItem="YQ6-vk-e5N" firstAttribute="leading" secondItem="bv6-Ae-VCH" secondAttribute="trailing" constant="10" id="Jnn-rs-duK"/>
+                <constraint firstItem="SWD-VM-lvL" firstAttribute="top" secondItem="mTK-9K-7KK" secondAttribute="bottom" constant="13" id="L0k-oY-cVa"/>
+                <constraint firstItem="E6S-rD-Tg1" firstAttribute="top" secondItem="SWD-VM-lvL" secondAttribute="bottom" constant="20" id="MYh-u6-hWo"/>
+                <constraint firstItem="bI2-Ml-Xia" firstAttribute="leading" secondItem="10h-pF-Ky2" secondAttribute="leading" id="NkH-e7-z2V"/>
+                <constraint firstItem="bI2-Ml-Xia" firstAttribute="centerX" secondItem="3LC-QB-fc9" secondAttribute="centerX" id="O0s-xE-fYg"/>
+                <constraint firstItem="dW1-Wy-CNC" firstAttribute="top" secondItem="3LC-QB-fc9" secondAttribute="bottom" constant="8" symbolic="YES" id="Q71-Eq-ICz"/>
+                <constraint firstItem="v13-Iq-axc" firstAttribute="top" secondItem="hfG-ID-muC" secondAttribute="bottom" constant="18" id="Qc0-w1-Pm9"/>
+                <constraint firstAttribute="trailing" secondItem="hfG-ID-muC" secondAttribute="trailing" constant="7" id="RK5-U5-ynV"/>
+                <constraint firstItem="E6S-rD-Tg1" firstAttribute="top" secondItem="V6v-B7-Xmj" secondAttribute="bottom" constant="6" id="S6J-0H-YFi"/>
+                <constraint firstItem="10h-pF-Ky2" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="54" id="T7n-Xs-O0f"/>
+                <constraint firstItem="V6v-B7-Xmj" firstAttribute="top" secondItem="mTK-9K-7KK" secondAttribute="bottom" constant="27" id="UMo-hv-VFe"/>
+                <constraint firstItem="3LC-QB-fc9" firstAttribute="centerX" secondItem="dW1-Wy-CNC" secondAttribute="centerX" id="URN-9C-8dW"/>
+                <constraint firstItem="dW1-Wy-CNC" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="31" id="URt-wN-qXi"/>
+                <constraint firstItem="hfG-ID-muC" firstAttribute="centerY" secondItem="gzJ-cT-9Rn" secondAttribute="centerY" id="X5Y-uo-tTh"/>
+                <constraint firstItem="bI2-Ml-Xia" firstAttribute="top" secondItem="10h-pF-Ky2" secondAttribute="bottom" constant="15" id="XJi-ck-s4N"/>
+                <constraint firstItem="uG9-Ly-UzI" firstAttribute="centerY" secondItem="mTK-9K-7KK" secondAttribute="centerY" id="Xly-h3-0Oa"/>
+                <constraint firstAttribute="trailing" secondItem="v13-Iq-axc" secondAttribute="trailing" constant="34" id="ch5-bY-rCd"/>
+                <constraint firstItem="bv6-Ae-VCH" firstAttribute="centerY" secondItem="YQ6-vk-e5N" secondAttribute="centerY" id="daK-wj-tlj"/>
+                <constraint firstItem="gzJ-cT-9Rn" firstAttribute="top" secondItem="HbT-a0-L3h" secondAttribute="bottom" constant="8" id="f3o-hH-dkZ"/>
+                <constraint firstItem="E6S-rD-Tg1" firstAttribute="top" secondItem="vyP-Uu-56D" secondAttribute="top" id="f5f-v3-yoJ"/>
+                <constraint firstItem="uG9-Ly-UzI" firstAttribute="leading" secondItem="mTK-9K-7KK" secondAttribute="trailing" constant="11" id="fAG-MF-4ZT"/>
+                <constraint firstItem="3LC-QB-fc9" firstAttribute="top" secondItem="E6S-rD-Tg1" secondAttribute="bottom" constant="8" symbolic="YES" id="gIX-57-gS5"/>
+                <constraint firstItem="vyP-Uu-56D" firstAttribute="centerY" secondItem="E6S-rD-Tg1" secondAttribute="centerY" id="gZL-2k-JKa"/>
+                <constraint firstItem="HbT-a0-L3h" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="57" id="iQC-Bb-T4A"/>
+                <constraint firstItem="mTK-9K-7KK" firstAttribute="top" secondItem="Zv7-fb-hZa" secondAttribute="bottom" constant="9" id="jXn-aV-rBd"/>
+                <constraint firstItem="HbT-a0-L3h" firstAttribute="leading" secondItem="gzJ-cT-9Rn" secondAttribute="leading" id="ks5-km-3mK"/>
+                <constraint firstItem="uG9-Ly-UzI" firstAttribute="trailing" secondItem="vyP-Uu-56D" secondAttribute="trailing" id="lGi-j9-7Ug"/>
+                <constraint firstItem="Zv7-fb-hZa" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="56" id="lXl-1i-Ql5"/>
+                <constraint firstItem="bv6-Ae-VCH" firstAttribute="top" secondItem="bI2-Ml-Xia" secondAttribute="bottom" constant="8" symbolic="YES" id="nnV-Yk-K9C"/>
+                <constraint firstAttribute="trailing" secondItem="SWD-VM-lvL" secondAttribute="trailing" constant="99" id="o4h-eC-ThS"/>
+                <constraint firstItem="YQ6-vk-e5N" firstAttribute="leading" secondItem="uG9-Ly-UzI" secondAttribute="leading" id="pOC-ei-SMk"/>
+                <constraint firstAttribute="trailing" secondItem="YQ6-vk-e5N" secondAttribute="trailing" constant="20" symbolic="YES" id="rYp-aW-dF8"/>
+                <constraint firstItem="vyP-Uu-56D" firstAttribute="leading" secondItem="uG9-Ly-UzI" secondAttribute="leading" id="vXb-O0-DJD"/>
+                <constraint firstItem="10h-pF-Ky2" firstAttribute="trailing" secondItem="bI2-Ml-Xia" secondAttribute="trailing" id="xAE-XN-wee"/>
+                <constraint firstItem="bv6-Ae-VCH" firstAttribute="trailing" secondItem="E6S-rD-Tg1" secondAttribute="trailing" id="xrp-rW-Zmt"/>
+                <constraint firstItem="mTK-9K-7KK" firstAttribute="baseline" secondItem="uG9-Ly-UzI" secondAttribute="baseline" id="zZ3-XP-Ffv"/>
+            </constraints>
+            <point key="canvasLocation" x="200" y="250.5"/>
+        </customView>
+        <userDefaultsController representsSharedInstance="YES" id="2aZ-af-kiu"/>
+    </objects>
+</document>

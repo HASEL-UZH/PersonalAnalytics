@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Collector/SummaryViewController.swift"
+            timestampString = "491872176.56915"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "13"
+            endingLineNumber = "13"
+            landmarkName = "SummaryViewController"
+            landmarkType = "3">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Collector.SummaryViewController.previousTask.getter : Swift.String"
+                  moduleName = "Collector"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/murphy/Dropbox/Projects/Drills/Collector/Collector/SummaryViewController.swift"
+                  timestampString = "506880910.858064"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "13"
+                  endingLineNumber = "13"
+                  offsetFromSymbolStart = "53">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Collector.SummaryViewController.init (nibName : Swift.Optional&lt;Swift.String&gt;, bundle : Swift.Optional&lt;__ObjC.Bundle&gt;) -&gt; Swift.Optional&lt;Collector.SummaryViewController&gt;"
+                  moduleName = "Collector"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/murphy/Dropbox/Projects/Drills/Collector/Collector/SummaryViewController.swift"
+                  timestampString = "506880910.861099"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "13"
+                  endingLineNumber = "13"
+                  offsetFromSymbolStart = "57">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Collector.SummaryViewController.init (coder : __ObjC.NSCoder) -&gt; Swift.Optional&lt;Collector.SummaryViewController&gt;"
+                  moduleName = "Collector"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/murphy/Dropbox/Projects/Drills/Collector/Collector/SummaryViewController.swift"
+                  timestampString = "506880910.862952"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "13"
+                  endingLineNumber = "13"
+                  offsetFromSymbolStart = "19">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Collector/DataObjectController.swift"
+            timestampString = "506880902.239647"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "17"
+            endingLineNumber = "17"
+            landmarkName = "DataObjectController"
+            landmarkType = "3">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Collector.DataObjectController.init () -&gt; Collector.DataObjectController"
+                  moduleName = "Collector"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/murphy/Dropbox/Projects/Drills/Collector/Collector/DataObjectController.swift"
+                  timestampString = "506880910.886857"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "17"
+                  endingLineNumber = "17"
+                  offsetFromSymbolStart = "27">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Collector.DataObjectController.(managedContext in _89E71F4BEA5B32DDF7DD86320DEB5953).getter : weak Swift.Optional&lt;__ObjC.NSManagedObjectContext&gt;"
+                  moduleName = "Collector"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/murphy/Dropbox/Projects/Drills/Collector/Collector/DataObjectController.swift"
+                  timestampString = "506880910.889003"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "17"
+                  endingLineNumber = "17"
+                  offsetFromSymbolStart = "27">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Collector.DataObjectController.(managedContext in _89E71F4BEA5B32DDF7DD86320DEB5953).setter : weak Swift.Optional&lt;__ObjC.NSManagedObjectContext&gt;"
+                  moduleName = "Collector"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/murphy/Dropbox/Projects/Drills/Collector/Collector/DataObjectController.swift"
+                  timestampString = "506880910.890906"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "17"
+                  endingLineNumber = "17"
+                  offsetFromSymbolStart = "42">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Collector/SummaryViewController.swift"
+            timestampString = "491872324.695133"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "26"
+            endingLineNumber = "26"
+            landmarkName = "submit(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Collector/SummaryViewController.swift"
+            timestampString = "491872327.053292"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "29"
+            endingLineNumber = "29"
+            landmarkName = "submit(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>
