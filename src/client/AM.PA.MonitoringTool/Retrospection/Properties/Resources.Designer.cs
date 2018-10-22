@@ -19,7 +19,7 @@ namespace Retrospection.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -103,15 +103,6 @@ namespace Retrospection.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] d3_layout_cloud_js {
-            get {
-                object obj = ResourceManager.GetObject("d3_layout_cloud_js", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
         internal static byte[] jquery_1_11_3_min_js {
             get {
                 object obj = ResourceManager.GetObject("jquery_1_11_3_min_js", resourceCulture);
@@ -146,7 +137,7 @@ namespace Retrospection.Properties {
         ///&lt;meta http-equiv=&quot;pragma&quot; content=&quot;no-cache&quot;/&gt; 
         ///&lt;meta http-equiv=&quot;expires&quot; content=&quot;-1&quot;/&gt; 
         ///
-        ///&lt;meta http-equiv=&quot;X [rest of string was truncated]&quot;;.
+        ///&lt;me [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string personalanalytics_html {
             get {
