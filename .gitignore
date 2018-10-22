@@ -16,3 +16,11 @@ Debug/
 *.ide-wal
 *.ide-shm
 *.ide
+GRDB.swift
+*.log
+.DS_Store
+.build
+Skype.framework
+Podfile.lock
+Pods
+*.xcworkspace
