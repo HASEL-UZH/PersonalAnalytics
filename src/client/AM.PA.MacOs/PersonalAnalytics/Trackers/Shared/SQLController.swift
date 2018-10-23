@@ -36,7 +36,7 @@ class SQLController{
         var results: [ActiveApplicationEntry] = []
 
         do{
-            var query: String = "SELECT * FROM ZACTIVEAPPLICATION WHERE ZSTARTTIME >= " + String(time) + " ORDER BY ZSTARTTIME"
+            let query: String = "SELECT * FROM ZACTIVEAPPLICATION WHERE ZSTARTTIME >= " + String(time) + " ORDER BY ZSTARTTIME"
             let rows = try dbQueue.inDatabase{ db in
                 try Row.fetchAll(db, query)
             }
@@ -59,7 +59,7 @@ class SQLController{
         var results: [AggregatedInputEntry] = []
         
         do{
-            var query: String = "SELECT * FROM ZAGGREGATEDINPUT WHERE ZTIME >= " + String(time) + " ORDER BY ZTIME"
+            let query: String = "SELECT * FROM ZAGGREGATEDINPUT WHERE ZTIME >= " + String(time) + " ORDER BY ZTIME"
             let rows = try dbQueue.inDatabase{ db in
                 try Row.fetchAll(db, query)
             }
@@ -86,11 +86,11 @@ class SQLController{
         var config = Configuration()
         config.readonly = true
         do{
-            dbQueue = try DatabaseQueue(path: applicationDocumentsDirectory.appendingPathComponent("CocoaAppCD.dat").absoluteString, configuration: config)
+            dbQueue = try DatabaseQueue(path: applicationDocumentsDirectory.appendingPathComponent("PersonalAnalytics.dat").absoluteString, configuration: config)
         }
         catch{
             DataObjectController.sharedInstance.saveContext()
-            dbQueue = try DatabaseQueue(path: applicationDocumentsDirectory.appendingPathComponent("CocoaAppCD.dat").absoluteString, configuration: config)
+            dbQueue = try DatabaseQueue(path: applicationDocumentsDirectory.appendingPathComponent("PersonalAnalytics.dat").absoluteString, configuration: config)
         }
         
     }

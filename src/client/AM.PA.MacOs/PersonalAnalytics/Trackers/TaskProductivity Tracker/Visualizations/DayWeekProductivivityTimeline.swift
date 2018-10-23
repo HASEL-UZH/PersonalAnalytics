@@ -158,8 +158,8 @@ class DayWeekProductivityTimeline: Visualization {
         html += "<tbody>";
         for pair in dict
         {
-            var programUnproductive: Int = (totalUnproductive == 0) ? 0 : Int((100.0 / Double(totalUnproductive) * Double(pair.value.Unproductive)).rounded())
-            var programProductive: Int = (totalProductive == 0) ? 0 : Int((100.0 / Double(totalProductive) * Double(pair.value.Productive)).rounded())
+            let programUnproductive: Int = (totalUnproductive == 0) ? 0 : Int((100.0 / Double(totalUnproductive) * Double(pair.value.Unproductive)).rounded())
+            let programProductive: Int = (totalProductive == 0) ? 0 : Int((100.0 / Double(totalProductive) * Double(pair.value.Productive)).rounded())
             
             html += "<tr>";
             html += "<td>" + pair.key + "</td>";

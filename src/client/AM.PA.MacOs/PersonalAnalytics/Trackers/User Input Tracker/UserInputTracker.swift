@@ -48,13 +48,6 @@ class UserInputTracker: Tracker{
         catch{
             print(error)
         }
-        do{
-            // viz.append(try WeekActivityVisualization())
-        }
-        catch{
-            print(error)
-        }
-
         
         inputTimer = Timer.scheduledTimer(timeInterval: inputInterval, target: self,selector: #selector(save), userInfo: nil, repeats: true)
         inputTimer?.tolerance = 5

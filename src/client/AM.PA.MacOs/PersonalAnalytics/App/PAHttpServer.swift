@@ -126,7 +126,6 @@ class PAHttpServer: NSObject {
             guard request.method == "GET" else{
                 return HttpResponse.badRequest(.text("Method must be GET"))
             }
-            let path = request.path
             var dashboard: String
             
             do{

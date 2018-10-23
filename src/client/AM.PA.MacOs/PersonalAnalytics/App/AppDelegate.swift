@@ -14,7 +14,6 @@ Save active application
 Delete live applications periodically
 Save all collected schemes to core data
 - Save all data to csv
-Add current user to main app
 - Add menu item for if notification should stay in the corner till dismissed
 - Finish finished core data implementation and models
 Set popup to appear once every 90 minutes
@@ -38,23 +37,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     
     // MARK: - Constants
     let summaryEnabled = "Toggle Survey"
-    let NOTIFICATIONS =
-    [
-        NSWorkspace.didUnhideApplicationNotification,
-        NSWorkspace.didLaunchApplicationNotification,
-        NSWorkspace.activeSpaceDidChangeNotification,
-        NSWorkspace.didPerformFileOperationNotification,
-        NSWorkspace.screensDidWakeNotification
-    ]
-    
-    let SAVE_TRIGGERS = [NSWorkspace.willSleepNotification,
-        NSWorkspace.screensDidSleepNotification,
-        NSWorkspace.willSleepNotification,
-        NSWorkspace.willPowerOffNotification,
-        NSWorkspace.didUnmountNotification,
-        NSWorkspace.didDeactivateApplicationNotification,
-        NSWorkspace.didTerminateApplicationNotification
-    ]
 
     let maxAppCount = 100
     var notificationTimer: Timer?
@@ -107,7 +89,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         if failError == nil {
             coordinator = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
             print(self.applicationDocumentsDirectory)
-            let url = self.applicationDocumentsDirectory.appendingPathComponent("CocoaAppCD.dat")
+            let url = self.applicationDocumentsDirectory.appendingPathComponent("PersonalAnalytics.dat")
             do {
                 let mOptions = [NSMigratePersistentStoresAutomaticallyOption: true,
                                 NSInferMappingModelAutomaticallyOption: true]
@@ -141,23 +123,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         return managedObjectContext
     }()
     
-    // MARK: - Core Data Saving and Undo support
-    
-    @IBAction func saveAction(_ sender: AnyObject!) {
-        // Performs the save action for the application, which is to send the save: message to the application's managed object context. Any encountered errors are presented to the user.
-        if !managedObjectContext.commitEditing() {
-            NSLog("\(NSStringFromClass(type(of: self))) unable to commit editing before saving")
-        }
-        if managedObjectContext.hasChanges {
-            do {
-                try managedObjectContext.save()
-            } catch {
-                let nserror = error as NSError
-                NSApplication.shared.presentError(nserror)
-            }
-        }
-    }
-
     
     // MARK: -- Menu Bar Info
     let popover = NSPopover()
@@ -183,20 +148,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     @objc func quit(){
         NSApplication.shared.terminate(self)
     }
-    /*
-    @objc func red(){
-        flowlightController?.stop()
-        flowlightController?.setRed()
-    }
-    @objc func green(){
-        flowlightController?.stop()
-        flowlightController?.setGreen()
-    }
-    @objc func auto(){
-        flowlightController?.stop()
-        flowlightController?.start()
-    }
-    */
+
     // MARK: - Setup
     func setUpMenuBar(){
         statusItem.menu = menu
@@ -334,12 +286,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     
     //https://stackoverflow.com/questions/7271528/how-to-nslog-into-a-file
     func redirectLogToDocuments() {
-        
-
-        let pathForLog = self.applicationDocumentsDirectory.path.appendingFormat("/log.txt")
-        
         let pathForErrors = self.applicationDocumentsDirectory.path.appendingFormat("/errors.txt")
-        
         //freopen(pathForLog.cString(using: String.Encoding.ascii)!, "a+", stdout)
         freopen(pathForErrors.cString(using: String.Encoding.ascii)!, "a+", stderr)
     }

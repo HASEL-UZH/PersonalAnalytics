@@ -91,7 +91,7 @@ class DayProgamsUsedPieChart: Visualization {
         
         html += "<script type='text/javascript'>";
         
-        var timeType = "h"
+        let timeType = "h"
         
         html += "var " + VisHelper.CreateChartHtmlTitle(title: title) + " = c3.generate({ bindto: '#" + VisHelper.CreateChartHtmlTitle(title: title) + "', data: { " + data + "}, pie: { label: { format: function (value, ratio, id) { return value + '" + timeType + "';}}}, padding: { top: 0, right: 0, bottom: 0, left: 0 }, legend: { show: true, position: 'bottom' }});"
         html += "</script>"

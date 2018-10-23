@@ -51,13 +51,13 @@ class DayMostFocusedProgram: Visualization{
         /////////////////////
         // fetch data sets
         /////////////////////
-        var queryResultsLocal = sql.GetLongestFocusOnProgram(date: _date);
+        let queryResultsLocal = sql.GetLongestFocusOnProgram(date: _date);
         
         if(queryResultsLocal == nil){
             return ""
         }
         
-        var durInMin = (queryResultsLocal == nil) ? 0 : queryResultsLocal!.difference / 60.0;
+        let durInMin = (queryResultsLocal == nil) ? 0 : queryResultsLocal!.difference / 60.0;
         
         let from = Date(timeIntervalSince1970: queryResultsLocal!.from)
         let to = Date(timeIntervalSince1970: queryResultsLocal!.to)

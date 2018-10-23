@@ -25,7 +25,7 @@ class ActivitySQLController: SQLController{
             query += " OR "
         }
         if(query != ""){
-            query = String(query.characters.dropLast(3))
+            query = String(query.dropLast(3))
         }
         return query
     }
@@ -67,53 +67,6 @@ class ActivitySQLController: SQLController{
         
     }
     
-    func GetTaskActivityPieChartData(date: Date, task: String) -> [String:Double]{
-        
-        //change start and end to task start/end
-        let start = getStartHour(date:date)
-        let end = getEndHour(date:date)
-        //[(1501608600,1501609200), (1501610000,1501613000), (1501614500, 1501615000)]//
-        var taskTimes: [(Double,Double)] = getTaskTimes(date: date, task: task)
-        
-        if(taskTimes.count == 0){
-            return [:]
-        }
-        
-        var validTimes: String = getValidTimesQuery(taskTimes: taskTimes)
-        
-        
-        var results =  [String: Double]()
-        
-        do{
-            var query = "SELECT ZNAME, SUM(ZENDTIME - ZSTARTTIME) AS DIFF FROM ZACTIVEAPPLICATION "
-            query += "WHERE (" + validTimes
-            query += ") AND ZNAME <> 'Idle' "
-            query += "GROUP BY ZNAME "
-            query += "HAVING DIFF > 10"
-            
-            print(query)
-            
-            let rows = try dbQueue.inDatabase{ db in
-                try Row.fetchAll(db, query)
-            }
-            
-            print(rows)
-            
-            for row in rows{
-                let name: String = row["ZNAME"]
-                let time: Double = row["DIFF"]
-                
-                results[name] = ((time/60)*10).rounded()/10 //convert to minutes, rounded to 1 decimal place
-            }
-        }
-        catch{
-            print(error)
-            print("error accessing database for pie chart")
-        }
-        
-        return results
-    }
-
     
     func GetActivityPieChartData(date: Date) -> [String:Double] {
         
@@ -199,56 +152,7 @@ class ActivitySQLController: SQLController{
             return nil
         }
     }
-    
-    func GetTaskTimelineData(date: Date, task: String) -> [Activity]{
-        var results: [Activity] = []
         
-        let start = getStartHour(date:date)
-        let end = getEndHour(date:date)
-        
-        var taskTimes: [(Double,Double)] = getTaskTimes(date: date, task: task)
-        //[(1501608600,1501609200), (1501610000,1501613000), (1501614500, 1501615000)]
-        
-        if(taskTimes.count == 0){
-            return []
-        }
-        
-        var validTimes: String = getValidTimesQuery(taskTimes: taskTimes)
-        
-        do{
-            var query = "SELECT * FROM ZACTIVEAPPLICATION "
-            query += "WHERE " + validTimes
-            query += " ORDER BY ZSTARTTIME"
-            
-            print(query)
-            
-            let rows = try dbQueue.inDatabase{ db in
-                try Row.fetchAll(db, query)
-            }
-            
-            for row in rows{
-                print(row)
-                let start: TimeInterval = row["ZSTARTTIME"]
-                let end: TimeInterval = row["ZENDTIME"]
-                let name: String = row["ZNAME"]
-                var title: String? = row["ZTITLE"]
-                //TODO: remove later
-                if(title == nil){
-                    title = ""
-                }
-                results.append(Activity(start: start, end: end, title: title!, name: name))
-            }
-            
-            results = processWebsites(results)
-            
-        }
-        catch{
-            print(error)
-            print("error accessing database for GetDayTimelineData")
-        }
-        return results
-    }
-    
 
     func GetDayTimelineData(date: Date) -> [Activity]{
         var results: [Activity] = []
@@ -334,7 +238,7 @@ class ActivitySQLController: SQLController{
                     query += " AND ZTIME <= " + String(end)
                     query += " OR"
                 }
-                query = String(query.characters.dropLast(3))
+                query = String(query.dropLast(3))
                 query += " ORDER BY ZTIME"
                 
                 let rows = try dbQueue.inDatabase{ db in

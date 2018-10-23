@@ -14,13 +14,11 @@
 		0DB3DF281BAF49AC00144935 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB3DF271BAF49AC00144935 /* AppDelegate.swift */; };
 		0DB3DF2F1BAF49AC00144935 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0DB3DF2E1BAF49AC00144935 /* Assets.xcassets */; };
 		0DC4BF2D1BF2B57A00366771 /* WindowGrabber.m in Sources */ = {isa = PBXBuildFile; fileRef = 0DC4BF2C1BF2B57A00366771 /* WindowGrabber.m */; };
-		0DDEDB7C1BC61F57002B3E0D /* SummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DDEDB7A1BC61F57002B3E0D /* SummaryViewController.swift */; };
+		0DDEDB7C1BC61F57002B3E0D /* SummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DDEDB7A1BC61F57002B3E0D /* SummaryViewController.swift */; settings = {COMPILER_FLAGS = "-w"; }; };
 		0DDEDB7D1BC61F57002B3E0D /* SummaryView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0DDEDB7B1BC61F57002B3E0D /* SummaryView.xib */; };
 		8FD0A07A6DC4FAF74D5D3CE4 /* Pods_PersonalAnalytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 639321AA141095A614B280EE /* Pods_PersonalAnalytics.framework */; };
 		B904C25C1F01AEF000624D9C /* TrackerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B904C25B1F01AEF000624D9C /* TrackerManager.swift */; };
 		B90790251F01CC27003B9CF7 /* TaskProductivityTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90790241F01CC27003B9CF7 /* TaskProductivityTracker.swift */; };
-		B90790281F01D12A003B9CF7 /* User+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90790261F01D12A003B9CF7 /* User+CoreDataClass.swift */; };
-		B90790291F01D12A003B9CF7 /* User+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90790271F01D12A003B9CF7 /* User+CoreDataProperties.swift */; };
 		B914B7181EBBA5C10009C5D0 /* Website+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = B914B70E1EBBA5C10009C5D0 /* Website+CoreDataClass.swift */; };
 		B914B7191EBBA5C10009C5D0 /* Website+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = B914B70F1EBBA5C10009C5D0 /* Website+CoreDataProperties.swift */; };
 		B914B71A1EBBA5C10009C5D0 /* ActiveApplication+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = B914B7101EBBA5C10009C5D0 /* ActiveApplication+CoreDataClass.swift */; };
@@ -132,8 +130,6 @@
 		9C9534675C9D8400DA2E81D5 /* Pods-PersonalAnalytics.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PersonalAnalytics.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics.debug.xcconfig"; sourceTree = "<group>"; };
 		B904C25B1F01AEF000624D9C /* TrackerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TrackerManager.swift; sourceTree = "<group>"; };
 		B90790241F01CC27003B9CF7 /* TaskProductivityTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskProductivityTracker.swift; sourceTree = "<group>"; };
-		B90790261F01D12A003B9CF7 /* User+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "User+CoreDataClass.swift"; sourceTree = "<group>"; };
-		B90790271F01D12A003B9CF7 /* User+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "User+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		B914B70E1EBBA5C10009C5D0 /* Website+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Website+CoreDataClass.swift"; sourceTree = "<group>"; };
 		B914B70F1EBBA5C10009C5D0 /* Website+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Website+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		B914B7101EBBA5C10009C5D0 /* ActiveApplication+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ActiveApplication+CoreDataClass.swift"; sourceTree = "<group>"; };
@@ -176,6 +172,7 @@
 		B9851FE81ED6594A002C24AF /* VisHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VisHelper.swift; sourceTree = "<group>"; };
 		B9873A791EBA5DEF0050E864 /* MouseActionController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MouseActionController.swift; sourceTree = "<group>"; };
 		B9873A7B1EBA92DA0050E864 /* UserInputTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserInputTracker.swift; sourceTree = "<group>"; };
+		B98D8D0D217E9CE40065FD71 /* PersonalAnalytics.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = PersonalAnalytics.xcdatamodel; sourceTree = "<group>"; };
 		B9A0B7A41EDA373900BE6F71 /* Tracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tracker.swift; sourceTree = "<group>"; };
 		B9A0B7A61EDA540F00BE6F71 /* Visualization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Visualization.swift; sourceTree = "<group>"; };
 		B9A0B7A91EDC924300BE6F71 /* ActiveApplicationTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActiveApplicationTracker.swift; sourceTree = "<group>"; };
@@ -215,8 +212,6 @@
 			isa = PBXGroup;
 			children = (
 				B974C78A216D700F00B905A9 /* PersonalAnalytics.xcdatamodeld */,
-				B90790261F01D12A003B9CF7 /* User+CoreDataClass.swift */,
-				B90790271F01D12A003B9CF7 /* User+CoreDataProperties.swift */,
 				B914B72A1EBD28D00009C5D0 /* AggregatedInput+CoreDataClass.swift */,
 				B914B72B1EBD28D00009C5D0 /* AggregatedInput+CoreDataProperties.swift */,
 				B914B70E1EBBA5C10009C5D0 /* Website+CoreDataClass.swift */,
@@ -617,7 +612,6 @@
 				B914B72D1EBD28D00009C5D0 /* AggregatedInput+CoreDataProperties.swift in Sources */,
 				0DB3DF281BAF49AC00144935 /* AppDelegate.swift in Sources */,
 				0D2B94241D57D3D5004DA61D /* PAHttpServer.swift in Sources */,
-				B90790291F01D12A003B9CF7 /* User+CoreDataProperties.swift in Sources */,
 				B958F34E1EE0CB7600E54D81 /* ASHDatePicker.m in Sources */,
 				B9C79F841ECA6CF200E005F0 /* InputSQLController.swift in Sources */,
 				B904C25C1F01AEF000624D9C /* TrackerManager.swift in Sources */,
@@ -630,7 +624,6 @@
 				B9873A7C1EBA92DA0050E864 /* UserInputTracker.swift in Sources */,
 				B914B71A1EBBA5C10009C5D0 /* ActiveApplication+CoreDataClass.swift in Sources */,
 				B9851FE51ED64F2F002C24AF /* ActivityVisualization.swift in Sources */,
-				B90790281F01D12A003B9CF7 /* User+CoreDataClass.swift in Sources */,
 				0DC4BF2D1BF2B57A00366771 /* WindowGrabber.m in Sources */,
 				B974C78D216D701000B905A9 /* PersonalAnalytics.xcdatamodeld in Sources */,
 				0D4676491BD54C2000796D2D /* KeystrokeController.swift in Sources */,
@@ -863,6 +856,7 @@
 		B974C78A216D700F00B905A9 /* PersonalAnalytics.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				B98D8D0D217E9CE40065FD71 /* PersonalAnalytics.xcdatamodel */,
 				B974C78B216D700F00B905A9 /* Collector.xcdatamodel */,
 				B974C78C216D700F00B905A9 /* Collector 2.xcdatamodel */,
 			);

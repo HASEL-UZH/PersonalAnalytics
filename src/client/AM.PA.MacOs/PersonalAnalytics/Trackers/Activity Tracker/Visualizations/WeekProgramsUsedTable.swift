@@ -49,7 +49,7 @@ class WeekProgramsUsedTable: Visualization{
         /////////////////////
         // fetch data sets
         /////////////////////
-        var programUsePerDay: [String:Programs] = GetProgramUsePerDay(_date: _date);
+        let programUsePerDay: [String:Programs] = GetProgramUsePerDay(_date: _date);
         var totalHoursPerDay = GetTotalHoursPerDay(programs: programUsePerDay);
         
         if (programUsePerDay.count < 1)
@@ -124,8 +124,8 @@ class WeekProgramsUsedTable: Visualization{
     
     func GetTableRow(perc: Double) -> String
     {
-        var colorWithWeight = perc * 2;
-        var percentage = ""; // Math.Round(GetPerc(prog.Value.Days[i], totalHoursPerDay[i]) * 100, 0) + "%";
+        let colorWithWeight = perc * 2;
+        let percentage = ""; // Math.Round(GetPerc(prog.Value.Days[i], totalHoursPerDay[i]) * 100, 0) + "%";
         
         var result: String = "<td style='background-color:rgba(0,122,203, " + String(colorWithWeight)
         result += ");'>" + percentage
@@ -138,18 +138,18 @@ class WeekProgramsUsedTable: Visualization{
     {
         var dict = [String:Programs]()
         var first = _date.startOfWeek!
-        var last = _date.endOfWeek!
+        let last = _date.endOfWeek!
         
         // fetch & format data
         while (first < last)
         {
-            var programsDay = sql.GetActivityPieChartData(date: first)
-            var dayNumber = getDayOfWeek(first) - 1
+            let programsDay = sql.GetActivityPieChartData(date: first)
+            let dayNumber = getDayOfWeek(first) - 1
             
             for program in programsDay
             {
-                var process = program.key
-                var dur = program.value
+                let process = program.key
+                let dur = program.value
                 
                 if(dict[process] == nil){
                     dict[process] = Programs(dayNumber: dayNumber, dur: dur)

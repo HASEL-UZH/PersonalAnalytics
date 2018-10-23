@@ -5,6 +5,8 @@
 //  Created by Jonathan Stiansen on 2015-10-07.
 //
 
+
+//TODO: unsupress warnings when completed
 import Cocoa
 import CoreData
 class SummaryViewController: NSViewController {

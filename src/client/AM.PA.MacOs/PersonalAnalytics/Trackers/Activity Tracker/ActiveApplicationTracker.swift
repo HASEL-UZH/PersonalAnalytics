@@ -161,15 +161,14 @@ class ActiveApplicationTracker: Tracker{
         func runApplescript(_ applescriptString: String) -> String{
              var error: NSDictionary?
              if let scriptObject = NSAppleScript(source: applescriptString) {
-             if let output: NSAppleEventDescriptor = scriptObject.executeAndReturnError(
-             &error) {
-             if let URL = output.stringValue {
-             return URL // This is the important outcome, the rest don't matter
+                 if let output: NSAppleEventDescriptor = scriptObject.executeAndReturnError(&error) {
+                     if let URL = output.stringValue {
+                        return URL // This is the important outcome, the rest don't matter
+                    }
+                 }
              }
-             }
-             }
-            print(error)
-             return ""
+            print(error!)
+            return ""
          }
          
         let thisComputer = NSWorkspace.shared

@@ -10,27 +10,15 @@ import Foundation
 class Stats{
     
     static func getVisualizations() -> String {
-        do{
-            return getVisualizations(date: Date(), type: VisConstants.Day)
-        }
-        catch{
-            print("error")
-            return ""
-        }
+        return getVisualizations(date: Date(), type: VisConstants.Day)
     }
     
     
     static func getVisualizations(date: Date, type: String) -> String {
-        do{
-            return TrackerManager.shared.getVisualizations(date: date, type: type)
-        }
-        catch{
-            print("error")
-            return ""
-        }
+        return TrackerManager.shared.getVisualizations(date: date, type: type)
     }
     
-    // NO LONGER NEEDED
+    //TODO: do we really need this?
     static func getVisualizationsWeekly(date: Date, type: String) -> String {
         return getVisualizations(date: date, type: type)
     }

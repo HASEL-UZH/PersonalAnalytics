@@ -82,7 +82,7 @@ class InputSQLController: SQLController {
     func CalculateLineChartAxisTicks(date: Date) -> String
     {
         let start = getStartHour(date: date)
-        var end = getEndHour(date: date)
+        let end = getEndHour(date: date)
         
         let intervalSize: TimeInterval = 3600 //60 minute intervals
         

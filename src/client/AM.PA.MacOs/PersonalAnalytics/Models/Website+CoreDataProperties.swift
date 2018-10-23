@@ -19,6 +19,5 @@ extension Website {
     @NSManaged public var html: String?
     @NSManaged public var title: String?
     @NSManaged public var url: String?
-    @NSManaged public var viewedBy: User?
 
 }

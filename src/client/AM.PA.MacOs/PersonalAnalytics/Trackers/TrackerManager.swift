@@ -71,19 +71,14 @@ class TrackerManager {
     }
     
     fileprivate func CreateDashboardItem(_ viz: Visualization, date: Date, type: String) -> String{
-        do{
-            let html = viz.getHtml(date, type: type)
-            if(html == ""){
-                return ""
-            }
-            let feedbackButtons = ""
-            let title = "<h3 style='text-align: center;'>" + viz.title + "</h3>"
-            
-            return "<div class='item \(viz.Size)'>\(feedbackButtons)\(title)\(html)</div>"
+        let html = viz.getHtml(date, type: type)
+        if(html == ""){
+            return ""
         }
-        catch{
-            return "error"
-        }
+        let feedbackButtons = ""
+        let title = "<h3 style='text-align: center;'>" + viz.title + "</h3>"
+        
+        return "<div class='item \(viz.Size)'>\(feedbackButtons)\(title)\(html)</div>"
     }
 }
 

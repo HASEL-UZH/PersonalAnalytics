@@ -22,7 +22,6 @@ extension AggregatedInput {
     @NSManaged public var keyOther: NSNumber?
     @NSManaged public var keyNavigate: NSNumber?
     @NSManaged public var keyDelete: NSNumber?
-    @NSManaged public var madeBy: User?
     @NSManaged public var keyTotal: NSNumber?
 
 }

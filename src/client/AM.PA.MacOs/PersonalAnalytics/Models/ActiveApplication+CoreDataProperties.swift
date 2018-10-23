@@ -18,7 +18,6 @@ extension ActiveApplication {
     @NSManaged public var endTime: Double
     @NSManaged public var name: String?
     @NSManaged public var startTime: Double
-    @NSManaged public var usedBy: User?
     @NSManaged public var title: String?
 
 }

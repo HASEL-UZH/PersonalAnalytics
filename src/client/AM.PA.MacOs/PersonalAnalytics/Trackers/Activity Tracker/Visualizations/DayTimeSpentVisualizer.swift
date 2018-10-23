@@ -39,13 +39,13 @@ class DayTimeSpentVisualization: Visualization {
         /////////////////////
         // sort the list again
         /////////////////////
-        var sortedList = list
+        let sortedList = list
         
         
         /////////////////////
         // visualize data sets
         ////////////////////
-        if (sortedList == nil || sortedList.count == 0)
+        if (sortedList.count == 0)
         {
             html += VisHelper.NotEnoughData("We couldn't collect any data for this day")
             return html;
@@ -117,12 +117,12 @@ class DayTimeSpentVisualization: Visualization {
     fileprivate func GetFormattedTitle(_ titlein: String) -> String
     {
         var title = titlein
-        var maxLength = 100
-        if (title.characters.count > maxLength)
+        let maxLength = 100
+        if (title.count > maxLength)
         {
             let index = title.index(title.startIndex, offsetBy: maxLength-3)
 
-            title = title.substring(to: index) + "..."
+            title = title[..<index] + "..."
         }
         return title
     }
@@ -130,12 +130,12 @@ class DayTimeSpentVisualization: Visualization {
     fileprivate func GetFormattedTitle(_ titlein: String, name: String) -> String
     {
         var title = titlein
-        var maxLength = 100 - name.characters.count + 3
-        if (title.characters.count > maxLength)
+        let maxLength = 100 - name.count + 3
+        if (title.count > maxLength)
         {
             let index = title.index(title.startIndex, offsetBy: maxLength-3)
             
-            title = title.substring(to: index) + "..."
+            title = title[..<index] + "..."
         }
         return name + " - " + title
     }

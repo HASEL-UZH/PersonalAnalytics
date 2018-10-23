@@ -33,7 +33,7 @@ class DayFragmentationTimeline: Visualization{
         /////////////////////
         // fetch data sets
         /////////////////////
-        var orderedTimelineList: [Activity] = sql.GetDayTimelineData(date: _date);
+        let orderedTimelineList: [Activity] = sql.GetDayTimelineData(date: _date);
         
         /////////////////////
         // data cleaning
@@ -89,7 +89,7 @@ class DayFragmentationTimeline: Visualization{
     func CreateJavascriptActivityDataList(activityList: [Activity]) -> String{
         var html = ""
         
-        var categories = getCategories(activityList)
+        let categories = getCategories(activityList)
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "h:mm a"
         
@@ -98,8 +98,8 @@ class DayFragmentationTimeline: Visualization{
             var times = ""
             for activityEntry in activityList where activityEntry.activityType == category
             {
-                var startTime = activityEntry.startTime * 1000 //javascript time
-                var endTime = activityEntry.endTime * 1000
+                let startTime = activityEntry.startTime * 1000 //javascript time
+                let endTime = activityEntry.endTime * 1000
                 
                 // add data used for the timeline and the timeline hover
                 times += "{'starting_time': " + String(startTime) + ", 'ending_time': " + String(endTime)
@@ -119,8 +119,8 @@ class DayFragmentationTimeline: Visualization{
     }
     
     func GetActivityVisualizationContent(activityList: [Activity]) -> String{
-        var categories = getCategories(activityList)
-        var activityTimeline: String = "activityTimeline"
+        let categories = getCategories(activityList)
+        let activityTimeline: String = "activityTimeline"
         let defaultHoverText = "Hint: Hover over the timeline to see details.";
         
         var html = ""
@@ -171,7 +171,7 @@ class DayFragmentationTimeline: Visualization{
         hover += "document.getElementById('hoverDetails').innerHTML = '<span style=\\'font-size:1.2em; color:#007acc;\\'>From ' + d['starting_time_formatted'] + ' to ' + d['ending_time_formatted'] + ' (' + d['duration'] + 'min)</span>' + '<br /><strong>Activity</strong>: <span style=\\'color:' + d['color'] + '\\'>■</span> ' + d['activity'] + '<br /><strong>App</strong>: ' + d['app'] + '<br /><strong>Window title</strong>: ' + d['window_title']\n})"
         
         // mouseout Event
-        var mouseout = ".mouseout(function (d, i, datum) { document.getElementById('hoverDetails').innerHTML = '" + defaultHoverText + "'; })";
+        let mouseout = ".mouseout(function (d, i, datum) { document.getElementById('hoverDetails').innerHTML = '" + defaultHoverText + "'; })";
         
         // define configuration
         html += "var " + activityTimeline + " = d3.timeline().width(" + String(timelineZoomFactor)
@@ -206,7 +206,7 @@ class DayFragmentationTimeline: Visualization{
             activityString += "'" + category + "', "
         }
         
-        var html = "var colorScale = d3.scale.ordinal().range([" + rangeString + "]).domain([" + activityString + "]); "
+        let html = "var colorScale = d3.scale.ordinal().range([" + rangeString + "]).domain([" + activityString + "]); "
         
         return html
         

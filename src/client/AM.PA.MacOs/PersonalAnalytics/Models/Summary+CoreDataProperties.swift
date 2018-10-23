@@ -21,7 +21,6 @@ extension Summary {
     @NSManaged public var submissionTime: Double
     @NSManaged public var taskName: String?
     @NSManaged public var totalEstimatedTime: NSNumber?
-    @NSManaged public var createdBy: User?
     @NSManaged public var percievedProductivity: NSNumber?
 
 }

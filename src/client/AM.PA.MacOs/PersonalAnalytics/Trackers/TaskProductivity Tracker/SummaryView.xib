@@ -7,7 +7,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="SummaryViewController" customModule="Collector" customModuleProvider="target">
+        <customObject id="-2" userLabel="File's Owner" customClass="SummaryViewController" customModule="PersonalAnalytics" customModuleProvider="target">
             <connections>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
             </connections>
@@ -39,7 +39,7 @@
                         <action selector="submit:" target="-2" id="RKp-Ce-xjC"/>
                     </connections>
                 </button>
-                <slider identifier="percentSimilarToPrevious" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gzJ-cT-9Rn">
+                <slider identifier="percentSimilarToPrevious" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gzJ-cT-9Rn">
                     <rect key="frame" x="55" y="350" width="324" height="24"/>
                     <sliderCell key="cell" continuous="YES" state="on" alignment="left" minValue="1" maxValue="7" doubleValue="4" tickMarkPosition="above" numberOfTickMarks="7" allowsTickMarkValuesOnly="YES" sliderType="linear" id="nMl-nB-Cts"/>
                     <connections>
@@ -47,7 +47,7 @@
                         <binding destination="-2" name="value" keyPath="self.percievedProductivity" id="1c9-rP-eHH"/>
                     </connections>
                 </slider>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hfG-ID-muC">
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="hfG-ID-muC">
                     <rect key="frame" x="386" y="352" width="83" height="22"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="79" id="4Kk-Wm-gDS"/>
@@ -66,7 +66,7 @@
                         </binding>
                     </connections>
                 </textField>
-                <textField identifier="taskName" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="10h-pF-Ky2">
+                <textField identifier="taskName" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="10h-pF-Ky2">
                     <rect key="frame" x="54" y="281" width="366" height="22"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" continuous="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="task word or sentence" drawsBackground="YES" id="ATJ-1U-2IG">
                         <font key="font" metaFont="system"/>
@@ -92,7 +92,7 @@
                         </binding>
                     </connections>
                 </textField>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="v13-Iq-axc">
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="v13-Iq-axc">
                     <rect key="frame" x="51" y="311" width="391" height="23"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="23" id="2BK-Lv-bRQ"/>
@@ -103,7 +103,7 @@
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                 </textField>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bI2-Ml-Xia">
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bI2-Ml-Xia">
                     <rect key="frame" x="52" y="249" width="370" height="17"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="How long do you think this task will take in total?" id="6q9-dp-nkV">
                         <font key="font" metaFont="system"/>
@@ -176,7 +176,7 @@
                     </connections>
                 </textField>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="748" translatesAutoresizingMaskIntoConstraints="NO" id="YQ6-vk-e5N">
-                    <rect key="frame" x="373" y="215" width="83" height="23"/>
+                    <rect key="frame" x="373" y="215" width="83" height="22"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="79" id="WNb-Je-zmD"/>
                     </constraints>
@@ -194,7 +194,7 @@
                     </connections>
                 </textField>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="uG9-Ly-UzI">
-                    <rect key="frame" x="373" y="151" width="83" height="23"/>
+                    <rect key="frame" x="373" y="151" width="83" height="22"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" id="Khf-2V-bCI">
                         <font key="font" metaFont="system"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -224,7 +224,7 @@
                         </binding>
                     </connections>
                 </textField>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HbT-a0-L3h">
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="HbT-a0-L3h">
                     <rect key="frame" x="55" y="382" width="308" height="17"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="How productive were you since the last summary?" id="IMy-pI-Szy">
                         <font key="font" metaFont="system"/>
@@ -234,7 +234,7 @@
                 </textField>
             </subviews>
             <constraints>
-                <constraint firstItem="v13-Iq-axc" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="97" id="0CE-wE-n9D"/>
+                <constraint firstItem="v13-Iq-axc" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="93" id="0CE-wE-n9D"/>
                 <constraint firstItem="Zv7-fb-hZa" firstAttribute="top" secondItem="bv6-Ae-VCH" secondAttribute="bottom" constant="16" id="0kO-cF-aU6"/>
                 <constraint firstItem="hfG-ID-muC" firstAttribute="baseline" secondItem="gzJ-cT-9Rn" secondAttribute="firstBaseline" id="1Zd-IY-M1q"/>
                 <constraint firstItem="uG9-Ly-UzI" firstAttribute="trailing" secondItem="YQ6-vk-e5N" secondAttribute="trailing" id="53P-ah-BAH"/>
@@ -279,7 +279,7 @@
                 <constraint firstItem="HbT-a0-L3h" firstAttribute="leading" secondItem="gzJ-cT-9Rn" secondAttribute="leading" id="ks5-km-3mK"/>
                 <constraint firstItem="uG9-Ly-UzI" firstAttribute="trailing" secondItem="vyP-Uu-56D" secondAttribute="trailing" id="lGi-j9-7Ug"/>
                 <constraint firstItem="Zv7-fb-hZa" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="56" id="lXl-1i-Ql5"/>
-                <constraint firstItem="bv6-Ae-VCH" firstAttribute="top" secondItem="bI2-Ml-Xia" secondAttribute="bottom" constant="8" symbolic="YES" id="nnV-Yk-K9C"/>
+                <constraint firstItem="bv6-Ae-VCH" firstAttribute="top" secondItem="bI2-Ml-Xia" secondAttribute="bottom" constant="12" id="nnV-Yk-K9C"/>
                 <constraint firstAttribute="trailing" secondItem="SWD-VM-lvL" secondAttribute="trailing" constant="99" id="o4h-eC-ThS"/>
                 <constraint firstItem="YQ6-vk-e5N" firstAttribute="leading" secondItem="uG9-Ly-UzI" secondAttribute="leading" id="pOC-ei-SMk"/>
                 <constraint firstAttribute="trailing" secondItem="YQ6-vk-e5N" secondAttribute="trailing" constant="20" symbolic="YES" id="rYp-aW-dF8"/>

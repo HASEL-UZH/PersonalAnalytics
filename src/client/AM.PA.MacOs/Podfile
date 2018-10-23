@@ -1,4 +1,5 @@
 target 'PersonalAnalytics' do
+	inhibit_all_warnings!
 	use_frameworks!
 	pod 'GRDB.swift'
 	pod 'Swifter', '~> 1.4.0'

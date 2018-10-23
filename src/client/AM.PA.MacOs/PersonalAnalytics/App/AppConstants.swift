@@ -12,11 +12,8 @@ enum AppConstants {
     
     static let summaryStateKey = "summaryState"
     static let summarySubmittedNotification = "summaryPosted"
-    static let userSignedUp = "userJustSignedUp"
-    static let userLoggedIn = "userIsLoggedIn" // Takes one param, user
     static let signUpClicked = "signUpHasBeenClicked"
     static let notificationsPersistKey = "userNotificationsWillPersist"
-    static let currentUserKey = "currentUser"
     static let projectBundleName = "PersonalAnalytics"
     
     static let MouseClickKeyboardRatio = 3.0

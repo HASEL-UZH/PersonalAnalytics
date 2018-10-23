@@ -41,7 +41,7 @@ class ActivityVisualization: Visualization{
         /////////////////////
         //TODO: add date information
         //returns a dictionary
-        var chartQueryResultsLocal: Dictionary<TimeInterval,Int> = sql.GetUserInputTimelineData(date: _date)
+        let chartQueryResultsLocal: Dictionary<TimeInterval,Int> = sql.GetUserInputTimelineData(date: _date)
 
         // 3 is the minimum number of input-data-items - else, it makes no sense to show a visualization
         if (chartQueryResultsLocal.count < 3)

@@ -17,6 +17,5 @@ extension KeyStrokes {
 
     @NSManaged public var time: NSDate?
     @NSManaged public var typing: String?
-    @NSManaged public var madeBy: User?
 
 }

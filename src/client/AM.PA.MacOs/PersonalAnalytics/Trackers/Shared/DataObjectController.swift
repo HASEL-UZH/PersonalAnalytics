@@ -19,7 +19,6 @@ class DataObjectController: NSObject{
     var acceptingWebsites = true
 
     static let sharedInstance : DataObjectController = DataObjectController()
-    internal var currentUser: NSManagedObject
     internal var previousTask: String {
         if let summary = lastSummary{
             return summary.value(forKey: taskNameKey) as! String
@@ -37,53 +36,8 @@ class DataObjectController: NSObject{
         
         let appDelegate = NSApplication.shared.delegate as? AppDelegate
         self.managedContext = appDelegate!.managedObjectContext
-        // Is user stored in defaults?
-        let defaults = UserDefaults()
-        if (defaults.integer(forKey: AppConstants.currentUserKey) == 0){
-            let randomInt = Int(arc4random())
-            defaults.set(randomInt, forKey: AppConstants.currentUserKey)
-            // Save user to core data
-            let entity = NSEntityDescription.entity(forEntityName: "User", in: managedContext!)
-            let user = NSManagedObject(entity: entity!, insertInto: managedContext!)
-            user.setValue(randomInt, forKey: "id")
-            do{
-                try managedContext?.save()
-            } catch {
-                print("couldn't save")
-            }
-        }
-      
-        // Check if user is in database
-        let currentUserId = defaults.integer(forKey: AppConstants.currentUserKey)
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "User")
-        fetchRequest.predicate = NSPredicate(format: "id == %@", argumentArray: [currentUserId])
-        do{
-            let userFetchResults = try managedContext?.fetch(fetchRequest)
-            if !userFetchResults!.isEmpty {
-                if let user = userFetchResults?.first!{
-                    currentUser = user as! NSManagedObject
-                } else {
-                    currentUser = NSEntityDescription.insertNewObject(forEntityName: "User", into: managedContext!)
-                    currentUser.setValue(currentUserId, forKey: "id")
-                }
-            } else {
-                let entity = NSEntityDescription.entity(forEntityName: "User", in: managedContext!)
-                let user = NSManagedObject(entity: entity!, insertInto: managedContext!)
-                user.setValue(currentUserId, forKey: "id")
-                do{
-                    try managedContext?.save()
-                } catch {
-                    print("couldn't save")
-                }
-                currentUser = user
-            }
-            } catch {
-                print("something went wrong when we were working with core data - sucks")
-                currentUser = NSManagedObject()
-            }
         super.init()
     
-        
         //save before power off/switch user
         NSWorkspace.shared.notificationCenter.addObserver(self,
                                                             selector: #selector(saveContext),
@@ -99,11 +53,6 @@ class DataObjectController: NSObject{
                                                             object: nil)
     }
     
-    func getCurrentUser() -> NSManagedObject
-    {
-        return currentUser
-    }
- 
     @objc func saveContext(){
         lockQueue.sync {
             print("saving context of data objects")
@@ -133,7 +82,6 @@ class DataObjectController: NSObject{
                 summary.setValue(percentSimilarToBefore, forKey: "percentSimilarToPrevious")
                 summary.setValue(Date().timeIntervalSince1970, forKey: "submissionTime")
                 summary.setValue(userFlag, forKey: "createdByUser")
-                summary.setValue(currentUser, forKey:"createdBy")
                 summary.setValue(percievedProductivity, forKey: "percievedProductivity")
                 // This is so we can retrieve information again and tell if there was a task before hand.
                 lastSummary = summary;
@@ -156,7 +104,7 @@ class DataObjectController: NSObject{
                 currentWebsite.setValue(url, forKey: "url")
                 currentWebsite.setValue(html, forKey: "html")
                 currentWebsite.setValue(datetime.timeIntervalSince1970, forKey: "time")
-                currentWebsite.setValue(currentUser, forKey: "viewedBy")
+                
             }
             print("saving website")
         }
@@ -172,7 +120,6 @@ class DataObjectController: NSObject{
                 activeApp.setValue(name, forKey: "name")
                 activeApp.setValue(startTime.timeIntervalSince1970, forKey: "startTime")
                 activeApp.setValue(endTime?.timeIntervalSince1970, forKey: "endTime")
-                activeApp.setValue(currentUser, forKey: "usedBy")
                 print(activeApp)
             }
         }
@@ -187,7 +134,6 @@ class DataObjectController: NSObject{
                 let keystokes = NSManagedObject(entity: entity, insertInto: managedContext)
                 keystokes.setValue(time, forKey: "time")
                 keystokes.setValue(keys, forKey: "typing")
-                keystokes.setValue(currentUser, forKeyPath: "madeBy")
             }
         }
         print("saving keystrokes")
@@ -219,7 +165,6 @@ class DataObjectController: NSObject{
         
             activeApp.title = title
             activeApp.endTime = Date().timeIntervalSince1970
-            activeApp.usedBy = currentUser as! User
         
             return activeApp
         }
@@ -239,8 +184,6 @@ class DataObjectController: NSObject{
                 aggregate.setValue(aggregatedInput.deleteCount, forKey:"keyDelete")
                 aggregate.setValue(aggregatedInput.navigateCount, forKey:"keyNavigate")
                 aggregate.setValue(keyTotal, forKey:"keyTotal")
-                aggregate.setValue(currentUser, forKeyPath: "madeBy")
-                
             }
         }
         
@@ -265,19 +208,6 @@ class DataObjectController: NSObject{
 
     }
 
-    
-    func getAllUsersRecords() -> [AnyObject] {
-            let request = NSFetchRequest<NSFetchRequestResult>(entityName: "User")
-            print("starting print of all users")
-            do{
-                let managedObjects = try managedContext?.fetch(request)
-                return managedObjects! as [AnyObject]
-            } catch {
-                print("***Core data retrieval DIDN'T WORK***")
-                return []
-            }
-        
-    }
     
     func saveFocusState(userInputLevel: Double, focusState: String, smoothedFocusState: String){
         lockQueue.sync {
