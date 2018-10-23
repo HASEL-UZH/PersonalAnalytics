@@ -1,4 +1,4 @@
-## Developent
+## Development
 
 This project uses cocoapods to install dependencies.
 
