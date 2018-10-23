@@ -3,7 +3,7 @@
 This project uses cocoapods to install dependencies.
 
 - Download cocoapods (`brew install cocoapods` using homebrew).
-- run `pod install`
+- run `pod install` (from the AM.PA.MacOs directory)
 - Open the project using the .xcworkspace that is created
 
 ## First start
