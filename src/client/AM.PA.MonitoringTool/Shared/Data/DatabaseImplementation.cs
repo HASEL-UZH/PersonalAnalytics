@@ -4,15 +4,18 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 namespace Shared.Data
 {
     internal enum LogType { Info, Warning, Error }
 
+    /// <inheritdoc />
     /// <summary>
     /// This is the implementation of the database with all queries, commands, etc.
     /// </summary>
@@ -185,6 +188,39 @@ namespace Shared.Data
             {
                 cmd?.Dispose();
             }
+        }
+
+        /// <summary>
+        /// Executes a list of queries inside a transaction.
+        /// Provides consistency as well as performance improvements when used for batch inserts.
+        /// When providing parameter, both lists have to be of the same length.
+        /// </summary>
+        /// <param name="queries">List of queries, optionally with ?-placeholders.</param>
+        /// <param name="parameterList">Optional list of parameter arrays. When provided the length has to match the length of the query list, but can contain null-values.</param>
+        /// <returns>Returns the sum of the number of affected rows of all queries or 0 in case of failure.</returns>
+        public int ExecuteBatchQueries(IEnumerable<string> queries, IEnumerable<object[]> parameterList = null)
+        {
+            var affectedRowCount = 0;
+            try
+            {
+                using (var transaction = _connection.BeginTransaction())
+                {
+                    if (parameterList == null)
+                    {
+                        affectedRowCount = queries.Select(query => ExecuteDefaultQuery(query)).Sum();
+                    }
+                    else
+                    {
+                        affectedRowCount = queries.Zip(parameterList, ExecuteDefaultQuery).Sum();
+                    }
+                    transaction.Commit();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+            return affectedRowCount;
         }
 
         private SQLiteCommand GetCommand(string query, object[] parameter = null)
