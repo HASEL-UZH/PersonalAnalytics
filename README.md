@@ -26,13 +26,19 @@ André Meyer (ameyer@ifi.uzh.ch)
 # Collaborators & Contributors
 - [André Meyer](https://www.andre-meyer.ch) (University of Zurich, main contributor of Windows version)
 - [Prof. Dr. Thomas Fritz](http://www.ifi.uzh.ch/en/seal/people/fritz.html) (University of British Columbia)
+- [Manuela Züger](http://www.ifi.uzh.ch/en/seal/people/zueger.html) and [Sebastian Müller](http://www.ifi.uzh.ch/en/seal/people/mueller.html) (University of Zurich)
+- [Chris Satterfield](https://github.com/csatterfield) (main contributor of Mac version)
+- [Rohit Kaushik](https://github.com/kaushik-rohit) (responsible for SlackTracker)
+- Paige Rodeghero, Boyang Li and Dave Shepherd (ABB Research)
 - Dr. Tom Zimmermann (Microsoft Research)
 - Prof. Dr. Gail C. Murphy (University of British Columbia)
-- [Manuela Züger](http://www.ifi.uzh.ch/en/seal/people/zueger.html) and [Sebastian Müller](http://www.ifi.uzh.ch/en/seal/people/mueller.html) (University of Zurich)
-- Paige Rodeghero, Boyang Li and Dave Shepherd (ABB Research)
-- [Rohit Kaushik](https://github.com/kaushik-rohit) (responsible for SlackTracker)
-- [Chris Satterfield](https://github.com/csatterfield) (main contributor of Mac version)
 
+# Research
+This tool was developed for and used by the following research:
+- [CSCW’18](https://www.andre-meyer.ch/CSCW18) Design Recommendations for Self-Monitoring in the Workplace: Studies in Software Development. André Meyer, Gail Murphy, Thomas Zimmermann, Thomas Fritz. (hint: in this paper, the tool described as WorkAnalytics refers to the PersonalAnalytics in this repository)
+- [CHI’18](https://www.andre-meyer.ch/CHI18) Sensing Interruptibility in the Office: A Field Study on the Use of Biometric and Computer Interaction Sensors. Manuela Züger, Sebastian Müller, André Meyer, Thomas Fritz. 
+- [TSE’17](https://www.andre-meyer.ch/TSE17) The Work Life of Developers: Activities, Switches and Perceived Productivity. André Meyer, Gail Murphy, Thomas Zimmermann, Laura Barton, Thomas Fritz. 
+- [CHI’17](https://www.andre-meyer.ch/CHI17) Reducing Interruptions at Work: A Large-Scale Field Study of FlowLight. Manuela Züger, Christopher Corley, André Meyer, Boyang Li, Thomas Fritz, David Shepherd, Vinay Augustine, Patrick Francis, Nicholas Kraft and Will Snipes.
 
 # Credits
 We want to thank the following developers for providing us with the fantastic libraries:
