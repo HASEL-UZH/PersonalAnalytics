@@ -3,6 +3,7 @@ using Shared;
 using Shared.Data;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace SharedTests
 {
@@ -10,10 +11,14 @@ namespace SharedTests
     public class DatabaseImplementationTest
     {
         private DatabaseImplementation _db;
+        private string _exportFilePath;
 
         [TestInitialize]
         public void Initialize()
         {
+            // Set file path to temp to keep tests messages out of log
+            _exportFilePath = Settings.ExportFilePath;
+            Settings.ExportFilePath = Path.GetTempPath();
             _db = new DatabaseImplementation(":memory:");
             _db.Connect();
         }
@@ -22,6 +27,7 @@ namespace SharedTests
         public void Cleanup()
         {
             _db.Disconnect();
+            Settings.ExportFilePath = _exportFilePath;
         }
 
         [TestMethod]
@@ -47,6 +53,7 @@ namespace SharedTests
             Assert.AreEqual(null, _db.ExecuteScalar2(""));
             Assert.AreEqual(0.0, _db.ExecuteScalar3(""));
             Assert.AreEqual(null, _db.ExecuteReadQuery(""));
+            Assert.AreEqual(0, _db.ExecuteBatchQueries("", new List<object[]>()));
         }
 
         [TestMethod]
@@ -194,6 +201,17 @@ namespace SharedTests
             _db.LogErrorUnknown(message);
             // Log table setting is not public
             Assert.AreEqual(4, _db.ExecuteScalar(query, parameter));
+        }
+
+        [TestMethod]
+        public void TransactionWithParameterTest()
+        {
+            var parameter = new object[] { "__test-value__" };
+
+            _db.ExecuteDefaultQuery("CREATE TABLE transaction_test (value TEXT);");
+            Assert.AreEqual(0, _db.ExecuteScalar("SELECT COUNT(*) FROM transaction_test WHERE value LIKE ?;", parameter));
+            Assert.AreEqual(2, _db.ExecuteBatchQueries("INSERT INTO transaction_test VALUES (?);", new[] { parameter, parameter }));
+            Assert.AreEqual(2, _db.ExecuteScalar("SELECT COUNT(*) FROM transaction_test WHERE value LIKE ?;", parameter));
         }
     }
 }
