@@ -10,7 +10,7 @@
 import Foundation
 
 
-class ActivityVisualization: Visualization{
+class ActivityVisualization: IVisualization{
   
     let Size: String
 

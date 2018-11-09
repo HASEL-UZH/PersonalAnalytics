@@ -9,7 +9,7 @@
 
 import Foundation
 
-class DayWeekProductivityTimeline: Visualization {
+class DayWeekProductivityTimeline: IVisualization {
     
     
     class MyPair

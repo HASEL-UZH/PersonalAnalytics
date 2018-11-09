@@ -8,7 +8,7 @@
 
 import Foundation
 
-class DayTimeSpentVisualization: Visualization {
+class DayTimeSpentVisualization: IVisualization {
     
     let sql: ActivitySQLController
     let Size: String = "Wide"

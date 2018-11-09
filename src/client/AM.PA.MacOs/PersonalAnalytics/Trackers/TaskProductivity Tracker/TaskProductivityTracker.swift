@@ -7,10 +7,15 @@
 
 import Foundation
 
-class TaskProductivityTracker: NSObject, Tracker{
+fileprivate enum Settings{
+    static let DbTableIntervalPopup = "user_efficiency_survey"
+    static let DbTableDailyPopup = "user_efficiency_survey_day"
+}
+
+class TaskProductivityTracker: ITracker{
     
-    var viz: [Visualization] = []
-    let type: String = "TaskProductivity"
+    var name: String
+    var isRunning: Bool
     var notificationTimer: Timer?
     var isIdle = false
     var isPaused = false
@@ -18,13 +23,31 @@ class TaskProductivityTracker: NSObject, Tracker{
     //var notificationsDisabled: Boolean = false
 
 
-    override init(){
-        super.init()
+    init(){
+        name = "User Efficiency Survey"
+        isRunning = true
         //notificationTimer = Timer.scheduledTimer(timeInterval: summaryIntervalMinutes * 60.0, target: self, selector: #selector(showNotificationThatLinksToSummary), userInfo: nil, repeats: true)
         //notificationTimer?.tolerance = 120
         
         NotificationCenter.default.addObserver(self, selector: #selector(self.handleIdle(_:)), name: NSNotification.Name(rawValue: "isIdle"), object: nil)
-        
+    }
+    
+    func createDatabaseTablesIfNotExist() {
+        let dbController = DatabaseController.getDatabaseController()
+        do{
+            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS " + Settings.DbTableIntervalPopup + " (id INTEGER PRIMARY KEY, time TEXT, surveyNotifyTime TEXT, surveyStartTime TEXT, surveyEndTime TEXT, userProductivity NUMBER, column1 TEXT, column2 TEXT, column3 TEXT, column4 TEXT, column5 TEXT, column6 TEXT, column7 TEXT, column8 TEXT )");
+            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS " + Settings.DbTableDailyPopup + " (id INTEGER PRIMARY KEY, time TEXT, workDay TEXT, surveyNotifyTime TEXT, surveyStartTime TEXT, surveyEndTime TEXT, userProductivity NUMBER, column1 TEXT, column2 TEXT, column3 TEXT, column4 TEXT, column5 TEXT, column6 TEXT, column7 TEXT, column8 TEXT )");
+        }
+        catch{
+            print(error)
+        }
+    }
+    
+    func updateDatabaseTables(version: Int) {
+    }
+    
+    func getVisualizationsDay(date: Date) -> [IVisualization] {
+        var viz: [IVisualization] = []
         do{
             viz.append(try DayProductivityTimeline())
         }
@@ -37,8 +60,8 @@ class TaskProductivityTracker: NSObject, Tracker{
         catch{
             print(error)
         }
+        return viz
     }
-
     
     @objc
     func handleIdle(_ notification: NSNotification){
@@ -62,11 +85,11 @@ class TaskProductivityTracker: NSObject, Tracker{
         notificationsDisabled = false
     }
     */
-    func pause(){
+    func stop(){
         //TODO: do something
     }
     
-    func resume(){
+    func start(){
         //TODO: do something
     }
     

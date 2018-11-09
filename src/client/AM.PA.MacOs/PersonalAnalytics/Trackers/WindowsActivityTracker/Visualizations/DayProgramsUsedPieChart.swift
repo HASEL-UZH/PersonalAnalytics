@@ -9,7 +9,7 @@
 
 import Foundation
 
-class DayProgamsUsedPieChart: Visualization {
+class DayProgamsUsedPieChart: IVisualization {
     
     let Size:String
     let color = AppConstants.retrospectiveColor

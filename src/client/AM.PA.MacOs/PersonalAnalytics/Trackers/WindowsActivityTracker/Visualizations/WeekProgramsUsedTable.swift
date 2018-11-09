@@ -9,7 +9,7 @@
 
 import Foundation
 
-class WeekProgramsUsedTable: Visualization{
+class WeekProgramsUsedTable: IVisualization{
 
     
     fileprivate class Programs{

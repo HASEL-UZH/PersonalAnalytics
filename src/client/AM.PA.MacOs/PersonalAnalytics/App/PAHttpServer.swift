@@ -185,7 +185,7 @@ class PAHttpServer: NSObject {
         do{
             try server.start(self.port)
         } catch {
-            print("Server didn't start")
+            print(error)
         }
     }
     

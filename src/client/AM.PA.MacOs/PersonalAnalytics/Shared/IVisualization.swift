@@ -12,7 +12,7 @@ enum VisConstants{
     static let Day: String = "day"
 }
 
-protocol Visualization{
+protocol IVisualization{
     
     //size of visualization to be rendered
     //Square...

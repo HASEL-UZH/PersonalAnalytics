@@ -7,7 +7,7 @@
 //  Adapted from Windows version created by André Meyer
 
 
-class DayFragmentationTimeline: Visualization{
+class DayFragmentationTimeline: IVisualization{
     
     var title: String
     let color = AppConstants.retrospectiveColor

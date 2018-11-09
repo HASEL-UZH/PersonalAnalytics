@@ -7,14 +7,18 @@
 
 import Foundation
 import CoreGraphics
+import Quartz
 
-class ActiveApplicationTracker: Tracker{
-    let type: String = "ActiveApplication"
+fileprivate enum Settings{
+    static let DbTable = "windows_activity"
+}
 
+class ActiveApplicationTracker: ITracker{
+    var name: String
+    var isRunning: Bool
     
     var applications: [ActiveApplication] = []
     let maxAppCount = 100
-    var viz: [Visualization]
     let defaults = UserDefaults.standard
     var applicationTimer: Timer?
     var idleTime: CFTimeInterval = 0
@@ -25,15 +29,16 @@ class ActiveApplicationTracker: Tracker{
     var isPaused = false
 
   
-    required init(){
-        viz = []
+    init(){
         isIdle = false
+        name = "ActiveApplication"
+        isRunning = true
         
         unsafeChars = NSCharacterSet.alphanumerics
         unsafeChars.insert(charactersIn: "<>?';:\",.][{}\\|+=-_)(*&^%$#@!~`")
         unsafeChars = unsafeChars.inverted
         
-        applicationTimer = Timer.scheduledTimer(timeInterval: 60, target: self, selector: #selector(saveCurrentApplicationToMemory), userInfo: nil, repeats: true)
+        applicationTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(saveCurrentApplicationToMemory), userInfo: nil, repeats: true)
         idleTimer = Timer.scheduledTimer(timeInterval: 10, target: self, selector: #selector(checkForIdle), userInfo: nil, repeats: true)
         
         applicationTimer!.tolerance = 10
@@ -48,8 +53,25 @@ class ActiveApplicationTracker: Tracker{
                                                             selector: #selector(onSleepReset),
                                                             name: NSWorkspace.willSleepNotification,
                                                             object: nil)
-        
-        
+
+    }
+    
+    func createDatabaseTablesIfNotExist() {
+        let dbController = DatabaseController.getDatabaseController()
+        let query: String = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable +  " (id INTEGER PRIMARY KEY, time TEXT, tsStart TEXT, tsEnd TEXT, window TEXT, process TEXT);"
+        do{
+            try dbController.executeUpdate(query: query)
+        }
+        catch{
+            print(error)
+        }
+    }
+    
+    func updateDatabaseTables(version: Int) {
+    }
+    
+    func getVisualizationsDay(date: Date) -> [IVisualization] {
+        var viz: [IVisualization] = []
         do{
             viz.append(try DayProgamsUsedPieChart())
         }
@@ -70,31 +92,35 @@ class ActiveApplicationTracker: Tracker{
         catch{
             print(error)
         }
-        
-        do{
-            viz.append(try WeekProgramsUsedTable())
-        }
-        catch{
-            print(error)
-        }
-        
         do{
             viz.append(try DayTimeSpentVisualization())
         }
         catch{
             print(error)
         }
-
+        return viz
     }
     
-    func pause(){
+    func getVisualizationsWeek(date: Date) -> [IVisualization] {
+        var viz: [IVisualization] = []
+        do{
+            viz.append(try WeekProgramsUsedTable())
+        }
+        catch{
+            print(error)
+        }
+
+        return viz
+    }
+    
+    func stop(){
         applicationTimer?.invalidate()
         idleTimer?.invalidate()
         isPaused = true
         DataObjectController.sharedInstance.acceptingWebsites = false
     }
     
-    func resume(){
+    func start(){
         if(isPaused == false){
             return
         }
@@ -149,8 +175,6 @@ class ActiveApplicationTracker: Tracker{
             return
         }
         
-
-        
         func resetApplicationList(){
             if(!applications.isEmpty){
                 let previousApp = applications.popLast()!
@@ -158,24 +182,9 @@ class ActiveApplicationTracker: Tracker{
             }
         }
         
-        func runApplescript(_ applescriptString: String) -> String{
-             var error: NSDictionary?
-             if let scriptObject = NSAppleScript(source: applescriptString) {
-                 if let output: NSAppleEventDescriptor = scriptObject.executeAndReturnError(&error) {
-                     if let URL = output.stringValue {
-                        return URL // This is the important outcome, the rest don't matter
-                    }
-                 }
-             }
-            print(error!)
-            return ""
-         }
-         
-        let thisComputer = NSWorkspace.shared
-        let activeApps = thisComputer.runningApplications.filter { $0.isActive }
+        if let activeApp = NSWorkspace.shared.frontmostApplication {
         // I've had a problem with a thread being created which makes no apps active, so it crashed on activeApps.first!
         // Now I'm confirming it has a name
-        if let activeApp = activeApps.first {
             // Get first/only element
             let activeAppName: String
             var title = ""
@@ -184,31 +193,21 @@ class ActiveApplicationTracker: Tracker{
             }
             else{
                 //https://stackoverflow.com/questions/5292204/macosx-get-foremost-window-title
-                activeAppName = activeApp.localizedName! //runtime error if nil
-                title = "global frontApp, frontAppName, windowTitle"
-                title += "\nset windowTitle to \"\""
-                title += "\ntell application \"System Events\""
-                title += "\n    set frontApp to first application process whose frontmost is true"
-                title += "\n    set frontAppName to name of frontApp"
-                title += "\n    set windowTitle to \"no window\""
-                title += "\n    tell process frontAppName"
-                title += "\n        if exists (1st window whose value of attribute \"AXMain\" is true) then"
-                title += "\n            tell (1st window whose value of attribute \"AXMain\" is true)"
-                title += "\n                set windowTitle to value of attribute \"AXTitle\""
-                title += "\n            end tell"
-                title += "\n        end if"
-                title += "\n    end tell"
-                title += "\nend tell"
-                title += "\nreturn windowTitle"
+                activeAppName = activeApp.localizedName!
+                let options = CGWindowListOption(arrayLiteral: CGWindowListOption.excludeDesktopElements, CGWindowListOption.optionOnScreenOnly)
+                let windowListInfo = CGWindowListCopyWindowInfo(options, kCGNullWindowID)
+                let infoList = windowListInfo as NSArray? as? [[String: AnyObject]]
+                let flattenedInfoList = infoList.flatMap { $0 }
                 
-                title = runApplescript(title)
+                let activeWindows = flattenedInfoList?.filter { $0["kCGWindowOwnerPID"] as! pid_t == activeApp.processIdentifier }
                 
-                title = title.trimmingCharacters(in: unsafeChars)
-                if(title == "no window"){
-                    title = ""
-                }
-                if(activeAppName == "PersonalAnalytics"){
-                    title = "PersonalAnalytics"
+                for window in activeWindows ?? [] {
+                    if window["kCGWindowName"] != nil {
+                        if window["kCGWindowName"] as! String != "" {
+                            title = window["kCGWindowName"] as! String
+                            break
+                        }
+                    }
                 }
             }
             
@@ -230,6 +229,7 @@ class ActiveApplicationTracker: Tracker{
                         resetApplicationList()
                     }
                     applications.append(DataObjectController.sharedInstance.newActiveApplication(activeAppName, title: title))
+                    print(title)
                 }
             }
            

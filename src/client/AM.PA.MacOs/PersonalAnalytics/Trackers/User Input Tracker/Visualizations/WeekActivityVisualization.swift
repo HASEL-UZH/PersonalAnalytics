@@ -7,7 +7,7 @@
 
 import Foundation
 
-class WeekActivityVisualization: Visualization{
+class WeekActivityVisualization: IVisualization{
     let Size: String
     let color = AppConstants.retrospectiveColor
     var title: String

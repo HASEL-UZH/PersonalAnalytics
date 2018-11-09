@@ -10,7 +10,7 @@
 import Foundation
 
 
-class DayMostFocusedProgram: Visualization{
+class DayMostFocusedProgram: IVisualization{
     
     let Size: String
     let color = AppConstants.retrospectiveColor

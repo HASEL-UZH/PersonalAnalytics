@@ -59,8 +59,8 @@
 		B9851FE91ED6594A002C24AF /* VisHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9851FE81ED6594A002C24AF /* VisHelper.swift */; };
 		B9873A7A1EBA5DEF0050E864 /* MouseActionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9873A791EBA5DEF0050E864 /* MouseActionController.swift */; };
 		B9873A7C1EBA92DA0050E864 /* UserInputTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9873A7B1EBA92DA0050E864 /* UserInputTracker.swift */; };
-		B9A0B7A51EDA373900BE6F71 /* Tracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7A41EDA373900BE6F71 /* Tracker.swift */; };
-		B9A0B7A71EDA540F00BE6F71 /* Visualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7A61EDA540F00BE6F71 /* Visualization.swift */; };
+		B9A0B7A51EDA373900BE6F71 /* ITracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7A41EDA373900BE6F71 /* ITracker.swift */; };
+		B9A0B7A71EDA540F00BE6F71 /* IVisualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7A61EDA540F00BE6F71 /* IVisualization.swift */; };
 		B9A0B7AA1EDC924300BE6F71 /* ActiveApplicationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7A91EDC924300BE6F71 /* ActiveApplicationTracker.swift */; };
 		B9A0B7AC1EDCB8B600BE6F71 /* SQLController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7AB1EDCB8B600BE6F71 /* SQLController.swift */; };
 		B9A0B7AE1EDCBCFD00BE6F71 /* DayProgramsUsedPieChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7AD1EDCBCFD00BE6F71 /* DayProgramsUsedPieChart.swift */; };
@@ -173,8 +173,8 @@
 		B9873A791EBA5DEF0050E864 /* MouseActionController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MouseActionController.swift; sourceTree = "<group>"; };
 		B9873A7B1EBA92DA0050E864 /* UserInputTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserInputTracker.swift; sourceTree = "<group>"; };
 		B98D8D0D217E9CE40065FD71 /* PersonalAnalytics.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = PersonalAnalytics.xcdatamodel; sourceTree = "<group>"; };
-		B9A0B7A41EDA373900BE6F71 /* Tracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Tracker.swift; sourceTree = "<group>"; };
-		B9A0B7A61EDA540F00BE6F71 /* Visualization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Visualization.swift; sourceTree = "<group>"; };
+		B9A0B7A41EDA373900BE6F71 /* ITracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ITracker.swift; sourceTree = "<group>"; };
+		B9A0B7A61EDA540F00BE6F71 /* IVisualization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IVisualization.swift; sourceTree = "<group>"; };
 		B9A0B7A91EDC924300BE6F71 /* ActiveApplicationTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActiveApplicationTracker.swift; sourceTree = "<group>"; };
 		B9A0B7AB1EDCB8B600BE6F71 /* SQLController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SQLController.swift; sourceTree = "<group>"; };
 		B9A0B7AD1EDCBCFD00BE6F71 /* DayProgramsUsedPieChart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DayProgramsUsedPieChart.swift; sourceTree = "<group>"; };
@@ -266,6 +266,7 @@
 				B9C79F851ECA6F0D00E005F0 /* App */,
 				B9C79F821ECA6CAB00E005F0 /* Retrospective */,
 				0D581ADF1BD8A0FC00D3F647 /* Models */,
+				B9A0B7A81EDA552000BE6F71 /* Shared */,
 				B9C79F801ECA6BCA00E005F0 /* Trackers */,
 			);
 			path = PersonalAnalytics;
@@ -357,7 +358,7 @@
 			path = "User Input Tracker";
 			sourceTree = "<group>";
 		};
-		B9A0B7A21EDA359500BE6F71 /* Activity Tracker */ = {
+		B9A0B7A21EDA359500BE6F71 /* WindowsActivityTracker */ = {
 			isa = PBXGroup;
 			children = (
 				B97A0E3B1EE77689000DCCEC /* Visualizations */,
@@ -366,10 +367,10 @@
 				B9D50B7D1EDF443900145EC8 /* Activity.swift */,
 				B9D50B7F1EDF588E00145EC8 /* ActivityCategory.swift */,
 			);
-			path = "Activity Tracker";
+			path = WindowsActivityTracker;
 			sourceTree = "<group>";
 		};
-		B9A0B7A31EDA369000BE6F71 /* Task/Productivity Tracker */ = {
+		B9A0B7A31EDA369000BE6F71 /* UserEfficiencyTracker */ = {
 			isa = PBXGroup;
 			children = (
 				B97A0E261EE5F964000DCCEC /* Visualizations */,
@@ -379,15 +380,15 @@
 				B97A0E391EE5FB84000DCCEC /* TaskProductivitySQLController.swift */,
 				B90790241F01CC27003B9CF7 /* TaskProductivityTracker.swift */,
 			);
-			name = "Task/Productivity Tracker";
+			name = UserEfficiencyTracker;
 			path = "TaskProductivity Tracker";
 			sourceTree = "<group>";
 		};
 		B9A0B7A81EDA552000BE6F71 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				B9A0B7A61EDA540F00BE6F71 /* Visualization.swift */,
-				B9A0B7A41EDA373900BE6F71 /* Tracker.swift */,
+				B9A0B7A61EDA540F00BE6F71 /* IVisualization.swift */,
+				B9A0B7A41EDA373900BE6F71 /* ITracker.swift */,
 				0D0245F71BD1651300213D2A /* DataObjectController.swift */,
 				B9A0B7AB1EDCB8B600BE6F71 /* SQLController.swift */,
 				B9851FE71ED65937002C24AF /* Helpers */,
@@ -408,10 +409,9 @@
 			isa = PBXGroup;
 			children = (
 				B904C25B1F01AEF000624D9C /* TrackerManager.swift */,
-				B9A0B7A81EDA552000BE6F71 /* Shared */,
 				B9A0B7A11EDA356A00BE6F71 /* User Input Tracker */,
-				B9A0B7A21EDA359500BE6F71 /* Activity Tracker */,
-				B9A0B7A31EDA369000BE6F71 /* Task/Productivity Tracker */,
+				B9A0B7A21EDA359500BE6F71 /* WindowsActivityTracker */,
+				B9A0B7A31EDA369000BE6F71 /* UserEfficiencyTracker */,
 			);
 			path = Trackers;
 			sourceTree = "<group>";
@@ -482,7 +482,7 @@
 				TargetAttributes = {
 					0DB3DF231BAF49AC00144935 = {
 						CreatedOnToolsVersion = 7.0;
-						LastSwiftMigration = 0930;
+						LastSwiftMigration = 1000;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -576,7 +576,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/GRDB.swift/GRDB.framework",
 				"${BUILT_PRODUCTS_DIR}/Swifter/Swifter.framework",
 			);
@@ -587,7 +587,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -602,11 +602,11 @@
 				B9A310411EC5264E003B2470 /* PreferencesWindowController.swift in Sources */,
 				0D0245F81BD1651300213D2A /* DataObjectController.swift in Sources */,
 				B97A0E3A1EE5FB84000DCCEC /* TaskProductivitySQLController.swift in Sources */,
-				B9A0B7A71EDA540F00BE6F71 /* Visualization.swift in Sources */,
+				B9A0B7A71EDA540F00BE6F71 /* IVisualization.swift in Sources */,
 				B9A0B7B21EDCE0EA00BE6F71 /* DayMostFocusedProgram.swift in Sources */,
 				B914B7181EBBA5C10009C5D0 /* Website+CoreDataClass.swift in Sources */,
 				B9A0B7AC1EDCB8B600BE6F71 /* SQLController.swift in Sources */,
-				B9A0B7A51EDA373900BE6F71 /* Tracker.swift in Sources */,
+				B9A0B7A51EDA373900BE6F71 /* ITracker.swift in Sources */,
 				B914B72C1EBD28D00009C5D0 /* AggregatedInput+CoreDataClass.swift in Sources */,
 				B914B7201EBBA5C10009C5D0 /* Summary+CoreDataClass.swift in Sources */,
 				B914B72D1EBD28D00009C5D0 /* AggregatedInput+CoreDataProperties.swift in Sources */,
@@ -860,7 +860,7 @@
 				B974C78B216D700F00B905A9 /* Collector.xcdatamodel */,
 				B974C78C216D700F00B905A9 /* Collector 2.xcdatamodel */,
 			);
-			currentVersion = B974C78C216D700F00B905A9 /* Collector 2.xcdatamodel */;
+			currentVersion = B98D8D0D217E9CE40065FD71 /* PersonalAnalytics.xcdatamodel */;
 			path = PersonalAnalytics.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

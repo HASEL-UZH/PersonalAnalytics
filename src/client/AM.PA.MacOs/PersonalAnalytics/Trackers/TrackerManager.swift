@@ -19,28 +19,32 @@ class TrackerManager {
     //singleton instance
     static let shared: TrackerManager = TrackerManager()
     
-    fileprivate var trackers: [String:Tracker]
-    fileprivate let order: [String] = [TrackerType.UserInput, TrackerType.ActiveApplication, TrackerType.TaskProductivity]
+    fileprivate var trackers: [String:ITracker]
     
     fileprivate init(){
-        trackers = [String:Tracker]()
+        trackers = [String:ITracker]()
     }
     
     func getVisualizations(date: Date, type: String) -> String{
         var html = ""
-        for tracker in order{
-            if let visualizations = trackers[tracker]?.viz{
-                for viz in visualizations{
-                    html += CreateDashboardItem(viz, date: date, type: type)
-                }
+        for (_, tracker) in trackers{
+            var viz: [IVisualization]?
+            if(type == VisConstants.Day){
+                viz = tracker.getVisualizationsDay(date: date)
+            }
+            else if(type == VisConstants.Week){
+                viz = tracker.getVisualizationsWeek(date: date)
+            }
+            for v in viz!{
+                html += CreateDashboardItem(v, date: date, type: type)
             }
         }
         return html
     }
             
-    func register(tracker: Tracker){
-        if(trackers[tracker.type] == nil){
-            trackers[tracker.type] = tracker
+    func register(tracker: ITracker){
+        if(trackers[tracker.name] == nil){
+            trackers[tracker.name] = tracker
         }
         else{
             print("tracker already registered")
@@ -49,28 +53,28 @@ class TrackerManager {
     
     func pause(){
         for tracker in trackers{
-            tracker.value.pause()
+            tracker.value.stop()
         }
     }
     
     func resume(){
         for tracker in trackers{
-            tracker.value.resume()
+            tracker.value.start()
         }
     }
     
     func deregister(type: String){
         if(trackers[type] != nil){
-            trackers[type]?.pause()
+            trackers[type]?.stop()
             trackers[type] = nil
         }
     }
     
-    func getTracker(tracker: String) -> Tracker {
+    func getTracker(tracker: String) -> ITracker {
         return trackers[tracker]!
     }
     
-    fileprivate func CreateDashboardItem(_ viz: Visualization, date: Date, type: String) -> String{
+    fileprivate func CreateDashboardItem(_ viz: IVisualization, date: Date, type: String) -> String{
         let html = viz.getHtml(date, type: type)
         if(html == ""){
             return ""

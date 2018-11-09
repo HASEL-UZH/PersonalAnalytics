@@ -9,7 +9,7 @@
 
 import Foundation
 
-class DayProductivityTimeline: Visualization{
+class DayProductivityTimeline: IVisualization{
     
     var Size: String
     var color: String
