@@ -7,14 +7,13 @@ using FitbitTracker.Data;
 using Shared;
 using Shared.Data;
 using System.Windows;
-using System.Windows.Controls;
 
 namespace FitbitTracker.Views
 {
     /// <summary>
     /// Interaction logic for FirstStartWindow.xaml
     /// </summary>
-    public partial class FirstStartWindow : UserControl, IFirstStartScreen
+    public partial class FirstStartWindow : IFirstStartScreen
     {
 
         private Window _browserWindow;
@@ -51,7 +50,7 @@ namespace FitbitTracker.Views
                 if (Enabled.IsChecked.Value)
                 {
                     Database.GetInstance().SetSettings(Settings.TRACKER_ENEABLED_SETTING, true);
-                    
+
                     var browser = new EmbeddedBrowser(Settings.REGISTRATION_URL);
 
                     _browserWindow = new Window
