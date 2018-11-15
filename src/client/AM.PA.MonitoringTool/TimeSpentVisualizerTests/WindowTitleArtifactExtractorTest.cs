@@ -1,8 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+using Shared.Data.Extractors;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Shared.Data.Extractors;
 
 namespace TimeSpentVisualizer
 {
