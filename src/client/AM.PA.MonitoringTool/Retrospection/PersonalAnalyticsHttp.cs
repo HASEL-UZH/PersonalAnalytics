@@ -2,17 +2,14 @@
 // Created: 2015-10-20
 // 
 // Licensed under the MIT License.
-using System;
-using System.Resources;
-using Shared;
-using Shared.Data;
-using System.Collections.Generic;
-using System.Linq;
-using Shared.Helpers;
 using Retrospection.Feedback;
-using System.Diagnostics;
-using System.Windows;
+using Shared;
+using Shared.Helpers;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using System.Resources;
 using System.Threading.Tasks;
 
 namespace Retrospection
@@ -218,10 +215,10 @@ namespace Retrospection
                 var itemTemplate = "<div class='item {3}'>{0}{1}{2}</div>";
                 return string.Format(CultureInfo.InvariantCulture, itemTemplate, feedbackButtons, chartTitle, html, vis.Size);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                return VisHelper.Error(string.Format(CultureInfo.InvariantCulture, "<div id='item {2}'>An error occurred when creating the visualization: '{0}'.</div>", vis.Title, vis.Size));
+                return VisHelper.Error(string.Format(CultureInfo.InvariantCulture, "<div id='item {1}'>An error occurred when creating the visualization: '{0}'.</div>", vis.Title, vis.Size));
             }
         }
 

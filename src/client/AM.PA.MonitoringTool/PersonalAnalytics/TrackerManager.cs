@@ -2,24 +2,24 @@
 // Created: 2015-10-20
 // 
 // Licensed under the MIT License.
+using Hardcodet.Wpf.TaskbarNotification;
+using Microsoft.Win32;
+using PersonalAnalytics.Views;
+using Shared;
+using Shared.Data;
 using System;
 using System.Collections.Generic;
 using System.Deployment.Application;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Threading;
-using Hardcodet.Wpf.TaskbarNotification;
-using Shared;
-using Shared.Data;
-using System.Windows;
-using System.Globalization;
-using Microsoft.Win32;
 using System.Diagnostics;
+using System.Drawing;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Windows;
 using System.Windows.Controls;
-using PersonalAnalytics.Views;
+using System.Windows.Threading;
 
 namespace PersonalAnalytics
 {
@@ -106,22 +106,28 @@ namespace PersonalAnalytics
             Application.Current.Dispatcher.Invoke(() => TaskbarIcon.ShowBalloonTip(Dict.ToolName, Dict.ToolName + " is running with " + _trackers.Where(t => t.IsRunning).ToList().Count + " data trackers.", BalloonIcon.Info));
 
             // Initialize & start the timer to update the taskbaricon toolitp
-            _taskbarIconTimer = new DispatcherTimer();
-            _taskbarIconTimer.Interval = Settings.TooltipIconUpdateInterval;
+            _taskbarIconTimer = new DispatcherTimer
+            {
+                Interval = Settings.TooltipIconUpdateInterval
+            };
             _taskbarIconTimer.Tick += UpdateTooltipIcon;
             _taskbarIconTimer.Start();
 
             // Initialize & start the timer to check for updates
-            _checkForUpdatesTimer = new DispatcherTimer();
-            _checkForUpdatesTimer.Interval = Settings.CheckForToolUpdatesInterval;
+            _checkForUpdatesTimer = new DispatcherTimer
+            {
+                Interval = Settings.CheckForToolUpdatesInterval
+            };
             _checkForUpdatesTimer.Tick += UpdateApplicationIfNecessary;
             _checkForUpdatesTimer.Start();
 
             // Initialize & start the timer to remind to share study data
             if (Settings.IsUploadEnabled && Settings.IsUploadReminderEnabled)
             {
-                _remindToShareStudyDataTimer = new DispatcherTimer();
-                _remindToShareStudyDataTimer.Interval = Settings.CheckForStudyDataSharedReminderInterval;
+                _remindToShareStudyDataTimer = new DispatcherTimer
+                {
+                    Interval = Settings.CheckForStudyDataSharedReminderInterval
+                };
                 _remindToShareStudyDataTimer.Tick += CheckForStudyDataSharedReminder;
                 _remindToShareStudyDataTimer.Start();
             }
@@ -280,8 +286,10 @@ namespace PersonalAnalytics
 
             if (_remindToContinueTrackerTimer == null)
             {
-                _remindToContinueTrackerTimer = new DispatcherTimer();
-                _remindToContinueTrackerTimer.Interval = Settings.RemindToResumeToolInterval;
+                _remindToContinueTrackerTimer = new DispatcherTimer
+                {
+                    Interval = Settings.RemindToResumeToolInterval
+                };
                 _remindToContinueTrackerTimer.Tick += ((s, e) =>
                 {
                     Application.Current.Dispatcher.Invoke(() =>
@@ -351,9 +359,11 @@ namespace PersonalAnalytics
         /// </summary>
         public void InitializeTaskBarIcon()
         {
-            TaskbarIcon = new TaskbarIcon();
-            TaskbarIcon.Icon = new Icon("Assets/icon.ico");
-            TaskbarIcon.ToolTipText = "PersonalAnalytics starting up...";
+            TaskbarIcon = new TaskbarIcon
+            {
+                Icon = new Icon("Assets/icon.ico"),
+                ToolTipText = "PersonalAnalytics starting up..."
+            };
             TaskbarIcon.TrayMouseDoubleClick += (o, i) => TrayMouseDoubleClicked();
             TaskbarIcon.TrayBalloonTipClicked += TrayBalloonTipClicked;
             SetContextMenuOptions();
@@ -519,7 +529,7 @@ namespace PersonalAnalytics
             try
             {
                 var userEfficiencyTracker =
-                    _trackers.Where(t => t.GetType() == typeof (UserEfficiencyTracker.Daemon))
+                    _trackers.Where(t => t.GetType() == typeof(UserEfficiencyTracker.Daemon))
                         .Cast<UserEfficiencyTracker.Daemon>()
                         .FirstOrDefault();
                 if (userEfficiencyTracker == null) return;
@@ -565,7 +575,7 @@ namespace PersonalAnalytics
             TaskbarIcon.ToolTipText = message;
         }
 
-#endregion
+        #endregion
 
         #region Helpers
 
@@ -578,7 +588,7 @@ namespace PersonalAnalytics
         private void CheckForStudyDataSharedReminder(object sender, EventArgs e)
         {
             // only show reminder if the upload is enabled (i.e. during a study)
-            if (! Settings.IsUploadEnabled || ! Settings.IsUploadReminderEnabled) return;
+            if (!Settings.IsUploadEnabled || !Settings.IsUploadReminderEnabled) return;
 
             var lastTimeShown = Database.GetInstance().GetSettingsDate("LastTimeUploadReminderShown", DateTimeOffset.MinValue);
             var databaseSince = Database.GetInstance().GetSettingsDate("SettingsTableCreatedDate", DateTimeOffset.MinValue);
@@ -653,8 +663,8 @@ namespace PersonalAnalytics
             {
                 // shouldn't happen
                 Database.GetInstance().LogError(string.Format(CultureInfo.InvariantCulture, "Failed to install the newest version of the application. The ClickOnce Deployment is corrupt (error: InvalidDeploymentException, details: {0}).", ide.Message));
-                MessageBox.Show("Cannot check for a new version of the application. The ClickOnce deployment is corrupt. Please redeploy the application and try again. Please contact us in case this problem persists or you have any questions.", 
-                    Dict.ToolName + ": Error", 
+                MessageBox.Show("Cannot check for a new version of the application. The ClickOnce deployment is corrupt. Please redeploy the application and try again. Please contact us in case this problem persists or you have any questions.",
+                    Dict.ToolName + ": Error",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return;
@@ -679,7 +689,7 @@ namespace PersonalAnalytics
                 if (!info.IsUpdateRequired)
                 {
                     var dr = MessageBox.Show("An update is available (from your current version to version " + info.AvailableVersion + "). Would you like to update the application now?",
-                        Dict.ToolName + ": Update Available", 
+                        Dict.ToolName + ": Update Available",
                         MessageBoxButton.OKCancel,
                         MessageBoxImage.Question);
                     if (!(MessageBoxResult.OK == dr))
@@ -692,7 +702,7 @@ namespace PersonalAnalytics
                 {
                     // Display a message that the app MUST reboot. Display the minimum required version.
                     MessageBox.Show("A mandatory update is available (from your current version to version " + info.AvailableVersion + "). The application will now install the update and restart.",
-                        Dict.ToolName + ": Mandatory Update Available", 
+                        Dict.ToolName + ": Mandatory Update Available",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
                 }
@@ -703,8 +713,8 @@ namespace PersonalAnalytics
                     {
                         ad.Update();
                         Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "Successfully updated tool to version {0}.", info.AvailableVersion));
-                        MessageBox.Show("The application has been upgraded, and will now restart.", 
-                            Dict.ToolName + ": Successfully Updated", 
+                        MessageBox.Show("The application has been upgraded, and will now restart.",
+                            Dict.ToolName + ": Successfully Updated",
                             MessageBoxButton.OK,
                             MessageBoxImage.Information);
 
@@ -721,7 +731,7 @@ namespace PersonalAnalytics
                         Database.GetInstance().LogError(string.Format(CultureInfo.InvariantCulture, "Updating the tool to version {0} failed (error: InvalidOperationException, see errors.log for details).", info.AvailableVersion));
                         Logger.WriteToLogFile(dde);
                         MessageBox.Show("Cannot install the latest version of the application. Please check your network connection and try again later. Please contact us in case this problem persists.",
-                            Dict.ToolName + ": Error", 
+                            Dict.ToolName + ": Error",
                             MessageBoxButton.OK,
                             MessageBoxImage.Error);
                         return;
@@ -730,18 +740,17 @@ namespace PersonalAnalytics
             }
         }
 
-#region Check for Internet Connection
+        #region Check for Internet Connection
 
         [DllImport("wininet.dll")]
         private extern static bool InternetGetConnectedState(out int description, int reservedValue);
 
         public static bool IsConnectedToTheInternet()
         {
-            int description;
-            return InternetGetConnectedState(out description, 0);
+            return InternetGetConnectedState(out _, 0);
         }
 
-#endregion
+        #endregion
 
         /// <summary>
         /// Shutdown the application only if the state is saved, database disconnected, etc.
@@ -791,6 +800,6 @@ namespace PersonalAnalytics
 
 #endregion */
 
-#endregion
+        #endregion
     }
 }

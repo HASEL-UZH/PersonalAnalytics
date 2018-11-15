@@ -1,6 +1,6 @@
 ﻿// Created by Sebastian Mueller (smueller@ifi.uzh.ch) from the University of Zurich
 // Created: 2016-12-07
-// 
+//
 // Licensed under the MIT License.
 //
 // Adapted from: https://code.msdn.microsoft.com/windowsapps/Bluetooth-Generic-5a99ef95/view/SourceCode#content
@@ -8,10 +8,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Windows.Storage.Streams;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Enumeration.Pnp;
+using Windows.Storage.Streams;
 
 namespace BluetoothLowEnergy
 {
@@ -32,9 +32,9 @@ namespace BluetoothLowEnergy
         private const GattClientCharacteristicConfigurationDescriptorValue CHARACTERISTIC_NOTIFICATION_TYPE = GattClientCharacteristicConfigurationDescriptorValue.Notify;
         private const string ConnectedProperty = "System.Devices.Connected";
         private const string ContainerIDProperty = "System.Devices.ContainerId";
-        private static HeartRateService _instance = new HeartRateService();
+        private static readonly HeartRateService _instance = new HeartRateService();
 
-        private Guid CHARACTERISTIC_UUID = GattCharacteristicUuids.HeartRateMeasurement;
+        private readonly Guid CHARACTERISTIC_UUID = GattCharacteristicUuids.HeartRateMeasurement;
         private GattDeviceService _service;
         private GattCharacteristic _characteristic;
         private List<HeartRateMeasurement> _datapoints;
@@ -78,14 +78,14 @@ namespace BluetoothLowEnergy
         {
             _datapoints = new List<HeartRateMeasurement>();
         }
-        
+
         //Starts the service. Returns true if started sucessfully and false otherwise.
         public async Task<bool> InitializeServiceAsync(DeviceInformation device)
         {
             try
             {
                 _deviceContainerId = "{" + device.Properties[ContainerIDProperty] + "}";
-                
+
                 try
                 {
                     _service = await GattDeviceService.FromIdAsync(device.Id);
@@ -113,11 +113,11 @@ namespace BluetoothLowEnergy
                 }
                 else
                 {
-                   LoggerWrapper.Instance.WriteToConsole("Access to the device is denied, because the application was not granted access, or the device is currently in use by another application.");
-                   return false;
+                    LoggerWrapper.Instance.WriteToConsole("Access to the device is denied, because the application was not granted access, or the device is currently in use by another application.");
+                    return false;
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return false;
             }
@@ -202,7 +202,7 @@ namespace BluetoothLowEnergy
             DataReader.FromBuffer(args.CharacteristicValue).ReadBytes(data);
 
             List<HeartRateMeasurement> values = ProcessRawData(data);
-           
+
             lock (_datapoints)
             {
                 foreach (HeartRateMeasurement value in values)
@@ -220,7 +220,7 @@ namespace BluetoothLowEnergy
 
             List<HeartRateMeasurement> measurements = new List<HeartRateMeasurement>();
             HeartRateMeasurement measurement = new HeartRateMeasurement();
-            
+
             byte flags = heartRateRecord[0];
             ushort offset = 1;
 
@@ -235,7 +235,7 @@ namespace BluetoothLowEnergy
             else //uint8
             {
                 byte heartrate = heartRateRecord[offset];
-                measurement.HeartRateValue = (double) heartrate;
+                measurement.HeartRateValue = (double)heartrate;
                 offset += 1;
             }
 

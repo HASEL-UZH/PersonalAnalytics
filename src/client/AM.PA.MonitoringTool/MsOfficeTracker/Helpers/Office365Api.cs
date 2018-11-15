@@ -3,15 +3,15 @@
 // 
 // Licensed under the MIT License.
 
-using System;
-using System.Globalization;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Linq;
-using Shared.Data;
-using System.Runtime.InteropServices;
 using Microsoft.Graph;
 using Microsoft.Identity.Client;
+using Shared.Data;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Logger = Shared.Logger;
 using Message = Microsoft.Graph.Message;
 
@@ -66,7 +66,7 @@ namespace MsOfficeTracker.Helpers
             if (isAuthenticated)
             {
                 var userName = (Shared.Settings.AnonymizeSensitiveData) ? Shared.Dict.Anonymized : _authResult.User.Name;
-                Database.GetInstance().LogInfo("Successfully logged in with Office 365 (as " + userName + ")." );
+                Database.GetInstance().LogInfo("Successfully logged in with Office 365 (as " + userName + ").");
                 return true;
             }
             else
@@ -87,7 +87,7 @@ namespace MsOfficeTracker.Helpers
         /// <returns></returns>
         public async Task<bool> ConnectionToApiFailing()
         {
-            return _authResult == null || ! IsInternetAvailable() || ! await TrySilentAuthentication();
+            return _authResult == null || !IsInternetAvailable() || !await TrySilentAuthentication();
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace MsOfficeTracker.Helpers
         private async Task<bool> TrySilentAuthentication()
         {
             // check for internet connection
-            if (! IsInternetAvailable()) return false;
+            if (!IsInternetAvailable()) return false;
 
             try
             {
@@ -106,12 +106,12 @@ namespace MsOfficeTracker.Helpers
                 if (_clientId == null)
                 {
                     _clientId = GetOffice365ApiClientId();
-                    if (_clientId == null) return false; 
+                    if (_clientId == null) return false;
                 }
 
                 // register app (if not yet done)
                 if (_app == null)
-                { 
+                {
                     _app = new PublicClientApplication(_clientId, _authority, FileCache.GetUserCache());
                 }
 
@@ -158,7 +158,7 @@ namespace MsOfficeTracker.Helpers
                 string clientId = client.GetOffice365ClientId();
                 if (clientId != null)
                 {
-                     return clientId;
+                    return clientId;
                 }
             }
             catch (Exception e)
@@ -227,8 +227,7 @@ namespace MsOfficeTracker.Helpers
 
         public static bool IsInternetAvailable()
         {
-            int description;
-            return InternetGetConnectedState(out description, 0);
+            return InternetGetConnectedState(out _, 0);
         }
 
         #endregion
@@ -273,7 +272,7 @@ namespace MsOfficeTracker.Helpers
                     // remove unneeded meetings
                     meetings = meetingsUnfiltered.Where(
                                     m => (m.IsCancelled != null && m.IsCancelled.Value == false) // && // meeting is not cancelled
-                                         //(m.IsOrganizer != null && !m.IsOrganizer.Value && (m.ResponseStatus.Response == ResponseType.Accepted || m.ResponseStatus.Response == ResponseType.TentativelyAccepted))) // user attends meeting
+                                                                                                 //(m.IsOrganizer != null && !m.IsOrganizer.Value && (m.ResponseStatus.Response == ResponseType.Accepted || m.ResponseStatus.Response == ResponseType.TentativelyAccepted))) // user attends meeting
                                     ).ToList();
                 }
             }
@@ -585,7 +584,7 @@ namespace MsOfficeTracker.Helpers
                 }
 
                 // filter folders we want to ignore
-                var foldersToIgnore = new List<string>{"deleted", "junk", "spam", "sent", "draft", "outbox", "clutter", "archive"};
+                var foldersToIgnore = new List<string> { "deleted", "junk", "spam", "sent", "draft", "outbox", "clutter", "archive" };
                 foreach (var item in folderList)
                 {
                     foreach (var ignoreFolder in foldersToIgnore)

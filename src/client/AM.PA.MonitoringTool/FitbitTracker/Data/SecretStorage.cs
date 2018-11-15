@@ -1,6 +1,6 @@
 ﻿// Created by Sebastian Mueller (smueller@ifi.uzh.ch) from the University of Zurich
 // Created: 2017-01-30
-// 
+//
 // Licensed under the MIT License.
 
 using System;
@@ -109,7 +109,7 @@ namespace FitbitTracker.Data
                     return null;
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return null;
             }
@@ -121,7 +121,7 @@ namespace FitbitTracker.Data
             try
             {
                 var credential = vault.FindAllByResource(RESOURCE_NAME).FirstOrDefault();
-                
+
                 if (credential != null)
                 {
                     return vault.Retrieve(RESOURCE_NAME, kind).Password;
@@ -131,7 +131,7 @@ namespace FitbitTracker.Data
                     return null;
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return null;
             }
