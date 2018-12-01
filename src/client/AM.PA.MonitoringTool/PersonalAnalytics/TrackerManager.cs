@@ -2,24 +2,24 @@
 // Created: 2015-10-20
 // 
 // Licensed under the MIT License.
+using Hardcodet.Wpf.TaskbarNotification;
+using Microsoft.Win32;
+using PersonalAnalytics.Views;
+using Shared;
+using Shared.Data;
 using System;
 using System.Collections.Generic;
 using System.Deployment.Application;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Threading;
-using Hardcodet.Wpf.TaskbarNotification;
-using Shared;
-using Shared.Data;
-using System.Windows;
-using System.Globalization;
-using Microsoft.Win32;
 using System.Diagnostics;
+using System.Drawing;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Windows;
 using System.Windows.Controls;
-using PersonalAnalytics.Views;
+using System.Windows.Threading;
 
 namespace PersonalAnalytics
 {
@@ -28,7 +28,7 @@ namespace PersonalAnalytics
         private static TrackerManager _manager; // singleton instance
         private static TrackerSettings _settings;
         private readonly List<ITracker> _trackers = new List<ITracker>();
-        public TaskbarIcon TaskbarIcon;
+        private TaskbarIcon _taskbarIcon;
 
         private DispatcherTimer _taskbarIconTimer;
         private DispatcherTimer _remindToContinueTrackerTimer;
@@ -103,13 +103,15 @@ namespace PersonalAnalytics
             var trackersString = string.Join(", ", _trackers.Where(t => t.IsRunning).ToList().ConvertAll(t => t.Name + " (" + t.GetVersion() + ")").ToArray());
             Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "TrackerManager (V{0}) started with {1} trackers: {2}.", _publishedAppVersion, _trackers.Where(t => t.IsRunning).ToList().Count, trackersString));
             SetTaskbarIconTooltip("Tracker started");
-            Application.Current.Dispatcher.Invoke(() => TaskbarIcon.ShowBalloonTip(Dict.ToolName, Dict.ToolName + " is running with " + _trackers.Where(t => t.IsRunning).ToList().Count + " data trackers.", BalloonIcon.Info));
+            Application.Current.Dispatcher.Invoke(() => _taskbarIcon.ShowBalloonTip(Dict.ToolName, Dict.ToolName + " is running with " + _trackers.Where(t => t.IsRunning).ToList().Count + " data trackers.", BalloonIcon.Info));
 
             // Initialize & start the timer to update the taskbaricon toolitp
             _taskbarIconTimer = new DispatcherTimer();
             _taskbarIconTimer.Interval = Settings.TooltipIconUpdateInterval;
-            _taskbarIconTimer.Tick += UpdateTooltipIcon;
+            _taskbarIconTimer.Tick += UpdateTaskbarIconTooltip;
             _taskbarIconTimer.Start();
+
+            SystemEvents.DisplaySettingsChanged += UpdateTaskbarIconIcon;
 
             // Initialize & start the timer to check for updates
             _checkForUpdatesTimer = new DispatcherTimer();
@@ -248,12 +250,13 @@ namespace PersonalAnalytics
             if (_taskbarIconTimer != null) _taskbarIconTimer.Stop();
             if (_remindToContinueTrackerTimer != null) _remindToContinueTrackerTimer.Stop();
             if (_checkForUpdatesTimer != null) _checkForUpdatesTimer.Stop();
-            TaskbarIcon.TrayBalloonTipClicked -= TrayBalloonTipClicked;
-            TaskbarIcon.TrayMouseDoubleClick -= (o, i) => TrayMouseDoubleClicked();
+            _taskbarIcon.TrayBalloonTipClicked -= TrayBalloonTipClicked;
+            _taskbarIcon.TrayMouseDoubleClick -= (o, i) => TrayMouseDoubleClicked();
+            SystemEvents.DisplaySettingsChanged -= UpdateTaskbarIconIcon;
             SystemEvents.TimeChanged -= SaveCurrentTimeZone;
 
             // sometimes the icon doesn't go away unless we manually dispose it
-            TaskbarIcon.Dispose();
+            _taskbarIcon.Dispose();
 
             // log shutdown & disconnect from database
             Database.GetInstance().LogInfo("The tracker was shut down.");
@@ -282,14 +285,14 @@ namespace PersonalAnalytics
             {
                 _remindToContinueTrackerTimer = new DispatcherTimer();
                 _remindToContinueTrackerTimer.Interval = Settings.RemindToResumeToolInterval;
-                _remindToContinueTrackerTimer.Tick += ((s, e) =>
+                _remindToContinueTrackerTimer.Tick += (s, e) =>
                 {
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         // show the popup (already registered for the click event)
-                        TaskbarIcon.ShowBalloonTip("Reminder", "PersonalAnalytics is still paused. Click here to resume it.", BalloonIcon.Warning);
+                        _taskbarIcon.ShowBalloonTip("Reminder", "PersonalAnalytics is still paused. Click here to resume it.", BalloonIcon.Warning);
                     });
-                });
+                };
             }
             _remindToContinueTrackerTimer.IsEnabled = true;
             _remindToContinueTrackerTimer.Start();
@@ -347,15 +350,15 @@ namespace PersonalAnalytics
         #region Taskbar Icon Options
 
         /// <summary>
-        /// Dreates a taskbar icon to modify its tooltip and create the context menu options
+        /// Creates a taskbar icon to modify its tooltip and create the context menu options
         /// </summary>
         public void InitializeTaskBarIcon()
         {
-            TaskbarIcon = new TaskbarIcon();
-            TaskbarIcon.Icon = new Icon("Assets/icon.ico");
-            TaskbarIcon.ToolTipText = "PersonalAnalytics starting up...";
-            TaskbarIcon.TrayMouseDoubleClick += (o, i) => TrayMouseDoubleClicked();
-            TaskbarIcon.TrayBalloonTipClicked += TrayBalloonTipClicked;
+            _taskbarIcon = new TaskbarIcon();
+            _taskbarIcon.TrayMouseDoubleClick += (o, i) => TrayMouseDoubleClicked();
+            _taskbarIcon.TrayBalloonTipClicked += TrayBalloonTipClicked;
+            SetTaskbarIconTooltip("PersonalAnalytics starting up...");
+            SetTaskbarIconIcon();
             SetContextMenuOptions();
         }
 
@@ -387,46 +390,46 @@ namespace PersonalAnalytics
         private void SetContextMenuOptions()
         {
             var cm = new ContextMenu();
-            TaskbarIcon.MenuActivation = PopupActivationMode.RightClick;
-            TaskbarIcon.ContextMenu = cm;
+            _taskbarIcon.MenuActivation = PopupActivationMode.RightClick;
+            _taskbarIcon.ContextMenu = cm;
 
             if (Settings.IsUploadEnabled)
             {
                 var m8 = new MenuItem { Header = "Upload collected data" };
                 m8.Click += (o, i) => UploadTrackedData();
-                TaskbarIcon.ContextMenu.Items.Add(m8);
+                _taskbarIcon.ContextMenu.Items.Add(m8);
             }
 
             var m4 = new MenuItem { Header = "Open collected data" };
             m4.Click += (o, i) => OpenDataExportDirectory();
-            TaskbarIcon.ContextMenu.Items.Add(m4);
+            _taskbarIcon.ContextMenu.Items.Add(m4);
 
             var m2 = new MenuItem { Header = "Answer pop-up now" };
             m2.Click += (o, i) => ManuallyStartUserSurvey();
-            if (_settings.IsUserEfficiencyTrackerEnabled()) TaskbarIcon.ContextMenu.Items.Add(m2);
+            if (_settings.IsUserEfficiencyTrackerEnabled()) _taskbarIcon.ContextMenu.Items.Add(m2);
 
             var m1 = new MenuItem { Header = "Show Retrospection" };
             m1.Click += (o, i) => Retrospection.Handler.GetInstance().OpenRetrospection();
-            if (Retrospection.Settings.IsEnabled) TaskbarIcon.ContextMenu.Items.Add(m1);
+            if (Retrospection.Settings.IsEnabled) _taskbarIcon.ContextMenu.Items.Add(m1);
 
 #if DEBUG
             var m5 = new MenuItem { Header = "Show Retrospection (in browser)" };
             m5.Click += (o, i) => Retrospection.Handler.GetInstance().OpenRetrospectionInBrowser();
-            if (Retrospection.Settings.IsEnabled) TaskbarIcon.ContextMenu.Items.Add(m5);
+            if (Retrospection.Settings.IsEnabled) _taskbarIcon.ContextMenu.Items.Add(m5);
 #endif
 
             var m6 = new MenuItem { Header = "Settings" };
             m6.Click += (o, i) => OpenSettings();
-            TaskbarIcon.ContextMenu.Items.Add(m6);
+            _taskbarIcon.ContextMenu.Items.Add(m6);
 
             var m3 = new MenuItem { Header = "Pause " + Dict.ToolName };
             m3.Click += (o, i) => PauseContinueTracker(m3);
-            TaskbarIcon.ContextMenu.Items.Add(m3);
+            _taskbarIcon.ContextMenu.Items.Add(m3);
             _pauseContinueMenuItem = m3;
 
             var m7 = new MenuItem { Header = "Shutdown " + Dict.ToolName };
             m7.Click += (o, i) => Stop(true);
-            TaskbarIcon.ContextMenu.Items.Add(m7);
+            _taskbarIcon.ContextMenu.Items.Add(m7);
 
             // Styling
             //var converter = new System.Windows.Media.BrushConverter();
@@ -519,7 +522,7 @@ namespace PersonalAnalytics
             try
             {
                 var userEfficiencyTracker =
-                    _trackers.Where(t => t.GetType() == typeof (UserEfficiencyTracker.Daemon))
+                    _trackers.Where(t => t.GetType() == typeof(UserEfficiencyTracker.Daemon))
                         .Cast<UserEfficiencyTracker.Daemon>()
                         .FirstOrDefault();
                 if (userEfficiencyTracker == null) return;
@@ -535,24 +538,13 @@ namespace PersonalAnalytics
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void UpdateTooltipIcon(object sender, EventArgs e)
+        private void UpdateTaskbarIconTooltip(object sender, EventArgs e)
         {
             // Update Taskbar Icon Tooltip
-            var text = _trackers.Where(t => t.IsRunning).Aggregate(string.Empty, (current, tracker) => current + (tracker.GetStatus() + "\n"));
-            text += "\n" + _trackers.Where(t => !t.IsRunning).Aggregate(string.Empty, (current, tracker) => current + (tracker.GetStatus() + "\n"));
+            var text = _trackers.Where(t => t.IsRunning).Aggregate(string.Empty, (current, tracker) => current + tracker.GetStatus() + "\n");
+            text += "\n" + _trackers.Where(t => !t.IsRunning).Aggregate(string.Empty, (current, tracker) => current + tracker.GetStatus() + "\n");
             text += "\nVersion: " + _publishedAppVersion;
             SetTaskbarIconTooltip(text);
-
-            // Update database file (if necessary)
-            //if (Database.GetInstance().CurrentDatabaseDumpFile != Database.GetLocalDatabaseSavePath())
-            //{
-            //    Database.GetInstance().Disconnect(); // closes the current instance
-            //    Database.GetInstance().Reconnect(Database.GetLocalDatabaseSavePath()); // connects to the database (& creates a new dump file)
-            //    foreach (var t in _trackers)
-            //    {
-            //        t.CreateDatabaseTablesIfNotExist();
-            //    }
-            //}
         }
 
         /// <summary>
@@ -561,11 +553,30 @@ namespace PersonalAnalytics
         /// <param name="message"></param>
         private void SetTaskbarIconTooltip(string message)
         {
-            if (TaskbarIcon == null) return;
-            TaskbarIcon.ToolTipText = message;
+            if (_taskbarIcon == null) return;
+            _taskbarIcon.ToolTipText = message;
         }
 
-#endregion
+        /// <summary>
+        /// Updates the TaskbarIcon's Icon on change of screen resolution.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void UpdateTaskbarIconIcon(object sender, EventArgs e)
+        {
+            SetTaskbarIconIcon();
+        }
+
+        /// <summary>
+        /// Helper method to change the TaskbarIcon's Icon
+        /// </summary>
+        private void SetTaskbarIconIcon()
+        {
+            if (_taskbarIcon == null) return;
+            _taskbarIcon.Icon = new Icon("Assets/icon.ico");
+        }
+
+        #endregion
 
         #region Helpers
 
@@ -578,14 +589,14 @@ namespace PersonalAnalytics
         private void CheckForStudyDataSharedReminder(object sender, EventArgs e)
         {
             // only show reminder if the upload is enabled (i.e. during a study)
-            if (! Settings.IsUploadEnabled || ! Settings.IsUploadReminderEnabled) return;
+            if (!Settings.IsUploadEnabled || !Settings.IsUploadReminderEnabled) return;
 
             var lastTimeShown = Database.GetInstance().GetSettingsDate("LastTimeUploadReminderShown", DateTimeOffset.MinValue);
             var databaseSince = Database.GetInstance().GetSettingsDate("SettingsTableCreatedDate", DateTimeOffset.MinValue);
             var today = DateTime.Now.Date;
 
             // check if the reminder should be shown
-            if ((today.DayOfWeek == DayOfWeek.Saturday || today.DayOfWeek == DayOfWeek.Sunday) || // do not show on weekends
+            if (today.DayOfWeek == DayOfWeek.Saturday || today.DayOfWeek == DayOfWeek.Sunday || // do not show on weekends
                  (today - databaseSince).Days < 10 || //  only if there is at least 10 days since the tool was installed
                  (today - lastTimeShown).Days < 7) // only show once a week
                 return;
@@ -653,8 +664,8 @@ namespace PersonalAnalytics
             {
                 // shouldn't happen
                 Database.GetInstance().LogError(string.Format(CultureInfo.InvariantCulture, "Failed to install the newest version of the application. The ClickOnce Deployment is corrupt (error: InvalidDeploymentException, details: {0}).", ide.Message));
-                MessageBox.Show("Cannot check for a new version of the application. The ClickOnce deployment is corrupt. Please redeploy the application and try again. Please contact us in case this problem persists or you have any questions.", 
-                    Dict.ToolName + ": Error", 
+                MessageBox.Show("Cannot check for a new version of the application. The ClickOnce deployment is corrupt. Please redeploy the application and try again. Please contact us in case this problem persists or you have any questions.",
+                    Dict.ToolName + ": Error",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return;
@@ -679,7 +690,7 @@ namespace PersonalAnalytics
                 if (!info.IsUpdateRequired)
                 {
                     var dr = MessageBox.Show("An update is available (from your current version to version " + info.AvailableVersion + "). Would you like to update the application now?",
-                        Dict.ToolName + ": Update Available", 
+                        Dict.ToolName + ": Update Available",
                         MessageBoxButton.OKCancel,
                         MessageBoxImage.Question);
                     if (!(MessageBoxResult.OK == dr))
@@ -692,7 +703,7 @@ namespace PersonalAnalytics
                 {
                     // Display a message that the app MUST reboot. Display the minimum required version.
                     MessageBox.Show("A mandatory update is available (from your current version to version " + info.AvailableVersion + "). The application will now install the update and restart.",
-                        Dict.ToolName + ": Mandatory Update Available", 
+                        Dict.ToolName + ": Mandatory Update Available",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
                 }
@@ -703,8 +714,8 @@ namespace PersonalAnalytics
                     {
                         ad.Update();
                         Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "Successfully updated tool to version {0}.", info.AvailableVersion));
-                        MessageBox.Show("The application has been upgraded, and will now restart.", 
-                            Dict.ToolName + ": Successfully Updated", 
+                        MessageBox.Show("The application has been upgraded, and will now restart.",
+                            Dict.ToolName + ": Successfully Updated",
                             MessageBoxButton.OK,
                             MessageBoxImage.Information);
 
@@ -721,7 +732,7 @@ namespace PersonalAnalytics
                         Database.GetInstance().LogError(string.Format(CultureInfo.InvariantCulture, "Updating the tool to version {0} failed (error: InvalidOperationException, see errors.log for details).", info.AvailableVersion));
                         Logger.WriteToLogFile(dde);
                         MessageBox.Show("Cannot install the latest version of the application. Please check your network connection and try again later. Please contact us in case this problem persists.",
-                            Dict.ToolName + ": Error", 
+                            Dict.ToolName + ": Error",
                             MessageBoxButton.OK,
                             MessageBoxImage.Error);
                         return;
@@ -730,18 +741,17 @@ namespace PersonalAnalytics
             }
         }
 
-#region Check for Internet Connection
+        #region Check for Internet Connection
 
         [DllImport("wininet.dll")]
         private extern static bool InternetGetConnectedState(out int description, int reservedValue);
 
         public static bool IsConnectedToTheInternet()
         {
-            int description;
-            return InternetGetConnectedState(out description, 0);
+            return InternetGetConnectedState(out _, 0);
         }
 
-#endregion
+        #endregion
 
         /// <summary>
         /// Shutdown the application only if the state is saved, database disconnected, etc.
@@ -791,6 +801,6 @@ namespace PersonalAnalytics
 
 #endregion */
 
-#endregion
+        #endregion
     }
 }
