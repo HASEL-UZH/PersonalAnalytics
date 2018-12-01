@@ -13,7 +13,7 @@ André Meyer (ameyer@ifi.uzh.ch)
 - November, 2015: OpenSourced the project (license: MIT).
 - February, 2016: Improved the retrospection and added the Office 365 tracker during an internship at Microsoft Research between November, 2015 and February, 2016
 - April, 2016: Merged the branch (from Microsoft Research) with the original version, following the open sourcing of the code.
-- Mai, 2016: Started working on a communication dashboard (including more insights into interactions with others) with ABB Research (on a separate branch). This work has never been finished.
+- May, 2016: Started working on a communication dashboard (including more insights into interactions with others) with ABB Research (on a separate branch). This work has never been finished.
 - June, 2016: Started working on integrating the Muse tracker with [Monica Rüegg](https://github.com/montrin) (master student at the University of Zurich, Switzerland) on the 'muse' branch. The branch has not stable enough to merge with master.
 - December, 2016: Started working on integrating several other biometric sensors (Polar, Garmin, Fitbit) (on the 'biometrics' branch). The PolarTracker and GarminTracker are available and stable on the master branch. GarminTracker is still in development.
 - February, 2017: Integrated the (privately developed) [FlowLight](https://www.andre-meyer.ch/flowlight) to avoid interruptions at inopportune moments. It has since then been removed from the repository, as it was licensed to [Embrava](https://embrava.com/pages/flow).
@@ -34,7 +34,7 @@ André Meyer (ameyer@ifi.uzh.ch)
 - Prof. Dr. Gail C. Murphy (University of British Columbia)
 
 # Research
-This tool was developed for and used by the following research:
+This tool was developed for and used by the following researchs:
 - [CSCW’18](https://www.andre-meyer.ch/CSCW18) Design Recommendations for Self-Monitoring in the Workplace: Studies in Software Development. André Meyer, Gail Murphy, Thomas Zimmermann, Thomas Fritz. (hint: in this paper, the tool described as WorkAnalytics refers to the PersonalAnalytics in this repository)
 - [CHI’18](http://www.zora.uzh.ch/id/eprint/151128/1/pn4597-zugerA.pdf) Sensing Interruptibility in the Office: A Field Study on the Use of Biometric and Computer Interaction Sensors. Manuela Züger, Sebastian Müller, André Meyer, Thomas Fritz. 
 - [TSE’17](https://www.andre-meyer.ch/TSE17) The Work Life of Developers: Activities, Switches and Perceived Productivity. André Meyer, Gail Murphy, Thomas Zimmermann, Laura Barton, Thomas Fritz. 
