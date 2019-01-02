@@ -16,7 +16,7 @@
 		0DC4BF2D1BF2B57A00366771 /* WindowGrabber.m in Sources */ = {isa = PBXBuildFile; fileRef = 0DC4BF2C1BF2B57A00366771 /* WindowGrabber.m */; };
 		0DDEDB7C1BC61F57002B3E0D /* SummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DDEDB7A1BC61F57002B3E0D /* SummaryViewController.swift */; settings = {COMPILER_FLAGS = "-w"; }; };
 		0DDEDB7D1BC61F57002B3E0D /* SummaryView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0DDEDB7B1BC61F57002B3E0D /* SummaryView.xib */; };
-		8FD0A07A6DC4FAF74D5D3CE4 /* Pods_PersonalAnalytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 639321AA141095A614B280EE /* Pods_PersonalAnalytics.framework */; };
+		A3D1B62B21DD181D000C8A66 /* Pods_PersonalAnalytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 639321AA141095A614B280EE /* Pods_PersonalAnalytics.framework */; };
 		B904C25C1F01AEF000624D9C /* TrackerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B904C25B1F01AEF000624D9C /* TrackerManager.swift */; };
 		B90790251F01CC27003B9CF7 /* TaskProductivityTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90790241F01CC27003B9CF7 /* TaskProductivityTracker.swift */; };
 		B914B7181EBBA5C10009C5D0 /* Website+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = B914B70E1EBBA5C10009C5D0 /* Website+CoreDataClass.swift */; };
@@ -201,7 +201,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8FD0A07A6DC4FAF74D5D3CE4 /* Pods_PersonalAnalytics.framework in Frameworks */,
+				A3D1B62B21DD181D000C8A66 /* Pods_PersonalAnalytics.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -576,7 +576,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics-frameworks.sh",
+				"${SRCROOT}/Pods/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/GRDB.swift/GRDB.framework",
 				"${BUILT_PRODUCTS_DIR}/Swifter/Swifter.framework",
 			);
@@ -587,7 +587,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics-frameworks.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
