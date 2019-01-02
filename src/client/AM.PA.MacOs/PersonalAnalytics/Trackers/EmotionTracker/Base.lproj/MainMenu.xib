@@ -1,23 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
+        <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14460.31"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
+        <customObject id="-2" userLabel="File's Owner" customClass="EmotionPopUpViewController" customModule="PersonalAnalytics" customModuleProvider="target">
             <connections>
-                <outlet property="delegate" destination="Voe-Tx-rLC" id="GzC-gU-4Uq"/>
+                <outlet property="activityPopupButton" destination="5Ns-LE-L7O" id="OjF-qh-nPY"/>
+                <outlet property="window" destination="QvC-M9-y7g" id="eaq-RA-h91"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
-        <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="SimpleNotification" customModuleProvider="target">
-            <connections>
-                <outlet property="activityPopupButton" destination="5Ns-LE-L7O" id="e01-vM-2Is"/>
-                <outlet property="window" destination="QvC-M9-y7g" id="gIp-Ho-8D9"/>
-            </connections>
-        </customObject>
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
         <menu title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
             <items>
@@ -32,11 +28,7 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="VOq-y0-SEH"/>
-                            <menuItem title="Preferences…" keyEquivalent="," id="BOF-NM-1cW">
-                                <connections>
-                                    <action selector="showPreferences:" target="Voe-Tx-rLC" id="2ua-T6-Xcx"/>
-                                </connections>
-                            </menuItem>
+                            <menuItem title="Preferences…" keyEquivalent="," id="BOF-NM-1cW"/>
                             <menuItem isSeparatorItem="YES" id="wFC-TO-SCJ"/>
                             <menuItem title="Services" id="NMo-om-nkz">
                                 <modifierMask key="keyEquivalentModifierMask"/>
@@ -133,7 +125,7 @@
                             <menuItem title="Export data to csv" id="f83-er-j2T">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
-                                    <action selector="exportToCsvClicked:" target="Voe-Tx-rLC" id="Og5-tz-tx7"/>
+                                    <action selector="exportToCsvClicked:" target="-2" id="vwK-eY-j9Z"/>
                                 </connections>
                             </menuItem>
                         </items>
@@ -713,7 +705,7 @@ DQ
 </string>
                         </buttonCell>
                         <connections>
-                            <action selector="repeatButtonClicked:" target="Voe-Tx-rLC" id="5Gn-6b-VpH"/>
+                            <action selector="repeatButtonClicked:" target="-2" id="QwT-Du-nAm"/>
                         </connections>
                     </button>
                     <box autoresizesSubviews="NO" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="TlT-Eg-aSW">
@@ -733,7 +725,7 @@ DQ
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="arousalRadioButtonsClicked:" target="Voe-Tx-rLC" id="kNp-x9-doz"/>
+                                                <action selector="arousalRadioButtonsClicked:" target="-2" id="wG4-Yq-7lg"/>
                                             </connections>
                                         </button>
                                         <button identifier="2" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Kfi-fu-oak">
@@ -743,7 +735,7 @@ DQ
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="arousalRadioButtonsClicked:" target="Voe-Tx-rLC" id="hMK-Iv-dTh"/>
+                                                <action selector="arousalRadioButtonsClicked:" target="-2" id="Vn2-q5-igk"/>
                                             </connections>
                                         </button>
                                         <button identifier="3" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Vae-Wm-HS7">
@@ -753,7 +745,7 @@ DQ
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="arousalRadioButtonsClicked:" target="Voe-Tx-rLC" id="Uf9-yf-INE"/>
+                                                <action selector="arousalRadioButtonsClicked:" target="-2" id="KQy-5t-piO"/>
                                             </connections>
                                         </button>
                                         <button identifier="4" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="M8A-Mn-Erj">
@@ -763,7 +755,7 @@ DQ
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="arousalRadioButtonsClicked:" target="Voe-Tx-rLC" id="wSE-l8-8yj"/>
+                                                <action selector="arousalRadioButtonsClicked:" target="-2" id="9hq-mZ-nTj"/>
                                             </connections>
                                         </button>
                                         <button identifier="5" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="o2h-7M-vl1">
@@ -773,7 +765,7 @@ DQ
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="arousalRadioButtonsClicked:" target="Voe-Tx-rLC" id="rub-YR-LJF"/>
+                                                <action selector="arousalRadioButtonsClicked:" target="-2" id="eCW-MF-SF6"/>
                                             </connections>
                                         </button>
                                         <button identifier="6" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="aMF-W3-Pat">
@@ -783,7 +775,7 @@ DQ
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="arousalRadioButtonsClicked:" target="Voe-Tx-rLC" id="iNC-yz-yi7"/>
+                                                <action selector="arousalRadioButtonsClicked:" target="-2" id="oJ5-Ue-ahM"/>
                                             </connections>
                                         </button>
                                         <button identifier="7" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="yXV-XL-ONS">
@@ -793,7 +785,7 @@ DQ
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="arousalRadioButtonsClicked:" target="Voe-Tx-rLC" id="NX8-oS-yJ1"/>
+                                                <action selector="arousalRadioButtonsClicked:" target="-2" id="KJT-hU-bP0"/>
                                             </connections>
                                         </button>
                                         <button identifier="8" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="McB-hl-rWq">
@@ -803,7 +795,7 @@ DQ
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="arousalRadioButtonsClicked:" target="Voe-Tx-rLC" id="Pu6-Of-JoK"/>
+                                                <action selector="arousalRadioButtonsClicked:" target="-2" id="KOG-ag-7iF"/>
                                             </connections>
                                         </button>
                                         <button identifier="9" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vAo-iD-qeU">
@@ -813,7 +805,7 @@ DQ
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="arousalRadioButtonsClicked:" target="Voe-Tx-rLC" id="OtI-Sv-Xwa"/>
+                                                <action selector="arousalRadioButtonsClicked:" target="-2" id="5C6-3T-kbJ"/>
                                             </connections>
                                         </button>
                                     </subviews>
@@ -947,7 +939,7 @@ DQ
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="valenceRadioButtonsClicked:" target="Voe-Tx-rLC" id="bJD-yx-qOg"/>
+                                                <action selector="valenceRadioButtonsClicked:" target="-2" id="bfn-XX-yYW"/>
                                             </connections>
                                         </button>
                                         <button identifier="2" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kYP-ZW-Al4">
@@ -957,7 +949,7 @@ DQ
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="valenceRadioButtonsClicked:" target="Voe-Tx-rLC" id="FBS-jH-nB5"/>
+                                                <action selector="valenceRadioButtonsClicked:" target="-2" id="OqN-IF-NOs"/>
                                             </connections>
                                         </button>
                                         <button identifier="3" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="NjJ-1J-zse">
@@ -967,7 +959,7 @@ DQ
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="valenceRadioButtonsClicked:" target="Voe-Tx-rLC" id="iOD-T6-5dU"/>
+                                                <action selector="valenceRadioButtonsClicked:" target="-2" id="3Ba-Os-fa3"/>
                                             </connections>
                                         </button>
                                         <button identifier="4" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="HuS-dT-640">
@@ -977,7 +969,7 @@ DQ
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="valenceRadioButtonsClicked:" target="Voe-Tx-rLC" id="OC1-wy-44R"/>
+                                                <action selector="valenceRadioButtonsClicked:" target="-2" id="2b3-HG-7v1"/>
                                             </connections>
                                         </button>
                                         <button identifier="5" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="SMM-r9-r1o">
@@ -987,7 +979,7 @@ DQ
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="valenceRadioButtonsClicked:" target="Voe-Tx-rLC" id="9Q8-yC-dHf"/>
+                                                <action selector="valenceRadioButtonsClicked:" target="-2" id="WB4-Tf-7NX"/>
                                             </connections>
                                         </button>
                                         <button identifier="6" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="aIk-1u-KeK">
@@ -997,7 +989,7 @@ DQ
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="valenceRadioButtonsClicked:" target="Voe-Tx-rLC" id="zhF-G3-Yw2"/>
+                                                <action selector="valenceRadioButtonsClicked:" target="-2" id="dam-yp-Mtf"/>
                                             </connections>
                                         </button>
                                         <button identifier="7" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ik0-Rs-WS5">
@@ -1007,7 +999,7 @@ DQ
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="valenceRadioButtonsClicked:" target="Voe-Tx-rLC" id="Rek-GA-IbY"/>
+                                                <action selector="valenceRadioButtonsClicked:" target="-2" id="rn4-FO-bLs"/>
                                             </connections>
                                         </button>
                                         <button identifier="8" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="srA-kp-9Zp">
@@ -1017,7 +1009,7 @@ DQ
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="valenceRadioButtonsClicked:" target="Voe-Tx-rLC" id="Bmv-2I-l71"/>
+                                                <action selector="valenceRadioButtonsClicked:" target="-2" id="hBs-cl-6H3"/>
                                             </connections>
                                         </button>
                                         <button identifier="9" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kx2-2D-LfE">
@@ -1027,7 +1019,7 @@ DQ
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                             <connections>
-                                                <action selector="valenceRadioButtonsClicked:" target="Voe-Tx-rLC" id="8L7-ay-p9M"/>
+                                                <action selector="valenceRadioButtonsClicked:" target="-2" id="PhF-yI-Alq"/>
                                             </connections>
                                         </button>
                                     </subviews>

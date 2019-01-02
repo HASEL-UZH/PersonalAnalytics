@@ -17,6 +17,9 @@
 		0DDEDB7C1BC61F57002B3E0D /* SummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DDEDB7A1BC61F57002B3E0D /* SummaryViewController.swift */; settings = {COMPILER_FLAGS = "-w"; }; };
 		0DDEDB7D1BC61F57002B3E0D /* SummaryView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0DDEDB7B1BC61F57002B3E0D /* SummaryView.xib */; };
 		A3B37CE721DD1CDC008784B1 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = A3B37CE921DD1CDC008784B1 /* MainMenu.xib */; };
+		A3B37CF321DD258C008784B1 /* EmotionTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B37CF221DD258C008784B1 /* EmotionTracker.swift */; };
+		A3B37CF521DD25AD008784B1 /* EmotionPopUpWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B37CF421DD25AD008784B1 /* EmotionPopUpWindowController.swift */; };
+		A3B37CF721DD295E008784B1 /* EmotionPopUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B37CF621DD295E008784B1 /* EmotionPopUpViewController.swift */; };
 		A3D1B62B21DD181D000C8A66 /* Pods_PersonalAnalytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 639321AA141095A614B280EE /* Pods_PersonalAnalytics.framework */; };
 		B904C25C1F01AEF000624D9C /* TrackerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B904C25B1F01AEF000624D9C /* TrackerManager.swift */; };
 		B90790251F01CC27003B9CF7 /* TaskProductivityTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90790241F01CC27003B9CF7 /* TaskProductivityTracker.swift */; };
@@ -132,6 +135,9 @@
 		A3B37CE821DD1CDC008784B1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		A3B37CEB21DD1CE3008784B1 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/MainMenu.strings; sourceTree = "<group>"; };
 		A3B37CEE21DD1D72008784B1 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/MainMenu.strings; sourceTree = "<group>"; };
+		A3B37CF221DD258C008784B1 /* EmotionTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmotionTracker.swift; sourceTree = "<group>"; };
+		A3B37CF421DD25AD008784B1 /* EmotionPopUpWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmotionPopUpWindowController.swift; sourceTree = "<group>"; };
+		A3B37CF621DD295E008784B1 /* EmotionPopUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmotionPopUpViewController.swift; sourceTree = "<group>"; };
 		B904C25B1F01AEF000624D9C /* TrackerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TrackerManager.swift; sourceTree = "<group>"; };
 		B90790241F01CC27003B9CF7 /* TaskProductivityTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskProductivityTracker.swift; sourceTree = "<group>"; };
 		B914B70E1EBBA5C10009C5D0 /* Website+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Website+CoreDataClass.swift"; sourceTree = "<group>"; };
@@ -285,6 +291,17 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		A3B37CEF21DD24C3008784B1 /* EmotionTracker */ = {
+			isa = PBXGroup;
+			children = (
+				A3B37CE921DD1CDC008784B1 /* MainMenu.xib */,
+				A3B37CF221DD258C008784B1 /* EmotionTracker.swift */,
+				A3B37CF421DD25AD008784B1 /* EmotionPopUpWindowController.swift */,
+				A3B37CF621DD295E008784B1 /* EmotionPopUpViewController.swift */,
+			);
+			path = EmotionTracker;
+			sourceTree = "<group>";
+		};
 		B97A0E261EE5F964000DCCEC /* Visualizations */ = {
 			isa = PBXGroup;
 			children = (
@@ -412,6 +429,7 @@
 		B9C79F801ECA6BCA00E005F0 /* Trackers */ = {
 			isa = PBXGroup;
 			children = (
+				A3B37CEF21DD24C3008784B1 /* EmotionTracker */,
 				B904C25B1F01AEF000624D9C /* TrackerManager.swift */,
 				B9A0B7A11EDA356A00BE6F71 /* User Input Tracker */,
 				B9A0B7A21EDA359500BE6F71 /* WindowsActivityTracker */,
@@ -436,7 +454,6 @@
 		B9C79F851ECA6F0D00E005F0 /* App */ = {
 			isa = PBXGroup;
 			children = (
-				A3B37CE921DD1CDC008784B1 /* MainMenu.xib */,
 				B9782F51216D6264006CCB73 /* Main.storyboard */,
 				0D2B94231D57D3D5004DA61D /* PAHttpServer.swift */,
 				0DB3DF271BAF49AC00144935 /* AppDelegate.swift */,
@@ -609,6 +626,7 @@
 				0D0245F81BD1651300213D2A /* DataObjectController.swift in Sources */,
 				B97A0E3A1EE5FB84000DCCEC /* TaskProductivitySQLController.swift in Sources */,
 				B9A0B7A71EDA540F00BE6F71 /* IVisualization.swift in Sources */,
+				A3B37CF521DD25AD008784B1 /* EmotionPopUpWindowController.swift in Sources */,
 				B9A0B7B21EDCE0EA00BE6F71 /* DayMostFocusedProgram.swift in Sources */,
 				B914B7181EBBA5C10009C5D0 /* Website+CoreDataClass.swift in Sources */,
 				B9A0B7AC1EDCB8B600BE6F71 /* SQLController.swift in Sources */,
@@ -633,6 +651,7 @@
 				0DC4BF2D1BF2B57A00366771 /* WindowGrabber.m in Sources */,
 				B974C78D216D701000B905A9 /* PersonalAnalytics.xcdatamodeld in Sources */,
 				0D4676491BD54C2000796D2D /* KeystrokeController.swift in Sources */,
+				A3B37CF321DD258C008784B1 /* EmotionTracker.swift in Sources */,
 				B9D50B841EDF7A3100145EC8 /* DayTimeSpentVisualizer.swift in Sources */,
 				B97A0E3D1EE77704000DCCEC /* WeekProgramsUsedTable.swift in Sources */,
 				B90790251F01CC27003B9CF7 /* TaskProductivityTracker.swift in Sources */,
@@ -651,6 +670,7 @@
 				B9D50B801EDF588E00145EC8 /* ActivityCategory.swift in Sources */,
 				B914B71F1EBBA5C10009C5D0 /* KeyStrokes+CoreDataProperties.swift in Sources */,
 				B914B7211EBBA5C10009C5D0 /* Summary+CoreDataProperties.swift in Sources */,
+				A3B37CF721DD295E008784B1 /* EmotionPopUpViewController.swift in Sources */,
 				B9D50B821EDF5ABE00145EC8 /* Category.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -132,6 +132,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     let defaultsController = NSUserDefaultsController.shared
     let preferencesController = PreferencesWindowController(windowNibName: NSNib.Name(rawValue: "PreferencesWindow"))
     let retrospectiveController = RetrospectiveWindowController(windowNibName:NSNib.Name(rawValue: "RetrospectiveWindow"))
+    let emotionPopUpController = EmotionPopUpWindowController(windowNibName: NSNib.Name(rawValue: "MainMenu"))
     
     // MARK: - Variables
     var eventMonitor: AnyObject? = nil
