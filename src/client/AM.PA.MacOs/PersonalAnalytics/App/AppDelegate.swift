@@ -132,7 +132,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     let defaultsController = NSUserDefaultsController.shared
     let preferencesController = PreferencesWindowController(windowNibName: NSNib.Name(rawValue: "PreferencesWindow"))
     let retrospectiveController = RetrospectiveWindowController(windowNibName:NSNib.Name(rawValue: "RetrospectiveWindow"))
-    let emotionPopUpController = EmotionPopUpWindowController(windowNibName: NSNib.Name(rawValue: "MainMenu"))
+    let emotionPopUpController = EmotionPopUpWindowController(windowNibName: NSNib.Name(rawValue: "EmotionPopUp"))
     
     // MARK: - Variables
     var eventMonitor: AnyObject? = nil
@@ -187,6 +187,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         
         // It doesn't seem to work if I change the selector, so I'm leaving it for now (working is better for now than slowing down)
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(delegate.quit), keyEquivalent: "q"))
+
+        menu.addItem(NSMenuItem.separator())
+        let emotionPopUpItem = NSMenuItem(title: "Emotion Pop-up", action: #selector(AppDelegate.showEmotionPopUp(_:)), keyEquivalent: "E")
+        menu.addItem(emotionPopUpItem)
         
         // Setting up the summary popup
         statusItem.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImage"))
@@ -232,6 +236,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     func setUpRetrospective(){
         retrospectiveController.window?.contentViewController = RetrospectiveViewController(nibName: NSNib.Name(rawValue: "RetrospectiveView"), bundle: nil)
     }
+
+    func setUpEmotionPopUp(){
+        emotionPopUpController.window?.contentViewController = EmotionPopUpViewController(nibName: NSNib.Name(rawValue: "EmotionPopUp"), bundle: nil)
+    }
     
     var firstTime = true
     
@@ -255,6 +263,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
 
         retrospectiveController.window?.makeKeyAndOrderFront(self)
         
+    }
+
+    @objc func showEmotionPopUp(_ sender: AnyObject){
+        DataObjectController.sharedInstance.saveContext()
+        emotionPopUpController.showWindow(nil)
+        NSApp.activate(ignoringOtherApps: true)
+
+        emotionPopUpController.window?.makeKeyAndOrderFront(self)
+
     }
     
 

@@ -31,7 +31,7 @@ class EmotionPopUpViewController: NSViewController {
     // BEHAVIOUR //
     // ========= //
 
-    func applicationDidFinishLaunching(_ aNotification: Notification) {
+    override func viewWillAppear() {
 
         // Initialize a Persistent Container
         let container = NSPersistentContainer(name: "Model")
@@ -73,16 +73,16 @@ class EmotionPopUpViewController: NSViewController {
     @IBAction func repeatButtonClicked(_ sender: Any) {
 
         // Prepare the data for storing
-        let questionnaire = NSEntityDescription.insertNewObject(forEntityName: "EmotionLog", into: self.context!) as! EmotionLog
+        //let questionnaire = NSEntityDescription.insertNewObject(forEntityName: "EmotionLog", into: self.context!) as! EmotionLog
         self.timestamp = NSDate()
         if let valenceValue = self.valence?.identifier?.rawValue,
             let arousalValue = self.arousal?.identifier?.rawValue {
 
-            questionnaire.timestamp = self.timestamp as Date
-            questionnaire.activity = self.activityPopupButton.titleOfSelectedItem
-            questionnaire.valence = Int16(valenceValue)!
-            questionnaire.arousal = Int16(arousalValue)!
-            print(questionnaire)
+//            questionnaire.timestamp = self.timestamp as Date
+//            questionnaire.activity = self.activityPopupButton.titleOfSelectedItem
+//            questionnaire.valence = Int16(valenceValue)!
+//            questionnaire.arousal = Int16(arousalValue)!
+//            print(questionnaire)
 
         }
 
@@ -167,24 +167,24 @@ class EmotionPopUpViewController: NSViewController {
 
         var csv = ""
 
-        let emotionLogFetch = NSFetchRequest<NSFetchRequestResult>(entityName: "EmotionLog")
-        do {
-            let fetchedEmotionLogs = try context!.fetch(emotionLogFetch) as! [EmotionLog]
-            for emotionLog in fetchedEmotionLogs {
-
-                csv.append(dateFormatter.string(from: emotionLog.timestamp!))
-                csv.append(";")
-                csv.append(emotionLog.activity ?? "nil")
-                csv.append(";")
-                csv.append(String(emotionLog.valence))
-                csv.append(";")
-                csv.append(String(emotionLog.arousal))
-                csv.append("\n")
-
-            }
-        } catch {
-            fatalError("Failed to fetch EmotionLogs: \(error)")
-        }
+//        let emotionLogFetch = NSFetchRequest<NSFetchRequestResult>(entityName: "EmotionLog")
+//        do {
+//            let fetchedEmotionLogs = try context!.fetch(emotionLogFetch) as! [EmotionLog]
+//            for emotionLog in fetchedEmotionLogs {
+//
+//                csv.append(dateFormatter.string(from: emotionLog.timestamp!))
+//                csv.append(";")
+//                csv.append(emotionLog.activity ?? "nil")
+//                csv.append(";")
+//                csv.append(String(emotionLog.valence))
+//                csv.append(";")
+//                csv.append(String(emotionLog.arousal))
+//                csv.append("\n")
+//
+//            }
+//        } catch {
+//            fatalError("Failed to fetch EmotionLogs: \(error)")
+//        }
 
         return csv
     }
