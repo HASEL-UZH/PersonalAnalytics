@@ -77,71 +77,23 @@ class EmotionPopUpWindowController: NSWindowController {
     }
 
 
+    @IBAction func exportToCsvClicked(_ sender: Any) {
 
-//    @IBAction func exportToCsvClicked(_ sender: Any) {
-//
-//        // csv string to be saved
-//        let csv = csv_string()
-//
-//        // Open SavePanel
-//        let savePanel = NSSavePanel()
-//        savePanel.title = "Export data to csv"
-//        savePanel.message = NSLocalizedString("Insert a name", tableName: "MainMenu", comment:"How to call the output file when exporting to .csv")
-//
-//        if (savePanel.runModal() == NSApplication.ModalResponse.OK) {
-//            let result = savePanel.url
-//
-//            if (result != nil) {
-//
-//                print("Saving to: ", result!.path)
-//
-//                do {
-//                    try csv.write(to: result!, atomically: true, encoding: String.Encoding.utf8)
-//                } catch {
-//                    // failed to write file – bad permissions, bad filename, missing permissions, or more likely it can't be converted to the encoding
-//                    print("Something went wrong trying to save the file.")
-//                }
-//            }
-//        } else {
-//            return // User clicked cancel
-//        }
-//
-//        print("Saved.")
-//
-//    }
+        //Open SavePanel
+        let savePanel = NSSavePanel()
+        savePanel.title = "Export data to csv"
+        savePanel.message = NSLocalizedString("Insert a name", tableName: "MainMenu", comment:"How to call the output file when exporting to .csv")
 
+        if (savePanel.runModal() == NSApplication.ModalResponse.OK) {
+            let result = savePanel.url
+            if (result != nil) {
+                print("Saving to: ", result!.path)
+                emotionTracker.exportToCsv(destinationPath: result!)
+                print("Saved.")
+            } else {
+                return // User clicked cancel
+            }
 
-//    // MARK: Export utilities
-//
-//    func csv_string() -> String {
-//
-//        let dateFormatter = DateFormatter()
-//        dateFormatter.dateStyle = .short
-//        dateFormatter.timeStyle = .short
-//        dateFormatter.locale = .current
-//
-//        var csv = ""
-//
-//        let emotionLogFetch = NSFetchRequest<NSFetchRequestResult>(entityName: "EmotionalState")
-//        do {
-//            let fetchedEmotionLogs = try context!.fetch(emotionLogFetch) as! [EmotionalState]
-//            for emotionLog in fetchedEmotionLogs {
-//
-//                csv.append(dateFormatter.string(from: emotionLog.timestamp! as Date))
-//                csv.append(";")
-//                csv.append(emotionLog.activity ?? "nil")
-//                csv.append(";")
-//                csv.append(emotionLog.valence?.stringValue ?? "nil")
-//                csv.append(";")
-//                csv.append(emotionLog.arousal?.stringValue ?? "nil")
-//                csv.append("\n")
-//
-//            }
-//        } catch {
-//            fatalError("Failed to fetch EmotionLogs: \(error)")
-//        }
-//
-//        return csv
-//    }
-
+        }
+    }
 }

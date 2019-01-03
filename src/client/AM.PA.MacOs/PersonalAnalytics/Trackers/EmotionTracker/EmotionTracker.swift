@@ -39,7 +39,7 @@ class EmotionTracker {
 
         // Set default settings
         // Default time interval between notificaitons
-        UserDefaults.standard.set(10, forKey: "timeInterval")
+        UserDefaults.standard.set(5, forKey: "timeInterval")
 
     }
 
@@ -77,6 +77,53 @@ class EmotionTracker {
 
         // Actual notification scheduling
         notificationCenter.scheduleNotification(notification)
+    }
+
+    // MARK: Export collected data to csv
+    func exportToCsv(destinationPath: URL) {
+
+        // csv string to be saved
+        let csv = csv_string()
+
+        do {
+            try csv.write(to: destinationPath, atomically: true, encoding: String.Encoding.utf8)
+        } catch {
+            print("Something went wrong trying to save the file.")
+            // Possible problems: failed to write file – bad permissions, bad filename, missing permissions, or more likely it can't be converted to the encoding
+        }
+
+    }
+
+    // TODO: refactoring needed
+    func csv_string() -> String {
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .short
+        dateFormatter.timeStyle = .short
+        dateFormatter.locale = .current
+
+        var csv = ""
+
+        let emotionLogFetch = NSFetchRequest<NSFetchRequestResult>(entityName: "EmotionalState")
+        do {
+            let fetchedEmotionLogs = try context!.fetch(emotionLogFetch) as! [EmotionalState]
+            for emotionLog in fetchedEmotionLogs {
+
+                csv.append(dateFormatter.string(from: emotionLog.timestamp! as Date))
+                csv.append(";")
+                csv.append(emotionLog.activity ?? "nil")
+                csv.append(";")
+                csv.append(emotionLog.valence?.stringValue ?? "nil")
+                csv.append(";")
+                csv.append(emotionLog.arousal?.stringValue ?? "nil")
+                csv.append("\n")
+
+            }
+        } catch {
+            fatalError("Failed to fetch EmotionLogs: \(error)")
+        }
+
+        return csv
     }
 
 }

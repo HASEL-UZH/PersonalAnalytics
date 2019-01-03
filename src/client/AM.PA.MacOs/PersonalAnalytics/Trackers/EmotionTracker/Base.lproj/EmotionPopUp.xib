@@ -1155,6 +1155,17 @@ DQ
                             </menu>
                         </popUpButtonCell>
                     </popUpButton>
+                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="0FT-KH-u0u">
+                        <rect key="frame" x="535" y="20" width="95" height="17"/>
+                        <buttonCell key="cell" type="bevel" title="Export to csv..." bezelStyle="rounded" alignment="center" imageScaling="proportionallyDown" inset="2" id="5Qz-mP-UZx">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <color key="contentTintColor" name="linkColor" catalog="System" colorSpace="catalog"/>
+                        <connections>
+                            <action selector="exportToCsvClicked:" target="-2" id="xQl-b0-j3T"/>
+                        </connections>
+                    </button>
                 </subviews>
                 <constraints>
                     <constraint firstItem="TlT-Eg-aSW" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="0Zm-BX-WoN"/>
@@ -1162,6 +1173,7 @@ DQ
                     <constraint firstItem="5Ns-LE-L7O" firstAttribute="top" secondItem="V6B-Iw-2pk" secondAttribute="bottom" constant="15" id="3nz-b6-CYg"/>
                     <constraint firstItem="QPY-Zf-1re" firstAttribute="top" secondItem="TlT-Eg-aSW" secondAttribute="bottom" constant="20" id="4OM-Xc-1PL"/>
                     <constraint firstItem="b4r-Yl-hWO" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="7H3-OI-wir"/>
+                    <constraint firstAttribute="trailing" secondItem="0FT-KH-u0u" secondAttribute="trailing" constant="20" symbolic="YES" id="9I7-6u-oAY"/>
                     <constraint firstAttribute="bottom" secondItem="QPY-Zf-1re" secondAttribute="bottom" constant="20" id="9nW-5L-9di"/>
                     <constraint firstItem="P7F-T2-eEq" firstAttribute="top" secondItem="5Ns-LE-L7O" secondAttribute="bottom" constant="32" id="BDJ-Vg-xQe"/>
                     <constraint firstAttribute="trailing" secondItem="TlT-Eg-aSW" secondAttribute="trailing" constant="20" id="G1S-zG-83N"/>
@@ -1169,6 +1181,7 @@ DQ
                     <constraint firstAttribute="trailing" secondItem="b4r-Yl-hWO" secondAttribute="trailing" constant="20" id="Xw9-BD-vL4"/>
                     <constraint firstItem="TlT-Eg-aSW" firstAttribute="top" secondItem="b4r-Yl-hWO" secondAttribute="bottom" constant="5" id="jnR-Rv-GE0"/>
                     <constraint firstItem="b4r-Yl-hWO" firstAttribute="top" secondItem="P7F-T2-eEq" secondAttribute="bottom" id="lyx-eQ-SZi"/>
+                    <constraint firstAttribute="bottom" secondItem="0FT-KH-u0u" secondAttribute="bottom" constant="20" symbolic="YES" id="r0M-4J-FDT"/>
                     <constraint firstItem="5Ns-LE-L7O" firstAttribute="centerX" secondItem="V6B-Iw-2pk" secondAttribute="centerX" id="sCA-sG-ATD"/>
                     <constraint firstItem="P7F-T2-eEq" firstAttribute="centerX" secondItem="EiT-Mj-1SZ" secondAttribute="centerX" id="wPD-Hy-6k5"/>
                 </constraints>
