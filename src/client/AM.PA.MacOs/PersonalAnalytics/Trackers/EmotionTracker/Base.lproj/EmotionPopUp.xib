@@ -6,10 +6,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="EmotionPopUpViewController" customModule="PersonalAnalytics" customModuleProvider="target">
+        <customObject id="-2" userLabel="File's Owner" customClass="EmotionPopUpWindowController" customModule="PersonalAnalytics" customModuleProvider="target">
             <connections>
                 <outlet property="activityPopupButton" destination="5Ns-LE-L7O" id="OjF-qh-nPY"/>
-                <outlet property="window" destination="QvC-M9-y7g" id="eaq-RA-h91"/>
+                <outlet property="window" destination="QvC-M9-y7g" id="kt5-iA-Scg"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>

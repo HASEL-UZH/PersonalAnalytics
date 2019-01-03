@@ -29,6 +29,7 @@ Change picture on notification
 import Cocoa
 import Foundation
 import Quartz
+import UserNotifications
 
 
 @NSApplicationMain
@@ -133,7 +134,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     let preferencesController = PreferencesWindowController(windowNibName: NSNib.Name(rawValue: "PreferencesWindow"))
     let retrospectiveController = RetrospectiveWindowController(windowNibName:NSNib.Name(rawValue: "RetrospectiveWindow"))
     let emotionPopUpController = EmotionPopUpWindowController(windowNibName: NSNib.Name(rawValue: "EmotionPopUp"))
-    
+
     // MARK: - Variables
     var eventMonitor: AnyObject? = nil
     var menuClickMonitor: AnyObject?
@@ -236,10 +237,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     func setUpRetrospective(){
         retrospectiveController.window?.contentViewController = RetrospectiveViewController(nibName: NSNib.Name(rawValue: "RetrospectiveView"), bundle: nil)
     }
-
-    func setUpEmotionPopUp(){
-        emotionPopUpController.window?.contentViewController = EmotionPopUpViewController(nibName: NSNib.Name(rawValue: "EmotionPopUp"), bundle: nil)
-    }
     
     var firstTime = true
     
@@ -315,7 +312,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     
     // MARK: - Setup, teardown of application including timers
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        
+
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound])
+        {(granted, error) in print("granted: \(granted)\nerror:\(error)")}
+
         if !AXIsProcessTrusted(){
             launchPermissionPanel()
             launchPermissionExplanationAlert()
@@ -428,4 +428,3 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     
     
 }
-
