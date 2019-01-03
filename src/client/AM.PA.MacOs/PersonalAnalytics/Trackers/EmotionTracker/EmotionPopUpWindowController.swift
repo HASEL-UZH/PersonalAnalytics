@@ -7,7 +7,6 @@
 
 import Cocoa
 import Foundation
-import UserNotifications
 import CoreData
 
 class EmotionPopUpWindowController: NSWindowController {

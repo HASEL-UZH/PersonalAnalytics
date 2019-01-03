@@ -7,7 +7,6 @@
 
 import Cocoa
 import Foundation
-import UserNotifications
 import CoreData
 
 struct Questionnaire {
@@ -21,7 +20,6 @@ class EmotionTracker {
 
     // MARK: Properties
     var context: NSManagedObjectContext?
-    let notificationCenter = UNUserNotificationCenter.current()
 
     // MARK: Class initializer
     init() {
@@ -62,26 +60,23 @@ class EmotionTracker {
     // MARK: Notification scheduling
     func scheduleNotification() {
 
-        // Create the notification's content
-        let notificationContent = UNMutableNotificationContent()
-        notificationContent.title = "How are you feeling?"
-        notificationContent.body = "Tell us something about your emotions!"
-        notificationContent.sound = UNNotificationSound.defaultCriticalSound(withAudioVolume: 0.9)
+        let notification = NSUserNotification()
+        let notificationCenter = NSUserNotificationCenter.default
+        notification.title = "How are you feeling?"
+        notification.subtitle = "REMEMBER: push the button on your smartband!"
+        notification.soundName = NSUserNotificationDefaultSoundName
+        notification.deliveryDate = Date(timeIntervalSinceNow: UserDefaults.standard.value(forKey: "timeInterval") as! TimeInterval)
 
-        // Create the time interval trigger for the notification
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(UserDefaults.standard.integer(forKey: "timeInterval")), repeats: false)
+        // More optional notification settings
 
-        // Schedule the notification
-        let request = UNNotificationRequest(identifier: "Main notification", content: notificationContent, trigger: trigger)
+        // Identifier: DANGEROUS, the notification didn't work
+        // notification.identifier = "Emotion Pop-up notification"
 
-        // Add the notification to the current User Notification Center
-        notificationCenter.add(request) { (error : Error?) in
-            if error != nil {
-                print("The main notification could not be added to the user's Notification Center")
-                print(error.debugDescription)
-            }
-        }
+        // Informative text
+        // notification.informativeText = "And remember to push the button on your smartband!"
 
+        // Actual notification scheduling
+        notificationCenter.scheduleNotification(notification)
     }
 
 }

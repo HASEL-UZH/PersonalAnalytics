@@ -29,7 +29,6 @@ Change picture on notification
 import Cocoa
 import Foundation
 import Quartz
-import UserNotifications
 
 
 @NSApplicationMain
@@ -171,7 +170,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         
         pauseItem = NSMenuItem(title: "Pause Trackers", action: #selector(delegate.togglePause), keyEquivalent: "u")
         
-        //menu.addItem(toggleSummaryItem)
+        menu.addItem(toggleSummaryItem)
         menu.addItem(retrospectiveItem)
         
         menu.addItem(NSMenuItem.separator())
@@ -296,9 +295,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     
     func userNotificationCenter(_ center: NSUserNotificationCenter, didActivate notification: NSUserNotification) {
         //print("Using delelgate for NSUsernotification")
-        self.toggleSummary(notification.self)
+        //self.toggleSummary(notification.self)
+        self.showEmotionPopUp(self)
     }
-    
+
+    func userNotificationCenter(_ center: NSUserNotificationCenter, shouldPresent notification: NSUserNotification) -> Bool {
+        return true
+    }
+
     //https://stackoverflow.com/questions/7271528/how-to-nslog-into-a-file
     func redirectLogToDocuments() {
         let pathForErrors = self.applicationDocumentsDirectory.path.appendingFormat("/errors.txt")
@@ -312,9 +316,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     
     // MARK: - Setup, teardown of application including timers
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound])
-        {(granted, error) in print("granted: \(granted)\nerror:\(error)")}
 
         if !AXIsProcessTrusted(){
             launchPermissionPanel()
