@@ -294,9 +294,36 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
 
     
     func userNotificationCenter(_ center: NSUserNotificationCenter, didActivate notification: NSUserNotification) {
+        // SUMMARY ACTIVATION
         //print("Using delelgate for NSUsernotification")
         //self.toggleSummary(notification.self)
-        self.showEmotionPopUp(self)
+
+        // EMOTION POP-UP ACTIVATION
+
+        // If the notification is postponed...
+        if let choosen = notification.additionalActivationAction, let actionIdentifier = choosen.identifier {
+            switch actionIdentifier {
+            case "5m":
+                emotionPopUpController.emotionTracker.scheduleNotification(minutesSinceNow: 5)
+                print("Notification postponed. It will display 5 minutes from now!")
+            case "30m":
+                emotionPopUpController.emotionTracker.scheduleNotification(minutesSinceNow: 30)
+                print("Notification postponed. It will display 30 minutes from now!")
+            case "1h":
+                emotionPopUpController.emotionTracker.scheduleNotification(minutesSinceNow: 60)
+                print("Notification postponed. It will display 60 minutes from now!")
+            default:
+                print("Something went wrong: UserNotification additionalActivationAction not recognized")
+            }
+        } else {
+            // If the notification is accepted...
+
+            // Shows EmotionPopUp
+            self.showEmotionPopUp(self)
+            // Removes the notification from the NotificationCenter
+            center.removeDeliveredNotification(notification)
+        }
+
     }
 
     func userNotificationCenter(_ center: NSUserNotificationCenter, shouldPresent notification: NSUserNotification) -> Bool {

@@ -58,14 +58,32 @@ class EmotionTracker {
     }
 
     // MARK: Notification scheduling
-    func scheduleNotification() {
+    func scheduleNotification(minutesSinceNow: Int? = nil) {
 
         let notification = NSUserNotification()
         let notificationCenter = NSUserNotificationCenter.default
         notification.title = "How are you feeling?"
         notification.subtitle = "REMEMBER: push the button on your smartband!"
         notification.soundName = NSUserNotificationDefaultSoundName
-        notification.deliveryDate = Date(timeIntervalSinceNow: UserDefaults.standard.value(forKey: "timeInterval") as! TimeInterval)
+        notification.hasActionButton = true
+        notification.otherButtonTitle = "Dismiss"
+        notification.actionButtonTitle = "Postpone"
+        var actions = [NSUserNotificationAction]()
+        let action1 = NSUserNotificationAction(identifier: "5m", title: "5 minutes")
+        let action2 = NSUserNotificationAction(identifier: "30m", title: "30 minutes")
+        let action3 = NSUserNotificationAction(identifier: "1h", title: "1 hour")
+        actions.append(action1)
+        actions.append(action2)
+        actions.append(action3)
+        // WARNING, private API
+        notification.setValue(true, forKey: "_alwaysShowAlternateActionMenu")
+
+        notification.additionalActions = actions
+
+        // TODO: multiply by 60
+        let timeIntervalSinceNow: Int = (minutesSinceNow ?? (UserDefaults.standard.value(forKey: "timeInterval") as! Int))
+        notification.deliveryDate = Date(timeIntervalSinceNow: TimeInterval(exactly: timeIntervalSinceNow)!)
+        print("TimeInterval:", TimeInterval(exactly: timeIntervalSinceNow)!)
 
         // More optional notification settings
 
