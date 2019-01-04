@@ -62,7 +62,7 @@ class EmotionTracker {
 
         let notification = NSUserNotification()
         let notificationCenter = NSUserNotificationCenter.default
-        notification.title = "How are you feeling?"
+        notification.title = "What are you feeling?"
         notification.subtitle = "REMEMBER: push the button on your smartband!"
         notification.soundName = NSUserNotificationDefaultSoundName
         notification.hasActionButton = true

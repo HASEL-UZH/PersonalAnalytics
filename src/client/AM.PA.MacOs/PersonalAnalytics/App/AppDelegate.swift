@@ -155,7 +155,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         statusItem.menu = menu
         defaults.register(defaults: [
             AppConstants.summaryStateKey: 0,
-            AppConstants.notificationsPersistKey: true])
+            AppConstants.notificationsPersistKey: true,
+
+            // ACTIVATE/DEACTIVATE EMOTION POP-UP USING THIS SETTING
+            AppConstants.emotionPopUpActivateKey: false])
         
         let preferencesItem = NSMenuItem(title: "Preferences...", action: #selector(AppDelegate.showPreferences(_:)), keyEquivalent: "P")
         
@@ -189,8 +192,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(delegate.quit), keyEquivalent: "q"))
 
         menu.addItem(NSMenuItem.separator())
-        let emotionPopUpItem = NSMenuItem(title: "Emotion Pop-up", action: #selector(AppDelegate.showEmotionPopUp(_:)), keyEquivalent: "E")
-        menu.addItem(emotionPopUpItem)
+
+        // If the Emotion pop-up function is activated, adds the Emotion Pop-up menu-item to the menu
+        if UserDefaults.standard.value(forKey: AppConstants.emotionPopUpActivateKey) as! Bool {
+            let emotionPopUpItem = NSMenuItem(title: "Emotion Pop-up", action: #selector(AppDelegate.showEmotionPopUp(_:)), keyEquivalent: "E")
+            menu.addItem(emotionPopUpItem)
+        }
         
         // Setting up the summary popup
         statusItem.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImage"))
@@ -294,35 +301,40 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
 
     
     func userNotificationCenter(_ center: NSUserNotificationCenter, didActivate notification: NSUserNotification) {
-        // SUMMARY ACTIVATION
-        //print("Using delelgate for NSUsernotification")
-        //self.toggleSummary(notification.self)
 
-        // EMOTION POP-UP ACTIVATION
+        if notification.title == "What are you feeling?" {
+            // EMOTION POP-UP ACTIVATION
+            // If the notification is postponed...
+            if let choosen = notification.additionalActivationAction, let actionIdentifier = choosen.identifier {
+                switch actionIdentifier {
+                case "5m":
+                    emotionPopUpController.emotionTracker.scheduleNotification(minutesSinceNow: 5)
+                    print("Notification postponed. It will display 5 minutes from now!")
+                case "30m":
+                    emotionPopUpController.emotionTracker.scheduleNotification(minutesSinceNow: 30)
+                    print("Notification postponed. It will display 30 minutes from now!")
+                case "1h":
+                    emotionPopUpController.emotionTracker.scheduleNotification(minutesSinceNow: 60)
+                    print("Notification postponed. It will display 60 minutes from now!")
+                default:
+                    print("Something went wrong: UserNotification additionalActivationAction not recognized")
+                }
+            } else {
+                // If the notification is accepted...
 
-        // If the notification is postponed...
-        if let choosen = notification.additionalActivationAction, let actionIdentifier = choosen.identifier {
-            switch actionIdentifier {
-            case "5m":
-                emotionPopUpController.emotionTracker.scheduleNotification(minutesSinceNow: 5)
-                print("Notification postponed. It will display 5 minutes from now!")
-            case "30m":
-                emotionPopUpController.emotionTracker.scheduleNotification(minutesSinceNow: 30)
-                print("Notification postponed. It will display 30 minutes from now!")
-            case "1h":
-                emotionPopUpController.emotionTracker.scheduleNotification(minutesSinceNow: 60)
-                print("Notification postponed. It will display 60 minutes from now!")
-            default:
-                print("Something went wrong: UserNotification additionalActivationAction not recognized")
+                // Shows EmotionPopUp
+                self.showEmotionPopUp(self)
+                // Removes the notification from the NotificationCenter
+                center.removeDeliveredNotification(notification)
             }
         } else {
-            // If the notification is accepted...
-
-            // Shows EmotionPopUp
-            self.showEmotionPopUp(self)
-            // Removes the notification from the NotificationCenter
-            center.removeDeliveredNotification(notification)
+            // SUMMARY ACTIVATION
+            //print("Using delelgate for NSUsernotification")
+            self.toggleSummary(notification.self)
         }
+
+
+
 
     }
 
