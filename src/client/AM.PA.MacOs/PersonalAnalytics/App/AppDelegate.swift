@@ -158,7 +158,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
             AppConstants.notificationsPersistKey: true,
 
             // ACTIVATE/DEACTIVATE EMOTION POP-UP USING THIS SETTING
-            AppConstants.emotionPopUpActivateKey: false])
+            AppConstants.emotionPopUpActivateKey: true])
         
         let preferencesItem = NSMenuItem(title: "Preferences...", action: #selector(AppDelegate.showPreferences(_:)), keyEquivalent: "P")
         
