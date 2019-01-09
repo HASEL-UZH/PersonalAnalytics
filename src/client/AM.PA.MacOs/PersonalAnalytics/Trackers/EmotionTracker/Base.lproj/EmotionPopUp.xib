@@ -9,6 +9,9 @@
         <customObject id="-2" userLabel="File's Owner" customClass="EmotionPopUpWindowController" customModule="PersonalAnalytics" customModuleProvider="target">
             <connections>
                 <outlet property="activityPopupButton" destination="5Ns-LE-L7O" id="OjF-qh-nPY"/>
+                <outlet property="activityValidationLabel" destination="HcN-LP-pwl" id="6E8-VI-tzp"/>
+                <outlet property="arousalValidationLabel" destination="UCj-xj-sH1" id="HT9-L1-0US"/>
+                <outlet property="valenceValidationLabel" destination="hDY-RI-Rys" id="O0Z-8C-TBZ"/>
                 <outlet property="window" destination="QvC-M9-y7g" id="kt5-iA-Scg"/>
             </connections>
         </customObject>
@@ -896,13 +899,23 @@ DQ
                                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                     </textFieldCell>
                                 </textField>
+                                <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="UCj-xj-sH1">
+                                    <rect key="frame" x="210" y="20" width="191" height="17"/>
+                                    <textFieldCell key="cell" lineBreakMode="clipping" title="Answer this question please!" id="PMh-cS-O1n">
+                                        <font key="font" metaFont="systemBold"/>
+                                        <color key="textColor" name="systemRedColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                </textField>
                             </subviews>
                             <constraints>
                                 <constraint firstItem="4YH-Sv-mws" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="HKW-Xu-hnt" secondAttribute="trailing" constant="405" id="4jC-vL-3ve"/>
                                 <constraint firstAttribute="bottom" secondItem="HKW-Xu-hnt" secondAttribute="bottom" constant="20" id="90j-v0-mjN"/>
                                 <constraint firstItem="HKW-Xu-hnt" firstAttribute="leading" secondItem="6vP-w9-YAb" secondAttribute="leading" constant="19" id="AwP-qn-N0Y"/>
                                 <constraint firstAttribute="bottom" secondItem="4YH-Sv-mws" secondAttribute="bottom" constant="20" id="CTa-H6-PO6"/>
+                                <constraint firstItem="UCj-xj-sH1" firstAttribute="centerX" secondItem="6vP-w9-YAb" secondAttribute="centerX" id="DBK-BI-pW6"/>
                                 <constraint firstAttribute="trailing" secondItem="4YH-Sv-mws" secondAttribute="trailing" constant="20" id="XvY-5I-C9l"/>
+                                <constraint firstAttribute="bottom" secondItem="UCj-xj-sH1" secondAttribute="bottom" constant="20" id="eEN-pt-1Fc"/>
                             </constraints>
                         </view>
                         <constraints>
@@ -1097,12 +1110,22 @@ DQ
                                         <real value="3.4028234663852886e+38"/>
                                     </customSpacing>
                                 </stackView>
+                                <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="hDY-RI-Rys">
+                                    <rect key="frame" x="210" y="20" width="191" height="17"/>
+                                    <textFieldCell key="cell" lineBreakMode="clipping" title="Answer this question please!" id="Pi9-RW-jKD">
+                                        <font key="font" metaFont="systemBold"/>
+                                        <color key="textColor" name="systemRedColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                </textField>
                             </subviews>
                             <constraints>
                                 <constraint firstAttribute="bottom" secondItem="AOZ-aF-lHw" secondAttribute="bottom" constant="20" id="26c-cD-ZKy"/>
                                 <constraint firstItem="gWa-iN-toU" firstAttribute="leading" secondItem="cH2-lk-cxg" secondAttribute="leading" constant="20" id="3Rf-Cm-EzT"/>
+                                <constraint firstAttribute="bottom" secondItem="hDY-RI-Rys" secondAttribute="bottom" constant="20" id="7Zy-Xb-Xn9"/>
                                 <constraint firstItem="AOZ-aF-lHw" firstAttribute="leading" secondItem="Ozh-mP-BYy" secondAttribute="trailing" constant="374" id="CsT-ev-sxZ"/>
                                 <constraint firstItem="Ozh-mP-BYy" firstAttribute="leading" secondItem="cH2-lk-cxg" secondAttribute="leading" constant="20" id="Hlq-Pv-0CK"/>
+                                <constraint firstItem="hDY-RI-Rys" firstAttribute="centerX" secondItem="cH2-lk-cxg" secondAttribute="centerX" id="I5M-jq-spP"/>
                                 <constraint firstAttribute="bottom" secondItem="Ozh-mP-BYy" secondAttribute="bottom" constant="20" id="bDS-Uq-G6x"/>
                                 <constraint firstAttribute="trailing" secondItem="gWa-iN-toU" secondAttribute="trailing" constant="20" id="ebT-CQ-fj0"/>
                                 <constraint firstItem="gWa-iN-toU" firstAttribute="top" secondItem="cH2-lk-cxg" secondAttribute="top" constant="20" id="kDM-CO-eh8"/>
@@ -1166,10 +1189,19 @@ DQ
                             <action selector="exportToCsvClicked:" target="-2" id="xQl-b0-j3T"/>
                         </connections>
                     </button>
+                    <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="HcN-LP-pwl">
+                        <rect key="frame" x="432" y="484" width="191" height="17"/>
+                        <textFieldCell key="cell" lineBreakMode="clipping" title="Answer this question please!" id="4wl-pe-NjE">
+                            <font key="font" metaFont="systemBold"/>
+                            <color key="textColor" name="systemRedColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                 </subviews>
                 <constraints>
                     <constraint firstItem="TlT-Eg-aSW" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="0Zm-BX-WoN"/>
                     <constraint firstItem="QPY-Zf-1re" firstAttribute="centerX" secondItem="EiT-Mj-1SZ" secondAttribute="centerX" id="0it-zD-UHJ"/>
+                    <constraint firstItem="HcN-LP-pwl" firstAttribute="leading" secondItem="5Ns-LE-L7O" secondAttribute="trailing" constant="8" symbolic="YES" id="0pj-oa-Fbf"/>
                     <constraint firstItem="5Ns-LE-L7O" firstAttribute="top" secondItem="V6B-Iw-2pk" secondAttribute="bottom" constant="15" id="3nz-b6-CYg"/>
                     <constraint firstItem="QPY-Zf-1re" firstAttribute="top" secondItem="TlT-Eg-aSW" secondAttribute="bottom" constant="20" id="4OM-Xc-1PL"/>
                     <constraint firstItem="b4r-Yl-hWO" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" id="7H3-OI-wir"/>
@@ -1178,6 +1210,7 @@ DQ
                     <constraint firstItem="P7F-T2-eEq" firstAttribute="top" secondItem="5Ns-LE-L7O" secondAttribute="bottom" constant="32" id="BDJ-Vg-xQe"/>
                     <constraint firstAttribute="trailing" secondItem="TlT-Eg-aSW" secondAttribute="trailing" constant="20" id="G1S-zG-83N"/>
                     <constraint firstItem="V6B-Iw-2pk" firstAttribute="centerX" secondItem="EiT-Mj-1SZ" secondAttribute="centerX" id="GQ0-t2-yRT"/>
+                    <constraint firstItem="HcN-LP-pwl" firstAttribute="centerY" secondItem="5Ns-LE-L7O" secondAttribute="centerY" id="U20-kp-Vcp"/>
                     <constraint firstAttribute="trailing" secondItem="b4r-Yl-hWO" secondAttribute="trailing" constant="20" id="Xw9-BD-vL4"/>
                     <constraint firstItem="TlT-Eg-aSW" firstAttribute="top" secondItem="b4r-Yl-hWO" secondAttribute="bottom" constant="5" id="jnR-Rv-GE0"/>
                     <constraint firstItem="b4r-Yl-hWO" firstAttribute="top" secondItem="P7F-T2-eEq" secondAttribute="bottom" id="lyx-eQ-SZi"/>

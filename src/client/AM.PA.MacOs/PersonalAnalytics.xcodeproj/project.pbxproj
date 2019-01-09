@@ -133,8 +133,8 @@
 		4DA28D738A1335A21DB8B36E /* Pods-PersonalAnalytics.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PersonalAnalytics.release.xcconfig"; path = "Pods/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics.release.xcconfig"; sourceTree = "<group>"; };
 		639321AA141095A614B280EE /* Pods_PersonalAnalytics.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PersonalAnalytics.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C9534675C9D8400DA2E81D5 /* Pods-PersonalAnalytics.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PersonalAnalytics.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics.debug.xcconfig"; sourceTree = "<group>"; };
+		A39E252521E6B7DB0059D094 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/EmotionPopUp.strings; sourceTree = "<group>"; };
 		A3B37CE821DD1CDC008784B1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/EmotionPopUp.xib; sourceTree = "<group>"; };
-		A3B37CEB21DD1CE3008784B1 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/EmotionPopUp.strings; sourceTree = "<group>"; };
 		A3B37CEE21DD1D72008784B1 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/EmotionPopUp.strings; sourceTree = "<group>"; };
 		A3B37CF221DD258C008784B1 /* EmotionTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmotionTracker.swift; sourceTree = "<group>"; };
 		A3B37CFA21DD4A9A008784B1 /* EmotionalState+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "EmotionalState+CoreDataProperties.swift"; path = "/Users/luigiquaranta/Developer/tesi_magistrale/PersonalAnalytics/src/client/AM.PA.MacOs/PersonalAnalytics/Models/EmotionalState+CoreDataProperties.swift"; sourceTree = "<absolute>"; };
@@ -686,8 +686,8 @@
 			isa = PBXVariantGroup;
 			children = (
 				A3B37CE821DD1CDC008784B1 /* Base */,
-				A3B37CEB21DD1CE3008784B1 /* en */,
 				A3B37CEE21DD1D72008784B1 /* it */,
+				A39E252521E6B7DB0059D094 /* en */,
 			);
 			name = EmotionPopUp.xib;
 			sourceTree = "<group>";

@@ -506,4 +506,11 @@
 /* Class = "NSMenuItem"; title = "Show Substitutions"; ObjectID = "z6F-FW-3nz"; */
 "z6F-FW-3nz.title" = "Show Substitutions";
 
+/* Class = "NSMenuItem"; title = "Show Substitutions"; ObjectID = "z6F-FW-3nz"; */
+
 "Insert a name" = "Inserisci un nome per il file .csv";
+
+/* Validation labels */
+"4wl-pe-NjE.title" = "Rispondi a questa domanda!";
+"Pi9-RW-jKD.title" = "Rispondi a questa domanda!";
+"PMh-cS-O1n.title" = "Rispondi a questa domanda!";

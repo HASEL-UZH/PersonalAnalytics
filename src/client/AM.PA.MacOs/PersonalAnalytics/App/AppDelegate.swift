@@ -378,7 +378,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         // Start local server so chrome extension can send data to it
         api = PAHttpServer(coreDataController: DataObjectController.sharedInstance)
         api!.startServer()
-        
+
+        self.showEmotionPopUp(self) // TODO: delete this line
     }
     
     func launchPermissionExplanationAlert(){
