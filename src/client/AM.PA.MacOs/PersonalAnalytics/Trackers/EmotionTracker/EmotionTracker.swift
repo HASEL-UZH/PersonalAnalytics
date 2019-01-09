@@ -39,7 +39,9 @@ class EmotionTracker {
 
         // Set default settings
         // Default time interval between notificaitons
-        UserDefaults.standard.set(5, forKey: "timeInterval")
+        var minutes = 60
+        minutes *= 60
+        UserDefaults.standard.set(minutes, forKey: "timeInterval")
 
     }
 
@@ -53,6 +55,14 @@ class EmotionTracker {
         emotionalState.valence = questionnaire.valence
         emotionalState.arousal = questionnaire.arousal
 
+        do {
+            try self.context?.save()
+        } catch let error {
+            print("It was not possible to save the last emotional state.")
+            print("ERROR DETAILS: \(error)")
+        }
+
+        print("Emotional state saved:")
         print(emotionalState)
 
     }
@@ -62,9 +72,13 @@ class EmotionTracker {
 
         let notification = NSUserNotification()
         let notificationCenter = NSUserNotificationCenter.default
+        let timeIntervalSinceNow: Int = (minutesSinceNow ?? (UserDefaults.standard.value(forKey: "timeInterval") as! Int))
+
         notification.title = "What are you feeling?"
         notification.subtitle = "REMEMBER: push the button on your smartband!"
         notification.soundName = NSUserNotificationDefaultSoundName
+        notification.deliveryDate = Date(timeIntervalSinceNow: TimeInterval(exactly: timeIntervalSinceNow)!)
+
         notification.hasActionButton = true
         notification.otherButtonTitle = "Dismiss"
         notification.actionButtonTitle = "Postpone"
@@ -77,13 +91,11 @@ class EmotionTracker {
         actions.append(action3)
         // WARNING, private API
         notification.setValue(true, forKey: "_alwaysShowAlternateActionMenu")
-
         notification.additionalActions = actions
 
-        // TODO: multiply by 60
-        let timeIntervalSinceNow: Int = (minutesSinceNow ?? (UserDefaults.standard.value(forKey: "timeInterval") as! Int))
-        notification.deliveryDate = Date(timeIntervalSinceNow: TimeInterval(exactly: timeIntervalSinceNow)!)
-        print("TimeInterval:", TimeInterval(exactly: timeIntervalSinceNow)!)
+
+
+        print("Time to wait for next notification:", TimeInterval(exactly: timeIntervalSinceNow)!)
 
         // More optional notification settings
 
@@ -116,8 +128,7 @@ class EmotionTracker {
     func csv_string() -> String {
 
         let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .short
-        dateFormatter.timeStyle = .short
+        dateFormatter.dateFormat = "dd/MM/yyyy-HH:mm:ss"
         dateFormatter.locale = .current
 
         var csv = ""
