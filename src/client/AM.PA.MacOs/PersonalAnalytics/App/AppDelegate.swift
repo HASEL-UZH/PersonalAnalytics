@@ -173,7 +173,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         
         pauseItem = NSMenuItem(title: "Pause Trackers", action: #selector(delegate.togglePause), keyEquivalent: "u")
         
-        menu.addItem(toggleSummaryItem)
+        //menu.addItem(toggleSummaryItem)
         menu.addItem(retrospectiveItem)
         
         menu.addItem(NSMenuItem.separator())
@@ -379,7 +379,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         api = PAHttpServer(coreDataController: DataObjectController.sharedInstance)
         api!.startServer()
 
-        self.showEmotionPopUp(self) // TODO: delete this line
     }
     
     func launchPermissionExplanationAlert(){
