@@ -302,20 +302,17 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     
     func userNotificationCenter(_ center: NSUserNotificationCenter, didActivate notification: NSUserNotification) {
 
-        if notification.title == "What are you feeling?" {
+        if notification.title == "How are you feeling?" {
             // EMOTION POP-UP ACTIVATION
             // If the notification is postponed...
             if let choosen = notification.additionalActivationAction, let actionIdentifier = choosen.identifier {
                 switch actionIdentifier {
-                case "5m":
-                    emotionPopUpController.emotionTracker.scheduleNotification(minutesSinceNow: 5*60)
-                    print("Notification postponed. It will display 5 minutes from now!")
-                case "30m":
-                    emotionPopUpController.emotionTracker.scheduleNotification(minutesSinceNow: 30*60)
-                    print("Notification postponed. It will display 30 minutes from now!")
                 case "1h":
                     emotionPopUpController.emotionTracker.scheduleNotification(minutesSinceNow: 60*60)
-                    print("Notification postponed. It will display 60 minutes from now!")
+                    print("Notification postponed. It will display 1 hour from now!")
+                case "2h":
+                    emotionPopUpController.emotionTracker.scheduleNotification(minutesSinceNow: 120*60)
+                    print("Notification postponed. It will display 2 hours from now!")
                 default:
                     print("Something went wrong: UserNotification additionalActivationAction not recognized")
                 }

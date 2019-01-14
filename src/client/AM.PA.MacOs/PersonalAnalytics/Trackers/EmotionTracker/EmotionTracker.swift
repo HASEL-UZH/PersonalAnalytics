@@ -39,8 +39,8 @@ class EmotionTracker {
 
         // Set default settings
         // Default time interval between notificaitons
-        var minutes = 60
-        minutes *= 60
+        var minutes = 5
+        //minutes *= 60
         UserDefaults.standard.set(minutes, forKey: "timeInterval")
 
     }
@@ -74,8 +74,8 @@ class EmotionTracker {
         let notificationCenter = NSUserNotificationCenter.default
         let timeIntervalSinceNow: Int = (minutesSinceNow ?? (UserDefaults.standard.value(forKey: "timeInterval") as! Int))
 
-        notification.title = "What are you feeling?"
-        notification.subtitle = "REMEMBER: push the button on your smartband!"
+        notification.title = "How are you feeling?"
+        notification.subtitle = "Click here to open the pop-up!"
         notification.soundName = NSUserNotificationDefaultSoundName
         notification.deliveryDate = Date(timeIntervalSinceNow: TimeInterval(exactly: timeIntervalSinceNow)!)
 
@@ -83,12 +83,10 @@ class EmotionTracker {
         notification.otherButtonTitle = "Dismiss"
         notification.actionButtonTitle = "Postpone"
         var actions = [NSUserNotificationAction]()
-        let action1 = NSUserNotificationAction(identifier: "5m", title: "5 minutes")
-        let action2 = NSUserNotificationAction(identifier: "30m", title: "30 minutes")
-        let action3 = NSUserNotificationAction(identifier: "1h", title: "1 hour")
+        let action1 = NSUserNotificationAction(identifier: "1h", title: "1 hour")
+        let action2 = NSUserNotificationAction(identifier: "2h", title: "2 hours")
         actions.append(action1)
         actions.append(action2)
-        actions.append(action3)
         // WARNING, private API
         notification.setValue(true, forKey: "_alwaysShowAlternateActionMenu")
         notification.additionalActions = actions
