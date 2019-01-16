@@ -32,8 +32,8 @@ class EmotionTracker: ITracker {
     init() {
         
         // Set default time interval between notificaitons
-        var minutes = 5 // Should be 60 by default
-        minutes *= 1 // Should be 60
+        var minutes = 60
+        minutes *= 60
         UserDefaults.standard.set(minutes, forKey: "timeInterval")
 
         // Start the tracker
@@ -98,19 +98,17 @@ class EmotionTracker: ITracker {
 
     func manageNotification(notification: NSUserNotification) {
 
-        if notification.title == "How are you feeling?" {
+        if notificationSet.contains(notification) {
 
             if let choosen = notification.additionalActivationAction, let actionIdentifier = choosen.identifier {
 
                 // If the notification is postponed...
                 switch actionIdentifier {
                 case "1h":
-                    scheduleNotification(minutesSinceNow: 10)
-//                    scheduleNotification(minutesSinceNow: 60*60)
+                    scheduleNotification(minutesSinceNow: 60*60)
                     print("Notification postponed. It will display 1 hour from now!")
                 case "2h":
-                    scheduleNotification(minutesSinceNow: 15)
-//                    scheduleNotification(minutesSinceNow: 120*60)
+                    scheduleNotification(minutesSinceNow: 120*60)
                     print("Notification postponed. It will display 2 hours from now!")
                 default:
                     print("Something went wrong: UserNotification additionalActivationAction not recognized")
