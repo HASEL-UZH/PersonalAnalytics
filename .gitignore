@@ -24,4 +24,4 @@ Skype.framework
 Podfile.lock
 Pods
 *.xcworkspace
-src/client/AM.PA.MacOs/PersonalAnalytics.xcodeproj/xcuserdata/luigiquaranta.xcuserdatad/
+src/client/AM.PA.MacOs/PersonalAnalytics.xcodeproj/

@@ -23,6 +23,4 @@ enum AppConstants {
     
     static let retrospectiveColor = "#007acc"
 
-    static let emotionPopUpActivateKey = "emotionPopUpActivate"
-
 }

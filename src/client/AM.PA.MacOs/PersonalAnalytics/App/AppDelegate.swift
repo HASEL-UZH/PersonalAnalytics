@@ -132,7 +132,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     let defaultsController = NSUserDefaultsController.shared
     let preferencesController = PreferencesWindowController(windowNibName: NSNib.Name(rawValue: "PreferencesWindow"))
     let retrospectiveController = RetrospectiveWindowController(windowNibName:NSNib.Name(rawValue: "RetrospectiveWindow"))
-    let emotionPopUpController = EmotionPopUpWindowController(windowNibName: NSNib.Name(rawValue: "EmotionPopUp"))
 
     // MARK: - Variables
     var eventMonitor: AnyObject? = nil
@@ -155,10 +154,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         statusItem.menu = menu
         defaults.register(defaults: [
             AppConstants.summaryStateKey: 0,
-            AppConstants.notificationsPersistKey: true,
-
-            // ACTIVATE/DEACTIVATE EMOTION POP-UP USING THIS SETTING
-            AppConstants.emotionPopUpActivateKey: true])
+            AppConstants.notificationsPersistKey: true])
         
         let preferencesItem = NSMenuItem(title: "Preferences...", action: #selector(AppDelegate.showPreferences(_:)), keyEquivalent: "P")
         
@@ -191,20 +187,24 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         // It doesn't seem to work if I change the selector, so I'm leaving it for now (working is better for now than slowing down)
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(delegate.quit), keyEquivalent: "q"))
 
+        // TODO: delete the following lines before merging to the 'mac' branch
         menu.addItem(NSMenuItem.separator())
+        let emotionPopUpItem = NSMenuItem(title: "Emotion Pop-up", action: #selector(delegate.showEmotionPopUp), keyEquivalent: "E")
+        menu.addItem(emotionPopUpItem)
 
-        // If the Emotion pop-up function is activated, adds the Emotion Pop-up menu-item to the menu
-        if UserDefaults.standard.value(forKey: AppConstants.emotionPopUpActivateKey) as! Bool {
-            let emotionPopUpItem = NSMenuItem(title: "Emotion Pop-up", action: #selector(AppDelegate.showEmotionPopUp(_:)), keyEquivalent: "E")
-            menu.addItem(emotionPopUpItem)
-        }
-        
         // Setting up the summary popup
         statusItem.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImage"))
         setUpSummaryView()
         setUpPreferencesView()
         setUpRetrospective()
     
+    }
+
+    // TODO: delete the following lines before merging to the 'mac' branch
+    // WHY DOES THIS WORK???
+    @objc func showEmotionPopUp() {
+        let emotionTracker = (TrackerManager.shared.getTracker(tracker: "EmotionTracker") as! EmotionTracker)
+        emotionTracker.emotionPopUpController.showEmotionPopUp(self)
     }
     
     @objc func togglePause(){
@@ -267,15 +267,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         retrospectiveController.window?.makeKeyAndOrderFront(self)
         
     }
-
-    @objc func showEmotionPopUp(_ sender: AnyObject){
-        DataObjectController.sharedInstance.saveContext()
-        emotionPopUpController.showWindow(nil)
-        NSApp.activate(ignoringOtherApps: true)
-
-        emotionPopUpController.window?.makeKeyAndOrderFront(self)
-
-    }
     
 
     // MARK: - Popover Management
@@ -301,35 +292,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
 
     
     func userNotificationCenter(_ center: NSUserNotificationCenter, didActivate notification: NSUserNotification) {
-
-        if notification.title == "How are you feeling?" {
-            // EMOTION POP-UP ACTIVATION
-            // If the notification is postponed...
-            if let choosen = notification.additionalActivationAction, let actionIdentifier = choosen.identifier {
-                switch actionIdentifier {
-                case "1h":
-                    emotionPopUpController.emotionTracker.scheduleNotification(minutesSinceNow: 60*60)
-                    print("Notification postponed. It will display 1 hour from now!")
-                case "2h":
-                    emotionPopUpController.emotionTracker.scheduleNotification(minutesSinceNow: 120*60)
-                    print("Notification postponed. It will display 2 hours from now!")
-                default:
-                    print("Something went wrong: UserNotification additionalActivationAction not recognized")
-                }
-            } else {
-                // If the notification is accepted...
-
-                // Shows EmotionPopUp
-                self.showEmotionPopUp(self)
-                // Removes the notification from the NotificationCenter
-                center.removeDeliveredNotification(notification)
-            }
-        } else {
-            // SUMMARY ACTIVATION
             //print("Using delelgate for NSUsernotification")
-            self.toggleSummary(notification.self)
-        }
+            //self.toggleSummary(notification.self)
 
+            (TrackerManager.shared.getTracker(tracker: "EmotionTracker") as! EmotionTracker).manageNotification(notification: notification)
+    }
+
+    func userNotificationCenter(_ center: NSUserNotificationCenter, shouldPresent notification: NSUserNotification) -> Bool {
+        return true
     }
 
     //https://stackoverflow.com/questions/7271528/how-to-nslog-into-a-file

@@ -2,7 +2,7 @@
 //  EmotionalState+CoreDataProperties.swift
 //  
 //
-//  Created by Luigi Quaranta on 02/01/2019.
+//  Created by Luigi Quaranta on 2019-01-02.
 //
 //
 

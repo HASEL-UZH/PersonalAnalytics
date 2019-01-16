@@ -16,6 +16,7 @@
 		0DC4BF2D1BF2B57A00366771 /* WindowGrabber.m in Sources */ = {isa = PBXBuildFile; fileRef = 0DC4BF2C1BF2B57A00366771 /* WindowGrabber.m */; };
 		0DDEDB7C1BC61F57002B3E0D /* SummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DDEDB7A1BC61F57002B3E0D /* SummaryViewController.swift */; settings = {COMPILER_FLAGS = "-w"; }; };
 		0DDEDB7D1BC61F57002B3E0D /* SummaryView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0DDEDB7B1BC61F57002B3E0D /* SummaryView.xib */; };
+		A355D38F21EE4142004E27E7 /* EmotionTrackerHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A355D38E21EE4142004E27E7 /* EmotionTrackerHelpers.swift */; };
 		A3B37CE721DD1CDC008784B1 /* EmotionPopUp.xib in Resources */ = {isa = PBXBuildFile; fileRef = A3B37CE921DD1CDC008784B1 /* EmotionPopUp.xib */; };
 		A3B37CF321DD258C008784B1 /* EmotionTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B37CF221DD258C008784B1 /* EmotionTracker.swift */; };
 		A3B37CFC21DD4A9B008784B1 /* EmotionalState+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B37CFA21DD4A9A008784B1 /* EmotionalState+CoreDataProperties.swift */; };
@@ -133,6 +134,7 @@
 		4DA28D738A1335A21DB8B36E /* Pods-PersonalAnalytics.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PersonalAnalytics.release.xcconfig"; path = "Pods/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics.release.xcconfig"; sourceTree = "<group>"; };
 		639321AA141095A614B280EE /* Pods_PersonalAnalytics.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PersonalAnalytics.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C9534675C9D8400DA2E81D5 /* Pods-PersonalAnalytics.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PersonalAnalytics.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics.debug.xcconfig"; sourceTree = "<group>"; };
+		A355D38E21EE4142004E27E7 /* EmotionTrackerHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmotionTrackerHelpers.swift; sourceTree = "<group>"; };
 		A39E252521E6B7DB0059D094 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/EmotionPopUp.strings; sourceTree = "<group>"; };
 		A3B37CE821DD1CDC008784B1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/EmotionPopUp.xib; sourceTree = "<group>"; };
 		A3B37CEE21DD1D72008784B1 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/EmotionPopUp.strings; sourceTree = "<group>"; };
@@ -300,6 +302,7 @@
 			children = (
 				A3B37CE921DD1CDC008784B1 /* EmotionPopUp.xib */,
 				A3B37CF221DD258C008784B1 /* EmotionTracker.swift */,
+				A355D38E21EE4142004E27E7 /* EmotionTrackerHelpers.swift */,
 				A3B37CFE21DE0D35008784B1 /* EmotionPopUpWindowController.swift */,
 			);
 			path = EmotionTracker;
@@ -675,6 +678,7 @@
 				B9D50B801EDF588E00145EC8 /* ActivityCategory.swift in Sources */,
 				B914B71F1EBBA5C10009C5D0 /* KeyStrokes+CoreDataProperties.swift in Sources */,
 				B914B7211EBBA5C10009C5D0 /* Summary+CoreDataProperties.swift in Sources */,
+				A355D38F21EE4142004E27E7 /* EmotionTrackerHelpers.swift in Sources */,
 				B9D50B821EDF5ABE00145EC8 /* Category.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
