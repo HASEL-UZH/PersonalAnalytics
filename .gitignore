@@ -60,3 +60,4 @@ documentation/OCR Stuff/OcrPlayground.rar
 documentation/OCR Stuff/StandaloneOcr.rar
 /deployment/PersonalDeveloperAnalytics.old.rar
 /src/client/AM.PA.MonitoringTool/.vs/AM.PA.MonitoringTool/v15/Server/sqlite3
+*.dtbcache

@@ -21,7 +21,7 @@ namespace Shared.Data
     public sealed class DatabaseImplementation : IDisposable
     {
         private SQLiteConnection _connection; // null if not connected
-        private readonly string _currentDatabaseDumpFile; // every week a new database file
+        private readonly string _currentDatabaseDumpFile; 
         public const string DB_FORMAT_DAY_AND_TIME = "yyyy-MM-dd HH:mm:ss";
 
         public void Dispose()
