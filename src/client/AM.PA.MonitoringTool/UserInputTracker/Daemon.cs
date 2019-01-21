@@ -3,20 +3,20 @@
 // V2.0 Created: 2016-11-28
 // 
 // Licensed under the MIT License.
+using Gma.System.MouseKeyHook;
+using Shared;
+using Shared.Data;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Gma.System.MouseKeyHook;
-using Shared;
 using UserInputTracker.Data;
 using UserInputTracker.Models;
-using Timer = System.Timers.Timer;
 using UserInputTracker.Visualizations;
-using Shared.Data;
-using System.Reflection;
+using Timer = System.Timers.Timer;
 
 namespace UserInputTracker
 {
@@ -55,9 +55,9 @@ namespace UserInputTracker
             if (Settings.IsDetailedCollectionEnabled) Name += " (detailed)";
         }
 
-        protected override  void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
-            if (! _disposed)
+            if (!_disposed)
             {
                 if (disposing)
                 {
@@ -79,8 +79,10 @@ namespace UserInputTracker
             // Register Save-To-Database Timer
             if (_saveToDatabaseTimer != null)
                 Stop();
-            _saveToDatabaseTimer = new Timer();
-            _saveToDatabaseTimer.Interval = Settings.UserInputAggregationInterval.TotalMilliseconds;
+            _saveToDatabaseTimer = new Timer
+            {
+                Interval = Settings.UserInputAggregationInterval.TotalMilliseconds
+            };
             _saveToDatabaseTimer.Elapsed += SaveToDatabaseTick;
             _saveToDatabaseTimer.Start();
 
@@ -315,16 +317,15 @@ namespace UserInputTracker
         private void AddKeystrokesToAggregate(UserInputAggregate aggregate, DateTime tsStart, DateTime tsEnd)
         {
             // dequeue buffer
-            KeystrokeEvent e;
             while (!KeystrokeBuffer.IsEmpty)
             {
-                KeystrokeBuffer.TryDequeue(out e);
-                KeystrokeListToSave.Add(e);
+                KeystrokeBuffer.TryDequeue(out var result);
+                KeystrokeListToSave.Add(result);
             }
 
             // save all items between tsStart - tsEnd
             if (KeystrokeListToSave == null || KeystrokeListToSave.Count == 0) return;
-            
+
             var thisIntervalKeystrokes = KeystrokeListToSave.Where(i => i.Timestamp >= tsStart && i.Timestamp < tsEnd);
             aggregate.KeyNavigate = thisIntervalKeystrokes.Count(i => i.KeystrokeType == KeystrokeType.Navigate);
             aggregate.KeyBackspace = thisIntervalKeystrokes.Count(i => i.KeystrokeType == KeystrokeType.Backspace);
@@ -349,11 +350,10 @@ namespace UserInputTracker
         private void AddMouseClicksToAggregate(UserInputAggregate aggregate, DateTime tsStart, DateTime tsEnd)
         {
             // dequeue buffer
-            MouseClickEvent e;
             while (!MouseClickBuffer.IsEmpty)
             {
-                MouseClickBuffer.TryDequeue(out e);
-                MouseClickListToSave.Add(e);
+                MouseClickBuffer.TryDequeue(out var result);
+                MouseClickListToSave.Add(result);
             }
 
             // save all items between tsStart - tsEnd
@@ -383,11 +383,10 @@ namespace UserInputTracker
         private void AddMouseScrollsToAggregate(UserInputAggregate aggregate, DateTime tsStart, DateTime tsEnd)
         {
             // dequeue buffer
-            MouseScrollSnapshot e;
             while (!MouseScrollsBuffer.IsEmpty)
             {
-                MouseScrollsBuffer.TryDequeue(out e);
-                MouseScrollsListToSave.Add(e);
+                MouseScrollsBuffer.TryDequeue(out var result);
+                MouseScrollsListToSave.Add(result);
             }
 
             // save all items between tsStart - tsEnd
@@ -451,11 +450,10 @@ namespace UserInputTracker
         private void AddMouseMovementsToAggregate(UserInputAggregate aggregate, DateTime tsStart, DateTime tsEnd)
         {
             // dequeue buffer
-            MouseMovementSnapshot e;
             while (!MouseMovementBuffer.IsEmpty)
             {
-                MouseMovementBuffer.TryDequeue(out e);
-                MouseMovementListToSave.Add(e);
+                MouseMovementBuffer.TryDequeue(out var result);
+                MouseMovementListToSave.Add(result);
             }
 
             // save all items between tsStart - tsEnd

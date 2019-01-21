@@ -1,4 +1,4 @@
-﻿// Created by André Meyer (ameyer@ifi.uzh.ch) from the University of Zurich
+// Created by André Meyer (ameyer@ifi.uzh.ch) from the University of Zurich
 // Created: 2015-10-20
 // 
 // Licensed under the MIT License.
@@ -106,24 +106,30 @@ namespace PersonalAnalytics
             Application.Current.Dispatcher.Invoke(() => _taskbarIcon.ShowBalloonTip(Dict.ToolName, Dict.ToolName + " is running with " + _trackers.Where(t => t.IsRunning).ToList().Count + " data trackers.", BalloonIcon.Info));
 
             // Initialize & start the timer to update the taskbaricon toolitp
-            _taskbarIconTimer = new DispatcherTimer();
-            _taskbarIconTimer.Interval = Settings.TooltipIconUpdateInterval;
+            _taskbarIconTimer = new DispatcherTimer
+            {
+                Interval = Settings.TooltipIconUpdateInterval
+            };
             _taskbarIconTimer.Tick += UpdateTaskbarIconTooltip;
             _taskbarIconTimer.Start();
 
             SystemEvents.DisplaySettingsChanged += UpdateTaskbarIconIcon;
 
             // Initialize & start the timer to check for updates
-            _checkForUpdatesTimer = new DispatcherTimer();
-            _checkForUpdatesTimer.Interval = Settings.CheckForToolUpdatesInterval;
+            _checkForUpdatesTimer = new DispatcherTimer
+            {
+                Interval = Settings.CheckForToolUpdatesInterval
+            };
             _checkForUpdatesTimer.Tick += UpdateApplicationIfNecessary;
             _checkForUpdatesTimer.Start();
 
             // Initialize & start the timer to remind to share study data
             if (Settings.IsUploadEnabled && Settings.IsUploadReminderEnabled)
             {
-                _remindToShareStudyDataTimer = new DispatcherTimer();
-                _remindToShareStudyDataTimer.Interval = Settings.CheckForStudyDataSharedReminderInterval;
+                _remindToShareStudyDataTimer = new DispatcherTimer
+                {
+                    Interval = Settings.CheckForStudyDataSharedReminderInterval
+                };
                 _remindToShareStudyDataTimer.Tick += CheckForStudyDataSharedReminder;
                 _remindToShareStudyDataTimer.Start();
             }
@@ -283,16 +289,18 @@ namespace PersonalAnalytics
 
             if (_remindToContinueTrackerTimer == null)
             {
-                _remindToContinueTrackerTimer = new DispatcherTimer();
-                _remindToContinueTrackerTimer.Interval = Settings.RemindToResumeToolInterval;
-                _remindToContinueTrackerTimer.Tick += (s, e) =>
+                _remindToContinueTrackerTimer = new DispatcherTimer
+                {
+                    Interval = Settings.RemindToResumeToolInterval
+                };
+                _remindToContinueTrackerTimer.Tick += ((s, e) =>
                 {
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         // show the popup (already registered for the click event)
                         _taskbarIcon.ShowBalloonTip("Reminder", "PersonalAnalytics is still paused. Click here to resume it.", BalloonIcon.Warning);
                     });
-                };
+                });
             }
             _remindToContinueTrackerTimer.IsEnabled = true;
             _remindToContinueTrackerTimer.Start();

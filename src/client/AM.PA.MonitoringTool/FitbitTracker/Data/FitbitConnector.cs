@@ -4,19 +4,19 @@
 // Licensed under the MIT License.
 
 
-using System;
-using System.IO;
-using System.Net;
-using Newtonsoft.Json;
-using FitbitTracker.Model;
-using Shared.Data;
-using System.Collections.Specialized;
-using System.Text;
-using Shared;
 using FitbitTracker.Data.FitbitModel;
+using FitbitTracker.Model;
+using Newtonsoft.Json;
+using Shared;
+using Shared.Data;
+using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Specialized;
 using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text;
 
 namespace FitbitTracker.Data
 {
@@ -76,7 +76,7 @@ namespace FitbitTracker.Data
 
         internal static ActivityData GetActivityDataForDay(DateTimeOffset day)
         {
-            Tuple<ActivityData, bool> result = GetDataFromFitbit< ActivityData>(String.Format(ACTIVITY_URL, day.ToString(Settings.FITBIT_FORMAT_DAY)));
+            Tuple<ActivityData, bool> result = GetDataFromFitbit<ActivityData>(String.Format(ACTIVITY_URL, day.ToString(Settings.FITBIT_FORMAT_DAY)));
             ActivityData activityData = result.Item1;
             bool retry = result.Item2;
 
@@ -98,7 +98,7 @@ namespace FitbitTracker.Data
             {
                 heartrateData = GetDataFromFitbit<HeartData>(String.Format(HEARTRATE_URL, day.Year + "-" + day.Month + "-" + day.Day)).Item1;
             }
-            
+
             List<HeartRateDayData> data = new List<HeartRateDayData>();
 
             if (heartrateData.Activities.Count > 0)
@@ -106,7 +106,8 @@ namespace FitbitTracker.Data
 
                 foreach (HeartRateZone zone in heartrateData.Activities[0].Value.CustomHeartrateZones)
                 {
-                    data.Add(new HeartRateDayData {
+                    data.Add(new HeartRateDayData
+                    {
                         Date = DateTime.ParseExact(heartrateData.Activities[0].DateTime, Settings.FITBIT_FORMAT_DAY, CultureInfo.InvariantCulture),
                         RestingHeartrate = heartrateData.Activities[0].Value.RestingHeartrate,
                         CaloriesOut = zone.CaloriesOut,
@@ -146,7 +147,7 @@ namespace FitbitTracker.Data
 
             return Tuple.Create<List<HeartRateDayData>, List<HeartrateIntraDayData>>(data, intradayData);
         }
-        
+
         internal static SleepData GetSleepDataForDay(DateTimeOffset day)
         {
             Tuple<SleepData, bool> result = GetDataFromFitbit<SleepData>(String.Format(SLEEP_URL, day.Year + "-" + day.Month + "-" + day.Day));
@@ -193,7 +194,7 @@ namespace FitbitTracker.Data
 
                 reader = new StreamReader(data);
                 string response = reader.ReadToEnd();
-             
+
                 T dataObject = JsonConvert.DeserializeObject<T>(response);
                 return Tuple.Create<T, bool>(dataObject, false);
             }
@@ -264,14 +265,16 @@ namespace FitbitTracker.Data
             try
             {
                 Logger.WriteToConsole("Try to get first access token");
-    
+
                 client.Headers.Add("Authorization", "Basic " + SecretStorage.GetFibitFirstAuthorizationCode());
 
-                var values = new NameValueCollection();
-                values["clientId"] = SecretStorage.GetFitbitClientID();
-                values["grant_type"] = "authorization_code";
-                values["redirect_uri"] = Settings.REDIRECT_URI;
-                values["code"] = registrationToken;
+                var values = new NameValueCollection
+                {
+                    ["clientId"] = SecretStorage.GetFitbitClientID(),
+                    ["grant_type"] = "authorization_code",
+                    ["redirect_uri"] = Settings.REDIRECT_URI,
+                    ["code"] = registrationToken
+                };
 
                 var response = client.UploadValues(REFRESH_URL, values);
                 var responseString = Encoding.Default.GetString(response);
@@ -305,8 +308,10 @@ namespace FitbitTracker.Data
             accessToken = Base64Encode(accessToken);
             client.Headers.Add("Authorization", "Basic " + accessToken);
 
-            var values = new NameValueCollection();
-            values["token"] = tokenToBeRevoked;
+            var values = new NameValueCollection
+            {
+                ["token"] = tokenToBeRevoked
+            };
 
             try
             {
@@ -338,9 +343,11 @@ namespace FitbitTracker.Data
             string accessToken = SecretStorage.GetFitbitClientID() + ":" + SecretStorage.GetFitbitClientSecret();
             accessToken = Base64Encode(accessToken);
             client.Headers.Add("Authorization", "Basic " + accessToken);
-            
-            var values = new NameValueCollection();
-            values["grant_type"] = "refresh_token";
+
+            var values = new NameValueCollection
+            {
+                ["grant_type"] = "refresh_token"
+            };
             string refreshToken = SecretStorage.GetRefreshToken();
             values["refresh_token"] = refreshToken;
             values["expires_in"] = "" + Settings.TOKEN_LIFETIME;
@@ -359,7 +366,7 @@ namespace FitbitTracker.Data
             }
             catch (WebException e)
             {
-                if ((e.Response is HttpWebResponse) && ( (e.Response as HttpWebResponse).StatusCode == HttpStatusCode.Unauthorized || (e.Response as HttpWebResponse).StatusCode == HttpStatusCode.BadRequest))
+                if ((e.Response is HttpWebResponse) && ((e.Response as HttpWebResponse).StatusCode == HttpStatusCode.Unauthorized || (e.Response as HttpWebResponse).StatusCode == HttpStatusCode.BadRequest))
                 {
                     RefreshTokenFail?.Invoke();
                 }
