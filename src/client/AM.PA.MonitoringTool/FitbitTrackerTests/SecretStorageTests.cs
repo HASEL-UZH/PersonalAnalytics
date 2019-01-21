@@ -8,10 +8,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace FitbitTracker.Tests
 {
-    [TestClass()]
+    [TestClass]
     public class SecretStorageTests
     {
-        [TestMethod()]
+        [TestMethod]
         public void ReplaceDummyFitbitCredentialsTest()
         {
             SecretStorage.SaveFitbitClientID("a");
