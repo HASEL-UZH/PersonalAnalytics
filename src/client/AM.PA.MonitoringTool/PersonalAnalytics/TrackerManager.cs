@@ -1,4 +1,4 @@
-﻿// Created by André Meyer (ameyer@ifi.uzh.ch) from the University of Zurich
+// Created by André Meyer (ameyer@ifi.uzh.ch) from the University of Zurich
 // Created: 2015-10-20
 // 
 // Licensed under the MIT License.
@@ -28,7 +28,7 @@ namespace PersonalAnalytics
         private static TrackerManager _manager; // singleton instance
         private static TrackerSettings _settings;
         private readonly List<ITracker> _trackers = new List<ITracker>();
-        public TaskbarIcon TaskbarIcon;
+        private TaskbarIcon _taskbarIcon;
 
         private DispatcherTimer _taskbarIconTimer;
         private DispatcherTimer _remindToContinueTrackerTimer;
@@ -103,15 +103,17 @@ namespace PersonalAnalytics
             var trackersString = string.Join(", ", _trackers.Where(t => t.IsRunning).ToList().ConvertAll(t => t.Name + " (" + t.GetVersion() + ")").ToArray());
             Database.GetInstance().LogInfo(string.Format(CultureInfo.InvariantCulture, "TrackerManager (V{0}) started with {1} trackers: {2}.", _publishedAppVersion, _trackers.Where(t => t.IsRunning).ToList().Count, trackersString));
             SetTaskbarIconTooltip("Tracker started");
-            Application.Current.Dispatcher.Invoke(() => TaskbarIcon.ShowBalloonTip(Dict.ToolName, Dict.ToolName + " is running with " + _trackers.Where(t => t.IsRunning).ToList().Count + " data trackers.", BalloonIcon.Info));
+            Application.Current.Dispatcher.Invoke(() => _taskbarIcon.ShowBalloonTip(Dict.ToolName, Dict.ToolName + " is running with " + _trackers.Where(t => t.IsRunning).ToList().Count + " data trackers.", BalloonIcon.Info));
 
             // Initialize & start the timer to update the taskbaricon toolitp
             _taskbarIconTimer = new DispatcherTimer
             {
                 Interval = Settings.TooltipIconUpdateInterval
             };
-            _taskbarIconTimer.Tick += UpdateTooltipIcon;
+            _taskbarIconTimer.Tick += UpdateTaskbarIconTooltip;
             _taskbarIconTimer.Start();
+
+            SystemEvents.DisplaySettingsChanged += UpdateTaskbarIconIcon;
 
             // Initialize & start the timer to check for updates
             _checkForUpdatesTimer = new DispatcherTimer
@@ -254,12 +256,13 @@ namespace PersonalAnalytics
             if (_taskbarIconTimer != null) _taskbarIconTimer.Stop();
             if (_remindToContinueTrackerTimer != null) _remindToContinueTrackerTimer.Stop();
             if (_checkForUpdatesTimer != null) _checkForUpdatesTimer.Stop();
-            TaskbarIcon.TrayBalloonTipClicked -= TrayBalloonTipClicked;
-            TaskbarIcon.TrayMouseDoubleClick -= (o, i) => TrayMouseDoubleClicked();
+            _taskbarIcon.TrayBalloonTipClicked -= TrayBalloonTipClicked;
+            _taskbarIcon.TrayMouseDoubleClick -= (o, i) => TrayMouseDoubleClicked();
+            SystemEvents.DisplaySettingsChanged -= UpdateTaskbarIconIcon;
             SystemEvents.TimeChanged -= SaveCurrentTimeZone;
 
             // sometimes the icon doesn't go away unless we manually dispose it
-            TaskbarIcon.Dispose();
+            _taskbarIcon.Dispose();
 
             // log shutdown & disconnect from database
             Database.GetInstance().LogInfo("The tracker was shut down.");
@@ -295,7 +298,7 @@ namespace PersonalAnalytics
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         // show the popup (already registered for the click event)
-                        TaskbarIcon.ShowBalloonTip("Reminder", "PersonalAnalytics is still paused. Click here to resume it.", BalloonIcon.Warning);
+                        _taskbarIcon.ShowBalloonTip("Reminder", "PersonalAnalytics is still paused. Click here to resume it.", BalloonIcon.Warning);
                     });
                 });
             }
@@ -355,17 +358,15 @@ namespace PersonalAnalytics
         #region Taskbar Icon Options
 
         /// <summary>
-        /// Dreates a taskbar icon to modify its tooltip and create the context menu options
+        /// Creates a taskbar icon to modify its tooltip and create the context menu options
         /// </summary>
         public void InitializeTaskBarIcon()
         {
-            TaskbarIcon = new TaskbarIcon
-            {
-                Icon = new Icon("Assets/icon.ico"),
-                ToolTipText = "PersonalAnalytics starting up..."
-            };
-            TaskbarIcon.TrayMouseDoubleClick += (o, i) => TrayMouseDoubleClicked();
-            TaskbarIcon.TrayBalloonTipClicked += TrayBalloonTipClicked;
+            _taskbarIcon = new TaskbarIcon();
+            _taskbarIcon.TrayMouseDoubleClick += (o, i) => TrayMouseDoubleClicked();
+            _taskbarIcon.TrayBalloonTipClicked += TrayBalloonTipClicked;
+            SetTaskbarIconTooltip("PersonalAnalytics starting up...");
+            SetTaskbarIconIcon();
             SetContextMenuOptions();
         }
 
@@ -397,46 +398,46 @@ namespace PersonalAnalytics
         private void SetContextMenuOptions()
         {
             var cm = new ContextMenu();
-            TaskbarIcon.MenuActivation = PopupActivationMode.RightClick;
-            TaskbarIcon.ContextMenu = cm;
+            _taskbarIcon.MenuActivation = PopupActivationMode.RightClick;
+            _taskbarIcon.ContextMenu = cm;
 
             if (Settings.IsUploadEnabled)
             {
                 var m8 = new MenuItem { Header = "Upload collected data" };
                 m8.Click += (o, i) => UploadTrackedData();
-                TaskbarIcon.ContextMenu.Items.Add(m8);
+                _taskbarIcon.ContextMenu.Items.Add(m8);
             }
 
             var m4 = new MenuItem { Header = "Open collected data" };
             m4.Click += (o, i) => OpenDataExportDirectory();
-            TaskbarIcon.ContextMenu.Items.Add(m4);
+            _taskbarIcon.ContextMenu.Items.Add(m4);
 
             var m2 = new MenuItem { Header = "Answer pop-up now" };
             m2.Click += (o, i) => ManuallyStartUserSurvey();
-            if (_settings.IsUserEfficiencyTrackerEnabled()) TaskbarIcon.ContextMenu.Items.Add(m2);
+            if (_settings.IsUserEfficiencyTrackerEnabled()) _taskbarIcon.ContextMenu.Items.Add(m2);
 
             var m1 = new MenuItem { Header = "Show Retrospection" };
             m1.Click += (o, i) => Retrospection.Handler.GetInstance().OpenRetrospection();
-            if (Retrospection.Settings.IsEnabled) TaskbarIcon.ContextMenu.Items.Add(m1);
+            if (Retrospection.Settings.IsEnabled) _taskbarIcon.ContextMenu.Items.Add(m1);
 
 #if DEBUG
             var m5 = new MenuItem { Header = "Show Retrospection (in browser)" };
             m5.Click += (o, i) => Retrospection.Handler.GetInstance().OpenRetrospectionInBrowser();
-            if (Retrospection.Settings.IsEnabled) TaskbarIcon.ContextMenu.Items.Add(m5);
+            if (Retrospection.Settings.IsEnabled) _taskbarIcon.ContextMenu.Items.Add(m5);
 #endif
 
             var m6 = new MenuItem { Header = "Settings" };
             m6.Click += (o, i) => OpenSettings();
-            TaskbarIcon.ContextMenu.Items.Add(m6);
+            _taskbarIcon.ContextMenu.Items.Add(m6);
 
             var m3 = new MenuItem { Header = "Pause " + Dict.ToolName };
             m3.Click += (o, i) => PauseContinueTracker(m3);
-            TaskbarIcon.ContextMenu.Items.Add(m3);
+            _taskbarIcon.ContextMenu.Items.Add(m3);
             _pauseContinueMenuItem = m3;
 
             var m7 = new MenuItem { Header = "Shutdown " + Dict.ToolName };
             m7.Click += (o, i) => Stop(true);
-            TaskbarIcon.ContextMenu.Items.Add(m7);
+            _taskbarIcon.ContextMenu.Items.Add(m7);
 
             // Styling
             //var converter = new System.Windows.Media.BrushConverter();
@@ -545,24 +546,13 @@ namespace PersonalAnalytics
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void UpdateTooltipIcon(object sender, EventArgs e)
+        private void UpdateTaskbarIconTooltip(object sender, EventArgs e)
         {
             // Update Taskbar Icon Tooltip
-            var text = _trackers.Where(t => t.IsRunning).Aggregate(string.Empty, (current, tracker) => current + (tracker.GetStatus() + "\n"));
-            text += "\n" + _trackers.Where(t => !t.IsRunning).Aggregate(string.Empty, (current, tracker) => current + (tracker.GetStatus() + "\n"));
+            var text = _trackers.Where(t => t.IsRunning).Aggregate(string.Empty, (current, tracker) => current + tracker.GetStatus() + "\n");
+            text += "\n" + _trackers.Where(t => !t.IsRunning).Aggregate(string.Empty, (current, tracker) => current + tracker.GetStatus() + "\n");
             text += "\nVersion: " + _publishedAppVersion;
             SetTaskbarIconTooltip(text);
-
-            // Update database file (if necessary)
-            //if (Database.GetInstance().CurrentDatabaseDumpFile != Database.GetLocalDatabaseSavePath())
-            //{
-            //    Database.GetInstance().Disconnect(); // closes the current instance
-            //    Database.GetInstance().Reconnect(Database.GetLocalDatabaseSavePath()); // connects to the database (& creates a new dump file)
-            //    foreach (var t in _trackers)
-            //    {
-            //        t.CreateDatabaseTablesIfNotExist();
-            //    }
-            //}
         }
 
         /// <summary>
@@ -571,8 +561,27 @@ namespace PersonalAnalytics
         /// <param name="message"></param>
         private void SetTaskbarIconTooltip(string message)
         {
-            if (TaskbarIcon == null) return;
-            TaskbarIcon.ToolTipText = message;
+            if (_taskbarIcon == null) return;
+            _taskbarIcon.ToolTipText = message;
+        }
+
+        /// <summary>
+        /// Updates the TaskbarIcon's Icon on change of screen resolution.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void UpdateTaskbarIconIcon(object sender, EventArgs e)
+        {
+            SetTaskbarIconIcon();
+        }
+
+        /// <summary>
+        /// Helper method to change the TaskbarIcon's Icon
+        /// </summary>
+        private void SetTaskbarIconIcon()
+        {
+            if (_taskbarIcon == null) return;
+            _taskbarIcon.Icon = new Icon("Assets/icon.ico");
         }
 
         #endregion
@@ -595,7 +604,7 @@ namespace PersonalAnalytics
             var today = DateTime.Now.Date;
 
             // check if the reminder should be shown
-            if ((today.DayOfWeek == DayOfWeek.Saturday || today.DayOfWeek == DayOfWeek.Sunday) || // do not show on weekends
+            if (today.DayOfWeek == DayOfWeek.Saturday || today.DayOfWeek == DayOfWeek.Sunday || // do not show on weekends
                  (today - databaseSince).Days < 10 || //  only if there is at least 10 days since the tool was installed
                  (today - lastTimeShown).Days < 7) // only show once a week
                 return;

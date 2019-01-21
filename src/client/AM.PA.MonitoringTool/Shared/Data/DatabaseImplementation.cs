@@ -3,7 +3,6 @@
 // 
 // Licensed under the MIT License.
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -74,8 +73,10 @@ namespace Shared.Data
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
-                Logger.WriteToLogFile(new Exception($@"Query: {query}"));
-                Logger.WriteToLogFile(new Exception($@"Parameter: {parameter}"));
+                var message = $@"Query: {query}";
+                if (parameter != null)
+                    message += $"\r\nParameter: [{string.Join(", ", parameter)}]";
+                Logger.WriteToLogFile(new Exception(message));
                 return 0;
             }
             finally
@@ -377,13 +378,14 @@ namespace Shared.Data
         /// <param name="query"></param>
         /// <param name="parameter"></param>
         /// <param name="force"></param>
-        private static void WriteQueryToLog(string query, IEnumerable parameter = null, bool force = false)
+        private static void WriteQueryToLog(string query, object[] parameter = null, bool force = false)
         {
             // ReSharper disable once RedundantLogicalConditionalExpressionOperand
             if (Settings.PrintQueriesToConsole == false && force == false) return;
-            Logger.WriteToConsole($@"Query: {query}");
+            var message = $@"Query: {query}";
             if (parameter != null)
-                Logger.WriteToConsole($@"Parameter: {parameter}");
+                message += $"\r\nParameter: [{string.Join(", ", parameter)}]";
+            Logger.WriteToConsole(message);
         }
 
         #endregion
