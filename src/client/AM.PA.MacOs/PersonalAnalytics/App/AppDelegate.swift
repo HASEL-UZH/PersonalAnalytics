@@ -280,11 +280,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
 
     
     func userNotificationCenter(_ center: NSUserNotificationCenter, didActivate notification: NSUserNotification) {
-            //print("Using delelgate for NSUsernotification")
-            //self.toggleSummary(notification.self)
 
-            // I should be able to send the activated notification to EmotionTracker in order to manage its actions.
+        switch notification.identifier {
+        case AppConstants.emotionTrackerNotificationID:
             (TrackerManager.shared.getTracker(tracker: "EmotionTracker") as! EmotionTracker).manageNotification(notification: notification)
+        default:
+            //print("Using delelgate for NSUsernotification")
+            self.toggleSummary(notification.self)
+        }
+
     }
 
 

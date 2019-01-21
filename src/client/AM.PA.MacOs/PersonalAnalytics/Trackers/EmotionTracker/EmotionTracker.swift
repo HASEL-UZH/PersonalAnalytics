@@ -21,7 +21,6 @@ class EmotionTracker: ITracker {
     // MARK: Properties
     let emotionPopUpController = EmotionPopUpWindowController(windowNibName: NSNib.Name(rawValue: "EmotionPopUp"))
     let notificationCenter = NSUserNotificationCenter.default
-    var notificationSet = Set<NSUserNotification>()
 
     // Properties for protocol conformity
     var name: String = "EmotionTracker"
@@ -49,9 +48,11 @@ class EmotionTracker: ITracker {
     }
 
     func stop() {
-        // Cancel scheduled notification
-        for notification in notificationSet {
-            notificationCenter.removeScheduledNotification(notification)
+        // Cancel scheduled notifications
+        for notification in notificationCenter.scheduledNotifications {
+            if notification.identifier == AppConstants.emotionTrackerNotificationID {
+                notificationCenter.removeScheduledNotification(notification)
+            }
         }
         isRunning = false
     }
@@ -67,7 +68,7 @@ class EmotionTracker: ITracker {
         let notification = NSUserNotification()
 
         // Notification properties
-        notification.identifier = String(NSDate().timeIntervalSince1970)
+        notification.identifier = AppConstants.emotionTrackerNotificationID
         notification.title = "How are you feeling?"
         notification.subtitle = "Click here to open the pop-up!"
         notification.soundName = NSUserNotificationDefaultSoundName
@@ -88,7 +89,6 @@ class EmotionTracker: ITracker {
 
         // Actual notification scheduling
         notificationCenter.scheduleNotification(notification)
-        notificationSet.insert(notification)
 
         // Debug prints
         print("Time to wait for next notification:", TimeInterval(exactly: timeIntervalSinceNow)!)
@@ -98,29 +98,26 @@ class EmotionTracker: ITracker {
 
     func manageNotification(notification: NSUserNotification) {
 
-        if notificationSet.contains(notification) {
+        if let choosen = notification.additionalActivationAction, let actionIdentifier = choosen.identifier {
 
-            if let choosen = notification.additionalActivationAction, let actionIdentifier = choosen.identifier {
-
-                // If the notification is postponed...
-                switch actionIdentifier {
-                case "1h":
-                    scheduleNotification(minutesSinceNow: 60*60)
-                    print("Notification postponed. It will display 1 hour from now!")
-                case "2h":
-                    scheduleNotification(minutesSinceNow: 120*60)
-                    print("Notification postponed. It will display 2 hours from now!")
-                default:
-                    print("Something went wrong: UserNotification additionalActivationAction not recognized")
-                }
-
-            } else {
-                // Show EmotionPopUp and remove the notification
-                emotionPopUpController.showEmotionPopUp(self)
-                notificationCenter.removeDeliveredNotification(notification)
+            // If the notification is postponed...
+            switch actionIdentifier {
+            case "1h":
+                scheduleNotification(minutesSinceNow: 60*60)
+                print("Notification postponed. It will display 1 hour from now!")
+            case "2h":
+                scheduleNotification(minutesSinceNow: 120*60)
+                print("Notification postponed. It will display 2 hours from now!")
+            default:
+                print("Something went wrong: UserNotification additionalActivationAction not recognized")
             }
-        
+
+        } else {
+            // Show EmotionPopUp and remove the notification
+            emotionPopUpController.showEmotionPopUp(self)
+            notificationCenter.removeDeliveredNotification(notification)
         }
+        
     }
 
 }
