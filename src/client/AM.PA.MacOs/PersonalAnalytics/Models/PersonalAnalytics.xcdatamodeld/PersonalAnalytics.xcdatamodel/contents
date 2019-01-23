@@ -19,7 +19,7 @@
     <entity name="EmotionalState" representedClassName="EmotionalState" syncable="YES">
         <attribute name="activity" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="arousal" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
-        <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="date" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="valence" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
     </entity>
     <entity name="FocusState" syncable="YES">
@@ -46,9 +46,9 @@
     <elements>
         <element name="ActiveApplication" positionX="-236" positionY="-9" width="128" height="105"/>
         <element name="AggregatedInput" positionX="-164" positionY="150" width="128" height="165"/>
+        <element name="EmotionalState" positionX="-99" positionY="36" width="128" height="105"/>
         <element name="FocusState" positionX="-99" positionY="36" width="128" height="30"/>
         <element name="Summary" positionX="43" positionY="99" width="128" height="150"/>
         <element name="Website" positionX="-209" positionY="-117" width="128" height="105"/>
-        <element name="EmotionalState" positionX="-99" positionY="36" width="128" height="103"/>
     </elements>
 </model>

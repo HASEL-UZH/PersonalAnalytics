@@ -215,6 +215,22 @@ class DataObjectController: NSObject{
         }
         self.saveContext()
     }
+
+    func saveEmotionalState(questionnaire: Questionnaire) {
+        lockQueue.sync {
+            let entity = NSEntityDescription.entity(forEntityName: "EmotionalState", in: managedContext!)
+            if let entity = entity {
+                let emotionalState = NSManagedObject(entity: entity, insertInto: managedContext)
+                emotionalState.setValue(questionnaire.timestamp.timeIntervalSince1970, forKey: "date")
+                emotionalState.setValue(questionnaire.activity, forKey: "activity")
+                emotionalState.setValue(questionnaire.valence, forKey: "valence")
+                emotionalState.setValue(questionnaire.arousal, forKey: "arousal")
+            } else {
+                print("It was impossible to save the last emotional state.")
+            }
+        }
+        self.saveContext()
+    }
     
     func newActiveApplication(_ name: String, title: String) -> ActiveApplication {
         
@@ -311,22 +327,46 @@ class DataObjectController: NSObject{
         }
         return result
     }
+
+    func buildCSVString(input: [SQLController.EmotionalStateEntry]) -> String {
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat =  "yyyy-MM-dd HH:mm:ss"
+        dateFormatter.locale = .current
+
+        var result = "Timestamp,Activity,Valence,Arousal\n"
+
+
+        for row in input {
+            let date = Date(timeIntervalSince1970: row.timestamp)
+            result += String(dateFormatter.string(from: date)) + ","
+            result += String(row.activity) + ","
+            result += String(row.valence) + ","
+            result += String(row.arousal) + "\n"
+        }
+        return result
+    }
     
     func exportStudyData(startTime: Double){
         do{
             let sql = try SQLController()
             let aggregatedInput = sql.fetchAggregatedInputSince(time: startTime)
             let activeApplications = sql.fetchActiveApplicationsSince(time: startTime)
-            
+            let emotionalStates = sql.fetchEmotionalStateSince(time: startTime)
+
             let inputString = buildCSVString(input: aggregatedInput)
             let appString = buildCSVString(input: activeApplications)
-            
+            let emotionString = buildCSVString(input: emotionalStates)
+
             let dir = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Study Data")
             let inputData = inputString.data(using: String.Encoding.utf8)!
             try inputData.write(to: dir.appendingPathComponent("input.csv"))
             
             let appData = appString.data(using: String.Encoding.utf8)!
             try appData.write(to: dir.appendingPathComponent("appdata.csv"))
+
+            let emotionData = emotionString.data(using: String.Encoding.utf8)!
+            try emotionData.write(to: dir.appendingPathComponent("emotionData.csv"))
         }
         catch{
             print(error)

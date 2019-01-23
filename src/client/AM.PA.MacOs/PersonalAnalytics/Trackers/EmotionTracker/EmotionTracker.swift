@@ -10,7 +10,7 @@ import Foundation
 import CoreData
 
 struct Questionnaire {
-    var timestamp: NSDate
+    var timestamp: Date
     var activity: String
     var valence: NSNumber
     var arousal: NSNumber
@@ -21,6 +21,7 @@ class EmotionTracker: ITracker {
     // MARK: Properties
     let emotionPopUpController = EmotionPopUpWindowController(windowNibName: NSNib.Name(rawValue: "EmotionPopUp"))
     let notificationCenter = NSUserNotificationCenter.default
+    let dataController = DataObjectController.sharedInstance
 
     // Properties for protocol conformity
     var name: String = "EmotionTracker"
@@ -31,8 +32,7 @@ class EmotionTracker: ITracker {
     init() {
         
         // Set default time interval between notificaitons
-        var minutes = 60
-        minutes *= 60
+        let minutes = 60 * 60
         UserDefaults.standard.set(minutes, forKey: "timeInterval")
 
         // Start the tracker
@@ -57,8 +57,20 @@ class EmotionTracker: ITracker {
         isRunning = false
     }
 
+
+    func createDatabaseTablesIfNotExist() {
+
+        let dbController = DatabaseController.getDatabaseController()
+
+        do{
+            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS EmotionalState (id INTEGER PRIMARY KEY, timestamp TEXT, activity TEXT, valence INTEGER, arousal INTEGER)");
+        }
+        catch{
+            print(error)
+        }
+    }
+
     // Not yet implemented
-    func createDatabaseTablesIfNotExist() {}
     func updateDatabaseTables(version: Int) {}
 
 
@@ -118,6 +130,10 @@ class EmotionTracker: ITracker {
             notificationCenter.removeDeliveredNotification(notification)
         }
         
+    }
+
+    func save(questionnaire: Questionnaire){
+        dataController.saveEmotionalState(questionnaire: questionnaire)
     }
 
 }

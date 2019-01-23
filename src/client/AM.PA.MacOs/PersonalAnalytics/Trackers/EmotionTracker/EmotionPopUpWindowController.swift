@@ -12,7 +12,6 @@ import CoreData
 class EmotionPopUpWindowController: NSWindowController {
 
     // MARK: Properties
-    var emotionTrackerHelpers = EmotionTrackerHelpers()
 
     // Buttons
     var valence: NSButton? = nil
@@ -73,20 +72,22 @@ class EmotionPopUpWindowController: NSWindowController {
             let arousalValue = self.arousal?.identifier?.rawValue,
             let activityValue = self.activityPopupButton.titleOfSelectedItem {
 
-            let timestamp = NSDate()
+            let emotionTracker = TrackerManager.shared.getTracker(tracker: "EmotionTracker") as! EmotionTracker
+
+            let timestamp = Date()
             let activity = activityValue
             let valence = NSNumber(value: Int16(valenceValue)!)
             let arousal = NSNumber(value: Int16(arousalValue)!)
 
             let questionnaire = Questionnaire(timestamp: timestamp, activity: activity, valence: valence, arousal: arousal)
 
-            emotionTrackerHelpers.storeQuestionnaire(questionnaire: questionnaire)
+            // Save questionnaire data
+            emotionTracker.save(questionnaire: questionnaire)
 
-            // Reset button state
+            // Reset buttons
             resetForm()
 
             // Request a new notification
-            let emotionTracker = TrackerManager.shared.getTracker(tracker: "EmotionTracker") as! EmotionTracker
             emotionTracker.scheduleNotification()
 
             // Close the window
@@ -122,21 +123,9 @@ class EmotionPopUpWindowController: NSWindowController {
 
     @IBAction func exportToCsvClicked(_ sender: Any) {
 
-        //Open SavePanel
-        let savePanel = NSSavePanel()
-        savePanel.title = "Export data to csv"
-        savePanel.message = NSLocalizedString("Insert a name", tableName: "MainMenu", comment:"How to call the output file when exporting to .csv")
+        // Export study data to csv (starting from 1 month ago)
+        let oneMonthAgo = Date() - (30*24*60*60)
+        DataObjectController.sharedInstance.exportStudyData(startTime: oneMonthAgo.timeIntervalSince1970)
 
-        if (savePanel.runModal() == NSApplication.ModalResponse.OK) {
-            let result = savePanel.url
-            if (result != nil) {
-                print("Saving to: ", result!.path)
-                emotionTrackerHelpers.exportToCsv(destinationPath: result!)
-                print("Saved.")
-            } else {
-                return // User clicked cancel
-            }
-
-        }
     }
 }

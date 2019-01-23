@@ -31,6 +31,13 @@ class SQLController{
         var scrollDelta: Int
         var time: Double
     }
+
+    struct EmotionalStateEntry {
+        var timestamp: Double
+        var activity: String
+        var valence: Int
+        var arousal: Int
+    }
     
     func fetchActiveApplicationsSince(time: Double) -> [ActiveApplicationEntry] {
         var results: [ActiveApplicationEntry] = []
@@ -77,6 +84,34 @@ class SQLController{
             print(error)
         }
         return results
+    }
+
+    func fetchEmotionalStateSince(time: Double) -> [EmotionalStateEntry] {
+
+        var results: [EmotionalStateEntry] = []
+
+        do {
+            
+            let query: String = "SELECT * FROM ZEMOTIONALSTATE WHERE ZDATE >= " + String(time) + " ORDER BY ZDATE"
+            let rows = try dbQueue.inDatabase { db in
+                try Row.fetchAll(db, query)
+            }
+            for row in rows {
+
+                let timestamp: Double = row["ZDATE"]
+                let activity: String = row["ZACTIVITY"]
+                let valence: Int = row["ZVALENCE"]
+                let arousal: Int = row["ZAROUSAL"]
+
+                results.append(EmotionalStateEntry(timestamp: timestamp, activity: activity, valence: valence, arousal: arousal))
+            }
+
+        } catch {
+            print(error)
+        }
+
+        return results
+
     }
     
     let dbQueue: DatabaseQueue
@@ -159,5 +194,4 @@ class SQLController{
         }
 
     }
-    
 }
