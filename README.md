@@ -1,7 +1,7 @@
 # PersonalAnalytics - Building the Fitbit for Knowledge Workers
 Personal Analytics project was originally initiated by [Prof. Dr. Thomas Fritz](http://www.ifi.uzh.ch/en/seal/people/fritz.html) and [André N. Meyer](https://www.andre-meyer.ch) from the SEAL Lab at the University of Zurich (UZH). Our goal is to build a self-monitoring tool that knowledge workers (e.g. developers, designers, administrators) install on their computer and that allows them to get insights into their work and productivity, and come up with positive behavior changes. The basis are a number of computer interaction trackers (e.g. application usage, emails/meetings, user input) and biometric trackers (e.g. Fitbit, Polar, Garmin, Muse, Tobii) that non-intrusively track data, store them locally on the users machine (to avoid privacy issues!) and then visualize them in a daily/weekly summary, the retrospection. 
 
-Anyone is welcome to extend PersonalAnalytics with new trackers or improve existing ones. Feel free to use PersonalAnalytics to get insights into your own work habits, or use it for research studies. In case you re-use PersonalAnalytics, make sure to cite our work.
+Anyone is welcome to extend PersonalAnalytics with new trackers or improve existing ones. Feel free to use PersonalAnalytics to get insights into your own work habits, or use it for research studies. In case you re-use PersonalAnalytics, make sure to cite our work (specifically this Github repository and our CSCW'2018 paper below).
 
 The current public release can be downloaded from: http://pluto.ifi.uzh.ch/PersonalAnalytics-master
 
@@ -18,7 +18,6 @@ André Meyer (ameyer@ifi.uzh.ch)
 - December, 2016: Started working on integrating several other biometric sensors (Polar, Garmin, Fitbit) (on the 'biometrics' branch). The PolarTracker and GarminTracker are available and stable on the master branch. GarminTracker is still in development.
 - February, 2017: Integrated the (privately developed) [FlowLight](https://www.andre-meyer.ch/flowlight) to avoid interruptions at inopportune moments. It has since then been removed from the repository, as it was licensed to [Embrava](https://embrava.com/pages/flow).
 - March, 2017: Started working on task type detection (on the 'taskdetection' branch), still in development.
-- June, 2018: [Rohit Kaushik](https://github.com/kaushik-rohit) (bachelor student at BITS Pilani, India) started working on a SlackTracker.
 - September, 2018: [Chris Satterfield](https://github.com/csatterfield) and [Anna Scholtz](https://github.com/scholtzan) (master students at University of British Columbia, Canada) started integrating their port from Windows to Mac. Work in progress.
 - September 2018: [Jan Pilzer](https://github.com/hirse) and [Raphael](https://github.com/raphaelro) started integrating their work on Tobii Eytracking. Work in progress.
 
