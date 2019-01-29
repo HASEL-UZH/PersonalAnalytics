@@ -299,6 +299,10 @@
       <Project>{f4f1afb6-71a9-4ab4-be95-d3c45d3492cc}</Project>
       <Name>UserInputTracker</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WindowRecommender\WindowRecommender.csproj">
+      <Project>{327A5A3C-9626-42F4-9FFC-27D888270CE1}</Project>
+      <Name>WindowRecommender</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WindowsActivityTracker\WindowsActivityTracker.csproj">
       <Project>{2b903556-4dd2-41ce-beac-3ddd045f717d}</Project>
       <Name>WindowsActivityTracker</Name>

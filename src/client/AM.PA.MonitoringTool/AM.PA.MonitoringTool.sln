@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FitbitTrackerTests", "Fitbi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharedTests", "SharedTests\SharedTests.csproj", "{73721D17-2093-42F7-9382-8E41D25F6301}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowRecommender", "WindowRecommender\WindowRecommender.csproj", "{327A5A3C-9626-42F4-9FFC-27D888270CE1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -151,6 +153,14 @@ Global
 		{73721D17-2093-42F7-9382-8E41D25F6301}.Release|Any CPU.Build.0 = Release|Any CPU
 		{73721D17-2093-42F7-9382-8E41D25F6301}.Release|x86.ActiveCfg = Release|Any CPU
 		{73721D17-2093-42F7-9382-8E41D25F6301}.Release|x86.Build.0 = Release|Any CPU
+		{327A5A3C-9626-42F4-9FFC-27D888270CE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{327A5A3C-9626-42F4-9FFC-27D888270CE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{327A5A3C-9626-42F4-9FFC-27D888270CE1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{327A5A3C-9626-42F4-9FFC-27D888270CE1}.Debug|x86.Build.0 = Debug|Any CPU
+		{327A5A3C-9626-42F4-9FFC-27D888270CE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{327A5A3C-9626-42F4-9FFC-27D888270CE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{327A5A3C-9626-42F4-9FFC-27D888270CE1}.Release|x86.ActiveCfg = Release|Any CPU
+		{327A5A3C-9626-42F4-9FFC-27D888270CE1}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
