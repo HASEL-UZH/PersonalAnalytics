@@ -3,6 +3,7 @@ using GameOverlay.Graphics.Primitives;
 using GameOverlay.Utilities;
 using GameOverlay.Windows;
 using System;
+using System.Collections.Generic;
 using WindowRecommender.Native;
 
 namespace WindowRecommender
@@ -16,9 +17,10 @@ namespace WindowRecommender
         private readonly D2DDevice _device;
         private readonly FrameTimer _frameTimer;
         private readonly D2DSolidColorBrush _brush;
+        private readonly Rectangle _screenRectangle;
 
         private bool _shouldDraw;
-        private Rectangle _rectangle;
+        private List<Rectangle> _rectangles;
 
         internal HazeOverlay()
         {
@@ -33,6 +35,7 @@ namespace WindowRecommender
                 X = 0,
                 Y = 0
             });
+            _screenRectangle = new Rectangle(0, 0, monitorDimensions.Right, monitorDimensions.Bottom);
 
             _device = new D2DDevice(new DeviceOptions
             {
@@ -62,8 +65,13 @@ namespace WindowRecommender
 
         internal void Show(Rectangle rectangle)
         {
-            _rectangle = rectangle;
+            _rectangles = Mask.Cut(_screenRectangle, rectangle);
             _shouldDraw = true;
+        }
+
+        internal void Hide()
+        {
+            _shouldDraw = false;
         }
 
         private void OnFrame(FrameTimer timer, D2DDevice device)
@@ -71,10 +79,10 @@ namespace WindowRecommender
             device.ClearScene();
             if (_shouldDraw)
             {
-                device.FillRectangle(new Rectangle(0, 0, _rectangle.Left, _rectangle.Bottom), _brush);
-                device.FillRectangle(new Rectangle(_rectangle.Left, 0, _window.Width, _rectangle.Top), _brush);
-                device.FillRectangle(new Rectangle(_rectangle.Right, _rectangle.Top, _window.Width, _window.Height), _brush);
-                device.FillRectangle(new Rectangle(0, _rectangle.Bottom, _rectangle.Right, _window.Height), _brush);
+                foreach (var rectangle in _rectangles)
+                {
+                    device.FillRectangle(rectangle, _brush);
+                }
             }
         }
 

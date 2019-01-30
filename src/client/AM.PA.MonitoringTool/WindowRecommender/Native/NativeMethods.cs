@@ -190,12 +190,6 @@ namespace WindowRecommender.Native
         internal const int CHILDID_SELF = 0;
 
         /// <summary>
-        /// A window object is about to be restored. This event is sent by the system, never by servers.
-        /// </summary>
-        /// https://docs.microsoft.com/en-ca/windows/desktop/WinAuto/event-constants#EVENT_SYSTEM_MINIMIZEEND
-        internal const uint EVENT_SYSTEM_MINIMIZEEND = 0x0017;
-
-        /// <summary>
         /// The foreground window has changed. The system sends this event even if the foreground window has changed to
         /// another window in the same thread. Server applications never send this event.
         /// For this event, the <see cref="Wineventproc"/> callback function's hwnd parameter is the handle to the
@@ -204,6 +198,24 @@ namespace WindowRecommender.Native
         /// </summary>
         /// https://docs.microsoft.com/en-ca/windows/desktop/WinAuto/event-constants#EVENT_SYSTEM_FOREGROUND
         internal const uint EVENT_SYSTEM_FOREGROUND = 0x0003;
+
+        /// <summary>
+        /// A window object is about to be restored. This event is sent by the system, never by servers.
+        /// </summary>
+        /// https://docs.microsoft.com/en-ca/windows/desktop/WinAuto/event-constants#EVENT_SYSTEM_MINIMIZEEND
+        internal const uint EVENT_SYSTEM_MINIMIZEEND = 0x0017;
+
+        /// <summary>
+        /// The movement or resizing of a window has finished. This event is sent by the system, never by servers.
+        /// </summary>
+        /// https://docs.microsoft.com/en-ca/windows/desktop/WinAuto/event-constants#EVENT_SYSTEM_MOVESIZEEND
+        internal const uint EVENT_SYSTEM_MOVESIZEEND = 0x000B;
+
+        /// <summary>
+        /// A window is being moved or resized. This event is sent by the system, never by servers.
+        /// </summary>
+        /// https://docs.microsoft.com/en-ca/windows/desktop/WinAuto/event-constants#EVENT_SYSTEM_MOVESIZESTART
+        internal const uint EVENT_SYSTEM_MOVESIZESTART = 0x000A;
 
         /// <summary>
         /// This is the primary display monitor.

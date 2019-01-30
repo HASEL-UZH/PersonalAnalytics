@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using WindowRecommender.Native;
 
 namespace WindowRecommender
@@ -9,15 +10,24 @@ namespace WindowRecommender
         internal event EventHandler<string> WindowFocused;
         internal event EventHandler<string> WindowClosed;
         internal event EventHandler AllWindowsBlurred;
+        internal event EventHandler MoveStarted;
 
         private NativeMethods.Wineventproc _onWindowFocused;
-        private IntPtr _eventPtr;
+        private NativeMethods.Wineventproc _onMoveStarted;
+        private List<IntPtr> _winEventHooks;
 
         public void Start()
         {
             _onWindowFocused = OnWindowFocused;
-            _eventPtr = NativeMethods.SetWinEventHook(NativeMethods.EVENT_SYSTEM_FOREGROUND, _onWindowFocused);
-            _eventPtr = NativeMethods.SetWinEventHook(NativeMethods.EVENT_SYSTEM_MINIMIZEEND, _onWindowFocused);
+            _onMoveStarted = OnMoveStarted;
+
+            _winEventHooks = new List<IntPtr>
+            {
+                NativeMethods.SetWinEventHook(NativeMethods.EVENT_SYSTEM_FOREGROUND, _onWindowFocused),
+                NativeMethods.SetWinEventHook(NativeMethods.EVENT_SYSTEM_MINIMIZEEND, _onWindowFocused),
+                NativeMethods.SetWinEventHook(NativeMethods.EVENT_SYSTEM_MOVESIZEEND, _onWindowFocused),
+                NativeMethods.SetWinEventHook(NativeMethods.EVENT_SYSTEM_MOVESIZESTART, _onMoveStarted),
+            };
         }
 
         private void OnWindowFocused(IntPtr hWinEventHook, uint @event, IntPtr hwnd, int idObject, int idChild, uint idEventThread, uint dwmsEventTime)
@@ -28,9 +38,20 @@ namespace WindowRecommender
             }
         }
 
+        private void OnMoveStarted(IntPtr hWinEventHook, uint @event, IntPtr hwnd, int idObject, int idChild, uint idEventThread, uint dwmsEventTime)
+        {
+            if (hwnd != IntPtr.Zero && idObject == NativeMethods.OBJID_WINDOW && idChild == NativeMethods.CHILDID_SELF)
+            {
+                MoveStarted?.Invoke(this, null);
+            }
+        }
+
         public void Stop()
         {
-            NativeMethods.UnhookWinEvent(_eventPtr);
+            foreach (var winEventHook in _winEventHooks)
+            {
+                NativeMethods.UnhookWinEvent(winEventHook);
+            }
         }
     }
 }

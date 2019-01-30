@@ -18,6 +18,12 @@ namespace WindowRecommender
 
             _modelEvents = new ModelEvents();
             _modelEvents.WindowFocused += OnWindowFocused;
+            _modelEvents.MoveStarted += OnMoveStarted;
+        }
+
+        private void OnMoveStarted(object sender, EventArgs e)
+        {
+            _hazeOverlay.Hide();
         }
 
         public override void Start()
