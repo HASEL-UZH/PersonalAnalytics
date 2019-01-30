@@ -42,7 +42,7 @@ This tool was developed for and used by the following researchs:
 # Credits
 We want to thank the following developers for providing us with the fantastic libraries:
 - MouseKeyHook https://github.com/gmamaladze/globalmousekeyhook MIT License
-- Hardcodet.NotifyIcon https://bitbucket.org/hardcodet/notifyicon-wpf 
+- Hardcodet.NotifyIcon https://bitbucket.org/hardcodet/notifyicon-wpf Code Project Open License
 - Jquery https://jquery.org/license/ MIT LIcense
 - Masonry https://github.com/desandro/masonry MIT License
 - SQLite www.sqlite.org/copyright.html Open Domain 
