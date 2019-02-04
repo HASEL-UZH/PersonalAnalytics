@@ -338,8 +338,7 @@ class DataObjectController: NSObject{
 
 
         for row in input {
-            let date = Date(timeIntervalSince1970: row.timestamp)
-            result += String(dateFormatter.string(from: date)) + ","
+            result += String(row.timestamp) + ","
             result += String(row.activity) + ","
             result += String(row.valence) + ","
             result += String(row.arousal) + "\n"
