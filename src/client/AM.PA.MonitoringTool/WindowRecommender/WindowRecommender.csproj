@@ -59,6 +59,7 @@
     <Compile Include="HazeOverlay.cs" />
     <Compile Include="Mask.cs" />
     <Compile Include="ModelEvents.cs" />
+    <Compile Include="Native\DWMWINDOWATTRIBUTE.cs" />
     <Compile Include="WindowRecommender.cs" />
     <Compile Include="Native\NativeMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

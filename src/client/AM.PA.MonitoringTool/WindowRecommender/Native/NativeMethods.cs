@@ -7,7 +7,32 @@ namespace WindowRecommender.Native
 {
     internal static class NativeMethods
     {
+        internal static List<IntPtr> GetOpenWindows()
+        {
+            var windowList = new List<IntPtr>();
+            var shellWindowHandle = GetShellWindow();
+            EnumWindows(delegate (IntPtr windowHandle, int lParam)
+            {
+                if (windowHandle == shellWindowHandle) return true;
 
+                if (!IsWindowVisible(windowHandle)) return true;
+
+                var windowStyles = GetWindowLong(windowHandle, GWL_STYLE);
+                if ((windowStyles & WS_CAPTION) == 0) return true;
+
+                var result = DwmGetWindowAttribute(windowHandle, DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, out var isCloaked, Marshal.SizeOf(typeof(int)));
+                if (result != S_OK)
+                {
+                    isCloaked = 0;
+                }
+                if (isCloaked != 0) return true;
+
+                windowList.Add(windowHandle);
+
+                return true;
+            }, 0);
+            return windowList;
+        }
         internal static RECT GetPrimaryMonitorDimensions()
         {
             var monitorList = new List<IntPtr>();
@@ -56,6 +81,20 @@ namespace WindowRecommender.Native
         // ReSharper disable MemberCanBePrivate.Local
 
         /// <summary>
+        /// Retrieves the current value of a specified attribute applied to a window.
+        /// </summary>
+        /// <param name="hwnd">The handle to the window from which the attribute data is retrieved.</param>
+        /// <param name="dwAttribute">The attribute to retrieve, specified as a DWMWINDOWATTRIBUTE value.</param>
+        /// <param name="pvAttribute">A pointer to a value that, when this function returns successfully, receives the
+        /// current value of the attribute. The type of the retrieved value depends on the value of the dwAttribute
+        /// parameter.</param>
+        /// <param name="cbAttribute">The size of the DWMWINDOWATTRIBUTE value being retrieved. The size is dependent
+        /// on the type of the pvAttribute parameter.</param>
+        /// <returns>If this function succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.</returns>
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmGetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE dwAttribute, out int pvAttribute, int cbAttribute);
+
+        /// <summary>
         /// The EnumDisplayMonitors function enumerates display monitors (including invisible pseudo-monitors
         /// associated with the mirroring drivers) that intersect a region formed by the intersection of a specified
         /// clipping rectangle and the visible region of a device context.
@@ -78,6 +117,18 @@ namespace WindowRecommender.Native
         private static extern bool EnumDisplayMonitors(IntPtr hdc, IntPtr lprcClip, MonitorEnumProc lpfnEnum, IntPtr dwData);
 
         /// <summary>
+        /// Enumerates all top-level windows on the screen by passing the handle to each window, in turn, to an
+        /// application-defined callback function. EnumWindows continues until the last top-level window is enumerated
+        /// or the callback function returns FALSE.
+        /// </summary>
+        /// <param name="lpEnumFunc">A pointer to an application-defined callback function.</param>
+        /// <param name="lParam">An application-defined value to be passed to the callback function.</param>
+        /// <returns>If the function succeeds, the return value is nonzero.</returns>
+        /// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-enumwindows
+        [DllImport("user32.dll")]
+        private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, int lParam);
+
+        /// <summary>
         /// The GetMonitorInfo function retrieves information about a display monitor.
         /// </summary>
         /// <param name="hMonitor">A handle to the display monitor of interest.</param>
@@ -96,6 +147,28 @@ namespace WindowRecommender.Native
         private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
 
         /// <summary>
+        /// Retrieves a handle to the Shell's desktop window.
+        /// </summary>
+        /// <returns>The return value is the handle of the Shell's desktop window. If no Shell process is present, the
+        /// return value is NULL.</returns>
+        /// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-getshellwindow
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetShellWindow();
+
+        /// <summary>
+        /// Retrieves information about the specified window. The function also retrieves the 32-bit (DWORD) value at
+        /// the specified offset into the extra window memory. 
+        /// </summary>
+        /// <param name="hWnd">A handle to the window and, indirectly, the class to which the window belongs.</param>
+        /// <param name="nIndex">The zero-based offset to the value to be retrieved. Valid values are in the range zero
+        /// through the number of bytes of extra window memory, minus four; for example, if you specified 12 or more
+        /// bytes of extra memory, a value of 8 would be an index to the third 32-bit integer.</param>
+        /// <returns></returns>
+        /// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-getwindowlonga
+        [DllImport("user32.dll")]
+        private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+        /// <summary>
         /// Retrieves the dimensions of the bounding rectangle of the specified window. The dimensions are given in
         /// screen coordinates that are relative to the upper-left corner of the screen.
         /// </summary>
@@ -107,6 +180,17 @@ namespace WindowRecommender.Native
         /// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-getwindowrect
         [DllImport("user32.dll")]
         private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+        /// <summary>
+        /// Determines the visibility state of the specified window.
+        /// </summary>
+        /// <param name="hWnd">A handle to the window to be tested.</param>
+        /// <returns>If the specified window, its parent window, its parent's parent window, and so forth, have the
+        /// WS_VISIBLE style, the return value is nonzero. Otherwise, the return value is zero.
+        /// Because the return value specifies whether the window has the WS_VISIBLE style, it may be nonzero even if
+        /// the window is totally obscured by other windows.</returns>
+        [DllImport("user32.dll")]
+        private static extern bool IsWindowVisible(IntPtr hWnd);
 
         /// <summary>
         /// Sets an event hook function for a range of events.
@@ -143,6 +227,17 @@ namespace WindowRecommender.Native
         /// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-unhookwinevent
         [DllImport("user32.dll")]
         internal static extern bool UnhookWinEvent(IntPtr hWinEventHook);
+
+        /// <summary>
+        /// An application-defined callback function used with the EnumWindows or EnumDesktopWindows function. It
+        /// receives top-level window handles. The WNDENUMPROC type defines a pointer to this callback function.
+        /// EnumWindowsProc is a placeholder for the application-defined function name.
+        /// </summary>
+        /// <param name="hwnd">A handle to a top-level window.</param>
+        /// <param name="lParam">The application-defined value given in EnumWindows or EnumDesktopWindows.</param>
+        /// <returns>To continue enumeration, the callback function must return TRUE; to stop enumeration, it must return FALSE.</returns>
+        /// https://msdn.microsoft.com/en-us/library/windows/desktop/ms633498.aspx
+        private delegate bool EnumWindowsProc(IntPtr hwnd, int lParam);
 
         /// <summary>
         /// A MonitorEnumProc function is an application-defined callback function that is called by the
@@ -218,6 +313,12 @@ namespace WindowRecommender.Native
         internal const uint EVENT_SYSTEM_MOVESIZESTART = 0x000A;
 
         /// <summary>
+        /// Window Long Index. Retrieves the window styles.
+        /// </summary>
+        /// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-getwindowlonga#GWL_STYLE
+        private const int GWL_STYLE = -16;
+
+        /// <summary>
         /// This is the primary display monitor.
         /// </summary>
         private const int MONITORINFOF_PRIMARY = 0x00000001;
@@ -227,6 +328,11 @@ namespace WindowRecommender.Native
         /// </summary>
         /// https://docs.microsoft.com/en-ca/windows/desktop/WinAuto/object-identifiers#OBJID_WINDOW
         internal const int OBJID_WINDOW = 0x00000000;
+
+        /// <summary>
+        /// Return value constant for Desktop Window Manager functions.
+        /// </summary>
+        private const int S_OK = 0;
 
         /// <summary>
         /// The callback function is not mapped into the address space of the process that generates the event. Because
@@ -243,6 +349,12 @@ namespace WindowRecommender.Native
         /// https://docs.microsoft.com/en-us/windows/desktop/api/Winuser/nf-winuser-setwineventhook#parameters
         private const uint WINEVENT_SKIPOWNPROCESS = 0x0002;
 
+        /// <summary>
+        /// Window Style: The window has a title bar (includes the WS_BORDER style).
+        /// </summary>
+        /// https://docs.microsoft.com/en-ca/windows/desktop/winmsg/window-styles#WS_CAPTION
+        private const long WS_CAPTION = 0x00C00000L;
+        
         /// <summary>
         /// The MONITORINFO structure contains information about a display monitor.
         /// The GetMonitorInfo function stores information into a MONITORINFO structure or a MONITORINFOEX structure.

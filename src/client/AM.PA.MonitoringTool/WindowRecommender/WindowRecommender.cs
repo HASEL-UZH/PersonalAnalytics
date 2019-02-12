@@ -42,6 +42,7 @@ namespace WindowRecommender
 
         private void OnWindowFocused(object sender, string e)
         {
+            //var windows = NativeMethods.GetOpenWindows();
             var windowHandle = new IntPtr(int.Parse(e));
             var rect = NativeMethods.GetWindowRect(windowHandle);
             var rectangle = new Rectangle(rect.Left, rect.Top, rect.Right, rect.Bottom);
