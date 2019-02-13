@@ -75,7 +75,7 @@ namespace WindowRecommender.Native
             return rectangle;
         }
 
-        internal static IntPtr SetWinEventHook(uint eventConstant, Wineventproc winEventDelegate)
+        internal static IntPtr SetWinEventHook(WinEventConstant eventConstant, Wineventproc winEventDelegate)
         {
             const uint dwFlags = WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS;
             return SetWinEventHook(eventConstant, eventConstant, IntPtr.Zero, winEventDelegate, 0, 0, dwFlags);
@@ -227,10 +227,10 @@ namespace WindowRecommender.Native
         /// If unsuccessful, returns zero.</returns>
         /// https://docs.microsoft.com/en-us/windows/desktop/api/Winuser/nf-winuser-setwineventhook
         [DllImport("user32.dll")]
-        private static extern IntPtr SetWinEventHook(uint eventMin, uint eventMax, IntPtr hmodWinEventProc, Wineventproc lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
+        private static extern IntPtr SetWinEventHook(WinEventConstant eventMin, WinEventConstant eventMax, IntPtr hmodWinEventProc, Wineventproc lpfnWinEventProc, uint idProcess, uint idThread, uint dwFlags);
 
         /// <summary>
-        /// Removes an event hook function created by a previous call to <see cref="SetWinEventHook(uint, uint, IntPtr, Wineventproc, uint, uint, uint)" />.
+        /// Removes an event hook function created by a previous call to <see cref="SetWinEventHook(WinEventConstant, WinEventConstant, IntPtr, Wineventproc, uint, uint, uint)" />.
         /// </summary>
         /// <param name="hWinEventHook">Handle to the event hook returned in the previous call to SetWinEventHook.</param>
         /// <returns>If successful, returns TRUE; otherwise, returns FALSE.</returns>
@@ -286,41 +286,13 @@ namespace WindowRecommender.Native
         /// <param name="idEventThread"></param>
         /// <param name="dwmsEventTime">Specifies the time, in milliseconds, that the event was generated.</param>
         /// https://docs.microsoft.com/en-us/windows/desktop/api/Winuser/nc-winuser-wineventproc
-        internal delegate void Wineventproc(IntPtr hWinEventHook, uint @event, IntPtr hwnd, int idObject, int idChild, uint idEventThread, uint dwmsEventTime);
+        internal delegate void Wineventproc(IntPtr hWinEventHook, WinEventConstant @event, IntPtr hwnd, ObjectIdentifier idObject, int idChild, uint idEventThread, uint dwmsEventTime);
 
         /// <summary>
         /// Identifies whether the event was triggered by an object or a child element of the object.
         /// </summary>
         /// https://docs.microsoft.com/en-us/windows/desktop/api/Winuser/nc-winuser-wineventproc#parameters
         internal const int CHILDID_SELF = 0;
-
-        /// <summary>
-        /// The foreground window has changed. The system sends this event even if the foreground window has changed to
-        /// another window in the same thread. Server applications never send this event.
-        /// For this event, the <see cref="Wineventproc"/> callback function's hwnd parameter is the handle to the
-        /// window that is in the foreground, the idObject parameter is <see cref="OBJID_WINDOW"/>, and the idChild
-        /// parameter is <see cref="CHILDID_SELF"/>.
-        /// </summary>
-        /// https://docs.microsoft.com/en-ca/windows/desktop/WinAuto/event-constants#EVENT_SYSTEM_FOREGROUND
-        internal const uint EVENT_SYSTEM_FOREGROUND = 0x0003;
-
-        /// <summary>
-        /// A window object is about to be restored. This event is sent by the system, never by servers.
-        /// </summary>
-        /// https://docs.microsoft.com/en-ca/windows/desktop/WinAuto/event-constants#EVENT_SYSTEM_MINIMIZEEND
-        internal const uint EVENT_SYSTEM_MINIMIZEEND = 0x0017;
-
-        /// <summary>
-        /// The movement or resizing of a window has finished. This event is sent by the system, never by servers.
-        /// </summary>
-        /// https://docs.microsoft.com/en-ca/windows/desktop/WinAuto/event-constants#EVENT_SYSTEM_MOVESIZEEND
-        internal const uint EVENT_SYSTEM_MOVESIZEEND = 0x000B;
-
-        /// <summary>
-        /// A window is being moved or resized. This event is sent by the system, never by servers.
-        /// </summary>
-        /// https://docs.microsoft.com/en-ca/windows/desktop/WinAuto/event-constants#EVENT_SYSTEM_MOVESIZESTART
-        internal const uint EVENT_SYSTEM_MOVESIZESTART = 0x000A;
 
         /// <summary>
         /// Window Long Index. Retrieves the window styles.
@@ -332,12 +304,6 @@ namespace WindowRecommender.Native
         /// This is the primary display monitor.
         /// </summary>
         private const int MONITORINFOF_PRIMARY = 0x00000001;
-
-        /// <summary>
-        /// The window itself rather than a child object.
-        /// </summary>
-        /// https://docs.microsoft.com/en-ca/windows/desktop/WinAuto/object-identifiers#OBJID_WINDOW
-        internal const int OBJID_WINDOW = 0x00000000;
 
         /// <summary>
         /// Return value constant for Desktop Window Manager functions.
