@@ -20,7 +20,7 @@ namespace WindowRecommender.Native
                 var windowStyles = GetWindowLong(windowHandle, GWL_STYLE);
                 if ((windowStyles & WS_CAPTION) == 0) return true;
 
-                var result = DwmGetWindowAttribute(windowHandle, DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, out var isCloaked, Marshal.SizeOf(typeof(int)));
+                var result = DwmGetWindowAttribute(windowHandle, DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, out int isCloaked, Marshal.SizeOf(typeof(int)));
                 if (result != S_OK)
                 {
                     isCloaked = 0;
@@ -33,6 +33,7 @@ namespace WindowRecommender.Native
             }, 0);
             return windowList;
         }
+
         internal static RECT GetPrimaryMonitorDimensions()
         {
             var monitorList = new List<IntPtr>();
@@ -63,10 +64,15 @@ namespace WindowRecommender.Native
             return primaryMonitorInfo.rcMonitor;
         }
 
-        internal static RECT GetWindowRect(IntPtr window)
+        internal static RECT GetWindowRectangle(IntPtr windowHandle)
         {
-            GetWindowRect(window, out var rect);
-            return rect;
+            var result = DwmGetWindowAttribute(windowHandle, DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, out RECT rectangle, Marshal.SizeOf(typeof(RECT)));
+            if (result != S_OK)
+            {
+                GetWindowRect(windowHandle, out rectangle);
+            }
+
+            return rectangle;
         }
 
         internal static IntPtr SetWinEventHook(uint eventConstant, Wineventproc winEventDelegate)
@@ -91,8 +97,12 @@ namespace WindowRecommender.Native
         /// <param name="cbAttribute">The size of the DWMWINDOWATTRIBUTE value being retrieved. The size is dependent
         /// on the type of the pvAttribute parameter.</param>
         /// <returns>If this function succeeds, it returns S_OK. Otherwise, it returns an HRESULT error code.</returns>
+        /// https://docs.microsoft.com/en-ca/windows/desktop/api/dwmapi/nf-dwmapi-dwmgetwindowattribute
         [DllImport("dwmapi.dll")]
         private static extern int DwmGetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE dwAttribute, out int pvAttribute, int cbAttribute);
+
+        [DllImport("dwmapi.dll")]
+        private static extern int DwmGetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE dwAttribute, out RECT pvAttribute, int cbAttribute);
 
         /// <summary>
         /// The EnumDisplayMonitors function enumerates display monitors (including invisible pseudo-monitors
@@ -354,7 +364,7 @@ namespace WindowRecommender.Native
         /// </summary>
         /// https://docs.microsoft.com/en-ca/windows/desktop/winmsg/window-styles#WS_CAPTION
         private const long WS_CAPTION = 0x00C00000L;
-        
+
         /// <summary>
         /// The MONITORINFO structure contains information about a display monitor.
         /// The GetMonitorInfo function stores information into a MONITORINFO structure or a MONITORINFOEX structure.

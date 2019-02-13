@@ -6,6 +6,7 @@
     /// <summary>
     /// Flags used by the DwmGetWindowAttribute and DwmSetWindowAttribute functions to specify window attributes for non-client rendering.
     /// </summary>
+    /// https://docs.microsoft.com/en-ca/windows/desktop/api/dwmapi/ne-dwmapi-dwmwindowattribute
     internal enum DWMWINDOWATTRIBUTE
     {
         DWMWA_NCRENDERING_ENABLED = 1,

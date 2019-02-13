@@ -44,7 +44,7 @@ namespace WindowRecommender
         {
             //var windows = NativeMethods.GetOpenWindows();
             var windowHandle = new IntPtr(int.Parse(e));
-            var rect = NativeMethods.GetWindowRect(windowHandle);
+            var rect = NativeMethods.GetWindowRectangle(windowHandle);
             var rectangle = new Rectangle(rect.Left, rect.Top, rect.Right, rect.Bottom);
             _hazeOverlay.Show(rectangle);
         }
