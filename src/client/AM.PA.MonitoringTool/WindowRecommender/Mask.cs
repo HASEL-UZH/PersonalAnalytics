@@ -6,7 +6,7 @@ namespace WindowRecommender
 {
     internal static class Mask
     {
-        internal static List<Rectangle> Cut(Rectangle screen, List<Rectangle> windows)
+        internal static List<Rectangle> Cut(Rectangle screen, IEnumerable<Rectangle> windows)
         {
             var output = new List<Rectangle> { screen };
             foreach (var window in windows)

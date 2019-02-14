@@ -2,6 +2,7 @@
 using Shared;
 using Shared.Helpers;
 using System;
+using System.Linq;
 using System.Reflection;
 using WindowRecommender.Native;
 
@@ -42,11 +43,19 @@ namespace WindowRecommender
 
         private void OnWindowFocused(object sender, string e)
         {
-            //var windows = NativeMethods.GetOpenWindows();
-            var windowHandle = new IntPtr(int.Parse(e));
-            var rect = NativeMethods.GetWindowRectangle(windowHandle);
-            var rectangle = new Rectangle(rect.Left, rect.Top, rect.Right, rect.Bottom);
-            _hazeOverlay.Show(rectangle);
+            var focusedWindowHandle = new IntPtr(int.Parse(e));
+            var windowHandles = NativeMethods.GetOpenWindows()
+                .Where(windowHandle => windowHandle != focusedWindowHandle)
+                .Take(2)
+                .ToList();
+            windowHandles.Add(focusedWindowHandle);
+            var windowRects = windowHandles.Select(windowHandle =>
+            {
+                var rect = NativeMethods.GetWindowRectangle(windowHandle);
+                var rectangle = new Rectangle(rect.Left, rect.Top, rect.Right, rect.Bottom);
+                return rectangle;
+            });
+            _hazeOverlay.Show(windowRects);
         }
 
         public override string GetVersion()

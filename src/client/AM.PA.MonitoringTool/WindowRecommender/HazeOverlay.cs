@@ -69,6 +69,12 @@ namespace WindowRecommender
             _shouldDraw = true;
         }
 
+        internal void Show(IEnumerable<Rectangle> rectangles)
+        {
+            _rectangles = Mask.Cut(_screenRectangle, rectangles);
+            _shouldDraw = true;
+        }
+
         internal void Hide()
         {
             _shouldDraw = false;
