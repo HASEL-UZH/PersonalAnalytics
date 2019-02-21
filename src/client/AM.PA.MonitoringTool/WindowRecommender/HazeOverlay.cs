@@ -1,5 +1,4 @@
 ﻿using GameOverlay.Graphics;
-using GameOverlay.Graphics.Primitives;
 using GameOverlay.Utilities;
 using GameOverlay.Windows;
 using System;

@@ -1,5 +1,4 @@
-﻿using GameOverlay.Graphics.Primitives;
-using Shared;
+﻿using Shared;
 using Shared.Helpers;
 using System;
 using System.Collections.Generic;
@@ -79,12 +78,7 @@ namespace WindowRecommender
                 }
             }
             var topWindows = scores.OrderBy(x => x.Value).Select(x => x.Key).Take(Settings.NumberOfWindows);
-            var windowRects = topWindows.Select(windowHandle =>
-            {
-                var rect = NativeMethods.GetWindowRectangle(windowHandle);
-                var rectangle = new Rectangle(rect.Left, rect.Top, rect.Right, rect.Bottom);
-                return rectangle;
-            });
+            var windowRects = topWindows.Select(windowHandle => (Rectangle)NativeMethods.GetWindowRectangle(windowHandle));
             _hazeOverlay.Show(windowRects);
         }
 

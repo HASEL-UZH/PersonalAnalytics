@@ -63,7 +63,9 @@
     <Compile Include="MostRecentlyActive.cs" />
     <Compile Include="Native\DWMWINDOWATTRIBUTE.cs" />
     <Compile Include="Native\ObjectIdentifiers.cs" />
+    <Compile Include="Native\RECT.cs" />
     <Compile Include="Native\WinEventConstants.cs" />
+    <Compile Include="Rectangle.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="WindowRecommender.cs" />
     <Compile Include="Native\NativeMethods.cs" />
