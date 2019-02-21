@@ -58,10 +58,13 @@
   <ItemGroup>
     <Compile Include="HazeOverlay.cs" />
     <Compile Include="Mask.cs" />
+    <Compile Include="Model.cs" />
     <Compile Include="ModelEvents.cs" />
+    <Compile Include="MostRecentlyActive.cs" />
     <Compile Include="Native\DWMWINDOWATTRIBUTE.cs" />
     <Compile Include="Native\ObjectIdentifiers.cs" />
     <Compile Include="Native\WinEventConstants.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="WindowRecommender.cs" />
     <Compile Include="Native\NativeMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

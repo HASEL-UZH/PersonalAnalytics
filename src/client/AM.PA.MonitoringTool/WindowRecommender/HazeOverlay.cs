@@ -11,7 +11,6 @@ namespace WindowRecommender
     internal class HazeOverlay : IDisposable
     {
         private const int FramesPerSecond = 60;
-        private const int ColorAlpha = 64;
 
         private readonly OverlayWindow _window;
         private readonly D2DDevice _device;
@@ -46,7 +45,7 @@ namespace WindowRecommender
                 VSync = false
             });
 
-            _brush = _device.CreateSolidColorBrush(0, 0, 0, ColorAlpha);
+            _brush = _device.CreateSolidColorBrush(0, 0, 0, Settings.OverlayAlpha);
 
             _frameTimer = new FrameTimer(_device, FramesPerSecond);
             _frameTimer.OnFrame += OnFrame;
