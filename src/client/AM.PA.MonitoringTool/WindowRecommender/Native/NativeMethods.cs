@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace WindowRecommender.Native
 {
@@ -13,22 +14,10 @@ namespace WindowRecommender.Native
             var shellWindowHandle = GetShellWindow();
             EnumWindows(delegate (IntPtr windowHandle, int lParam)
             {
-                if (windowHandle == shellWindowHandle) return true;
-
-                if (!IsWindowVisible(windowHandle)) return true;
-
-                var windowStyles = GetWindowLong(windowHandle, GWL_STYLE);
-                if ((windowStyles & WS_CAPTION) == 0) return true;
-
-                var result = DwmGetWindowAttribute(windowHandle, DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, out int isCloaked, Marshal.SizeOf(typeof(int)));
-                if (result != S_OK)
+                if (IsOpenWindow(windowHandle, shellWindowHandle))
                 {
-                    isCloaked = 0;
+                    windowList.Add(windowHandle);
                 }
-                if (isCloaked != 0) return true;
-
-                windowList.Add(windowHandle);
-
                 return true;
             }, 0);
             return windowList;
@@ -73,6 +62,35 @@ namespace WindowRecommender.Native
             }
 
             return rectangle;
+        }
+
+        internal static string GetWindowTitle(IntPtr window)
+        {
+            var numChars = GetWindowTextLength(window) + 1;
+            var stringBuilder = new StringBuilder(numChars);
+            GetWindowText(window, stringBuilder, numChars);
+            return stringBuilder.ToString();
+        }
+
+        internal static bool IsOpenWindow(IntPtr windowHandle, IntPtr shellWindowHandle = default(IntPtr))
+        {
+            if (shellWindowHandle == default(IntPtr))
+            {
+                shellWindowHandle = GetShellWindow();
+            }
+            if (windowHandle == shellWindowHandle) return false;
+
+            if (!IsWindowVisible(windowHandle)) return false;
+
+            var windowStyles = GetWindowLong(windowHandle, GWL_STYLE);
+            if ((windowStyles & WS_CAPTION) == 0) return false;
+
+            var result = DwmGetWindowAttribute(windowHandle, DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, out int isCloaked, Marshal.SizeOf(typeof(int)));
+            if (result != S_OK)
+            {
+                isCloaked = 0;
+            }
+            return isCloaked == 0;
         }
 
         internal static IntPtr SetWinEventHook(WinEventConstant eventConstant, Wineventproc winEventDelegate)
@@ -190,6 +208,59 @@ namespace WindowRecommender.Native
         /// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-getwindowrect
         [DllImport("user32.dll")]
         private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+        /// <summary>
+        /// Copies the text of the specified window's title bar (if it has one) into a buffer. If the specified window
+        /// is a control, the text of the control is copied. However, GetWindowText cannot retrieve the text of a
+        /// control in another application.
+        /// </summary>
+        /// <param name="hWnd">A handle to the window or control containing the text.</param>
+        /// <param name="lpString">The buffer that will receive the text. If the string is as long or longer than the
+        /// buffer, the string is truncated and terminated with a null character.</param>
+        /// <param name="nMaxCount">The maximum number of characters to copy to the buffer, including the null character
+        /// . If the text exceeds this limit, it is truncated.</param>
+        /// <returns>
+        /// If the function succeeds, the return value is the length, in characters, of the copied string, not
+        /// including the terminating null character. If the window has no title bar or text, if the title bar is
+        /// empty, or if the window or control handle is invalid, the return value is zero.
+        /// To get extended error information, call GetLastError.
+        /// This function cannot retrieve the text of an edit control in another application.
+        /// </returns>
+        /// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-getwindowtexta
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+
+        /// <summary>
+        /// Retrieves the length, in characters, of the specified window's title bar text (if the window has a title
+        /// bar). If the specified window is a control, the function retrieves the length of the text within the
+        /// control. However, GetWindowTextLength cannot retrieve the length of the text of an edit control in another
+        /// application.
+        /// </summary>
+        /// <param name="hWnd">A handle to the window or control.</param>
+        /// <returns>
+        /// If the function succeeds, the return value is the length, in characters, of the text. Under certain
+        /// conditions, this value may actually be greater than the length of the text. For more information, see the
+        /// following Remarks section.
+        /// If the window has no text, the return value is zero.To get extended error information, call GetLastError.
+        /// </returns>
+        /// <remarks>
+        /// If the target window is owned by the current process, GetWindowTextLength causes a WM_GETTEXTLENGTH message
+        /// to be sent to the specified window or control.
+        /// Under certain conditions, the GetWindowTextLength function may return a value that is larger than the
+        /// actual length of the text.This occurs with certain mixtures of ANSI and Unicode, and is due to the system
+        /// allowing for the possible existence of double-byte character set (DBCS) characters within the text.The
+        /// return value, however, will always be at least as large as the actual length of the text; you can thus
+        /// always use it to guide buffer allocation.This behavior can occur when an application uses both ANSI
+        /// functions and common dialogs, which use Unicode.It can also occur when an application uses the ANSI version
+        /// of GetWindowTextLength with a window whose window procedure is Unicode, or the Unicode version of
+        /// GetWindowTextLength with a window whose window procedure is ANSI.For more information on ANSI and ANSI
+        /// functions, see Conventions for Function Prototypes.
+        /// To obtain the exact length of the text, use the WM_GETTEXT, LB_GETTEXT, or CB_GETLBTEXT messages, or the
+        /// GetWindowText function.
+        /// </remarks>
+        /// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-getwindowtextlengtha
+        [DllImport("user32.dll")]
+        private static extern int GetWindowTextLength(IntPtr hWnd);
 
         /// <summary>
         /// Determines the visibility state of the specified window.
