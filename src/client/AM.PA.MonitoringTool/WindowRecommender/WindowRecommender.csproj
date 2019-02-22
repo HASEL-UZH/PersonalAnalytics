@@ -58,7 +58,8 @@
   <ItemGroup>
     <Compile Include="HazeOverlay.cs" />
     <Compile Include="Mask.cs" />
-    <Compile Include="Model.cs" />
+    <Compile Include="IModel.cs" />
+    <Compile Include="ModelCore.cs" />
     <Compile Include="ModelEvents.cs" />
     <Compile Include="MostRecentlyActive.cs" />
     <Compile Include="Native\DWMWINDOWATTRIBUTE.cs" />
