@@ -56,7 +56,7 @@ namespace WindowRecommender
 
         private void OnWindowClosed(IntPtr hWinEventHook, WinEventConstant @event, IntPtr hwnd, ObjectIdentifier idObject, int idChild, uint idEventThread, uint dwmsEventTime)
         {
-            if (hwnd != IntPtr.Zero && idObject == ObjectIdentifier.OBJID_WINDOW && idChild == NativeMethods.CHILDID_SELF && NativeMethods.IsOpenWindow(hwnd))
+            if (hwnd != IntPtr.Zero && idObject == ObjectIdentifier.OBJID_WINDOW && idChild == NativeMethods.CHILDID_SELF)
             {
                 if (!_isMoving)
                 {
