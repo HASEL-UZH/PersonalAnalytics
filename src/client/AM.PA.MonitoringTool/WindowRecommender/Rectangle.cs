@@ -33,6 +33,15 @@ namespace WindowRecommender
             Bottom = (int)bottom;
         }
 
+        internal bool IntersectsWith(Rectangle rectangle)
+        {
+            if (Left < rectangle.Right && rectangle.Left < Right && Top < rectangle.Bottom)
+            {
+                return rectangle.Top < Bottom;
+            }
+            return false;
+        }
+
         public static implicit operator RECT(Rectangle rectangle)
         {
             return new RECT(rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Bottom);

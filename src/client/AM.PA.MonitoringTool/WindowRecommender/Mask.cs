@@ -1,5 +1,4 @@
-﻿using GameOverlay.Graphics.Primitives;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace WindowRecommender
@@ -30,7 +29,7 @@ namespace WindowRecommender
         internal static List<Rectangle> Cut(Rectangle source, Rectangle cover)
         {
             var rects = new List<Rectangle>();
-            if (IntersectsWith(source, cover))
+            if (source.IntersectsWith(cover))
             {
                 if (source.Left < cover.Left)
                 {
@@ -54,15 +53,6 @@ namespace WindowRecommender
                 rects.Add(source);
             }
             return rects;
-        }
-
-        private static bool IntersectsWith(Rectangle a, Rectangle b)
-        {
-            if (a.Left < b.Right && b.Left < a.Right && a.Top < b.Bottom)
-            {
-                return b.Top < a.Bottom;
-            }
-            return false;
         }
     }
 }

@@ -51,7 +51,7 @@
     <Compile Include="ModelCoreTest.cs" />
     <Compile Include="MostRecentlyActiveTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WindowRecommenderTest.cs" />
+    <Compile Include="RectangleTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Fakes Include="Fakes\WindowRecommender.fakes" />
