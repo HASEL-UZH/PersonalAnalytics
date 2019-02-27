@@ -57,5 +57,36 @@ namespace WindowRecommenderTests
                 new Rectangle(0, 2, 2, 3)
             }, rects);
         }
+
+        [TestMethod]
+        public void TestCutMultiple_NoOverlap()
+        {
+            var source = new Rectangle(0, 0, 1, 1);
+            var covers = new List<Rectangle>
+            {
+                new Rectangle(1, 1, 3, 3),
+                new Rectangle(2, 2, 4, 4)
+            };
+            var rects = Mask.Cut(source, covers);
+            CollectionAssert.AreEqual(new List<Rectangle> { source }, rects);
+        }
+
+        [TestMethod]
+        public void TestCutMultiple_TwoCorners()
+        {
+            var source = new Rectangle(1, 1, 4, 4);
+            var covers = new List<Rectangle>
+            {
+                new Rectangle(0, 3, 2, 5),
+                new Rectangle(3, 0, 5, 2)
+            };
+            var rects = Mask.Cut(source, covers);
+            CollectionAssert.AreEqual(new List<Rectangle>
+            {
+                new Rectangle(1, 1, 3, 2),
+                new Rectangle(1, 2, 4, 3),
+                new Rectangle(2, 3, 4, 4)
+            }, rects);
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WindowRecommender
 {
@@ -7,17 +8,10 @@ namespace WindowRecommender
     {
         internal static List<Rectangle> Cut(Rectangle screen, IEnumerable<Rectangle> windows)
         {
-            var output = new List<Rectangle> { screen };
-            foreach (var window in windows)
+            return windows.Aggregate(new[] { screen }.AsEnumerable(), (rectangles, window) =>
             {
-                var rects = output;
-                output = new List<Rectangle>();
-                foreach (var rectangle in rects)
-                {
-                    output.AddRange(Cut(rectangle, window));
-                }
-            }
-            return output;
+                return rectangles.SelectMany(rectangle => Cut(rectangle, window));
+            }).ToList();
         }
 
         /// <summary>
