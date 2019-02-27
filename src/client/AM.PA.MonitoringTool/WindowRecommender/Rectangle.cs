@@ -42,6 +42,28 @@ namespace WindowRecommender
             return false;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+            var r = (Rectangle)obj;
+            return Left == r.Left && Top == r.Top && Right == r.Right && Bottom == r.Bottom;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Left;
+                hashCode = (hashCode * 397) ^ Top;
+                hashCode = (hashCode * 397) ^ Right;
+                hashCode = (hashCode * 397) ^ Bottom;
+                return hashCode;
+            }
+        }
+
         public static implicit operator RECT(Rectangle rectangle)
         {
             return new RECT(rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Bottom);

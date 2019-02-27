@@ -37,5 +37,35 @@ namespace WindowRecommenderTests
             var b = new Rectangle(0, 6, 6, 8);
             Assert.IsTrue(a.IntersectsWith(b));
         }
+
+        [TestMethod]
+        public void TestEquals_Equal()
+        {
+            Assert.AreEqual(new Rectangle(), new Rectangle());
+            Assert.AreEqual(new Rectangle(1, 1, 2, 2), new Rectangle(1, 1, 2, 2));
+        }
+
+        [TestMethod]
+        public void TestEquals_NotEqual()
+        {
+            Assert.IsFalse(new Rectangle().Equals(null));
+            Assert.AreNotEqual(new Rectangle(), 1);
+            Assert.AreNotEqual(new Rectangle(), new Rectangle(1, 1, 1, 1));
+            Assert.AreNotEqual(new Rectangle(1, 1, 2, 2), new Rectangle(2, 2, 3, 3));
+        }
+
+        [TestMethod]
+        public void TestGetHashCode_Equal()
+        {
+            Assert.AreEqual(new Rectangle().GetHashCode(), new Rectangle().GetHashCode());
+            Assert.AreEqual(new Rectangle(1, 1, 2, 2).GetHashCode(), new Rectangle(1, 1, 2, 2).GetHashCode());
+        }
+
+        [TestMethod]
+        public void TestGetHashCode_NotEqual()
+        {
+            Assert.AreNotEqual(new Rectangle().GetHashCode(), new Rectangle(1, 1, 1, 1).GetHashCode());
+            Assert.AreNotEqual(new Rectangle(1, 1, 2, 2).GetHashCode(), new Rectangle(2, 2, 3, 3).GetHashCode());
+        }
     }
 }
