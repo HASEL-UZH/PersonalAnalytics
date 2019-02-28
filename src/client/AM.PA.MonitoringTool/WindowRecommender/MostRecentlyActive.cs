@@ -41,7 +41,7 @@ namespace WindowRecommender
 
         private void OnWindowClosed(object sender, IntPtr e)
         {
-            var hasChanged = _windows.IndexOf(e) <= Settings.NumberOfWindows;
+            var hasChanged = _windows.IndexOf(e) < Settings.NumberOfWindows;
             _windows.Remove(e);
             if (hasChanged)
             {
@@ -51,9 +51,13 @@ namespace WindowRecommender
 
         private void OnWindowFocused(object sender, IntPtr e)
         {
+            var hasChanged = _windows.IndexOf(e) >= Settings.NumberOfWindows;
             _windows.Remove(e);
             _windows.Insert(0, e);
-            OrderChanged?.Invoke(this, null);
+            if (hasChanged)
+            {
+                OrderChanged?.Invoke(this, null);
+            }
         }
     }
 }
