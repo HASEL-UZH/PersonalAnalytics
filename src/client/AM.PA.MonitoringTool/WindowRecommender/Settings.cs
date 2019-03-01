@@ -2,7 +2,8 @@
 {
     internal static class Settings
     {
-        internal static readonly int NumberOfWindows = 3;
-        internal static readonly int OverlayAlpha = 64;
+        internal const int NumberOfWindows = 3;
+        internal const int OverlayAlpha = 64;
+        internal const string EventTable = "window_recommender_events";
     }
 }

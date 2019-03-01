@@ -7,7 +7,7 @@ namespace WindowRecommender
 {
     internal class ModelCore
     {
-        internal event EventHandler<IEnumerable<Rectangle>> WindowsHaze;
+        internal event EventHandler<Dictionary<IntPtr, double>> ScoreChanged;
 
         private readonly Dictionary<IModel, int> _models;
 
@@ -27,15 +27,15 @@ namespace WindowRecommender
             {
                 model.SetWindows(windows);
             }
-            HazeWindows();
+            MergeScores();
         }
 
         private void OnOrderChanged(object sender, EventArgs e)
         {
-            HazeWindows();
+            MergeScores();
         }
 
-        private void HazeWindows()
+        private void MergeScores()
         {
             var scores = new Dictionary<IntPtr, double>();
             foreach (var model in _models)
@@ -53,9 +53,7 @@ namespace WindowRecommender
             {
                 scores[windowHandle] /= _models.Count;
             }
-            var topWindows = scores.OrderByDescending(x => x.Value).Select(x => x.Key).Take(Settings.NumberOfWindows);
-            var windowRects = topWindows.Select(windowHandle => (Rectangle)NativeMethods.GetWindowRectangle(windowHandle));
-            WindowsHaze?.Invoke(this, windowRects);
+            ScoreChanged?.Invoke(this, scores);
         }
     }
 }

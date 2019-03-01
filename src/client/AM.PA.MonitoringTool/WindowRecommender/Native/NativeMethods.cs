@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -53,6 +54,13 @@ namespace WindowRecommender.Native
             return primaryMonitorInfo.rcMonitor;
         }
 
+        internal static string GetProcessName(IntPtr windowHandle)
+        {
+            GetWindowThreadProcessId(windowHandle, out var processId);
+            var process = Process.GetProcessById((int)processId);
+            return process.ProcessName;
+        }
+
         internal static RECT GetWindowRectangle(IntPtr windowHandle)
         {
             var result = DwmGetWindowAttribute(windowHandle, DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS, out RECT rectangle, Marshal.SizeOf(typeof(RECT)));
@@ -64,12 +72,12 @@ namespace WindowRecommender.Native
             return rectangle;
         }
 
-        internal static string GetWindowTitle(IntPtr window)
+        internal static string GetWindowTitle(IntPtr windowHandle)
         {
-            var numChars = GetWindowTextLength(window) + 1;
+            var numChars = GetWindowTextLength(windowHandle) + 1;
             var stringBuilder = new StringBuilder(numChars);
-            GetWindowText(window, stringBuilder, numChars);
-            return stringBuilder.ToString();
+            GetWindowText(windowHandle, stringBuilder, numChars);
+            return stringBuilder.ToString().Trim();
         }
 
         internal static bool IsOpenWindow(IntPtr windowHandle, IntPtr shellWindowHandle = default(IntPtr))
@@ -261,6 +269,19 @@ namespace WindowRecommender.Native
         /// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-getwindowtextlengtha
         [DllImport("user32.dll")]
         private static extern int GetWindowTextLength(IntPtr hWnd);
+
+        /// <summary>
+        /// Retrieves the identifier of the thread that created the specified window and, optionally, the identifier of
+        /// the process that created the window.
+        /// </summary>
+        /// <param name="hWnd">A handle to the window.</param>
+        /// <param name="lpdwProcessId">A pointer to a variable that receives the process identifier. If this parameter
+        /// is not NULL, GetWindowThreadProcessId copies the identifier of the process to the variable; otherwise, it
+        /// does not.</param>
+        /// <returns>The return value is the identifier of the thread that created the window.</returns>
+        /// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-getwindowthreadprocessid
+        [DllImport("user32.dll")]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
         /// <summary>
         /// Determines the visibility state of the specified window.

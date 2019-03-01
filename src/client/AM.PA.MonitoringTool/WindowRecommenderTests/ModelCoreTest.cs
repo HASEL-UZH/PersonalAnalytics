@@ -2,10 +2,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using WindowRecommender;
 using WindowRecommender.Fakes;
-using WindowRecommender.Native;
 using WindowRecommender.Native.Fakes;
 
 namespace WindowRecommenderTests
@@ -19,11 +17,10 @@ namespace WindowRecommenderTests
             using (ShimsContext.Create())
             {
                 ShimNativeMethods.GetOpenWindows = () => new List<IntPtr> { new IntPtr(1) };
-                ShimNativeMethods.GetWindowRectangleIntPtr = ptr => new RECT(1, 2, 3, 4);
 
                 var stubModel = new StubIModel
                 {
-                    SetWindowsListOfIntPtr = ptrs => Assert.AreEqual(new IntPtr(1), ptrs[0]),
+                    SetWindowsListOfIntPtr = windowHandles => Assert.AreEqual(new IntPtr(1), windowHandles[0]),
                     GetScores = () => new Dictionary<IntPtr, double> { { new IntPtr(1), 1 } }
                 };
 
@@ -31,11 +28,10 @@ namespace WindowRecommenderTests
                 {
                     {stubModel, 1}
                 });
-                modelCore.WindowsHaze += (sender, rectangles) =>
+                modelCore.ScoreChanged += (sender, scores) =>
                 {
-                    var rectangleList = rectangles.ToList();
-                    Assert.AreEqual(1, rectangleList.Count);
-                    Assert.AreEqual(1, rectangleList[0].Left);
+                    Assert.AreEqual(1, scores.Count);
+                    Assert.AreEqual(1, scores[new IntPtr(1)]);
                 };
                 modelCore.Start();
             }
@@ -47,13 +43,6 @@ namespace WindowRecommenderTests
             using (ShimsContext.Create())
             {
                 ShimNativeMethods.GetOpenWindows = () => new List<IntPtr>();
-                var i = 1;
-                ShimNativeMethods.GetWindowRectangleIntPtr = ptr =>
-                {
-                    Assert.AreEqual(new IntPtr(i), ptr);
-                    i++;
-                    return new RECT(1, 2, 3, 4);
-                };
 
                 var stubModel = new StubIModel
                 {
@@ -82,10 +71,13 @@ namespace WindowRecommenderTests
                     {stubModel, 1},
                     {stubModel2, 2}
                 });
-                modelCore.WindowsHaze += (sender, rectangles) =>
+                modelCore.ScoreChanged += (sender, scores) =>
                 {
-                    var rectangleList = rectangles.ToList();
-                    Assert.AreEqual(Settings.NumberOfWindows, rectangleList.Count);
+                    Assert.AreEqual(4, scores.Count);
+                    Assert.AreEqual(1, scores[new IntPtr(1)]);
+                    Assert.AreEqual(0.5, scores[new IntPtr(2)]);
+                    Assert.AreEqual(0.4, scores[new IntPtr(3)]);
+                    Assert.AreEqual(0, scores[new IntPtr(4)]);
                 };
                 modelCore.Start();
             }
@@ -97,13 +89,6 @@ namespace WindowRecommenderTests
             using (ShimsContext.Create())
             {
                 ShimNativeMethods.GetOpenWindows = () => new List<IntPtr>();
-                var i = 1;
-                ShimNativeMethods.GetWindowRectangleIntPtr = ptr =>
-                {
-                    Assert.AreEqual(new IntPtr(i), ptr);
-                    i++;
-                    return new RECT(1, 2, 3, 4);
-                };
 
                 var stubModel = new StubIModel
                 {
@@ -132,10 +117,13 @@ namespace WindowRecommenderTests
                     {stubModel, 1},
                     {stubModel2, 2}
                 });
-                modelCore.WindowsHaze += (sender, rectangles) =>
+                modelCore.ScoreChanged += (sender, scores) =>
                 {
-                    var rectangleList = rectangles.ToList();
-                    Assert.AreEqual(Settings.NumberOfWindows, rectangleList.Count);
+                    Assert.AreEqual(4, scores.Count);
+                    Assert.AreEqual(1, scores[new IntPtr(1)]);
+                    Assert.AreEqual(0.5, scores[new IntPtr(2)]);
+                    Assert.AreEqual(0.4, scores[new IntPtr(3)]);
+                    Assert.AreEqual(0, scores[new IntPtr(4)]);
                 };
                 stubModel.OrderChangedEvent.Invoke(stubModel, null);
             }

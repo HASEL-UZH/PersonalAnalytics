@@ -56,6 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\Queries.cs" />
     <Compile Include="HazeOverlay.cs" />
     <Compile Include="Mask.cs" />
     <Compile Include="IModel.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="WindowRecommender.cs" />
     <Compile Include="Native\NativeMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WindowRecorder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
