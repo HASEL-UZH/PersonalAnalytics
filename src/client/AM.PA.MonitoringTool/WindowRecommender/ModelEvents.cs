@@ -6,10 +6,8 @@ namespace WindowRecommender
 {
     internal class ModelEvents
     {
-        internal event EventHandler<IntPtr> WindowAdded;
         internal event EventHandler<IntPtr> WindowFocused;
         internal event EventHandler<IntPtr> WindowClosed;
-        internal event EventHandler AllWindowsBlurred;
         internal event EventHandler MoveStarted;
 
         private readonly NativeMethods.Wineventproc _onWindowFocused;
@@ -19,6 +17,7 @@ namespace WindowRecommender
 
         private List<IntPtr> _winEventHooks;
         private bool _isMoving;
+        private IntPtr _focusedWindow;
 
         internal ModelEvents()
         {
@@ -49,7 +48,11 @@ namespace WindowRecommender
             {
                 if (!_isMoving)
                 {
-                    WindowFocused?.Invoke(this, hwnd);
+                    if (hwnd != _focusedWindow)
+                    {
+                        WindowFocused?.Invoke(this, hwnd);
+                        _focusedWindow = hwnd;
+                    }
                 }
             }
         }
@@ -61,6 +64,7 @@ namespace WindowRecommender
                 if (!_isMoving)
                 {
                     WindowClosed?.Invoke(this, hwnd);
+                    _focusedWindow = IntPtr.Zero;
                 }
             }
         }
@@ -90,6 +94,7 @@ namespace WindowRecommender
                 NativeMethods.UnhookWinEvent(winEventHook);
             }
             _winEventHooks.Clear();
+            _focusedWindow = IntPtr.Zero;
         }
     }
 }
