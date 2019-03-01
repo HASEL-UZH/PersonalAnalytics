@@ -132,7 +132,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     let defaultsController = NSUserDefaultsController.shared
     let preferencesController = PreferencesWindowController(windowNibName: NSNib.Name(rawValue: "PreferencesWindow"))
     let retrospectiveController = RetrospectiveWindowController(windowNibName:NSNib.Name(rawValue: "RetrospectiveWindow"))
-    
+
     // MARK: - Variables
     var eventMonitor: AnyObject? = nil
     var menuClickMonitor: AnyObject?
@@ -186,7 +186,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         
         // It doesn't seem to work if I change the selector, so I'm leaving it for now (working is better for now than slowing down)
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(delegate.quit), keyEquivalent: "q"))
-        
+
         // Setting up the summary popup
         statusItem.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImage"))
         setUpSummaryView()
@@ -194,7 +194,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         setUpRetrospective()
     
     }
-    
+
     @objc func togglePause(){
         if(isPaused){
             TrackerManager.shared.resume()
@@ -280,10 +280,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
 
     
     func userNotificationCenter(_ center: NSUserNotificationCenter, didActivate notification: NSUserNotification) {
-        //print("Using delelgate for NSUsernotification")
-        self.toggleSummary(notification.self)
+
+        switch notification.identifier {
+        case AppConstants.emotionTrackerNotificationID:
+            (TrackerManager.shared.getTracker(tracker: "EmotionTracker") as! EmotionTracker).manageNotification(notification: notification)
+        default:
+            //print("Using delelgate for NSUsernotification")
+            self.toggleSummary(notification.self)
+        }
+
     }
-    
+
+
     //https://stackoverflow.com/questions/7271528/how-to-nslog-into-a-file
     func redirectLogToDocuments() {
         let pathForErrors = self.applicationDocumentsDirectory.path.appendingFormat("/errors.txt")
@@ -297,7 +305,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     
     // MARK: - Setup, teardown of application including timers
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        
+
         if !AXIsProcessTrusted(){
             launchPermissionPanel()
             launchPermissionExplanationAlert()
@@ -306,6 +314,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         TrackerManager.shared.register(tracker: UserInputTracker())
         TrackerManager.shared.register(tracker: ActiveApplicationTracker())
         TrackerManager.shared.register(tracker: TaskProductivityTracker())
+        TrackerManager.shared.register(tracker: EmotionTracker())
         
         
         redirectLogToDocuments()
@@ -320,7 +329,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         // Start local server so chrome extension can send data to it
         api = PAHttpServer(coreDataController: DataObjectController.sharedInstance)
         api!.startServer()
-        
+
     }
     
     func launchPermissionExplanationAlert(){
@@ -410,4 +419,3 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     
     
 }
-
