@@ -59,10 +59,10 @@
     <Compile Include="Data\Queries.cs" />
     <Compile Include="HazeOverlay.cs" />
     <Compile Include="Mask.cs" />
-    <Compile Include="IModel.cs" />
-    <Compile Include="ModelCore.cs" />
+    <Compile Include="Models\IModel.cs" />
+    <Compile Include="Models\ModelCore.cs" />
     <Compile Include="ModelEvents.cs" />
-    <Compile Include="MostRecentlyActive.cs" />
+    <Compile Include="Models\MostRecentlyActive.cs" />
     <Compile Include="Native\DWMWINDOWATTRIBUTE.cs" />
     <Compile Include="Native\ObjectIdentifiers.cs" />
     <Compile Include="Native\RECT.cs" />

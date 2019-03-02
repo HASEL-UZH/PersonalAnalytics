@@ -2,8 +2,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using WindowRecommender;
-using WindowRecommender.Fakes;
+using WindowRecommender.Models;
+using WindowRecommender.Models.Fakes;
 using WindowRecommender.Native.Fakes;
 
 namespace WindowRecommenderTests

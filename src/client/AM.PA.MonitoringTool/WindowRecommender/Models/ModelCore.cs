@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using WindowRecommender.Native;
 
-namespace WindowRecommender
+namespace WindowRecommender.Models
 {
     internal class ModelCore
     {

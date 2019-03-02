@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WindowRecommender
+namespace WindowRecommender.Models
 {
     internal class MostRecentlyActive : IModel
     {

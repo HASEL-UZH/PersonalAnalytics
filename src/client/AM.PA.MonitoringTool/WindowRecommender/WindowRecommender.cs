@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using WindowRecommender.Data;
+using WindowRecommender.Models;
 using WindowRecommender.Native;
 
 namespace WindowRecommender
