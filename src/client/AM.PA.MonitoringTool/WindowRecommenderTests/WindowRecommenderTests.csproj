@@ -65,6 +65,7 @@
     <Compile Include="MaskTest.cs" />
     <Compile Include="QueriesTest.cs" />
     <Compile Include="DurationTest.cs" />
+    <Compile Include="FrequencyTest.cs" />
     <Compile Include="UtilsTest.cs" />
     <Compile Include="WindowRecorderTest.cs" />
   </ItemGroup>

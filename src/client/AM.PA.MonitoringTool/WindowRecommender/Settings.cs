@@ -8,5 +8,7 @@
         internal const int FramesPerSecond = 30;
         internal const int DurationIntervalSeconds = 10;
         internal const int DurationTimeframeMinutes = 10;
+        internal const int FrequencyIntervalSeconds = 10;
+        internal const int FrequencyTimeframeMinutes = 10;
     }
 }

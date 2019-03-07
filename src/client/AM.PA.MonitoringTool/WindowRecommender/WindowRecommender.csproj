@@ -63,6 +63,7 @@
     <Compile Include="HazeOverlay.cs" />
     <Compile Include="Mask.cs" />
     <Compile Include="Models\Duration.cs" />
+    <Compile Include="Models\Frequency.cs" />
     <Compile Include="Models\IModel.cs" />
     <Compile Include="Models\ModelCore.cs" />
     <Compile Include="ModelEvents.cs" />
