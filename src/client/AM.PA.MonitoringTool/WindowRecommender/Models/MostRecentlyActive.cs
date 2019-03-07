@@ -21,14 +21,7 @@ namespace WindowRecommender.Models
             var scores = new Dictionary<IntPtr, double>();
             for (var i = 0; i < _windows.Count; i++)
             {
-                if (i < Settings.NumberOfWindows)
-                {
-                    scores[_windows[i]] = 1;
-                }
-                else
-                {
-                    scores[_windows[i]] = 0;
-                }
+                scores[_windows[i]] = i < Settings.NumberOfWindows ? 1 : 0;
             }
 
             return scores;
