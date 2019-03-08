@@ -37,23 +37,35 @@ namespace WindowRecommender.Models
 
         private void MergeScores()
         {
-            var scores = new Dictionary<IntPtr, double>();
+            var mergedScores = new Dictionary<IntPtr, double>();
             foreach (var model in _models)
             {
-                foreach (var score in model.Key.GetScores())
+                var normalizedModelScores = NormalizeScores(model.Key.GetScores());
+                foreach (var score in normalizedModelScores)
                 {
-                    if (!scores.ContainsKey(score.Key))
+                    if (!mergedScores.ContainsKey(score.Key))
                     {
-                        scores.Add(score.Key, 0);
+                        mergedScores.Add(score.Key, 0);
                     }
-                    scores[score.Key] += score.Value * model.Value;
+                    mergedScores[score.Key] += score.Value * model.Value;
                 }
             }
-            foreach (var windowHandle in scores.Keys.ToList())
+            ScoreChanged?.Invoke(this, mergedScores);
+        }
+
+        internal static List<IntPtr> GetTopWindows(Dictionary<IntPtr, double> scores)
+        {
+            return scores.OrderByDescending(x => x.Value).Select(x => x.Key).Take(Settings.NumberOfWindows).ToList();
+        }
+
+        internal static Dictionary<IntPtr, double> NormalizeScores(Dictionary<IntPtr, double> scores)
+        {
+            var scoreSum = scores.Sum(pair => pair.Value);
+            if (double.IsNaN(0 / scoreSum)) // scoreSum == 0
             {
-                scores[windowHandle] /= _models.Count;
+                return scores;
             }
-            ScoreChanged?.Invoke(this, scores);
+            return scores.ToDictionary(pair => pair.Key, pair => pair.Value / scoreSum);
         }
     }
 }

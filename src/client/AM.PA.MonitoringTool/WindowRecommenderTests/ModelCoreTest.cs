@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using WindowRecommender;
 using WindowRecommender.Models;
 using WindowRecommender.Models.Fakes;
 using WindowRecommender.Native.Fakes;
@@ -48,10 +49,10 @@ namespace WindowRecommenderTests
                 {
                     GetScores = () => new Dictionary<IntPtr, double>
                     {
-                        { new IntPtr(1), 1 },
-                        { new IntPtr(2), 1 },
-                        { new IntPtr(3), 0 },
-                        { new IntPtr(4), 0 },
+                        {new IntPtr(1), 1},
+                        {new IntPtr(2), 1},
+                        {new IntPtr(3), 0},
+                        {new IntPtr(4), 0}
                     }
                 };
 
@@ -59,10 +60,9 @@ namespace WindowRecommenderTests
                 {
                     GetScores = () => new Dictionary<IntPtr, double>
                     {
-                        { new IntPtr(1), 0.5 },
-                        { new IntPtr(2), 0 },
-                        { new IntPtr(3), 0.4 },
-                        { new IntPtr(4), 0 },
+                        {new IntPtr(1), 4},
+                        {new IntPtr(2), 0},
+                        {new IntPtr(3), 1}
                     }
                 };
 
@@ -74,7 +74,7 @@ namespace WindowRecommenderTests
                 modelCore.ScoreChanged += (sender, scores) =>
                 {
                     Assert.AreEqual(4, scores.Count);
-                    Assert.AreEqual(1, scores[new IntPtr(1)]);
+                    Assert.AreEqual(2.1, scores[new IntPtr(1)]);
                     Assert.AreEqual(0.5, scores[new IntPtr(2)]);
                     Assert.AreEqual(0.4, scores[new IntPtr(3)]);
                     Assert.AreEqual(0, scores[new IntPtr(4)]);
@@ -94,10 +94,10 @@ namespace WindowRecommenderTests
                 {
                     GetScores = () => new Dictionary<IntPtr, double>
                     {
-                        { new IntPtr(1), 1 },
-                        { new IntPtr(2), 1 },
-                        { new IntPtr(3), 0 },
-                        { new IntPtr(4), 0 },
+                        {new IntPtr(1), 1},
+                        {new IntPtr(2), 1},
+                        {new IntPtr(3), 0},
+                        {new IntPtr(4), 0}
                     }
                 };
 
@@ -105,10 +105,9 @@ namespace WindowRecommenderTests
                 {
                     GetScores = () => new Dictionary<IntPtr, double>
                     {
-                        { new IntPtr(1), 0.5 },
-                        { new IntPtr(2), 0 },
-                        { new IntPtr(3), 0.4 },
-                        { new IntPtr(4), 0 },
+                        {new IntPtr(1), 4},
+                        {new IntPtr(2), 0},
+                        {new IntPtr(3), 1}
                     }
                 };
 
@@ -120,13 +119,66 @@ namespace WindowRecommenderTests
                 modelCore.ScoreChanged += (sender, scores) =>
                 {
                     Assert.AreEqual(4, scores.Count);
-                    Assert.AreEqual(1, scores[new IntPtr(1)]);
+                    Assert.AreEqual(2.1, scores[new IntPtr(1)]);
                     Assert.AreEqual(0.5, scores[new IntPtr(2)]);
                     Assert.AreEqual(0.4, scores[new IntPtr(3)]);
                     Assert.AreEqual(0, scores[new IntPtr(4)]);
                 };
                 stubModel.OrderChangedEvent.Invoke(stubModel, null);
             }
+        }
+
+        [TestMethod]
+        public void TestGetTopWindows_Empty()
+        {
+            var scores = new Dictionary<IntPtr, double>();
+            var topWindows = ModelCore.GetTopWindows(scores);
+            CollectionAssert.AreEqual(new List<IntPtr>(), topWindows);
+        }
+
+        [TestMethod]
+        public void TestGetTopWindows_Count()
+        {
+            var scores = new Dictionary<IntPtr, double>();
+            for (var i = 1; i < Settings.NumberOfWindows + 2; i++)
+            {
+                scores[new IntPtr(i)] = 1;
+            }
+            var topWindows = ModelCore.GetTopWindows(scores);
+            Assert.AreEqual(Settings.NumberOfWindows, topWindows.Count);
+        }
+
+        [TestMethod]
+        public void TestNormalizeScores_Empty()
+        {
+            var scores = new Dictionary<IntPtr, double>();
+            CollectionAssert.AreEqual(scores, ModelCore.NormalizeScores(scores));
+        }
+
+        [TestMethod]
+        public void TestNormalizeScores_ZeroSum()
+        {
+            var scores = new Dictionary<IntPtr, double>
+            {
+                { new IntPtr(1), 0 }
+            };
+            CollectionAssert.AreEqual(scores, ModelCore.NormalizeScores(scores));
+        }
+
+        [TestMethod]
+        public void TestNormalizeScores()
+        {
+            CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
+            {
+                { new IntPtr(1), 0.2 },
+                { new IntPtr(2), 0.4 },
+                { new IntPtr(3), 0.4 }
+            }, ModelCore.NormalizeScores(new Dictionary<IntPtr, double>
+            {
+                { new IntPtr(1), 0.1 },
+                { new IntPtr(2), 0.2 },
+                { new IntPtr(3), 0.2 }
+            }));
         }
     }
 }

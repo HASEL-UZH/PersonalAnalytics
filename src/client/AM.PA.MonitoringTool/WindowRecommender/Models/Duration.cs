@@ -96,7 +96,7 @@ namespace WindowRecommender.Models
             }
             _closedWindows.Clear();
 
-            var newTop = _scores.OrderByDescending(x => x.Value).Select(x => x.Key).Take(Settings.NumberOfWindows).ToList();
+            var newTop = ModelCore.GetTopWindows(_scores);
             if (!_topWindows.SequenceEqual(newTop))
             {
                 OrderChanged?.Invoke(this, null);

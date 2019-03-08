@@ -37,7 +37,7 @@ namespace WindowRecommender
         private void OnScoresChanged(object sender, Dictionary<IntPtr, double> e)
         {
             var scores = e;
-            var topWindows = scores.OrderByDescending(x => x.Value).Select(x => x.Key).Take(Settings.NumberOfWindows).ToList();
+            var topWindows = ModelCore.GetTopWindows(scores);
             var windowRects = topWindows.Select(windowHandle => (Rectangle)NativeMethods.GetWindowRectangle(windowHandle));
             _windowRecorder.SetScores(scores, topWindows);
             _hazeOverlay.Show(windowRects);
