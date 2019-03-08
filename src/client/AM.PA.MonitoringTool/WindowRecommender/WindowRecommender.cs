@@ -16,6 +16,7 @@ namespace WindowRecommender
         private readonly ModelEvents _modelEvents;
         private readonly ModelCore _modelCore;
         private readonly WindowRecorder _windowRecorder;
+        private readonly WindowStack _windowStack;
 
         public WindowRecommender()
         {
@@ -24,7 +25,8 @@ namespace WindowRecommender
             _modelEvents = new ModelEvents();
             _modelEvents.MoveStarted += OnMoveStarted;
 
-            _windowRecorder = new WindowRecorder(_modelEvents);
+            _windowStack = new WindowStack(_modelEvents);
+            _windowRecorder = new WindowRecorder(_modelEvents, _windowStack);
 
             var models = new Dictionary<IModel, int>
             {
@@ -54,6 +56,7 @@ namespace WindowRecommender
             _hazeOverlay.Start();
             _modelEvents.Start();
             _modelCore.Start();
+            _windowStack.Windows = NativeMethods.GetOpenWindows();
         }
 
         public override void Stop()

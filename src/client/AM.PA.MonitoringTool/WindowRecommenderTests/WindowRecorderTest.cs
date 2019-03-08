@@ -25,7 +25,11 @@ namespace WindowRecommenderTests
                 {
                     WindowFocusedAddEventHandlerOfIntPtr = handler => onFocusHandler = handler
                 };
-                ShimQueries.SaveEventIntPtrStringEventNameInt32Double = (window, processName, eventName, rank, score) =>
+                var windowStack = new ShimWindowStack
+                {
+                    GetZIndexIntPtr = windowHandle => 1
+                };
+                ShimQueries.SaveEventIntPtrStringEventNameInt32DoubleInt32 = (window, processName, eventName, rank, score, zIndex) =>
                 {
                     called = true;
                     Assert.AreEqual(new IntPtr(2), window);
@@ -33,8 +37,9 @@ namespace WindowRecommenderTests
                     Assert.AreEqual("test_process", processName);
                     Assert.AreEqual(1, rank);
                     Assert.AreEqual(0.8, score);
+                    Assert.AreEqual(1, zIndex);
                 };
-                var wr = new WindowRecorder(modelEvents);
+                var wr = new WindowRecorder(modelEvents, windowStack);
                 wr.SetScores(new Dictionary<IntPtr, double>
                 {
                     {new IntPtr(1), 1},
@@ -58,7 +63,7 @@ namespace WindowRecommenderTests
                 {
                     WindowFocusedAddEventHandlerOfIntPtr = handler => onFocusHandler = handler
                 };
-                ShimQueries.SaveEventIntPtrStringEventNameInt32Double = (window, processName, eventName, rank, score) =>
+                ShimQueries.SaveEventIntPtrStringEventNameInt32DoubleInt32 = (window, processName, eventName, rank, score, zIndex) =>
                 {
                     called = true;
                     Assert.AreEqual(new IntPtr(1), window);
@@ -66,8 +71,9 @@ namespace WindowRecommenderTests
                     Assert.AreEqual("test_process", processName);
                     Assert.AreEqual(-1, rank);
                     Assert.AreEqual(-1, score);
+                    Assert.AreEqual(-1, zIndex);
                 };
-                var wr = new WindowRecorder(modelEvents);
+                var wr = new WindowRecorder(modelEvents, new WindowStack(modelEvents));
                 wr.SetScores(new Dictionary<IntPtr, double>(), new List<IntPtr>());
                 onFocusHandler.Invoke(modelEvents, new IntPtr(1));
                 Assert.IsTrue(called);
@@ -86,7 +92,7 @@ namespace WindowRecommenderTests
                 {
                     WindowClosedAddEventHandlerOfIntPtr = handler => onClosedHandler = handler
                 };
-                ShimQueries.SaveEventIntPtrStringEventNameInt32Double = (window, processName, eventName, rank, score) =>
+                ShimQueries.SaveEventIntPtrStringEventNameInt32DoubleInt32 = (window, processName, eventName, rank, score, zIndex) =>
                 {
                     called = true;
                     Assert.AreEqual(new IntPtr(2), window);
@@ -94,8 +100,9 @@ namespace WindowRecommenderTests
                     Assert.AreEqual("test_process", processName);
                     Assert.AreEqual(1, rank);
                     Assert.AreEqual(0.8, score);
+                    Assert.AreEqual(-1, zIndex);
                 };
-                var wr = new WindowRecorder(modelEvents);
+                var wr = new WindowRecorder(modelEvents, new WindowStack(modelEvents));
                 wr.SetScores(new Dictionary<IntPtr, double>
                 {
                     {new IntPtr(1), 1},

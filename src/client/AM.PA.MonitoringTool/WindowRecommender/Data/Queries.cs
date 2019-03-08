@@ -8,14 +8,14 @@ namespace WindowRecommender.Data
         internal static void CreateTables()
         {
             var db = Database.GetInstance();
-            db.ExecuteDefaultQuery($@"CREATE TABLE IF NOT EXISTS {Settings.EventTable} (id INTEGER PRIMARY KEY, windowId TEXT, processName TEXT, event Text, rank INTEGER, score REAL, time TEXT);");
+            db.ExecuteDefaultQuery($@"CREATE TABLE IF NOT EXISTS {Settings.EventTable} (id INTEGER PRIMARY KEY, windowId TEXT, processName TEXT, event Text, rank INTEGER, score REAL, zIndex INTEGER, time TEXT);");
         }
 
-        internal static void SaveEvent(IntPtr windowHandle, string processName, EventName eventName, int rank = -1, double score = -1)
+        internal static void SaveEvent(IntPtr windowHandle, string processName, EventName eventName, int rank = -1, double score = -1, int zIndex = -1)
         {
             var db = Database.GetInstance();
-            var query = $@"INSERT INTO {Settings.EventTable} (windowId, processName, event, rank, score, time) VALUES (?, ?, ?, ?, ?, ?);";
-            var parameters = new object[] { windowHandle.ToString(), processName, eventName.ToString(), rank, score, DateTime.Now };
+            var query = $@"INSERT INTO {Settings.EventTable} (windowId, processName, event, rank, score, zIndex, time) VALUES (?, ?, ?, ?, ?, ?, ?);";
+            var parameters = new object[] { windowHandle.ToString(), processName, eventName.ToString(), rank, score, zIndex, DateTime.Now };
             db.ExecuteDefaultQuery(query, parameters);
         }
     }

@@ -51,7 +51,7 @@ namespace WindowRecommenderTests
                 ShimDatabase.GetInstance = () => _db;
                 Queries.CreateTables();
                 Assert.AreEqual(0L, _db.ExecuteScalar2($@"SELECT COUNT(*) FROM {Settings.EventTable};"));
-                Queries.SaveEvent(new IntPtr(1), "test_process", EventName.Focus, 2, 0.5);
+                Queries.SaveEvent(new IntPtr(1), "test_process", EventName.Focus, 2, 0.5, 1);
                 var dataTable = _db.ExecuteReadQuery($@"SELECT * FROM {Settings.EventTable};");
                 Assert.AreEqual(1, dataTable.Rows.Count);
                 Assert.AreEqual("1", dataTable.Rows[0]["windowId"]);
@@ -59,6 +59,7 @@ namespace WindowRecommenderTests
                 Assert.AreEqual("test_process", dataTable.Rows[0]["processName"]);
                 Assert.AreEqual(2L, dataTable.Rows[0]["rank"]);
                 Assert.AreEqual(0.5, dataTable.Rows[0]["score"]);
+                Assert.AreEqual(1L, dataTable.Rows[0]["zIndex"]);
             }
         }
 
@@ -78,6 +79,7 @@ namespace WindowRecommenderTests
                 Assert.AreEqual("test_process", dataTable.Rows[0]["processName"]);
                 Assert.AreEqual(-1L, dataTable.Rows[0]["rank"]);
                 Assert.AreEqual(-1D, dataTable.Rows[0]["score"]);
+                Assert.AreEqual(-1L, dataTable.Rows[0]["zIndex"]);
             }
         }
 
@@ -97,6 +99,7 @@ namespace WindowRecommenderTests
                 Assert.AreEqual("test_process", dataTable.Rows[0]["processName"]);
                 Assert.AreEqual(1L, dataTable.Rows[0]["rank"]);
                 Assert.AreEqual(0.5, dataTable.Rows[0]["score"]);
+                Assert.AreEqual(-1L, dataTable.Rows[0]["zIndex"]);
             }
         }
     }

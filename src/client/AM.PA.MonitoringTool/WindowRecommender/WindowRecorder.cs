@@ -8,13 +8,15 @@ namespace WindowRecommender
     internal class WindowRecorder
     {
         private readonly Dictionary<IntPtr, string> _processNames;
+        private readonly WindowStack _windowStack;
 
         private Dictionary<IntPtr, double> _scores;
         private List<IntPtr> _ranks;
 
-        internal WindowRecorder(ModelEvents modelEvents)
+        internal WindowRecorder(ModelEvents modelEvents, WindowStack windowStack)
         {
             _processNames = new Dictionary<IntPtr, string>();
+            _windowStack = windowStack;
 
             _scores = new Dictionary<IntPtr, double>();
             _ranks = new List<IntPtr>();
@@ -51,7 +53,8 @@ namespace WindowRecommender
             {
                 var score = _scores[windowHandle];
                 var rank = _ranks.IndexOf(windowHandle);
-                Queries.SaveEvent(windowHandle, processName, EventName.Focus, rank, score);
+                var zIndex = _windowStack.GetZIndex(windowHandle);
+                Queries.SaveEvent(windowHandle, processName, EventName.Focus, rank, score, zIndex);
             }
             else
             {
