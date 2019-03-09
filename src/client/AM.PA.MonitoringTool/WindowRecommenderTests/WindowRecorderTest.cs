@@ -52,6 +52,54 @@ namespace WindowRecommenderTests
         }
 
         [TestMethod]
+        public void TestFocus_Again()
+        {
+            using (ShimsContext.Create())
+            {
+                ShimNativeMethods.GetProcessNameIntPtr = _ => "test_process";
+                var called = false;
+                EventHandler<IntPtr> onFocusHandler = null;
+                var modelEvents = new ShimModelEvents
+                {
+                    WindowFocusedAddEventHandlerOfIntPtr = handler => onFocusHandler = handler
+                };
+                var windowStack = new ShimWindowStack
+                {
+                    GetZIndexIntPtr = windowHandle => 1
+                };
+                ShimQueries.SaveEventIntPtrStringEventNameInt32DoubleInt32 = (window, processName, eventName, rank, score, zIndex) =>
+                {
+                    called = true;
+                    Assert.AreEqual(new IntPtr(2), window);
+                    Assert.AreEqual(EventName.Focus, eventName);
+                    Assert.AreEqual("test_process", processName);
+                    Assert.AreEqual(1, rank);
+                    Assert.AreEqual(0.8, score);
+                    Assert.AreEqual(1, zIndex);
+                };
+                var wr = new WindowRecorder(modelEvents, windowStack);
+                wr.SetScores(new Dictionary<IntPtr, double>
+                {
+                    {new IntPtr(1), 1},
+                    {new IntPtr(2), 0.8},
+                    {new IntPtr(3), 0.7}
+                }, new List<IntPtr> { new IntPtr(1), new IntPtr(2), new IntPtr(3) });
+                onFocusHandler.Invoke(modelEvents, new IntPtr(2));
+                Assert.IsTrue(called);
+
+                // Test caching of process names
+                called = false;
+                ShimNativeMethods.GetProcessNameIntPtr = _ =>
+                {
+                    Assert.Fail();
+                    return "";
+                };
+                onFocusHandler.Invoke(modelEvents, new IntPtr(2));
+                Assert.IsTrue(called);
+            }
+        }
+
+        [TestMethod]
         public void TestOpen()
         {
             using (ShimsContext.Create())

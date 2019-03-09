@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using WindowRecommender;
+using WindowRecommender.Native;
 
 namespace WindowRecommenderTests
 {
@@ -66,6 +67,14 @@ namespace WindowRecommenderTests
         {
             Assert.AreNotEqual(new Rectangle().GetHashCode(), new Rectangle(1, 1, 1, 1).GetHashCode());
             Assert.AreNotEqual(new Rectangle(1, 1, 2, 2).GetHashCode(), new Rectangle(2, 2, 3, 3).GetHashCode());
+        }
+
+        [TestMethod]
+        public void TestCast_RECT()
+        {
+            var rectangle = new Rectangle(1, 2, 3, 4);
+            var rect = (RECT)rectangle;
+            Assert.AreEqual(rectangle, (Rectangle)rect);
         }
     }
 }
