@@ -39,10 +39,8 @@ namespace WindowRecommender
         private void OnScoresChanged(object sender, Dictionary<IntPtr, double> e)
         {
             var scores = e;
-            var topWindows = ModelCore.GetTopWindows(scores);
-            var windowRects = topWindows.Select(windowHandle => (Rectangle)NativeMethods.GetWindowRectangle(windowHandle));
-            _windowRecorder.SetScores(scores, topWindows);
-            _hazeOverlay.Show(windowRects);
+            _windowRecorder.SetScores(scores, ModelCore.GetTopWindows(scores));
+            _hazeOverlay.Show(GetWindowInfo(scores, _windowStack.Windows));
         }
 
         private void OnMoveStarted(object sender, EventArgs e)
@@ -84,6 +82,20 @@ namespace WindowRecommender
         public override bool IsEnabled()
         {
             return true;
+        }
+
+        internal static IEnumerable<(Rectangle rect, bool show)> GetWindowInfo(Dictionary<IntPtr, double> scores, IEnumerable<IntPtr> windowStack)
+        {
+            var topWindows = ModelCore.GetTopWindows(scores);
+            return windowStack
+                .TakeWhile(_ => topWindows.Count != 0)
+                .Select(windowHandle =>
+                {
+                    var rect = (Rectangle)NativeMethods.GetWindowRectangle(windowHandle);
+                    var contains = topWindows.Contains(windowHandle);
+                    topWindows.Remove(windowHandle);
+                    return (rect: rect, show: contains);
+                });
         }
     }
 }

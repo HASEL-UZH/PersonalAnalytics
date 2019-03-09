@@ -5,7 +5,7 @@ namespace WindowRecommender
 {
     internal class WindowStack
     {
-        internal List<IntPtr> Windows { private get; set; }
+        internal List<IntPtr> Windows { get; set; }
 
         internal WindowStack(ModelEvents modelEvents)
         {

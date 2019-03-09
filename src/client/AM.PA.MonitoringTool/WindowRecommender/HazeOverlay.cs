@@ -59,15 +59,9 @@ namespace WindowRecommender
             _frameTimer.Stop();
         }
 
-        internal void Show(Rectangle rectangle)
+        internal void Show(IEnumerable<(Rectangle rect, bool show)> windowInfo)
         {
-            _rectangles = Mask.Cut(_screenRectangle, rectangle);
-            _shouldDraw = true;
-        }
-
-        internal void Show(IEnumerable<Rectangle> rectangles)
-        {
-            _rectangles = Mask.Cut(_screenRectangle, rectangles);
+            _rectangles = Mask.Cut(_screenRectangle, windowInfo);
             _shouldDraw = true;
         }
 

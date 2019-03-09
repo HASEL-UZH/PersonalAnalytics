@@ -13,7 +13,7 @@ namespace WindowRecommenderTests
             var source = new Rectangle(0, 0, 1, 1);
             var cover = new Rectangle(2, 2, 3, 3);
             var rects = Mask.Cut(source, cover);
-            CollectionAssert.AreEqual(new List<Rectangle> { source }, rects);
+            CollectionAssert.AreEquivalent(new List<Rectangle> { source }, rects);
         }
 
         [TestMethod]
@@ -22,7 +22,7 @@ namespace WindowRecommenderTests
             var source = new Rectangle(1, 0, 3, 2);
             var cover = new Rectangle(0, 1, 2, 3);
             var rects = Mask.Cut(source, cover);
-            CollectionAssert.AreEqual(new List<Rectangle>
+            CollectionAssert.AreEquivalent(new List<Rectangle>
             {
                 new Rectangle(1, 0, 3, 1),
                 new Rectangle(2, 1, 3, 2)
@@ -35,7 +35,7 @@ namespace WindowRecommenderTests
             var source = new Rectangle(1, 0, 3, 3);
             var cover = new Rectangle(0, 1, 2, 2);
             var rects = Mask.Cut(source, cover);
-            CollectionAssert.AreEqual(new List<Rectangle>
+            CollectionAssert.AreEquivalent(new List<Rectangle>
             {
                 new Rectangle(1, 0, 3, 1),
                 new Rectangle(2, 1, 3, 3),
@@ -49,7 +49,7 @@ namespace WindowRecommenderTests
             var source = new Rectangle(0, 0, 3, 3);
             var cover = new Rectangle(1, 1, 2, 2);
             var rects = Mask.Cut(source, cover);
-            CollectionAssert.AreEqual(new List<Rectangle>
+            CollectionAssert.AreEquivalent(new List<Rectangle>
             {
                 new Rectangle(0, 0, 1, 2),
                 new Rectangle(1, 0, 3, 1),
@@ -68,7 +68,7 @@ namespace WindowRecommenderTests
                 new Rectangle(2, 2, 4, 4)
             };
             var rects = Mask.Cut(source, covers);
-            CollectionAssert.AreEqual(new List<Rectangle> { source }, rects);
+            CollectionAssert.AreEquivalent(new List<Rectangle> { source }, rects);
         }
 
         [TestMethod]
@@ -81,11 +81,59 @@ namespace WindowRecommenderTests
                 new Rectangle(3, 0, 5, 2)
             };
             var rects = Mask.Cut(source, covers);
-            CollectionAssert.AreEqual(new List<Rectangle>
+            CollectionAssert.AreEquivalent(new List<Rectangle>
             {
                 new Rectangle(1, 1, 3, 2),
                 new Rectangle(1, 2, 4, 3),
                 new Rectangle(2, 3, 4, 4)
+            }, rects);
+        }
+
+        [TestMethod]
+        public void TestCutShow_HideVisible()
+        {
+            var source = new Rectangle(0, 0, 1, 1);
+            var covers = new List<(Rectangle rect, bool show)>
+            {
+                (new Rectangle(0, 0, 1, 1), false),
+                (new Rectangle(0, 0, 1, 1), true)
+            };
+            var rects = Mask.Cut(source, covers);
+            CollectionAssert.AreEquivalent(new List<Rectangle>
+            {
+                new Rectangle(0, 0, 1, 1)
+            }, rects);
+        }
+
+        [TestMethod]
+        public void TestCutShow_ShowHideShow()
+        {
+            var source = new Rectangle(0, 0, 1, 1);
+            var covers = new List<(Rectangle rect, bool show)>
+            {
+                (new Rectangle(0, 0, 1, 1), true),
+                (new Rectangle(0, 0, 1, 1), false),
+                (new Rectangle(0, 0, 1, 1), true)
+            };
+            var rects = Mask.Cut(source, covers);
+            CollectionAssert.AreEquivalent(new List<Rectangle>(), rects);
+        }
+
+        [TestMethod]
+        public void TestCutNegative_Corner()
+        {
+            var source = new Rectangle(0, 0, 4, 4);
+            var covers = new List<(Rectangle rect, bool show)>
+            {
+                (new Rectangle(1, 1, 3, 3), false),
+                (new Rectangle(2, 2, 5, 5), true)
+            };
+            var rects = Mask.Cut(source, covers);
+            CollectionAssert.AreEquivalent(new List<Rectangle>
+            {
+                new Rectangle(2, 0, 4, 2),
+                new Rectangle(0, 0, 2, 4),
+                new Rectangle(2, 2, 3, 3)
             }, rects);
         }
     }

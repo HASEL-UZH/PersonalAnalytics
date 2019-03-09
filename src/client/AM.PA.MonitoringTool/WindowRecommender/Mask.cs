@@ -6,6 +6,19 @@ namespace WindowRecommender
 {
     internal static class Mask
     {
+        public static List<Rectangle> Cut(Rectangle screenRectangle, IEnumerable<(Rectangle rect, bool show)> windowInfos)
+        {
+            return windowInfos.Reverse().Aggregate(new[] { screenRectangle }.AsEnumerable(), (rectangles, windowInfo) =>
+            {
+                if (windowInfo.show)
+                {
+                    return rectangles.SelectMany(rectangle => Cut(rectangle, windowInfo.rect));
+                }
+                var rectangleList = rectangles.ToList();
+                return rectangleList.Concat(Cut(windowInfo.rect, rectangleList));
+            }).ToList();
+        }
+
         internal static List<Rectangle> Cut(Rectangle screen, IEnumerable<Rectangle> windows)
         {
             return windows.Aggregate(new[] { screen }.AsEnumerable(), (rectangles, window) =>
@@ -17,7 +30,7 @@ namespace WindowRecommender
         /// <summary>
         /// Cut a rectangle out of another source rectangle.
         /// </summary>
-        /// <param name="source">Rectangle to but cut up.</param>
+        /// <param name="source">Rectangle to cut up.</param>
         /// <param name="cover">Covering Rectangle.</param>
         /// <returns>List of rectangle required for source minus cover.</returns>
         internal static List<Rectangle> Cut(Rectangle source, Rectangle cover)
