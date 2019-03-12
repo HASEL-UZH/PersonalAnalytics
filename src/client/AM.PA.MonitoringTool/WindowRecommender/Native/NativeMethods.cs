@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -9,6 +8,17 @@ namespace WindowRecommender.Native
 {
     internal static class NativeMethods
     {
+        internal static IEnumerable<RECT> GetMonitorRects()
+        {
+            var monitorList = new List<RECT>();
+            EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, (IntPtr hMonitor, IntPtr hdcMonitor, ref RECT lprcMonitor, IntPtr dwData) =>
+            {
+                monitorList.Add(lprcMonitor);
+                return true;
+            }, IntPtr.Zero);
+            return monitorList;
+        }
+
         internal static List<IntPtr> GetOpenWindows()
         {
             var windowList = new List<IntPtr>();
@@ -22,36 +32,6 @@ namespace WindowRecommender.Native
                 return true;
             }, 0);
             return windowList;
-        }
-
-        internal static RECT GetPrimaryMonitorDimensions()
-        {
-            var monitorList = new List<IntPtr>();
-            var listHandle = GCHandle.Alloc(monitorList);
-            var monitorEnumProc = new MonitorEnumProc((IntPtr hMonitor, IntPtr hdcMonitor, ref RECT lprcMonitor, IntPtr dwData) =>
-            {
-                monitorList.Add(hMonitor);
-                return true;
-            });
-            try
-            {
-                EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, monitorEnumProc, GCHandle.ToIntPtr(listHandle));
-            }
-            finally
-            {
-                if (listHandle.IsAllocated)
-                {
-                    listHandle.Free();
-                }
-            }
-            var primaryMonitorInfo = monitorList.Select(monitorHandle =>
-            {
-                var monitorInfo = new MONITORINFO();
-                monitorInfo.cbSize = Marshal.SizeOf(monitorInfo);
-                GetMonitorInfo(monitorHandle, ref monitorInfo);
-                return monitorInfo;
-            }).Single(monitorInfo => (monitorInfo.dwFlags & MONITORINFOF_PRIMARY) != 0);
-            return primaryMonitorInfo.rcMonitor;
         }
 
         internal static string GetProcessName(IntPtr windowHandle)
@@ -165,24 +145,6 @@ namespace WindowRecommender.Native
         /// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-enumwindows
         [DllImport("user32.dll")]
         private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, int lParam);
-
-        /// <summary>
-        /// The GetMonitorInfo function retrieves information about a display monitor.
-        /// </summary>
-        /// <param name="hMonitor">A handle to the display monitor of interest.</param>
-        /// <param name="lpmi">A pointer to a MONITORINFO or MONITORINFOEX structure that receives information about
-        /// the specified display monitor.
-        /// You must set the cbSize member of the structure to sizeof(MONITORINFO) or sizeof(MONITORINFOEX) before
-        /// calling the GetMonitorInfo function.Doing so lets the function determine the type of structure you are
-        /// passing to it.
-        /// The MONITORINFOEX structure is a superset of the MONITORINFO structure. It has one additional member: a
-        /// string that contains a name for the display monitor.Most applications have no use for a display monitor
-        /// name, and so can save some bytes by using a MONITORINFO structure.</param>
-        /// <returns> If the function succeeds, the return value is nonzero.
-        /// If the function fails, the return value is zero.</returns>
-        /// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-getmonitorinfoa
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
 
         /// <summary>
         /// Retrieves a handle to the Shell's desktop window.
@@ -405,11 +367,6 @@ namespace WindowRecommender.Native
         private const int GWL_STYLE = -16;
 
         /// <summary>
-        /// This is the primary display monitor.
-        /// </summary>
-        private const int MONITORINFOF_PRIMARY = 0x00000001;
-
-        /// <summary>
         /// Return value constant for Desktop Window Manager functions.
         /// </summary>
         private const int S_OK = 0;
@@ -434,45 +391,6 @@ namespace WindowRecommender.Native
         /// </summary>
         /// https://docs.microsoft.com/en-ca/windows/desktop/winmsg/window-styles#WS_CAPTION
         private const long WS_CAPTION = 0x00C00000L;
-
-        /// <summary>
-        /// The MONITORINFO structure contains information about a display monitor.
-        /// The GetMonitorInfo function stores information into a MONITORINFO structure or a MONITORINFOEX structure.
-        /// The MONITORINFO structure is a subset of the MONITORINFOEX structure. The MONITORINFOEX structure adds a
-        /// string member to contain a name for the display monitor.
-        /// </summary>
-        /// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/ns-winuser-tagmonitorinfo
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-        private struct MONITORINFO
-        {
-            /// <summary>
-            /// The size, in bytes, of the structure.
-            /// Set this member to <c>sizeof(MONITORINFO)</c> before calling the <see cref="GetMonitorInfo"/> function.
-            /// Doing so lets the function determine the type of structure you are passing to it.
-            /// </summary>
-            public int cbSize;
-
-            /// <summary>
-            /// A RECT structure that specifies the display monitor rectangle, expressed in virtual-screen coordinates.
-            /// Note that if the monitor is not the primary display monitor, some of the rectangle's coordinates may be
-            /// negative values.
-            /// </summary>
-            public readonly RECT rcMonitor;
-
-            /// <summary>
-            /// A RECT structure that specifies the work area rectangle of the display monitor that can be used by
-            /// applications, expressed in virtual-screen coordinates. Windows uses this rectangle to maximize an
-            /// application on the monitor. The rest of the area in rcMonitor contains system windows such as the task
-            /// bar and side bars. Note that if the monitor is not the primary display monitor, some of the rectangle's
-            /// coordinates may be negative values.
-            /// </summary>
-            public readonly RECT rcWork;
-
-            /// <summary>
-            /// A set of flags that represent attributes of the display monitor.
-            /// </summary>
-            public readonly uint dwFlags;
-        }
 
         // ReSharper restore IdentifierTypo
         // ReSharper restore InconsistentNaming

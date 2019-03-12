@@ -90,7 +90,7 @@ namespace WindowRecommender
             return true;
         }
 
-        internal static IEnumerable<(Rectangle rect, bool show)> GetWindowInfo(Dictionary<IntPtr, double> scores, IEnumerable<IntPtr> windowStack)
+        internal static List<(Rectangle rect, bool show)> GetWindowInfo(Dictionary<IntPtr, double> scores, IEnumerable<IntPtr> windowStack)
         {
             var topWindows = ModelCore.GetTopWindows(scores);
             return windowStack
@@ -101,7 +101,7 @@ namespace WindowRecommender
                     var contains = topWindows.Contains(windowHandle);
                     topWindows.Remove(windowHandle);
                     return (rect: rect, show: contains);
-                });
+                }).ToList();
         }
     }
 }

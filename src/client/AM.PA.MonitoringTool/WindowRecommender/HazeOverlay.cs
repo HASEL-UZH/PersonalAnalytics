@@ -1,94 +1,59 @@
-﻿using GameOverlay.Drawing;
-using GameOverlay.Windows;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using WindowRecommender.Native;
 
 namespace WindowRecommender
 {
     internal class HazeOverlay
     {
-        private readonly GraphicsWindow _window;
-        private readonly Rectangle _screenRectangle;
-        private SolidBrush _brush;
-
-        private bool _shouldDraw;
-        private List<Rectangle> _rectangles;
+        private readonly List<(HazeOverlayWindow window, Rectangle rectangle)> _windows;
 
         internal HazeOverlay()
         {
-            var monitorDimensions = NativeMethods.GetPrimaryMonitorDimensions();
-            _screenRectangle = new Rectangle(0, 0, monitorDimensions.Right, monitorDimensions.Bottom);
-
-            var graphics = new Graphics
+            var monitorRects = NativeMethods.GetMonitorRects();
+            _windows = monitorRects.Select(screenRect =>
             {
-                MeasureFPS = true
-            };
+                var screenRectangle = (Rectangle)screenRect;
+                var hazeOverlayWindow = new HazeOverlayWindow(screenRectangle);
 
-            _window = new GraphicsWindow(graphics)
-            {
-                IsTopmost = true,
-                IsVisible = true,
-                FPS = Settings.FramesPerSecond,
-                X = 0,
-                Y = 0,
-                Width = monitorDimensions.Right - monitorDimensions.Left,
-                Height = monitorDimensions.Bottom - monitorDimensions.Top
-            };
-
-            _window.SetupGraphics += OnSetupGraphics;
-            _window.DrawGraphics += OnDrawGraphics;
-            _window.DestroyGraphics += OnDestroyGraphics;
-        }
-
-        ~HazeOverlay()
-        {
-            _window.Dispose();
+                return (window: hazeOverlayWindow, rectangle: screenRectangle);
+            }).ToList();
         }
 
         public void Start()
         {
-            _window.StartThread();
+            foreach (var (window, _) in _windows)
+            {
+                window.Start();
+            }
         }
 
         public void Stop()
         {
-            _shouldDraw = false;
-            _window.StopThread();
+            foreach (var (window, _) in _windows)
+            {
+                window.Stop();
+            }
         }
 
-        internal void Show(IEnumerable<(Rectangle rect, bool show)> windowInfo)
+        internal void Show(List<(Rectangle rect, bool show)> windowInfo)
         {
-            _rectangles = Mask.Cut(_screenRectangle, windowInfo);
-            _shouldDraw = true;
+            foreach (var (window, screenRectangle) in _windows)
+            {
+                var rectangles = Mask.Cut(screenRectangle, windowInfo);
+                var transformedRectangles = rectangles.Select(rectangle =>
+                    new Rectangle(rectangle.Left - screenRectangle.Left, rectangle.Top - screenRectangle.Top,
+                        rectangle.Right - screenRectangle.Left, rectangle.Bottom - screenRectangle.Top));
+                window.Show(transformedRectangles);
+            }
         }
 
         internal void Hide()
         {
-            _shouldDraw = false;
-        }
-
-        private void OnSetupGraphics(object sender, SetupGraphicsEventArgs e)
-        {
-            var graphics = e.Graphics;
-            _brush = graphics.CreateSolidBrush(0, 0, 0, Settings.OverlayAlpha);
-        }
-
-        private void OnDrawGraphics(object sender, DrawGraphicsEventArgs e)
-        {
-            var graphics = e.Graphics;
-            graphics.ClearScene();
-            if (_shouldDraw)
+            foreach (var (window, _) in _windows)
             {
-                foreach (var rectangle in _rectangles)
-                {
-                    graphics.FillRectangle(_brush, rectangle);
-                }
+                window.Hide();
             }
-        }
-
-        private void OnDestroyGraphics(object sender, DestroyGraphicsEventArgs e)
-        {
-            _brush.Dispose();
         }
     }
 }
