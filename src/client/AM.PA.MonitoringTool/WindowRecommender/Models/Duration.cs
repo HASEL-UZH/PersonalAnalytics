@@ -9,7 +9,7 @@ namespace WindowRecommender.Models
     {
         private readonly Dictionary<IntPtr, double> _scores;
         private readonly List<(IntPtr windowHandle, DateTime dateTime)> _focusEvents;
-        private readonly List<IntPtr> _closedWindows;
+        private readonly HashSet<IntPtr> _closedWindows;
 
         private List<IntPtr> _topWindows;
 
@@ -19,7 +19,7 @@ namespace WindowRecommender.Models
         {
             _scores = new Dictionary<IntPtr, double>();
             _focusEvents = new List<(IntPtr windowHandle, DateTime dateTime)>();
-            _closedWindows = new List<IntPtr>();
+            _closedWindows = new HashSet<IntPtr>();
             _topWindows = new List<IntPtr>();
 
             var timer = new Timer(Settings.DurationIntervalSeconds * 1000)

@@ -30,12 +30,7 @@ namespace WindowRecommender.Models
             MergeScores();
         }
 
-        private void OnOrderChanged(object sender, EventArgs e)
-        {
-            MergeScores();
-        }
-
-        private void MergeScores()
+        internal Dictionary<IntPtr, double> GetScores()
         {
             var mergedScores = new Dictionary<IntPtr, double>();
             foreach (var model in _models)
@@ -50,6 +45,17 @@ namespace WindowRecommender.Models
                     mergedScores[score.Key] += score.Value * model.Value;
                 }
             }
+            return mergedScores;
+        }
+
+        private void OnOrderChanged(object sender, EventArgs e)
+        {
+            MergeScores();
+        }
+
+        private void MergeScores()
+        {
+            var mergedScores = GetScores();
             ScoreChanged?.Invoke(this, mergedScores);
         }
 
