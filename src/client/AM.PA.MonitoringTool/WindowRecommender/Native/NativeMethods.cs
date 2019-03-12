@@ -90,6 +90,8 @@ namespace WindowRecommender.Native
 
             if (!IsWindowVisible(windowHandle)) return false;
 
+            if (IsIconic(windowHandle)) return false;
+
             var windowStyles = GetWindowLong(windowHandle, GWL_STYLE);
             if ((windowStyles & WS_CAPTION) == 0) return false;
 
@@ -282,6 +284,16 @@ namespace WindowRecommender.Native
         /// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-getwindowthreadprocessid
         [DllImport("user32.dll")]
         private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        /// <summary>
+        /// Determines whether the specified window is minimized (iconic).
+        /// </summary>
+        /// <param name="hWnd">A handle to the window to be tested.</param>
+        /// <returns>If the window is iconic, the return value is nonzero. If the window is not iconic, the return
+        /// value is zero.</returns>
+        /// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-isiconic
+        [DllImport("user32.dll")]
+        private static extern bool IsIconic(IntPtr hWnd);
 
         /// <summary>
         /// Determines the visibility state of the specified window.
