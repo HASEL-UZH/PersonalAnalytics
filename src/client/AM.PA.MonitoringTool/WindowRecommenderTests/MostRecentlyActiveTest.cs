@@ -54,14 +54,22 @@ namespace WindowRecommenderTests
                 // Add Settings.NumberOfWindows plus one
                 var mra = new MostRecentlyActive(modelEvents);
                 var windowList = new List<IntPtr>();
-                for (var i = 0; i <= Settings.NumberOfWindows; i++)
+                for (var i = 0; i < Settings.NumberOfWindows + 1; i++)
                 {
                     windowList.Add(new IntPtr(i));
                 }
                 mra.SetWindows(windowList);
 
+                var changed = false;
+                mra.OrderChanged += (sender, args) => changed = true;
+
+                // Focus on second window
+                onFocusHandler.Invoke(modelEvents, new IntPtr(1));
+                Assert.IsFalse(changed);
+
                 // Focus on last window
                 onFocusHandler.Invoke(modelEvents, new IntPtr(Settings.NumberOfWindows));
+                Assert.IsTrue(changed);
 
                 // Assert last window and first two have score of 1
                 var scores = mra.GetScores();
@@ -94,8 +102,12 @@ namespace WindowRecommenderTests
                 }
                 mra.SetWindows(windowList);
 
+                var changed = false;
+                mra.OrderChanged += (sender, args) => changed = true;
+
                 // Focus on new window
                 onFocusHandler.Invoke(modelEvents, new IntPtr(Settings.NumberOfWindows));
+                Assert.IsTrue(changed);
 
                 // Assert new window and first two have score of 1
                 var scores = mra.GetScores();
@@ -109,77 +121,7 @@ namespace WindowRecommenderTests
         }
 
         [TestMethod]
-        public void TestFocusedEvent_OrderChanged()
-        {
-            using (ShimsContext.Create())
-            {
-                EventHandler<IntPtr> onFocusHandler = null;
-                var modelEvents = new ShimModelEvents
-                {
-                    WindowFocusedAddEventHandlerOfIntPtr = handler => onFocusHandler = handler
-                };
-
-                // Add Settings.NumberOfWindows plus one
-                var mra = new MostRecentlyActive(modelEvents);
-                var windowList = new List<IntPtr>();
-                for (var i = 0; i < Settings.NumberOfWindows + 1; i++)
-                {
-                    windowList.Add(new IntPtr(i));
-                }
-                mra.SetWindows(windowList);
-
-                var changed = false;
-                mra.OrderChanged += (sender, args) => changed = true;
-
-                // Focus on first window and expect order not to change
-                onFocusHandler.Invoke(modelEvents, new IntPtr(0));
-                Assert.IsFalse(changed);
-
-                // Focus on second window and expect order not to change
-                onFocusHandler.Invoke(modelEvents, new IntPtr(1));
-                Assert.IsFalse(changed);
-
-                // Focus on last window and expect order to change
-                onFocusHandler.Invoke(modelEvents, new IntPtr(Settings.NumberOfWindows));
-                Assert.IsTrue(changed);
-            }
-        }
-
-        [TestMethod]
         public void TestClosedEvent()
-        {
-            using (ShimsContext.Create())
-            {
-                EventHandler<IntPtr> onCloseHandler = null;
-                var modelEvents = new ShimModelEvents
-                {
-                    WindowClosedAddEventHandlerOfIntPtr = handler => onCloseHandler = handler
-                };
-
-                // Add Settings.NumberOfWindows plus one
-                var mra = new MostRecentlyActive(modelEvents);
-                var windowList = new List<IntPtr>();
-                for (var i = 0; i <= Settings.NumberOfWindows; i++)
-                {
-                    windowList.Add(new IntPtr(i));
-                }
-                mra.SetWindows(windowList);
-
-                // Remove first window
-                onCloseHandler.Invoke(modelEvents, new IntPtr(0));
-
-                // Assert remaining windows have a score of 1
-                var scores = mra.GetScores();
-                Assert.AreEqual(Settings.NumberOfWindows, scores.Count);
-                for (var i = 1; i <= Settings.NumberOfWindows; i++)
-                {
-                    Assert.AreEqual(1, scores[new IntPtr(i)]);
-                }
-            }
-        }
-
-        [TestMethod]
-        public void TestClosedEvent_OrderChanged()
         {
             using (ShimsContext.Create())
             {
@@ -201,20 +143,20 @@ namespace WindowRecommenderTests
                 var changed = false;
                 mra.OrderChanged += (sender, args) => changed = true;
 
-                // Remove first window out of range and expect order not to change
-                onCloseHandler.Invoke(modelEvents, new IntPtr(Settings.NumberOfWindows));
+                // Remove last window
+                onCloseHandler.Invoke(modelEvents, new IntPtr(Settings.NumberOfWindows + 1));
                 Assert.IsFalse(changed);
 
-                // Remove first window and expect order to change
+                // Remove first window
                 onCloseHandler.Invoke(modelEvents, new IntPtr(0));
                 Assert.IsTrue(changed);
 
                 // Assert remaining windows have a score of 1
                 var scores = mra.GetScores();
                 Assert.AreEqual(Settings.NumberOfWindows, scores.Count);
-                foreach (var score in scores.Values)
+                for (var i = 1; i < Settings.NumberOfWindows + 1; i++)
                 {
-                    Assert.AreEqual(1, score);
+                    Assert.AreEqual(1, scores[new IntPtr(i)]);
                 }
             }
         }

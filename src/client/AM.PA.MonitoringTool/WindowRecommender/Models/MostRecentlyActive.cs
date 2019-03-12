@@ -34,17 +34,22 @@ namespace WindowRecommender.Models
 
         private void OnWindowClosed(object sender, IntPtr e)
         {
-            var hasChanged = _windows.IndexOf(e) < Settings.NumberOfWindows;
-            _windows.Remove(e);
-            if (hasChanged)
+            var index = _windows.IndexOf(e);
+            if (index != -1)
             {
-                OrderChanged?.Invoke(this, null);
+                var hasChanged = index < Settings.NumberOfWindows;
+                _windows.Remove(e);
+                if (hasChanged)
+                {
+                    OrderChanged?.Invoke(this, null);
+                }
             }
         }
 
         private void OnWindowFocused(object sender, IntPtr e)
         {
-            var hasChanged = _windows.IndexOf(e) >= Settings.NumberOfWindows;
+            var index = _windows.IndexOf(e);
+            var hasChanged = index == -1 || index >= Settings.NumberOfWindows;
             _windows.Remove(e);
             _windows.Insert(0, e);
             if (hasChanged)
