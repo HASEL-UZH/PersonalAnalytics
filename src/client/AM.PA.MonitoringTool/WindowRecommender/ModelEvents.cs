@@ -9,6 +9,7 @@ namespace WindowRecommender
         internal event EventHandler<IntPtr> WindowFocused;
         internal event EventHandler<IntPtr> WindowClosed;
         internal event EventHandler MoveStarted;
+        internal event EventHandler MoveEnded;
 
         private readonly NativeMethods.Wineventproc _onWindowFocused;
         private readonly NativeMethods.Wineventproc _onWindowClosed;
@@ -64,7 +65,10 @@ namespace WindowRecommender
                 if (!_isMoving)
                 {
                     WindowClosed?.Invoke(this, hwnd);
-                    _focusedWindow = IntPtr.Zero;
+                    if (hwnd == _focusedWindow)
+                    {
+                        _focusedWindow = IntPtr.Zero;
+                    }
                 }
             }
         }
@@ -83,7 +87,7 @@ namespace WindowRecommender
             if (hwnd != IntPtr.Zero && idObject == ObjectIdentifier.OBJID_WINDOW && idChild == NativeMethods.CHILDID_SELF)
             {
                 _isMoving = false;
-                WindowFocused?.Invoke(this, hwnd);
+                MoveEnded?.Invoke(this, null);
             }
         }
 

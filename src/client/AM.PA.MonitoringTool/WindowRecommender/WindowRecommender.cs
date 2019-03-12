@@ -24,6 +24,7 @@ namespace WindowRecommender
 
             _modelEvents = new ModelEvents();
             _modelEvents.MoveStarted += OnMoveStarted;
+            _modelEvents.MoveEnded += OnMoveEnded;
 
             _windowStack = new WindowStack(_modelEvents);
             _windowRecorder = new WindowRecorder(_modelEvents, _windowStack);
@@ -48,13 +49,18 @@ namespace WindowRecommender
             _hazeOverlay.Hide();
         }
 
+        private void OnMoveEnded(object sender, EventArgs e)
+        {
+            _hazeOverlay.Show(GetWindowInfo(_modelCore.GetScores(), _windowStack.Windows));
+        }
+
         public override void Start()
         {
             IsRunning = true;
-            _hazeOverlay.Start();
-            _modelEvents.Start();
-            _modelCore.Start();
             _windowStack.Windows = NativeMethods.GetOpenWindows();
+            _hazeOverlay.Start();
+            _modelCore.Start();
+            _modelEvents.Start();
         }
 
         public override void Stop()
