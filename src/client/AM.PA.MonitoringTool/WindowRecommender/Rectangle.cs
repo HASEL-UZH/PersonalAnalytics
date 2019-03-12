@@ -1,5 +1,5 @@
 ﻿using WindowRecommender.Native;
-using GameOverlayRectangle = GameOverlay.Graphics.Primitives.Rectangle;
+using GameOverlayRectangle = GameOverlay.Drawing.Rectangle;
 
 namespace WindowRecommender
 {

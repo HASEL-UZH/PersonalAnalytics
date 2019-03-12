@@ -1,19 +1,15 @@
-﻿using GameOverlay.Graphics;
-using GameOverlay.Utilities;
+﻿using GameOverlay.Drawing;
 using GameOverlay.Windows;
-using System;
 using System.Collections.Generic;
 using WindowRecommender.Native;
 
 namespace WindowRecommender
 {
-    internal class HazeOverlay : IDisposable
+    internal class HazeOverlay
     {
-        private readonly OverlayWindow _window;
-        private readonly D2DDevice _device;
-        private readonly FrameTimer _frameTimer;
-        private readonly D2DSolidColorBrush _brush;
+        private readonly GraphicsWindow _window;
         private readonly Rectangle _screenRectangle;
+        private SolidBrush _brush;
 
         private bool _shouldDraw;
         private List<Rectangle> _rectangles;
@@ -21,42 +17,43 @@ namespace WindowRecommender
         internal HazeOverlay()
         {
             var monitorDimensions = NativeMethods.GetPrimaryMonitorDimensions();
-
-            _window = new OverlayWindow(new OverlayOptions
-            {
-                BypassTopmost = false,
-                Height = monitorDimensions.Bottom - monitorDimensions.Top,
-                Width = monitorDimensions.Right - monitorDimensions.Left,
-                WindowTitle = "HazeOverlay",
-                X = 0,
-                Y = 0
-            });
             _screenRectangle = new Rectangle(0, 0, monitorDimensions.Right, monitorDimensions.Bottom);
 
-            _device = new D2DDevice(new DeviceOptions
+            var graphics = new Graphics
             {
-                AntiAliasing = true,
-                Hwnd = _window.WindowHandle,
-                MeasureFps = false,
-                MultiThreaded = false,
-                VSync = false
-            });
+                MeasureFPS = true
+            };
 
-            _brush = _device.CreateSolidColorBrush(0, 0, 0, Settings.OverlayAlpha);
+            _window = new GraphicsWindow(graphics)
+            {
+                IsTopmost = true,
+                IsVisible = true,
+                FPS = Settings.FramesPerSecond,
+                X = 0,
+                Y = 0,
+                Width = monitorDimensions.Right - monitorDimensions.Left,
+                Height = monitorDimensions.Bottom - monitorDimensions.Top
+            };
 
-            _frameTimer = new FrameTimer(_device, Settings.FramesPerSecond);
-            _frameTimer.OnFrame += OnFrame;
+            _window.SetupGraphics += OnSetupGraphics;
+            _window.DrawGraphics += OnDrawGraphics;
+            _window.DestroyGraphics += OnDestroyGraphics;
+        }
+
+        ~HazeOverlay()
+        {
+            _window.Dispose();
         }
 
         public void Start()
         {
-            _frameTimer.Start();
+            _window.StartThread();
         }
 
         public void Stop()
         {
             _shouldDraw = false;
-            _frameTimer.Stop();
+            _window.StopThread();
         }
 
         internal void Show(IEnumerable<(Rectangle rect, bool show)> windowInfo)
@@ -70,33 +67,28 @@ namespace WindowRecommender
             _shouldDraw = false;
         }
 
-        private void OnFrame(FrameTimer timer, D2DDevice device)
+        private void OnSetupGraphics(object sender, SetupGraphicsEventArgs e)
         {
-            device.ClearScene();
+            var graphics = e.Graphics;
+            _brush = graphics.CreateSolidBrush(0, 0, 0, Settings.OverlayAlpha);
+        }
+
+        private void OnDrawGraphics(object sender, DrawGraphicsEventArgs e)
+        {
+            var graphics = e.Graphics;
+            graphics.ClearScene();
             if (_shouldDraw)
             {
                 foreach (var rectangle in _rectangles)
                 {
-                    device.FillRectangle(rectangle, _brush);
+                    graphics.FillRectangle(_brush, rectangle);
                 }
             }
         }
 
-        public void Dispose()
+        private void OnDestroyGraphics(object sender, DestroyGraphicsEventArgs e)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _window.Dispose();
-                _device.Dispose();
-                _frameTimer.Dispose();
-                _brush.Dispose();
-            }
+            _brush.Dispose();
         }
     }
 }
