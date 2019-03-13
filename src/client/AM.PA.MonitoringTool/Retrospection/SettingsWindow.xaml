@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Retrospection"
         xmlns:paColors="clr-namespace:Shared;assembly=Shared"
         mc:Ignorable="d"
         Title="PersonalAnalytics: Settings" Height="750" Width="770" ResizeMode="NoResize">
@@ -49,8 +48,7 @@
                     <CheckBox x:Name="CbUserInputTrackerEnabled"
                               Margin="0 20 0 0"
                               Content="User Input Tracker enabled" />
-                    <TextBlock x:Name="TbUserInputTrackerHint"
-                               Margin="20 0 0 0"
+                    <TextBlock Margin="20 0 0 0"
                                Foreground="Gray"
                                Text="Hint: In case you experience some lags with the mouse and keyboard after you installed the tool, it might be caused by the user input tracker. Please let us know if you experience this issue so we can try to fix it. In the meantime, we suggest you to disable the tracker temporarily."
                                TextWrapping="Wrap" />
@@ -74,25 +72,25 @@
                                TextWrapping="Wrap" />
 
                     <CheckBox x:Name="CbOfficeApiEnabled" Margin="0 20 0 0" Content="Office 365 Tracker enabled" />
-                    <TextBlock x:Name="TbOfficeApiHint" Margin="20 0 0 0" Foreground="Gray" Text="Hint: If you enable it, you need to log-in with your Office 365 work account. This tracker will then regularly collect the meetings in your calendar, and the number of emails sent, received and your inbox size. The contents of the emails and meetings are NOT accessed." TextWrapping="Wrap" />
+                    <TextBlock Margin="20 0 0 0" Foreground="Gray" Text="Hint: If you enable it, you need to log-in with your Office 365 work account. This tracker will then regularly collect the meetings in your calendar, and the number of emails sent, received and your inbox size. The contents of the emails and meetings are NOT accessed." TextWrapping="Wrap" />
 
                     <CheckBox x:Name="PolarEnabled" Margin="0 20 0 0" Content="Polar Tracker enabled" />
-                    <TextBlock x:Name="PolarHint" Margin="20 0 0 0" Foreground="Gray" Text="Hint: If enabled, this tracker collects your heartrate measurement with a Polar chestband."></TextBlock>
+                    <TextBlock Margin="20 0 0 0" Foreground="Gray" Text="Hint: If enabled, this tracker collects your heart rate measurement with a Polar chest strap." />
 
                     <CheckBox x:Name="FitbitEnabled" Margin="0 20 0 0" Content="Fitbit Tracker enabled" />
-                    <TextBlock x:Name="FitbitHint" Margin="20 0 0 0" Foreground="Gray" Text="Hint: If enabled, this tracker collects your heartrate, sleep, activity and step data from your Fitbit account."></TextBlock>
+                    <TextBlock Margin="20 0 0 0" Foreground="Gray" Text="Hint: If enabled, this tracker collects your heart rate, sleep, activity and step data from your Fitbit account." />
                     <Button x:Name="FitbitRevoke" Margin="20 0 0 0" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" Foreground="White" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" VerticalAlignment="Center" HorizontalAlignment="Left" Click="FitbitRevoke_Click">Revoke Access Token</Button>
                 </StackPanel>
             </TabItem>
         </TabControl>
-		
-		
-		<StackPanel Grid.Row="2" Orientation="Horizontal" Margin="10">
+
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="10">
             <Button Content="Save" x:Name="BtnSave" Click="SaveClicked" Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" Padding="5 0 5 0" Margin="20 0 0 0" />
-            <Button Content="Cancel" x:Name="BtnCancel" Click="CancelClicked" Foreground="Gray" Background="{x:Static paColors:Settings.GrayColorBrush}" BorderBrush="{x:Static paColors:Settings.GrayColorBrush}" Padding="5 0 5 0" Margin="10 0 0 0"  />
+            <Button Content="Cancel" Click="CancelClicked" Foreground="Gray" Background="{x:Static paColors:Settings.GrayColorBrush}" BorderBrush="{x:Static paColors:Settings.GrayColorBrush}" Padding="5 0 5 0" Margin="10 0 0 0" />
         </StackPanel>
 
-		        <Grid Background="{x:Static paColors:Settings.GrayColorBrush}" Grid.Row="3">
+        <Grid Background="{x:Static paColors:Settings.GrayColorBrush}" Grid.Row="3">
             <Grid.Resources>
                 <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}">
                     <Setter Property="Foreground" Value="{x:Static paColors:Settings.DarkGrayColorBrush}" />
