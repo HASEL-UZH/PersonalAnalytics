@@ -20,6 +20,8 @@ namespace WindowRecommender
 
         public WindowRecommender()
         {
+            Name = "Window Recommender";
+
             _hazeOverlay = new HazeOverlay();
 
             _modelEvents = new ModelEvents();
