@@ -34,7 +34,7 @@ namespace Shared.Data
         public bool? TimeSpentShowProgramsEnabled { get; set; }
         public bool? PolarTrackerEnabled { get; set; }
         public bool? FitbitTrackerEnabled { get; set; }
-        public bool? FitbitTokenRevokEnabled { get; set; }
+        public bool? FitbitTokenRevokeEnabled { get; set; }
         public bool? FitbitTokenRevoked { get; set; }
     }
     public class StartEndTimeDto

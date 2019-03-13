@@ -123,8 +123,8 @@ namespace PersonalAnalytics
 
                 var fitbitTracker = GetFitbitTracker();
                 dto.FitbitTrackerEnabled = fitbitTracker.IsEnabled();
-                dto.FitbitTokenRevokEnabled = SecretStorage.GetAccessToken() != null && fitbitTracker.IsEnabled();
-                dto.FitbitTokenRevoked = dto.FitbitTokenRevokEnabled;
+                dto.FitbitTokenRevokeEnabled = SecretStorage.GetAccessToken() != null && fitbitTracker.IsEnabled();
+                dto.FitbitTokenRevoked = dto.FitbitTokenRevokeEnabled;
             }
             catch (Exception e)
             {
