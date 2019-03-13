@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using WindowRecommender.Native;
 
 namespace WindowRecommender
@@ -12,18 +11,22 @@ namespace WindowRecommender
         internal event EventHandler MoveEnded;
 
         private readonly NativeMethods.Wineventproc _onWindowFocused;
+        private readonly NativeMethods.Wineventproc _onWindowRestore;
         private readonly NativeMethods.Wineventproc _onWindowClosed;
+        private readonly NativeMethods.Wineventproc _onWindowMoved;
         private readonly NativeMethods.Wineventproc _onMoveStarted;
         private readonly NativeMethods.Wineventproc _onMoveEnded;
 
-        private List<IntPtr> _winEventHooks;
+        private IntPtr[] _winEventHooks;
         private bool _isMoving;
         private IntPtr _focusedWindow;
 
         internal ModelEvents()
         {
             _onWindowFocused = OnWindowFocused;
+            _onWindowRestore = OnWindowFocused;
             _onWindowClosed = OnWindowClosed;
+            _onWindowMoved = OnWindowMoved;
             _onMoveStarted = OnMoveStarted;
             _onMoveEnded = OnMoveEnded;
         }
@@ -32,13 +35,13 @@ namespace WindowRecommender
         {
             _isMoving = false;
 
-            _winEventHooks = new List<IntPtr>
+            _winEventHooks = new[]
             {
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_FOREGROUND, _onWindowFocused),
-                NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_MINIMIZEEND, _onWindowFocused),
+                NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_MINIMIZEEND, _onWindowRestore),
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_MOVESIZEEND, _onMoveEnded),
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_MOVESIZESTART, _onMoveStarted),
-                NativeMethods.SetWinEventHook(WinEventConstant.EVENT_OBJECT_LOCATIONCHANGE, _onWindowFocused),
+                NativeMethods.SetWinEventHook(WinEventConstant.EVENT_OBJECT_LOCATIONCHANGE, _onWindowMoved),
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_OBJECT_DESTROY, _onWindowClosed),
             };
         }
@@ -47,13 +50,21 @@ namespace WindowRecommender
         {
             if (hwnd != IntPtr.Zero && idObject == ObjectIdentifier.OBJID_WINDOW && idChild == NativeMethods.CHILDID_SELF && NativeMethods.IsOpenWindow(hwnd))
             {
-                if (!_isMoving)
+                if (!_isMoving && hwnd != _focusedWindow)
                 {
-                    if (hwnd != _focusedWindow)
-                    {
-                        WindowFocused?.Invoke(this, hwnd);
-                        _focusedWindow = hwnd;
-                    }
+                    WindowFocused?.Invoke(this, hwnd);
+                    _focusedWindow = hwnd;
+                }
+            }
+        }
+
+        private void OnWindowMoved(IntPtr hWinEventHook, WinEventConstant @event, IntPtr hwnd, ObjectIdentifier idObject, int idChild, uint idEventThread, uint dwmsEventTime)
+        {
+            if (hwnd != IntPtr.Zero && idObject == ObjectIdentifier.OBJID_WINDOW && idChild == NativeMethods.CHILDID_SELF && NativeMethods.IsOpenWindow(hwnd))
+            {
+                if (!_isMoving && hwnd == _focusedWindow)
+                {
+                    MoveEnded?.Invoke(this, null);
                 }
             }
         }
@@ -97,7 +108,7 @@ namespace WindowRecommender
             {
                 NativeMethods.UnhookWinEvent(winEventHook);
             }
-            _winEventHooks.Clear();
+            _winEventHooks = new IntPtr[0];
             _focusedWindow = IntPtr.Zero;
         }
     }
