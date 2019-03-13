@@ -3,21 +3,22 @@
 // 
 // Licensed under the MIT License.
 
-using FitbitTracker;
 using FitbitTracker.Data;
+using Shared;
+using Shared.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Shared.Data
+namespace PersonalAnalytics
 {
     /// <summary>
     /// Global settings option (to open settings window and handle settings)
     /// TODO: de-couple
     /// </summary>
-     public class TrackerSettings
+    public class TrackerSettings
     {
-        private List<ITracker> _trackers;
+        private readonly List<ITracker> _trackers;
 
         public TrackerSettings(List<ITracker> trackers)
         {
@@ -42,10 +43,12 @@ namespace Shared.Data
                 {
                     if (GetUserEfficiencyTracker() != null) GetUserEfficiencyTracker().PopUpIntervalInMins = TimeSpan.FromMinutes(updatedSettings.PopUpInterval.Value);
                 }
+
                 if (updatedSettings.UserInputTrackerEnabled.HasValue)
                 {
                     if (GetUserInputTracker() != null) GetUserInputTracker().UserInputTrackerEnabled = updatedSettings.UserInputTrackerEnabled.Value;
                 }
+
                 if (updatedSettings.TimeSpentShowEmailsEnabled.HasValue)
                 {
                     if (GetTimeSpentVisualizerVisualizer() != null) GetTimeSpentVisualizerVisualizer().TimeSpentShowEmailsEnabled = updatedSettings.TimeSpentShowEmailsEnabled.Value;
@@ -58,15 +61,17 @@ namespace Shared.Data
                 {
                     if (GetTimeSpentVisualizerVisualizer() != null) GetTimeSpentVisualizerVisualizer().TimeSpentShowProgramsEnabled = updatedSettings.TimeSpentShowProgramsEnabled.Value;
                 }
+
                 if (updatedSettings.OpenRetrospectionInFullScreen.HasValue)
                 {
                     Retrospection.Handler.GetInstance().OpenRetrospectionInFullScreen = updatedSettings.OpenRetrospectionInFullScreen.Value;
                 }
+
                 if (updatedSettings.Office365ApiEnabled.HasValue)
                 {
-                    if (GetMSOfficeTracker() != null) GetMSOfficeTracker().MsOfficeTrackerEnabled = updatedSettings.Office365ApiEnabled.Value;
-                    //if (GetPeopleVisualizer() != null) GetPeopleVisualizer().PeopleVisualizerEnabled = updatedSettings.Office365ApiEnabled.Value;
+                    if (GetMsOfficeTracker() != null) GetMsOfficeTracker().MsOfficeTrackerEnabled = updatedSettings.Office365ApiEnabled.Value;
                 }
+
                 if (updatedSettings.PolarTrackerEnabled.HasValue)
                 {
                     if (GetPolarTracker() != null) GetPolarTracker().ChangeEnableState(updatedSettings.PolarTrackerEnabled);
@@ -76,7 +81,6 @@ namespace Shared.Data
                 {
                     if (GetFitbitTracker() != null) GetFitbitTracker().ChangeEnabledState(updatedSettings.FitbitTrackerEnabled);
                 }
-
                 if (updatedSettings.FitbitTokenRevoked.HasValue)
                 {
                     FitbitConnector.RevokeAccessToken(SecretStorage.GetAccessToken());
@@ -111,13 +115,8 @@ namespace Shared.Data
 
                 dto.OpenRetrospectionInFullScreen = Retrospection.Handler.GetInstance().OpenRetrospectionInFullScreen;
 
-                //var peopleVisualizer = GetPeopleVisualizer();
-                var msOfficeTracker = GetMSOfficeTracker();
+                var msOfficeTracker = GetMsOfficeTracker();
                 dto.Office365ApiEnabled = msOfficeTracker.MsOfficeTrackerEnabled;
-                //if (peopleVisualizer != null && msOfficeTracker != null) dto.Office365ApiEnabled = (peopleVisualizer.PeopleVisualizerEnabled || msOfficeTracker.MsOfficeTrackerEnabled);
-                //else if (peopleVisualizer == null && msOfficeTracker != null) dto.Office365ApiEnabled = msOfficeTracker.MsOfficeTrackerEnabled;
-                //else if (peopleVisualizer != null && msOfficeTracker == null) dto.Office365ApiEnabled = peopleVisualizer.PeopleVisualizerEnabled;
-                //else dto.Office365ApiEnabled = false;
 
                 var polarTracker = GetPolarTracker();
                 dto.PolarTrackerEnabled = polarTracker.IsEnabled();
@@ -126,8 +125,11 @@ namespace Shared.Data
                 dto.FitbitTrackerEnabled = fitbitTracker.IsEnabled();
                 dto.FitbitTokenRevokEnabled = SecretStorage.GetAccessToken() != null && fitbitTracker.IsEnabled();
                 dto.FitbitTokenRevoked = dto.FitbitTokenRevokEnabled;
-            } 
-            catch { }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
 
             return dto;
         }
@@ -136,10 +138,9 @@ namespace Shared.Data
         {
             try
             {
-                var tracker =
-                    _trackers.Where(t => t.GetType() == typeof(FitbitTracker.Deamon))
-                        .Cast<FitbitTracker.Deamon>()
-                        .FirstOrDefault();
+                var tracker = _trackers.Where(t => t is FitbitTracker.Deamon)
+                    .Cast<FitbitTracker.Deamon>()
+                    .FirstOrDefault();
 
                 return tracker;
             }
@@ -150,52 +151,35 @@ namespace Shared.Data
         {
             try
             {
-                var tracker =
-                    _trackers.Where(t => t.GetType() == typeof(PolarTracker.Deamon))
-                        .Cast<PolarTracker.Deamon>()
-                        .FirstOrDefault();
+                var tracker = _trackers.Where(t => t is PolarTracker.Deamon)
+                    .Cast<PolarTracker.Deamon>()
+                    .FirstOrDefault();
 
                 return tracker;
             }
             catch { return null; }
         }
-
-        //private PeopleVisualizer.PeopleVisualizer GetPeopleVisualizer()
-        //{
-        //    try
-        //    {
-        //        var tracker =
-        //            _trackers.Where(t => t.GetType() == typeof(PeopleVisualizer.PeopleVisualizer))
-        //                .Cast<PeopleVisualizer.PeopleVisualizer>()
-        //                .FirstOrDefault();
-
-        //        return tracker;
-        //    }
-        //    catch { return null; }
-        //}
 
         private TimeSpentVisualizer.Visualizers.TimeSpentVisualizer GetTimeSpentVisualizerVisualizer()
         {
             try
             {
-                var tracker =
-                    _trackers.Where(t => t.GetType() == typeof(TimeSpentVisualizer.Visualizers.TimeSpentVisualizer))
-                        .Cast<TimeSpentVisualizer.Visualizers.TimeSpentVisualizer>()
-                        .FirstOrDefault();
+                var tracker = _trackers.Where(t => t is TimeSpentVisualizer.Visualizers.TimeSpentVisualizer)
+                    .Cast<TimeSpentVisualizer.Visualizers.TimeSpentVisualizer>()
+                    .FirstOrDefault();
 
                 return tracker;
             }
             catch { return null; }
         }
 
-        private MsOfficeTracker.Daemon GetMSOfficeTracker()
+        private MsOfficeTracker.Daemon GetMsOfficeTracker()
         {
             try
             {
-                var tracker =
-                    _trackers.Where(t => t.GetType() == typeof(MsOfficeTracker.Daemon))
-                        .Cast<MsOfficeTracker.Daemon>()
-                        .FirstOrDefault();
+                var tracker = _trackers.Where(t => t is MsOfficeTracker.Daemon)
+                    .Cast<MsOfficeTracker.Daemon>()
+                    .FirstOrDefault();
 
                 return tracker;
             }
@@ -206,10 +190,9 @@ namespace Shared.Data
         {
             try
             {
-                var tracker =
-                    _trackers.Where(t => t.GetType() == typeof(UserEfficiencyTracker.Daemon))
-                        .Cast<UserEfficiencyTracker.Daemon>()
-                        .FirstOrDefault();
+                var tracker = _trackers.Where(t => t is UserEfficiencyTracker.Daemon)
+                    .Cast<UserEfficiencyTracker.Daemon>()
+                    .FirstOrDefault();
 
                 return tracker;
             }
@@ -220,10 +203,9 @@ namespace Shared.Data
         {
             try
             {
-                var tracker =
-                    _trackers.Where(t => t.GetType() == typeof(UserInputTracker.Daemon))
-                        .Cast<UserInputTracker.Daemon>()
-                        .FirstOrDefault();
+                var tracker = _trackers.Where(t => t is UserInputTracker.Daemon)
+                    .Cast<UserInputTracker.Daemon>()
+                    .FirstOrDefault();
 
                 return tracker;
             }
