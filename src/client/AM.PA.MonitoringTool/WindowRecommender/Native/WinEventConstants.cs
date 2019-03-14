@@ -44,6 +44,9 @@
         EVENT_SYSTEM_SCROLLINGEND = 0x0013,
         EVENT_SYSTEM_SWITCHSTART = 0x0014,
         EVENT_SYSTEM_SWITCHEND = 0x0015,
+        /// <summary>
+        /// A window object is about to be minimized. This event is sent by the system, never by servers.
+        /// </summary>
         EVENT_SYSTEM_MINIMIZESTART = 0x0016,
         /// <summary>
         /// A window object is about to be restored. This event is sent by the system, never by servers.

@@ -12,6 +12,7 @@ namespace WindowRecommender
 
         private readonly NativeMethods.Wineventproc _onWindowFocused;
         private readonly NativeMethods.Wineventproc _onWindowRestore;
+        private readonly NativeMethods.Wineventproc _onWindowMinimize;
         private readonly NativeMethods.Wineventproc _onWindowClosed;
         private readonly NativeMethods.Wineventproc _onWindowMoved;
         private readonly NativeMethods.Wineventproc _onMoveStarted;
@@ -26,6 +27,7 @@ namespace WindowRecommender
             _onWindowFocused = OnWindowFocused;
             _onWindowRestore = OnWindowFocused;
             _onWindowClosed = OnWindowClosed;
+            _onWindowMinimize = OnWindowClosed;
             _onWindowMoved = OnWindowMoved;
             _onMoveStarted = OnMoveStarted;
             _onMoveEnded = OnMoveEnded;
@@ -39,10 +41,11 @@ namespace WindowRecommender
             {
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_FOREGROUND, _onWindowFocused),
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_MINIMIZEEND, _onWindowRestore),
+                NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_MINIMIZESTART, _onWindowMinimize),
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_MOVESIZEEND, _onMoveEnded),
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_MOVESIZESTART, _onMoveStarted),
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_OBJECT_LOCATIONCHANGE, _onWindowMoved),
-                NativeMethods.SetWinEventHook(WinEventConstant.EVENT_OBJECT_DESTROY, _onWindowClosed),
+                NativeMethods.SetWinEventHook(WinEventConstant.EVENT_OBJECT_DESTROY, _onWindowClosed)
             };
         }
 
