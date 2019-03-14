@@ -1,4 +1,5 @@
 ﻿using Shared;
+using Shared.Data;
 using Shared.Helpers;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,8 @@ namespace WindowRecommender
         private readonly ModelCore _modelCore;
         private readonly WindowRecorder _windowRecorder;
         private readonly WindowStack _windowStack;
+
+        private bool _enabled;
 
         public WindowRecommender()
         {
@@ -37,23 +40,6 @@ namespace WindowRecommender
             };
             _modelCore = new ModelCore(models);
             _modelCore.ScoreChanged += OnScoresChanged;
-        }
-
-        private void OnScoresChanged(object sender, Dictionary<IntPtr, double> e)
-        {
-            var scores = e;
-            _windowRecorder.SetScores(scores, ModelCore.GetTopWindows(scores));
-            _hazeOverlay.Show(GetWindowInfo(scores, _windowStack.Windows));
-        }
-
-        private void OnMoveStarted(object sender, EventArgs e)
-        {
-            _hazeOverlay.Hide();
-        }
-
-        private void OnMoveEnded(object sender, EventArgs e)
-        {
-            _hazeOverlay.Show(GetWindowInfo(_modelCore.GetScores(), _windowStack.Windows));
         }
 
         public override void Start()
@@ -89,7 +75,56 @@ namespace WindowRecommender
 
         public override bool IsEnabled()
         {
-            return true;
+            return WindowRecommenderEnabled;
+        }
+
+        public bool WindowRecommenderEnabled
+        {
+            private get
+            {
+                _enabled = Database.GetInstance().GetSettingsBool(Settings.EnabledSettingDatabaseKey, Settings.IsEnabledByDefault);
+                return _enabled;
+            }
+            set
+            {
+                var updatedIsEnabled = value;
+
+                // only update if settings changed
+                if (updatedIsEnabled == _enabled) return;
+
+                // update settings
+                Database.GetInstance().SetSettings(Settings.EnabledSettingDatabaseKey, value);
+
+                // start/stop tracker if necessary
+                if (!updatedIsEnabled && IsRunning)
+                {
+                    Stop();
+                }
+                else if (updatedIsEnabled && !IsRunning)
+                {
+                    CreateDatabaseTablesIfNotExist();
+                    Start();
+                }
+
+                Database.GetInstance().LogInfo($"The participant updated the setting '{Settings.EnabledSettingDatabaseKey}' to {updatedIsEnabled}");
+            }
+        }
+
+        private void OnScoresChanged(object sender, Dictionary<IntPtr, double> e)
+        {
+            var scores = e;
+            _windowRecorder.SetScores(scores, ModelCore.GetTopWindows(scores));
+            _hazeOverlay.Show(GetWindowInfo(scores, _windowStack.Windows));
+        }
+
+        private void OnMoveStarted(object sender, EventArgs e)
+        {
+            _hazeOverlay.Hide();
+        }
+
+        private void OnMoveEnded(object sender, EventArgs e)
+        {
+            _hazeOverlay.Show(GetWindowInfo(_modelCore.GetScores(), _windowStack.Windows));
         }
 
         internal static List<(Rectangle rect, bool show)> GetWindowInfo(Dictionary<IntPtr, double> scores, IEnumerable<IntPtr> windowStack)

@@ -6,7 +6,7 @@ namespace WindowRecommender
 {
     internal class HazeOverlay
     {
-        private readonly List<(HazeOverlayWindow window, Rectangle rectangle)> _windows;
+        private readonly (HazeOverlayWindow window, Rectangle rectangle)[] _windows;
 
         internal HazeOverlay()
         {
@@ -17,7 +17,7 @@ namespace WindowRecommender
                 var hazeOverlayWindow = new HazeOverlayWindow(screenRectangle);
 
                 return (window: hazeOverlayWindow, rectangle: screenRectangle);
-            }).ToList();
+            }).ToArray();
         }
 
         public void Start()

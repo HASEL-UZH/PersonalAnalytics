@@ -30,6 +30,7 @@ namespace Retrospection
         private bool _defaultPolarTrackerEnabled;
         private bool _defaultFitbitTrackerEnabled;
         private bool _defaultFitbitTokenRemoveEnabled;
+        private bool _defaultWindowRecommenderEnabled;
 
         public SettingsDto UpdatedSettingsDto;
 
@@ -54,6 +55,7 @@ namespace Retrospection
             _defaultPolarTrackerEnabled = dto.PolarTrackerEnabled.Value;
             _defaultFitbitTrackerEnabled = dto.FitbitTrackerEnabled.Value;
             _defaultFitbitTokenRemoveEnabled = dto.FitbitTokenRevokeEnabled.Value;
+            _defaultWindowRecommenderEnabled = dto.WindowRecommenderEnabled.Value;
 
             // no changes yet, disable buttons by default
             SaveButtonsEnabled(false);
@@ -104,6 +106,10 @@ namespace Retrospection
             FitbitEnabled.Unchecked += CbChecked_Update;
 
             FitbitRevoke.IsEnabled = _defaultFitbitTokenRemoveEnabled;
+
+            WindowRecommenderEnabled.IsChecked = _defaultWindowRecommenderEnabled;
+            WindowRecommenderEnabled.Checked += CbChecked_Update;
+            WindowRecommenderEnabled.Unchecked += CbChecked_Update;
         }
 
         #region User Changed Values
@@ -137,7 +143,8 @@ namespace Retrospection
                  || _defaultTimeSpentHideMeetingsWithoutAttendeesEnabled != CbTimeSpentHideMeetingsWithoutAttendeesEnabled.IsChecked.Value
                  || _defaultTimeSpentShowProgramsEnabled != CbTimeSpentShowProgramsEnabled.IsChecked.Value
                  || _defaultPolarTrackerEnabled != PolarEnabled.IsChecked.Value
-                 || _defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value)
+                 || _defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value
+                 || _defaultWindowRecommenderEnabled != WindowRecommenderEnabled.IsChecked.Value)
                 {
                     SaveButtonsEnabled(true);
                 }
@@ -225,6 +232,12 @@ namespace Retrospection
                     dto.FitbitTrackerEnabled = FitbitEnabled.IsChecked.Value;
                 }
                 else { dto.FitbitTrackerEnabled = null; }
+
+                if (_defaultWindowRecommenderEnabled != WindowRecommenderEnabled.IsChecked.Value)
+                {
+                    dto.WindowRecommenderEnabled = WindowRecommenderEnabled.IsChecked.Value;
+                }
+                else { dto.WindowRecommenderEnabled = null; }
             }
             catch { }
 

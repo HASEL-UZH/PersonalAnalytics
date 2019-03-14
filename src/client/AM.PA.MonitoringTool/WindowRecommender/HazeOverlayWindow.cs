@@ -10,15 +10,15 @@ namespace WindowRecommender
         private readonly GraphicsWindow _window;
 
         private SolidBrush _brush;
-        private bool _shouldDraw;
-        private List<Rectangle> _rectangles;
+        private Rectangle[] _rectangles;
 
         internal HazeOverlayWindow(Rectangle screenRectangle)
         {
+            _rectangles = new Rectangle[0];
+
             _window = new GraphicsWindow
             {
                 IsTopmost = true,
-                IsVisible = true,
                 FPS = Settings.FramesPerSecond,
                 X = screenRectangle.Left,
                 Y = screenRectangle.Top,
@@ -37,24 +37,25 @@ namespace WindowRecommender
 
         public void Start()
         {
+            _window.IsVisible = true;
             _window.StartThread();
         }
 
         public void Stop()
         {
-            _shouldDraw = false;
+            _rectangles = new Rectangle[0];
+            _window.IsVisible = false;
             _window.StopThread();
         }
 
         internal void Show(IEnumerable<Rectangle> rectangles)
         {
-            _rectangles = rectangles.ToList();
-            _shouldDraw = true;
+            _rectangles = rectangles.ToArray();
         }
 
         internal void Hide()
         {
-            _shouldDraw = false;
+            _rectangles = new Rectangle[0];
         }
 
         private void OnSetupGraphics(object sender, SetupGraphicsEventArgs e)
@@ -67,12 +68,9 @@ namespace WindowRecommender
         {
             var graphics = e.Graphics;
             graphics.ClearScene();
-            if (_shouldDraw)
+            foreach (var rectangle in _rectangles)
             {
-                foreach (var rectangle in _rectangles)
-                {
-                    graphics.FillRectangle(_brush, rectangle);
-                }
+                graphics.FillRectangle(_brush, rectangle);
             }
         }
 

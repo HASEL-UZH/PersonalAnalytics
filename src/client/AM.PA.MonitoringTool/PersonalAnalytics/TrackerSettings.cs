@@ -85,6 +85,12 @@ namespace PersonalAnalytics
                 {
                     FitbitConnector.RevokeAccessToken(SecretStorage.GetAccessToken());
                 }
+
+                if (updatedSettings.WindowRecommenderEnabled.HasValue)
+                {
+                    var windowRecommender = GetWindowRecommender();
+                    if (windowRecommender != null) windowRecommender.WindowRecommenderEnabled = updatedSettings.WindowRecommenderEnabled.Value;
+                }
             }
             catch (Exception e)
             {
@@ -125,6 +131,9 @@ namespace PersonalAnalytics
                 dto.FitbitTrackerEnabled = fitbitTracker.IsEnabled();
                 dto.FitbitTokenRevokeEnabled = SecretStorage.GetAccessToken() != null && fitbitTracker.IsEnabled();
                 dto.FitbitTokenRevoked = dto.FitbitTokenRevokeEnabled;
+
+                var windowRecommender = GetWindowRecommender();
+                dto.WindowRecommenderEnabled = windowRecommender.IsEnabled();
             }
             catch (Exception e)
             {
@@ -205,6 +214,19 @@ namespace PersonalAnalytics
             {
                 var tracker = _trackers.Where(t => t is UserInputTracker.Daemon)
                     .Cast<UserInputTracker.Daemon>()
+                    .FirstOrDefault();
+
+                return tracker;
+            }
+            catch { return null; }
+        }
+
+        private WindowRecommender.WindowRecommender GetWindowRecommender()
+        {
+            try
+            {
+                var tracker = _trackers.Where(t => t is WindowRecommender.WindowRecommender)
+                    .Cast<WindowRecommender.WindowRecommender>()
                     .FirstOrDefault();
 
                 return tracker;
