@@ -19,6 +19,20 @@ namespace WindowRecommender.Native
             return monitorList;
         }
 
+        internal static IEnumerable<RECT> GetMonitorWorkingAreas()
+        {
+            var monitorList = new List<RECT>();
+            EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, (IntPtr hMonitor, IntPtr hdcMonitor, ref RECT lprcMonitor, IntPtr dwData) =>
+            {
+                var monitorInfo = new MONITORINFO();
+                monitorInfo.cbSize = Marshal.SizeOf(monitorInfo);
+                GetMonitorInfo(hMonitor, monitorInfo);
+                monitorList.Add(monitorInfo.rcWork);
+                return true;
+            }, IntPtr.Zero);
+            return monitorList;
+        }
+
         internal static List<IntPtr> GetOpenWindows()
         {
             var windowList = new List<IntPtr>();
@@ -137,6 +151,23 @@ namespace WindowRecommender.Native
         /// https://docs.microsoft.com/windows/desktop/api/winuser/nf-winuser-enumwindows
         [DllImport("user32.dll")]
         private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
+        /// <summary>
+        /// The GetMonitorInfo function retrieves information about a display monitor.
+        /// </summary>
+        /// <param name="hMonitor">A handle to the display monitor of interest.</param>
+        /// <param name="lpmi">A pointer to a <see cref="MONITORINFO"/> or MONITORINFOEX structure that receives
+        /// information about the specified display monitor. You must set the cbSize member of the structure to
+        /// sizeof(MONITORINFO) or sizeof(MONITORINFOEX) before calling the GetMonitorInfo function.Doing so lets the
+        /// function determine the type of structure you are passing to it. The MONITORINFOEX structure is a superset
+        /// of the MONITORINFO structure. It has one additional member: a string that contains a name for the display
+        /// monitor.Most applications have no use for a display monitor name, and so can save some bytes by using a
+        /// MONITORINFO structure.</param>
+        /// <returns>If the function succeeds, the return value is nonzero. If the function fails, the return value is
+        /// zero.</returns>
+        /// https://docs.microsoft.com/windows/desktop/api/winuser/nf-winuser-getmonitorinfoa
+        [DllImport("user32.dll")]
+        private static extern bool GetMonitorInfo(IntPtr hMonitor, MONITORINFO lpmi);
 
         /// <summary>
         /// Retrieves a handle to the Shell's desktop window.

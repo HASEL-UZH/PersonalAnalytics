@@ -10,7 +10,7 @@ namespace WindowRecommender
 
         internal HazeOverlay()
         {
-            var monitorRects = NativeMethods.GetMonitorRects();
+            var monitorRects = NativeMethods.GetMonitorWorkingAreas();
             _windows = monitorRects.Select(screenRect =>
             {
                 var screenRectangle = (Rectangle)screenRect;

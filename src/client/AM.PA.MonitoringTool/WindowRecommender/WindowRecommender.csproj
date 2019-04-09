@@ -55,6 +55,7 @@
     <Compile Include="ModelEvents.cs" />
     <Compile Include="Models\MostRecentlyActive.cs" />
     <Compile Include="Native\DWMWINDOWATTRIBUTE.cs" />
+    <Compile Include="Native\MONITORINFO.cs" />
     <Compile Include="Native\ObjectIdentifiers.cs" />
     <Compile Include="Native\RECT.cs" />
     <Compile Include="Native\WinEventConstants.cs" />
