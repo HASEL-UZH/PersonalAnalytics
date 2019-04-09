@@ -4,7 +4,7 @@
     // ReSharper disable UnusedMember.Global
     // ReSharper disable IdentifierTypo
 
-    /// https://docs.microsoft.com/en-ca/windows/desktop/WinAuto/event-constants
+    /// https://docs.microsoft.com/windows/desktop/WinAuto/event-constants
     internal enum WinEventConstant : uint
     {
         EVENT_MIN = 0x00000001,

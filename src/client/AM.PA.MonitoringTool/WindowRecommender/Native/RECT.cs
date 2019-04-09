@@ -8,7 +8,7 @@ namespace WindowRecommender.Native
     /// <summary>
     /// The RECT structure defines the coordinates of the upper-left and lower-right corners of a rectangle.
     /// </summary>
-    /// https://docs.microsoft.com/en-us/windows/desktop/api/windef/ns-windef-rect
+    /// https://docs.microsoft.com/windows/desktop/api/windef/ns-windef-rect
     [Serializable, StructLayout(LayoutKind.Sequential)]
     internal struct RECT
     {

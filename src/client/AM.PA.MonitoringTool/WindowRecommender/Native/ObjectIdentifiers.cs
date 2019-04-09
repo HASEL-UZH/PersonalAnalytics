@@ -7,7 +7,7 @@
     /// Microsoft Active Accessibility object identifiers, 32-bit values that identify categories of accessible objects
     /// within a window.
     /// </summary>
-    /// https://docs.microsoft.com/en-us/windows/desktop/WinAuto/object-identifiers
+    /// https://docs.microsoft.com/windows/desktop/WinAuto/object-identifiers
     public enum ObjectIdentifier : uint
     {
         /// <summary>
