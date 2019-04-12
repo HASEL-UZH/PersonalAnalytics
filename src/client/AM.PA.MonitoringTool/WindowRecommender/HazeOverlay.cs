@@ -6,22 +6,18 @@ namespace WindowRecommender
 {
     internal class HazeOverlay
     {
-        private readonly (HazeOverlayWindow window, Rectangle rectangle)[] _windows;
+        private (HazeOverlayWindow window, Rectangle rectangle)[] _windows;
+        private bool _isRunning;
 
         internal HazeOverlay()
         {
-            var monitorRects = NativeMethods.GetMonitorWorkingAreas();
-            _windows = monitorRects.Select(screenRect =>
-            {
-                var screenRectangle = (Rectangle)screenRect;
-                var hazeOverlayWindow = new HazeOverlayWindow(screenRectangle);
-
-                return (window: hazeOverlayWindow, rectangle: screenRectangle);
-            }).ToArray();
+            _isRunning = false;
+            CreateMonitorWindows();
         }
 
         public void Start()
         {
+            _isRunning = true;
             foreach (var (window, _) in _windows)
             {
                 window.Start();
@@ -30,6 +26,7 @@ namespace WindowRecommender
 
         public void Stop()
         {
+            _isRunning = false;
             foreach (var (window, _) in _windows)
             {
                 window.Stop();
@@ -54,6 +51,40 @@ namespace WindowRecommender
             {
                 window.Hide();
             }
+        }
+
+        internal void ReloadMonitors()
+        {
+            if (_isRunning)
+            {
+                foreach (var (window, _) in _windows)
+                {
+                    window.Stop();
+                    window.Dispose();
+                }
+            }
+
+            CreateMonitorWindows();
+
+            if (_isRunning)
+            {
+                foreach (var (window, _) in _windows)
+                {
+                    window.Start();
+                }
+            }
+        }
+
+        private void CreateMonitorWindows()
+        {
+            var monitorRects = NativeMethods.GetMonitorWorkingAreas();
+            _windows = monitorRects.Select(screenRect =>
+            {
+                var screenRectangle = (Rectangle)screenRect;
+                var hazeOverlayWindow = new HazeOverlayWindow(screenRectangle);
+
+                return (window: hazeOverlayWindow, rectangle: screenRectangle);
+            }).ToArray();
         }
     }
 }

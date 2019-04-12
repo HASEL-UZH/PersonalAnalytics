@@ -1,4 +1,5 @@
-﻿using Shared;
+﻿using Microsoft.Win32;
+using Shared;
 using Shared.Data;
 using Shared.Helpers;
 using System;
@@ -40,6 +41,13 @@ namespace WindowRecommender
             };
             _modelCore = new ModelCore(models);
             _modelCore.ScoreChanged += OnScoresChanged;
+
+            SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;
+        }
+
+        ~WindowRecommender()
+        {
+            SystemEvents.DisplaySettingsChanged -= OnDisplaySettingsChanged;
         }
 
         public override void Start()
@@ -110,6 +118,20 @@ namespace WindowRecommender
             }
         }
 
+        internal static List<(Rectangle rect, bool show)> GetWindowInfo(Dictionary<IntPtr, double> scores, IEnumerable<IntPtr> windowStack)
+        {
+            var topWindows = ModelCore.GetTopWindows(scores);
+            return windowStack
+                .TakeWhile(_ => topWindows.Count != 0)
+                .Select(windowHandle =>
+                {
+                    var rect = (Rectangle)NativeMethods.GetWindowRectangle(windowHandle);
+                    var contains = topWindows.Contains(windowHandle);
+                    topWindows.Remove(windowHandle);
+                    return (rect: rect, show: contains);
+                }).ToList();
+        }
+
         private void OnScoresChanged(object sender, Dictionary<IntPtr, double> e)
         {
             var scores = e;
@@ -127,18 +149,9 @@ namespace WindowRecommender
             _hazeOverlay.Show(GetWindowInfo(_modelCore.GetScores(), _windowStack.Windows));
         }
 
-        internal static List<(Rectangle rect, bool show)> GetWindowInfo(Dictionary<IntPtr, double> scores, IEnumerable<IntPtr> windowStack)
+        private void OnDisplaySettingsChanged(object sender, EventArgs e)
         {
-            var topWindows = ModelCore.GetTopWindows(scores);
-            return windowStack
-                .TakeWhile(_ => topWindows.Count != 0)
-                .Select(windowHandle =>
-                {
-                    var rect = (Rectangle)NativeMethods.GetWindowRectangle(windowHandle);
-                    var contains = topWindows.Contains(windowHandle);
-                    topWindows.Remove(windowHandle);
-                    return (rect: rect, show: contains);
-                }).ToList();
+            _hazeOverlay.ReloadMonitors();
         }
     }
 }

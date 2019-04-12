@@ -1,20 +1,23 @@
-﻿using GameOverlay.Drawing;
+﻿using System;
+using GameOverlay.Drawing;
 using GameOverlay.Windows;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace WindowRecommender
 {
-    internal class HazeOverlayWindow
+    internal class HazeOverlayWindow: IDisposable
     {
         private readonly GraphicsWindow _window;
 
         private SolidBrush _brush;
         private Rectangle[] _rectangles;
+        private bool _needsRedraw;
 
         internal HazeOverlayWindow(Rectangle screenRectangle)
         {
             _rectangles = new Rectangle[0];
+            _needsRedraw = true;
 
             _window = new GraphicsWindow
             {
@@ -32,7 +35,13 @@ namespace WindowRecommender
 
         ~HazeOverlayWindow()
         {
-            _window.Dispose();
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public void Start()
@@ -44,6 +53,7 @@ namespace WindowRecommender
         public void Stop()
         {
             _rectangles = new Rectangle[0];
+            _needsRedraw = true;
             _window.IsVisible = false;
             _window.StopThread();
         }
@@ -51,11 +61,13 @@ namespace WindowRecommender
         internal void Show(IEnumerable<Rectangle> rectangles)
         {
             _rectangles = rectangles.ToArray();
+            _needsRedraw = true;
         }
 
         internal void Hide()
         {
             _rectangles = new Rectangle[0];
+            _needsRedraw = true;
         }
 
         private void OnSetupGraphics(object sender, SetupGraphicsEventArgs e)
@@ -66,17 +78,32 @@ namespace WindowRecommender
 
         private void OnDrawGraphics(object sender, DrawGraphicsEventArgs e)
         {
-            var graphics = e.Graphics;
-            graphics.ClearScene();
-            foreach (var rectangle in _rectangles)
+            if (_needsRedraw)
             {
-                graphics.FillRectangle(_brush, rectangle);
+                var graphics = e.Graphics;
+
+                graphics.ClearScene();
+                foreach (var rectangle in _rectangles)
+                {
+                    graphics.FillRectangle(_brush, rectangle);
+                }
+
+                _needsRedraw = false;
             }
         }
 
         private void OnDestroyGraphics(object sender, DestroyGraphicsEventArgs e)
         {
             _brush.Dispose();
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _window?.Dispose();
+                _brush?.Dispose();
+            }
         }
     }
 }
