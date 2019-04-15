@@ -10,6 +10,7 @@ namespace WindowRecommender
         internal WindowStack(ModelEvents modelEvents)
         {
             Windows = new List<IntPtr>();
+            modelEvents.WindowOpened += OnWindowOpened;
             modelEvents.WindowFocused += OnWindowFocused;
             modelEvents.WindowClosed += OnWindowClosed;
         }
@@ -29,6 +30,12 @@ namespace WindowRecommender
         {
             var windowHandle = e;
             Windows.Remove(windowHandle);
+            Windows.Insert(0, windowHandle);
+        }
+
+        private void OnWindowOpened(object sender, IntPtr e)
+        {
+            var windowHandle = e;
             Windows.Insert(0, windowHandle);
         }
     }

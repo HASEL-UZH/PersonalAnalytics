@@ -41,6 +41,44 @@ namespace WindowRecommenderTests
         }
 
         [TestMethod]
+        public void TestOpenedEvent()
+        {
+            using (ShimsContext.Create())
+            {
+                EventHandler<IntPtr> onOpenHandler = null;
+                var modelEvents = new ShimModelEvents
+                {
+                    WindowOpenedAddEventHandlerOfIntPtr = handler => onOpenHandler = handler
+                };
+
+                // Add Settings.NumberOfWindows windows
+                var mra = new MostRecentlyActive(modelEvents);
+                var windowList = new List<IntPtr>();
+                for (var i = 0; i < Settings.NumberOfWindows; i++)
+                {
+                    windowList.Add(new IntPtr(i));
+                }
+                mra.SetWindows(windowList);
+
+                var changed = false;
+                mra.OrderChanged += (sender, args) => changed = true;
+
+                // Focus on new window
+                onOpenHandler.Invoke(modelEvents, new IntPtr(Settings.NumberOfWindows));
+                Assert.IsTrue(changed);
+
+                // Assert new window and first two have score of 1
+                var scores = mra.GetScores();
+                Assert.AreEqual(Settings.NumberOfWindows + 1, scores.Count);
+                for (var i = 0; i < Settings.NumberOfWindows - 1; i++)
+                {
+                    Assert.AreEqual(1, scores[new IntPtr(i)]);
+                }
+                Assert.AreEqual(1, scores[new IntPtr(Settings.NumberOfWindows)]);
+            }
+        }
+
+        [TestMethod]
         public void TestFocusedEvent()
         {
             using (ShimsContext.Create())

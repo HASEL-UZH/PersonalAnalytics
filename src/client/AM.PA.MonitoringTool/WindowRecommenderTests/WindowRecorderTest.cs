@@ -14,6 +14,35 @@ namespace WindowRecommenderTests
     public class WindowRecorderTest
     {
         [TestMethod]
+        public void TestOpen()
+        {
+            using (ShimsContext.Create())
+            {
+                ShimNativeMethods.GetProcessNameIntPtr = windowHandle => "test_process";
+                var called = false;
+                EventHandler<IntPtr> onOpenHandler = null;
+                var modelEvents = new ShimModelEvents
+                {
+                    WindowOpenedAddEventHandlerOfIntPtr = handler => onOpenHandler = handler
+                };
+                ShimQueries.SaveEventIntPtrStringEventNameInt32DoubleInt32 = (window, processName, eventName, rank, score, zIndex) =>
+                {
+                    called = true;
+                    Assert.AreEqual(new IntPtr(1), window);
+                    Assert.AreEqual(EventName.Open, eventName);
+                    Assert.AreEqual("test_process", processName);
+                    Assert.AreEqual(-1, rank);
+                    Assert.AreEqual(-1, score);
+                    Assert.AreEqual(-1, zIndex);
+                };
+                var wr = new WindowRecorder(modelEvents, new WindowStack(modelEvents));
+                wr.SetScores(new Dictionary<IntPtr, double>(), new List<IntPtr>());
+                onOpenHandler.Invoke(modelEvents, new IntPtr(1));
+                Assert.IsTrue(called);
+            }
+        }
+
+        [TestMethod]
         public void TestFocus()
         {
             using (ShimsContext.Create())
@@ -100,7 +129,7 @@ namespace WindowRecommenderTests
         }
 
         [TestMethod]
-        public void TestOpen()
+        public void TestFocus_Open()
         {
             using (ShimsContext.Create())
             {

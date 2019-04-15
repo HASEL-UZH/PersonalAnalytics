@@ -29,6 +29,7 @@ namespace WindowRecommender.Models
             };
             timer.Elapsed += OnInterval;
 
+            modelEvents.WindowOpened += OnWindowFocused;
             modelEvents.WindowFocused += OnWindowFocused;
             modelEvents.WindowClosed += OnWindowClosed;
         }

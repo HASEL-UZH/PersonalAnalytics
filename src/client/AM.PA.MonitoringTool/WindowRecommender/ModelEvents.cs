@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Timers;
 using WindowRecommender.Native;
 
 namespace WindowRecommender
@@ -6,10 +7,12 @@ namespace WindowRecommender
     internal class ModelEvents
     {
         internal event EventHandler<IntPtr> WindowFocused;
+        internal event EventHandler<IntPtr> WindowOpened;
         internal event EventHandler<IntPtr> WindowClosed;
         internal event EventHandler MoveStarted;
         internal event EventHandler MoveEnded;
 
+        private readonly NativeMethods.Wineventproc _onWindowCreated;
         private readonly NativeMethods.Wineventproc _onWindowFocused;
         private readonly NativeMethods.Wineventproc _onWindowRestore;
         private readonly NativeMethods.Wineventproc _onWindowMinimize;
@@ -24,6 +27,7 @@ namespace WindowRecommender
 
         internal ModelEvents()
         {
+            _onWindowCreated = OnWindowCreated;
             _onWindowFocused = OnWindowFocused;
             _onWindowRestore = OnWindowFocused;
             _onWindowClosed = OnWindowClosed;
@@ -39,6 +43,7 @@ namespace WindowRecommender
 
             _winEventHooks = new[]
             {
+                NativeMethods.SetWinEventHook(WinEventConstant.EVENT_OBJECT_CREATE, _onWindowCreated),
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_FOREGROUND, _onWindowFocused),
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_MINIMIZEEND, _onWindowRestore),
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_MINIMIZESTART, _onWindowMinimize),
@@ -47,6 +52,36 @@ namespace WindowRecommender
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_OBJECT_LOCATIONCHANGE, _onWindowMoved),
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_OBJECT_DESTROY, _onWindowClosed)
             };
+        }
+
+        private void OnWindowCreated(IntPtr hWinEventHook, WinEventConstant @event, IntPtr hwnd, ObjectIdentifier idObject, int idChild, uint idEventThread, uint dwmsEventTime)
+        {
+            if (hwnd != IntPtr.Zero && idObject == ObjectIdentifier.OBJID_WINDOW && idChild == NativeMethods.CHILDID_SELF)
+            {
+                if (NativeMethods.IsOpenWindow(hwnd))
+                {
+                    WindowOpened?.Invoke(this, hwnd);
+                }
+                else
+                {
+                    // Opening windows can take a bit to be recognized as visible.
+                    // As there is no further event, wait for 1s to see if it becomes visible.
+                    // Use the Timer's AutoReset once to have two checks at 500ms each.
+                    var timer = new Timer(500);
+                    timer.Elapsed += (sender, args) =>
+                    {
+                        var elapsedTimer = (Timer)sender;
+                        elapsedTimer.AutoReset = false;
+                        if (NativeMethods.IsOpenWindow(hwnd))
+                        {
+                            elapsedTimer.Stop();
+                            elapsedTimer.Dispose();
+                            WindowOpened?.Invoke(this, hwnd);
+                        }
+                    };
+                    timer.Start();
+                }
+            }
         }
 
         private void OnWindowFocused(IntPtr hWinEventHook, WinEventConstant @event, IntPtr hwnd, ObjectIdentifier idObject, int idChild, uint idEventThread, uint dwmsEventTime)

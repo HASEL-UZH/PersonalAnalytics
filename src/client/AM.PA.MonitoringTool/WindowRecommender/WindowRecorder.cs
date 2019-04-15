@@ -21,6 +21,7 @@ namespace WindowRecommender
             _scores = new Dictionary<IntPtr, double>();
             _ranks = new List<IntPtr>();
 
+            modelEvents.WindowOpened += OnWindowOpened;
             modelEvents.WindowFocused += OnWindowFocused;
             modelEvents.WindowClosed += OnWindowClosed;
         }
@@ -60,6 +61,13 @@ namespace WindowRecommender
             {
                 Queries.SaveEvent(windowHandle, processName, EventName.Open);
             }
+        }
+
+        private void OnWindowOpened(object sender, IntPtr e)
+        {
+            var windowHandle = e;
+            var processName = GetProcessName(windowHandle);
+            Queries.SaveEvent(windowHandle, processName, EventName.Open);
         }
 
         private string GetProcessName(IntPtr windowHandle)

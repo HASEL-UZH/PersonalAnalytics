@@ -19,6 +19,34 @@ namespace WindowRecommenderTests
         }
 
         [TestMethod]
+        public void TestGet_Open()
+        {
+            using (ShimsContext.Create())
+            {
+                EventHandler<IntPtr> openHandler = null;
+                var modelEvents = new ShimModelEvents
+                {
+                    WindowOpenedAddEventHandlerOfIntPtr = handler => openHandler = handler
+                };
+                var windowStack = new WindowStack(modelEvents)
+                {
+                    Windows = new List<IntPtr>
+                    {
+                        new IntPtr(1),
+                        new IntPtr(2)
+                    }
+                };
+                openHandler.Invoke(modelEvents, new IntPtr(3));
+                CollectionAssert.AreEqual(new List<IntPtr>
+                {
+                    new IntPtr(3),
+                    new IntPtr(1),
+                    new IntPtr(2)
+                }, windowStack.Windows);
+            }
+        }
+
+        [TestMethod]
         public void TestGet_Focus()
         {
             using (ShimsContext.Create())

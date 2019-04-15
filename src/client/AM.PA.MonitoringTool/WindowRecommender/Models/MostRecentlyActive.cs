@@ -12,6 +12,7 @@ namespace WindowRecommender.Models
         internal MostRecentlyActive(ModelEvents modelEvents)
         {
             _windows = new List<IntPtr>();
+            modelEvents.WindowOpened += OnWindowOpened;
             modelEvents.WindowFocused += OnWindowFocused;
             modelEvents.WindowClosed += OnWindowClosed;
         }
@@ -56,6 +57,13 @@ namespace WindowRecommender.Models
             {
                 OrderChanged?.Invoke(this, null);
             }
+        }
+
+        private void OnWindowOpened(object sender, IntPtr e)
+        {
+            var windowHandle = e;
+            _windows.Insert(0, windowHandle);
+            OrderChanged?.Invoke(this, null);
         }
     }
 }
