@@ -31,9 +31,9 @@ namespace WindowRecommender
             }
         }
 
-        internal static List<IntPtr> GetTopEntries(Dictionary<IntPtr, double> scores, int count)
+        internal static IEnumerable<IntPtr> GetTopEntries(Dictionary<IntPtr, double> scores, int count)
         {
-            return scores.OrderByDescending(x => x.Value).Select(x => x.Key).Take(count).ToList();
+            return scores.OrderByDescending(x => x.Value).Select(x => x.Key).Take(count);
         }
     }
 }

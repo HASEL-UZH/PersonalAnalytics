@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WindowRecommender.Models
 {
@@ -22,9 +23,9 @@ namespace WindowRecommender.Models
             return scores;
         }
 
-        public override void SetWindows(List<IntPtr> windows)
+        public override void SetWindows(IEnumerable<IntPtr> windows)
         {
-            _windows = windows;
+            _windows = windows.ToList();
         }
 
         protected override void OnWindowClosed(object sender, IntPtr e)

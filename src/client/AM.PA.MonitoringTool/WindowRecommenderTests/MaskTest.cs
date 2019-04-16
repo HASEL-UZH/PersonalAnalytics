@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.Linq;
 using WindowRecommender;
 
 namespace WindowRecommenderTests
@@ -68,7 +69,7 @@ namespace WindowRecommenderTests
                 new Rectangle(2, 2, 4, 4)
             };
             var rects = Mask.Cut(source, covers);
-            CollectionAssert.AreEquivalent(new List<Rectangle> { source }, rects);
+            CollectionAssert.AreEquivalent(new List<Rectangle> { source }, rects.ToList());
         }
 
         [TestMethod]
@@ -86,7 +87,7 @@ namespace WindowRecommenderTests
                 new Rectangle(1, 1, 3, 2),
                 new Rectangle(1, 2, 4, 3),
                 new Rectangle(2, 3, 4, 4)
-            }, rects);
+            }, rects.ToList());
         }
 
         [TestMethod]
@@ -102,7 +103,7 @@ namespace WindowRecommenderTests
             CollectionAssert.AreEquivalent(new List<Rectangle>
             {
                 new Rectangle(0, 0, 1, 1)
-            }, rects);
+            }, rects.ToList());
         }
 
         [TestMethod]
@@ -116,7 +117,7 @@ namespace WindowRecommenderTests
                 (new Rectangle(0, 0, 1, 1), true)
             };
             var rects = Mask.Cut(source, covers);
-            CollectionAssert.AreEquivalent(new List<Rectangle>(), rects);
+            CollectionAssert.AreEquivalent(new List<Rectangle>(), rects.ToList());
         }
 
         [TestMethod]
@@ -134,7 +135,7 @@ namespace WindowRecommenderTests
                 new Rectangle(2, 0, 4, 2),
                 new Rectangle(0, 0, 2, 4),
                 new Rectangle(2, 2, 3, 3)
-            }, rects);
+            }, rects.ToList());
         }
     }
 }

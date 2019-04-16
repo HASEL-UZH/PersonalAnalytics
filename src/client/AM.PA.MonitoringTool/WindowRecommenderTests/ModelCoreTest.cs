@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using WindowRecommender;
+using System.Linq;
 using WindowRecommender.Models;
 using WindowRecommender.Models.Fakes;
 using WindowRecommender.Native.Fakes;
@@ -21,7 +21,7 @@ namespace WindowRecommenderTests
 
                 var stubModel = new StubIModel
                 {
-                    SetWindowsListOfIntPtr = windowHandles => Assert.AreEqual(new IntPtr(1), windowHandles[0]),
+                    SetWindowsIEnumerableOfIntPtr = windowHandles => Assert.AreEqual(new IntPtr(1), windowHandles.First()),
                     GetScores = () => new Dictionary<IntPtr, double> { { new IntPtr(1), 1 } }
                 };
 

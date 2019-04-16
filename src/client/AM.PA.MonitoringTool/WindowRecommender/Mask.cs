@@ -6,7 +6,7 @@ namespace WindowRecommender
 {
     internal static class Mask
     {
-        public static List<Rectangle> Cut(Rectangle screenRectangle, IEnumerable<(Rectangle rect, bool show)> windowInfos)
+        public static IEnumerable<Rectangle> Cut(Rectangle screenRectangle, IEnumerable<(Rectangle rect, bool show)> windowInfos)
         {
             return windowInfos.Reverse().Aggregate(new[] { screenRectangle }.AsEnumerable(), (rectangles, windowInfo) =>
             {
@@ -14,17 +14,16 @@ namespace WindowRecommender
                 {
                     return rectangles.SelectMany(rectangle => Cut(rectangle, windowInfo.rect));
                 }
-                var rectangleList = rectangles.ToList();
-                return rectangleList.Concat(Cut(windowInfo.rect, rectangleList));
-            }).ToList();
+                return rectangles.Concat(Cut(windowInfo.rect, rectangles));
+            });
         }
 
-        internal static List<Rectangle> Cut(Rectangle screen, IEnumerable<Rectangle> windows)
+        internal static IEnumerable<Rectangle> Cut(Rectangle screen, IEnumerable<Rectangle> windows)
         {
             return windows.Aggregate(new[] { screen }.AsEnumerable(), (rectangles, window) =>
             {
                 return rectangles.SelectMany(rectangle => Cut(rectangle, window));
-            }).ToList();
+            });
         }
 
         /// <summary>

@@ -17,7 +17,7 @@ namespace WindowRecommender.Models
 
         public abstract Dictionary<IntPtr, double> GetScores();
 
-        public abstract void SetWindows(List<IntPtr> windows);
+        public abstract void SetWindows(IEnumerable<IntPtr> windows);
 
         protected abstract void OnWindowClosed(object sender, IntPtr e);
 
@@ -29,7 +29,7 @@ namespace WindowRecommender.Models
         {
             OrderChanged?.Invoke(this, null);
         }
-        internal static List<IntPtr> GetTopWindows(Dictionary<IntPtr, double> scores)
+        internal static IEnumerable<IntPtr> GetTopWindows(Dictionary<IntPtr, double> scores)
         {
             return Utils.GetTopEntries(scores, Settings.NumberOfWindows);
         }

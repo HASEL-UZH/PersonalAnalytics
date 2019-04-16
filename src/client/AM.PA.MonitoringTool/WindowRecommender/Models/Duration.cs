@@ -11,14 +11,14 @@ namespace WindowRecommender.Models
         private readonly List<(IntPtr windowHandle, DateTime dateTime)> _focusEvents;
         private readonly HashSet<IntPtr> _closedWindows;
 
-        private List<IntPtr> _topWindows;
+        private IntPtr[] _topWindows;
 
         internal Duration(ModelEvents modelEvents) : base(modelEvents)
         {
             _scores = new Dictionary<IntPtr, double>();
             _focusEvents = new List<(IntPtr windowHandle, DateTime dateTime)>();
             _closedWindows = new HashSet<IntPtr>();
-            _topWindows = new List<IntPtr>();
+            _topWindows = new IntPtr[0];
 
             var timer = new Timer(Settings.DurationIntervalSeconds * 1000)
             {
@@ -91,7 +91,7 @@ namespace WindowRecommender.Models
             }
             _closedWindows.Clear();
 
-            var newTop = GetTopWindows(_scores);
+            var newTop = GetTopWindows(_scores).ToArray();
             if (!_topWindows.SequenceEqual(newTop))
             {
                 InvokeOrderChanged();
@@ -104,9 +104,9 @@ namespace WindowRecommender.Models
             return _scores;
         }
 
-        public override void SetWindows(List<IntPtr> windows)
+        public override void SetWindows(IEnumerable<IntPtr> windows)
         {
-            _focusEvents.Add((windowHandle: windows[0], dateTime: DateTime.Now));
+            _focusEvents.Add((windowHandle: windows.First(), dateTime: DateTime.Now));
         }
 
         protected override void OnWindowClosed(object sender, IntPtr e)

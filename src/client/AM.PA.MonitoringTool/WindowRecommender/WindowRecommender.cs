@@ -124,7 +124,7 @@ namespace WindowRecommender
             {
                 return Enumerable.Empty<(Rectangle rect, bool show)>();
             }
-            var topWindows = Utils.GetTopEntries(scores, Settings.NumberOfWindows);
+            var topWindows = Utils.GetTopEntries(scores, Settings.NumberOfWindows).ToList();
             var foregroundWindow = windowStack.First();
             // If the foreground window is not one of the top scoring windows
             // remove the one with the lowest score.

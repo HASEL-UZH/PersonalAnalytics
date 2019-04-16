@@ -14,7 +14,7 @@ namespace WindowRecommenderTests
         {
             var source = new[] { "a", "b", "c", "d" };
             var result = source.Pairwise((one, two) => one + two);
-            CollectionAssert.AreEqual(new[] { "ab", "bc", "cd" }, result.ToList());
+            CollectionAssert.AreEqual(new[] { "ab", "bc", "cd" }, result.ToArray());
         }
 
         [TestMethod]
@@ -22,7 +22,7 @@ namespace WindowRecommenderTests
         {
             var source = new string[0];
             var result = source.Pairwise((one, two) => one + two);
-            CollectionAssert.AreEqual(new string[0], result.ToList());
+            CollectionAssert.AreEqual(new string[0], result.ToArray());
         }
 
         [TestMethod]
@@ -30,7 +30,7 @@ namespace WindowRecommenderTests
         {
             var source = new[] { "a" };
             var result = source.Pairwise((one, two) => one + two);
-            CollectionAssert.AreEqual(new string[0], result.ToList());
+            CollectionAssert.AreEqual(new string[0], result.ToArray());
         }
 
         [TestMethod]
@@ -38,7 +38,7 @@ namespace WindowRecommenderTests
         {
             var scores = new Dictionary<IntPtr, double>();
             var topWindows = Utils.GetTopEntries(scores, 3);
-            CollectionAssert.AreEqual(new List<IntPtr>(), topWindows);
+            Assert.IsTrue(Enumerable.SequenceEqual(Enumerable.Empty<IntPtr>(), topWindows));
         }
 
         [TestMethod]
@@ -51,7 +51,7 @@ namespace WindowRecommenderTests
                 scores[new IntPtr(i)] = 1;
             }
             var topWindows = Utils.GetTopEntries(scores, count);
-            Assert.AreEqual(Settings.NumberOfWindows, topWindows.Count);
+            Assert.AreEqual(Settings.NumberOfWindows, topWindows.Count());
         }
     }
 }

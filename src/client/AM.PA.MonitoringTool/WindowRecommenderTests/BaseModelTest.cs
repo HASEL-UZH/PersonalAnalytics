@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using WindowRecommender;
 using WindowRecommender.Models;
@@ -14,7 +15,7 @@ namespace WindowRecommenderTests
         {
             var scores = new Dictionary<IntPtr, double>();
             var topWindows = BaseModel.GetTopWindows(scores);
-            CollectionAssert.AreEqual(new List<IntPtr>(), topWindows);
+            Assert.IsTrue(Enumerable.SequenceEqual(Enumerable.Empty<IntPtr>(), topWindows));
         }
 
         [TestMethod]
@@ -26,7 +27,7 @@ namespace WindowRecommenderTests
                 scores[new IntPtr(i)] = 1;
             }
             var topWindows = BaseModel.GetTopWindows(scores);
-            Assert.AreEqual(Settings.NumberOfWindows, topWindows.Count);
+            Assert.AreEqual(Settings.NumberOfWindows, topWindows.Count());
         }
     }
 }

@@ -8,6 +8,7 @@ namespace WindowRecommender.Models
         event EventHandler OrderChanged;
 
         Dictionary<IntPtr, double> GetScores();
-        void SetWindows(List<IntPtr> windows);
+
+        void SetWindows(IEnumerable<IntPtr> windows);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using WindowRecommender.Data;
 using WindowRecommender.Native;
 
@@ -11,7 +12,7 @@ namespace WindowRecommender
         private readonly WindowStack _windowStack;
 
         private Dictionary<IntPtr, double> _scores;
-        private List<IntPtr> _ranks;
+        private IntPtr[] _ranks;
 
         internal WindowRecorder(ModelEvents modelEvents, WindowStack windowStack)
         {
@@ -19,17 +20,17 @@ namespace WindowRecommender
             _windowStack = windowStack;
 
             _scores = new Dictionary<IntPtr, double>();
-            _ranks = new List<IntPtr>();
+            _ranks = new IntPtr[0];
 
             modelEvents.WindowOpened += OnWindowOpened;
             modelEvents.WindowFocused += OnWindowFocused;
             modelEvents.WindowClosed += OnWindowClosed;
         }
 
-        internal void SetScores(Dictionary<IntPtr, double> scores, List<IntPtr> ranks)
+        internal void SetScores(Dictionary<IntPtr, double> scores, IEnumerable<IntPtr> ranks)
         {
             _scores = scores;
-            _ranks = ranks;
+            _ranks = ranks.ToArray();
         }
 
         private void OnWindowClosed(object sender, IntPtr e)
@@ -38,7 +39,7 @@ namespace WindowRecommender
             if (_scores.ContainsKey(windowHandle))
             {
                 var score = _scores[windowHandle];
-                var rank = _ranks.IndexOf(windowHandle);
+                var rank = Array.IndexOf(_ranks, windowHandle);
                 var processName = GetProcessName(windowHandle);
                 Queries.SaveEvent(windowHandle, processName, EventName.Close, rank, score);
                 _scores.Remove(windowHandle);
@@ -53,7 +54,7 @@ namespace WindowRecommender
             if (_scores.ContainsKey(windowHandle))
             {
                 var score = _scores[windowHandle];
-                var rank = _ranks.IndexOf(windowHandle);
+                var rank = Array.IndexOf(_ranks, windowHandle);
                 var zIndex = _windowStack.GetZIndex(windowHandle);
                 Queries.SaveEvent(windowHandle, processName, EventName.Focus, rank, score, zIndex);
             }

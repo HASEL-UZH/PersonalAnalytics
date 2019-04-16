@@ -33,7 +33,7 @@ namespace WindowRecommender
             }
         }
 
-        internal void Show(List<(Rectangle rect, bool show)> windowInfo)
+        internal void Show(IEnumerable<(Rectangle rect, bool show)> windowInfo)
         {
             foreach (var (window, screenRectangle) in _windows)
             {
