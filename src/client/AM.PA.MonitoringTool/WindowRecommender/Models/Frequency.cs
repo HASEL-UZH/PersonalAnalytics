@@ -57,7 +57,10 @@ namespace WindowRecommender.Models
 
         public override void SetWindows(IEnumerable<IntPtr> windows)
         {
-            _focusEvents.Add((windowHandle: windows.First(), dateTime: DateTime.Now));
+            if (windows.Count() > 0)
+            {
+                _focusEvents.Add((windowHandle: windows.First(), dateTime: DateTime.Now));
+            }
         }
 
         protected override void OnWindowClosed(object sender, IntPtr e)

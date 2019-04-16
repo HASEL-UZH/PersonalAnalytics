@@ -34,6 +34,14 @@ namespace WindowRecommenderTests
         }
 
         [TestMethod]
+        public void TestEmpty()
+        {
+            var frequency = new Frequency(new ModelEvents());
+            frequency.SetWindows(new List<IntPtr>());
+            Assert.AreEqual(0, frequency.GetScores().Count);
+        }
+
+        [TestMethod]
         public void TestOnInterval_SetWindow()
         {
             using (ShimsContext.Create())

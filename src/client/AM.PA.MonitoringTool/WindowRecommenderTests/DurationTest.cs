@@ -34,6 +34,14 @@ namespace WindowRecommenderTests
         }
 
         [TestMethod]
+        public void TestEmpty()
+        {
+            var duration = new Duration(new ModelEvents());
+            duration.SetWindows(new List<IntPtr>());
+            Assert.AreEqual(0, duration.GetScores().Count);
+        }
+
+        [TestMethod]
         public void TestOnInterval_SetWindow()
         {
             using (ShimsContext.Create())
