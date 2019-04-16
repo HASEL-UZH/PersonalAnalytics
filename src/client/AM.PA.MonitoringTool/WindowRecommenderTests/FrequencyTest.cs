@@ -61,6 +61,40 @@ namespace WindowRecommenderTests
         }
 
         [TestMethod]
+        public void TestOnInterval_SetWindow_Open()
+        {
+            using (ShimsContext.Create())
+            {
+                var setWindowsTime = DateTime.Parse(Timestamp);
+                var openEventTime = setWindowsTime.AddSeconds(IntervalStep);
+                var intervalTime = setWindowsTime.AddSeconds(Settings.FrequencyIntervalSeconds);
+
+                EventHandler<IntPtr> openHandler = null;
+                var modelEvents = new ShimModelEvents
+                {
+                    WindowOpenedAddEventHandlerOfIntPtr = handler => openHandler = handler
+                };
+                var frequency = new Frequency(modelEvents);
+                CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), frequency.GetScores());
+
+                System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
+                frequency.SetWindows(new List<IntPtr> { new IntPtr(1) });
+
+                System.Fakes.ShimDateTime.NowGet = () => openEventTime;
+                openHandler.Invoke(modelEvents, new IntPtr(2));
+
+                System.Fakes.ShimDateTime.NowGet = () => intervalTime;
+                frequency.OnInterval(null, null);
+
+                CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>
+                {
+                    { new IntPtr(1), 0.5 },
+                    { new IntPtr(2), 0.5 }
+                }, frequency.GetScores());
+            }
+        }
+
+        [TestMethod]
         public void TestOnInterval_SetWindow_Focus()
         {
             using (ShimsContext.Create())

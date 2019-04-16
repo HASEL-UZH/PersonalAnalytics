@@ -3,37 +3,31 @@ using System.Collections.Generic;
 
 namespace WindowRecommender.Models
 {
-    internal class MostRecentlyActive : IModel
+    internal class MostRecentlyActive : BaseModel
     {
-        public event EventHandler OrderChanged;
-
         private List<IntPtr> _windows;
 
-        internal MostRecentlyActive(ModelEvents modelEvents)
+        internal MostRecentlyActive(ModelEvents modelEvents) : base(modelEvents)
         {
             _windows = new List<IntPtr>();
-            modelEvents.WindowOpened += OnWindowOpened;
-            modelEvents.WindowFocused += OnWindowFocused;
-            modelEvents.WindowClosed += OnWindowClosed;
         }
 
-        public Dictionary<IntPtr, double> GetScores()
+        public override Dictionary<IntPtr, double> GetScores()
         {
             var scores = new Dictionary<IntPtr, double>();
             for (var i = 0; i < _windows.Count; i++)
             {
                 scores[_windows[i]] = i < Settings.NumberOfWindows ? 1 : 0;
             }
-
             return scores;
         }
 
-        public void SetWindows(List<IntPtr> windows)
+        public override void SetWindows(List<IntPtr> windows)
         {
             _windows = windows;
         }
 
-        private void OnWindowClosed(object sender, IntPtr e)
+        protected override void OnWindowClosed(object sender, IntPtr e)
         {
             var index = _windows.IndexOf(e);
             if (index != -1)
@@ -42,12 +36,12 @@ namespace WindowRecommender.Models
                 _windows.Remove(e);
                 if (hasChanged)
                 {
-                    OrderChanged?.Invoke(this, null);
+                    InvokeOrderChanged();
                 }
             }
         }
 
-        private void OnWindowFocused(object sender, IntPtr e)
+        protected override void OnWindowFocused(object sender, IntPtr e)
         {
             var index = _windows.IndexOf(e);
             var hasChanged = index == -1 || index >= Settings.NumberOfWindows;
@@ -55,15 +49,15 @@ namespace WindowRecommender.Models
             _windows.Insert(0, e);
             if (hasChanged)
             {
-                OrderChanged?.Invoke(this, null);
+                InvokeOrderChanged();
             }
         }
 
-        private void OnWindowOpened(object sender, IntPtr e)
+        protected override void OnWindowOpened(object sender, IntPtr e)
         {
             var windowHandle = e;
             _windows.Insert(0, windowHandle);
-            OrderChanged?.Invoke(this, null);
+            InvokeOrderChanged();
         }
     }
 }
