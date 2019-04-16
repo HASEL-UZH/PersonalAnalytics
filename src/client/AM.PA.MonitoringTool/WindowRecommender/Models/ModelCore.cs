@@ -59,11 +59,6 @@ namespace WindowRecommender.Models
             ScoreChanged?.Invoke(this, mergedScores);
         }
 
-        internal static List<IntPtr> GetTopWindows(Dictionary<IntPtr, double> scores)
-        {
-            return scores.OrderByDescending(x => x.Value).Select(x => x.Key).Take(Settings.NumberOfWindows).ToList();
-        }
-
         internal static Dictionary<IntPtr, double> NormalizeScores(Dictionary<IntPtr, double> scores)
         {
             var scoreSum = scores.Sum(pair => pair.Value);

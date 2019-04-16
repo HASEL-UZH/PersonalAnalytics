@@ -1,4 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using WindowRecommender;
 
@@ -29,6 +31,27 @@ namespace WindowRecommenderTests
             var source = new[] { "a" };
             var result = source.Pairwise((one, two) => one + two);
             CollectionAssert.AreEqual(new string[0], result.ToList());
+        }
+
+        [TestMethod]
+        public void TestGetTopEntries_Empty()
+        {
+            var scores = new Dictionary<IntPtr, double>();
+            var topWindows = Utils.GetTopEntries(scores, 3);
+            CollectionAssert.AreEqual(new List<IntPtr>(), topWindows);
+        }
+
+        [TestMethod]
+        public void TestGetTopEntries_Count()
+        {
+            var count = 3;
+            var scores = new Dictionary<IntPtr, double>();
+            for (var i = 1; i < count + 2; i++)
+            {
+                scores[new IntPtr(i)] = 1;
+            }
+            var topWindows = Utils.GetTopEntries(scores, count);
+            Assert.AreEqual(Settings.NumberOfWindows, topWindows.Count);
         }
     }
 }

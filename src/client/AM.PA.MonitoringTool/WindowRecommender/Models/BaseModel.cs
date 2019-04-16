@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WindowRecommender.Models
 {
@@ -27,6 +28,10 @@ namespace WindowRecommender.Models
         protected virtual void InvokeOrderChanged()
         {
             OrderChanged?.Invoke(this, null);
+        }
+        internal static List<IntPtr> GetTopWindows(Dictionary<IntPtr, double> scores)
+        {
+            return Utils.GetTopEntries(scores, Settings.NumberOfWindows);
         }
     }
 }

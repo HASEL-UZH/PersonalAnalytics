@@ -118,25 +118,36 @@ namespace WindowRecommender
             }
         }
 
-        internal static List<(Rectangle rect, bool show)> GetWindowInfo(Dictionary<IntPtr, double> scores, IEnumerable<IntPtr> windowStack)
+        internal static IEnumerable<(Rectangle rect, bool show)> GetDrawList(Dictionary<IntPtr, double> scores, IEnumerable<IntPtr> windowStack)
         {
-            var topWindows = ModelCore.GetTopWindows(scores);
+            if (windowStack.Count() == 0)
+            {
+                return Enumerable.Empty<(Rectangle rect, bool show)>();
+            }
+            var topWindows = Utils.GetTopEntries(scores, Settings.NumberOfWindows);
+            var foregroundWindow = windowStack.First();
+            // If the foreground window is not one of the top scoring windows
+            // remove the one with the lowest score.
+            if (!topWindows.Contains(foregroundWindow))
+            {
+                topWindows.RemoveAt(topWindows.Count - 1);
+            }
             return windowStack
                 .TakeWhile(_ => topWindows.Count != 0)
                 .Select(windowHandle =>
                 {
                     var rect = (Rectangle)NativeMethods.GetWindowRectangle(windowHandle);
-                    var contains = topWindows.Contains(windowHandle);
+                    var contains = topWindows.Contains(windowHandle) || windowHandle == foregroundWindow;
                     topWindows.Remove(windowHandle);
                     return (rect: rect, show: contains);
-                }).ToList();
+                });
         }
 
         private void OnScoresChanged(object sender, Dictionary<IntPtr, double> e)
         {
             var scores = e;
-            _windowRecorder.SetScores(scores, ModelCore.GetTopWindows(scores));
-            _hazeOverlay.Show(GetWindowInfo(scores, _windowStack.Windows));
+            _windowRecorder.SetScores(scores, Utils.GetTopEntries(scores, Settings.NumberOfWindows));
+            _hazeOverlay.Show(GetDrawList(scores, _windowStack.Windows));
         }
 
         private void OnMoveStarted(object sender, EventArgs e)
@@ -146,7 +157,7 @@ namespace WindowRecommender
 
         private void OnMoveEnded(object sender, EventArgs e)
         {
-            _hazeOverlay.Show(GetWindowInfo(_modelCore.GetScores(), _windowStack.Windows));
+            _hazeOverlay.Show(GetDrawList(_modelCore.GetScores(), _windowStack.Windows));
         }
 
         private void OnDisplaySettingsChanged(object sender, EventArgs e)

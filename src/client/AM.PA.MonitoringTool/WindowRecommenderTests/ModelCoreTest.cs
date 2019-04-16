@@ -129,26 +129,6 @@ namespace WindowRecommenderTests
         }
 
         [TestMethod]
-        public void TestGetTopWindows_Empty()
-        {
-            var scores = new Dictionary<IntPtr, double>();
-            var topWindows = ModelCore.GetTopWindows(scores);
-            CollectionAssert.AreEqual(new List<IntPtr>(), topWindows);
-        }
-
-        [TestMethod]
-        public void TestGetTopWindows_Count()
-        {
-            var scores = new Dictionary<IntPtr, double>();
-            for (var i = 1; i < Settings.NumberOfWindows + 2; i++)
-            {
-                scores[new IntPtr(i)] = 1;
-            }
-            var topWindows = ModelCore.GetTopWindows(scores);
-            Assert.AreEqual(Settings.NumberOfWindows, topWindows.Count);
-        }
-
-        [TestMethod]
         public void TestNormalizeScores_Empty()
         {
             var scores = new Dictionary<IntPtr, double>();

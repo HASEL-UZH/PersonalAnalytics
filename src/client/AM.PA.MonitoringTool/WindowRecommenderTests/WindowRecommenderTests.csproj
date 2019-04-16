@@ -66,6 +66,7 @@
     <Compile Include="QueriesTest.cs" />
     <Compile Include="DurationTest.cs" />
     <Compile Include="FrequencyTest.cs" />
+    <Compile Include="BaseModelTest.cs" />
     <Compile Include="WindowStackTest.cs" />
     <Compile Include="WindowRecommenderTest.cs" />
     <Compile Include="UtilsTest.cs" />

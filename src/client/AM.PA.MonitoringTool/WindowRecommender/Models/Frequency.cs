@@ -42,7 +42,7 @@ namespace WindowRecommender.Models
 
             _closedWindows.Clear();
 
-            var newTop = ModelCore.GetTopWindows(_scores);
+            var newTop = GetTopWindows(_scores);
             if (!_topWindows.SequenceEqual(newTop))
             {
                 InvokeOrderChanged();

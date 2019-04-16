@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WindowRecommender
 {
@@ -28,6 +29,11 @@ namespace WindowRecommender
                     yield return resultSelector(previous, previous = it.Current);
                 }
             }
+        }
+
+        internal static List<IntPtr> GetTopEntries(Dictionary<IntPtr, double> scores, int count)
+        {
+            return scores.OrderByDescending(x => x.Value).Select(x => x.Key).Take(count).ToList();
         }
     }
 }
