@@ -108,7 +108,9 @@ namespace WindowRecommender.Models
         {
             if (windows.Count() > 0)
             {
-                _focusEvents.Add((windowHandle: windows.First(), dateTime: DateTime.Now));
+                var windowHandle = windows.First();
+                _focusEvents.Add((windowHandle, dateTime: DateTime.Now));
+                _topWindows = new[] { windowHandle };
             }
         }
 
