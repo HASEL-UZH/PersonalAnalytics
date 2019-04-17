@@ -35,12 +35,11 @@ namespace WindowRecommender
 
         internal void Show(IEnumerable<(Rectangle rect, bool show)> windowInfo)
         {
+            var windowList = windowInfo.ToList();
             foreach (var (window, screenRectangle) in _windows)
             {
-                var rectangles = Mask.Cut(screenRectangle, windowInfo);
-                var transformedRectangles = rectangles.Select(rectangle =>
-                    new Rectangle(rectangle.Left - screenRectangle.Left, rectangle.Top - screenRectangle.Top,
-                        rectangle.Right - screenRectangle.Left, rectangle.Bottom - screenRectangle.Top));
+                var rectangles = Mask.Cut(screenRectangle, windowList);
+                var transformedRectangles = rectangles.Select(rectangle => Rectangle.TranslatedRelative(screenRectangle, rectangle));
                 window.Show(transformedRectangles);
             }
         }

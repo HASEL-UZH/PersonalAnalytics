@@ -64,6 +64,11 @@ namespace WindowRecommender
             }
         }
 
+        public static Rectangle TranslatedRelative(Rectangle target, Rectangle source)
+        {
+            return new Rectangle(source.Left - target.Left, source.Top - target.Top, source.Right - target.Left, source.Bottom - target.Top);
+        }
+
         public static implicit operator RECT(Rectangle rectangle)
         {
             return new RECT(rectangle.Left, rectangle.Top, rectangle.Right, rectangle.Bottom);
