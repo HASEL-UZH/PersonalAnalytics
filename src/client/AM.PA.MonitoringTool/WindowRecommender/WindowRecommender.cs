@@ -35,11 +35,12 @@ namespace WindowRecommender
             _windowStack = new WindowStack(_modelEvents);
             _windowRecorder = new WindowRecorder(_modelEvents, _windowStack);
 
-            var models = new Dictionary<IModel, int>
+            _modelCore = new ModelCore(new (IModel model, double weight)[]
             {
-                { new MostRecentlyActive(_modelEvents), 1}
-            };
-            _modelCore = new ModelCore(models);
+                (new MostRecentlyActive(_modelEvents), 1),
+                (new Frequency(_modelEvents), 1),
+                (new Duration(_modelEvents), 1),
+            });
             _modelCore.ScoreChanged += OnScoresChanged;
 
             SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;

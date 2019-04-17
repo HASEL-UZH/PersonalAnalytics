@@ -9,12 +9,14 @@ namespace WindowRecommender.Models
     {
         internal event EventHandler<Dictionary<IntPtr, double>> ScoreChanged;
 
-        private readonly Dictionary<IModel, int> _models;
+        private readonly (IModel model, double weight)[] _models;
+        private readonly double _weightSum;
 
-        internal ModelCore(Dictionary<IModel, int> modelWeights)
+        internal ModelCore((IModel model, double weight)[] models)
         {
-            _models = modelWeights;
-            foreach (var model in _models.Keys)
+            _models = models;
+            _weightSum = _models.Sum((modelWeight) => modelWeight.weight);
+            foreach (var (model, _) in _models)
             {
                 model.OrderChanged += OnOrderChanged;
             }
@@ -23,7 +25,7 @@ namespace WindowRecommender.Models
         internal void Start()
         {
             var windows = NativeMethods.GetOpenWindows();
-            foreach (var model in _models.Keys)
+            foreach (var (model, _) in _models)
             {
                 model.SetWindows(windows);
             }
@@ -33,16 +35,17 @@ namespace WindowRecommender.Models
         internal Dictionary<IntPtr, double> GetScores()
         {
             var mergedScores = new Dictionary<IntPtr, double>();
-            foreach (var model in _models)
+            foreach (var (model, weight) in _models)
             {
-                var normalizedModelScores = NormalizeScores(model.Key.GetScores());
+                var relativeWeight = weight / _weightSum;
+                var normalizedModelScores = NormalizeScores(model.GetScores());
                 foreach (var score in normalizedModelScores)
                 {
                     if (!mergedScores.ContainsKey(score.Key))
                     {
                         mergedScores.Add(score.Key, 0);
                     }
-                    mergedScores[score.Key] += score.Value * model.Value;
+                    mergedScores[score.Key] += score.Value * relativeWeight;
                 }
             }
             return mergedScores;
@@ -62,7 +65,7 @@ namespace WindowRecommender.Models
         internal static Dictionary<IntPtr, double> NormalizeScores(Dictionary<IntPtr, double> scores)
         {
             var scoreSum = scores.Sum(pair => pair.Value);
-            if (double.IsNaN(0 / scoreSum)) // scoreSum == 0
+            if (double.IsNaN(0 / scoreSum)) // No need to normalize if all scores are 0
             {
                 return scores;
             }

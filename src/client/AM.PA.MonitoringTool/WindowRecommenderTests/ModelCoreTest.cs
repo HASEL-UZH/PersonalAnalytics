@@ -22,17 +22,21 @@ namespace WindowRecommenderTests
                 var stubModel = new StubIModel
                 {
                     SetWindowsIEnumerableOfIntPtr = windowHandles => Assert.AreEqual(new IntPtr(1), windowHandles.First()),
-                    GetScores = () => new Dictionary<IntPtr, double> { { new IntPtr(1), 1 } }
+                    GetScores = () => new Dictionary<IntPtr, double> {
+                        { new IntPtr(1), 1 },
+                    }
                 };
 
-                var modelCore = new ModelCore(new Dictionary<IModel, int>
+                var modelCore = new ModelCore(new (IModel, double)[]
                 {
-                    {stubModel, 1}
+                    (stubModel, 1)
                 });
                 modelCore.ScoreChanged += (sender, scores) =>
                 {
-                    Assert.AreEqual(1, scores.Count);
-                    Assert.AreEqual(1, scores[new IntPtr(1)]);
+                    CollectionAssert.AreEqual(scores, new Dictionary<IntPtr, double>
+                    {
+                        {new IntPtr(1), 1},
+                    });
                 };
                 modelCore.Start();
             }
@@ -66,18 +70,20 @@ namespace WindowRecommenderTests
                     }
                 };
 
-                var modelCore = new ModelCore(new Dictionary<IModel, int>
+                var modelCore = new ModelCore(new (IModel, double)[]
                 {
-                    {stubModel, 1},
-                    {stubModel2, 2}
+                    (stubModel, 1),
+                    (stubModel2, 2),
                 });
                 modelCore.ScoreChanged += (sender, scores) =>
                 {
-                    Assert.AreEqual(4, scores.Count);
-                    Assert.AreEqual(2.1, scores[new IntPtr(1)]);
-                    Assert.AreEqual(0.5, scores[new IntPtr(2)]);
-                    Assert.AreEqual(0.4, scores[new IntPtr(3)]);
-                    Assert.AreEqual(0, scores[new IntPtr(4)]);
+                    CollectionAssert.AreEqual(scores, new Dictionary<IntPtr, double>
+                    {
+                        {new IntPtr(1), 0.7},
+                        {new IntPtr(2), 0.5 / 3},
+                        {new IntPtr(3), 0.4 / 3},
+                        {new IntPtr(4), 0}
+                    });
                 };
                 modelCore.Start();
             }
@@ -88,8 +94,6 @@ namespace WindowRecommenderTests
         {
             using (ShimsContext.Create())
             {
-                ShimNativeMethods.GetOpenWindows = () => new List<IntPtr>();
-
                 var stubModel = new StubIModel
                 {
                     GetScores = () => new Dictionary<IntPtr, double>
@@ -111,18 +115,20 @@ namespace WindowRecommenderTests
                     }
                 };
 
-                var modelCore = new ModelCore(new Dictionary<IModel, int>
+                var modelCore = new ModelCore(new (IModel, double)[]
                 {
-                    {stubModel, 1},
-                    {stubModel2, 2}
+                    (stubModel, 0.5),
+                    (stubModel2, 1),
                 });
                 modelCore.ScoreChanged += (sender, scores) =>
                 {
-                    Assert.AreEqual(4, scores.Count);
-                    Assert.AreEqual(2.1, scores[new IntPtr(1)]);
-                    Assert.AreEqual(0.5, scores[new IntPtr(2)]);
-                    Assert.AreEqual(0.4, scores[new IntPtr(3)]);
-                    Assert.AreEqual(0, scores[new IntPtr(4)]);
+                    CollectionAssert.AreEqual(scores, new Dictionary<IntPtr, double>
+                    {
+                        {new IntPtr(1), 0.7},
+                        {new IntPtr(2), 0.5 / 3},
+                        {new IntPtr(3), 0.4 / 3},
+                        {new IntPtr(4), 0}
+                    });
                 };
                 stubModel.OrderChangedEvent.Invoke(stubModel, null);
             }
