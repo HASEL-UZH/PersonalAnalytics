@@ -17,7 +17,7 @@ namespace WindowRecommenderTests
         public void TestGetDrawList_Empty()
         {
             var scores = new Dictionary<IntPtr, double>();
-            var windowStack = new IntPtr[0];
+            var windowStack = new List<IntPtr>();
             var windowInfo = new List<(Rectangle rect, bool show)>();
             CollectionAssert.AreEqual(windowInfo, WindowRecommender.WindowRecommender.GetDrawList(scores, windowStack).ToList());
         }
@@ -68,12 +68,9 @@ namespace WindowRecommenderTests
                     {new IntPtr(3), 1},
                     {new IntPtr(1), 1}
                 };
-                var windowStack = new[]
+                var windowStack = new List<IntPtr>
                 {
-                    new IntPtr(1),
-                    new IntPtr(2),
-                    new IntPtr(3),
-                    new IntPtr(4)
+                    new IntPtr(1), new IntPtr(2), new IntPtr(3), new IntPtr(4)
                 };
                 var expectedWindowInfo = new List<(Rectangle rect, bool show)>
                 {

@@ -67,6 +67,10 @@
     <Compile Include="DurationTest.cs" />
     <Compile Include="FrequencyTest.cs" />
     <Compile Include="BaseModelTest.cs" />
+    <Compile Include="ScoreComparer.cs" />
+    <Compile Include="TextUtilsTest.cs" />
+    <Compile Include="TitleSimilarityTest.cs" />
+    <Compile Include="ScoreComparerTest.cs" />
     <Compile Include="WindowStackTest.cs" />
     <Compile Include="WindowRecommenderTest.cs" />
     <Compile Include="UtilsTest.cs" />

@@ -98,6 +98,11 @@
         /// objects that have also changed.
         /// </summary>
         EVENT_OBJECT_LOCATIONCHANGE = 0x800B,
+        /// <summary>
+        /// An object's Name property has changed. The system sends this event for the following user interface
+        /// elements: check box, cursor, list-view control, push button, radio button, status bar control, tree view
+        /// control, and window object. Server applications send this event for their accessible objects.
+        /// </summary>
         EVENT_OBJECT_NAMECHANGE = 0x800C,
         EVENT_OBJECT_DESCRIPTIONCHANGE = 0x800D,
         EVENT_OBJECT_VALUECHANGE = 0x800E,

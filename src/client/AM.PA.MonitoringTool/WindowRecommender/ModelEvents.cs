@@ -9,6 +9,7 @@ namespace WindowRecommender
         internal event EventHandler<IntPtr> WindowFocused;
         internal event EventHandler<IntPtr> WindowOpened;
         internal event EventHandler<IntPtr> WindowClosed;
+        internal event EventHandler<IntPtr> WindowRenamed;
         internal event EventHandler MoveStarted;
         internal event EventHandler MoveEnded;
 
@@ -20,6 +21,7 @@ namespace WindowRecommender
         private readonly NativeMethods.Wineventproc _onWindowMoved;
         private readonly NativeMethods.Wineventproc _onMoveStarted;
         private readonly NativeMethods.Wineventproc _onMoveEnded;
+        private readonly NativeMethods.Wineventproc _onWindowRenamed;
 
         private IntPtr[] _winEventHooks;
         private bool _isMoving;
@@ -35,6 +37,7 @@ namespace WindowRecommender
             _onWindowMoved = OnWindowMoved;
             _onMoveStarted = OnMoveStarted;
             _onMoveEnded = OnMoveEnded;
+            _onWindowRenamed = OnWindowRenamed;
         }
 
         public void Start()
@@ -50,7 +53,8 @@ namespace WindowRecommender
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_MOVESIZEEND, _onMoveEnded),
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_MOVESIZESTART, _onMoveStarted),
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_OBJECT_LOCATIONCHANGE, _onWindowMoved),
-                NativeMethods.SetWinEventHook(WinEventConstant.EVENT_OBJECT_DESTROY, _onWindowClosed)
+                NativeMethods.SetWinEventHook(WinEventConstant.EVENT_OBJECT_DESTROY, _onWindowClosed),
+                NativeMethods.SetWinEventHook(WinEventConstant.EVENT_OBJECT_NAMECHANGE, _onWindowRenamed),
             };
         }
 
@@ -137,6 +141,14 @@ namespace WindowRecommender
             {
                 _isMoving = false;
                 MoveEnded?.Invoke(this, null);
+            }
+        }
+
+        private void OnWindowRenamed(IntPtr hWinEventHook, WinEventConstant @event, IntPtr hwnd, ObjectIdentifier idObject, int idChild, uint idEventThread, uint dwmsEventTime)
+        {
+            if (hwnd != IntPtr.Zero && idObject == ObjectIdentifier.OBJID_WINDOW && idChild == NativeMethods.CHILDID_SELF && NativeMethods.IsOpenWindow(hwnd))
+            {
+                WindowRenamed?.Invoke(this, hwnd);
             }
         }
 
