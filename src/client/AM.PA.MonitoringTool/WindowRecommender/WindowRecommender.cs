@@ -99,7 +99,10 @@ namespace WindowRecommender
                 var updatedIsEnabled = value;
 
                 // only update if settings changed
-                if (updatedIsEnabled == _enabled) return;
+                if (updatedIsEnabled == _enabled)
+                {
+                    return;
+                }
 
                 // update settings
                 Database.GetInstance().SetSettings(Settings.EnabledSettingDatabaseKey, value);
@@ -119,9 +122,9 @@ namespace WindowRecommender
             }
         }
 
-        internal static IEnumerable<(Rectangle rect, bool show)> GetDrawList(Dictionary<IntPtr, double> scores, IEnumerable<IntPtr> windowStack)
+        internal static IEnumerable<(Rectangle rect, bool show)> GetDrawList(Dictionary<IntPtr, double> scores, List<IntPtr> windowStack)
         {
-            if (windowStack.Count() == 0)
+            if (windowStack.Count == 0)
             {
                 return Enumerable.Empty<(Rectangle rect, bool show)>();
             }
@@ -140,7 +143,7 @@ namespace WindowRecommender
                     var rect = (Rectangle)NativeMethods.GetWindowRectangle(windowHandle);
                     var contains = topWindows.Contains(windowHandle) || windowHandle == foregroundWindow;
                     topWindows.Remove(windowHandle);
-                    return (rect: rect, show: contains);
+                    return (rect, show: contains);
                 });
         }
 

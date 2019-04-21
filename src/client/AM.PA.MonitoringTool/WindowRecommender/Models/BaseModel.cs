@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace WindowRecommender.Models
 {
@@ -17,7 +16,7 @@ namespace WindowRecommender.Models
 
         public abstract Dictionary<IntPtr, double> GetScores();
 
-        public abstract void SetWindows(IEnumerable<IntPtr> windows);
+        public abstract void SetWindows(List<IntPtr> windows);
 
         protected abstract void OnWindowClosed(object sender, IntPtr e);
 
@@ -25,7 +24,7 @@ namespace WindowRecommender.Models
 
         protected abstract void OnWindowOpened(object sender, IntPtr e);
 
-        protected virtual void InvokeOrderChanged()
+        protected void InvokeOrderChanged()
         {
             OrderChanged?.Invoke(this, null);
         }

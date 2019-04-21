@@ -55,9 +55,9 @@ namespace WindowRecommender.Models
             return _scores;
         }
 
-        public override void SetWindows(IEnumerable<IntPtr> windows)
+        public override void SetWindows(List<IntPtr> windows)
         {
-            if (windows.Count() > 0)
+            if (windows.Count > 0)
             {
                 var windowHandle = windows.First();
                 _focusEvents.Add((windowHandle, dateTime: DateTime.Now));
@@ -74,13 +74,13 @@ namespace WindowRecommender.Models
         protected override void OnWindowFocused(object sender, IntPtr e)
         {
             var windowHandle = e;
-            _focusEvents.Add((windowHandle: windowHandle, dateTime: DateTime.Now));
+            _focusEvents.Add((windowHandle, dateTime: DateTime.Now));
         }
 
         protected override void OnWindowOpened(object sender, IntPtr e)
         {
             var windowHandle = e;
-            _focusEvents.Add((windowHandle: windowHandle, dateTime: DateTime.Now));
+            _focusEvents.Add((windowHandle, dateTime: DateTime.Now));
         }
     }
 }

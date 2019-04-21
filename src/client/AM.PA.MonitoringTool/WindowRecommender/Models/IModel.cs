@@ -14,6 +14,6 @@ namespace WindowRecommender.Models
         /// Does not trigger an <see cref="OrderChanged"/>-event.
         /// </summary>
         /// <param name="windows">Currently open windows in z-index order.</param>
-        void SetWindows(IEnumerable<IntPtr> windows);
+        void SetWindows(List<IntPtr> windows);
     }
 }

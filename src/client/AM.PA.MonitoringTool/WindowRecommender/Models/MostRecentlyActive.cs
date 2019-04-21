@@ -23,9 +23,9 @@ namespace WindowRecommender.Models
             return scores;
         }
 
-        public override void SetWindows(IEnumerable<IntPtr> windows)
+        public override void SetWindows(List<IntPtr> windows)
         {
-            _windows = windows.ToList();
+            _windows = windows;
         }
 
         protected override void OnWindowClosed(object sender, IntPtr e)

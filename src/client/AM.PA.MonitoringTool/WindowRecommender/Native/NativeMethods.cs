@@ -69,22 +69,34 @@ namespace WindowRecommender.Native
             return stringBuilder.ToString().Trim();
         }
 
-        internal static bool IsOpenWindow(IntPtr windowHandle, IntPtr shellWindowHandle = default(IntPtr))
+        internal static bool IsOpenWindow(IntPtr windowHandle, IntPtr shellWindowHandle = default)
         {
-            if (shellWindowHandle == default(IntPtr))
+            if (shellWindowHandle == default)
             {
                 shellWindowHandle = GetShellWindow();
             }
-            if (windowHandle == shellWindowHandle) return false;
+            if (windowHandle == shellWindowHandle)
+            {
+                return false;
+            }
 
-            if (!IsWindowVisible(windowHandle)) return false;
+            if (!IsWindowVisible(windowHandle))
+            {
+                return false;
+            }
 
-            if (IsIconic(windowHandle)) return false;
+            if (IsIconic(windowHandle))
+            {
+                return false;
+            }
 
             var windowStyles = GetWindowLong(windowHandle, GWL_STYLE);
-            if ((windowStyles & WS_CAPTION) == 0) return false;
+            if ((windowStyles & WS_CAPTION) == 0)
+            {
+                return false;
+            }
 
-            var result = DwmGetWindowAttribute(windowHandle, DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, out int isCloaked, Marshal.SizeOf(typeof(int)));
+            var result = DwmGetWindowAttribute(windowHandle, DWMWINDOWATTRIBUTE.DWMWA_CLOAKED, out var isCloaked, Marshal.SizeOf(typeof(int)));
             if (result != S_OK)
             {
                 isCloaked = 0;

@@ -14,7 +14,8 @@ namespace WindowRecommender
                 {
                     return rectangles.SelectMany(rectangle => Cut(rectangle, windowInfo.rect));
                 }
-                return rectangles.Concat(Cut(windowInfo.rect, rectangles));
+                var rectangleList = rectangles.ToList();
+                return rectangleList.Concat(Cut(windowInfo.rect, rectangleList));
             });
         }
 

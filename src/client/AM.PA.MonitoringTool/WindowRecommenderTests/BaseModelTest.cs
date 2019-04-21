@@ -15,7 +15,7 @@ namespace WindowRecommenderTests
         {
             var scores = new Dictionary<IntPtr, double>();
             var topWindows = BaseModel.GetTopWindows(scores);
-            Assert.IsTrue(Enumerable.SequenceEqual(Enumerable.Empty<IntPtr>(), topWindows));
+            Assert.IsTrue(Enumerable.Empty<IntPtr>().SequenceEqual(topWindows));
         }
 
         [TestMethod]

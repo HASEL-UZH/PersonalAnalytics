@@ -21,7 +21,7 @@ namespace WindowRecommenderTests
 
                 var stubModel = new StubIModel
                 {
-                    SetWindowsIEnumerableOfIntPtr = windowHandles => Assert.AreEqual(new IntPtr(1), windowHandles.First()),
+                    SetWindowsListOfIntPtr = windowHandles => Assert.AreEqual(new IntPtr(1), windowHandles.First()),
                     GetScores = () => new Dictionary<IntPtr, double> {
                         { new IntPtr(1), 1 },
                     }
