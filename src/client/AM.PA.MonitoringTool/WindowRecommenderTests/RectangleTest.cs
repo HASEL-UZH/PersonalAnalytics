@@ -69,12 +69,13 @@ namespace WindowRecommenderTests
             Assert.AreNotEqual(new Rectangle(1, 1, 2, 2).GetHashCode(), new Rectangle(2, 2, 3, 3).GetHashCode());
         }
 
+        [TestMethod]
         public void TestTranslatedRelative()
         {
             var rectangle1 = new Rectangle(1, 1, 1, 1);
             var rectangle2 = new Rectangle(2, 2, 2, 2);
             Assert.AreEqual(rectangle1, Rectangle.TranslatedRelative(new Rectangle(), rectangle1));
-            Assert.AreEqual(rectangle2, Rectangle.TranslatedRelative(rectangle1, rectangle2));
+            Assert.AreEqual(rectangle1, Rectangle.TranslatedRelative(rectangle1, rectangle2));
             Assert.AreEqual(new Rectangle(), Rectangle.TranslatedRelative(rectangle1, rectangle1));
         }
 
