@@ -12,11 +12,6 @@ namespace WindowRecommenderTests
     public class DurationTest
     {
         /// <summary>
-        /// Delta for comparing double values
-        /// </summary>
-        private const double Delta = 0.000001;
-
-        /// <summary>
         /// Step set to a value that gives nice results on division by 60 in most cases
         /// </summary>
         private const int IntervalStep = 3;
@@ -55,7 +50,7 @@ namespace WindowRecommenderTests
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
                 System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
-                duration.SetWindows(new IntPtr[] { new IntPtr(1) });
+                duration.SetWindows(new[] { new IntPtr(1) });
 
                 System.Fakes.ShimDateTime.NowGet = () => intervalTime;
                 duration.OnInterval(null, null);
@@ -88,7 +83,7 @@ namespace WindowRecommenderTests
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
                 System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
-                duration.SetWindows(new IntPtr[] { new IntPtr(1) });
+                duration.SetWindows(new[] { new IntPtr(1) });
 
                 System.Fakes.ShimDateTime.NowGet = () => openEventTime;
                 openHandler.Invoke(modelEvents, new IntPtr(2));
@@ -125,7 +120,7 @@ namespace WindowRecommenderTests
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
                 System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
-                duration.SetWindows(new IntPtr[] { new IntPtr(1) });
+                duration.SetWindows(new[] { new IntPtr(1) });
 
                 System.Fakes.ShimDateTime.NowGet = () => focusEventTime;
                 focusHandler.Invoke(modelEvents, new IntPtr(2));
@@ -161,7 +156,7 @@ namespace WindowRecommenderTests
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
                 System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
-                duration.SetWindows(new IntPtr[] { new IntPtr(1) });
+                duration.SetWindows(new[] { new IntPtr(1) });
 
                 System.Fakes.ShimDateTime.NowGet = () => firstFocusEventTime;
                 focusHandler.Invoke(modelEvents, new IntPtr(2));
@@ -172,10 +167,11 @@ namespace WindowRecommenderTests
                 System.Fakes.ShimDateTime.NowGet = () => intervalTime;
                 duration.OnInterval(null, null);
 
-                var scores = duration.GetScores();
-                Assert.AreEqual(2, scores.Count);
-                Assert.AreEqual((Settings.DurationIntervalSeconds - IntervalStep) / (Settings.DurationTimeframeMinutes * 60D), scores[new IntPtr(1)], Delta);
-                Assert.AreEqual(IntervalStep / (Settings.DurationTimeframeMinutes * 60D), scores[new IntPtr(2)], Delta);
+                CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
+                {
+                    {new IntPtr(1), (Settings.DurationIntervalSeconds - IntervalStep) / (Settings.DurationTimeframeMinutes * 60D)},
+                    {new IntPtr(2), IntervalStep / (Settings.DurationTimeframeMinutes * 60D)},
+                }, duration.GetScores(), new ScoreComparer());
             }
         }
 
@@ -194,7 +190,7 @@ namespace WindowRecommenderTests
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
                 System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
-                duration.SetWindows(new IntPtr[] { new IntPtr(1) });
+                duration.SetWindows(new[] { new IntPtr(1) });
 
                 System.Fakes.ShimDateTime.NowGet = () => firstIntervalTime;
                 duration.OnInterval(null, null);
@@ -237,7 +233,7 @@ namespace WindowRecommenderTests
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
                 System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
-                duration.SetWindows(new IntPtr[] { new IntPtr(1) });
+                duration.SetWindows(new[] { new IntPtr(1) });
 
                 System.Fakes.ShimDateTime.NowGet = () => focusTime;
                 focusHandler.Invoke(modelEvents, new IntPtr(2));
@@ -245,20 +241,22 @@ namespace WindowRecommenderTests
                 System.Fakes.ShimDateTime.NowGet = () => firstIntervalTime;
                 duration.OnInterval(null, null);
 
-                var scores = duration.GetScores();
-                Assert.AreEqual(2, scores.Count);
-                Assert.AreEqual((Settings.DurationIntervalSeconds - IntervalStep) / (Settings.DurationTimeframeMinutes * 60D), scores[new IntPtr(1)], Delta);
-                Assert.AreEqual(IntervalStep / (Settings.DurationTimeframeMinutes * 60D), scores[new IntPtr(2)], Delta);
+                CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
+                {
+                    {new IntPtr(1), (Settings.DurationIntervalSeconds - IntervalStep) / (Settings.DurationTimeframeMinutes * 60D)},
+                    {new IntPtr(2), IntervalStep / (Settings.DurationTimeframeMinutes * 60D)},
+                }, duration.GetScores(), new ScoreComparer());
                 Assert.IsTrue(called);
                 called = false;
 
                 System.Fakes.ShimDateTime.NowGet = () => secondIntervalTime;
                 duration.OnInterval(null, null);
 
-                scores = duration.GetScores();
-                Assert.AreEqual(2, scores.Count);
-                Assert.AreEqual((Settings.DurationIntervalSeconds - IntervalStep) / (Settings.DurationTimeframeMinutes * 60D), scores[new IntPtr(1)], Delta);
-                Assert.AreEqual((Settings.DurationIntervalSeconds + IntervalStep) / (Settings.DurationTimeframeMinutes * 60D), scores[new IntPtr(2)], Delta);
+                CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
+                {
+                    {new IntPtr(1), (Settings.DurationIntervalSeconds - IntervalStep) / (Settings.DurationTimeframeMinutes * 60D)},
+                    {new IntPtr(2), (Settings.DurationIntervalSeconds + IntervalStep) / (Settings.DurationTimeframeMinutes * 60D)},
+                }, duration.GetScores(), new ScoreComparer());
                 Assert.IsTrue(called);
             }
         }
@@ -284,7 +282,7 @@ namespace WindowRecommenderTests
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
                 System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
-                duration.SetWindows(new IntPtr[] { new IntPtr(1) });
+                duration.SetWindows(new[] { new IntPtr(1) });
 
                 System.Fakes.ShimDateTime.NowGet = () => focusTime;
                 focusHandler.Invoke(modelEvents, new IntPtr(2));
@@ -310,9 +308,10 @@ namespace WindowRecommenderTests
                 System.Fakes.ShimDateTime.NowGet = () => durationTime;
                 duration.OnInterval(null, null);
 
-                var scores = duration.GetScores();
-                Assert.AreEqual(1, scores.Count);
-                Assert.AreEqual(1, scores[new IntPtr(2)], Delta);
+                CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
+                {
+                    {new IntPtr(2), 1}
+                }, duration.GetScores(), new ScoreComparer());
             }
         }
 
@@ -338,7 +337,7 @@ namespace WindowRecommenderTests
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
                 System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
-                duration.SetWindows(new IntPtr[] { new IntPtr(1) });
+                duration.SetWindows(new[] { new IntPtr(1) });
 
                 System.Fakes.ShimDateTime.NowGet = () => focusEventTime;
                 focusHandler.Invoke(modelEvents, new IntPtr(2));
@@ -384,10 +383,10 @@ namespace WindowRecommenderTests
                     WindowClosedAddEventHandlerOfIntPtr = handler => closedHandler = handler
                 };
                 var duration = new Duration(modelEvents);
-                CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
+                CollectionAssert.AreEqual(new Dictionary<IntPtr, double>(), duration.GetScores());
 
                 System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
-                duration.SetWindows(new IntPtr[] { new IntPtr(1) });
+                duration.SetWindows(new[] { new IntPtr(1) });
 
                 System.Fakes.ShimDateTime.NowGet = () => focusEventTime;
                 focusHandler.Invoke(modelEvents, new IntPtr(2));
@@ -399,9 +398,10 @@ namespace WindowRecommenderTests
                 System.Fakes.ShimDateTime.NowGet = () => intervalTime;
                 duration.OnInterval(null, null);
 
-                var scores = duration.GetScores();
-                Assert.AreEqual(1, scores.Count);
-                Assert.AreEqual((Settings.DurationIntervalSeconds - IntervalStep) / (Settings.DurationTimeframeMinutes * 60D), scores[new IntPtr(1)], Delta);
+                CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
+                {
+                    {new IntPtr(1), (Settings.DurationIntervalSeconds - IntervalStep) / (Settings.DurationTimeframeMinutes * 60D)}
+                }, duration.GetScores(), new ScoreComparer());
             }
         }
     }
