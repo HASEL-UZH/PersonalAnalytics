@@ -58,18 +58,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ModelCoreTest.cs" />
-    <Compile Include="MostRecentlyActiveTest.cs" />
+    <Compile Include="Models\ModelCoreTest.cs" />
+    <Compile Include="Models\MostRecentlyActiveTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RectangleTest.cs" />
     <Compile Include="MaskTest.cs" />
-    <Compile Include="QueriesTest.cs" />
-    <Compile Include="DurationTest.cs" />
-    <Compile Include="FrequencyTest.cs" />
-    <Compile Include="BaseModelTest.cs" />
+    <Compile Include="Data\QueriesTest.cs" />
+    <Compile Include="Models\DurationTest.cs" />
+    <Compile Include="Models\FrequencyTest.cs" />
+    <Compile Include="Models\BaseModelTest.cs" />
     <Compile Include="ScoreComparer.cs" />
     <Compile Include="TextUtilsTest.cs" />
-    <Compile Include="TitleSimilarityTest.cs" />
+    <Compile Include="Models\TitleSimilarityTest.cs" />
     <Compile Include="ScoreComparerTest.cs" />
     <Compile Include="WindowStackTest.cs" />
     <Compile Include="WindowRecommenderTest.cs" />
