@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace WindowRecommenderTests
+namespace WindowRecommenderTests.Tools
 {
     [TestClass]
     public class ScoreComparerTest

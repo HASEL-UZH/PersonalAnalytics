@@ -67,10 +67,10 @@
     <Compile Include="Models\DurationTest.cs" />
     <Compile Include="Models\FrequencyTest.cs" />
     <Compile Include="Models\BaseModelTest.cs" />
-    <Compile Include="ScoreComparer.cs" />
+    <Compile Include="Tools\ScoreComparer.cs" />
     <Compile Include="TextUtilsTest.cs" />
     <Compile Include="Models\TitleSimilarityTest.cs" />
-    <Compile Include="ScoreComparerTest.cs" />
+    <Compile Include="Tools\ScoreComparerTest.cs" />
     <Compile Include="WindowStackTest.cs" />
     <Compile Include="WindowRecommenderTest.cs" />
     <Compile Include="UtilsTest.cs" />

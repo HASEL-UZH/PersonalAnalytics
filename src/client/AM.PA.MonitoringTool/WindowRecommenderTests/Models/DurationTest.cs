@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using WindowRecommender;
 using WindowRecommender.Fakes;
 using WindowRecommender.Models;
+using WindowRecommenderTests.Tools;
 
 namespace WindowRecommenderTests
 {

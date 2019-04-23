@@ -7,6 +7,7 @@ using WindowRecommender;
 using WindowRecommender.Fakes;
 using WindowRecommender.Models;
 using WindowRecommender.Native.Fakes;
+using WindowRecommenderTests.Tools;
 
 namespace WindowRecommenderTests
 {

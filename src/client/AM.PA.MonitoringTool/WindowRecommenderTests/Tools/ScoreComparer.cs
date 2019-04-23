@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace WindowRecommenderTests
+namespace WindowRecommenderTests.Tools
 {
     internal class ScoreComparer : IComparer
     {
