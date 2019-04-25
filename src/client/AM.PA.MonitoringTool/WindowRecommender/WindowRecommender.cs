@@ -40,6 +40,7 @@ namespace WindowRecommender
                 (new MostRecentlyActive(_modelEvents), 1),
                 (new Frequency(_modelEvents), 1),
                 (new Duration(_modelEvents), 1),
+                (new TitleSimilarity(_modelEvents), 1),
             });
             _modelCore.ScoreChanged += OnScoresChanged;
 
