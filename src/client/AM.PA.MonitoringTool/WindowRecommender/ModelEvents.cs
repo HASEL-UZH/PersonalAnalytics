@@ -9,6 +9,7 @@ namespace WindowRecommender
         internal event EventHandler<IntPtr> WindowFocused;
         internal event EventHandler<IntPtr> WindowOpened;
         internal event EventHandler<IntPtr> WindowClosed;
+        internal event EventHandler<IntPtr> WindowMinimized;
         internal event EventHandler<IntPtr> WindowRenamed;
         internal event EventHandler MoveStarted;
         internal event EventHandler MoveEnded;
@@ -16,7 +17,7 @@ namespace WindowRecommender
         private readonly NativeMethods.Wineventproc _onWindowCreated;
         private readonly NativeMethods.Wineventproc _onWindowFocused;
         private readonly NativeMethods.Wineventproc _onWindowRestore;
-        private readonly NativeMethods.Wineventproc _onWindowMinimize;
+        private readonly NativeMethods.Wineventproc _onWindowMinimized;
         private readonly NativeMethods.Wineventproc _onWindowClosed;
         private readonly NativeMethods.Wineventproc _onWindowMoved;
         private readonly NativeMethods.Wineventproc _onMoveStarted;
@@ -33,7 +34,7 @@ namespace WindowRecommender
             _onWindowFocused = OnWindowFocused;
             _onWindowRestore = OnWindowFocused;
             _onWindowClosed = OnWindowClosed;
-            _onWindowMinimize = OnWindowClosed;
+            _onWindowMinimized = OnWindowMinimized;
             _onWindowMoved = OnWindowMoved;
             _onMoveStarted = OnMoveStarted;
             _onMoveEnded = OnMoveEnded;
@@ -49,7 +50,7 @@ namespace WindowRecommender
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_OBJECT_CREATE, _onWindowCreated),
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_FOREGROUND, _onWindowFocused),
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_MINIMIZEEND, _onWindowRestore),
-                NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_MINIMIZESTART, _onWindowMinimize),
+                NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_MINIMIZESTART, _onWindowMinimized),
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_MOVESIZEEND, _onMoveEnded),
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_SYSTEM_MOVESIZESTART, _onMoveStarted),
                 NativeMethods.SetWinEventHook(WinEventConstant.EVENT_OBJECT_LOCATIONCHANGE, _onWindowMoved),
@@ -118,6 +119,20 @@ namespace WindowRecommender
                 if (!_isMoving)
                 {
                     WindowClosed?.Invoke(this, hwnd);
+                    if (hwnd == _focusedWindow)
+                    {
+                        _focusedWindow = IntPtr.Zero;
+                    }
+                }
+            }
+        }
+        private void OnWindowMinimized(IntPtr hWinEventHook, WinEventConstant @event, IntPtr hwnd, ObjectIdentifier idObject, int idChild, uint idEventThread, uint dwmsEventTime)
+        {
+            if (hwnd != IntPtr.Zero && idObject == ObjectIdentifier.OBJID_WINDOW && idChild == NativeMethods.CHILDID_SELF)
+            {
+                if (!_isMoving)
+                {
+                    WindowMinimized?.Invoke(this, hwnd);
                     if (hwnd == _focusedWindow)
                     {
                         _focusedWindow = IntPtr.Zero;

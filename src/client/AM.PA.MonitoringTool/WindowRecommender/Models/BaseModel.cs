@@ -12,6 +12,7 @@ namespace WindowRecommender.Models
             modelEvents.WindowOpened += OnWindowOpened;
             modelEvents.WindowFocused += OnWindowFocused;
             modelEvents.WindowClosed += OnWindowClosed;
+            modelEvents.WindowMinimized += OnWindowClosed;
         }
 
         public abstract Dictionary<IntPtr, double> GetScores();
@@ -28,6 +29,7 @@ namespace WindowRecommender.Models
         {
             OrderChanged?.Invoke(this, null);
         }
+
         internal static IEnumerable<IntPtr> GetTopWindows(Dictionary<IntPtr, double> scores)
         {
             return Utils.GetTopEntries(scores, Settings.NumberOfWindows);

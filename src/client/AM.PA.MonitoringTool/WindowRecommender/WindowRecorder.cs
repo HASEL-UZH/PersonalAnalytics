@@ -25,6 +25,7 @@ namespace WindowRecommender
             modelEvents.WindowOpened += OnWindowOpened;
             modelEvents.WindowFocused += OnWindowFocused;
             modelEvents.WindowClosed += OnWindowClosed;
+            modelEvents.WindowMinimized += OnWindowMinimized;
         }
 
         internal void SetScores(Dictionary<IntPtr, double> scores, IEnumerable<IntPtr> ranks)
@@ -44,6 +45,19 @@ namespace WindowRecommender
                 Queries.SaveEvent(windowHandle, processName, EventName.Close, rank, score);
                 _scores.Remove(windowHandle);
                 _processNames.Remove(windowHandle);
+            }
+        }
+
+        private void OnWindowMinimized(object sender, IntPtr e)
+        {
+            var windowHandle = e;
+            if (_scores.ContainsKey(windowHandle))
+            {
+                var score = _scores[windowHandle];
+                var rank = Array.IndexOf(_ranks, windowHandle);
+                var processName = GetProcessName(windowHandle);
+                Queries.SaveEvent(windowHandle, processName, EventName.Minimize, rank, score);
+                _scores.Remove(windowHandle);
             }
         }
 

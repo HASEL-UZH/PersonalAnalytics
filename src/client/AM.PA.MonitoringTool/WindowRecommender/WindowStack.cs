@@ -13,6 +13,7 @@ namespace WindowRecommender
             modelEvents.WindowOpened += OnWindowOpened;
             modelEvents.WindowFocused += OnWindowFocused;
             modelEvents.WindowClosed += OnWindowClosed;
+            modelEvents.WindowMinimized += OnWindowClosed;
         }
 
         internal int GetZIndex(IntPtr windowHandle)

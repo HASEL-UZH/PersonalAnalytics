@@ -100,6 +100,32 @@ namespace WindowRecommenderTests
         }
 
         [TestMethod]
+        public void TestGet_Minimize()
+        {
+            using (ShimsContext.Create())
+            {
+                EventHandler<IntPtr> minimizeHandler = null;
+                var modelEvents = new ShimModelEvents
+                {
+                    WindowMinimizedAddEventHandlerOfIntPtr = handler => minimizeHandler = handler
+                };
+                var windowStack = new WindowStack(modelEvents)
+                {
+                    Windows = new List<IntPtr>
+                    {
+                        new IntPtr(1),
+                        new IntPtr(2)
+                    }
+                };
+                minimizeHandler.Invoke(modelEvents, new IntPtr(1));
+                CollectionAssert.AreEqual(new List<IntPtr>
+                {
+                    new IntPtr(2)
+                }, windowStack.Windows);
+            }
+        }
+
+        [TestMethod]
         public void TestGetZIndex()
         {
             var windowStack = new WindowStack(new ModelEvents())

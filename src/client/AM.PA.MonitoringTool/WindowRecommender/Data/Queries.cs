@@ -27,6 +27,7 @@ namespace WindowRecommender.Data
         public static readonly EventName Open = new EventName("Open");
         public static readonly EventName Focus = new EventName("Focus");
         public static readonly EventName Close = new EventName("Close");
+        public static readonly EventName Minimize = new EventName("Minimize");
 
         private EventName(string name)
         {
