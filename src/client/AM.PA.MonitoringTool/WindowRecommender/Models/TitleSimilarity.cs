@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Accord.MachineLearning;
-using WindowRecommender.Native;
 
 namespace WindowRecommender.Models
 {
@@ -13,12 +12,16 @@ namespace WindowRecommender.Models
         private IntPtr[] _topWindows;
         private IntPtr _currentWindow;
 
-        public TitleSimilarity(ModelEvents modelEvents) : base(modelEvents)
+        public TitleSimilarity(IWindowEvents windowEvents) : base(windowEvents)
         {
-            modelEvents.WindowRenamed += OnWindowRenamed;
             _scores = new Dictionary<IntPtr, double>();
             _topWindows = new IntPtr[0];
             _titles = new Dictionary<IntPtr, string[]>();
+
+            windowEvents.WindowClosedOrMinimized += OnWindowClosedOrMinimized;
+            windowEvents.WindowOpened += OnWindowOpened;
+            windowEvents.WindowFocused += OnWindowFocused;
+            windowEvents.WindowRenamed += OnWindowRenamed;
         }
 
         public override Dictionary<IntPtr, double> GetScores()
@@ -26,13 +29,13 @@ namespace WindowRecommender.Models
             return _scores;
         }
 
-        public override void SetWindows(List<IntPtr> windows)
+        protected override void Setup(List<WindowRecord> windowRecords)
         {
-            if (windows.Count > 0)
+            if (windowRecords.Count > 0)
             {
-                _currentWindow = windows.First();
-                _titles = windows
-                    .Select(windowHandle => (windowHandle, preparedTitle: GetPreparedWindowTitle(windowHandle)))
+                _currentWindow = windowRecords.First().Handle;
+                _titles = windowRecords
+                    .Select(windowRecord => (windowHandle: windowRecord.Handle, preparedTitle: GetPreparedWindowTitle(windowRecord)))
                     .Where(tuple => tuple.preparedTitle.Length != 0)
                     .ToDictionary(tuple => tuple.windowHandle, tuple => tuple.preparedTitle);
                 _scores = CalculateScores();
@@ -40,45 +43,45 @@ namespace WindowRecommender.Models
             }
         }
 
-        protected override void OnWindowClosed(object sender, IntPtr e)
+        private void OnWindowClosedOrMinimized(object sender, WindowRecord e)
         {
-            var windowHandle = e;
-            _scores.Remove(windowHandle);
-            _titles.Remove(windowHandle);
+            var windowRecord = e;
+            _scores.Remove(windowRecord.Handle);
+            _titles.Remove(windowRecord.Handle);
         }
 
-        protected override void OnWindowFocused(object sender, IntPtr e)
+        private void OnWindowFocused(object sender, WindowRecord e)
         {
-            var windowHandle = e;
-            _currentWindow = windowHandle;
+            var windowRecord = e;
+            _currentWindow = windowRecord.Handle;
             CalculateScoreChanges();
         }
 
-        protected override void OnWindowOpened(object sender, IntPtr e)
+        private void OnWindowOpened(object sender, WindowRecord e)
         {
-            var windowHandle = e;
-            _currentWindow = windowHandle;
-            var preparedTitle = GetPreparedWindowTitle(windowHandle);
+            var windowRecord = e;
+            _currentWindow = windowRecord.Handle;
+            var preparedTitle = GetPreparedWindowTitle(windowRecord);
             if (preparedTitle.Length != 0)
             {
-                _titles[windowHandle] = preparedTitle;
+                _titles[windowRecord.Handle] = preparedTitle;
             }
             CalculateScoreChanges();
         }
 
-        private void OnWindowRenamed(object sender, IntPtr e)
+        private void OnWindowRenamed(object sender, WindowRecord e)
         {
-            var windowHandle = e;
-            var preparedTitle = GetPreparedWindowTitle(windowHandle);
-            if (!_titles.ContainsKey(windowHandle) || !_titles[windowHandle].SequenceEqual(preparedTitle))
+            var windowRecord = e;
+            var preparedTitle = GetPreparedWindowTitle(windowRecord);
+            if (!_titles.ContainsKey(windowRecord.Handle) || !_titles[windowRecord.Handle].SequenceEqual(preparedTitle))
             {
                 if (preparedTitle.Length != 0)
                 {
-                    _titles[windowHandle] = preparedTitle;
+                    _titles[windowRecord.Handle] = preparedTitle;
                 }
                 else
                 {
-                    _titles.Remove(windowHandle);
+                    _titles.Remove(windowRecord.Handle);
                 }
                 CalculateScoreChanges();
             }
@@ -117,9 +120,9 @@ namespace WindowRecommender.Models
             return scores;
         }
 
-        private static string[] GetPreparedWindowTitle(IntPtr windowHandle)
+        private static string[] GetPreparedWindowTitle(WindowRecord windowRecord)
         {
-            return TextUtils.PrepareTitle(NativeMethods.GetWindowTitle(windowHandle)).ToArray();
+            return TextUtils.PrepareTitle(windowRecord.Title).ToArray();
         }
     }
 }

@@ -7,18 +7,22 @@ namespace WindowRecommender.Models
 {
     internal class Frequency : BaseModel
     {
+
         private readonly List<(IntPtr windowHandle, DateTime dateTime)> _focusEvents;
         private readonly HashSet<IntPtr> _closedWindows;
 
         private Dictionary<IntPtr, double> _scores;
         private IntPtr[] _topWindows;
 
-        internal Frequency(ModelEvents modelEvents) : base(modelEvents)
+        internal Frequency(IWindowEvents windowEvents) : base(windowEvents)
         {
             _scores = new Dictionary<IntPtr, double>();
             _focusEvents = new List<(IntPtr windowHandle, DateTime dateTime)>();
             _closedWindows = new HashSet<IntPtr>();
             _topWindows = new IntPtr[0];
+
+            windowEvents.WindowClosedOrMinimized += OnWindowClosedOrMinimized;
+            windowEvents.WindowOpenedOrFocused += OnWindowOpenedOrFocused;
 
             var timer = new Timer(Settings.DurationIntervalSeconds * 1000)
             {
@@ -55,32 +59,26 @@ namespace WindowRecommender.Models
             return _scores;
         }
 
-        public override void SetWindows(List<IntPtr> windows)
+        protected override void Setup(List<WindowRecord> windowRecords)
         {
-            if (windows.Count > 0)
+            if (windowRecords.Count > 0)
             {
-                var windowHandle = windows.First();
+                var windowHandle = windowRecords.First().Handle;
                 _focusEvents.Add((windowHandle, dateTime: DateTime.Now));
                 _topWindows = new[] { windowHandle };
             }
         }
 
-        protected override void OnWindowClosed(object sender, IntPtr e)
+        private void OnWindowClosedOrMinimized(object sender, WindowRecord e)
         {
-            var windowHandle = e;
-            _closedWindows.Add(windowHandle);
+            var windowRecord = e;
+            _closedWindows.Add(windowRecord.Handle);
         }
 
-        protected override void OnWindowFocused(object sender, IntPtr e)
+        private void OnWindowOpenedOrFocused(object sender, WindowRecord e)
         {
-            var windowHandle = e;
-            _focusEvents.Add((windowHandle, dateTime: DateTime.Now));
-        }
-
-        protected override void OnWindowOpened(object sender, IntPtr e)
-        {
-            var windowHandle = e;
-            _focusEvents.Add((windowHandle, dateTime: DateTime.Now));
+            var windowRecord = e;
+            _focusEvents.Add((windowHandle: windowRecord.Handle, dateTime: DateTime.Now));
         }
     }
 }

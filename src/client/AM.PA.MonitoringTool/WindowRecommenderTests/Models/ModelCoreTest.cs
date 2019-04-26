@@ -1,11 +1,8 @@
-﻿using Microsoft.QualityTools.Testing.Fakes;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using WindowRecommender.Models;
 using WindowRecommender.Models.Fakes;
-using WindowRecommender.Native.Fakes;
 
 namespace WindowRecommenderTests
 {
@@ -15,123 +12,110 @@ namespace WindowRecommenderTests
         [TestMethod]
         public void TestStart()
         {
-            using (ShimsContext.Create())
+            var stubModel = new StubIModel
             {
-                ShimNativeMethods.GetOpenWindows = () => new List<IntPtr> { new IntPtr(1) };
+                GetScores = () => new Dictionary<IntPtr, double> {
+                    { new IntPtr(1), 1 },
+                }
+            };
 
-                var stubModel = new StubIModel
+            var modelCore = new ModelCore(new (IModel, double)[]
+            {
+                (stubModel, 1)
+            });
+            modelCore.ScoreChanged += (sender, scores) =>
+            {
+                CollectionAssert.AreEqual(scores, new Dictionary<IntPtr, double>
                 {
-                    SetWindowsListOfIntPtr = windowHandles => Assert.AreEqual(new IntPtr(1), windowHandles.First()),
-                    GetScores = () => new Dictionary<IntPtr, double> {
-                        { new IntPtr(1), 1 },
-                    }
-                };
-
-                var modelCore = new ModelCore(new (IModel, double)[]
-                {
-                    (stubModel, 1)
+                    {new IntPtr(1), 1},
                 });
-                modelCore.ScoreChanged += (sender, scores) =>
-                {
-                    CollectionAssert.AreEqual(scores, new Dictionary<IntPtr, double>
-                    {
-                        {new IntPtr(1), 1},
-                    });
-                };
-                modelCore.Start();
-            }
+            };
+            modelCore.Start();
         }
 
         [TestMethod]
         public void TestScoreCalculation()
         {
-            using (ShimsContext.Create())
+            var stubModel = new StubIModel
             {
-                ShimNativeMethods.GetOpenWindows = () => new List<IntPtr>();
-
-                var stubModel = new StubIModel
-                {
-                    GetScores = () => new Dictionary<IntPtr, double>
+                GetScores = () => new Dictionary<IntPtr, double>
                     {
                         {new IntPtr(1), 1},
                         {new IntPtr(2), 1},
                         {new IntPtr(3), 0},
                         {new IntPtr(4), 0}
                     }
-                };
+            };
 
-                var stubModel2 = new StubIModel
-                {
-                    GetScores = () => new Dictionary<IntPtr, double>
+            var stubModel2 = new StubIModel
+            {
+                GetScores = () => new Dictionary<IntPtr, double>
                     {
                         {new IntPtr(1), 4},
                         {new IntPtr(2), 0},
                         {new IntPtr(3), 1}
                     }
-                };
+            };
 
-                var modelCore = new ModelCore(new (IModel, double)[]
-                {
+            var modelCore = new ModelCore(new (IModel, double)[]
+            {
                     (stubModel, 1),
                     (stubModel2, 2),
-                });
-                modelCore.ScoreChanged += (sender, scores) =>
+            });
+            modelCore.ScoreChanged += (sender, scores) =>
+            {
+                CollectionAssert.AreEqual(scores, new Dictionary<IntPtr, double>
                 {
-                    CollectionAssert.AreEqual(scores, new Dictionary<IntPtr, double>
-                    {
                         {new IntPtr(1), 0.7},
                         {new IntPtr(2), 0.5 / 3},
                         {new IntPtr(3), 0.4 / 3},
                         {new IntPtr(4), 0}
-                    });
-                };
-                modelCore.Start();
-            }
+                });
+            };
+            modelCore.Start();
         }
 
         [TestMethod]
         public void TestOnOrderChanged()
         {
-            using (ShimsContext.Create())
+            var stubModel = new StubIModel
             {
-                var stubModel = new StubIModel
-                {
-                    GetScores = () => new Dictionary<IntPtr, double>
+                GetScores = () => new Dictionary<IntPtr, double>
                     {
                         {new IntPtr(1), 1},
                         {new IntPtr(2), 1},
                         {new IntPtr(3), 0},
                         {new IntPtr(4), 0}
                     }
-                };
+            };
 
-                var stubModel2 = new StubIModel
-                {
-                    GetScores = () => new Dictionary<IntPtr, double>
+            var stubModel2 = new StubIModel
+            {
+                GetScores = () => new Dictionary<IntPtr, double>
                     {
                         {new IntPtr(1), 4},
                         {new IntPtr(2), 0},
                         {new IntPtr(3), 1}
                     }
-                };
+            };
 
-                var modelCore = new ModelCore(new (IModel, double)[]
-                {
+            var modelCore = new ModelCore(new (IModel, double)[]
+            {
                     (stubModel, 0.5),
                     (stubModel2, 1),
-                });
-                modelCore.ScoreChanged += (sender, scores) =>
+            });
+            modelCore.ScoreChanged += (sender, scores) =>
+            {
+                CollectionAssert.AreEqual(scores, new Dictionary<IntPtr, double>
                 {
-                    CollectionAssert.AreEqual(scores, new Dictionary<IntPtr, double>
-                    {
                         {new IntPtr(1), 0.7},
                         {new IntPtr(2), 0.5 / 3},
                         {new IntPtr(3), 0.4 / 3},
                         {new IntPtr(4), 0}
-                    });
-                };
-                stubModel.OrderChangedEvent.Invoke(stubModel, null);
-            }
+                });
+            };
+            stubModel.OrderChangedEvent.Invoke(stubModel, null);
+
         }
 
         [TestMethod]

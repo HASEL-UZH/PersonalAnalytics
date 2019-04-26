@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using WindowRecommender.Native;
 
 namespace WindowRecommender.Models
 {
@@ -15,7 +14,7 @@ namespace WindowRecommender.Models
         internal ModelCore((IModel model, double weight)[] models)
         {
             _models = models;
-            _weightSum = _models.Sum((modelWeight) => modelWeight.weight);
+            _weightSum = _models.Sum(modelWeight => modelWeight.weight);
             foreach (var (model, _) in _models)
             {
                 model.OrderChanged += OnOrderChanged;
@@ -24,11 +23,6 @@ namespace WindowRecommender.Models
 
         internal void Start()
         {
-            var windows = NativeMethods.GetOpenWindows();
-            foreach (var (model, _) in _models)
-            {
-                model.SetWindows(windows);
-            }
             MergeScores();
         }
 

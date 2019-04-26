@@ -1,5 +1,4 @@
-﻿using Microsoft.QualityTools.Testing.Fakes;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using WindowRecommender;
@@ -13,129 +12,82 @@ namespace WindowRecommenderTests
         [TestMethod]
         public void TestGet_Set()
         {
-            var windows = new List<IntPtr> { new IntPtr(1) };
-            var windowStack = new WindowStack(new ModelEvents()) { Windows = windows };
-            CollectionAssert.AreEqual(windows, windowStack.Windows);
+            var windowEvents = new StubIWindowEvents();
+            var windowStack = new WindowStack(windowEvents);
+            windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
+            {
+                new WindowRecord(new IntPtr(1))
+            });
+            CollectionAssert.AreEqual(new List<IntPtr>
+            {
+                new IntPtr(1)
+            }, windowStack.Windows);
         }
 
         [TestMethod]
         public void TestGet_Open()
         {
-            using (ShimsContext.Create())
+            var windowEvents = new StubIWindowEvents();
+            var windowStack = new WindowStack(windowEvents);
+            windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
             {
-                EventHandler<IntPtr> openHandler = null;
-                var modelEvents = new ShimModelEvents
-                {
-                    WindowOpenedAddEventHandlerOfIntPtr = handler => openHandler = handler
-                };
-                var windowStack = new WindowStack(modelEvents)
-                {
-                    Windows = new List<IntPtr>
-                    {
-                        new IntPtr(1),
-                        new IntPtr(2)
-                    }
-                };
-                openHandler.Invoke(modelEvents, new IntPtr(3));
-                CollectionAssert.AreEqual(new List<IntPtr>
-                {
-                    new IntPtr(3),
-                    new IntPtr(1),
-                    new IntPtr(2)
-                }, windowStack.Windows);
-            }
+                new WindowRecord(new IntPtr(1)),
+                new WindowRecord(new IntPtr(2)),
+            });
+            windowEvents.WindowOpenedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(3)));
+            CollectionAssert.AreEqual(new List<IntPtr>
+            {
+                new IntPtr(3),
+                new IntPtr(1),
+                new IntPtr(2)
+            }, windowStack.Windows);
         }
 
         [TestMethod]
         public void TestGet_Focus()
         {
-            using (ShimsContext.Create())
+            var windowEvents = new StubIWindowEvents();
+            var windowStack = new WindowStack(windowEvents);
+            windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
             {
-                EventHandler<IntPtr> focusHandler = null;
-                var modelEvents = new ShimModelEvents
-                {
-                    WindowFocusedAddEventHandlerOfIntPtr = handler => focusHandler = handler
-                };
-                var windowStack = new WindowStack(modelEvents)
-                {
-                    Windows = new List<IntPtr>
-                    {
-                        new IntPtr(1),
-                        new IntPtr(2)
-                    }
-                };
-                focusHandler.Invoke(modelEvents, new IntPtr(2));
-                CollectionAssert.AreEqual(new List<IntPtr>
-                {
-                    new IntPtr(2),
-                    new IntPtr(1)
-                }, windowStack.Windows);
-            }
+                new WindowRecord(new IntPtr(1)),
+                new WindowRecord(new IntPtr(2)),
+            });
+            windowEvents.WindowFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2)));
+            CollectionAssert.AreEqual(new List<IntPtr>
+            {
+                new IntPtr(2),
+                new IntPtr(1)
+            }, windowStack.Windows);
         }
 
         [TestMethod]
-        public void TestGet_Close()
+        public void TestGet_CloseOrMinimize()
         {
-            using (ShimsContext.Create())
+            var windowEvents = new StubIWindowEvents();
+            var windowStack = new WindowStack(windowEvents);
+            windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
             {
-                EventHandler<IntPtr> closeHandler = null;
-                var modelEvents = new ShimModelEvents
-                {
-                    WindowClosedAddEventHandlerOfIntPtr = handler => closeHandler = handler
-                };
-                var windowStack = new WindowStack(modelEvents)
-                {
-                    Windows = new List<IntPtr>
-                    {
-                        new IntPtr(1),
-                        new IntPtr(2)
-                    }
-                };
-                closeHandler.Invoke(modelEvents, new IntPtr(1));
-                CollectionAssert.AreEqual(new List<IntPtr>
-                {
-                    new IntPtr(2)
-                }, windowStack.Windows);
-            }
-        }
-
-        [TestMethod]
-        public void TestGet_Minimize()
-        {
-            using (ShimsContext.Create())
+                new WindowRecord(new IntPtr(1)),
+                new WindowRecord(new IntPtr(2)),
+            });
+            windowEvents.WindowClosedOrMinimizedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(1)));
+            CollectionAssert.AreEqual(new List<IntPtr>
             {
-                EventHandler<IntPtr> minimizeHandler = null;
-                var modelEvents = new ShimModelEvents
-                {
-                    WindowMinimizedAddEventHandlerOfIntPtr = handler => minimizeHandler = handler
-                };
-                var windowStack = new WindowStack(modelEvents)
-                {
-                    Windows = new List<IntPtr>
-                    {
-                        new IntPtr(1),
-                        new IntPtr(2)
-                    }
-                };
-                minimizeHandler.Invoke(modelEvents, new IntPtr(1));
-                CollectionAssert.AreEqual(new List<IntPtr>
-                {
-                    new IntPtr(2)
-                }, windowStack.Windows);
-            }
+                new IntPtr(2)
+            }, windowStack.Windows);
         }
 
         [TestMethod]
         public void TestGetZIndex()
         {
-            var windowStack = new WindowStack(new ModelEvents())
+            var windowEvents = new StubIWindowEvents();
+            var windowStack = new WindowStack(windowEvents);
+            windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
             {
-                Windows = new List<IntPtr>
-                {
-                    new IntPtr(1),
-                    new IntPtr(2)
-                }
-            };
+                new WindowRecord(new IntPtr(1)),
+                new WindowRecord(new IntPtr(2)),
+            });
             Assert.AreEqual(1, windowStack.GetZIndex(new IntPtr(2)));
         }
     }

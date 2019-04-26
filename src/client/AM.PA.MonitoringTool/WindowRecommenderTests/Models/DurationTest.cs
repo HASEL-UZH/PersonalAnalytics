@@ -32,8 +32,9 @@ namespace WindowRecommenderTests
         [TestMethod]
         public void TestEmpty()
         {
-            var duration = new Duration(new ModelEvents());
-            duration.SetWindows(new List<IntPtr>());
+            var windowEvents = new StubIWindowEvents();
+            var duration = new Duration(windowEvents);
+            windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>());
             Assert.AreEqual(0, duration.GetScores().Count);
         }
 
@@ -46,12 +47,16 @@ namespace WindowRecommenderTests
                 var intervalTime = setWindowsTime.AddSeconds(Settings.DurationIntervalSeconds);
 
                 var called = false;
-                var duration = new Duration(new ModelEvents());
+                var windowEvents = new StubIWindowEvents();
+                var duration = new Duration(windowEvents);
                 duration.OrderChanged += (sender, args) => called = true;
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
                 System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
-                duration.SetWindows(new List<IntPtr> {new IntPtr(1)});
+                windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
+                {
+                    new WindowRecord(new IntPtr(1))
+                });
 
                 System.Fakes.ShimDateTime.NowGet = () => intervalTime;
                 duration.OnInterval(null, null);
@@ -73,21 +78,20 @@ namespace WindowRecommenderTests
                 var openEventTime = setWindowsTime.AddSeconds(IntervalStep);
                 var intervalTime = setWindowsTime.AddSeconds(Settings.DurationIntervalSeconds);
 
-                EventHandler<IntPtr> openHandler = null;
-                var modelEvents = new ShimModelEvents
-                {
-                    WindowOpenedAddEventHandlerOfIntPtr = handler => openHandler = handler
-                };
                 var called = false;
-                var duration = new Duration(modelEvents);
+                var windowEvents = new StubIWindowEvents();
+                var duration = new Duration(windowEvents);
                 duration.OrderChanged += (sender, args) => called = true;
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
                 System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
-                duration.SetWindows(new List<IntPtr> {new IntPtr(1)});
+                windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
+                {
+                    new WindowRecord(new IntPtr(1))
+                });
 
                 System.Fakes.ShimDateTime.NowGet = () => openEventTime;
-                openHandler.Invoke(modelEvents, new IntPtr(2));
+                windowEvents.WindowOpenedOrFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2)));
 
                 System.Fakes.ShimDateTime.NowGet = () => intervalTime;
                 duration.OnInterval(null, null);
@@ -110,21 +114,20 @@ namespace WindowRecommenderTests
                 var focusEventTime = setWindowsTime.AddSeconds(IntervalStep);
                 var intervalTime = setWindowsTime.AddSeconds(Settings.DurationIntervalSeconds);
 
-                EventHandler<IntPtr> focusHandler = null;
-                var modelEvents = new ShimModelEvents
-                {
-                    WindowFocusedAddEventHandlerOfIntPtr = handler => focusHandler = handler
-                };
                 var called = false;
-                var duration = new Duration(modelEvents);
+                var windowEvents = new StubIWindowEvents();
+                var duration = new Duration(windowEvents);
                 duration.OrderChanged += (sender, args) => called = true;
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
                 System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
-                duration.SetWindows(new List<IntPtr> {new IntPtr(1)});
+                windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
+                {
+                    new WindowRecord(new IntPtr(1))
+                });
 
                 System.Fakes.ShimDateTime.NowGet = () => focusEventTime;
-                focusHandler.Invoke(modelEvents, new IntPtr(2));
+                windowEvents.WindowOpenedOrFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2)));
 
                 System.Fakes.ShimDateTime.NowGet = () => intervalTime;
                 duration.OnInterval(null, null);
@@ -148,22 +151,21 @@ namespace WindowRecommenderTests
                 var secondFocusEventTime = firstFocusEventTime.AddSeconds(IntervalStep);
                 var intervalTime = setWindowsTime.AddSeconds(Settings.DurationIntervalSeconds);
 
-                EventHandler<IntPtr> focusHandler = null;
-                var modelEvents = new ShimModelEvents
-                {
-                    WindowFocusedAddEventHandlerOfIntPtr = handler => focusHandler = handler
-                };
-                var duration = new Duration(modelEvents);
+                var windowEvents = new StubIWindowEvents();
+                var duration = new Duration(windowEvents);
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
                 System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
-                duration.SetWindows(new List<IntPtr> {new IntPtr(1)});
+                windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
+                {
+                    new WindowRecord(new IntPtr(1))
+                });
 
                 System.Fakes.ShimDateTime.NowGet = () => firstFocusEventTime;
-                focusHandler.Invoke(modelEvents, new IntPtr(2));
+                windowEvents.WindowOpenedOrFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2)));
 
                 System.Fakes.ShimDateTime.NowGet = () => secondFocusEventTime;
-                focusHandler.Invoke(modelEvents, new IntPtr(1));
+                windowEvents.WindowOpenedOrFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(1)));
 
                 System.Fakes.ShimDateTime.NowGet = () => intervalTime;
                 duration.OnInterval(null, null);
@@ -186,12 +188,16 @@ namespace WindowRecommenderTests
                 var secondIntervalTime = firstIntervalTime.AddSeconds(Settings.DurationIntervalSeconds);
 
                 var called = false;
-                var duration = new Duration(new ModelEvents());
+                var windowEvents = new StubIWindowEvents();
+                var duration = new Duration(windowEvents);
                 duration.OrderChanged += (sender, args) => called = true;
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
                 System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
-                duration.SetWindows(new List<IntPtr> {new IntPtr(1)});
+                windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
+                {
+                    new WindowRecord(new IntPtr(1))
+                });
 
                 System.Fakes.ShimDateTime.NowGet = () => firstIntervalTime;
                 duration.OnInterval(null, null);
@@ -224,20 +230,19 @@ namespace WindowRecommenderTests
                 var secondIntervalTime = firstIntervalTime.AddSeconds(Settings.DurationIntervalSeconds);
 
                 var called = false;
-                EventHandler<IntPtr> focusHandler = null;
-                var modelEvents = new ShimModelEvents
-                {
-                    WindowFocusedAddEventHandlerOfIntPtr = handler => focusHandler = handler
-                };
-                var duration = new Duration(modelEvents);
+                var windowEvents = new StubIWindowEvents();
+                var duration = new Duration(windowEvents);
                 duration.OrderChanged += (sender, args) => called = true;
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
                 System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
-                duration.SetWindows(new List<IntPtr> {new IntPtr(1)});
+                windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
+                {
+                    new WindowRecord(new IntPtr(1))
+                });
 
                 System.Fakes.ShimDateTime.NowGet = () => focusTime;
-                focusHandler.Invoke(modelEvents, new IntPtr(2));
+                windowEvents.WindowOpenedOrFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2)));
 
                 System.Fakes.ShimDateTime.NowGet = () => firstIntervalTime;
                 duration.OnInterval(null, null);
@@ -274,19 +279,18 @@ namespace WindowRecommenderTests
                 var intervalTime = setWindowsTime.AddSeconds(Settings.DurationIntervalSeconds);
                 var durationTime = intervalTime.AddMinutes(Settings.DurationTimeframeMinutes);
 
-                EventHandler<IntPtr> focusHandler = null;
-                var modelEvents = new ShimModelEvents
-                {
-                    WindowFocusedAddEventHandlerOfIntPtr = handler => focusHandler = handler
-                };
-                var duration = new Duration(modelEvents);
+                var windowEvents = new StubIWindowEvents();
+                var duration = new Duration(windowEvents);
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
                 System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
-                duration.SetWindows(new List<IntPtr> {new IntPtr(1)});
+                windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
+                {
+                    new WindowRecord(new IntPtr(1))
+                });
 
                 System.Fakes.ShimDateTime.NowGet = () => focusTime;
-                focusHandler.Invoke(modelEvents, new IntPtr(2));
+                windowEvents.WindowOpenedOrFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2)));
 
                 System.Fakes.ShimDateTime.NowGet = () => intervalTime;
                 duration.OnInterval(null, null);
@@ -327,21 +331,18 @@ namespace WindowRecommenderTests
                 var closedEventTime = interval1Time.AddSeconds(IntervalStep);
                 var interval2Time = interval1Time.AddSeconds(Settings.DurationIntervalSeconds);
 
-                EventHandler<IntPtr> focusHandler = null;
-                EventHandler<IntPtr> closedHandler = null;
-                var modelEvents = new ShimModelEvents
-                {
-                    WindowFocusedAddEventHandlerOfIntPtr = handler => focusHandler = handler,
-                    WindowClosedAddEventHandlerOfIntPtr = handler => closedHandler = handler
-                };
-                var duration = new Duration(modelEvents);
+                var windowEvents = new StubIWindowEvents();
+                var duration = new Duration(windowEvents);
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
                 System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
-                duration.SetWindows(new List<IntPtr> {new IntPtr(1)});
+                windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
+                {
+                    new WindowRecord(new IntPtr(1))
+                });
 
                 System.Fakes.ShimDateTime.NowGet = () => focusEventTime;
-                focusHandler.Invoke(modelEvents, new IntPtr(2));
+                windowEvents.WindowOpenedOrFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2)));
 
                 System.Fakes.ShimDateTime.NowGet = () => interval1Time;
                 duration.OnInterval(null, null);
@@ -353,8 +354,8 @@ namespace WindowRecommenderTests
                 }, duration.GetScores());
 
                 System.Fakes.ShimDateTime.NowGet = () => closedEventTime;
-                closedHandler.Invoke(modelEvents, new IntPtr(2));
-                focusHandler.Invoke(modelEvents, new IntPtr(1));
+                windowEvents.WindowClosedOrMinimizedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2)));
+                windowEvents.WindowOpenedOrFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(1)));
 
                 System.Fakes.ShimDateTime.NowGet = () => interval2Time;
                 duration.OnInterval(null, null);
@@ -376,25 +377,22 @@ namespace WindowRecommenderTests
                 var closedEventTime = focusEventTime.AddSeconds(IntervalStep);
                 var intervalTime = setWindowsTime.AddSeconds(Settings.DurationIntervalSeconds);
 
-                EventHandler<IntPtr> focusHandler = null;
-                EventHandler<IntPtr> closedHandler = null;
-                var modelEvents = new ShimModelEvents
-                {
-                    WindowFocusedAddEventHandlerOfIntPtr = handler => focusHandler = handler,
-                    WindowClosedAddEventHandlerOfIntPtr = handler => closedHandler = handler
-                };
-                var duration = new Duration(modelEvents);
+                var windowEvents = new StubIWindowEvents();
+                var duration = new Duration(windowEvents);
                 CollectionAssert.AreEqual(new Dictionary<IntPtr, double>(), duration.GetScores());
 
                 System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
-                duration.SetWindows(new List<IntPtr> {new IntPtr(1)});
+                windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
+                {
+                    new WindowRecord(new IntPtr(1))
+                });
 
                 System.Fakes.ShimDateTime.NowGet = () => focusEventTime;
-                focusHandler.Invoke(modelEvents, new IntPtr(2));
+                windowEvents.WindowOpenedOrFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2)));
 
                 System.Fakes.ShimDateTime.NowGet = () => closedEventTime;
-                closedHandler.Invoke(modelEvents, new IntPtr(2));
-                focusHandler.Invoke(modelEvents, new IntPtr(1));
+                windowEvents.WindowClosedOrMinimizedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2)));
+                windowEvents.WindowOpenedOrFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(1)));
 
                 System.Fakes.ShimDateTime.NowGet = () => intervalTime;
                 duration.OnInterval(null, null);

@@ -71,6 +71,8 @@
     <Compile Include="TextUtilsTest.cs" />
     <Compile Include="Models\TitleSimilarityTest.cs" />
     <Compile Include="Tools\ScoreComparerTest.cs" />
+    <Compile Include="WindowCacheTest.cs" />
+    <Compile Include="WindowRecordTest.cs" />
     <Compile Include="WindowStackTest.cs" />
     <Compile Include="WindowRecommenderTest.cs" />
     <Compile Include="UtilsTest.cs" />

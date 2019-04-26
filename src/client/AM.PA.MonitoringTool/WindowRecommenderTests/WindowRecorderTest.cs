@@ -6,7 +6,6 @@ using WindowRecommender;
 using WindowRecommender.Data;
 using WindowRecommender.Data.Fakes;
 using WindowRecommender.Fakes;
-using WindowRecommender.Native.Fakes;
 
 namespace WindowRecommenderTests
 {
@@ -18,13 +17,7 @@ namespace WindowRecommenderTests
         {
             using (ShimsContext.Create())
             {
-                ShimNativeMethods.GetProcessNameIntPtr = windowHandle => "test_process";
                 var called = false;
-                EventHandler<IntPtr> onOpenHandler = null;
-                var modelEvents = new ShimModelEvents
-                {
-                    WindowOpenedAddEventHandlerOfIntPtr = handler => onOpenHandler = handler
-                };
                 ShimQueries.SaveEventIntPtrStringEventNameInt32DoubleInt32 = (window, processName, eventName, rank, score, zIndex) =>
                 {
                     called = true;
@@ -35,9 +28,10 @@ namespace WindowRecommenderTests
                     Assert.AreEqual(-1, score);
                     Assert.AreEqual(-1, zIndex);
                 };
-                var wr = new WindowRecorder(modelEvents, new WindowStack(modelEvents));
-                wr.SetScores(new Dictionary<IntPtr, double>(), new List<IntPtr>());
-                onOpenHandler.Invoke(modelEvents, new IntPtr(1));
+                var windowEvents = new StubIWindowEvents();
+                // ReSharper disable once ObjectCreationAsStatement
+                new WindowRecorder(windowEvents, new WindowStack(windowEvents));
+                windowEvents.WindowOpenedEvent(windowEvents, new WindowRecord(new IntPtr(1), "", "test_process"));
                 Assert.IsTrue(called);
             }
         }
@@ -47,17 +41,7 @@ namespace WindowRecommenderTests
         {
             using (ShimsContext.Create())
             {
-                ShimNativeMethods.GetProcessNameIntPtr = windowHandle => "test_process";
                 var called = false;
-                EventHandler<IntPtr> onFocusHandler = null;
-                var modelEvents = new ShimModelEvents
-                {
-                    WindowFocusedAddEventHandlerOfIntPtr = handler => onFocusHandler = handler
-                };
-                var windowStack = new ShimWindowStack
-                {
-                    GetZIndexIntPtr = windowHandle => 1
-                };
                 ShimQueries.SaveEventIntPtrStringEventNameInt32DoubleInt32 = (window, processName, eventName, rank, score, zIndex) =>
                 {
                     called = true;
@@ -68,62 +52,19 @@ namespace WindowRecommenderTests
                     Assert.AreEqual(0.8, score);
                     Assert.AreEqual(1, zIndex);
                 };
-                var wr = new WindowRecorder(modelEvents, windowStack);
-                wr.SetScores(new Dictionary<IntPtr, double>
-                {
-                    {new IntPtr(1), 1},
-                    {new IntPtr(2), 0.8},
-                    {new IntPtr(3), 0.7}
-                }, new List<IntPtr> { new IntPtr(1), new IntPtr(2), new IntPtr(3) });
-                onFocusHandler.Invoke(modelEvents, new IntPtr(2));
-                Assert.IsTrue(called);
-            }
-        }
-
-        [TestMethod]
-        public void TestFocus_Again()
-        {
-            using (ShimsContext.Create())
-            {
-                ShimNativeMethods.GetProcessNameIntPtr = _ => "test_process";
-                var called = false;
-                EventHandler<IntPtr> onFocusHandler = null;
-                var modelEvents = new ShimModelEvents
-                {
-                    WindowFocusedAddEventHandlerOfIntPtr = handler => onFocusHandler = handler
-                };
+                var windowEvents = new StubIWindowEvents();
                 var windowStack = new ShimWindowStack
                 {
                     GetZIndexIntPtr = windowHandle => 1
                 };
-                ShimQueries.SaveEventIntPtrStringEventNameInt32DoubleInt32 = (window, processName, eventName, rank, score, zIndex) =>
-                {
-                    called = true;
-                    Assert.AreEqual(new IntPtr(2), window);
-                    Assert.AreEqual(EventName.Focus, eventName);
-                    Assert.AreEqual("test_process", processName);
-                    Assert.AreEqual(1, rank);
-                    Assert.AreEqual(0.8, score);
-                    Assert.AreEqual(1, zIndex);
-                };
-                var wr = new WindowRecorder(modelEvents, windowStack);
+                var wr = new WindowRecorder(windowEvents, windowStack);
                 wr.SetScores(new Dictionary<IntPtr, double>
                 {
                     {new IntPtr(1), 1},
                     {new IntPtr(2), 0.8},
                     {new IntPtr(3), 0.7}
                 }, new List<IntPtr> { new IntPtr(1), new IntPtr(2), new IntPtr(3) });
-                onFocusHandler.Invoke(modelEvents, new IntPtr(2));
-                Assert.IsTrue(called);
-
-                // Test caching of process names
-                called = false;
-                ShimNativeMethods.GetProcessNameIntPtr = _ =>
-                {
-                    Assert.Fail();
-                    return "";
-                };
-                onFocusHandler.Invoke(modelEvents, new IntPtr(2));
+                windowEvents.WindowFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2), "", "test_process"));
                 Assert.IsTrue(called);
             }
         }
@@ -133,13 +74,7 @@ namespace WindowRecommenderTests
         {
             using (ShimsContext.Create())
             {
-                ShimNativeMethods.GetProcessNameIntPtr = windowHandle => "test_process";
                 var called = false;
-                EventHandler<IntPtr> onFocusHandler = null;
-                var modelEvents = new ShimModelEvents
-                {
-                    WindowFocusedAddEventHandlerOfIntPtr = handler => onFocusHandler = handler
-                };
                 ShimQueries.SaveEventIntPtrStringEventNameInt32DoubleInt32 = (window, processName, eventName, rank, score, zIndex) =>
                 {
                     called = true;
@@ -150,9 +85,10 @@ namespace WindowRecommenderTests
                     Assert.AreEqual(-1, score);
                     Assert.AreEqual(-1, zIndex);
                 };
-                var wr = new WindowRecorder(modelEvents, new WindowStack(modelEvents));
-                wr.SetScores(new Dictionary<IntPtr, double>(), new List<IntPtr>());
-                onFocusHandler.Invoke(modelEvents, new IntPtr(1));
+                var windowEvents = new StubIWindowEvents();
+                // ReSharper disable once ObjectCreationAsStatement
+                new WindowRecorder(windowEvents, new WindowStack(windowEvents));
+                windowEvents.WindowFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(1), "", "test_process"));
                 Assert.IsTrue(called);
             }
         }
@@ -162,13 +98,7 @@ namespace WindowRecommenderTests
         {
             using (ShimsContext.Create())
             {
-                ShimNativeMethods.GetProcessNameIntPtr = windowHandle => "test_process";
                 var called = false;
-                EventHandler<IntPtr> onClosedHandler = null;
-                var modelEvents = new ShimModelEvents
-                {
-                    WindowClosedAddEventHandlerOfIntPtr = handler => onClosedHandler = handler
-                };
                 ShimQueries.SaveEventIntPtrStringEventNameInt32DoubleInt32 = (window, processName, eventName, rank, score, zIndex) =>
                 {
                     called = true;
@@ -179,7 +109,8 @@ namespace WindowRecommenderTests
                     Assert.AreEqual(0.8, score);
                     Assert.AreEqual(-1, zIndex);
                 };
-                var wr = new WindowRecorder(modelEvents, new WindowStack(modelEvents));
+                var windowEvents = new StubIWindowEvents();
+                var wr = new WindowRecorder(windowEvents, new WindowStack(windowEvents));
                 wr.SetScores(new Dictionary<IntPtr, double>
                 {
                     {new IntPtr(1), 1},
@@ -187,11 +118,10 @@ namespace WindowRecommenderTests
                     {new IntPtr(3), 0.7}
                 }, new List<IntPtr> { new IntPtr(1), new IntPtr(2), new IntPtr(3) });
 
-
-                onClosedHandler.Invoke(modelEvents, new IntPtr(4));
+                windowEvents.WindowClosedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(4), "", "test_process"));
                 Assert.IsFalse(called);
 
-                onClosedHandler.Invoke(modelEvents, new IntPtr(2));
+                windowEvents.WindowClosedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2), "", "test_process"));
                 Assert.IsTrue(called);
             }
         }
@@ -201,13 +131,7 @@ namespace WindowRecommenderTests
         {
             using (ShimsContext.Create())
             {
-                ShimNativeMethods.GetProcessNameIntPtr = windowHandle => "test_process";
                 var called = false;
-                EventHandler<IntPtr> onMinimizedHandler = null;
-                var modelEvents = new ShimModelEvents
-                {
-                    WindowMinimizedAddEventHandlerOfIntPtr = handler => onMinimizedHandler = handler
-                };
                 ShimQueries.SaveEventIntPtrStringEventNameInt32DoubleInt32 = (window, processName, eventName, rank, score, zIndex) =>
                 {
                     called = true;
@@ -218,7 +142,8 @@ namespace WindowRecommenderTests
                     Assert.AreEqual(0.8, score);
                     Assert.AreEqual(-1, zIndex);
                 };
-                var wr = new WindowRecorder(modelEvents, new WindowStack(modelEvents));
+                var windowEvents = new StubIWindowEvents();
+                var wr = new WindowRecorder(windowEvents, new WindowStack(windowEvents));
                 wr.SetScores(new Dictionary<IntPtr, double>
                 {
                     {new IntPtr(1), 1},
@@ -226,11 +151,10 @@ namespace WindowRecommenderTests
                     {new IntPtr(3), 0.7}
                 }, new List<IntPtr> { new IntPtr(1), new IntPtr(2), new IntPtr(3) });
 
-
-                onMinimizedHandler.Invoke(modelEvents, new IntPtr(4));
+                windowEvents.WindowMinimizedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(4), "", "test_process"));
                 Assert.IsFalse(called);
 
-                onMinimizedHandler.Invoke(modelEvents, new IntPtr(2));
+                windowEvents.WindowMinimizedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2), "", "test_process"));
                 Assert.IsTrue(called);
             }
         }

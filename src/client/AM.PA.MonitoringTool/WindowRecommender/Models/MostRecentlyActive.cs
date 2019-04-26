@@ -8,9 +8,13 @@ namespace WindowRecommender.Models
     {
         private List<IntPtr> _windows;
 
-        internal MostRecentlyActive(ModelEvents modelEvents) : base(modelEvents)
+        internal MostRecentlyActive(IWindowEvents windowEvents) : base(windowEvents)
         {
             _windows = new List<IntPtr>();
+
+            windowEvents.WindowClosedOrMinimized += OnWindowClosedOrMinimized;
+            windowEvents.WindowOpened += OnWindowOpened;
+            windowEvents.WindowFocused += OnWindowFocused;
         }
 
         public override Dictionary<IntPtr, double> GetScores()
@@ -23,18 +27,19 @@ namespace WindowRecommender.Models
             return scores;
         }
 
-        public override void SetWindows(List<IntPtr> windows)
+        protected override void Setup(List<WindowRecord> windowRecords)
         {
-            _windows = windows;
+            _windows = windowRecords.Select(record => record.Handle).ToList();
         }
 
-        protected override void OnWindowClosed(object sender, IntPtr e)
+        private void OnWindowClosedOrMinimized(object sender, WindowRecord e)
         {
-            var index = _windows.IndexOf(e);
+            var windowRecord = e;
+            var index = _windows.IndexOf(windowRecord.Handle);
             if (index != -1)
             {
                 var hasChanged = index < Settings.NumberOfWindows;
-                _windows.Remove(e);
+                _windows.Remove(windowRecord.Handle);
                 if (hasChanged)
                 {
                     InvokeOrderChanged();
@@ -42,22 +47,23 @@ namespace WindowRecommender.Models
             }
         }
 
-        protected override void OnWindowFocused(object sender, IntPtr e)
+        private void OnWindowFocused(object sender, WindowRecord e)
         {
-            var index = _windows.IndexOf(e);
+            var windowRecord = e;
+            var index = _windows.IndexOf(windowRecord.Handle);
             var hasChanged = index == -1 || index >= Settings.NumberOfWindows;
-            _windows.Remove(e);
-            _windows.Insert(0, e);
+            _windows.Remove(windowRecord.Handle);
+            _windows.Insert(0, windowRecord.Handle);
             if (hasChanged)
             {
                 InvokeOrderChanged();
             }
         }
 
-        protected override void OnWindowOpened(object sender, IntPtr e)
+        private void OnWindowOpened(object sender, WindowRecord e)
         {
-            var windowHandle = e;
-            _windows.Insert(0, windowHandle);
+            var windowRecord = e;
+            _windows.Insert(0, windowRecord.Handle);
             InvokeOrderChanged();
         }
     }

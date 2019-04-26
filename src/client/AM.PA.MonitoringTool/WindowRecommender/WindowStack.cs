@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace WindowRecommender
 {
     internal class WindowStack
     {
-        internal List<IntPtr> Windows { get; set; }
+        internal List<IntPtr> Windows { get; private set; }
 
-        internal WindowStack(ModelEvents modelEvents)
+        internal WindowStack(IWindowEvents windowEvents)
         {
             Windows = new List<IntPtr>();
-            modelEvents.WindowOpened += OnWindowOpened;
-            modelEvents.WindowFocused += OnWindowFocused;
-            modelEvents.WindowClosed += OnWindowClosed;
-            modelEvents.WindowMinimized += OnWindowClosed;
+            windowEvents.WindowOpened += OnWindowOpened;
+            windowEvents.WindowFocused += OnWindowFocused;
+            windowEvents.WindowClosedOrMinimized += OnWindowClosedOrMinimized;
+            windowEvents.Setup += OnSetup;
         }
 
         internal int GetZIndex(IntPtr windowHandle)
@@ -21,23 +22,28 @@ namespace WindowRecommender
             return Windows.IndexOf(windowHandle);
         }
 
-        private void OnWindowClosed(object sender, IntPtr e)
+        private void OnSetup(object sender, List<WindowRecord> windowRecords)
         {
-            var windowHandle = e;
-            Windows.Remove(windowHandle);
+            Windows = windowRecords.Select(record => record.Handle).ToList();
         }
 
-        private void OnWindowFocused(object sender, IntPtr e)
+        private void OnWindowClosedOrMinimized(object sender, WindowRecord e)
         {
-            var windowHandle = e;
-            Windows.Remove(windowHandle);
-            Windows.Insert(0, windowHandle);
+            var windowRecord = e;
+            Windows.Remove(windowRecord.Handle);
         }
 
-        private void OnWindowOpened(object sender, IntPtr e)
+        private void OnWindowFocused(object sender, WindowRecord e)
         {
-            var windowHandle = e;
-            Windows.Insert(0, windowHandle);
+            var windowRecord = e;
+            Windows.Remove(windowRecord.Handle);
+            Windows.Insert(0, windowRecord.Handle);
+        }
+
+        private void OnWindowOpened(object sender, WindowRecord e)
+        {
+            var windowRecord = e;
+            Windows.Insert(0, windowRecord.Handle);
         }
     }
 }

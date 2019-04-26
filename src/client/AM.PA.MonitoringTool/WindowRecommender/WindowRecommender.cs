@@ -19,6 +19,7 @@ namespace WindowRecommender
         private readonly ModelCore _modelCore;
         private readonly WindowRecorder _windowRecorder;
         private readonly WindowStack _windowStack;
+        private readonly WindowCache _windowCache;
 
         private bool _enabled;
 
@@ -32,15 +33,17 @@ namespace WindowRecommender
             _modelEvents.MoveStarted += OnMoveStarted;
             _modelEvents.MoveEnded += OnMoveEnded;
 
-            _windowStack = new WindowStack(_modelEvents);
-            _windowRecorder = new WindowRecorder(_modelEvents, _windowStack);
+            _windowCache = new WindowCache(_modelEvents);
+
+            _windowStack = new WindowStack(_windowCache);
+            _windowRecorder = new WindowRecorder(_windowCache, _windowStack);
 
             _modelCore = new ModelCore(new (IModel model, double weight)[]
             {
-                (new MostRecentlyActive(_modelEvents), 1),
-                (new Frequency(_modelEvents), 1),
-                (new Duration(_modelEvents), 1),
-                (new TitleSimilarity(_modelEvents), 1),
+                (new MostRecentlyActive(_windowCache), 1),
+                (new Frequency(_windowCache), 1),
+                (new Duration(_windowCache), 1),
+                (new TitleSimilarity(_windowCache), 1),
             });
             _modelCore.ScoreChanged += OnScoresChanged;
 
@@ -55,7 +58,7 @@ namespace WindowRecommender
         public override void Start()
         {
             IsRunning = true;
-            _windowStack.Windows = NativeMethods.GetOpenWindows();
+            _windowCache.Start();
             _hazeOverlay.Start();
             _modelCore.Start();
             _modelEvents.Start();

@@ -7,23 +7,14 @@ namespace WindowRecommender.Models
     {
         public event EventHandler OrderChanged;
 
-        internal BaseModel(ModelEvents modelEvents)
+        internal BaseModel(IWindowEvents windowEvents)
         {
-            modelEvents.WindowOpened += OnWindowOpened;
-            modelEvents.WindowFocused += OnWindowFocused;
-            modelEvents.WindowClosed += OnWindowClosed;
-            modelEvents.WindowMinimized += OnWindowClosed;
+            windowEvents.Setup += (sender, e) => Setup(e);
         }
 
         public abstract Dictionary<IntPtr, double> GetScores();
 
-        public abstract void SetWindows(List<IntPtr> windows);
-
-        protected abstract void OnWindowClosed(object sender, IntPtr e);
-
-        protected abstract void OnWindowFocused(object sender, IntPtr e);
-
-        protected abstract void OnWindowOpened(object sender, IntPtr e);
+        protected abstract void Setup(List<WindowRecord> windowRecords);
 
         protected void InvokeOrderChanged()
         {
