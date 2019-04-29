@@ -1,9 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using WindowRecommender;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using WindowRecommender.Graphics;
 
-namespace WindowRecommenderTests
+namespace WindowRecommenderTests.Graphics
 {
     [TestClass]
     public class MaskTest

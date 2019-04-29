@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using WindowRecommender.Util;
 
 namespace WindowRecommender.Models
 {

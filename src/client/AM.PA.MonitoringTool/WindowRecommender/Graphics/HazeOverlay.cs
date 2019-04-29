@@ -2,7 +2,7 @@
 using System.Linq;
 using WindowRecommender.Native;
 
-namespace WindowRecommender
+namespace WindowRecommender.Graphics
 {
     internal class HazeOverlay
     {

@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using WindowRecommender;
+using WindowRecommender.Util;
 
-namespace WindowRecommenderTests
+namespace WindowRecommenderTests.Util
 {
     [TestClass]
     public class TextUtilsTest

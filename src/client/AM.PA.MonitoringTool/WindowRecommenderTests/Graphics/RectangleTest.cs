@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using WindowRecommender;
+using WindowRecommender.Graphics;
 using WindowRecommender.Native;
 
-namespace WindowRecommenderTests
+namespace WindowRecommenderTests.Graphics
 {
     [TestClass]
     public class RectangleTest

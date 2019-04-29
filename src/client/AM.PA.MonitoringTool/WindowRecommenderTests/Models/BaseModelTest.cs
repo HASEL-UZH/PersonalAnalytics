@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using WindowRecommender;
 using WindowRecommender.Models;
 
-namespace WindowRecommenderTests
+namespace WindowRecommenderTests.Models
 {
     [TestClass]
     public class BaseModelTest

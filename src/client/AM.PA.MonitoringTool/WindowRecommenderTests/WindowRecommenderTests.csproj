@@ -61,21 +61,21 @@
     <Compile Include="Models\ModelCoreTest.cs" />
     <Compile Include="Models\MostRecentlyActiveTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RectangleTest.cs" />
-    <Compile Include="MaskTest.cs" />
+    <Compile Include="Graphics\RectangleTest.cs" />
+    <Compile Include="Graphics\MaskTest.cs" />
     <Compile Include="Data\QueriesTest.cs" />
     <Compile Include="Models\DurationTest.cs" />
     <Compile Include="Models\FrequencyTest.cs" />
     <Compile Include="Models\BaseModelTest.cs" />
     <Compile Include="Tools\ScoreComparer.cs" />
-    <Compile Include="TextUtilsTest.cs" />
+    <Compile Include="Util\TextUtilsTest.cs" />
     <Compile Include="Models\TitleSimilarityTest.cs" />
     <Compile Include="Tools\ScoreComparerTest.cs" />
     <Compile Include="WindowCacheTest.cs" />
     <Compile Include="WindowRecordTest.cs" />
     <Compile Include="WindowStackTest.cs" />
     <Compile Include="WindowRecommenderTest.cs" />
-    <Compile Include="UtilsTest.cs" />
+    <Compile Include="Util\UtilsTest.cs" />
     <Compile Include="WindowRecorderTest.cs" />
   </ItemGroup>
   <ItemGroup>

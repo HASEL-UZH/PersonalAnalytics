@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using WindowRecommender;
+using WindowRecommender.Graphics;
 using WindowRecommender.Native;
 using WindowRecommender.Native.Fakes;
 

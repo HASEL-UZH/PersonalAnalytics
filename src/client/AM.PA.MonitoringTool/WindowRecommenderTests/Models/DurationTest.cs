@@ -1,13 +1,13 @@
-﻿using Microsoft.QualityTools.Testing.Fakes;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Microsoft.QualityTools.Testing.Fakes;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using WindowRecommender;
 using WindowRecommender.Fakes;
 using WindowRecommender.Models;
 using WindowRecommenderTests.Tools;
 
-namespace WindowRecommenderTests
+namespace WindowRecommenderTests.Models
 {
     [TestClass]
     public class DurationTest

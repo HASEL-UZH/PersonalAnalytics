@@ -7,7 +7,7 @@ using System.IO;
 using WindowRecommender;
 using WindowRecommender.Data;
 
-namespace WindowRecommenderTests
+namespace WindowRecommenderTests.Data
 {
     [TestClass]
     public class QueriesTest

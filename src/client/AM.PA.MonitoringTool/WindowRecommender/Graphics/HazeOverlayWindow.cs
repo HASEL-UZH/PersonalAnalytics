@@ -1,10 +1,10 @@
 ﻿using System;
-using GameOverlay.Drawing;
-using GameOverlay.Windows;
 using System.Collections.Generic;
 using System.Linq;
+using GameOverlay.Drawing;
+using GameOverlay.Windows;
 
-namespace WindowRecommender
+namespace WindowRecommender.Graphics
 {
     internal class HazeOverlayWindow: IDisposable
     {

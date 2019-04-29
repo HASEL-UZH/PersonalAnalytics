@@ -6,7 +6,7 @@ using WindowRecommender.Fakes;
 using WindowRecommender.Models;
 using WindowRecommenderTests.Tools;
 
-namespace WindowRecommenderTests
+namespace WindowRecommenderTests.Models
 {
     [TestClass]
     public class TitleSimilarityTest

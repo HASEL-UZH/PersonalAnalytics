@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
+using WindowRecommender.Util;
 
 namespace WindowRecommender.Models
 {

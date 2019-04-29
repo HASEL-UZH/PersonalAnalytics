@@ -1,7 +1,7 @@
 ﻿using WindowRecommender.Native;
 using GameOverlayRectangle = GameOverlay.Drawing.Rectangle;
 
-namespace WindowRecommender
+namespace WindowRecommender.Graphics
 {
     internal struct Rectangle
     {

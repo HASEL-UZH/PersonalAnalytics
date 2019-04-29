@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Accord.MachineLearning.Text.Stemmers;
 
-namespace WindowRecommender
+namespace WindowRecommender.Util
 {
     internal static class TextUtils
     {

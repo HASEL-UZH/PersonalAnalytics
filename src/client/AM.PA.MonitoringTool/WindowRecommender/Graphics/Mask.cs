@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace WindowRecommender
+namespace WindowRecommender.Graphics
 {
     internal static class Mask
     {

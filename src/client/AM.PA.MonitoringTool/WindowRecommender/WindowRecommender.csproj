@@ -45,10 +45,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Data\Queries.cs" />
-    <Compile Include="HazeOverlay.cs" />
-    <Compile Include="HazeOverlayWindow.cs" />
+    <Compile Include="Graphics\HazeOverlay.cs" />
+    <Compile Include="Graphics\HazeOverlayWindow.cs" />
     <Compile Include="IWindowEvents.cs" />
-    <Compile Include="Mask.cs" />
+    <Compile Include="Graphics\Mask.cs" />
     <Compile Include="Models\BaseModel.cs" />
     <Compile Include="Models\Duration.cs" />
     <Compile Include="Models\Frequency.cs" />
@@ -62,10 +62,10 @@
     <Compile Include="Native\ObjectIdentifiers.cs" />
     <Compile Include="Native\RECT.cs" />
     <Compile Include="Native\WinEventConstants.cs" />
-    <Compile Include="Rectangle.cs" />
+    <Compile Include="Graphics\Rectangle.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="TextUtils.cs" />
-    <Compile Include="Utils.cs" />
+    <Compile Include="Util\TextUtils.cs" />
+    <Compile Include="Util\Utils.cs" />
     <Compile Include="WindowCache.cs" />
     <Compile Include="WindowRecommender.cs" />
     <Compile Include="Native\NativeMethods.cs" />

@@ -7,8 +7,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using WindowRecommender.Data;
+using WindowRecommender.Graphics;
 using WindowRecommender.Models;
 using WindowRecommender.Native;
+using WindowRecommender.Util;
 
 namespace WindowRecommender
 {
