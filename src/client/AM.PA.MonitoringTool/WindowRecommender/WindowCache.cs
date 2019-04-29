@@ -38,9 +38,12 @@ namespace WindowRecommender
         private void OnWindowClosed(object sender, IntPtr e)
         {
             var windowHandle = e;
-            WindowClosed?.Invoke(this, _cache[windowHandle]);
-            WindowClosedOrMinimized?.Invoke(this, _cache[windowHandle]);
-            _cache.Remove(windowHandle);
+            if (_cache.ContainsKey(windowHandle))
+            {
+                WindowClosed?.Invoke(this, _cache[windowHandle]);
+                WindowClosedOrMinimized?.Invoke(this, _cache[windowHandle]);
+                _cache.Remove(windowHandle);
+            }
         }
 
         private void OnWindowFocused(object sender, IntPtr e)
