@@ -14,6 +14,8 @@ namespace WindowRecommenderTests
             Assert.AreEqual(new WindowRecord(new IntPtr(1)), new WindowRecord(new IntPtr(1)));
             Assert.AreEqual(new WindowRecord(new IntPtr(1), "a", "a"), new WindowRecord(new IntPtr(1), "b", "b"));
 
+            Assert.IsFalse(new WindowRecord(new IntPtr(1)).Equals(null));
+            Assert.AreNotEqual(new WindowRecord(new IntPtr(1)), "aaa");
             Assert.AreNotEqual(new WindowRecord(new IntPtr(1)), new WindowRecord(new IntPtr(2)));
         }
 

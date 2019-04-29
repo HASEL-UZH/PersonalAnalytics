@@ -34,6 +34,13 @@ namespace WindowRecommenderTests
         }
 
         [TestMethod]
+        public void TestEmptyEvent()
+        {
+            var modelCore = new ModelCore(new (IModel, double)[0]);
+            modelCore.Start();
+        }
+
+        [TestMethod]
         public void TestScoreCalculation()
         {
             var stubModel = new StubIModel
