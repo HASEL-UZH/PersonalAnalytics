@@ -78,7 +78,9 @@ namespace WindowRecommender
 
         public override void UpdateDatabaseTables(int version)
         {
-            // No update in first version
+            // During development, drop and recreate tables
+            Queries.DropTables();
+            Queries.CreateTables();
         }
 
         public override string GetVersion()
