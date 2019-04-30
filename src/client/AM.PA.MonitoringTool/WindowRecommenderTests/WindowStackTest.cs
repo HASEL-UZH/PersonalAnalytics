@@ -21,7 +21,7 @@ namespace WindowRecommenderTests
             CollectionAssert.AreEqual(new List<IntPtr>
             {
                 new IntPtr(1)
-            }, windowStack.Windows);
+            }, windowStack.WindowRecords);
         }
 
         [TestMethod]
@@ -40,7 +40,7 @@ namespace WindowRecommenderTests
                 new IntPtr(3),
                 new IntPtr(1),
                 new IntPtr(2)
-            }, windowStack.Windows);
+            }, windowStack.WindowRecords);
         }
 
         [TestMethod]
@@ -58,7 +58,7 @@ namespace WindowRecommenderTests
             {
                 new IntPtr(2),
                 new IntPtr(1)
-            }, windowStack.Windows);
+            }, windowStack.WindowRecords);
         }
 
         [TestMethod]
@@ -75,7 +75,7 @@ namespace WindowRecommenderTests
             CollectionAssert.AreEqual(new List<IntPtr>
             {
                 new IntPtr(2)
-            }, windowStack.Windows);
+            }, windowStack.WindowRecords);
         }
 
         [TestMethod]
@@ -88,7 +88,7 @@ namespace WindowRecommenderTests
                 new WindowRecord(new IntPtr(1)),
                 new WindowRecord(new IntPtr(2)),
             });
-            Assert.AreEqual(1, windowStack.GetZIndex(new IntPtr(2)));
+            Assert.AreEqual(1, windowStack.GetZIndex(new WindowRecord(new IntPtr(2))));
         }
     }
 }

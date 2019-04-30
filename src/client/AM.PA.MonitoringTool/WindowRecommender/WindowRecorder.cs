@@ -78,13 +78,13 @@ namespace WindowRecommender
 
         private DatabaseEntry GetBasicEntry(WindowRecord windowRecord)
         {
-            var zIndex = _windowStack.GetZIndex(windowRecord.Handle);
+            var zIndex = _windowStack.GetZIndex(windowRecord);
             return new DatabaseEntry(windowRecord.Handle, windowRecord.Title, windowRecord.ProcessName, zIndex);
         }
 
         private DatabaseEntry GetExtendedEntry(WindowRecord windowRecord)
         {
-            var zIndex = _windowStack.GetZIndex(windowRecord.Handle);
+            var zIndex = _windowStack.GetZIndex(windowRecord);
             var rank = Array.IndexOf(_ranks, windowRecord.Handle);
             var score = _scores[windowRecord.Handle];
             return new DatabaseEntry(windowRecord.Handle, windowRecord.Title, windowRecord.ProcessName, zIndex, rank, score);

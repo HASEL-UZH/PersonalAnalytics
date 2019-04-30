@@ -2,7 +2,7 @@
 
 namespace WindowRecommender
 {
-    internal struct WindowRecord
+    internal struct WindowRecord : IEquatable<WindowRecord>
     {
         internal readonly IntPtr Handle;
         internal string Title;
@@ -22,19 +22,34 @@ namespace WindowRecommender
             ProcessName = processName;
         }
 
+        public bool Equals(WindowRecord other)
+        {
+            return Handle.Equals(other.Handle);
+        }
+
         public override bool Equals(object obj)
         {
-            if (obj == null || obj.GetType() != GetType())
+            if (obj is null)
             {
                 return false;
             }
 
-            return Handle.Equals(((WindowRecord)obj).Handle);
+            return obj is WindowRecord other && Equals(other);
         }
 
         public override int GetHashCode()
         {
             return Handle.GetHashCode();
+        }
+
+        public static bool operator ==(WindowRecord left, WindowRecord right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(WindowRecord left, WindowRecord right)
+        {
+            return !left.Equals(right);
         }
     }
 }

@@ -66,6 +66,7 @@
     <Compile Include="Settings.cs" />
     <Compile Include="Util\TextUtils.cs" />
     <Compile Include="Util\Utils.cs" />
+    <Compile Include="Util\WindowUtils.cs" />
     <Compile Include="WindowCache.cs" />
     <Compile Include="WindowRecommender.cs" />
     <Compile Include="Native\NativeMethods.cs" />

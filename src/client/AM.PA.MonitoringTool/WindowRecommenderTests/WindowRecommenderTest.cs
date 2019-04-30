@@ -18,7 +18,7 @@ namespace WindowRecommenderTests
         public void TestGetDrawList_Empty()
         {
             var scores = new Dictionary<IntPtr, double>();
-            var windowStack = new List<IntPtr>();
+            var windowStack = new List<WindowRecord>();
             var windowInfo = new List<(Rectangle rect, bool show)>();
             CollectionAssert.AreEqual(windowInfo, WindowRecommender.WindowRecommender.GetDrawList(scores, windowStack).ToList());
         }
@@ -35,11 +35,11 @@ namespace WindowRecommenderTests
                 };
 
                 var scores = new Dictionary<IntPtr, double>();
-                var windowStack = new List<IntPtr>();
+                var windowStack = new List<WindowRecord>();
                 for (var i = 1; i < Settings.NumberOfWindows + 2; i++)
                 {
                     var windowHandle = new IntPtr(i);
-                    windowStack.Add(windowHandle);
+                    windowStack.Add(new WindowRecord(windowHandle));
                     scores[windowHandle] = 1;
                 }
 
@@ -69,9 +69,12 @@ namespace WindowRecommenderTests
                     {new IntPtr(3), 1},
                     {new IntPtr(1), 1}
                 };
-                var windowStack = new List<IntPtr>
+                var windowStack = new List<WindowRecord>
                 {
-                    new IntPtr(1), new IntPtr(2), new IntPtr(3), new IntPtr(4)
+                    new WindowRecord(new IntPtr(1)),
+                    new WindowRecord(new IntPtr(2)),
+                    new WindowRecord(new IntPtr(3)),
+                    new WindowRecord(new IntPtr(4)),
                 };
                 var expectedWindowInfo = new List<(Rectangle rect, bool show)>
                 {
@@ -96,11 +99,11 @@ namespace WindowRecommenderTests
                 };
 
                 var scores = new Dictionary<IntPtr, double>();
-                var windowStack = new List<IntPtr>();
+                var windowStack = new List<WindowRecord>();
                 for (var i = 1; i < Settings.NumberOfWindows + 4; i++)
                 {
                     var windowHandle = new IntPtr(i);
-                    windowStack.Add(windowHandle);
+                    windowStack.Add(new WindowRecord(windowHandle));
                     if (i > 2)
                     {
                         scores[windowHandle] = 1;

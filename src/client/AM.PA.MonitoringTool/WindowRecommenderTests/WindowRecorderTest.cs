@@ -85,7 +85,7 @@ namespace WindowRecommenderTests
                 var windowEvents = new StubIWindowEvents();
                 var windowStack = new ShimWindowStack
                 {
-                    GetZIndexIntPtr = windowHandle => 1
+                    GetZIndexWindowRecord = windowRecord => 1
                 };
                 var wr = new WindowRecorder(windowEvents, windowStack);
                 wr.SetScores(new Dictionary<IntPtr, double>

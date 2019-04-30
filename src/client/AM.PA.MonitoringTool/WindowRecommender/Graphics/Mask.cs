@@ -6,16 +6,16 @@ namespace WindowRecommender.Graphics
 {
     internal static class Mask
     {
-        public static IEnumerable<Rectangle> Cut(Rectangle screenRectangle, IEnumerable<(Rectangle rect, bool show)> windowInfos)
+        public static IEnumerable<Rectangle> Cut(Rectangle screenRectangle, IEnumerable<(Rectangle rectangle, bool show)> windowInfos)
         {
             return windowInfos.Reverse().Aggregate(new[] { screenRectangle }.AsEnumerable(), (rectangles, windowInfo) =>
             {
                 if (windowInfo.show)
                 {
-                    return rectangles.SelectMany(rectangle => Cut(rectangle, windowInfo.rect));
+                    return rectangles.SelectMany(rectangle => Cut(rectangle, windowInfo.rectangle));
                 }
                 var rectangleList = rectangles.ToList();
-                return rectangleList.Concat(Cut(windowInfo.rect, rectangleList));
+                return rectangleList.Concat(Cut(windowInfo.rectangle, rectangleList));
             });
         }
 

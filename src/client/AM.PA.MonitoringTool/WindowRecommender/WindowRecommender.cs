@@ -9,7 +9,6 @@ using System.Reflection;
 using WindowRecommender.Data;
 using WindowRecommender.Graphics;
 using WindowRecommender.Models;
-using WindowRecommender.Native;
 using WindowRecommender.Util;
 
 namespace WindowRecommender
@@ -130,7 +129,7 @@ namespace WindowRecommender
             }
         }
 
-        internal static IEnumerable<(Rectangle rect, bool show)> GetDrawList(Dictionary<IntPtr, double> scores, List<IntPtr> windowStack)
+        internal static IEnumerable<(Rectangle rectangle, bool show)> GetDrawList(Dictionary<IntPtr, double> scores, List<WindowRecord> windowStack)
         {
             if (windowStack.Count == 0)
             {
@@ -140,18 +139,18 @@ namespace WindowRecommender
             var foregroundWindow = windowStack.First();
             // If the foreground window is not one of the top scoring windows
             // remove the one with the lowest score.
-            if (!topWindows.Contains(foregroundWindow))
+            if (!topWindows.Contains(foregroundWindow.Handle))
             {
                 topWindows.RemoveAt(topWindows.Count - 1);
             }
             return windowStack
                 .TakeWhile(_ => topWindows.Count != 0)
-                .Select(windowHandle =>
+                .Select(windowRecord =>
                 {
-                    var rect = (Rectangle)NativeMethods.GetWindowRectangle(windowHandle);
-                    var contains = topWindows.Contains(windowHandle) || windowHandle == foregroundWindow;
-                    topWindows.Remove(windowHandle);
-                    return (rect, show: contains);
+                    var rectangle = WindowUtils.GetCorrectedWindowRectangle(windowRecord);
+                    var contains = topWindows.Contains(windowRecord.Handle) || windowRecord == foregroundWindow;
+                    topWindows.Remove(windowRecord.Handle);
+                    return (rectangle, show: contains);
                 });
         }
 
@@ -159,7 +158,7 @@ namespace WindowRecommender
         {
             var scores = e;
             _windowRecorder.SetScores(scores, Utils.GetTopEntries(scores, Settings.NumberOfWindows));
-            _hazeOverlay.Show(GetDrawList(scores, _windowStack.Windows));
+            _hazeOverlay.Show(GetDrawList(scores, _windowStack.WindowRecords));
         }
 
         private void OnMoveStarted(object sender, EventArgs e)
@@ -169,7 +168,7 @@ namespace WindowRecommender
 
         private void OnMoveEnded(object sender, EventArgs e)
         {
-            _hazeOverlay.Show(GetDrawList(_modelCore.GetScores(), _windowStack.Windows));
+            _hazeOverlay.Show(GetDrawList(_modelCore.GetScores(), _windowStack.WindowRecords));
         }
 
         private void OnDisplaySettingsChanged(object sender, EventArgs e)

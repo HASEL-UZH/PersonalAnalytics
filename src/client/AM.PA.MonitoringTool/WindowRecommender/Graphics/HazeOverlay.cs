@@ -33,7 +33,7 @@ namespace WindowRecommender.Graphics
             }
         }
 
-        internal void Show(IEnumerable<(Rectangle rect, bool show)> windowInfo)
+        internal void Show(IEnumerable<(Rectangle rectangle, bool show)> windowInfo)
         {
             var windowList = windowInfo.ToList();
             foreach (var (window, screenRectangle) in _windows)
