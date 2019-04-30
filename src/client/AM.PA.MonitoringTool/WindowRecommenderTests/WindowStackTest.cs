@@ -18,9 +18,9 @@ namespace WindowRecommenderTests
             {
                 new WindowRecord(new IntPtr(1))
             });
-            CollectionAssert.AreEqual(new List<IntPtr>
+            CollectionAssert.AreEqual(new List<WindowRecord>
             {
-                new IntPtr(1)
+                new WindowRecord(new IntPtr(1)),
             }, windowStack.WindowRecords);
         }
 
@@ -35,11 +35,11 @@ namespace WindowRecommenderTests
                 new WindowRecord(new IntPtr(2)),
             });
             windowEvents.WindowOpenedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(3)));
-            CollectionAssert.AreEqual(new List<IntPtr>
+            CollectionAssert.AreEqual(new List<WindowRecord>
             {
-                new IntPtr(3),
-                new IntPtr(1),
-                new IntPtr(2)
+                new WindowRecord(new IntPtr(3)),
+                new WindowRecord(new IntPtr(1)),
+                new WindowRecord(new IntPtr(2)),
             }, windowStack.WindowRecords);
         }
 
@@ -54,10 +54,10 @@ namespace WindowRecommenderTests
                 new WindowRecord(new IntPtr(2)),
             });
             windowEvents.WindowFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2)));
-            CollectionAssert.AreEqual(new List<IntPtr>
+            CollectionAssert.AreEqual(new List<WindowRecord>
             {
-                new IntPtr(2),
-                new IntPtr(1)
+                new WindowRecord(new IntPtr(2)),
+                new WindowRecord(new IntPtr(1)),
             }, windowStack.WindowRecords);
         }
 
@@ -72,9 +72,9 @@ namespace WindowRecommenderTests
                 new WindowRecord(new IntPtr(2)),
             });
             windowEvents.WindowClosedOrMinimizedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(1)));
-            CollectionAssert.AreEqual(new List<IntPtr>
+            CollectionAssert.AreEqual(new List<WindowRecord>
             {
-                new IntPtr(2)
+                new WindowRecord(new IntPtr(2)),
             }, windowStack.WindowRecords);
         }
 
