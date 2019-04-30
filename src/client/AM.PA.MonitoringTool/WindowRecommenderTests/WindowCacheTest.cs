@@ -260,6 +260,25 @@ namespace WindowRecommenderTests
         }
 
         [TestMethod]
+        public void TestWindowMinimize_NonExistent()
+        {
+            using (ShimsContext.Create())
+            {
+                var called = false;
+                EventHandler<IntPtr> windowMinimizedHandler = null;
+                var modelEvents = new ShimModelEvents
+                {
+                    WindowMinimizedAddEventHandlerOfIntPtr = handler => windowMinimizedHandler = handler
+                };
+                var windowCache = new WindowCache(modelEvents);
+                windowCache.WindowMinimized += (sender, e) => called = true;
+                windowCache.WindowClosedOrMinimized += (sender, e) => called = true;
+                windowMinimizedHandler.Invoke(modelEvents, new IntPtr(1));
+                Assert.IsFalse(called);
+            }
+        }
+
+        [TestMethod]
         public async Task TestWindowRenamed()
         {
             using (ShimsContext.Create())

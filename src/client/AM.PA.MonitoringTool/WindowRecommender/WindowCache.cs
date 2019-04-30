@@ -68,8 +68,11 @@ namespace WindowRecommender
         private void OnWindowMinimized(object sender, IntPtr e)
         {
             var windowHandle = e;
-            WindowMinimized?.Invoke(this, _cache[windowHandle]);
-            WindowClosedOrMinimized?.Invoke(this, _cache[windowHandle]);
+            if (_cache.ContainsKey(windowHandle))
+            {
+                WindowMinimized?.Invoke(this, _cache[windowHandle]);
+                WindowClosedOrMinimized?.Invoke(this, _cache[windowHandle]);
+            }
         }
 
         private void OnWindowRenamed(object sender, IntPtr e)
