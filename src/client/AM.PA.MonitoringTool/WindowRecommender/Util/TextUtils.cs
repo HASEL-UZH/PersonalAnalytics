@@ -192,7 +192,11 @@ namespace WindowRecommender.Util
         {
             windowTitle = TitleRegex.Replace(windowTitle, " ");
             var words = windowTitle.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            return words.Except(StopWords).Select(word => word.ToLowerInvariant()).Select(Stemmer.Stem);
+            return words
+                .Where(word => word.Length > 1)
+                .Select(word => word.ToLowerInvariant())
+                .Except(StopWords)
+                .Select(Stemmer.Stem);
         }
     }
 }

@@ -13,19 +13,19 @@ namespace WindowRecommenderTests.Util
             var tests = new[]
             {
                 (input: "", expected: new string[0]),
-                (input: "x-b", expected: new[] {"x-b"}),
-                (input: "x'b", expected: new[] {"x'b"}),
-                (input: "xbc", expected: new[] {"xbc"}),
+                (input: "x-x", expected: new[] {"x-x"}),
+                (input: "x'x", expected: new[] {"x'x"}),
+                (input: "xyz", expected: new[] {"xyz"}),
                 (input: "öüß", expected: new[] {"öüß"}),
                 (input: "123", expected: new string[0]),
-                (input: "1 ?", expected: new string[0]),
-                (input: "x1b", expected: new[] {"x", "b"}),
-                (input: "x_b", expected: new[] {"x", "b"}),
+                (input: "12 ??", expected: new string[0]),
+                (input: "xx1yy", expected: new[] {"xx", "yy"}),
+                (input: "xx_yy", expected: new[] {"xx", "yy"}),
             };
             foreach (var (input, expected) in tests)
             {
                 var actual = TextUtils.PrepareTitle(input).ToArray();
-                CollectionAssert.AreEqual(expected, actual, $"input: {input}, expected: {expected}, actual: {actual}");
+                CollectionAssert.AreEqual(expected, actual, $"input: {input}, expected: '{string.Join(", ", expected)}', actual: '{string.Join(", ", actual)}'");
             }
         }
 
@@ -37,43 +37,45 @@ namespace WindowRecommenderTests.Util
                 (input: "", expected: new string[0]),
                 (input: " ", expected: new string[0]),
                 (input: "  ", expected: new string[0]),
-                (input: " x ", expected: new[] {"x"}),
-                (input: "  x", expected: new[] {"x"}),
-                (input: "x b", expected: new[] {"x", "b"}),
+                (input: " xx ", expected: new[] {"xx"}),
+                (input: "  xx", expected: new[] {"xx"}),
+                (input: "xx yy", expected: new[] {"xx", "yy"}),
             };
             foreach (var (input, expected) in tests)
             {
                 var actual = TextUtils.PrepareTitle(input).ToArray();
-                CollectionAssert.AreEqual(expected, actual, $"input: {input}, expected: {expected}, actual: {actual}");
+                CollectionAssert.AreEqual(expected, actual, $"input: {input}, expected: '{string.Join(", ", expected)}', actual: '{string.Join(", ", actual)}'");
+            }
+        }
+
+        [TestMethod]
+        public void TestPrepareTitle_MinLength()
+        {
+            var tests = new[]
+            {
+                (input: "", expected: new string[0]),
+                (input: "x", expected: new string[0]),
+                (input: "-", expected: new string[0]),
+                (input: "xx", expected: new[] {"xx"}),
+            };
+            foreach (var (input, expected) in tests)
+            {
+                var actual = TextUtils.PrepareTitle(input).ToArray();
+                CollectionAssert.AreEqual(expected, actual, $"input: {input}, expected: '{string.Join(", ", expected)}', actual: '{string.Join(", ", actual)}'");
             }
         }
 
         [TestMethod]
         public void TestPrepareTitle_StopWords()
         {
-            var tests = new[]
-            {
-                (input: "a b", expected: new[] {"b"}),
-            };
-            foreach (var (input, expected) in tests)
-            {
-                var actual = TextUtils.PrepareTitle(input).ToArray();
-                CollectionAssert.AreEqual(expected, actual, $"input: {input}, expected: {expected}, actual: {actual}");
-            }
+            CollectionAssert.AreEqual(new[] { "home" }, TextUtils.PrepareTitle("my home").ToArray());
+            CollectionAssert.AreEqual(new[] { "home" }, TextUtils.PrepareTitle("My Home").ToArray());
         }
 
         [TestMethod]
         public void TestPrepareTitle_ToLower()
         {
-            var tests = new[]
-            {
-                (input: "XX", expected: new[] {"xx"}),
-            };
-            foreach (var (input, expected) in tests)
-            {
-                var actual = TextUtils.PrepareTitle(input).ToArray();
-                CollectionAssert.AreEqual(expected, actual, $"input: {input}, expected: {expected}, actual: {actual}");
-            }
+            CollectionAssert.AreEqual(new[] { "xx" }, TextUtils.PrepareTitle("XX").ToArray());
         }
     }
 }

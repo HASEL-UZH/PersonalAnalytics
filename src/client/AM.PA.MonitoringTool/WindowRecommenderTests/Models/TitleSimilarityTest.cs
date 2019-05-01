@@ -85,7 +85,7 @@ namespace WindowRecommenderTests.Models
             windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
             {
                 new WindowRecord(new IntPtr(1), "Very nice title", ""),
-                new WindowRecord(new IntPtr(2), "Not good title", ""),
+                new WindowRecord(new IntPtr(2), "Really good title", ""),
                 new WindowRecord(new IntPtr(3), "Good title", ""),
             });
             var scores = titleSimilarity.GetScores();
