@@ -22,6 +22,9 @@ bld/
 [Oo]bj/
 [Ll]og/
 
+# Visual Studio cache/options directory
+.vs/
+
 # MSTest test Results
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
@@ -59,5 +62,4 @@ documentation/OCR Stuff/GetWindowContent.rar
 documentation/OCR Stuff/OcrPlayground.rar
 documentation/OCR Stuff/StandaloneOcr.rar
 /deployment/PersonalDeveloperAnalytics.old.rar
-/src/client/AM.PA.MonitoringTool/.vs/AM.PA.MonitoringTool/*/Server/sqlite3
 *.dtbcache
