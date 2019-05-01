@@ -23,7 +23,7 @@ namespace WindowRecommender.Models
 
         internal void Start()
         {
-            MergeScores();
+            ScoreChanged?.Invoke(this, GetScores());
         }
 
         internal Dictionary<IntPtr, double> GetScores()
@@ -47,13 +47,7 @@ namespace WindowRecommender.Models
 
         private void OnOrderChanged(object sender, EventArgs e)
         {
-            MergeScores();
-        }
-
-        private void MergeScores()
-        {
-            var mergedScores = GetScores();
-            ScoreChanged?.Invoke(this, mergedScores);
+            ScoreChanged?.Invoke(sender, GetScores());
         }
 
         internal static Dictionary<IntPtr, double> NormalizeScores(Dictionary<IntPtr, double> scores)
