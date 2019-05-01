@@ -49,6 +49,7 @@ namespace WindowRecommender.Models
             var windowRecord = e;
             _scores.Remove(windowRecord.Handle);
             _titles.Remove(windowRecord.Handle);
+            CalculateScoreChanges();
         }
 
         private void OnWindowFocused(object sender, WindowRecord e)
@@ -97,7 +98,6 @@ namespace WindowRecommender.Models
                 InvokeOrderChanged();
                 _topWindows = newTop;
             }
-            InvokeOrderChanged();
         }
 
         private Dictionary<IntPtr, double> CalculateScores()

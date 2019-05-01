@@ -93,7 +93,7 @@ namespace WindowRecommenderTests.Models
         }
 
         [TestMethod]
-        public void TestOnWindowClosed()
+        public void TestOnWindowClosedOrMinimized()
         {
             var called = false;
             var windowEvents = new StubIWindowEvents();
@@ -111,6 +111,32 @@ namespace WindowRecommenderTests.Models
 
             windowEvents.WindowClosedOrMinimizedEvent(windowEvents, new WindowRecord(new IntPtr(2), "Very nice title", ""));
             CollectionAssert.AreEqual(new Dictionary<IntPtr, double>(), titleSimilarity.GetScores());
+            Assert.IsTrue(called);
+        }
+
+        [TestMethod]
+        public void TestOnWindowClosedOrMinimized_NoChange()
+        {
+            var called = false;
+            var windowEvents = new StubIWindowEvents();
+            var titleSimilarity = new TitleSimilarity(windowEvents);
+            titleSimilarity.OrderChanged += (sender, args) => called = true;
+            windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
+            {
+                new WindowRecord(new IntPtr(1), "Very nice title", ""),
+                new WindowRecord(new IntPtr(2), "Very nice title", ""),
+                new WindowRecord(new IntPtr(3), "Some other text", ""),
+            });
+            CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
+            {
+                {new IntPtr(2), 1},
+            }, titleSimilarity.GetScores(), new ScoreComparer());
+
+            windowEvents.WindowClosedOrMinimizedEvent(windowEvents, new WindowRecord(new IntPtr(3), "Some other text", ""));
+            CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
+            {
+                {new IntPtr(2), 1},
+            }, titleSimilarity.GetScores(), new ScoreComparer());
             Assert.IsFalse(called);
         }
 
@@ -138,6 +164,33 @@ namespace WindowRecommenderTests.Models
             Assert.AreEqual(2, scores.Count);
             Assert.IsTrue(scores[new IntPtr(3)] > scores[new IntPtr(2)]);
             Assert.IsTrue(called);
+        }
+
+
+        [TestMethod]
+        public void TestOnWindowFocused_NoChange()
+        {
+            var called = false;
+            var windowEvents = new StubIWindowEvents();
+            var titleSimilarity = new TitleSimilarity(windowEvents);
+            titleSimilarity.OrderChanged += (sender, args) => called = true;
+            windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
+            {
+                new WindowRecord(new IntPtr(1), "one two three", ""),
+                new WindowRecord(new IntPtr(2), "one two four five", ""),
+                new WindowRecord(new IntPtr(3), "three six", ""),
+                new WindowRecord(new IntPtr(4), "four five six", ""),
+            });
+            var scores = titleSimilarity.GetScores();
+            Assert.AreEqual(2, scores.Count);
+            Assert.IsTrue(scores[new IntPtr(2)] > scores[new IntPtr(3)]);
+            Assert.IsFalse(called);
+
+            windowEvents.WindowFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(4), "four five six", ""));
+            scores = titleSimilarity.GetScores();
+            Assert.AreEqual(2, scores.Count);
+            Assert.IsTrue(scores[new IntPtr(2)] > scores[new IntPtr(3)]);
+            Assert.IsFalse(called);
         }
 
         [TestMethod]
