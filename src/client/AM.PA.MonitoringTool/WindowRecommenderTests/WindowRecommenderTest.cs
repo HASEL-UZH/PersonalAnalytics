@@ -1,26 +1,163 @@
-﻿using Microsoft.QualityTools.Testing.Fakes;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.QualityTools.Testing.Fakes;
 using WindowRecommender;
 using WindowRecommender.Graphics;
-using WindowRecommender.Native;
-using WindowRecommender.Native.Fakes;
+using WindowRecommender.Util.Fakes;
 
 namespace WindowRecommenderTests
 {
     [TestClass]
     public class WindowRecommenderTest
     {
-
         [TestMethod]
-        public void TestGetDrawList_Empty()
+        public void TestGetScoredWindows_BothEmpty()
         {
             var scores = new Dictionary<IntPtr, double>();
             var windowStack = new List<WindowRecord>();
-            var windowInfo = new List<(Rectangle rect, bool show)>();
-            CollectionAssert.AreEqual(windowInfo, WindowRecommender.WindowRecommender.GetDrawList(scores, windowStack).ToList());
+            var expectedScoredWindows = new List<(WindowRecord windowRecord, bool show)>();
+            var actualScoredWindows = WindowRecommender.WindowRecommender.GetScoredWindows(scores, windowStack).ToList();
+            CollectionAssert.AreEqual(expectedScoredWindows, actualScoredWindows);
+        }
+
+        [TestMethod]
+        public void TestGetScoredWindows_ScoresEmpty()
+        {
+            var scores = new Dictionary<IntPtr, double>();
+            var windowStack = new List<WindowRecord>
+            {
+                new WindowRecord(new IntPtr(1)),
+                new WindowRecord(new IntPtr(2)),
+            };
+            var expectedScoredWindows = new List<(WindowRecord windowRecord, bool show)>
+            {
+                (windowRecord: new WindowRecord(new IntPtr(1)), show: true),
+            };
+            var actualScoredWindows = WindowRecommender.WindowRecommender.GetScoredWindows(scores, windowStack).ToList();
+            CollectionAssert.AreEqual(expectedScoredWindows, actualScoredWindows);
+        }
+
+        [TestMethod]
+        public void TestGetScoredWindows_StackEmpty()
+        {
+            var scores = new Dictionary<IntPtr, double>
+            {
+                { new IntPtr(1), 0.6},
+                { new IntPtr(2), 0.4},
+            };
+            var windowStack = new List<WindowRecord>();
+            var expectedScoredWindows = new List<(WindowRecord windowRecord, bool show)>();
+            var actualScoredWindows = WindowRecommender.WindowRecommender.GetScoredWindows(scores, windowStack).ToList();
+            CollectionAssert.AreEqual(expectedScoredWindows, actualScoredWindows);
+        }
+
+        [TestMethod]
+        public void TestGetScoredWindows()
+        {
+            var scores = new Dictionary<IntPtr, double>
+            {
+                { new IntPtr(1), 0.6},
+                { new IntPtr(2), 0.4},
+            };
+            var windowStack = new List<WindowRecord>
+            {
+                new WindowRecord(new IntPtr(1)),
+                new WindowRecord(new IntPtr(2)),
+            };
+            var expectedScoredWindows = new List<(WindowRecord windowRecord, bool show)>
+            {
+                (windowRecord: new WindowRecord(new IntPtr(1)), show: true),
+                (windowRecord: new WindowRecord(new IntPtr(2)), show: true),
+            };
+            var actualScoredWindows = WindowRecommender.WindowRecommender.GetScoredWindows(scores, windowStack).ToList();
+            CollectionAssert.AreEqual(expectedScoredWindows, actualScoredWindows);
+        }
+
+        [TestMethod]
+        public void TestGetScoredWindows_Hidden()
+        {
+            var scores = new Dictionary<IntPtr, double>
+            {
+                { new IntPtr(3), 1},
+            };
+            var windowStack = new List<WindowRecord>
+            {
+                new WindowRecord(new IntPtr(1)),
+                new WindowRecord(new IntPtr(2)),
+                new WindowRecord(new IntPtr(3)),
+            };
+            var expectedScoredWindows = new List<(WindowRecord windowRecord, bool show)>
+            {
+                (windowRecord: new WindowRecord(new IntPtr(1)), show: true),
+                (windowRecord: new WindowRecord(new IntPtr(2)), show: false),
+                (windowRecord: new WindowRecord(new IntPtr(3)), show: true),
+            };
+            var actualScoredWindows = WindowRecommender.WindowRecommender.GetScoredWindows(scores, windowStack).ToList();
+            CollectionAssert.AreEqual(expectedScoredWindows, actualScoredWindows);
+        }
+
+        [TestMethod]
+        public void TestGetScoredWindows_NumberOfWindows()
+        {
+            // Check Settings as test depends on value of 3
+            Assert.AreEqual(3, Settings.NumberOfWindows);
+
+            var scores = new Dictionary<IntPtr, double>
+            {
+                { new IntPtr(1), 0.8},
+                { new IntPtr(2), 0.6},
+                { new IntPtr(3), 0.4},
+                { new IntPtr(4), 0.2},
+            };
+            var windowStack = new List<WindowRecord>
+            {
+                new WindowRecord(new IntPtr(1)),
+                new WindowRecord(new IntPtr(2)),
+                new WindowRecord(new IntPtr(3)),
+                new WindowRecord(new IntPtr(4)),
+                new WindowRecord(new IntPtr(5)),
+            };
+            var expectedScoredWindows = new List<(WindowRecord windowRecord, bool show)>
+            {
+                (windowRecord: new WindowRecord(new IntPtr(1)), show: true),
+                (windowRecord: new WindowRecord(new IntPtr(2)), show: true),
+                (windowRecord: new WindowRecord(new IntPtr(3)), show: true),
+            };
+            var actualScoredWindows = WindowRecommender.WindowRecommender.GetScoredWindows(scores, windowStack).ToList();
+            CollectionAssert.AreEqual(expectedScoredWindows, actualScoredWindows);
+        }
+
+        [TestMethod]
+        public void TestGetScoredWindows_NumberOfWindows_WithoutForeground()
+        {
+            // Check Settings as test depends on value of 3
+            Assert.AreEqual(3, Settings.NumberOfWindows);
+
+            var scores = new Dictionary<IntPtr, double>
+            {
+                { new IntPtr(4), 0.8},
+                { new IntPtr(3), 0.6},
+                { new IntPtr(2), 0.4},
+            };
+            var windowStack = new List<WindowRecord>
+            {
+                new WindowRecord(new IntPtr(1)),
+                new WindowRecord(new IntPtr(2)),
+                new WindowRecord(new IntPtr(3)),
+                new WindowRecord(new IntPtr(4)),
+                new WindowRecord(new IntPtr(5)),
+            };
+            var expectedScoredWindows = new List<(WindowRecord windowRecord, bool show)>
+            {
+                (windowRecord: new WindowRecord(new IntPtr(1)), show: true),
+                (windowRecord: new WindowRecord(new IntPtr(2)), show: false),
+                (windowRecord: new WindowRecord(new IntPtr(3)), show: true),
+                (windowRecord: new WindowRecord(new IntPtr(4)), show: true),
+            };
+            var actualScoredWindows = WindowRecommender.WindowRecommender.GetScoredWindows(scores, windowStack).ToList();
+            CollectionAssert.AreEqual(expectedScoredWindows, actualScoredWindows);
         }
 
         [TestMethod]
@@ -28,97 +165,16 @@ namespace WindowRecommenderTests
         {
             using (ShimsContext.Create())
             {
-                ShimNativeMethods.GetWindowRectangleIntPtr = windowHandle =>
+                ShimWindowUtils.GetCorrectedWindowRectangleWindowRecord = record => new Rectangle(1, 1, 1, 1);
+                var expectedDrawList = new List<(Rectangle rectangle, bool show)>
                 {
-                    var i = (int)windowHandle;
-                    return new RECT(i, i, i, i);
+                    (rectangle: new Rectangle(1, 1, 1, 1), show: true)
                 };
-
-                var scores = new Dictionary<IntPtr, double>();
-                var windowStack = new List<WindowRecord>();
-                for (var i = 1; i < Settings.NumberOfWindows + 2; i++)
+                var actualDrawList = WindowRecommender.WindowRecommender.GetDrawList(new List<(WindowRecord windowRecord, bool show)>
                 {
-                    var windowHandle = new IntPtr(i);
-                    windowStack.Add(new WindowRecord(windowHandle));
-                    scores[windowHandle] = 1;
-                }
-
-                var expectedWindowInfo = new List<(Rectangle rect, bool show)>
-                {
-                    (new Rectangle(1, 1, 1, 1), true),
-                    (new Rectangle(2, 2, 2, 2), true),
-                    (new Rectangle(3, 3, 3, 3), true)
-                };
-                var actualWindowInfo = WindowRecommender.WindowRecommender.GetDrawList(scores, windowStack).ToList();
-                CollectionAssert.AreEqual(expectedWindowInfo, actualWindowInfo);
-            }
-        }
-
-        [TestMethod]
-        public void TestGetDrawList_LimitedScores()
-        {
-            using (ShimsContext.Create())
-            {
-                ShimNativeMethods.GetWindowRectangleIntPtr = windowHandle =>
-                {
-                    var i = (int)windowHandle;
-                    return new RECT(i, i, i, i);
-                };
-                var scores = new Dictionary<IntPtr, double>
-                {
-                    {new IntPtr(3), 1},
-                    {new IntPtr(1), 1}
-                };
-                var windowStack = new List<WindowRecord>
-                {
-                    new WindowRecord(new IntPtr(1)),
-                    new WindowRecord(new IntPtr(2)),
-                    new WindowRecord(new IntPtr(3)),
-                    new WindowRecord(new IntPtr(4)),
-                };
-                var expectedWindowInfo = new List<(Rectangle rect, bool show)>
-                {
-                    (new Rectangle(1, 1, 1, 1), true),
-                    (new Rectangle(2, 2, 2, 2), false),
-                    (new Rectangle(3, 3, 3, 3), true)
-                };
-                var actualWindowInfo = WindowRecommender.WindowRecommender.GetDrawList(scores, windowStack).ToList();
-                CollectionAssert.AreEqual(expectedWindowInfo, actualWindowInfo);
-            }
-        }
-
-        [TestMethod]
-        public void TestGetDrawList_ForegroundMissing()
-        {
-            using (ShimsContext.Create())
-            {
-                ShimNativeMethods.GetWindowRectangleIntPtr = windowHandle =>
-                {
-                    var i = (int)windowHandle;
-                    return new RECT(i, i, i, i);
-                };
-
-                var scores = new Dictionary<IntPtr, double>();
-                var windowStack = new List<WindowRecord>();
-                for (var i = 1; i < Settings.NumberOfWindows + 4; i++)
-                {
-                    var windowHandle = new IntPtr(i);
-                    windowStack.Add(new WindowRecord(windowHandle));
-                    if (i > 2)
-                    {
-                        scores[windowHandle] = 1;
-                    }
-                }
-
-                var expectedWindowInfo = new List<(Rectangle rect, bool show)>
-                {
-                    (new Rectangle(1, 1, 1, 1), true),
-                    (new Rectangle(2, 2, 2, 2), false),
-                    (new Rectangle(3, 3, 3, 3), true),
-                    (new Rectangle(4, 4, 4, 4), true)
-                };
-                var actualWindowInfo = WindowRecommender.WindowRecommender.GetDrawList(scores, windowStack).ToList();
-                CollectionAssert.AreEqual(expectedWindowInfo, actualWindowInfo);
+                    (windowRecord: new WindowRecord(new IntPtr(1)), show: true),
+                }).ToList();
+                CollectionAssert.AreEqual(expectedDrawList, actualDrawList);
             }
         }
     }
