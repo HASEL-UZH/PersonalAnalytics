@@ -91,6 +91,16 @@ namespace PersonalAnalytics
                     var windowRecommender = GetWindowRecommender();
                     if (windowRecommender != null) windowRecommender.WindowRecommenderEnabled = updatedSettings.WindowRecommenderEnabled.Value;
                 }
+                if (updatedSettings.WindowRecommenderTreatmentMode.HasValue)
+                {
+                    var windowRecommender = GetWindowRecommender();
+                    if (windowRecommender != null) windowRecommender.TreatmentMode = updatedSettings.WindowRecommenderTreatmentMode.Value;
+                }
+                if (updatedSettings.WindowRecommenderNumberOfWindows.HasValue)
+                {
+                    var windowRecommender = GetWindowRecommender();
+                    if (windowRecommender != null) windowRecommender.NumberOfWindows = updatedSettings.WindowRecommenderNumberOfWindows.Value;
+                }
             }
             catch (Exception e)
             {
@@ -134,6 +144,8 @@ namespace PersonalAnalytics
 
                 var windowRecommender = GetWindowRecommender();
                 dto.WindowRecommenderEnabled = windowRecommender.IsEnabled();
+                dto.WindowRecommenderTreatmentMode = windowRecommender.TreatmentMode;
+                dto.WindowRecommenderNumberOfWindows = windowRecommender.NumberOfWindows;
             }
             catch (Exception e)
             {

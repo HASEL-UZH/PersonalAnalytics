@@ -1,6 +1,5 @@
 ﻿using Microsoft.Win32;
 using Shared;
-using Shared.Data;
 using Shared.Helpers;
 using System;
 using System.Collections.Generic;
@@ -22,20 +21,19 @@ namespace WindowRecommender
         private readonly WindowStack _windowStack;
         private readonly WindowCache _windowCache;
 
-        private bool _enabled;
-
         public WindowRecommender()
         {
             Name = "Window Recommender";
 
+            Settings.Enabled = Queries.GetEnabledSetting();
+            Settings.NumberOfWindows = Queries.GetNumberOfWindowsSetting();
+            Settings.TreatmentMode = Queries.GetTreatmentModeSetting();
+
             _hazeOverlay = new HazeOverlay();
 
             _modelEvents = new ModelEvents();
-            _modelEvents.MoveStarted += OnMoveStarted;
-            _modelEvents.MoveEnded += OnMoveEnded;
 
             _windowCache = new WindowCache(_modelEvents);
-
             _windowStack = new WindowStack(_windowCache);
             _windowRecorder = new WindowRecorder(_windowCache, _windowStack);
 
@@ -47,29 +45,29 @@ namespace WindowRecommender
                 (new TitleSimilarity(_windowCache), 1),
             });
             _modelCore.ScoreChanged += OnScoresChanged;
-
-            SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;
-        }
-
-        ~WindowRecommender()
-        {
-            SystemEvents.DisplaySettingsChanged -= OnDisplaySettingsChanged;
         }
 
         public override void Start()
         {
             IsRunning = true;
             _windowCache.Start();
-            _hazeOverlay.Start();
             _modelCore.Start();
             _modelEvents.Start();
+
+            if (TreatmentMode)
+            {
+                StartTreatment();
+            }
         }
 
         public override void Stop()
         {
             IsRunning = false;
-            _hazeOverlay.Stop();
             _modelEvents.Stop();
+            if (TreatmentMode)
+            {
+                StopTreatment();
+            }
         }
 
         public override void CreateDatabaseTablesIfNotExist()
@@ -96,36 +94,63 @@ namespace WindowRecommender
 
         public bool WindowRecommenderEnabled
         {
-            private get
-            {
-                _enabled = Database.GetInstance().GetSettingsBool(Settings.EnabledSettingDatabaseKey, Settings.IsEnabledByDefault);
-                return _enabled;
-            }
+            private get => Settings.Enabled;
             set
             {
-                var updatedIsEnabled = value;
-
-                // only update if settings changed
-                if (updatedIsEnabled == _enabled)
+                var enabled = value;
+                if (enabled != Settings.Enabled)
                 {
-                    return;
+                    Settings.Enabled = enabled;
+                    Queries.SetEnabledSetting(enabled);
+
+                    // start/stop tracker if necessary
+                    if (!enabled && IsRunning)
+                    {
+                        Stop();
+                    }
+                    else if (enabled && !IsRunning)
+                    {
+                        CreateDatabaseTablesIfNotExist();
+                        Start();
+                    }
                 }
+            }
+        }
 
-                // update settings
-                Database.GetInstance().SetSettings(Settings.EnabledSettingDatabaseKey, value);
-
-                // start/stop tracker if necessary
-                if (!updatedIsEnabled && IsRunning)
+        public int NumberOfWindows
+        {
+            get => Settings.NumberOfWindows;
+            set
+            {
+                var numberOfWindows = value;
+                if (numberOfWindows != Settings.NumberOfWindows)
                 {
-                    Stop();
+                    Settings.NumberOfWindows = numberOfWindows;
+                    Queries.SetNumberOfWindowsSetting(numberOfWindows);
                 }
-                else if (updatedIsEnabled && !IsRunning)
-                {
-                    CreateDatabaseTablesIfNotExist();
-                    Start();
-                }
+            }
+        }
 
-                Database.GetInstance().LogInfo($"The participant updated the setting '{Settings.EnabledSettingDatabaseKey}' to {updatedIsEnabled}");
+        public bool TreatmentMode
+        {
+            get => Settings.TreatmentMode;
+            set
+            {
+                var treatmentMode = value;
+                if (treatmentMode != Settings.TreatmentMode)
+                {
+                    Settings.TreatmentMode = treatmentMode;
+                    Queries.SetTreatmentModeSetting(treatmentMode);
+
+                    if (treatmentMode)
+                    {
+                        StartTreatment();
+                    }
+                    else
+                    {
+                        StopTreatment();
+                    }
+                }
             }
         }
 
@@ -168,6 +193,22 @@ namespace WindowRecommender
             _windowRecorder.SetScores(scores, Utils.GetTopEntries(scores, Settings.NumberOfWindows));
             var scoredWindows = GetScoredWindows(scores, _windowStack.WindowRecords);
             _hazeOverlay.Show(GetDrawList(scoredWindows));
+        }
+
+        private void StartTreatment()
+        {
+            _modelEvents.MoveStarted += OnMoveStarted;
+            _modelEvents.MoveEnded += OnMoveEnded;
+            SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;
+            _hazeOverlay.Start();
+        }
+
+        private void StopTreatment()
+        {
+            _modelEvents.MoveStarted -= OnMoveStarted;
+            _modelEvents.MoveEnded -= OnMoveEnded;
+            SystemEvents.DisplaySettingsChanged -= OnDisplaySettingsChanged;
+            _hazeOverlay.Stop();
         }
 
         private void OnMoveStarted(object sender, EventArgs e)

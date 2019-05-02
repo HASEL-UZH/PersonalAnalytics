@@ -189,5 +189,44 @@ namespace WindowRecommenderTests.Data
                 Assert.AreEqual(-1D, dataTable.Rows[0]["score"]);
             }
         }
+
+        [TestMethod]
+        public void TestEnabledSettings()
+        {
+            using (ShimsContext.Create())
+            {
+                ShimDatabase.GetInstance = () => _db;
+                Assert.IsFalse(_db.HasSetting(Settings.EnabledSettingDatabaseKey));
+                Assert.AreEqual(Settings.EnabledDefault, Queries.GetEnabledSetting());
+                Queries.SetEnabledSetting(!Settings.EnabledDefault);
+                Assert.AreNotEqual(Settings.EnabledDefault, Queries.GetEnabledSetting());
+            }
+        }
+
+        [TestMethod]
+        public void TestTreatmentModeSettings()
+        {
+            using (ShimsContext.Create())
+            {
+                ShimDatabase.GetInstance = () => _db;
+                Assert.IsFalse(_db.HasSetting(Settings.TreatmentModeSettingDatabaseKey));
+                Assert.AreEqual(Settings.TreatmentModeDefault, Queries.GetTreatmentModeSetting());
+                Queries.SetTreatmentModeSetting(!Settings.TreatmentModeDefault);
+                Assert.AreNotEqual(Settings.TreatmentModeDefault, Queries.GetTreatmentModeSetting());
+            }
+        }
+        
+        [TestMethod]
+        public void TestNumberOfWindowsSettings()
+        {
+            using (ShimsContext.Create())
+            {
+                ShimDatabase.GetInstance = () => _db;
+                Assert.IsFalse(_db.HasSetting(Settings.NumberOfWindowsSettingDatabaseKey));
+                Assert.AreEqual(Settings.NumberOfWindowsDefault, Queries.GetNumberOfWindowsSetting());
+                Queries.SetNumberOfWindowsSetting(Settings.NumberOfWindowsDefault + 1);
+                Assert.AreEqual(Settings.NumberOfWindowsDefault + 1, Queries.GetNumberOfWindowsSetting());
+            }
+        }
     }
 }
