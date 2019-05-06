@@ -21,33 +21,34 @@
     </SccAuxPath>
     <SccProvider>
     </SccProvider>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <PublishUrl>C:\Users\André\Desktop\t\</PublishUrl>
+    <PublishUrl>Z:\public_html\PersonalAnalytics\download</PublishUrl>
     <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
     <UpdateMode>Foreground</UpdateMode>
     <UpdateInterval>1</UpdateInterval>
     <UpdateIntervalUnits>Hours</UpdateIntervalUnits>
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>true</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <SupportUrl>http://pluto.ifi.uzh.ch/master/index.html</SupportUrl>
-    <ErrorReportUrl>http://pluto.ifi.uzh.ch/master/index.html</ErrorReportUrl>
+    <InstallUrl>https://www.cs.ubc.ca/~pilzer/PersonalAnalytics/download/</InstallUrl>
+    <SupportUrl>https://www.cs.ubc.ca/~pilzer/PersonalAnalytics</SupportUrl>
+    <ErrorReportUrl>https://github.com/Hirse/PersonalAnalytics/issues</ErrorReportUrl>
     <TargetCulture>en</TargetCulture>
     <ProductName>PersonalAnalytics</ProductName>
-    <PublisherName>PersonalAnalytics</PublisherName>
+    <PublisherName>UBC CS</PublisherName>
     <SuiteName>PersonalAnalytics</SuiteName>
     <MinimumRequiredVersion>0.9.5.5</MinimumRequiredVersion>
+    <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>index.html</WebPage>
-    <ApplicationRevision>181</ApplicationRevision>
+    <ApplicationRevision>192</ApplicationRevision>
     <ApplicationVersion>0.9.5.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <!-- <PublisherName>Andre Meyer %28MSR%29</PublisherName> -->
   </PropertyGroup>
   <PropertyGroup>
     <O365ApiClientId>GetFromBuildProcess</O365ApiClientId>
@@ -73,16 +74,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>7FEC6F67545705CEFC6A168B6FEB9B384EB7C216</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>280DAED368749EA2FE410E99F135EDA8B8617EF4</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>PersonalAnalytics_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>PersonalAnalytics-WindowRecommender.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>false</SignManifests>
+    <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>PersonalAnalytics.App</StartupObject>
@@ -110,6 +111,18 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>Internet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>PersonalAnalytics-WindowRecommender.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -236,8 +249,10 @@
     <None Include="bin\Release\tessdata\eng.user-words" />
     <None Include="bin\Release\tessdata\eng.word-dawg" /> -->
     <None Include="packages.config" />
+    <None Include="PersonalAnalytics-WindowRecommender.pfx" />
     <None Include="PersonalAnalytics_TemporaryKey.pfx" />
     <AppDesigner Include="Properties\" />
+    <None Include="Properties\app.manifest" />
     <None Include="Service References\AccessDataService\AccessData.wsdl" />
     <None Include="Service References\AccessDataService\AccessData.xsd">
       <SubType>Designer</SubType>
@@ -374,7 +389,7 @@
     <WCFMetadataStorage Include="Service References\AccessDataService\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>
