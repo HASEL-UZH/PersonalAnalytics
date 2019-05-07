@@ -1,18 +1,63 @@
+## Gitignore for Visual Studio
+## Adapted from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# MSTest test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# Visual C++ cache files
+*.sdf
+
+# Microsoft Fakes
+FakesAssemblies/
+
+# ReSharper is a .NET coding add-in
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# NuGet Packages
+*.nupkg
+# The packages folder can be ignored because of Package Restore
+**/[Pp]ackages/*
+# except build/, which is used as an MSBuild target.
+!**/[Pp]ackages/build/
+# Uncomment if necessary however generally it will be regenerated when needed
+#!**/[Pp]ackages/repositories.config
+# NuGet v3's project.json files produces more ignorable files
+*.nuget.props
+*.nuget.targets
+
+# MacOS
+*.DS_Store
+
+# PersonalAnalytics
 documentation/Mini-Docu.lnk
 documentation/OCR Stuff/2015-05-29 StandaloneOcr_Output.txt
 documentation/OCR Stuff/GetWindowContent.rar
 documentation/OCR Stuff/OcrPlayground.rar
 documentation/OCR Stuff/StandaloneOcr.rar
-*.suo
-*.user
-_ReSharper.*/
-*.sdf
-bin/
-obj/
-Debug/
 /deployment/PersonalDeveloperAnalytics.old.rar
-*.DS_Store
-*.lock
-*.ide-wal
-*.ide-shm
-*.ide
+/src/client/AM.PA.MonitoringTool/.vs/AM.PA.MonitoringTool/*/Server/sqlite3
+*.dtbcache
