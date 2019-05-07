@@ -26,146 +26,172 @@ namespace WindowRecommenderTests.Models
             var windowEvents = new StubIWindowEvents();
             var mra = new MostRecentlyActive(windowEvents);
             var windowList = new List<WindowRecord>();
-            for (var i = 0; i <= Settings.NumberOfWindows; i++)
+            for (var i = 1; i < Settings.NumberOfWindows + 2; i++)
             {
                 windowList.Add(new WindowRecord(new IntPtr(i)));
             }
             windowEvents.SetupEvent.Invoke(windowEvents, windowList);
 
-            var scores = mra.GetScores();
-            Assert.AreEqual(Settings.NumberOfWindows + 1, scores.Count);
-            for (var i = 0; i < Settings.NumberOfWindows; i++)
+            CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
             {
-                Assert.AreEqual(1, scores[new IntPtr(i)]);
-            }
-            Assert.AreEqual(0, scores[new IntPtr(Settings.NumberOfWindows)]);
+                {new IntPtr(1), 1 },
+            }, mra.GetScores());
         }
 
         [TestMethod]
         public void TestOpenedEvent()
         {
-            // Add Settings.NumberOfWindows windows
+            // Check configured number of windows as test relies on value
+            Assert.AreEqual(3, Settings.NumberOfWindows);
+
             var windowEvents = new StubIWindowEvents();
             var mra = new MostRecentlyActive(windowEvents);
-            var windowList = new List<WindowRecord>();
-            for (var i = 0; i < Settings.NumberOfWindows; i++)
+            windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
             {
-                windowList.Add(new WindowRecord(new IntPtr(i)));
-            }
-            windowEvents.SetupEvent.Invoke(windowEvents, windowList);
+                new WindowRecord(new IntPtr(1)),
+            });
 
             var changed = false;
             mra.OrderChanged += (sender, args) => changed = true;
 
-            // Focus on new window
-            windowEvents.WindowOpenedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(Settings.NumberOfWindows)));
+            windowEvents.WindowOpenedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2)));
             Assert.IsTrue(changed);
-
-            // Assert new window and first two have score of 1
-            var scores = mra.GetScores();
-            Assert.AreEqual(Settings.NumberOfWindows + 1, scores.Count);
-            for (var i = 0; i < Settings.NumberOfWindows - 1; i++)
+            changed = false;
+            CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
             {
-                Assert.AreEqual(1, scores[new IntPtr(i)]);
-            }
-            Assert.AreEqual(1, scores[new IntPtr(Settings.NumberOfWindows)]);
+                {new IntPtr(2), 1 },
+                {new IntPtr(1), 1 },
+            }, mra.GetScores());
+
+            windowEvents.WindowOpenedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(3)));
+            Assert.IsTrue(changed);
+            changed = false;
+            CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
+            {
+                {new IntPtr(3), 1 },
+                {new IntPtr(2), 1 },
+                {new IntPtr(1), 1 },
+            }, mra.GetScores());
+
+            windowEvents.WindowOpenedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(4)));
+            Assert.IsTrue(changed);
+            CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
+            {
+                {new IntPtr(4), 1 },
+                {new IntPtr(3), 1 },
+                {new IntPtr(2), 1 },
+            }, mra.GetScores());
+        }
+
+
+        [TestMethod]
+        public void TestFocusedEvent_new()
+        {
+            // Check configured number of windows as test relies on value
+            Assert.AreEqual(3, Settings.NumberOfWindows);
+
+            var windowEvents = new StubIWindowEvents();
+            var mra = new MostRecentlyActive(windowEvents);
+            windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
+            {
+                new WindowRecord(new IntPtr(1)),
+            });
+
+            var changed = false;
+            mra.OrderChanged += (sender, args) => changed = true;
+
+            windowEvents.WindowFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2)));
+            Assert.IsTrue(changed);
+            changed = false;
+            CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
+            {
+                {new IntPtr(2), 1 },
+                {new IntPtr(1), 1 },
+            }, mra.GetScores());
+
+            windowEvents.WindowFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(3)));
+            Assert.IsTrue(changed);
+            changed = false;
+            CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
+            {
+                {new IntPtr(3), 1 },
+                {new IntPtr(2), 1 },
+                {new IntPtr(1), 1 },
+            }, mra.GetScores());
+
+            windowEvents.WindowFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(4)));
+            Assert.IsTrue(changed);
+            CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
+            {
+                {new IntPtr(4), 1 },
+                {new IntPtr(3), 1 },
+                {new IntPtr(2), 1 },
+            }, mra.GetScores());
         }
 
         [TestMethod]
         public void TestFocusedEvent()
         {
-            // Add Settings.NumberOfWindows plus one
+            // Check configured number of windows as test relies on value
+            Assert.AreEqual(3, Settings.NumberOfWindows);
+
             var windowEvents = new StubIWindowEvents();
             var mra = new MostRecentlyActive(windowEvents);
-            var windowList = new List<WindowRecord>();
-            for (var i = 0; i < Settings.NumberOfWindows + 1; i++)
-            {
-                windowList.Add(new WindowRecord(new IntPtr(i)));
-            }
-            windowEvents.SetupEvent.Invoke(windowEvents, windowList);
+
+            windowEvents.WindowOpenedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(1)));
+            windowEvents.WindowOpenedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2)));
+            windowEvents.WindowOpenedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(3)));
+            windowEvents.WindowOpenedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(4)));
 
             var changed = false;
             mra.OrderChanged += (sender, args) => changed = true;
 
             // Focus on second window
-            windowEvents.WindowFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(1)));
+            windowEvents.WindowFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(3)));
             Assert.IsFalse(changed);
 
             // Focus on last window
-            windowEvents.WindowFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(Settings.NumberOfWindows)));
+            windowEvents.WindowFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(1)));
             Assert.IsTrue(changed);
 
-            // Assert last window and first two have score of 1
-            var scores = mra.GetScores();
-            Assert.AreEqual(Settings.NumberOfWindows + 1, scores.Count);
-            for (var i = 0; i < Settings.NumberOfWindows - 1; i++)
+            CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
             {
-                Assert.AreEqual(1, scores[new IntPtr(i)]);
-            }
-            Assert.AreEqual(1, scores[new IntPtr(Settings.NumberOfWindows)]);
-        }
-
-        [TestMethod]
-        public void TestFocusedNewWindowEvent()
-        {
-            // Add Settings.NumberOfWindows windows
-            var windowEvents = new StubIWindowEvents();
-            var mra = new MostRecentlyActive(windowEvents);
-            var windowList = new List<WindowRecord>();
-            for (var i = 0; i < Settings.NumberOfWindows; i++)
-            {
-                windowList.Add(new WindowRecord(new IntPtr(i)));
-            }
-            windowEvents.SetupEvent.Invoke(windowEvents, windowList);
-
-            var changed = false;
-            mra.OrderChanged += (sender, args) => changed = true;
-
-            // Focus on new window
-            windowEvents.WindowFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(Settings.NumberOfWindows)));
-            Assert.IsTrue(changed);
-
-            // Assert new window and first two have score of 1
-            var scores = mra.GetScores();
-            Assert.AreEqual(Settings.NumberOfWindows + 1, scores.Count);
-            for (var i = 0; i < Settings.NumberOfWindows - 1; i++)
-            {
-                Assert.AreEqual(1, scores[new IntPtr(i)]);
-            }
-            Assert.AreEqual(1, scores[new IntPtr(Settings.NumberOfWindows)]);
+                {new IntPtr(1), 1 },
+                {new IntPtr(3), 1 },
+                {new IntPtr(4), 1 },
+            }, mra.GetScores());
         }
 
         [TestMethod]
         public void TestClosedEvent()
         {
-            // Add Settings.NumberOfWindows plus two
+            // Check configured number of windows as test relies on value
+            Assert.AreEqual(3, Settings.NumberOfWindows);
+
             var windowEvents = new StubIWindowEvents();
             var mra = new MostRecentlyActive(windowEvents);
-            var windowList = new List<WindowRecord>();
-            for (var i = 0; i < Settings.NumberOfWindows + 2; i++)
-            {
-                windowList.Add(new WindowRecord(new IntPtr(i)));
-            }
-            windowEvents.SetupEvent.Invoke(windowEvents, windowList);
+
+            windowEvents.WindowOpenedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(1)));
+            windowEvents.WindowOpenedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2)));
+            windowEvents.WindowOpenedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(3)));
+            windowEvents.WindowOpenedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(4)));
 
             var changed = false;
             mra.OrderChanged += (sender, args) => changed = true;
 
             // Remove last window
-            windowEvents.WindowClosedOrMinimizedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(Settings.NumberOfWindows + 1)));
+            windowEvents.WindowClosedOrMinimizedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(1)));
             Assert.IsFalse(changed);
 
             // Remove first window
-            windowEvents.WindowClosedOrMinimizedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(0)));
+            windowEvents.WindowClosedOrMinimizedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(4)));
             Assert.IsTrue(changed);
 
-            // Assert remaining windows have a score of 1
-            var scores = mra.GetScores();
-            Assert.AreEqual(Settings.NumberOfWindows, scores.Count);
-            for (var i = 1; i < Settings.NumberOfWindows + 1; i++)
+            CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
             {
-                Assert.AreEqual(1, scores[new IntPtr(i)]);
-            }
+                {new IntPtr(3), 1 },
+                {new IntPtr(2), 1 },
+            }, mra.GetScores());
         }
     }
 }

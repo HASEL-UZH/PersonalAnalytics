@@ -19,17 +19,15 @@ namespace WindowRecommender.Models
 
         public override Dictionary<IntPtr, double> GetScores()
         {
-            var scores = new Dictionary<IntPtr, double>();
-            for (var i = 0; i < _windows.Count; i++)
-            {
-                scores[_windows[i]] = i < Settings.NumberOfWindows ? 1 : 0;
-            }
-            return scores;
+            return _windows.Take(Settings.NumberOfWindows).ToDictionary(windowHandle => windowHandle, _ => 1D);
         }
 
         protected override void Setup(List<WindowRecord> windowRecords)
         {
-            _windows = windowRecords.Select(record => record.Handle).ToList();
+            if (windowRecords.Count > 0)
+            {
+                _windows = new List<IntPtr> { windowRecords[0].Handle };
+            }
         }
 
         private void OnWindowClosedOrMinimized(object sender, WindowRecord e)
