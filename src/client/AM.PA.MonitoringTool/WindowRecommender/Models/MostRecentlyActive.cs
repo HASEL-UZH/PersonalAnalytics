@@ -61,6 +61,7 @@ namespace WindowRecommender.Models
         private void OnWindowOpened(object sender, WindowRecord e)
         {
             var windowRecord = e;
+            _windows.Remove(windowRecord.Handle);
             _windows.Insert(0, windowRecord.Handle);
             InvokeScoreChanged();
         }
