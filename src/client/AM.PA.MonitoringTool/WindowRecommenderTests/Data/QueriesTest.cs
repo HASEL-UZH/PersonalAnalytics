@@ -3,10 +3,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Shared.Data;
 using Shared.Data.Fakes;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using WindowRecommender;
 using WindowRecommender.Data;
 using WindowRecommender.Graphics;
+using WindowRecommender.Models;
 
 namespace WindowRecommenderTests.Data
 {
@@ -201,19 +203,37 @@ namespace WindowRecommenderTests.Data
                 Assert.AreEqual(0L, _db.ExecuteScalar2($@"SELECT COUNT(*) FROM {Settings.ScoreChangeTable};"));
                 Queries.SaveScoreChange(new[]
                 {
-                    new ScoreRecord(new IntPtr(1), "TEST", 0.1),
-                    new ScoreRecord(new IntPtr(2), "TEST", 1),
+                    new ScoreRecord(new IntPtr(1), new Dictionary<string, double>
+                    {
+                        {ModelCore.MergedScoreName, 0.1},
+                        {nameof(Duration), 0.1},
+                        {nameof(Frequency), 0.1},
+                        {nameof(MostRecentlyActive), 0.1},
+                        {nameof(TitleSimilarity), 0.1},
+                    }),
+                    new ScoreRecord(new IntPtr(2), new Dictionary<string, double>
+                    {
+                        {ModelCore.MergedScoreName, 1},
+                        {nameof(Duration), 1},
+                        {nameof(Frequency), 1},
+                    }),
                 });
                 var dataTable = _db.ExecuteReadQuery($@"SELECT * FROM {Settings.ScoreChangeTable};");
                 Assert.AreEqual(2, dataTable.Rows.Count);
 
                 Assert.AreEqual("1", dataTable.Rows[0]["windowHandle"]);
-                Assert.AreEqual("TEST", dataTable.Rows[0]["modelName"]);
-                Assert.AreEqual(0.1, dataTable.Rows[0]["score"]);
+                Assert.AreEqual(0.1, dataTable.Rows[0]["mergedScore"]);
+                Assert.AreEqual(0.1, dataTable.Rows[0]["durationScore"]);
+                Assert.AreEqual(0.1, dataTable.Rows[0]["frequencyScore"]);
+                Assert.AreEqual(0.1, dataTable.Rows[0]["mraScore"]);
+                Assert.AreEqual(0.1, dataTable.Rows[0]["titleScore"]);
 
                 Assert.AreEqual("2", dataTable.Rows[1]["windowHandle"]);
-                Assert.AreEqual("TEST", dataTable.Rows[1]["modelName"]);
-                Assert.AreEqual(1D, dataTable.Rows[1]["score"]);
+                Assert.AreEqual(1D, dataTable.Rows[1]["mergedScore"]);
+                Assert.AreEqual(1D, dataTable.Rows[1]["durationScore"]);
+                Assert.AreEqual(1D, dataTable.Rows[1]["frequencyScore"]);
+                Assert.AreEqual(0D, dataTable.Rows[1]["mraScore"]);
+                Assert.AreEqual(0D, dataTable.Rows[1]["titleScore"]);
             }
         }
 

@@ -93,7 +93,8 @@ namespace WindowRecommenderTests
                     {new IntPtr(1), 1},
                     {new IntPtr(2), 0.8},
                     {new IntPtr(3), 0.7}
-                }, new List<IntPtr> { new IntPtr(1), new IntPtr(2), new IntPtr(3) });
+                });
+                wr.SetTopWindows(new List<IntPtr> { new IntPtr(1), new IntPtr(2), new IntPtr(3) });
                 windowEvents.WindowFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2), "test_title", "test_process"));
                 Assert.IsTrue(called);
             }
@@ -148,7 +149,8 @@ namespace WindowRecommenderTests
                     {new IntPtr(1), 1},
                     {new IntPtr(2), 0.8},
                     {new IntPtr(3), 0.7}
-                }, new List<IntPtr> { new IntPtr(1), new IntPtr(2), new IntPtr(3) });
+                });
+                wr.SetTopWindows(new List<IntPtr> { new IntPtr(1), new IntPtr(2), new IntPtr(3) });
 
                 windowEvents.WindowClosedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(4), "test_title", "test_process"));
                 Assert.IsFalse(called);
@@ -182,7 +184,8 @@ namespace WindowRecommenderTests
                     {new IntPtr(1), 1},
                     {new IntPtr(2), 0.8},
                     {new IntPtr(3), 0.7}
-                }, new List<IntPtr> { new IntPtr(1), new IntPtr(2), new IntPtr(3) });
+                });
+                wr.SetTopWindows(new List<IntPtr> { new IntPtr(1), new IntPtr(2), new IntPtr(3) });
 
                 windowEvents.WindowMinimizedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(4), "test_title", "test_process"));
                 Assert.IsFalse(called);

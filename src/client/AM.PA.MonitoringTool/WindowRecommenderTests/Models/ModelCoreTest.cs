@@ -14,6 +14,7 @@ namespace WindowRecommenderTests.Models
         {
             var stubModel = new StubIModel
             {
+                NameGet = () => "M1",
                 GetScores = () => new Dictionary<IntPtr, double> {
                     { new IntPtr(1), 1 },
                 }
@@ -25,10 +26,11 @@ namespace WindowRecommenderTests.Models
             });
             modelCore.ScoreChanged += (sender, scores) =>
             {
-                CollectionAssert.AreEqual(scores, new Dictionary<IntPtr, double>
+                CollectionAssert.AreEqual(new Dictionary<string, double>
                 {
-                    {new IntPtr(1), 1},
-                });
+                    {ModelCore.MergedScoreName, 1},
+                    {"M1", 1},
+                }, scores[new IntPtr(1)]);
             };
             modelCore.Start();
         }
@@ -38,6 +40,7 @@ namespace WindowRecommenderTests.Models
         {
             var stubModel = new StubIModel
             {
+                NameGet = () => "M1",
                 GetScores = () => new Dictionary<IntPtr, double>
                 {
                     {new IntPtr(1), 0.1},
@@ -55,6 +58,7 @@ namespace WindowRecommenderTests.Models
         {
             var stubModel = new StubIModel
             {
+                NameGet = () => "M1",
                 GetScores = () => new Dictionary<IntPtr, double>
                     {
                         {new IntPtr(1), 1},
@@ -66,6 +70,7 @@ namespace WindowRecommenderTests.Models
 
             var stubModel2 = new StubIModel
             {
+                NameGet = () => "M2",
                 GetScores = () => new Dictionary<IntPtr, double>
                     {
                         {new IntPtr(1), 4},
@@ -81,13 +86,29 @@ namespace WindowRecommenderTests.Models
             });
             modelCore.ScoreChanged += (sender, scores) =>
             {
-                CollectionAssert.AreEqual(scores, new Dictionary<IntPtr, double>
+                CollectionAssert.AreEqual(new Dictionary<string, double>
                 {
-                        {new IntPtr(1), 0.7},
-                        {new IntPtr(2), 0.5 / 3},
-                        {new IntPtr(3), 0.4 / 3},
-                        {new IntPtr(4), 0}
-                });
+                    {ModelCore.MergedScoreName, 0.7},
+                    {"M1", 0.5},
+                    {"M2", 0.8},
+                }, scores[new IntPtr(1)]);
+                CollectionAssert.AreEqual(new Dictionary<string, double>
+                {
+                    {ModelCore.MergedScoreName, 0.5 / 3},
+                    {"M1", 0.5},
+                    {"M2", 0},
+                }, scores[new IntPtr(2)]);
+                CollectionAssert.AreEqual(new Dictionary<string, double>
+                {
+                    {ModelCore.MergedScoreName, 0.4 / 3},
+                    {"M1", 0},
+                    {"M2", 0.2},
+                }, scores[new IntPtr(3)]);
+                CollectionAssert.AreEqual(new Dictionary<string, double>
+                {
+                    {ModelCore.MergedScoreName, 0},
+                    {"M1", 0},
+                }, scores[new IntPtr(4)]);
             };
             modelCore.Start();
         }
@@ -97,6 +118,7 @@ namespace WindowRecommenderTests.Models
         {
             var stubModel = new StubIModel
             {
+                NameGet = () => "M1",
                 GetScores = () => new Dictionary<IntPtr, double>
                     {
                         {new IntPtr(1), 1},
@@ -108,6 +130,7 @@ namespace WindowRecommenderTests.Models
 
             var stubModel2 = new StubIModel
             {
+                NameGet = () => "M2",
                 GetScores = () => new Dictionary<IntPtr, double>
                     {
                         {new IntPtr(1), 4},
@@ -123,13 +146,29 @@ namespace WindowRecommenderTests.Models
             });
             modelCore.ScoreChanged += (sender, scores) =>
             {
-                CollectionAssert.AreEqual(scores, new Dictionary<IntPtr, double>
+                CollectionAssert.AreEqual(new Dictionary<string, double>
                 {
-                        {new IntPtr(1), 0.7},
-                        {new IntPtr(2), 0.5 / 3},
-                        {new IntPtr(3), 0.4 / 3},
-                        {new IntPtr(4), 0}
-                });
+                    {ModelCore.MergedScoreName, 0.7},
+                    {"M1", 0.5},
+                    {"M2", 0.8},
+                }, scores[new IntPtr(1)]);
+                CollectionAssert.AreEqual(new Dictionary<string, double>
+                {
+                    {ModelCore.MergedScoreName, 0.5 / 3},
+                    {"M1", 0.5},
+                    {"M2", 0},
+                }, scores[new IntPtr(2)]);
+                CollectionAssert.AreEqual(new Dictionary<string, double>
+                {
+                    {ModelCore.MergedScoreName, 0.4 / 3},
+                    {"M1", 0},
+                    {"M2", 0.2},
+                }, scores[new IntPtr(3)]);
+                CollectionAssert.AreEqual(new Dictionary<string, double>
+                {
+                    {ModelCore.MergedScoreName, 0},
+                    {"M1", 0},
+                }, scores[new IntPtr(4)]);
             };
             stubModel.ScoreChangedEvent.Invoke(stubModel, null);
         }
@@ -138,15 +177,20 @@ namespace WindowRecommenderTests.Models
         public void TestOnScoreChanged_NoChange()
         {
             var windowChanged = false;
-            void OnScoreChanged(object sender, Dictionary<IntPtr, double> scores)
+            void OnScoreChanged(object sender, Dictionary<IntPtr, Dictionary<string, double>> scores)
             {
                 if (!windowChanged)
                 {
-                    CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
-                {
-                        {new IntPtr(1), 0.6},
-                        {new IntPtr(2), 0.4},
-                }, scores);
+                    CollectionAssert.AreEqual(new Dictionary<string, double>
+                    {
+                        {ModelCore.MergedScoreName, 0.6},
+                        {"M1", 0.6},
+                    }, scores[new IntPtr(1)]);
+                    CollectionAssert.AreEqual(new Dictionary<string, double>
+                    {
+                        {ModelCore.MergedScoreName, 0.4},
+                        {"M1", 0.4},
+                    }, scores[new IntPtr(2)]);
                     windowChanged = true;
                 }
                 else
@@ -176,6 +220,7 @@ namespace WindowRecommenderTests.Models
 
             var stubModel = new StubIModel
             {
+                NameGet = () => "M1",
                 GetScores = GetScores,
             };
             var modelCore = new ModelCore(new (IModel, double)[]
@@ -236,6 +281,7 @@ namespace WindowRecommenderTests.Models
 
             var stubModel = new StubIModel
             {
+                NameGet = () => "M1",
                 GetScores = GetScores,
             };
             var modelCore = new ModelCore(new (IModel, double)[]

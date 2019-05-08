@@ -36,6 +36,23 @@ namespace WindowRecommender.Util
             }
         }
 
+        /// <summary>
+        /// Gets the value associated with the specified key or the default fo
+        /// </summary>
+        /// <typeparam name="TKey">The type of the key.</typeparam>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="dictionary">The dictionary whose value to return.</param>
+        /// <param name="key">The key whose value to get.</param>
+        /// <returns>When this method returns, the value associated with the specified key, if the key is found;
+        /// otherwise, the default value for <typeparamref name="TValue" />.</returns>
+        /// https://stackoverflow.com/a/538751/1469028
+        public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
+        {
+            // Ignore return value
+            dictionary.TryGetValue(key, out var ret);
+            return ret;
+        }
+
         internal static bool IsZero(this double value)
         {
             return Math.Abs(value) < Epsilon;

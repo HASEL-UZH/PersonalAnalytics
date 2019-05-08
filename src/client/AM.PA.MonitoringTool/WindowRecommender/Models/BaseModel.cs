@@ -8,6 +8,8 @@ namespace WindowRecommender.Models
     {
         public event EventHandler ScoreChanged;
 
+        public string Name => GetType().Name;
+
         internal BaseModel(IWindowEvents windowEvents)
         {
             windowEvents.Setup += (sender, e) => Setup(e);

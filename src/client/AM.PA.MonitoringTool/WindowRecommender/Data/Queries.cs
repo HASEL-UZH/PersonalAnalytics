@@ -10,7 +10,7 @@ namespace WindowRecommender.Data
     {
         private static readonly (string name, string columns)[] Tables = {
             (Settings.WindowEventTable, "id INTEGER PRIMARY KEY, time TEXT, event Text, windowHandle TEXT, processName TEXT, windowTitle TEXT, zIndex INTEGER, rank INTEGER, score REAL"),
-            (Settings.ScoreChangeTable, "id INTEGER PRIMARY KEY, time TEXT, windowHandle TEXT, modelName TEXT, score REAL"),
+            (Settings.ScoreChangeTable, "id INTEGER PRIMARY KEY, time TEXT, windowHandle TEXT, mergedScore REAL, durationScore REAL, frequencyScore REAL, mraScore REAL, titleScore REAL"),
             (Settings.DesktopEventTable, "id INTEGER PRIMARY KEY, time TEXT, windowHandle TEXT, zIndex INTEGER, hazed INTEGER, left INTEGER, top INTEGER, right INTEGER, bottom INTEGER"),
             (Settings.ScreenEventTable, "id INTEGER PRIMARY KEY, time TEXT, screenId INTEGER, left INTEGER, top INTEGER, right INTEGER, bottom INTEGER"),
         };
@@ -53,10 +53,10 @@ namespace WindowRecommender.Data
         internal static void SaveScoreChange(IEnumerable<ScoreRecord> scoreRecords)
         {
             var db = Database.GetInstance();
-            var query = $@"INSERT INTO {Settings.ScoreChangeTable} (time, windowHandle, modelname, score) VALUES (?, ?, ?, ?);";
+            var query = $@"INSERT INTO {Settings.ScoreChangeTable} (time, windowHandle, mergedScore, durationScore, frequencyScore, mraScore, titleScore) VALUES (?, ?, ?, ?, ?, ?, ?);";
             var timestamp = DateTime.Now;
             var parameterList = scoreRecords
-                .Select((record, i) => new object[] { timestamp, record.WindowHandle, record.ModelName, record.Score })
+                .Select((record, i) => new object[] { timestamp, record.WindowHandle, record.Merged, record.Duration, record.Frequency, record.MostRecentlyActive, record.TitleSimilarity })
                 .ToArray();
             db.ExecuteBatchQueries(query, parameterList);
         }

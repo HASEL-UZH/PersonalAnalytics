@@ -1,18 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
+using WindowRecommender.Util;
 
 namespace WindowRecommender.Data
 {
     internal struct ScoreRecord
     {
         internal readonly string WindowHandle;
-        internal readonly string ModelName;
-        internal readonly double Score;
+        internal readonly double Merged;
+        internal readonly double Duration;
+        internal readonly double Frequency;
+        internal readonly double MostRecentlyActive;
+        internal readonly double TitleSimilarity;
 
-        public ScoreRecord(IntPtr windowHandle, string modelName, double score)
+        public ScoreRecord(IntPtr windowHandle, Dictionary<string, double> scores)
         {
             WindowHandle = windowHandle.ToString();
-            ModelName = modelName;
-            Score = score;
+            Merged = scores.GetValueOrDefault(nameof(Merged));
+            Duration = scores.GetValueOrDefault(nameof(Duration));
+            Frequency = scores.GetValueOrDefault(nameof(Frequency));
+            MostRecentlyActive = scores.GetValueOrDefault(nameof(MostRecentlyActive));
+            TitleSimilarity = scores.GetValueOrDefault(nameof(TitleSimilarity));
         }
     }
 }

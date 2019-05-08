@@ -185,11 +185,12 @@ namespace WindowRecommender
                 });
         }
 
-        private void OnScoresChanged(object sender, Dictionary<IntPtr, double> e)
+        private void OnScoresChanged(object sender, Dictionary<IntPtr, Dictionary<string, double>> e)
         {
             var scores = e;
-            _windowRecorder.SetScores(scores, Utils.GetTopEntries(scores, Settings.NumberOfWindows));
-            Queries.SaveScoreChange(scores.Select(pair => new ScoreRecord(pair.Key, sender.GetType().Name, pair.Value)));
+            var mergedScores = scores.ToDictionary(pair => pair.Key, pair => pair.Value[ModelCore.MergedScoreName]);
+            _windowRecorder.SetScores(mergedScores);
+            Queries.SaveScoreChange(scores.Select(pair => new ScoreRecord(pair.Key, pair.Value)));
         }
 
         private void OnWindowsChanged(object sender, List<IntPtr> e)
@@ -216,6 +217,7 @@ namespace WindowRecommender
 
         private void UpdateDrawing(List<IntPtr> topWindows)
         {
+            _windowRecorder.SetTopWindows(topWindows);
             var scoredWindows = GetScoredWindows(topWindows, _windowStack.WindowRecords).ToList();
             var scoredWindowRectangles = scoredWindows
                 .Select(tuple => (tuple.windowRecord, rectangle: WindowUtils.GetCorrectedWindowRectangle(tuple.windowRecord), tuple.show))

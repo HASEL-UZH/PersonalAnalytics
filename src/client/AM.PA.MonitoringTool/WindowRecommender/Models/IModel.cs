@@ -7,6 +7,8 @@ namespace WindowRecommender.Models
     {
         event EventHandler ScoreChanged;
 
+        string Name { get; }
+
         Dictionary<IntPtr, double> GetScores();
     }
 }

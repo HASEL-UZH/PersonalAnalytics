@@ -6,7 +6,9 @@ namespace WindowRecommender.Models
 {
     internal class ModelCore
     {
-        internal event EventHandler<Dictionary<IntPtr, double>> ScoreChanged;
+        internal const string MergedScoreName = "Merged";
+
+        internal event EventHandler<Dictionary<IntPtr, Dictionary<string, double>>> ScoreChanged;
         internal event EventHandler<List<IntPtr>> WindowsChanged;
 
         private readonly (IModel model, double weight)[] _models;
@@ -37,33 +39,41 @@ namespace WindowRecommender.Models
             return _topWindows;
         }
 
-        private Dictionary<IntPtr, double> GetScores()
+        private Dictionary<IntPtr, Dictionary<string, double>> GetScores()
         {
-            var mergedScores = new Dictionary<IntPtr, double>();
+            var scores = new Dictionary<IntPtr, Dictionary<string, double>>();
             foreach (var (model, weight) in _models)
             {
                 var relativeWeight = weight / _weightSum;
                 var normalizedModelScores = NormalizeScores(model.GetScores());
                 foreach (var score in normalizedModelScores)
                 {
-                    if (!mergedScores.ContainsKey(score.Key))
+                    if (!scores.ContainsKey(score.Key))
                     {
-                        mergedScores.Add(score.Key, 0);
+                        scores.Add(score.Key, new Dictionary<string, double>());
                     }
-                    mergedScores[score.Key] += score.Value * relativeWeight;
+
+                    if (!scores[score.Key].ContainsKey(MergedScoreName))
+                    {
+                        scores[score.Key].Add(MergedScoreName, 0);
+                    }
+
+                    scores[score.Key][MergedScoreName] += score.Value * relativeWeight;
+                    scores[score.Key][model.Name] = score.Value;
                 }
             }
-            return mergedScores;
+            return scores;
         }
 
         private void InvokeEvents(object origin)
         {
-            var mergedScores = GetScores();
+            var scores = GetScores();
+            var mergedScores = scores.ToDictionary(pair => pair.Key, pair => pair.Value[MergedScoreName]);
             var orderedWindows = mergedScores.OrderByDescending(x => x.Value).ToList();
             if (!_orderedWindows.SequenceEqual(orderedWindows))
             {
                 _orderedWindows = orderedWindows;
-                ScoreChanged?.Invoke(origin, mergedScores);
+                ScoreChanged?.Invoke(origin, scores);
                 var topWindows = orderedWindows.Select(x => x.Key).Take(Settings.NumberOfWindows).ToList();
                 if (!_topWindows.SequenceEqual(topWindows))
                 {

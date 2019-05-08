@@ -26,9 +26,13 @@ namespace WindowRecommender
             windowEvents.WindowMinimized += OnWindowMinimized;
         }
 
-        internal void SetScores(Dictionary<IntPtr, double> scores, IEnumerable<IntPtr> ranks)
+        internal void SetScores(Dictionary<IntPtr, double> scores)
         {
             _scores = scores;
+        }
+
+        internal void SetTopWindows(IEnumerable<IntPtr> ranks)
+        {
             _ranks = ranks.ToArray();
         }
 
