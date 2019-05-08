@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using WindowRecommender.Util;
 
 namespace WindowRecommender.Models
 {
@@ -13,10 +12,12 @@ namespace WindowRecommender.Models
         private readonly (IModel model, double weight)[] _models;
         private readonly double _weightSum;
 
+        private List<KeyValuePair<IntPtr, double>> _orderedWindows;
         private List<IntPtr> _topWindows;
 
         internal ModelCore((IModel model, double weight)[] models)
         {
+            _orderedWindows = new List<KeyValuePair<IntPtr, double>>();
             _topWindows = new List<IntPtr>();
             _models = models;
             _weightSum = _models.Sum(modelWeight => modelWeight.weight);
@@ -58,12 +59,17 @@ namespace WindowRecommender.Models
         private void InvokeEvents(object origin)
         {
             var mergedScores = GetScores();
-            ScoreChanged?.Invoke(origin, mergedScores);
-            var newTopWindows = Utils.GetTopEntries(mergedScores, Settings.NumberOfWindows).ToList();
-            if (!_topWindows.SequenceEqual(newTopWindows))
+            var orderedWindows = mergedScores.OrderByDescending(x => x.Value).ToList();
+            if (!_orderedWindows.SequenceEqual(orderedWindows))
             {
-                _topWindows = newTopWindows;
-                WindowsChanged?.Invoke(this, _topWindows);
+                _orderedWindows = orderedWindows;
+                ScoreChanged?.Invoke(origin, mergedScores);
+                var topWindows = orderedWindows.Select(x => x.Key).Take(Settings.NumberOfWindows).ToList();
+                if (!_topWindows.SequenceEqual(topWindows))
+                {
+                    _topWindows = topWindows;
+                    WindowsChanged?.Invoke(this, _topWindows);
+                }
             }
         }
 

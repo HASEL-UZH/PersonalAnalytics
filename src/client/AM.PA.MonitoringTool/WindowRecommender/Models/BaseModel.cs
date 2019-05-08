@@ -21,10 +21,5 @@ namespace WindowRecommender.Models
         {
             ScoreChanged?.Invoke(this, null);
         }
-
-        internal static IEnumerable<IntPtr> GetTopWindows(Dictionary<IntPtr, double> scores)
-        {
-            return Utils.GetTopEntries(scores, Settings.NumberOfWindows);
-        }
     }
 }

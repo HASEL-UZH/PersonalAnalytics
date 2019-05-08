@@ -36,7 +36,17 @@ namespace WindowRecommenderTests.Models
         [TestMethod]
         public void TestEmptyEvent()
         {
-            var modelCore = new ModelCore(new (IModel, double)[0]);
+            var stubModel = new StubIModel
+            {
+                GetScores = () => new Dictionary<IntPtr, double>
+                {
+                    {new IntPtr(1), 0.1},
+                }
+            };
+            var modelCore = new ModelCore(new (IModel, double)[]
+            {
+                (stubModel, 1),
+            });
             modelCore.Start();
         }
 
@@ -83,7 +93,7 @@ namespace WindowRecommenderTests.Models
         }
 
         [TestMethod]
-        public void TestOnOrderChanged()
+        public void TestOnScoreChanged()
         {
             var stubModel = new StubIModel
             {
@@ -122,6 +132,126 @@ namespace WindowRecommenderTests.Models
                 });
             };
             stubModel.ScoreChangedEvent.Invoke(stubModel, null);
+        }
+
+        [TestMethod]
+        public void TestOnScoreChanged_NoChange()
+        {
+            var windowChanged = false;
+            void OnScoreChanged(object sender, Dictionary<IntPtr, double> scores)
+            {
+                if (!windowChanged)
+                {
+                    CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
+                {
+                        {new IntPtr(1), 0.6},
+                        {new IntPtr(2), 0.4},
+                }, scores);
+                    windowChanged = true;
+                }
+                else
+                {
+                    Assert.Fail();
+                }
+            }
+
+            var firstCall = true;
+            Dictionary<IntPtr, double> GetScores()
+            {
+                if (firstCall)
+                {
+                    firstCall = false;
+                    return new Dictionary<IntPtr, double>
+                    {
+                        {new IntPtr(1), 0.6},
+                        {new IntPtr(2), 0.4},
+                    };
+                }
+                return new Dictionary<IntPtr, double>
+                {
+                    {new IntPtr(2), 0.4},
+                    {new IntPtr(1), 0.6},
+                };
+            }
+
+            var stubModel = new StubIModel
+            {
+                GetScores = GetScores,
+            };
+            var modelCore = new ModelCore(new (IModel, double)[]
+            {
+                (stubModel, 1),
+            });
+
+            modelCore.ScoreChanged += OnScoreChanged;
+            modelCore.Start();
+
+            stubModel.ScoreChangedEvent.Invoke(stubModel, null);
+            CollectionAssert.AreEqual(new List<IntPtr>
+            {
+                new IntPtr(1),
+                new IntPtr(2),
+            }, modelCore.GetTopWindows());
+        }
+
+        [TestMethod]
+        public void TestOnWindowsChanged()
+        {
+            var windowChanged = false;
+            void OnWindowsChange(object sender, List<IntPtr> topWindows)
+            {
+                if (!windowChanged)
+                {
+                    CollectionAssert.AreEqual(new List<IntPtr>
+                    {
+                        new IntPtr(1),
+                        new IntPtr(2),
+                    }, topWindows);
+                    windowChanged = true;
+                }
+                else
+                {
+                    Assert.Fail();
+                }
+            }
+
+            var firstCall = true;
+            Dictionary<IntPtr, double> GetScores()
+            {
+                if (firstCall)
+                {
+                    firstCall = false;
+                    return new Dictionary<IntPtr, double>
+                    {
+                        {new IntPtr(1), 0.6},
+                        {new IntPtr(2), 0.4},
+                    };
+                }
+                return new Dictionary<IntPtr, double>
+                {
+                    {new IntPtr(1), 0.6},
+                    {new IntPtr(2), 0.5},
+                };
+            }
+
+            var stubModel = new StubIModel
+            {
+                GetScores = GetScores,
+            };
+            var modelCore = new ModelCore(new (IModel, double)[]
+            {
+                (stubModel, 1),
+            });
+
+            modelCore.WindowsChanged += OnWindowsChange;
+            modelCore.Start();
+
+            stubModel.ScoreChangedEvent.Invoke(stubModel, null);
+            CollectionAssert.AreEqual(new List<IntPtr>
+            {
+                new IntPtr(1),
+                new IntPtr(2),
+            }, modelCore.GetTopWindows());
         }
 
         [TestMethod]
