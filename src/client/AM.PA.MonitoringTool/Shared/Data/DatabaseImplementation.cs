@@ -21,8 +21,9 @@ namespace Shared.Data
     public sealed class DatabaseImplementation : IDisposable
     {
         private SQLiteConnection _connection; // null if not connected
-        private readonly string _currentDatabaseDumpFile; 
+        private readonly string _currentDatabaseDumpFile;
         public const string DB_FORMAT_DAY_AND_TIME = "yyyy-MM-dd HH:mm:ss";
+        private readonly object _batchLock = new object();
 
         public void Dispose()
         {
@@ -203,10 +204,13 @@ namespace Shared.Data
             var affectedRowCount = 0;
             try
             {
-                using (var transaction = _connection.BeginTransaction())
+                lock (_batchLock)
                 {
-                    affectedRowCount = parameterList.Sum(parameter => ExecuteDefaultQuery(query, parameter));
-                    transaction.Commit();
+                    using (var transaction = _connection.BeginTransaction())
+                    {
+                        affectedRowCount = parameterList.Sum(parameter => ExecuteDefaultQuery(query, parameter));
+                        transaction.Commit();
+                    }
                 }
             }
             catch (Exception e)
