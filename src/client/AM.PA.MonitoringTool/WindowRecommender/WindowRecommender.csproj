@@ -44,7 +44,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\DesktopWindowRecord.cs" />
+    <Compile Include="Data\EventName.cs" />
     <Compile Include="Data\Queries.cs" />
+    <Compile Include="Data\ScoreRecord.cs" />
+    <Compile Include="Data\WindowEventRecord.cs" />
     <Compile Include="Graphics\HazeOverlay.cs" />
     <Compile Include="Graphics\HazeOverlayWindow.cs" />
     <Compile Include="IWindowEvents.cs" />

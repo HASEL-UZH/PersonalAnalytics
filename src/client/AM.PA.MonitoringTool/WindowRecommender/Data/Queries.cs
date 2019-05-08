@@ -2,39 +2,88 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using WindowRecommender.Graphics;
 
 namespace WindowRecommender.Data
 {
     internal static class Queries
     {
+        private static readonly (string name, string columns)[] Tables = {
+            (Settings.WindowEventTable, "id INTEGER PRIMARY KEY, time TEXT, event Text, windowHandle TEXT, processName TEXT, windowTitle TEXT, zIndex INTEGER, rank INTEGER, score REAL"),
+            (Settings.ScoreChangeTable, "id INTEGER PRIMARY KEY, time TEXT, windowHandle TEXT, modelName TEXT, score REAL"),
+            (Settings.DesktopEventTable, "id INTEGER PRIMARY KEY, time TEXT, windowHandle TEXT, zIndex INTEGER, hazed INTEGER, left INTEGER, top INTEGER, right INTEGER, bottom INTEGER"),
+            (Settings.ScreenEventTable, "id INTEGER PRIMARY KEY, time TEXT, screenId INTEGER, left INTEGER, top INTEGER, right INTEGER, bottom INTEGER"),
+        };
+
         internal static void CreateTables()
         {
-            var db = Database.GetInstance();
-            db.ExecuteDefaultQuery($@"CREATE TABLE IF NOT EXISTS {Settings.EventTable} (id INTEGER PRIMARY KEY, time TEXT, event Text, windowId TEXT, processName TEXT, windowTitle TEXT, zIndex INTEGER, rank INTEGER, score REAL);");
+            foreach (var (name, columns) in Tables)
+            {
+                Database.GetInstance().ExecuteDefaultQuery($@"CREATE TABLE IF NOT EXISTS {name} ({columns});");
+            }
         }
 
         internal static void DropTables()
         {
-            var db = Database.GetInstance();
-            db.ExecuteDefaultQuery($@"DROP TABLE IF EXISTS {Settings.EventTable};");
+            foreach (var (name, _) in Tables)
+            {
+                Database.GetInstance().ExecuteDefaultQuery($@"DROP TABLE IF EXISTS {name};");
+            }
         }
 
-        internal static void SaveEvent(EventName eventName, DatabaseEntry entry)
+        internal static void SaveWindowEvent(EventName eventName, WindowEventRecord entry)
         {
             var db = Database.GetInstance();
-            var query = $@"INSERT INTO {Settings.EventTable} (time, event, windowId, processName, windowTitle, zIndex, rank, score) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+            var query = $@"INSERT INTO {Settings.WindowEventTable} (time, event, windowHandle, processName, windowTitle, zIndex, rank, score) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
             var parameters = new object[] { DateTime.Now, eventName.ToString(), entry.WindowHandle, entry.ProcessName, entry.WindowTitle, entry.ZIndex, entry.Rank, entry.Score };
             db.ExecuteDefaultQuery(query, parameters);
         }
 
-        internal static void SaveEvents(EventName eventName, IEnumerable<DatabaseEntry> entries)
+        internal static void SaveWindowEvents(EventName eventName, IEnumerable<WindowEventRecord> entries)
         {
             var db = Database.GetInstance();
-            var query = $@"INSERT INTO {Settings.EventTable} (time, event, windowId, processName, windowTitle, zIndex, rank, score) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+            var query = $@"INSERT INTO {Settings.WindowEventTable} (time, event, windowHandle, processName, windowTitle, zIndex, rank, score) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+            var timestamp = DateTime.Now;
             var parameterList = entries
-                .Select(entry => new object[] { DateTime.Now, eventName.ToString(), entry.WindowHandle, entry.ProcessName, entry.WindowTitle, entry.ZIndex, entry.Rank, entry.Score });
+                .Select(entry => new object[] { timestamp, eventName.ToString(), entry.WindowHandle, entry.ProcessName, entry.WindowTitle, entry.ZIndex, entry.Rank, entry.Score })
+                .ToArray();
             db.ExecuteBatchQueries(query, parameterList);
         }
+
+        internal static void SaveScoreChange(IEnumerable<ScoreRecord> scoreRecords)
+        {
+            var db = Database.GetInstance();
+            var query = $@"INSERT INTO {Settings.ScoreChangeTable} (time, windowHandle, modelname, score) VALUES (?, ?, ?, ?);";
+            var timestamp = DateTime.Now;
+            var parameterList = scoreRecords
+                .Select((record, i) => new object[] { timestamp, record.WindowHandle, record.ModelName, record.Score })
+                .ToArray();
+            db.ExecuteBatchQueries(query, parameterList);
+        }
+
+        internal static void SaveDesktopEvents(IEnumerable<DesktopWindowRecord> desktopWindowRecords)
+        {
+            var db = Database.GetInstance();
+            var query = $@"INSERT INTO {Settings.DesktopEventTable} (time, windowHandle, zIndex, hazed, left, top, right, bottom) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+            var timestamp = DateTime.Now;
+            var parameterList = desktopWindowRecords
+                .Select((record, i) => new object[] { timestamp, record.WindowHandle, record.ZIndex, record.Hazed, record.Rectangle.Left, record.Rectangle.Top, record.Rectangle.Right, record.Rectangle.Bottom })
+                .ToArray();
+            db.ExecuteBatchQueries(query, parameterList);
+        }
+
+        internal static void SaveScreenEvents(IEnumerable<Rectangle> screenRectangles)
+        {
+            var db = Database.GetInstance();
+            var query = $@"INSERT INTO {Settings.ScreenEventTable} (time, screenId, left, top, right, bottom) VALUES (?, ?, ?, ?, ?, ?);";
+            var timestamp = DateTime.Now;
+            var parameterList = screenRectangles
+                .Select((screenRectangle, i) => new object[] { timestamp, i, screenRectangle.Left, screenRectangle.Top, screenRectangle.Right, screenRectangle.Bottom })
+                .ToArray();
+            db.ExecuteBatchQueries(query, parameterList);
+        }
+
+        #region Settings
 
         internal static bool GetEnabledSetting()
         {
@@ -74,52 +123,7 @@ namespace WindowRecommender.Data
             db.SetSettings(Settings.NumberOfWindowsSettingDatabaseKey, numberOfWindows.ToString());
             db.LogInfo($"The participant updated the setting '{Settings.NumberOfWindowsSettingDatabaseKey}' to {numberOfWindows}.");
         }
-    }
 
-    internal sealed class EventName
-    {
-        private readonly string _name;
-
-        public static readonly EventName Initial = new EventName("Initial");
-        public static readonly EventName Open = new EventName("Open");
-        public static readonly EventName Focus = new EventName("Focus");
-        public static readonly EventName Close = new EventName("Close");
-        public static readonly EventName Minimize = new EventName("Minimize");
-
-        private EventName(string name)
-        {
-            _name = name;
-        }
-
-        public override string ToString()
-        {
-            return _name;
-        }
-    }
-
-    internal struct DatabaseEntry
-    {
-        internal readonly string WindowHandle;
-        internal readonly string WindowTitle;
-        internal readonly string ProcessName;
-        internal readonly int ZIndex;
-        internal readonly int Rank;
-        internal readonly double Score;
-
-        internal DatabaseEntry(IntPtr windowHandle, string windowTitle, string processName, int zIndex)
-        {
-            WindowHandle = windowHandle.ToString();
-            WindowTitle = windowTitle;
-            ProcessName = processName;
-            ZIndex = zIndex;
-            Rank = -1;
-            Score = -1;
-        }
-
-        internal DatabaseEntry(IntPtr windowHandle, string windowTitle, string processName, int zIndex, int rank, double score) : this(windowHandle, windowTitle, processName, zIndex)
-        {
-            Rank = rank;
-            Score = score;
-        }
+        #endregion
     }
 }

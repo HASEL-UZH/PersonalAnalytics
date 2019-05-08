@@ -2,7 +2,10 @@
 {
     internal static class Settings
     {
-        internal const string EventTable = "window_recommender_events";
+        internal const string WindowEventTable = "window_recommender_events";
+        internal const string ScoreChangeTable = "window_recommender_scores";
+        internal const string DesktopEventTable = "window_recommender_windows";
+        internal const string ScreenEventTable = "window_recommender_screens";
 
         internal const string EnabledSettingDatabaseKey = "WindowRecommenderEnabled";
         internal const bool EnabledDefault = true;

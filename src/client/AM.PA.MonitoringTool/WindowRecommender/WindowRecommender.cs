@@ -51,14 +51,14 @@ namespace WindowRecommender
         public override void Start()
         {
             IsRunning = true;
-            _windowCache.Start();
-            _modelCore.Start();
-            _modelEvents.Start();
-
             if (TreatmentMode)
             {
                 StartTreatment();
             }
+            _windowCache.Start();
+            _modelCore.Start();
+            _modelEvents.Start();
+
         }
 
         public override void Stop()
@@ -73,6 +73,8 @@ namespace WindowRecommender
 
         public override void CreateDatabaseTablesIfNotExist()
         {
+            // During development, drop and recreate tables
+            Queries.DropTables();
             Queries.CreateTables();
         }
 
@@ -183,22 +185,17 @@ namespace WindowRecommender
                 });
         }
 
-        internal static IEnumerable<(Rectangle rectangle, bool show)> GetDrawList(IEnumerable<(WindowRecord windowRecord, bool show)> scoredWindows)
-        {
-            return scoredWindows.Select(scoredWindow => (WindowUtils.GetCorrectedWindowRectangle(scoredWindow.windowRecord), scoredWindow.show));
-        }
-
         private void OnScoresChanged(object sender, Dictionary<IntPtr, double> e)
         {
             var scores = e;
             _windowRecorder.SetScores(scores, Utils.GetTopEntries(scores, Settings.NumberOfWindows));
+            Queries.SaveScoreChange(scores.Select(pair => new ScoreRecord(pair.Key, sender.GetType().Name, pair.Value)));
         }
 
         private void OnWindowsChanged(object sender, List<IntPtr> e)
         {
             var topWindows = e;
-            var scoredWindows = GetScoredWindows(topWindows, _windowStack.WindowRecords);
-            _hazeOverlay.Show(GetDrawList(scoredWindows));
+            UpdateDrawing(topWindows);
         }
 
         private void StartTreatment()
@@ -217,6 +214,23 @@ namespace WindowRecommender
             _hazeOverlay.Stop();
         }
 
+        private void UpdateDrawing(List<IntPtr> topWindows)
+        {
+            var scoredWindows = GetScoredWindows(topWindows, _windowStack.WindowRecords).ToList();
+            var scoredWindowRectangles = scoredWindows
+                .Select(tuple => (tuple.windowRecord, rectangle: WindowUtils.GetCorrectedWindowRectangle(tuple.windowRecord), tuple.show))
+                .ToList();
+            _hazeOverlay.Show(scoredWindowRectangles.Select(tuple => (tuple.rectangle, tuple.show)));
+
+            var desktopWindowRecords = scoredWindowRectangles
+                .Concat(_windowStack.WindowRecords
+                    .Skip(scoredWindows.Count)
+                    .Select(windowRecord => (windowRecord, rectangle: WindowUtils.GetCorrectedWindowRectangle(windowRecord), show: false))
+                )
+                .Select((tuple, i) => new DesktopWindowRecord(tuple.windowRecord.Handle, !tuple.show, i, tuple.rectangle));
+            Queries.SaveDesktopEvents(desktopWindowRecords);
+        }
+
         private void OnMoveStarted(object sender, EventArgs e)
         {
             _hazeOverlay.Hide();
@@ -225,8 +239,7 @@ namespace WindowRecommender
         private void OnMoveEnded(object sender, EventArgs e)
         {
             var topWindows = _modelCore.GetTopWindows();
-            var scoredWindows = GetScoredWindows(topWindows, _windowStack.WindowRecords);
-            _hazeOverlay.Show(GetDrawList(scoredWindows));
+            UpdateDrawing(topWindows);
         }
 
         private void OnDisplaySettingsChanged(object sender, EventArgs e)

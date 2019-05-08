@@ -2,10 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.QualityTools.Testing.Fakes;
 using WindowRecommender;
-using WindowRecommender.Graphics;
-using WindowRecommender.Util.Fakes;
 
 namespace WindowRecommenderTests
 {
@@ -157,24 +154,6 @@ namespace WindowRecommenderTests
             };
             var actualScoredWindows = WindowRecommender.WindowRecommender.GetScoredWindows(topWindows, windowStack).ToList();
             CollectionAssert.AreEqual(expectedScoredWindows, actualScoredWindows);
-        }
-
-        [TestMethod]
-        public void TestGetDrawList()
-        {
-            using (ShimsContext.Create())
-            {
-                ShimWindowUtils.GetCorrectedWindowRectangleWindowRecord = record => new Rectangle(1, 1, 1, 1);
-                var expectedDrawList = new List<(Rectangle rectangle, bool show)>
-                {
-                    (rectangle: new Rectangle(1, 1, 1, 1), show: true)
-                };
-                var actualDrawList = WindowRecommender.WindowRecommender.GetDrawList(new List<(WindowRecord windowRecord, bool show)>
-                {
-                    (windowRecord: new WindowRecord(new IntPtr(1)), show: true),
-                }).ToList();
-                CollectionAssert.AreEqual(expectedDrawList, actualDrawList);
-            }
         }
     }
 }

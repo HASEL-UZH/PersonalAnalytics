@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using WindowRecommender.Data;
 using WindowRecommender.Native;
 
 namespace WindowRecommender.Graphics
@@ -11,12 +12,13 @@ namespace WindowRecommender.Graphics
 
         internal HazeOverlay()
         {
+            _windows = new (HazeOverlayWindow window, Rectangle rectangle)[0];
             _isRunning = false;
-            CreateMonitorWindows();
         }
 
         public void Start()
         {
+            CreateMonitorWindows();
             _isRunning = true;
             foreach (var (window, _) in _windows)
             {
@@ -76,10 +78,11 @@ namespace WindowRecommender.Graphics
 
         private void CreateMonitorWindows()
         {
-            var monitorRects = NativeMethods.GetMonitorWorkingAreas();
+            var monitorRects = NativeMethods.GetMonitorWorkingAreas().Select(rect => (Rectangle)rect).ToList();
+            Queries.SaveScreenEvents(monitorRects);
             _windows = monitorRects.Select(screenRect =>
             {
-                var screenRectangle = (Rectangle)screenRect;
+                var screenRectangle = screenRect;
                 var hazeOverlayWindow = new HazeOverlayWindow(screenRectangle);
 
                 return (window: hazeOverlayWindow, rectangle: screenRectangle);

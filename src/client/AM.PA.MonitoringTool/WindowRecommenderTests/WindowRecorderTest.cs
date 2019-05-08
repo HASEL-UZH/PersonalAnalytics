@@ -19,14 +19,14 @@ namespace WindowRecommenderTests
             using (ShimsContext.Create())
             {
                 var called = false;
-                ShimQueries.SaveEventsEventNameIEnumerableOfDatabaseEntry = (eventName, entries) =>
+                ShimQueries.SaveWindowEventsEventNameIEnumerableOfWindowEventRecord = (eventName, entries) =>
                 {
                     called = true;
                     Assert.AreEqual(EventName.Initial, eventName);
-                    CollectionAssert.AreEqual(new List<DatabaseEntry>
+                    CollectionAssert.AreEqual(new List<WindowEventRecord>
                     {
-                        new DatabaseEntry(new IntPtr(1), "test_title1", "test_process1", 0),
-                        new DatabaseEntry(new IntPtr(2), "test_title2", "test_process2", 1),
+                        new WindowEventRecord(new IntPtr(1), "test_title1", "test_process1", 0),
+                        new WindowEventRecord(new IntPtr(2), "test_title2", "test_process2", 1),
                     }, entries.ToList());
                 };
                 var windowEvents = new StubIWindowEvents();
@@ -46,7 +46,7 @@ namespace WindowRecommenderTests
             using (ShimsContext.Create())
             {
                 var called = false;
-                ShimQueries.SaveEventEventNameDatabaseEntry = (eventName, entry) =>
+                ShimQueries.SaveWindowEventEventNameWindowEventRecord = (eventName, entry) =>
                 {
                     called = true;
                     Assert.AreEqual(EventName.Open, eventName);
@@ -71,7 +71,7 @@ namespace WindowRecommenderTests
             using (ShimsContext.Create())
             {
                 var called = false;
-                ShimQueries.SaveEventEventNameDatabaseEntry = (eventName, entry) =>
+                ShimQueries.SaveWindowEventEventNameWindowEventRecord = (eventName, entry) =>
                 {
                     called = true;
                     Assert.AreEqual(EventName.Focus, eventName);
@@ -105,7 +105,7 @@ namespace WindowRecommenderTests
             using (ShimsContext.Create())
             {
                 var called = false;
-                ShimQueries.SaveEventEventNameDatabaseEntry = (eventName, entry) =>
+                ShimQueries.SaveWindowEventEventNameWindowEventRecord = (eventName, entry) =>
                 {
                     called = true;
                     Assert.AreEqual(EventName.Open, eventName);
@@ -130,7 +130,7 @@ namespace WindowRecommenderTests
             using (ShimsContext.Create())
             {
                 var called = false;
-                ShimQueries.SaveEventEventNameDatabaseEntry = (eventName, entry) =>
+                ShimQueries.SaveWindowEventEventNameWindowEventRecord = (eventName, entry) =>
                 {
                     called = true;
                     Assert.AreEqual(EventName.Close, eventName);
@@ -164,7 +164,7 @@ namespace WindowRecommenderTests
             using (ShimsContext.Create())
             {
                 var called = false;
-                ShimQueries.SaveEventEventNameDatabaseEntry = (eventName, entry) =>
+                ShimQueries.SaveWindowEventEventNameWindowEventRecord = (eventName, entry) =>
                 {
                     called = true;
                     Assert.AreEqual(EventName.Minimize, eventName);

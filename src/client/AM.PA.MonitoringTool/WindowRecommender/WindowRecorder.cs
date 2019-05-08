@@ -35,7 +35,7 @@ namespace WindowRecommender
         private void OnSetup(object sender, List<WindowRecord> e)
         {
             var windowRecords = e;
-            Queries.SaveEvents(EventName.Initial, windowRecords.Select(GetBasicEntry));
+            Queries.SaveWindowEvents(EventName.Initial, windowRecords.Select(GetBasicEntry));
         }
 
         private void OnWindowClosed(object sender, WindowRecord e)
@@ -43,7 +43,7 @@ namespace WindowRecommender
             var windowRecord = e;
             if (_scores.ContainsKey(windowRecord.Handle))
             {
-                Queries.SaveEvent(EventName.Close, GetExtendedEntry(windowRecord));
+                Queries.SaveWindowEvent(EventName.Close, GetExtendedEntry(windowRecord));
                 _scores.Remove(windowRecord.Handle);
             }
         }
@@ -53,7 +53,7 @@ namespace WindowRecommender
             var windowRecord = e;
             if (_scores.ContainsKey(windowRecord.Handle))
             {
-                Queries.SaveEvent(EventName.Minimize, GetExtendedEntry(windowRecord));
+                Queries.SaveWindowEvent(EventName.Minimize, GetExtendedEntry(windowRecord));
             }
         }
 
@@ -62,32 +62,32 @@ namespace WindowRecommender
             var windowRecord = e;
             if (_scores.ContainsKey(windowRecord.Handle))
             {
-                Queries.SaveEvent(EventName.Focus, GetExtendedEntry(windowRecord));
+                Queries.SaveWindowEvent(EventName.Focus, GetExtendedEntry(windowRecord));
             }
             else
             {
-                Queries.SaveEvent(EventName.Open, GetBasicEntry(windowRecord));
+                Queries.SaveWindowEvent(EventName.Open, GetBasicEntry(windowRecord));
             }
         }
 
         private void OnWindowOpened(object sender, WindowRecord e)
         {
             var windowRecord = e;
-            Queries.SaveEvent(EventName.Open, GetBasicEntry(windowRecord));
+            Queries.SaveWindowEvent(EventName.Open, GetBasicEntry(windowRecord));
         }
 
-        private DatabaseEntry GetBasicEntry(WindowRecord windowRecord)
+        private WindowEventRecord GetBasicEntry(WindowRecord windowRecord)
         {
             var zIndex = _windowStack.GetZIndex(windowRecord);
-            return new DatabaseEntry(windowRecord.Handle, windowRecord.Title, windowRecord.ProcessName, zIndex);
+            return new WindowEventRecord(windowRecord.Handle, windowRecord.Title, windowRecord.ProcessName, zIndex);
         }
 
-        private DatabaseEntry GetExtendedEntry(WindowRecord windowRecord)
+        private WindowEventRecord GetExtendedEntry(WindowRecord windowRecord)
         {
             var zIndex = _windowStack.GetZIndex(windowRecord);
             var rank = Array.IndexOf(_ranks, windowRecord.Handle);
             var score = _scores[windowRecord.Handle];
-            return new DatabaseEntry(windowRecord.Handle, windowRecord.Title, windowRecord.ProcessName, zIndex, rank, score);
+            return new WindowEventRecord(windowRecord.Handle, windowRecord.Title, windowRecord.ProcessName, zIndex, rank, score);
         }
     }
 }
