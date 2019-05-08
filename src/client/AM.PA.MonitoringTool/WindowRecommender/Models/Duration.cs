@@ -12,14 +12,11 @@ namespace WindowRecommender.Models
         private readonly List<(IntPtr windowHandle, DateTime dateTime)> _focusEvents;
         private readonly HashSet<IntPtr> _closedWindows;
 
-        private IntPtr[] _topWindows;
-
         internal Duration(IWindowEvents windowEvents) : base(windowEvents)
         {
             _scores = new Dictionary<IntPtr, double>();
             _focusEvents = new List<(IntPtr windowHandle, DateTime dateTime)>();
             _closedWindows = new HashSet<IntPtr>();
-            _topWindows = new IntPtr[0];
 
             windowEvents.WindowOpenedOrFocused += OnWindowOpenedOrFocused;
             windowEvents.WindowClosedOrMinimized += OnWindowClosedOrMinimized;
@@ -34,10 +31,11 @@ namespace WindowRecommender.Models
 
         internal void OnInterval(object sender, ElapsedEventArgs e)
         {
+            var hasChanged = false;
             var cutoff = DateTime.Now.AddMinutes(-Settings.DurationTimeframeMinutes);
             var lastPoll = DateTime.Now.AddSeconds(-Settings.DurationIntervalSeconds);
 
-            // Add dummy event to have and end for last focus and create pairs
+            // Add dummy event to have an end for last focus and create pairs
             var currentEvents = _focusEvents.Concat(new[]
             {
                 (windowHandle: IntPtr.Zero, dateTime: DateTime.Now)
@@ -45,61 +43,60 @@ namespace WindowRecommender.Models
 
             foreach (var ((windowHandle, startTime), (_, endTime)) in currentEvents)
             {
-                var score = (endTime - startTime).TotalMinutes / Settings.DurationTimeframeMinutes;
+                double scoreDiff = 0;
 
-                // Duration outside relevant timeframe -> Remove
-                if (endTime <= cutoff)
+                // Duration starts before cutoff
+                if (startTime < cutoff)
                 {
-                    _focusEvents.RemoveAt(0);
-                    score = -score;
+                    // Duration completely outside relevant timeframe -> Remove
+                    if (endTime <= cutoff)
+                    {
+                        _focusEvents.RemoveAt(0);
+                        scoreDiff -= (endTime - startTime).TotalMinutes / Settings.DurationTimeframeMinutes;
+                    }
+                    // Duration partly outside relevant timeframe -> Reduce
+                    else
+                    {
+                        _focusEvents[0] = (windowHandle, dateTime: cutoff);
+                        scoreDiff -= (cutoff - startTime).TotalMinutes / Settings.DurationTimeframeMinutes;
+                    }
                 }
-                // Duration starts outside relevant timeframe -> Reduce
-                else if (startTime < cutoff)
-                {
-                    _focusEvents[0] = (windowHandle, dateTime: cutoff);
-                    score = -(cutoff - startTime).TotalMinutes / Settings.DurationTimeframeMinutes;
-                }
-                // Duration extends into new timeframe
-                else if (endTime > lastPoll)
+                // Duration continues since last poll
+                if (endTime > lastPoll)
                 {
                     // Duration started before last poll -> Increase
                     if (startTime < lastPoll)
                     {
-                        score = (endTime - lastPoll).TotalMinutes / Settings.DurationTimeframeMinutes;
+                        scoreDiff += (endTime - lastPoll).TotalMinutes / Settings.DurationTimeframeMinutes;
                     }
                     // Duration started after last pool -> Add
                     else
                     {
+                        scoreDiff += (endTime - startTime).TotalMinutes / Settings.DurationTimeframeMinutes;
                         if (!_scores.ContainsKey(windowHandle) && !_closedWindows.Contains(windowHandle))
                         {
                             _scores[windowHandle] = 0;
                         }
                     }
                 }
-                // Skip events that do not reach the borders as their scores don't change
-                else
-                {
-                    continue;
-                }
 
-                // Update score if it was added or not yet deleted
-                if (_scores.ContainsKey(windowHandle))
+                // Update score if it has changed
+                if (!scoreDiff.IsZero() && _scores.ContainsKey(windowHandle))
                 {
-                    _scores[windowHandle] += score;
+                    _scores[windowHandle] += scoreDiff;
                     // Remove entries when score is 0 (or close enough for floating point values)
-                    if (Math.Abs(_scores[windowHandle]) < 0.0000001)
+                    if (_scores[windowHandle].IsZero())
                     {
                         _scores.Remove(windowHandle);
                     }
+                    hasChanged = true;
                 }
             }
             _closedWindows.Clear();
 
-            var newTop = GetTopWindows(_scores).ToArray();
-            if (!_topWindows.SequenceEqual(newTop))
+            if (hasChanged)
             {
-                InvokeOrderChanged();
-                _topWindows = newTop;
+                InvokeScoreChanged();
             }
         }
 
@@ -114,7 +111,6 @@ namespace WindowRecommender.Models
             {
                 var windowHandle = windowRecords.First().Handle;
                 _focusEvents.Add((windowHandle, dateTime: DateTime.Now));
-                _topWindows = new[] { windowHandle };
             }
         }
 
@@ -124,6 +120,7 @@ namespace WindowRecommender.Models
             if (_scores.ContainsKey(windowRecord.Handle))
             {
                 _scores.Remove(windowRecord.Handle);
+                InvokeScoreChanged();
             }
             else
             {

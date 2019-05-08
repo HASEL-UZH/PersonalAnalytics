@@ -10,13 +10,11 @@ namespace WindowRecommender.Models
     {
         private Dictionary<IntPtr, string[]> _titles;
         private Dictionary<IntPtr, double> _scores;
-        private IntPtr[] _topWindows;
         private IntPtr _currentWindow;
 
         public TitleSimilarity(IWindowEvents windowEvents) : base(windowEvents)
         {
             _scores = new Dictionary<IntPtr, double>();
-            _topWindows = new IntPtr[0];
             _titles = new Dictionary<IntPtr, string[]>();
 
             windowEvents.WindowClosedOrMinimized += OnWindowClosedOrMinimized;
@@ -40,14 +38,12 @@ namespace WindowRecommender.Models
                     .Where(tuple => tuple.preparedTitle.Length != 0)
                     .ToDictionary(tuple => tuple.windowHandle, tuple => tuple.preparedTitle);
                 _scores = CalculateScores();
-                _topWindows = GetTopWindows(_scores).ToArray();
             }
         }
 
         private void OnWindowClosedOrMinimized(object sender, WindowRecord e)
         {
             var windowRecord = e;
-            _scores.Remove(windowRecord.Handle);
             _titles.Remove(windowRecord.Handle);
             CalculateScoreChanges();
         }
@@ -91,12 +87,11 @@ namespace WindowRecommender.Models
 
         private void CalculateScoreChanges()
         {
-            _scores = CalculateScores();
-            var newTop = GetTopWindows(_scores).ToArray();
-            if (!_topWindows.SequenceEqual(newTop))
+            var newScores = CalculateScores();
+            if (!_scores.SequenceEqual(newScores, new ScoreEqualityComparer()))
             {
-                InvokeOrderChanged();
-                _topWindows = newTop;
+                InvokeScoreChanged();
+                _scores = newScores;
             }
         }
 

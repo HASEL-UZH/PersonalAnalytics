@@ -40,7 +40,7 @@ namespace WindowRecommender.Models
                 _windows.Remove(windowRecord.Handle);
                 if (hasChanged)
                 {
-                    InvokeOrderChanged();
+                    InvokeScoreChanged();
                 }
             }
         }
@@ -54,7 +54,7 @@ namespace WindowRecommender.Models
             _windows.Insert(0, windowRecord.Handle);
             if (hasChanged)
             {
-                InvokeOrderChanged();
+                InvokeScoreChanged();
             }
         }
 
@@ -62,7 +62,7 @@ namespace WindowRecommender.Models
         {
             var windowRecord = e;
             _windows.Insert(0, windowRecord.Handle);
-            InvokeOrderChanged();
+            InvokeScoreChanged();
         }
     }
 }

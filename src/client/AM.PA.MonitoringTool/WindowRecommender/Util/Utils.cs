@@ -7,6 +7,11 @@ namespace WindowRecommender.Util
     internal static class Utils
     {
         /// <summary>
+        /// Epsilon for double precision
+        /// </summary>
+        private const double Epsilon = 0.000001;
+
+        /// <summary>
         /// Iterate over a an enumerable in pairs.
         /// </summary>
         /// <typeparam name="TSource">The type of the elements of the input sequences.</typeparam>
@@ -29,6 +34,11 @@ namespace WindowRecommender.Util
                     yield return resultSelector(previous, previous = it.Current);
                 }
             }
+        }
+
+        internal static bool IsZero(this double value)
+        {
+            return Math.Abs(value) < Epsilon;
         }
 
         internal static IEnumerable<IntPtr> GetTopEntries(Dictionary<IntPtr, double> scores, int count)

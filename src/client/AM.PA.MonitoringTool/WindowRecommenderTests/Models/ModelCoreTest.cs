@@ -121,8 +121,7 @@ namespace WindowRecommenderTests.Models
                         {new IntPtr(4), 0}
                 });
             };
-            stubModel.OrderChangedEvent.Invoke(stubModel, null);
-
+            stubModel.ScoreChangedEvent.Invoke(stubModel, null);
         }
 
         [TestMethod]

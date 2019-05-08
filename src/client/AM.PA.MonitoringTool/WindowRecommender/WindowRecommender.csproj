@@ -64,6 +64,7 @@
     <Compile Include="Native\WinEventConstants.cs" />
     <Compile Include="Graphics\Rectangle.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="Util\ScoreEqualityComparer.cs" />
     <Compile Include="Util\TextUtils.cs" />
     <Compile Include="Util\Utils.cs" />
     <Compile Include="Util\WindowUtils.cs" />

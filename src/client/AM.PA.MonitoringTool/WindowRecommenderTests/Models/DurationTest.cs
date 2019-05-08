@@ -39,20 +39,20 @@ namespace WindowRecommenderTests.Models
         }
 
         [TestMethod]
-        public void TestOnInterval_SetWindow()
+        public void TestOnInterval_Setup()
         {
             using (ShimsContext.Create())
             {
-                var setWindowsTime = DateTime.Parse(Timestamp);
-                var intervalTime = setWindowsTime.AddSeconds(Settings.DurationIntervalSeconds);
+                var setupTime = DateTime.Parse(Timestamp);
+                var intervalTime = setupTime.AddSeconds(Settings.DurationIntervalSeconds);
 
                 var called = false;
                 var windowEvents = new StubIWindowEvents();
                 var duration = new Duration(windowEvents);
-                duration.OrderChanged += (sender, args) => called = true;
+                duration.ScoreChanged += (sender, args) => called = true;
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
-                System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
+                System.Fakes.ShimDateTime.NowGet = () => setupTime;
                 windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
                 {
                     new WindowRecord(new IntPtr(1))
@@ -65,26 +65,26 @@ namespace WindowRecommenderTests.Models
                 {
                     { new IntPtr(1), Settings.DurationIntervalSeconds / (Settings.DurationTimeframeMinutes * 60D) }
                 }, duration.GetScores());
-                Assert.IsFalse(called);
+                Assert.IsTrue(called);
             }
         }
 
         [TestMethod]
-        public void TestOnInterval_SetWindow_Open()
+        public void TestOnInterval_Setup_Open()
         {
             using (ShimsContext.Create())
             {
-                var setWindowsTime = DateTime.Parse(Timestamp);
-                var openEventTime = setWindowsTime.AddSeconds(IntervalStep);
-                var intervalTime = setWindowsTime.AddSeconds(Settings.DurationIntervalSeconds);
+                var setupTime = DateTime.Parse(Timestamp);
+                var openEventTime = setupTime.AddSeconds(IntervalStep);
+                var intervalTime = setupTime.AddSeconds(Settings.DurationIntervalSeconds);
 
                 var called = false;
                 var windowEvents = new StubIWindowEvents();
                 var duration = new Duration(windowEvents);
-                duration.OrderChanged += (sender, args) => called = true;
+                duration.ScoreChanged += (sender, args) => called = true;
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
-                System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
+                System.Fakes.ShimDateTime.NowGet = () => setupTime;
                 windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
                 {
                     new WindowRecord(new IntPtr(1))
@@ -106,21 +106,21 @@ namespace WindowRecommenderTests.Models
         }
 
         [TestMethod]
-        public void TestOnInterval_SetWindow_Focus()
+        public void TestOnInterval_Setup_Focus()
         {
             using (ShimsContext.Create())
             {
-                var setWindowsTime = DateTime.Parse(Timestamp);
-                var focusEventTime = setWindowsTime.AddSeconds(IntervalStep);
-                var intervalTime = setWindowsTime.AddSeconds(Settings.DurationIntervalSeconds);
+                var setupTime = DateTime.Parse(Timestamp);
+                var focusEventTime = setupTime.AddSeconds(IntervalStep);
+                var intervalTime = setupTime.AddSeconds(Settings.DurationIntervalSeconds);
 
                 var called = false;
                 var windowEvents = new StubIWindowEvents();
                 var duration = new Duration(windowEvents);
-                duration.OrderChanged += (sender, args) => called = true;
+                duration.ScoreChanged += (sender, args) => called = true;
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
-                System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
+                System.Fakes.ShimDateTime.NowGet = () => setupTime;
                 windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
                 {
                     new WindowRecord(new IntPtr(1))
@@ -142,20 +142,20 @@ namespace WindowRecommenderTests.Models
         }
 
         [TestMethod]
-        public void TestOnInterval_SetWindow_Focus_Focus()
+        public void TestOnInterval_Setup_Focus_Focus()
         {
             using (ShimsContext.Create())
             {
-                var setWindowsTime = DateTime.Parse(Timestamp);
-                var firstFocusEventTime = setWindowsTime.AddSeconds(IntervalStep);
+                var setupTime = DateTime.Parse(Timestamp);
+                var firstFocusEventTime = setupTime.AddSeconds(IntervalStep);
                 var secondFocusEventTime = firstFocusEventTime.AddSeconds(IntervalStep);
-                var intervalTime = setWindowsTime.AddSeconds(Settings.DurationIntervalSeconds);
+                var intervalTime = setupTime.AddSeconds(Settings.DurationIntervalSeconds);
 
                 var windowEvents = new StubIWindowEvents();
                 var duration = new Duration(windowEvents);
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
-                System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
+                System.Fakes.ShimDateTime.NowGet = () => setupTime;
                 windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
                 {
                     new WindowRecord(new IntPtr(1))
@@ -179,21 +179,21 @@ namespace WindowRecommenderTests.Models
         }
 
         [TestMethod]
-        public void TestOnInterval_SetWindow_MultipleInterval()
+        public void TestOnInterval_Setup_MultipleInterval()
         {
             using (ShimsContext.Create())
             {
-                var setWindowsTime = DateTime.Parse(Timestamp);
-                var firstIntervalTime = setWindowsTime.AddSeconds(Settings.DurationIntervalSeconds);
+                var setupTime = DateTime.Parse(Timestamp);
+                var firstIntervalTime = setupTime.AddSeconds(Settings.DurationIntervalSeconds);
                 var secondIntervalTime = firstIntervalTime.AddSeconds(Settings.DurationIntervalSeconds);
 
                 var called = false;
                 var windowEvents = new StubIWindowEvents();
                 var duration = new Duration(windowEvents);
-                duration.OrderChanged += (sender, args) => called = true;
+                duration.ScoreChanged += (sender, args) => called = true;
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
-                System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
+                System.Fakes.ShimDateTime.NowGet = () => setupTime;
                 windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
                 {
                     new WindowRecord(new IntPtr(1))
@@ -206,8 +206,9 @@ namespace WindowRecommenderTests.Models
                 {
                     { new IntPtr(1), Settings.DurationIntervalSeconds / (Settings.DurationTimeframeMinutes * 60D) }
                 }, duration.GetScores());
-                Assert.IsFalse(called);
+                Assert.IsTrue(called);
 
+                called = false;
                 System.Fakes.ShimDateTime.NowGet = () => secondIntervalTime;
                 duration.OnInterval(null, null);
 
@@ -215,27 +216,27 @@ namespace WindowRecommenderTests.Models
                 {
                     { new IntPtr(1), Settings.DurationIntervalSeconds * 2 / (Settings.DurationTimeframeMinutes * 60D) }
                 }, duration.GetScores());
-                Assert.IsFalse(called);
+                Assert.IsTrue(called);
             }
         }
 
         [TestMethod]
-        public void TestOnInterval_SetWindow_Focus_MultipleInterval()
+        public void TestOnInterval_Setup_Focus_MultipleInterval()
         {
             using (ShimsContext.Create())
             {
-                var setWindowsTime = DateTime.Parse(Timestamp);
-                var focusTime = setWindowsTime.AddSeconds(Settings.DurationIntervalSeconds - IntervalStep);
-                var firstIntervalTime = setWindowsTime.AddSeconds(Settings.DurationIntervalSeconds);
+                var setupTime = DateTime.Parse(Timestamp);
+                var focusTime = setupTime.AddSeconds(Settings.DurationIntervalSeconds - IntervalStep);
+                var firstIntervalTime = setupTime.AddSeconds(Settings.DurationIntervalSeconds);
                 var secondIntervalTime = firstIntervalTime.AddSeconds(Settings.DurationIntervalSeconds);
 
                 var called = false;
                 var windowEvents = new StubIWindowEvents();
                 var duration = new Duration(windowEvents);
-                duration.OrderChanged += (sender, args) => called = true;
+                duration.ScoreChanged += (sender, args) => called = true;
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
-                System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
+                System.Fakes.ShimDateTime.NowGet = () => setupTime;
                 windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
                 {
                     new WindowRecord(new IntPtr(1))
@@ -274,16 +275,16 @@ namespace WindowRecommenderTests.Models
             // Continue until window 1 leaves the timeframe
             using (ShimsContext.Create())
             {
-                var setWindowsTime = DateTime.Parse(Timestamp);
-                var focusTime = setWindowsTime.AddSeconds(IntervalStep);
-                var intervalTime = setWindowsTime.AddSeconds(Settings.DurationIntervalSeconds);
+                var setupTime = DateTime.Parse(Timestamp);
+                var focusTime = setupTime.AddSeconds(IntervalStep);
+                var intervalTime = setupTime.AddSeconds(Settings.DurationIntervalSeconds);
                 var durationTime = intervalTime.AddMinutes(Settings.DurationTimeframeMinutes);
 
                 var windowEvents = new StubIWindowEvents();
                 var duration = new Duration(windowEvents);
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
-                System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
+                System.Fakes.ShimDateTime.NowGet = () => setupTime;
                 windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
                 {
                     new WindowRecord(new IntPtr(1))
@@ -302,7 +303,7 @@ namespace WindowRecommenderTests.Models
                 }, duration.GetScores());
 
                 var nextIntervalTime = intervalTime.AddSeconds(Settings.DurationIntervalSeconds);
-                while (nextIntervalTime <= durationTime)
+                while (nextIntervalTime < durationTime)
                 {
                     var thisIntervalTime = nextIntervalTime;
                     System.Fakes.ShimDateTime.NowGet = () => thisIntervalTime;
@@ -321,13 +322,58 @@ namespace WindowRecommenderTests.Models
         }
 
         [TestMethod]
+        public void TestOnInterval_Timeframe()
+        {
+            // Start with window 1, continue until score doesn't change
+            using (ShimsContext.Create())
+            {
+                var setupTime = DateTime.Parse(Timestamp);
+                var intervalTime = setupTime;
+                var durationTime = setupTime.AddMinutes(Settings.DurationTimeframeMinutes);
+
+                var windowEvents = new StubIWindowEvents();
+                var duration = new Duration(windowEvents);
+
+                System.Fakes.ShimDateTime.NowGet = () => setupTime;
+                windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
+                {
+                    new WindowRecord(new IntPtr(1))
+                });
+
+                while (intervalTime < durationTime)
+                {
+                    intervalTime = intervalTime.AddSeconds(Settings.DurationIntervalSeconds);
+                    var thisIntervalTime = intervalTime;
+                    System.Fakes.ShimDateTime.NowGet = () => thisIntervalTime;
+                    duration.OnInterval(null, null);
+                }
+
+                Assert.AreEqual(intervalTime, durationTime);
+                CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
+                {
+                    {new IntPtr(1), 1}
+                }, duration.GetScores(), new ScoreComparer());
+
+                intervalTime = intervalTime.AddSeconds(Settings.DurationIntervalSeconds);
+                //duration.ScoreChanged += (sender, e) => Assert.Fail();
+                System.Fakes.ShimDateTime.NowGet = () => intervalTime;
+                duration.OnInterval(null, null);
+
+                CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
+                {
+                    {new IntPtr(1), 1}
+                }, duration.GetScores(), new ScoreComparer());
+            }
+        }
+
+        [TestMethod]
         public void TestOnInterval_Closed()
         {
             using (ShimsContext.Create())
             {
-                var setWindowsTime = DateTime.Parse(Timestamp);
-                var focusEventTime = setWindowsTime.AddSeconds(IntervalStep);
-                var interval1Time = setWindowsTime.AddSeconds(Settings.DurationIntervalSeconds);
+                var setupTime = DateTime.Parse(Timestamp);
+                var focusEventTime = setupTime.AddSeconds(IntervalStep);
+                var interval1Time = setupTime.AddSeconds(Settings.DurationIntervalSeconds);
                 var closedEventTime = interval1Time.AddSeconds(IntervalStep);
                 var interval2Time = interval1Time.AddSeconds(Settings.DurationIntervalSeconds);
 
@@ -335,7 +381,7 @@ namespace WindowRecommenderTests.Models
                 var duration = new Duration(windowEvents);
                 CollectionAssert.AreEquivalent(new Dictionary<IntPtr, double>(), duration.GetScores());
 
-                System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
+                System.Fakes.ShimDateTime.NowGet = () => setupTime;
                 windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
                 {
                     new WindowRecord(new IntPtr(1))
@@ -372,16 +418,16 @@ namespace WindowRecommenderTests.Models
         {
             using (ShimsContext.Create())
             {
-                var setWindowsTime = DateTime.Parse(Timestamp);
-                var focusEventTime = setWindowsTime.AddSeconds(IntervalStep);
+                var setupTime = DateTime.Parse(Timestamp);
+                var focusEventTime = setupTime.AddSeconds(IntervalStep);
                 var closedEventTime = focusEventTime.AddSeconds(IntervalStep);
-                var intervalTime = setWindowsTime.AddSeconds(Settings.DurationIntervalSeconds);
+                var intervalTime = setupTime.AddSeconds(Settings.DurationIntervalSeconds);
 
                 var windowEvents = new StubIWindowEvents();
                 var duration = new Duration(windowEvents);
                 CollectionAssert.AreEqual(new Dictionary<IntPtr, double>(), duration.GetScores());
 
-                System.Fakes.ShimDateTime.NowGet = () => setWindowsTime;
+                System.Fakes.ShimDateTime.NowGet = () => setupTime;
                 windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
                 {
                     new WindowRecord(new IntPtr(1))

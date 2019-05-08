@@ -52,7 +52,7 @@ namespace WindowRecommenderTests.Models
             });
 
             var changed = false;
-            mra.OrderChanged += (sender, args) => changed = true;
+            mra.ScoreChanged += (sender, args) => changed = true;
 
             windowEvents.WindowOpenedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2)));
             Assert.IsTrue(changed);
@@ -98,7 +98,7 @@ namespace WindowRecommenderTests.Models
             });
 
             var changed = false;
-            mra.OrderChanged += (sender, args) => changed = true;
+            mra.ScoreChanged += (sender, args) => changed = true;
 
             windowEvents.WindowFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(2)));
             Assert.IsTrue(changed);
@@ -144,7 +144,7 @@ namespace WindowRecommenderTests.Models
             windowEvents.WindowOpenedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(4)));
 
             var changed = false;
-            mra.OrderChanged += (sender, args) => changed = true;
+            mra.ScoreChanged += (sender, args) => changed = true;
 
             // Focus on second window
             windowEvents.WindowFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(3)));
@@ -177,7 +177,7 @@ namespace WindowRecommenderTests.Models
             windowEvents.WindowOpenedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(4)));
 
             var changed = false;
-            mra.OrderChanged += (sender, args) => changed = true;
+            mra.ScoreChanged += (sender, args) => changed = true;
 
             // Remove last window
             windowEvents.WindowClosedOrMinimizedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(1)));

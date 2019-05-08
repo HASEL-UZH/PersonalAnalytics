@@ -45,6 +45,7 @@ namespace WindowRecommender
                 (new TitleSimilarity(_windowCache), 1),
             });
             _modelCore.ScoreChanged += OnScoresChanged;
+            _modelCore.WindowsChanged += OnWindowsChanged;
         }
 
         public override void Start()
@@ -154,23 +155,23 @@ namespace WindowRecommender
             }
         }
 
-        internal static IEnumerable<(WindowRecord windowRecord, bool show)> GetScoredWindows(Dictionary<IntPtr, double> scores, List<WindowRecord> windowStack)
+        internal static IEnumerable<(WindowRecord windowRecord, bool show)> GetScoredWindows(List<IntPtr> topWindows, List<WindowRecord> windowStack)
         {
             if (windowStack.Count == 0)
             {
                 return Enumerable.Empty<(WindowRecord windowRecord, bool show)>();
             }
-            var topWindows = Utils.GetTopEntries(scores, Settings.NumberOfWindows).ToList();
             var foregroundWindow = windowStack.First();
             // If the foreground window is not one of the top scoring windows
-            // remove the one with the lowest score.
+            // add it as first element and
+            // remove the one with the lowest score if necessary.
             if (!topWindows.Contains(foregroundWindow.Handle))
             {
                 if (topWindows.Count == Settings.NumberOfWindows)
                 {
                     topWindows.RemoveAt(topWindows.Count - 1);
                 }
-                topWindows.Add(foregroundWindow.Handle);
+                topWindows.Insert(0, foregroundWindow.Handle);
             }
             return windowStack
                 .TakeWhile(_ => topWindows.Count != 0)
@@ -191,7 +192,12 @@ namespace WindowRecommender
         {
             var scores = e;
             _windowRecorder.SetScores(scores, Utils.GetTopEntries(scores, Settings.NumberOfWindows));
-            var scoredWindows = GetScoredWindows(scores, _windowStack.WindowRecords);
+        }
+
+        private void OnWindowsChanged(object sender, List<IntPtr> e)
+        {
+            var topWindows = e;
+            var scoredWindows = GetScoredWindows(topWindows, _windowStack.WindowRecords);
             _hazeOverlay.Show(GetDrawList(scoredWindows));
         }
 
@@ -218,8 +224,8 @@ namespace WindowRecommender
 
         private void OnMoveEnded(object sender, EventArgs e)
         {
-            var scores = _modelCore.GetScores();
-            var scoredWindows = GetScoredWindows(scores, _windowStack.WindowRecords);
+            var topWindows = _modelCore.GetTopWindows();
+            var scoredWindows = GetScoredWindows(topWindows, _windowStack.WindowRecords);
             _hazeOverlay.Show(GetDrawList(scoredWindows));
         }
 

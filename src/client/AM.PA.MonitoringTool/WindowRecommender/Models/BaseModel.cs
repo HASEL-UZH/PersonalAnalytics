@@ -6,7 +6,7 @@ namespace WindowRecommender.Models
 {
     internal abstract class BaseModel : IModel
     {
-        public event EventHandler OrderChanged;
+        public event EventHandler ScoreChanged;
 
         internal BaseModel(IWindowEvents windowEvents)
         {
@@ -17,9 +17,9 @@ namespace WindowRecommender.Models
 
         protected abstract void Setup(List<WindowRecord> windowRecords);
 
-        protected void InvokeOrderChanged()
+        protected void InvokeScoreChanged()
         {
-            OrderChanged?.Invoke(this, null);
+            ScoreChanged?.Invoke(this, null);
         }
 
         internal static IEnumerable<IntPtr> GetTopWindows(Dictionary<IntPtr, double> scores)

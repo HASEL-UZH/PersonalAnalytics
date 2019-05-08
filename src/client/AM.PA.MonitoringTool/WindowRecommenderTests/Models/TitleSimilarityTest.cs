@@ -98,7 +98,7 @@ namespace WindowRecommenderTests.Models
             var called = false;
             var windowEvents = new StubIWindowEvents();
             var titleSimilarity = new TitleSimilarity(windowEvents);
-            titleSimilarity.OrderChanged += (sender, args) => called = true;
+            titleSimilarity.ScoreChanged += (sender, args) => called = true;
             windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
             {
                 new WindowRecord(new IntPtr(1), "Very nice title", ""),
@@ -120,7 +120,7 @@ namespace WindowRecommenderTests.Models
             var called = false;
             var windowEvents = new StubIWindowEvents();
             var titleSimilarity = new TitleSimilarity(windowEvents);
-            titleSimilarity.OrderChanged += (sender, args) => called = true;
+            titleSimilarity.ScoreChanged += (sender, args) => called = true;
             windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
             {
                 new WindowRecord(new IntPtr(1), "Very nice title", ""),
@@ -146,7 +146,7 @@ namespace WindowRecommenderTests.Models
             var called = false;
             var windowEvents = new StubIWindowEvents();
             var titleSimilarity = new TitleSimilarity(windowEvents);
-            titleSimilarity.OrderChanged += (sender, args) => called = true;
+            titleSimilarity.ScoreChanged += (sender, args) => called = true;
             windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
             {
                 new WindowRecord(new IntPtr(1), "one two three", ""),
@@ -173,7 +173,7 @@ namespace WindowRecommenderTests.Models
             var called = false;
             var windowEvents = new StubIWindowEvents();
             var titleSimilarity = new TitleSimilarity(windowEvents);
-            titleSimilarity.OrderChanged += (sender, args) => called = true;
+            titleSimilarity.ScoreChanged += (sender, args) => called = true;
             windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
             {
                 new WindowRecord(new IntPtr(1), "one two three", ""),
@@ -199,7 +199,7 @@ namespace WindowRecommenderTests.Models
             var called = false;
             var windowEvents = new StubIWindowEvents();
             var titleSimilarity = new TitleSimilarity(windowEvents);
-            titleSimilarity.OrderChanged += (sender, args) => called = true;
+            titleSimilarity.ScoreChanged += (sender, args) => called = true;
             windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
             {
                 new WindowRecord(new IntPtr(1), "one two three", ""),
@@ -224,7 +224,7 @@ namespace WindowRecommenderTests.Models
             var called = false;
             var windowEvents = new StubIWindowEvents();
             var titleSimilarity = new TitleSimilarity(windowEvents);
-            titleSimilarity.OrderChanged += (sender, args) => called = true;
+            titleSimilarity.ScoreChanged += (sender, args) => called = true;
             windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
             {
                 new WindowRecord(new IntPtr(1), "one two three", ""),
@@ -247,7 +247,7 @@ namespace WindowRecommenderTests.Models
             var called = false;
             var windowEvents = new StubIWindowEvents();
             var titleSimilarity = new TitleSimilarity(windowEvents);
-            titleSimilarity.OrderChanged += (sender, args) => called = true;
+            titleSimilarity.ScoreChanged += (sender, args) => called = true;
             windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
             {
                 new WindowRecord(new IntPtr(1), "one two three", ""),
@@ -272,7 +272,7 @@ namespace WindowRecommenderTests.Models
             var called = false;
             var windowEvents = new StubIWindowEvents();
             var titleSimilarity = new TitleSimilarity(windowEvents);
-            titleSimilarity.OrderChanged += (sender, args) => called = true;
+            titleSimilarity.ScoreChanged += (sender, args) => called = true;
             windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
             {
                 new WindowRecord(new IntPtr(1), "one two three four", ""),
@@ -297,7 +297,7 @@ namespace WindowRecommenderTests.Models
             var called = false;
             var windowEvents = new StubIWindowEvents();
             var titleSimilarity = new TitleSimilarity(windowEvents);
-            titleSimilarity.OrderChanged += (sender, args) => called = true;
+            titleSimilarity.ScoreChanged += (sender, args) => called = true;
             windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
             {
                 new WindowRecord(new IntPtr(1), "one two three four", ""),
@@ -322,7 +322,7 @@ namespace WindowRecommenderTests.Models
             var called = false;
             var windowEvents = new StubIWindowEvents();
             var titleSimilarity = new TitleSimilarity(windowEvents);
-            titleSimilarity.OrderChanged += (sender, args) => called = true;
+            titleSimilarity.ScoreChanged += (sender, args) => called = true;
             windowEvents.SetupEvent.Invoke(windowEvents, new List<WindowRecord>
             {
                 new WindowRecord(new IntPtr(1), "one two three four", ""),

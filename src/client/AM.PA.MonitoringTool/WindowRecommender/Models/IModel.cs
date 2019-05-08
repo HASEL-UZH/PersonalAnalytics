@@ -5,7 +5,7 @@ namespace WindowRecommender.Models
 {
     internal interface IModel
     {
-        event EventHandler OrderChanged;
+        event EventHandler ScoreChanged;
 
         Dictionary<IntPtr, double> GetScores();
     }

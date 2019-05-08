@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using WindowRecommender.Util;
 
 namespace WindowRecommenderTests.Tools
 {
     internal class ScoreComparer : IComparer
     {
-        /// <summary>
-        /// Delta for comparing score double values
-        /// </summary>
-        private const double Delta = 0.000001;
-
         public int Compare(object x, object y)
         {
             KeyValuePair<IntPtr, double> scoreX;
@@ -35,7 +31,7 @@ namespace WindowRecommenderTests.Tools
             }
 
             var scoreDifference = scoreX.Value - scoreY.Value;
-            if (Math.Abs(scoreDifference) > Delta)
+            if (!scoreDifference.IsZero())
             {
                 return scoreDifference > 0 ? 1 : -1;
             }

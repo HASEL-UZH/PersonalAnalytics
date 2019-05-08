@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
+using WindowRecommender.Util;
 
 namespace WindowRecommender.Models
 {
@@ -12,14 +13,12 @@ namespace WindowRecommender.Models
         private readonly HashSet<IntPtr> _closedWindows;
 
         private Dictionary<IntPtr, double> _scores;
-        private IntPtr[] _topWindows;
 
         internal Frequency(IWindowEvents windowEvents) : base(windowEvents)
         {
             _scores = new Dictionary<IntPtr, double>();
             _focusEvents = new List<(IntPtr windowHandle, DateTime dateTime)>();
             _closedWindows = new HashSet<IntPtr>();
-            _topWindows = new IntPtr[0];
 
             windowEvents.WindowClosedOrMinimized += OnWindowClosedOrMinimized;
             windowEvents.WindowOpenedOrFocused += OnWindowOpenedOrFocused;
@@ -41,16 +40,15 @@ namespace WindowRecommender.Models
 
             // Group events by window, count events, and divide by total count
             var eventCount = (double)_focusEvents.Count;
-            _scores = _focusEvents.GroupBy(tuple => tuple.windowHandle)
+            var newScores = _focusEvents.GroupBy(tuple => tuple.windowHandle)
                 .ToDictionary(grouping => grouping.Key, grouping => grouping.Count() / eventCount);
 
             _closedWindows.Clear();
 
-            var newTop = GetTopWindows(_scores).ToArray();
-            if (!_topWindows.SequenceEqual(newTop))
+            if (!_scores.SequenceEqual(newScores, new ScoreEqualityComparer()))
             {
-                InvokeOrderChanged();
-                _topWindows = newTop;
+                InvokeScoreChanged();
+                _scores = newScores;
             }
         }
 
@@ -65,7 +63,10 @@ namespace WindowRecommender.Models
             {
                 var windowHandle = windowRecords.First().Handle;
                 _focusEvents.Add((windowHandle, dateTime: DateTime.Now));
-                _topWindows = new[] { windowHandle };
+                _scores = new Dictionary<IntPtr, double>
+                {
+                    {windowHandle, 1}
+                };
             }
         }
 
