@@ -96,6 +96,9 @@
     <PackageReference Include="GameOverlay.Net">
       <Version>4.0.3</Version>
     </PackageReference>
+    <PackageReference Include="System.Collections.Immutable">
+      <Version>1.5.0</Version>
+    </PackageReference>
     <PackageReference Include="System.ValueTuple">
       <Version>4.5.0</Version>
     </PackageReference>

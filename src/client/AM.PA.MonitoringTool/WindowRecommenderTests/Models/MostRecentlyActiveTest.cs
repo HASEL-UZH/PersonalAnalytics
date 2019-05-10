@@ -59,8 +59,8 @@ namespace WindowRecommenderTests.Models
             changed = false;
             CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
             {
-                {new IntPtr(2), 1 },
                 {new IntPtr(1), 1 },
+                {new IntPtr(2), 1 },
             }, mra.GetScores());
 
             windowEvents.WindowOpenedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(3)));
@@ -68,18 +68,18 @@ namespace WindowRecommenderTests.Models
             changed = false;
             CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
             {
-                {new IntPtr(3), 1 },
-                {new IntPtr(2), 1 },
                 {new IntPtr(1), 1 },
+                {new IntPtr(2), 1 },
+                {new IntPtr(3), 1 },
             }, mra.GetScores());
 
             windowEvents.WindowOpenedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(4)));
             Assert.IsTrue(changed);
             CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
             {
-                {new IntPtr(4), 1 },
-                {new IntPtr(3), 1 },
                 {new IntPtr(2), 1 },
+                {new IntPtr(3), 1 },
+                {new IntPtr(4), 1 },
             }, mra.GetScores());
         }
 
@@ -105,8 +105,8 @@ namespace WindowRecommenderTests.Models
             changed = false;
             CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
             {
-                {new IntPtr(2), 1 },
                 {new IntPtr(1), 1 },
+                {new IntPtr(2), 1 },
             }, mra.GetScores());
 
             windowEvents.WindowFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(3)));
@@ -114,18 +114,18 @@ namespace WindowRecommenderTests.Models
             changed = false;
             CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
             {
-                {new IntPtr(3), 1 },
-                {new IntPtr(2), 1 },
                 {new IntPtr(1), 1 },
+                {new IntPtr(2), 1 },
+                {new IntPtr(3), 1 },
             }, mra.GetScores());
 
             windowEvents.WindowFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(4)));
             Assert.IsTrue(changed);
             CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
             {
-                {new IntPtr(4), 1 },
-                {new IntPtr(3), 1 },
                 {new IntPtr(2), 1 },
+                {new IntPtr(3), 1 },
+                {new IntPtr(4), 1 },
             }, mra.GetScores());
         }
 
@@ -189,8 +189,8 @@ namespace WindowRecommenderTests.Models
 
             CollectionAssert.AreEqual(new Dictionary<IntPtr, double>
             {
-                {new IntPtr(3), 1 },
                 {new IntPtr(2), 1 },
+                {new IntPtr(3), 1 },
             }, mra.GetScores());
         }
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace WindowRecommender.Models
@@ -14,13 +15,13 @@ namespace WindowRecommender.Models
         private readonly (IModel model, double weight)[] _models;
         private readonly double _weightSum;
 
-        private List<KeyValuePair<IntPtr, double>> _orderedWindows;
-        private List<IntPtr> _topWindows;
+        private ImmutableList<KeyValuePair<IntPtr, double>> _orderedWindows;
+        private ImmutableList<IntPtr> _topWindows;
 
         internal ModelCore((IModel model, double weight)[] models)
         {
-            _orderedWindows = new List<KeyValuePair<IntPtr, double>>();
-            _topWindows = new List<IntPtr>();
+            _orderedWindows = ImmutableList<KeyValuePair<IntPtr, double>>.Empty;
+            _topWindows = ImmutableList<IntPtr>.Empty;
             _models = models;
             _weightSum = _models.Sum(modelWeight => modelWeight.weight);
             foreach (var (model, _) in _models)
@@ -36,7 +37,7 @@ namespace WindowRecommender.Models
 
         internal List<IntPtr> GetTopWindows()
         {
-            return _topWindows;
+            return _topWindows.ToList();
         }
 
         private Dictionary<IntPtr, Dictionary<string, double>> GetScores()
@@ -69,7 +70,7 @@ namespace WindowRecommender.Models
         {
             var scores = GetScores();
             var mergedScores = scores.ToDictionary(pair => pair.Key, pair => pair.Value[MergedScoreName]);
-            var orderedWindows = mergedScores.OrderByDescending(x => x.Value).ToList();
+            var orderedWindows = mergedScores.OrderByDescending(x => x.Value).ToImmutableList();
             if (!_orderedWindows.SequenceEqual(orderedWindows))
             {
                 _orderedWindows = orderedWindows;
@@ -77,8 +78,8 @@ namespace WindowRecommender.Models
                 var topWindows = orderedWindows.Select(x => x.Key).Take(Settings.NumberOfWindows).ToList();
                 if (!_topWindows.SequenceEqual(topWindows))
                 {
-                    _topWindows = topWindows;
-                    WindowsChanged?.Invoke(this, _topWindows);
+                    _topWindows = topWindows.ToImmutableList();
+                    WindowsChanged?.Invoke(this, topWindows);
                 }
             }
         }
@@ -88,14 +89,14 @@ namespace WindowRecommender.Models
             InvokeEvents(sender);
         }
 
-        internal static Dictionary<IntPtr, double> NormalizeScores(Dictionary<IntPtr, double> scores)
+        internal static ImmutableDictionary<IntPtr, double> NormalizeScores(ImmutableDictionary<IntPtr, double> scores)
         {
             var scoreSum = scores.Sum(pair => pair.Value);
             if (double.IsNaN(0 / scoreSum)) // No need to normalize if all scores are 0
             {
                 return scores;
             }
-            return scores.ToDictionary(pair => pair.Key, pair => pair.Value / scoreSum);
+            return scores.ToImmutableDictionary(pair => pair.Key, pair => pair.Value / scoreSum);
         }
     }
 }

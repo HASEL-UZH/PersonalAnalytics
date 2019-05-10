@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using WindowRecommender.Util;
+using System.Collections.Immutable;
 
 namespace WindowRecommender.Models
 {
@@ -15,7 +15,7 @@ namespace WindowRecommender.Models
             windowEvents.Setup += (sender, e) => Setup(e);
         }
 
-        public abstract Dictionary<IntPtr, double> GetScores();
+        public abstract ImmutableDictionary<IntPtr, double> GetScores();
 
         protected abstract void Setup(List<WindowRecord> windowRecords);
 

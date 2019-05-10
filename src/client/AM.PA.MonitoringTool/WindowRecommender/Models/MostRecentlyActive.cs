@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace WindowRecommender.Models
@@ -17,9 +18,9 @@ namespace WindowRecommender.Models
             windowEvents.WindowFocused += OnWindowFocused;
         }
 
-        public override Dictionary<IntPtr, double> GetScores()
+        public override ImmutableDictionary<IntPtr, double> GetScores()
         {
-            return _windows.Take(Settings.NumberOfWindows).ToDictionary(windowHandle => windowHandle, _ => 1D);
+            return _windows.Take(Settings.NumberOfWindows).ToImmutableDictionary(windowHandle => windowHandle, _ => 1D);
         }
 
         protected override void Setup(List<WindowRecord> windowRecords)

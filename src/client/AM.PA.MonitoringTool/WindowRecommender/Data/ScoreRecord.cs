@@ -13,7 +13,7 @@ namespace WindowRecommender.Data
         internal readonly double MostRecentlyActive;
         internal readonly double TitleSimilarity;
 
-        public ScoreRecord(IntPtr windowHandle, Dictionary<string, double> scores)
+        public ScoreRecord(IntPtr windowHandle, IDictionary<string, double> scores)
         {
             WindowHandle = windowHandle.ToString();
             Merged = scores.GetValueOrDefault(nameof(Merged));

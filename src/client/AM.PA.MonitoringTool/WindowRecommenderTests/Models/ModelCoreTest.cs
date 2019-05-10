@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using WindowRecommender.Models;
 using WindowRecommender.Models.Fakes;
@@ -17,7 +18,7 @@ namespace WindowRecommenderTests.Models
                 NameGet = () => "M1",
                 GetScores = () => new Dictionary<IntPtr, double> {
                     { new IntPtr(1), 1 },
-                }
+                }.ToImmutableDictionary()
             };
 
             var modelCore = new ModelCore(new (IModel, double)[]
@@ -44,7 +45,7 @@ namespace WindowRecommenderTests.Models
                 GetScores = () => new Dictionary<IntPtr, double>
                 {
                     {new IntPtr(1), 0.1},
-                }
+                }.ToImmutableDictionary()
             };
             var modelCore = new ModelCore(new (IModel, double)[]
             {
@@ -65,7 +66,7 @@ namespace WindowRecommenderTests.Models
                         {new IntPtr(2), 1},
                         {new IntPtr(3), 0},
                         {new IntPtr(4), 0}
-                    }
+                    }.ToImmutableDictionary()
             };
 
             var stubModel2 = new StubIModel
@@ -76,7 +77,7 @@ namespace WindowRecommenderTests.Models
                         {new IntPtr(1), 4},
                         {new IntPtr(2), 0},
                         {new IntPtr(3), 1}
-                    }
+                    }.ToImmutableDictionary()
             };
 
             var modelCore = new ModelCore(new (IModel, double)[]
@@ -125,7 +126,7 @@ namespace WindowRecommenderTests.Models
                         {new IntPtr(2), 1},
                         {new IntPtr(3), 0},
                         {new IntPtr(4), 0}
-                    }
+                    }.ToImmutableDictionary()
             };
 
             var stubModel2 = new StubIModel
@@ -136,7 +137,7 @@ namespace WindowRecommenderTests.Models
                         {new IntPtr(1), 4},
                         {new IntPtr(2), 0},
                         {new IntPtr(3), 1}
-                    }
+                    }.ToImmutableDictionary()
             };
 
             var modelCore = new ModelCore(new (IModel, double)[]
@@ -200,7 +201,7 @@ namespace WindowRecommenderTests.Models
             }
 
             var firstCall = true;
-            Dictionary<IntPtr, double> GetScores()
+            ImmutableDictionary<IntPtr, double> GetScores()
             {
                 if (firstCall)
                 {
@@ -209,13 +210,13 @@ namespace WindowRecommenderTests.Models
                     {
                         {new IntPtr(1), 0.6},
                         {new IntPtr(2), 0.4},
-                    };
+                    }.ToImmutableDictionary();
                 }
                 return new Dictionary<IntPtr, double>
                 {
                     {new IntPtr(2), 0.4},
                     {new IntPtr(1), 0.6},
-                };
+                }.ToImmutableDictionary();
             }
 
             var stubModel = new StubIModel
@@ -261,7 +262,7 @@ namespace WindowRecommenderTests.Models
             }
 
             var firstCall = true;
-            Dictionary<IntPtr, double> GetScores()
+            ImmutableDictionary<IntPtr, double> GetScores()
             {
                 if (firstCall)
                 {
@@ -270,13 +271,13 @@ namespace WindowRecommenderTests.Models
                     {
                         {new IntPtr(1), 0.6},
                         {new IntPtr(2), 0.4},
-                    };
+                    }.ToImmutableDictionary();
                 }
                 return new Dictionary<IntPtr, double>
                 {
                     {new IntPtr(1), 0.6},
                     {new IntPtr(2), 0.5},
-                };
+                }.ToImmutableDictionary();
             }
 
             var stubModel = new StubIModel
@@ -303,7 +304,7 @@ namespace WindowRecommenderTests.Models
         [TestMethod]
         public void TestNormalizeScores_Empty()
         {
-            var scores = new Dictionary<IntPtr, double>();
+            var scores = ImmutableDictionary<IntPtr, double>.Empty;
             CollectionAssert.AreEqual(scores, ModelCore.NormalizeScores(scores));
         }
 
@@ -313,7 +314,7 @@ namespace WindowRecommenderTests.Models
             var scores = new Dictionary<IntPtr, double>
             {
                 { new IntPtr(1), 0 }
-            };
+            }.ToImmutableDictionary();
             CollectionAssert.AreEqual(scores, ModelCore.NormalizeScores(scores));
         }
 
@@ -330,7 +331,7 @@ namespace WindowRecommenderTests.Models
                 { new IntPtr(1), 0.1 },
                 { new IntPtr(2), 0.2 },
                 { new IntPtr(3), 0.2 }
-            }));
+            }.ToImmutableDictionary()));
         }
     }
 }

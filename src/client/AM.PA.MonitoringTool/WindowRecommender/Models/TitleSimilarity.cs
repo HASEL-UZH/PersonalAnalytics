@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Accord.MachineLearning;
 using WindowRecommender.Util;
@@ -23,9 +24,9 @@ namespace WindowRecommender.Models
             windowEvents.WindowRenamed += OnWindowRenamed;
         }
 
-        public override Dictionary<IntPtr, double> GetScores()
+        public override ImmutableDictionary<IntPtr, double> GetScores()
         {
-            return _scores;
+            return _scores.ToImmutableDictionary();
         }
 
         protected override void Setup(List<WindowRecord> windowRecords)

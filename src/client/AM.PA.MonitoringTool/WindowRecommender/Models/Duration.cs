@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Timers;
 using WindowRecommender.Util;
@@ -100,9 +101,9 @@ namespace WindowRecommender.Models
             }
         }
 
-        public override Dictionary<IntPtr, double> GetScores()
+        public override ImmutableDictionary<IntPtr, double> GetScores()
         {
-            return _scores;
+            return _scores.ToImmutableDictionary();
         }
 
         protected override void Setup(List<WindowRecord> windowRecords)

@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace WindowRecommender.Models
 {
@@ -9,6 +9,6 @@ namespace WindowRecommender.Models
 
         string Name { get; }
 
-        Dictionary<IntPtr, double> GetScores();
+        ImmutableDictionary<IntPtr, double> GetScores();
     }
 }
