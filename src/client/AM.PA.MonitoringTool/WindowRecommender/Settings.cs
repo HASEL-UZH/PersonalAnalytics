@@ -27,5 +27,7 @@
 
         internal const int FrequencyIntervalSeconds = 10;
         internal const int FrequencyTimeframeMinutes = 10;
+
+        public static bool ShowDebugWindow = false;
     }
 }

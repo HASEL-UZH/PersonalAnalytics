@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using WindowRecommender.Data;
+using WindowRecommender.DebugWindow;
 using WindowRecommender.Graphics;
 using WindowRecommender.Models;
 using WindowRecommender.Util;
@@ -20,6 +21,8 @@ namespace WindowRecommender
         private readonly WindowRecorder _windowRecorder;
         private readonly WindowStack _windowStack;
         private readonly WindowCache _windowCache;
+        private readonly DebugWindow.DebugWindow _debugWindow;
+        private readonly DebugWindowDataContext _debugWindowDataContext;
 
         public WindowRecommender()
         {
@@ -46,10 +49,21 @@ namespace WindowRecommender
             });
             _modelCore.ScoreChanged += OnScoresChanged;
             _modelCore.WindowsChanged += OnWindowsChanged;
+
+            if (Settings.ShowDebugWindow)
+            {
+                _debugWindow = new DebugWindow.DebugWindow();
+                _debugWindowDataContext = (DebugWindowDataContext)_debugWindow.DataContext;
+            }
         }
 
         public override void Start()
         {
+            if (Settings.ShowDebugWindow)
+            {
+                _debugWindow.Show();
+            }
+
             IsRunning = true;
             if (TreatmentMode)
             {
@@ -68,6 +82,11 @@ namespace WindowRecommender
             if (TreatmentMode)
             {
                 StopTreatment();
+            }
+
+            if (Settings.ShowDebugWindow)
+            {
+                _debugWindow.Hide();
             }
         }
 
@@ -190,12 +209,23 @@ namespace WindowRecommender
             var scores = e;
             var mergedScores = scores.ToDictionary(pair => pair.Key, pair => pair.Value[ModelCore.MergedScoreName]);
             _windowRecorder.SetScores(mergedScores);
-            Queries.SaveScoreChange(scores.Select(pair => new ScoreRecord(pair.Key, pair.Value)));
+            var scoreRecords = scores.Select(pair => new ScoreRecord(pair.Key, pair.Value)).ToList();
+            Queries.SaveScoreChange(scoreRecords);
+
+            if (Settings.ShowDebugWindow)
+            {
+                _debugWindow.Dispatcher.Invoke(delegate
+                {
+                    _debugWindowDataContext.AddLogMessage(sender, "Scores changed");
+                    _debugWindowDataContext.SetScores(scoreRecords);
+                });
+            }
         }
 
         private void OnWindowsChanged(object sender, List<IntPtr> e)
         {
             var topWindows = e;
+            _windowRecorder.SetTopWindows(topWindows);
             UpdateDrawing(topWindows);
         }
 
@@ -217,20 +247,25 @@ namespace WindowRecommender
 
         private void UpdateDrawing(List<IntPtr> topWindows)
         {
-            _windowRecorder.SetTopWindows(topWindows);
             var scoredWindows = GetScoredWindows(topWindows, _windowStack.WindowRecords).ToList();
             var scoredWindowRectangles = scoredWindows
                 .Select(tuple => (tuple.windowRecord, rectangle: WindowUtils.GetCorrectedWindowRectangle(tuple.windowRecord), tuple.show))
                 .ToList();
             _hazeOverlay.Show(scoredWindowRectangles.Select(tuple => (tuple.rectangle, tuple.show)));
 
-            var desktopWindowRecords = scoredWindowRectangles
+            var allWindowRectangles = scoredWindowRectangles
                 .Concat(_windowStack.WindowRecords
                     .Skip(scoredWindows.Count)
                     .Select(windowRecord => (windowRecord, rectangle: WindowUtils.GetCorrectedWindowRectangle(windowRecord), show: false))
-                )
+                ).ToList();
+            var desktopWindowRecords = allWindowRectangles
                 .Select((tuple, i) => new DesktopWindowRecord(tuple.windowRecord.Handle, !tuple.show, i, tuple.rectangle));
             Queries.SaveDesktopEvents(desktopWindowRecords);
+
+            if (Settings.ShowDebugWindow)
+            {
+                _debugWindow.Dispatcher.Invoke(delegate { _debugWindowDataContext.SetDrawList(allWindowRectangles); });
+            }
         }
 
         private void OnMoveStarted(object sender, EventArgs e)
