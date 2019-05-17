@@ -36,6 +36,7 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xaml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
@@ -61,11 +62,24 @@
     <Compile Include="Models\MostRecentlyActive.cs" />
     <Compile Include="Models\TitleSimilarity.cs" />
     <Compile Include="Native\DWMWINDOWATTRIBUTE.cs" />
+    <Compile Include="Native\GetClassLongOffset.cs" />
+    <Compile Include="Native\Message.cs" />
     <Compile Include="Native\MONITORINFO.cs" />
     <Compile Include="Native\ObjectIdentifiers.cs" />
     <Compile Include="Native\RECT.cs" />
+    <Compile Include="Native\SendMessageTimeoutFlag.cs" />
     <Compile Include="Native\WinEventConstants.cs" />
     <Compile Include="Graphics\Rectangle.cs" />
+    <Compile Include="PopupWindow\PopupWindowDataContext.cs" />
+    <Compile Include="PopupWindow\PopupWindow.xaml.cs">
+      <DependentUpon>PopupWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="PopupWindow\PopupWindowManager.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Settings.cs" />
     <Compile Include="Util\ScoreEqualityComparer.cs" />
     <Compile Include="Util\TextUtils.cs" />
@@ -111,6 +125,20 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="PopupWindow\PopupWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="PopupWindow\default.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

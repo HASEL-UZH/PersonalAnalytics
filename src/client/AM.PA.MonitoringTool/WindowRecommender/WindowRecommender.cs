@@ -9,6 +9,7 @@ using WindowRecommender.Data;
 using WindowRecommender.DebugWindow;
 using WindowRecommender.Graphics;
 using WindowRecommender.Models;
+using WindowRecommender.PopupWindow;
 using WindowRecommender.Util;
 
 namespace WindowRecommender
@@ -21,6 +22,7 @@ namespace WindowRecommender
         private readonly WindowRecorder _windowRecorder;
         private readonly WindowStack _windowStack;
         private readonly WindowCache _windowCache;
+        private readonly PopupWindowManager _popupWindowManager;
         private readonly DebugWindow.DebugWindow _debugWindow;
         private readonly DebugWindowDataContext _debugWindowDataContext;
 
@@ -50,6 +52,8 @@ namespace WindowRecommender
             _modelCore.ScoreChanged += OnScoresChanged;
             _modelCore.WindowsChanged += OnWindowsChanged;
 
+            _popupWindowManager = new PopupWindowManager();
+
             if (Settings.ShowDebugWindow)
             {
                 _debugWindow = new DebugWindow.DebugWindow();
@@ -69,10 +73,13 @@ namespace WindowRecommender
             {
                 StartTreatment();
             }
+            else
+            {
+                _popupWindowManager.Start();
+            }
             _windowCache.Start();
             _modelCore.Start();
             _modelEvents.Start();
-
         }
 
         public override void Stop()
@@ -82,6 +89,10 @@ namespace WindowRecommender
             if (TreatmentMode)
             {
                 StopTreatment();
+            }
+            else
+            {
+                _popupWindowManager.Stop();
             }
 
             if (Settings.ShowDebugWindow)
@@ -166,11 +177,13 @@ namespace WindowRecommender
 
                     if (treatmentMode)
                     {
+                        _popupWindowManager.Stop();
                         StartTreatment();
                     }
                     else
                     {
                         StopTreatment();
+                        _popupWindowManager.Start();
                     }
                 }
             }
@@ -248,23 +261,27 @@ namespace WindowRecommender
         private void UpdateDrawing(List<IntPtr> topWindows)
         {
             var scoredWindows = GetScoredWindows(topWindows, _windowStack.WindowRecords).ToList();
+
             var scoredWindowRectangles = scoredWindows
                 .Select(tuple => (tuple.windowRecord, rectangle: WindowUtils.GetCorrectedWindowRectangle(tuple.windowRecord), tuple.show))
                 .ToList();
             _hazeOverlay.Show(scoredWindowRectangles.Select(tuple => (tuple.rectangle, tuple.show)));
 
-            var allWindowRectangles = scoredWindowRectangles
+            var desktopWindowRecords = scoredWindowRectangles
                 .Concat(_windowStack.WindowRecords
                     .Skip(scoredWindows.Count)
                     .Select(windowRecord => (windowRecord, rectangle: WindowUtils.GetCorrectedWindowRectangle(windowRecord), show: false))
-                ).ToList();
-            var desktopWindowRecords = allWindowRectangles
+                )
                 .Select((tuple, i) => new DesktopWindowRecord(tuple.windowRecord.Handle, !tuple.show, i, tuple.rectangle));
             Queries.SaveDesktopEvents(desktopWindowRecords);
 
+            var allWindows = scoredWindows
+                .Concat(_windowStack.WindowRecords.Skip(scoredWindows.Count).Select(windowRecord => (windowRecord, show: false)))
+                .ToList();
+            _popupWindowManager.SetWindows(allWindows);
             if (Settings.ShowDebugWindow)
             {
-                _debugWindow.Dispatcher.Invoke(delegate { _debugWindowDataContext.SetDrawList(allWindowRectangles); });
+                _debugWindow.Dispatcher.Invoke(delegate { _debugWindowDataContext.SetDrawList(allWindows); });
             }
         }
 

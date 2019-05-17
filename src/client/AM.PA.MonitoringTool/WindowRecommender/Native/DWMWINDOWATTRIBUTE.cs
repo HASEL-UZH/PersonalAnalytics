@@ -1,7 +1,8 @@
-﻿namespace WindowRecommender.Native
+﻿// ReSharper disable IdentifierTypo
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedMember.Global
+namespace WindowRecommender.Native
 {
-    // ReSharper disable InconsistentNaming
-    // ReSharper disable UnusedMember.Global
 
     /// <summary>
     /// Flags used by the DwmGetWindowAttribute and DwmSetWindowAttribute functions to specify window attributes for non-client rendering.
@@ -26,7 +27,4 @@
         DWMWA_FREEZE_REPRESENTATION = 15,
         DWMWA_LAST = 16
     }
-
-    // ReSharper restore InconsistentNaming
-    // ReSharper restore UnusedMember.Global
 }

@@ -302,6 +302,32 @@ namespace WindowRecommenderTests.Data
         }
 
         [TestMethod]
+        public void TestSavePopupResponses()
+        {
+            using (ShimsContext.Create())
+            {
+                ShimDatabase.GetInstance = () => _db;
+                Queries.CreateTables();
+                Assert.AreEqual(0L, _db.ExecuteScalar2($@"SELECT COUNT(*) FROM {Settings.PopupResponseTable};"));
+                Queries.SavePopupResponses(new[]
+                {
+                    (handle: "1", relevant: true, hazed: false),
+                    (handle: "2", relevant: false, hazed: true),
+                });
+                var dataTable = _db.ExecuteReadQuery($@"SELECT * FROM {Settings.PopupResponseTable};");
+                Assert.AreEqual(2, dataTable.Rows.Count);
+
+                Assert.AreEqual("1", dataTable.Rows[0]["windowHandle"]);
+                Assert.AreEqual(1L, dataTable.Rows[0]["relevant"]);
+                Assert.AreEqual(0L, dataTable.Rows[0]["hazed"]);
+
+                Assert.AreEqual("2", dataTable.Rows[1]["windowHandle"]);
+                Assert.AreEqual(0L, dataTable.Rows[1]["relevant"]);
+                Assert.AreEqual(1L, dataTable.Rows[1]["hazed"]);
+            }
+        }
+
+        [TestMethod]
         public void TestEnabledSettings()
         {
             using (ShimsContext.Create())

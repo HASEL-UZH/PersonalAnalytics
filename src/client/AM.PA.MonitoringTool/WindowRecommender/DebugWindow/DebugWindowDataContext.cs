@@ -37,7 +37,7 @@ namespace WindowRecommender.DebugWindow
             Log.Insert(0, new LogEntryDataSource(DateTime.Now, model, message));
         }
 
-        public void SetDrawList(IEnumerable<(WindowRecord windowRecord, Rectangle rectangle, bool show)> drawList)
+        public void SetDrawList(IEnumerable<(WindowRecord windowRecord, bool show)> drawList)
         {
             DrawList = new ObservableCollection<DrawListEntryDataSource>(drawList.Select(tuple => new DrawListEntryDataSource(tuple.windowRecord.Handle, tuple.windowRecord.Title, tuple.show)));
             OnPropertyChanged(nameof(DrawList));

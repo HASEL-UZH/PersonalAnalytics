@@ -13,6 +13,7 @@ namespace WindowRecommender.Data
             (Settings.ScoreChangeTable, "id INTEGER PRIMARY KEY, time TEXT, windowHandle TEXT, mergedScore REAL, durationScore REAL, frequencyScore REAL, mraScore REAL, titleScore REAL"),
             (Settings.DesktopEventTable, "id INTEGER PRIMARY KEY, time TEXT, windowHandle TEXT, zIndex INTEGER, hazed INTEGER, left INTEGER, top INTEGER, right INTEGER, bottom INTEGER"),
             (Settings.ScreenEventTable, "id INTEGER PRIMARY KEY, time TEXT, screenId INTEGER, left INTEGER, top INTEGER, right INTEGER, bottom INTEGER"),
+            (Settings.PopupResponseTable, "id INTEGER PRIMARY KEY, time TEXT, windowHandle TEXT, relevant INTEGER, hazed INTEGER"),
         };
 
         internal static void CreateTables()
@@ -30,6 +31,8 @@ namespace WindowRecommender.Data
                 Database.GetInstance().ExecuteDefaultQuery($@"DROP TABLE IF EXISTS {name};");
             }
         }
+
+        #region Save Events
 
         internal static void SaveWindowEvent(EventName eventName, WindowEventRecord entry)
         {
@@ -82,6 +85,18 @@ namespace WindowRecommender.Data
                 .ToArray();
             db.ExecuteBatchQueries(query, parameterList);
         }
+
+        internal static void SavePopupResponses(IEnumerable<(string handle, bool relevant, bool hazed)> responses)
+        {
+            var db = Database.GetInstance();
+            var query = $@"INSERT INTO {Settings.PopupResponseTable} (time, windowHandle, relevant, hazed) VALUES (?, ?, ?, ?);";
+            var timestamp = DateTime.Now;
+            var parameterList = responses
+                .Select(response => new object[] { timestamp, response.handle, response.relevant, response.hazed })
+                .ToArray();
+            db.ExecuteBatchQueries(query, parameterList);
+        }
+        #endregion
 
         #region Settings
 

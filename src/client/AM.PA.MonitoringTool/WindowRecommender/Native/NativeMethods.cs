@@ -55,6 +55,19 @@ namespace WindowRecommender.Native
             return process.ProcessName;
         }
 
+        internal static IntPtr GetWindowIconPointer(IntPtr windowHandle)
+        {
+            var result = SendMessageTimeout(windowHandle, Message.WM_GETICON, (uint)GetIconParameter.ICON_BIG, 0, SendMessageTimeoutFlag.SMTO_ABORTIFHUNG, 50, out var iconHandle);
+            if (result != IntPtr.Zero && iconHandle == IntPtr.Zero)
+                result = SendMessageTimeout(windowHandle, Message.WM_GETICON, (uint)GetIconParameter.ICON_SMALL, 0, SendMessageTimeoutFlag.SMTO_ABORTIFHUNG, 50, out iconHandle);
+            if (result != IntPtr.Zero && iconHandle == IntPtr.Zero)
+                result = SendMessageTimeout(windowHandle, Message.WM_GETICON, (uint)GetIconParameter.ICON_SMALL2, 0, SendMessageTimeoutFlag.SMTO_ABORTIFHUNG, 50, out iconHandle);
+            if (result != IntPtr.Zero && iconHandle == IntPtr.Zero)
+                iconHandle = new IntPtr(GetClassLong(windowHandle, GetClassLongOffset.GCL_HICON));
+
+            return iconHandle;
+        }
+
         internal static RECT GetWindowRectangle(IntPtr windowHandle)
         {
             GetWindowRect(windowHandle, out var rectangle);
@@ -116,6 +129,15 @@ namespace WindowRecommender.Native
         // ReSharper disable MemberCanBePrivate.Local
 
         /// <summary>
+        /// Delete objects like bitmaps, freeing all system resources.
+        /// </summary>
+        /// <param name="ho">A handle to a logical pen, brush, font, bitmap, region, or palette.</param>
+        /// <returns>Whether the function succeeds.</returns>
+        /// https://docs.microsoft.com/windows/desktop/api/wingdi/nf-wingdi-deleteobject
+        [DllImport("gdi32.dll")]
+        public static extern bool DeleteObject(IntPtr ho);
+
+        /// <summary>
         /// Retrieves the current value of a specified attribute applied to a window.
         /// </summary>
         /// <param name="hwnd">The handle to the window from which the attribute data is retrieved.</param>
@@ -163,6 +185,17 @@ namespace WindowRecommender.Native
         /// https://docs.microsoft.com/windows/desktop/api/winuser/nf-winuser-enumwindows
         [DllImport("user32.dll")]
         private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
+
+        /// <summary>
+        /// Retrieves the specified 32-bit value from the WNDCLASSEX structure associated with the specified window.
+        /// </summary>
+        /// <param name="hWnd">A handle to the window and, indirectly, the class to which the window belongs.</param>
+        /// <param name="nIndex">The value to be retrieved.</param>
+        /// <returns>If the function succeeds, the return value is the requested value. If the function fails, the
+        /// return value is zero.</returns>
+        [DllImport("user32.dll")]
+        private static extern uint GetClassLong(IntPtr hWnd, GetClassLongOffset nIndex);
 
         /// <summary>
         /// The GetMonitorInfo function retrieves information about a display monitor.
@@ -305,6 +338,22 @@ namespace WindowRecommender.Native
         private static extern bool IsWindowVisible(IntPtr hWnd);
 
         /// <summary>
+        /// Sends the specified message to one or more windows.
+        /// </summary>
+        /// <param name="hWnd">A handle to the window whose window procedure will receive the message.</param>
+        /// <param name="msg">The message to be sent.</param>
+        /// <param name="wParam">Any additional message-specific information.</param>
+        /// <param name="lParam">Any additional message-specific information.</param>
+        /// <param name="fuFlag">The behavior of this function.</param>
+        /// <param name="uTimeout">The duration of the time-out period, in milliseconds.</param>
+        /// <param name="lpdwResult">The result of the message processing. The value of this parameter depends on the
+        /// message that is specified.</param>
+        /// <returns>If the function succeeds, the return value is nonzero.</returns>
+        /// https://docs.microsoft.com/windows/desktop/api/winuser/nf-winuser-sendmessagetimeouta
+        [DllImport("user32.dll")]
+        private static extern IntPtr SendMessageTimeout(IntPtr hWnd, Message msg, uint wParam, int lParam, SendMessageTimeoutFlag fuFlag, uint uTimeout, out IntPtr lpdwResult);
+
+        /// <summary>
         /// Sets an event hook function for a range of events.
         /// </summary>
         /// <param name="eventMin">Specifies the event constant for the lowest event value in the range of events that
@@ -312,11 +361,11 @@ namespace WindowRecommender.Native
         /// This parameter can be set to EVENT_MIN to indicate the lowest possible event value.</param>
         /// <param name="eventMax">Specifies the event constant for the highest event value in the range of events that
         /// are handled by the hook function. This parameter can be set to EVENT_MAX to indicate the highest possible
-        /// event value. </param>
+        /// event value.</param>
         /// <param name="hmodWinEventProc">Handle to the DLL that contains the hook function at lpfnWinEventProc, if
         /// the WINEVENT_INCONTEXT flag is specified in the dwFlags parameter.
         /// If the hook function is not located in a DLL, or if the WINEVENT_OUTOFCONTEXT flag is specified, this
-        /// parameter is NULL. </param>
+        /// parameter is NULL.</param>
         /// <param name="lpfnWinEventProc">Pointer to the event hook function.</param>
         /// <param name="idProcess">Specifies the ID of the process from which the hook function receives events.
         /// Specify zero (0) to receive events from all processes on the current desktop.</param>
