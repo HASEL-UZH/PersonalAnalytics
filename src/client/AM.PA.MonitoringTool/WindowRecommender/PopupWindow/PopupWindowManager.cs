@@ -45,7 +45,6 @@ namespace WindowRecommender.PopupWindow
         internal void SetWindows(List<(WindowRecord windowRecord, bool show)> windows)
         {
             _windows = windows;
-            OpenPopup();
         }
 
         private void OnTimerTick(object sender, EventArgs e)
