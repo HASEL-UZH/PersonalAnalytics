@@ -20,15 +20,15 @@ André Meyer (ameyer@ifi.uzh.ch)
 - March, 2017: Started working on task type detection (on the 'taskdetection' branch), still in development.
 - September, 2018: [Chris Satterfield](https://github.com/csatterfield) and [Anna Scholtz](https://github.com/scholtzan) (master students at University of British Columbia, Canada) started integrating their port from Windows to Mac. Work in progress.
 - September 2018: [Jan Pilzer](https://github.com/hirse) and [Raphael](https://github.com/raphaelro) started integrating their work on Tobii Eytracking. Work in progress.
+- January 2019: [Louie Quaranta](https://github.com/louieQ) added an emotion state experience sampling pop-up to PersonalAnalytics for Mac (merged to [mac-branch](https://github.com/sealuzh/PersonalAnalytics/tree/mac)).
 
 
-# Collaborators & Contributors
+# Main Contributors and People Involved
 - [André Meyer](https://www.andre-meyer.ch) (University of Zurich, main contributor of Windows version)
 - [Prof. Dr. Thomas Fritz](http://www.ifi.uzh.ch/en/seal/people/fritz.html) (University of British Columbia)
 - [Manuela Züger](http://www.ifi.uzh.ch/en/seal/people/zueger.html) and [Sebastian Müller](http://www.ifi.uzh.ch/en/seal/people/mueller.html) (University of Zurich)
 - [Chris Satterfield](https://github.com/csatterfield) (main contributor of Mac version)
-- [Rohit Kaushik](https://github.com/kaushik-rohit) (responsible for SlackTracker)
-- Paige Rodeghero, Boyang Li and Dave Shepherd (ABB Research)
+- Boyang Li and Dave Shepherd (ABB Research)
 - Dr. Tom Zimmermann (Microsoft Research)
 - Prof. Dr. Gail C. Murphy (University of British Columbia)
 
