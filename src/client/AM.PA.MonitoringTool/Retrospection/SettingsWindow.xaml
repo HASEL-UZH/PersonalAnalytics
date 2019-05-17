@@ -21,12 +21,12 @@
         </Grid>
 
         <TabControl Grid.Row="1" Margin="10">
-            <TabItem Header="Window Recommender Settings">
+            <TabItem Header="WindowDimmer Settings">
                 <StackPanel Margin="10">
-                    <CheckBox x:Name="WindowRecommenderEnabled" Content="Window Recommender enabled" />
-                    <TextBlock Margin="20 0 0 0" Foreground="Gray" Text="Hint: This will help you focus on important windows by making the remaining ones less visible." />
+                    <CheckBox x:Name="WindowRecommenderEnabled" Content="WindowDimmer enabled" />
+                    <TextBlock Margin="20 0 0 0" Foreground="Gray" Text="Hint: This will help you focus on relevant windows by making the remaining ones less visible." />
 
-                    <TextBlock Margin="0 20 0 0" Text="Window Recommender Mode" />
+                    <TextBlock Margin="0 20 0 0" Text="WindowDimmer Mode" />
                     <RadioButton x:Name="WindowRecommenderTrackingMode" GroupName="WindowRecommenderMode" Content="Tracking only" />
                     <RadioButton x:Name="WindowRecommenderTreatmentMode" GroupName="WindowRecommenderMode" Content="Tracking and Treatment" />
 

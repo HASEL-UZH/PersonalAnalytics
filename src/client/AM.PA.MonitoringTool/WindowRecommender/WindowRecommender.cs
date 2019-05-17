@@ -28,7 +28,7 @@ namespace WindowRecommender
 
         public WindowRecommender()
         {
-            Name = "Window Recommender";
+            Name = "WindowDimmer";
 
             Settings.Enabled = Queries.GetEnabledSetting();
             Settings.NumberOfWindows = Queries.GetNumberOfWindowsSetting();
@@ -103,16 +103,12 @@ namespace WindowRecommender
 
         public override void CreateDatabaseTablesIfNotExist()
         {
-            // During development, drop and recreate tables
-            Queries.DropTables();
             Queries.CreateTables();
         }
 
         public override void UpdateDatabaseTables(int version)
         {
-            // During development, drop and recreate tables
-            Queries.DropTables();
-            Queries.CreateTables();
+            // No update needed
         }
 
         public override string GetVersion()

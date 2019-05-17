@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:WindowRecommender.DebugWindow"
              mc:Ignorable="d" 
-             Title="WindowRecommender Debug"
+             Title="WindowDimmer Debug"
              Height="536" Width="810">
     <Window.DataContext>
         <local:DebugWindowDataContext />
