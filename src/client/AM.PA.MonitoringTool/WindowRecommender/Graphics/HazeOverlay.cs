@@ -7,18 +7,24 @@ namespace WindowRecommender.Graphics
 {
     internal class HazeOverlay
     {
+        private Rectangle[] _monitorRectangles;
         private (HazeOverlayWindow window, Rectangle rectangle)[] _windows;
         private bool _isRunning;
 
         internal HazeOverlay()
         {
+            _monitorRectangles = new Rectangle[0];
             _windows = new (HazeOverlayWindow window, Rectangle rectangle)[0];
             _isRunning = false;
+            RefreshMonitorRectangles();
         }
 
         public void Start()
         {
-            CreateMonitorWindows();
+            if (_windows.Length ==0)
+            {
+                CreateMonitorWindows();
+            }
             _isRunning = true;
             foreach (var (window, _) in _windows)
             {
@@ -54,33 +60,34 @@ namespace WindowRecommender.Graphics
             }
         }
 
-        internal void ReloadMonitors()
+        internal void RefreshMonitorRectangles()
         {
-            if (_isRunning)
+            var monitorRectangles = NativeMethods.GetMonitorWorkingAreas().Select(rect => (Rectangle) rect).ToArray();
+            if (!_monitorRectangles.SequenceEqual(monitorRectangles))
             {
+                _monitorRectangles = monitorRectangles;
+                Queries.SaveScreenEvents(_monitorRectangles);
+
                 foreach (var (window, _) in _windows)
                 {
-                    window.Stop();
                     window.Dispose();
                 }
-            }
+                _windows = new (HazeOverlayWindow window, Rectangle rectangle)[0];
 
-            CreateMonitorWindows();
-
-            if (_isRunning)
-            {
-                foreach (var (window, _) in _windows)
+                if (_isRunning)
                 {
-                    window.Start();
+                    CreateMonitorWindows();
+                    foreach (var (window, _) in _windows)
+                    {
+                        window.Start();
+                    }
                 }
             }
         }
 
         private void CreateMonitorWindows()
         {
-            var monitorRects = NativeMethods.GetMonitorWorkingAreas().Select(rect => (Rectangle)rect).ToList();
-            Queries.SaveScreenEvents(monitorRects);
-            _windows = monitorRects.Select(screenRect =>
+            _windows = _monitorRectangles.Select(screenRect =>
             {
                 var screenRectangle = screenRect;
                 var hazeOverlayWindow = new HazeOverlayWindow(screenRectangle);

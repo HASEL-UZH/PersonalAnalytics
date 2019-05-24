@@ -54,6 +54,8 @@ namespace WindowRecommender
 
             _popupWindowManager = new PopupWindowManager();
 
+            SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;
+
             if (Settings.ShowDebugWindow)
             {
                 _debugWindow = new DebugWindow.DebugWindow();
@@ -242,7 +244,6 @@ namespace WindowRecommender
         {
             _modelEvents.MoveStarted += OnMoveStarted;
             _modelEvents.MoveEnded += OnMoveEnded;
-            SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;
             _hazeOverlay.Start();
         }
 
@@ -250,7 +251,6 @@ namespace WindowRecommender
         {
             _modelEvents.MoveStarted -= OnMoveStarted;
             _modelEvents.MoveEnded -= OnMoveEnded;
-            SystemEvents.DisplaySettingsChanged -= OnDisplaySettingsChanged;
             _hazeOverlay.Stop();
         }
 
@@ -294,7 +294,7 @@ namespace WindowRecommender
 
         private void OnDisplaySettingsChanged(object sender, EventArgs e)
         {
-            _hazeOverlay.ReloadMonitors();
+            _hazeOverlay.RefreshMonitorRectangles();
         }
     }
 }

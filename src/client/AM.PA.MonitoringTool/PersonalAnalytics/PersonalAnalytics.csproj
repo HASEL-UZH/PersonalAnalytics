@@ -44,7 +44,7 @@
     <MinimumRequiredVersion>0.9.5.5</MinimumRequiredVersion>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>index.html</WebPage>
-    <ApplicationRevision>192</ApplicationRevision>
+    <ApplicationRevision>193</ApplicationRevision>
     <ApplicationVersion>0.9.5.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
