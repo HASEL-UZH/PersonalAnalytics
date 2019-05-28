@@ -4,16 +4,14 @@
 // Licensed under the MIT License.
 
 using Shared;
-using System.Collections.Generic;
-using System;
-using System.Windows;
 using Shared.Data;
-using System.Net.Mail;
-using System.Diagnostics;
-using System.Windows.Threading;
 using Shared.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
-using System.Threading;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace Retrospection
 {
@@ -198,7 +196,7 @@ namespace Retrospection
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(
             () =>
             {
-                _settingsWindow = new SettingsWindow(_trackers, currentSettings, _publishedAppVersion);
+                _settingsWindow = new SettingsWindow(currentSettings, _publishedAppVersion);
                 //_settings.Show();
                 Database.GetInstance().LogInfo("The participant opened the settings.");
 
@@ -207,7 +205,7 @@ namespace Retrospection
                     updatedSettings = _settingsWindow.UpdatedSettingsDto;
                 }
             }));
-            
+
             return updatedSettings;
         }
 
