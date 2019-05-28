@@ -2,7 +2,6 @@
 using Shared;
 using Shared.Data;
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace SharedTests
@@ -53,7 +52,7 @@ namespace SharedTests
             Assert.AreEqual(null, _db.ExecuteScalar2(""));
             Assert.AreEqual(0.0, _db.ExecuteScalar3(""));
             Assert.AreEqual(null, _db.ExecuteReadQuery(""));
-            Assert.AreEqual(0, _db.ExecuteBatchQueries("", new List<object[]>()));
+            Assert.AreEqual(0, _db.ExecuteBatchQueries("", new object[0][]));
         }
 
         [TestMethod]
