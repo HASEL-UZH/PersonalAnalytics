@@ -37,7 +37,5 @@ using System.Runtime.InteropServices;
 
 // Allow tests access to internals
 // See https://stackoverflow.com/a/1809482/1469028
-#if DEBUG
 [assembly: InternalsVisibleTo("WindowRecommenderTests")]
 [assembly: InternalsVisibleTo("WindowRecommender.Fakes")]
-#endif
