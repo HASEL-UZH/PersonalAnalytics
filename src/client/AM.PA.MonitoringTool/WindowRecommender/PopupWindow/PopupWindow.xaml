@@ -6,17 +6,23 @@
              xmlns:local="clr-namespace:WindowRecommender.PopupWindow"
              mc:Ignorable="d"
              Title="WindowDimmer Survey"
-             Height="300" Width="600">
+             Height="300" Width="800"
+             MinHeight="200" MinWidth="600"
+             ResizeMode="CanResize">
     <Window.DataContext>
         <local:PopupWindowDataContext />
     </Window.DataContext>
-    <StackPanel Margin="10 10 10 10">
-        <TextBlock Margin="0 0 0 10" Text="Please select all windows that are currently relevant:" />
-        <ScrollViewer Height="170" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+    <DockPanel Margin="10 10 10 10">
+        <TextBlock DockPanel.Dock="Top" Margin="0 0 0 10" Text="Please select all windows that are currently relevant:" />
+        <StackPanel DockPanel.Dock="Bottom" Margin="0 20 0 0" Orientation="Horizontal" FlowDirection="RightToLeft">
+            <Button Content="Skip" Height="24" Margin="0 0 10 0" Click="SkipClicked" Padding="8 0" />
+            <Button Content="Done" Height="24" Click="SubmitClicked" Padding="8 0" />
+        </StackPanel>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding OpenWindows}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="local:OpenWindowsDataSource">
-                        <CheckBox Margin="0 0 5 0" Height="30" IsChecked="{Binding Relevant}">
+                        <CheckBox Margin="0 0 5 10" Height="20" IsChecked="{Binding Relevant}">
                             <StackPanel Orientation="Horizontal">
                                 <Image Margin="0 0 5 0" Source="{Binding Icon}" Height="20" />
                                 <TextBlock Text="{Binding Path=Title}" />
@@ -26,9 +32,5 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
-        <StackPanel Margin="0 20 0 0" Orientation="Horizontal" FlowDirection="RightToLeft">
-            <Button Content="Skip" Height="24" Margin="0 0 10 0" Click="SkipClicked" Padding="8 0" />
-            <Button Content="Done" Height="24" Click="SubmitClicked" Padding="8 0" />
-        </StackPanel>
-    </StackPanel>
+    </DockPanel>
 </Window>
