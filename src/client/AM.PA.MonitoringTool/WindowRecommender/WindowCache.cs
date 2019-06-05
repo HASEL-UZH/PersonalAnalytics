@@ -60,7 +60,10 @@ namespace WindowRecommender
         private void OnWindowOpened(object sender, IntPtr e)
         {
             var windowHandle = e;
-            _cache[windowHandle] = GetWindowRecord(windowHandle);
+            if (!_cache.ContainsKey(windowHandle))
+            {
+                _cache[windowHandle] = GetWindowRecord(windowHandle);
+            }
             WindowOpened?.Invoke(this, _cache[windowHandle]);
             WindowOpenedOrFocused?.Invoke(this, _cache[windowHandle]);
         }

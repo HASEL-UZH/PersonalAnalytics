@@ -9,8 +9,7 @@ namespace WindowRecommender
         internal WindowStack(IWindowEvents windowEvents)
         {
             WindowRecords = new List<WindowRecord>();
-            windowEvents.WindowOpened += OnWindowOpened;
-            windowEvents.WindowFocused += OnWindowFocused;
+            windowEvents.WindowOpenedOrFocused += OnWindowOpenedOrFocused;
             windowEvents.WindowClosedOrMinimized += OnWindowClosedOrMinimized;
             windowEvents.Setup += OnSetup;
         }
@@ -31,16 +30,10 @@ namespace WindowRecommender
             WindowRecords.Remove(windowRecord);
         }
 
-        private void OnWindowFocused(object sender, WindowRecord e)
+        private void OnWindowOpenedOrFocused(object sender, WindowRecord e)
         {
             var windowRecord = e;
             WindowRecords.Remove(windowRecord);
-            WindowRecords.Insert(0, windowRecord);
-        }
-
-        private void OnWindowOpened(object sender, WindowRecord e)
-        {
-            var windowRecord = e;
             WindowRecords.Insert(0, windowRecord);
         }
     }
