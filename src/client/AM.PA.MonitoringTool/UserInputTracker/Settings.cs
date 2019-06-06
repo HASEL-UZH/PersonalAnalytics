@@ -9,7 +9,8 @@ namespace UserInputTracker
 {
     public static class Settings
     {
-        public static bool IsEnabledByDefault = true;
+        // Disabled for WindowDimmer study
+        public static bool IsEnabledByDefault = false;
 
         // enable/disable the detailed, per-event data collection of user input 
         // hint: only enable this for studies, and not for too long (as it's resources and storage intensive!)

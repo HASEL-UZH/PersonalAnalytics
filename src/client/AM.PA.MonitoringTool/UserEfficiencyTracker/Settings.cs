@@ -12,7 +12,8 @@ namespace UserEfficiencyTracker
 #if Pilot_TaskDetection_March17
         public static bool DefaultPopUpIsEnabled = false;
 #else // default:
-        public static bool DefaultPopUpIsEnabled = true;
+        // Disabled for WindowDimmer study
+        public static bool DefaultPopUpIsEnabled = false;
 #endif
         public const int DefaultPopUpInterval = 60; // in minutes
 
