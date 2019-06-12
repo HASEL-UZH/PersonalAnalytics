@@ -14,8 +14,8 @@ namespace WindowRecommender.PopupWindow
     internal class PopupWindowManager
     {
         private const int TimerIntervalMinutes = 1;
-        private const int MinPopupIntervalMinutes = 55;
-        private const int MaxPopupIntervalMinutes = 65;
+        private const int MinPopupIntervalMinutes = 40;
+        private const int MaxPopupIntervalMinutes = 50;
 
         private readonly DispatcherTimer _timer;
 
