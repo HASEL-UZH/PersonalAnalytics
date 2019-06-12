@@ -60,7 +60,9 @@ namespace WindowRecommenderTests
                 var windowEvents = new StubIWindowEvents();
                 // ReSharper disable once ObjectCreationAsStatement
                 new WindowRecorder(windowEvents, new WindowStack(windowEvents));
-                windowEvents.WindowOpenedEvent(windowEvents, new WindowRecord(new IntPtr(1), "test_title", "test_process"));
+                var windowRecord = new WindowRecord(new IntPtr(1), "test_title", "test_process");
+                windowEvents.WindowOpenedOrFocusedEvent(windowEvents, windowRecord);
+                windowEvents.WindowOpenedEvent(windowEvents, windowRecord);
                 Assert.IsTrue(called);
             }
         }
@@ -120,7 +122,9 @@ namespace WindowRecommenderTests
                 var windowEvents = new StubIWindowEvents();
                 // ReSharper disable once ObjectCreationAsStatement
                 new WindowRecorder(windowEvents, new WindowStack(windowEvents));
-                windowEvents.WindowFocusedEvent.Invoke(windowEvents, new WindowRecord(new IntPtr(1), "test_title", "test_process"));
+                var windowRecord = new WindowRecord(new IntPtr(1), "test_title", "test_process");
+                windowEvents.WindowOpenedOrFocusedEvent(windowEvents, windowRecord);
+                windowEvents.WindowFocusedEvent(windowEvents, windowRecord);
                 Assert.IsTrue(called);
             }
         }

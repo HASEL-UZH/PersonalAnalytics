@@ -40,8 +40,8 @@ namespace WindowRecommender
             var windowHandle = e;
             if (_cache.ContainsKey(windowHandle))
             {
-                WindowClosed?.Invoke(this, _cache[windowHandle]);
                 WindowClosedOrMinimized?.Invoke(this, _cache[windowHandle]);
+                WindowClosed?.Invoke(this, _cache[windowHandle]);
                 _cache.Remove(windowHandle);
             }
         }
@@ -53,8 +53,8 @@ namespace WindowRecommender
             {
                 _cache[windowHandle] = GetWindowRecord(windowHandle);
             }
-            WindowFocused?.Invoke(this, _cache[windowHandle]);
             WindowOpenedOrFocused?.Invoke(this, _cache[windowHandle]);
+            WindowFocused?.Invoke(this, _cache[windowHandle]);
         }
 
         private void OnWindowOpened(object sender, IntPtr e)
@@ -64,8 +64,8 @@ namespace WindowRecommender
             {
                 _cache[windowHandle] = GetWindowRecord(windowHandle);
             }
-            WindowOpened?.Invoke(this, _cache[windowHandle]);
             WindowOpenedOrFocused?.Invoke(this, _cache[windowHandle]);
+            WindowOpened?.Invoke(this, _cache[windowHandle]);
         }
 
         private void OnWindowMinimized(object sender, IntPtr e)
@@ -73,8 +73,8 @@ namespace WindowRecommender
             var windowHandle = e;
             if (_cache.ContainsKey(windowHandle))
             {
-                WindowMinimized?.Invoke(this, _cache[windowHandle]);
                 WindowClosedOrMinimized?.Invoke(this, _cache[windowHandle]);
+                WindowMinimized?.Invoke(this, _cache[windowHandle]);
             }
         }
 
