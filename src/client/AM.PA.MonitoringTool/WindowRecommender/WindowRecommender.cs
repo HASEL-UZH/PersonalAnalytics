@@ -44,10 +44,9 @@ namespace WindowRecommender
 
             _modelCore = new ModelCore(new (IModel model, double weight)[]
             {
-                (new MostRecentlyActive(_windowCache), 1),
-                (new Frequency(_windowCache), 1),
-                (new Duration(_windowCache), 1),
-                (new TitleSimilarity(_windowCache), 1),
+                (new MostRecentlyActive(_windowCache), 0.5),
+                (new Duration(_windowCache), 0.05),
+                (new TitleSimilarity(_windowCache), 0.45),
             });
             _modelCore.ScoreChanged += OnScoresChanged;
             _modelCore.WindowsChanged += OnWindowsChanged;
