@@ -5,12 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Windows;
+using System.Windows.Threading;
 using WindowRecommender.Data;
 using WindowRecommender.DebugWindow;
 using WindowRecommender.Graphics;
 using WindowRecommender.Models;
 using WindowRecommender.PopupWindow;
 using WindowRecommender.Util;
+using Duration = WindowRecommender.Models.Duration;
 
 namespace WindowRecommender
 {
@@ -294,6 +297,15 @@ namespace WindowRecommender
         private void OnDisplaySettingsChanged(object sender, EventArgs e)
         {
             _hazeOverlay.RefreshMonitorRectangles();
+        }
+
+        public static void ShareResults()
+        {
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(() =>
+            {
+                var uploaderWindow = new UploadWindow.UploadWizard();
+                uploaderWindow.ShowDialog();
+            }));
         }
     }
 }

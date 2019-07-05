@@ -37,6 +37,8 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Xaml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
@@ -81,6 +83,10 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Settings.cs" />
+    <Compile Include="UploadWindow\UploadWindowDataContext.cs" />
+    <Compile Include="UploadWindow\UploadWizard.xaml.cs">
+      <DependentUpon>UploadWizard.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Util\ScoreEqualityComparer.cs" />
     <Compile Include="Util\TextUtils.cs" />
     <Compile Include="Util\Utils.cs" />
@@ -126,6 +132,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="PopupWindow\PopupWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UploadWindow\UploadWizard.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

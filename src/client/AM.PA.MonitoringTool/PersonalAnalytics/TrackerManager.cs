@@ -409,6 +409,10 @@ namespace PersonalAnalytics
                 _taskbarIcon.ContextMenu.Items.Add(m8);
             }
 
+            var m9 = new MenuItem { Header = "Share Results" };
+            m9.Click += (o, i) => WindowRecommender.WindowRecommender.ShareResults();
+            _taskbarIcon.ContextMenu.Items.Add(m9);
+
             var m4 = new MenuItem { Header = "Open collected data" };
             m4.Click += (o, i) => OpenDataExportDirectory();
             _taskbarIcon.ContextMenu.Items.Add(m4);
