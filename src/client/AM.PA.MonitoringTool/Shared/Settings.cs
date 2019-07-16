@@ -67,7 +67,7 @@ namespace Shared
         public const int Port = 57827; // needed for the retrospection (local web server)
 
         // path (Regedit): Computer\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run
-        public const string RegAppPath = @"\PersonalAnalytics\PersonalAnalytics\PersonalAnalytics.appref-ms"; // change also publisher name in .csproj
+        public const string RegAppPath = @"\UBC CS\PersonalAnalytics\PersonalAnalytics.appref-ms"; // change also publisher name in .csproj
 
 
         ////////////////////////////////////////////////////////////
