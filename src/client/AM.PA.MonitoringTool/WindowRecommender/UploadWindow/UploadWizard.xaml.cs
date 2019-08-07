@@ -49,14 +49,16 @@ namespace WindowRecommender.UploadWindow
             {
                 var anonDb = new DatabaseImplementation(databaseCopyPath);
                 anonDb.Connect();
+                var query = @"DROP TABLE IF EXISTS windows_activity;";
+                anonDb.ExecuteDefaultQuery(query);
                 if (!hasWindowTitles)
                 {
-                    var query = $@"UPDATE {Settings.WindowEventTable} SET windowTitle = '';";
+                    query = $@"UPDATE {Settings.WindowEventTable} SET windowTitle = '';";
                     anonDb.ExecuteDefaultQuery(query);
                 }
                 if (!hasProcessNames)
                 {
-                    var query = $@"UPDATE {Settings.WindowEventTable} SET processName = '';";
+                    query = $@"UPDATE {Settings.WindowEventTable} SET processName = '';";
                     anonDb.ExecuteDefaultQuery(query);
                 }
                 anonDb.Disconnect();
