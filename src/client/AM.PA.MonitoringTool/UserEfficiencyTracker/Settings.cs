@@ -1,6 +1,6 @@
 ﻿// Created by André Meyer (ameyer@ifi.uzh.ch) from the University of Zurich
 // Created: 2015-10-20
-// 
+//
 // Licensed under the MIT License.
 
 using System;
@@ -12,8 +12,7 @@ namespace UserEfficiencyTracker
 #if Pilot_TaskDetection_March17
         public static bool DefaultPopUpIsEnabled = false;
 #else // default:
-        // Disabled for WindowDimmer study
-        public static bool DefaultPopUpIsEnabled = false;
+        public static bool DefaultPopUpIsEnabled = true;
 #endif
         public const int DefaultPopUpInterval = 60; // in minutes
 

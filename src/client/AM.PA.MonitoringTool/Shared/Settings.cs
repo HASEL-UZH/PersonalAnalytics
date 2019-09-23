@@ -1,6 +1,6 @@
 ﻿// Created by André Meyer (ameyer@ifi.uzh.ch) from the University of Zurich
 // Created: 2015-10-20
-// 
+//
 // Licensed under the MIT License.
 
 using System;
@@ -67,7 +67,7 @@ namespace Shared
         public const int Port = 57827; // needed for the retrospection (local web server)
 
         // path (Regedit): Computer\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run
-        public const string RegAppPath = @"\UBC CS\PersonalAnalytics\PersonalAnalytics.appref-ms"; // change also publisher name in .csproj
+        public const string RegAppPath = @"\PersonalAnalytics\PersonalAnalytics\PersonalAnalytics.appref-ms"; // change also publisher name in .csproj
 
 
         ////////////////////////////////////////////////////////////

@@ -1,6 +1,6 @@
 ﻿// Created by André Meyer (ameyer@ifi.uzh.ch) from the University of Zurich
 // Created: 2015-10-20
-// 
+//
 // Licensed under the MIT License.
 
 using System;
@@ -9,10 +9,9 @@ namespace UserInputTracker
 {
     public static class Settings
     {
-        // Disabled for WindowDimmer study
-        public static bool IsEnabledByDefault = false;
+        public static bool IsEnabledByDefault = true;
 
-        // enable/disable the detailed, per-event data collection of user input 
+        // enable/disable the detailed, per-event data collection of user input
         // hint: only enable this for studies, and not for too long (as it's resources and storage intensive!)
 #if PilotManu_March17
         public const bool IsDetailedCollectionEnabled = true;

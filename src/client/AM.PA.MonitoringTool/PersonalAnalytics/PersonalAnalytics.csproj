@@ -21,28 +21,26 @@
     </SccAuxPath>
     <SccProvider>
     </SccProvider>
-    <IsWebBootstrapper>true</IsWebBootstrapper>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <PublishUrl>Z:\public_html\PersonalAnalytics\download</PublishUrl>
+    <PublishUrl>C:\Users\André\Desktop\t\</PublishUrl>
     <Install>true</Install>
-    <InstallFrom>Web</InstallFrom>
-    <UpdateEnabled>true</UpdateEnabled>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
     <UpdateMode>Foreground</UpdateMode>
     <UpdateInterval>1</UpdateInterval>
     <UpdateIntervalUnits>Hours</UpdateIntervalUnits>
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>true</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <InstallUrl>https://www.cs.ubc.ca/~pilzer/PersonalAnalytics/download/</InstallUrl>
-    <SupportUrl>https://www.cs.ubc.ca/~pilzer/PersonalAnalytics</SupportUrl>
-    <ErrorReportUrl>https://github.com/Hirse/PersonalAnalytics/issues</ErrorReportUrl>
+    <SupportUrl>http://pluto.ifi.uzh.ch/master/index.html</SupportUrl>
+    <ErrorReportUrl>http://pluto.ifi.uzh.ch/master/index.html</ErrorReportUrl>
     <TargetCulture>en</TargetCulture>
     <ProductName>PersonalAnalytics</ProductName>
-    <PublisherName>UBC CS</PublisherName>
+    <PublisherName>PersonalAnalytics</PublisherName>
     <SuiteName>PersonalAnalytics</SuiteName>
     <MinimumRequiredVersion>0.9.5.5</MinimumRequiredVersion>
-    <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>index.html</WebPage>
     <ApplicationRevision>200</ApplicationRevision>
     <ApplicationVersion>0.9.5.%2a</ApplicationVersion>
@@ -74,16 +72,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>280DAED368749EA2FE410E99F135EDA8B8617EF4</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>7FEC6F67545705CEFC6A168B6FEB9B384EB7C216</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>PersonalAnalytics-WindowRecommender.pfx</ManifestKeyFile>
+    <ManifestKeyFile>PersonalAnalytics_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>PersonalAnalytics.App</StartupObject>
@@ -111,18 +109,6 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
-  </PropertyGroup>
-  <PropertyGroup>
-    <TargetZone>Internet</TargetZone>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>PersonalAnalytics-WindowRecommender.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
@@ -249,10 +235,8 @@
     <None Include="bin\Release\tessdata\eng.user-words" />
     <None Include="bin\Release\tessdata\eng.word-dawg" /> -->
     <None Include="packages.config" />
-    <None Include="PersonalAnalytics-WindowRecommender.pfx" />
     <None Include="PersonalAnalytics_TemporaryKey.pfx" />
     <AppDesigner Include="Properties\" />
-    <None Include="Properties\app.manifest" />
     <None Include="Service References\AccessDataService\AccessData.wsdl" />
     <None Include="Service References\AccessDataService\AccessData.xsd">
       <SubType>Designer</SubType>

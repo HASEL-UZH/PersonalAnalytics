@@ -9,7 +9,7 @@
         internal const string PopupResponseTable = "window_recommender_popup";
 
         internal const string EnabledSettingDatabaseKey = "WindowRecommenderEnabled";
-        internal const bool EnabledDefault = true;
+        internal const bool EnabledDefault = false;
         internal static bool Enabled = EnabledDefault;
 
         internal const string NumberOfWindowsSettingDatabaseKey = "WindowRecommenderNumberOfWindows";
@@ -19,7 +19,7 @@
         internal const string TreatmentModeSettingDatabaseKey = "WindowRecommenderTreatmentMode";
         internal const bool TreatmentModeDefault = false;
         internal static bool TreatmentMode = TreatmentModeDefault;
-        
+
         internal const int OverlayAlpha = 64;
         internal const int FramesPerSecond = 10;
 
