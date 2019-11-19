@@ -330,7 +330,7 @@
 			path = Helpers;
 			sourceTree = "<group>";
 		};
-		B9A0B7A11EDA356A00BE6F71 /* User Input Tracker */ = {
+		B9A0B7A11EDA356A00BE6F71 /* UserInputTracker */ = {
 			isa = PBXGroup;
 			children = (
 				B9B5C48B1F0456DA00AC7DE9 /* Visualizations */,
@@ -340,7 +340,7 @@
 				B9873A7B1EBA92DA0050E864 /* UserInputTracker.swift */,
 				B0BA0F792384062A00042775 /* UserInputSettings.swift */,
 			);
-			path = "User Input Tracker";
+			path = UserInputTracker;
 			sourceTree = "<group>";
 		};
 		B9A0B7A21EDA359500BE6F71 /* WindowsActivityTracker */ = {
@@ -395,7 +395,7 @@
 			children = (
 				A3B37CEF21DD24C3008784B1 /* EmotionTracker */,
 				B904C25B1F01AEF000624D9C /* TrackerManager.swift */,
-				B9A0B7A11EDA356A00BE6F71 /* User Input Tracker */,
+				B9A0B7A11EDA356A00BE6F71 /* UserInputTracker */,
 				B9A0B7A21EDA359500BE6F71 /* WindowsActivityTracker */,
 				B9A0B7A31EDA369000BE6F71 /* UserEfficiencyTracker */,
 			);
