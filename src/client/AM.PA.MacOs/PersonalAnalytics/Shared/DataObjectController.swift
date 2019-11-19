@@ -167,42 +167,7 @@ class DataObjectController: NSObject{
         }
     }
     
-    func saveUserInput(aggregatedInput input:UserInputTracker){
-        let dbController = DatabaseController.getDatabaseController()
-        
-        let keyTotal = input.keyCount + input.deleteCount + input.navigateCount
-        let clicksTotal = input.leftClickCount + input.rightClickCount
-                
-        do {
-            let args:StatementArguments = [
-                Date(),
-                input.tsStart,
-                input.tsEnd,
-                keyTotal,
-                input.keyCount,
-                input.deleteCount,
-                input.navigateCount,
-                clicksTotal,
-                -1, // TODO: clickOther
-                input.leftClickCount,
-                input.rightClickCount,
-                input.scrollDelta,
-                input.distance]
-            
-            let q = """
-                    INSERT INTO \(UserInputSettings.DbTableUserInput_v2) (time, tsStart, tsEnd, keyTotal, keyOther, keyBackspace, keyNavigate, clickTotal, clickOther, clickLeft, clickRight, scrollDelta, movedDistance)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """
-            
-            try dbController.executeUpdate(query: q, arguments:args)
-            
-        } catch {
-            print(error)
-        }
-    }
-    
-    
-    func buildCSVString(input: [SQLController.AggregatedInputEntry]) -> String{
+    func buildCSVString(input: [UserInputQueries.AggregatedInputEntry]) -> String{
         var result = "Time,KeyTotal,ClickCount,Distance,ScrollDelta\n"
         for row in input {
             result += String(row.time) + ","
@@ -246,10 +211,12 @@ class DataObjectController: NSObject{
     func exportStudyData(startTime: Double){
         do{
             let sql = try SQLController()
-            let aggregatedInput = sql.fetchAggregatedInputSince(time: startTime)
             let activeApplications = sql.fetchActiveApplicationsSince(time: startTime)
             let emotionalStates = sql.fetchEmotionalStateSince(time: startTime)
-
+            
+            // TODO: this will need refactoring. We should not user UserInputQueries here
+            let aggregatedInput = UserInputQueries.fetchAggregatedInputSince(time: startTime)
+            
             let inputString = buildCSVString(input: aggregatedInput)
             let appString = buildCSVString(input: activeApplications)
             let emotionString = buildCSVString(input: emotionalStates)

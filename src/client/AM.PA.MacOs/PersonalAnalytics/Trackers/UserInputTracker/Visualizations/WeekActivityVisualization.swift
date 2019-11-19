@@ -12,10 +12,8 @@ class WeekActivityVisualization: IVisualization{
     let color = AppConstants.retrospectiveColor
     var title: String
     var _type = [VisConstants.Week]
-    let sql: InputSQLController
 
     required init() throws {
-        sql = try InputSQLController()
         Size = "Square"
         title = "Activity Breakdown for this Week"
     }

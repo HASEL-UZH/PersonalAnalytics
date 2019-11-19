@@ -66,7 +66,7 @@
 		B9A3103F1EC5262E003B2470 /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = B9A3103E1EC5262E003B2470 /* PreferencesWindow.xib */; };
 		B9A310411EC5264E003B2470 /* PreferencesWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A310401EC5264E003B2470 /* PreferencesWindowController.swift */; };
 		B9AA5C671F2939B500ED3432 /* WeekActivityVisualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AA5C661F2939B500ED3432 /* WeekActivityVisualization.swift */; };
-		B9C79F841ECA6CF200E005F0 /* InputSQLController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C79F831ECA6CF200E005F0 /* InputSQLController.swift */; };
+		B9C79F841ECA6CF200E005F0 /* UserInputQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C79F831ECA6CF200E005F0 /* UserInputQueries.swift */; };
 		B9D50B6C1EDF38D300145EC8 /* DayFragmentationTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D50B6B1EDF38D300145EC8 /* DayFragmentationTimeline.swift */; };
 		B9D50B7E1EDF443900145EC8 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D50B7D1EDF443900145EC8 /* Activity.swift */; };
 		B9D50B801EDF588E00145EC8 /* ActivityCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D50B7F1EDF588E00145EC8 /* ActivityCategory.swift */; };
@@ -175,7 +175,7 @@
 		B9A3103E1EC5262E003B2470 /* PreferencesWindow.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferencesWindow.xib; sourceTree = "<group>"; };
 		B9A310401EC5264E003B2470 /* PreferencesWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferencesWindowController.swift; sourceTree = "<group>"; };
 		B9AA5C661F2939B500ED3432 /* WeekActivityVisualization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeekActivityVisualization.swift; sourceTree = "<group>"; };
-		B9C79F831ECA6CF200E005F0 /* InputSQLController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InputSQLController.swift; sourceTree = "<group>"; };
+		B9C79F831ECA6CF200E005F0 /* UserInputQueries.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserInputQueries.swift; sourceTree = "<group>"; };
 		B9D50B6B1EDF38D300145EC8 /* DayFragmentationTimeline.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DayFragmentationTimeline.swift; sourceTree = "<group>"; };
 		B9D50B7D1EDF443900145EC8 /* Activity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Activity.swift; sourceTree = "<group>"; };
 		B9D50B7F1EDF588E00145EC8 /* ActivityCategory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivityCategory.swift; sourceTree = "<group>"; };
@@ -334,7 +334,7 @@
 			isa = PBXGroup;
 			children = (
 				B9B5C48B1F0456DA00AC7DE9 /* Visualizations */,
-				B9C79F831ECA6CF200E005F0 /* InputSQLController.swift */,
+				B9C79F831ECA6CF200E005F0 /* UserInputQueries.swift */,
 				0D4676481BD54C2000796D2D /* KeystrokeController.swift */,
 				B9873A791EBA5DEF0050E864 /* MouseActionController.swift */,
 				B9873A7B1EBA92DA0050E864 /* UserInputTracker.swift */,
@@ -598,7 +598,7 @@
 				0DB3DF281BAF49AC00144935 /* AppDelegate.swift in Sources */,
 				0D2B94241D57D3D5004DA61D /* PAHttpServer.swift in Sources */,
 				B958F34E1EE0CB7600E54D81 /* ASHDatePicker.m in Sources */,
-				B9C79F841ECA6CF200E005F0 /* InputSQLController.swift in Sources */,
+				B9C79F841ECA6CF200E005F0 /* UserInputQueries.swift in Sources */,
 				B904C25C1F01AEF000624D9C /* TrackerManager.swift in Sources */,
 				B9A310371EC4E985003B2470 /* PreferencesViewController.swift in Sources */,
 				B9851FE91ED6594A002C24AF /* VisHelper.swift in Sources */,

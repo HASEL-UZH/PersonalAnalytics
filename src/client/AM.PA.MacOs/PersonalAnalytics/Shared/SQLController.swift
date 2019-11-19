@@ -24,14 +24,6 @@ class SQLController{
         var endTime: Double
     }
     
-    struct AggregatedInputEntry {
-        var clickCount : Int
-        var distance: Int
-        var keyTotal: Int
-        var scrollDelta: Int
-        var time: Double
-    }
-
     struct EmotionalStateEntry {
         var timestamp: Double
         var activity: String
@@ -63,30 +55,6 @@ class SQLController{
         return results
     }
     
-    func fetchAggregatedInputSince(time: Double) -> [AggregatedInputEntry] {
-        var results: [AggregatedInputEntry] = []
-        let timeStr = DateFormatConverter.interval1970ToDateStr(interval: time)
-        
-        do{
-            let query: String = "SELECT * FROM \(UserInputSettings.DbTableUserInput_v2) WHERE time >= \(timeStr) ORDER BY time"
-            let rows = try dbQueue.inDatabase{ db in
-                try Row.fetchAll(db, sql: query)
-            }
-            for row in rows {
-                let clickCount: Int = row["clickTotal"]
-                let distance: Int = row["movedDistance"]
-                let keyTotal: Int = row["keyTotal"]
-                let scrollDelta: Int = row["scrollDelta"]
-                let time: Double = row["time"]
-                
-                results.append(AggregatedInputEntry(clickCount: clickCount, distance: distance, keyTotal: keyTotal, scrollDelta: scrollDelta, time: time))
-            }
-        }
-        catch{
-            print(error)
-        }
-        return results
-    }
 
     func fetchEmotionalStateSince(time: Double) -> [EmotionalStateEntry] {
 
@@ -136,69 +104,72 @@ class SQLController{
         }
         
     }
-    
-    
-    func getStartHour(date: Date) -> TimeInterval{
-        let s = NSCalendar.current.startOfDay(for: date)
-        let e = NSCalendar.current.date(byAdding: .day, value: 1, to: s)
-        
-        let startStr = DateFormatConverter.dateToStr(date: s)
-        let endStr = DateFormatConverter.dateToStr(date: e!)
-       
-        do{
-            let query = """
-                        SELECT * FROM windows_activity
-                        WHERE tsStart >= '\(startStr)' AND tsStart < '\(endStr)' AND process <> 'Idle'
-                        ORDER BY tsStart
-                        """
-            
-            let rows = try dbQueue.inDatabase{ db in
-                try Row.fetchAll(db, sql: query)
-            }
-            
-            if(rows.count > 0){
-                let min = DateFormatConverter.dateStrToInterval1970(str: rows[0]["tsStart"])
-                return min - min.truncatingRemainder(dividingBy: 3600) // round down
-            }
-                
-            return -1
-            
-        }
-        catch{
-            print("error in getStartHour")
-            return -1 as TimeInterval
-        }
-    }
-    
-    func getEndHour(date: Date) -> TimeInterval{
-        let s = NSCalendar.current.startOfDay(for: date)
-        let e = NSCalendar.current.date(byAdding: .day, value: 1, to: s)
-        
-        let start = DateFormatConverter.dateToStr(date: s)
-        // TODO: is force unwrapping dangerous here?
-        let end = DateFormatConverter.dateToStr(date: e!)
-        
-        do{
-            var query:String = "SELECT * FROM windows_activity WHERE tsEnd >= '" + start
-            query += "' AND tsEnd < '" + end
-            query += "' AND process <> 'Idle'"
-            
-            let rows = try dbQueue.inDatabase{ db in
-                try Row.fetchAll(db, sql: query)
-            }
-            
-            if(rows.count > 0){
-                let max = DateFormatConverter.dateStrToInterval1970(str:  rows[rows.count - 1]["tsEnd"])
-                return max + (3600 - max.truncatingRemainder(dividingBy: 3600)) // round up
-            }
-                
-            return -1
-           
-        }
-        catch{
-            print("error in getEndHour")
-            return -1 as TimeInterval
-        }
+}
 
+
+// TODO: what to do with this function?
+func getStartHour(date: Date) -> TimeInterval{
+    let dbController = DatabaseController.getDatabaseController()
+
+    let start = NSCalendar.current.startOfDay(for: date)
+    let end = NSCalendar.current.date(byAdding: .day, value: 1, to: start)
+    
+    let startStr = DateFormatConverter.dateToStr(date: start)
+    let endStr = DateFormatConverter.dateToStr(date: end!)
+   
+    do{
+        let query = """
+                    SELECT * FROM windows_activity
+                    WHERE tsStart >= '\(startStr)' AND tsStart < '\(endStr)' AND process <> 'Idle'
+                    ORDER BY tsStart
+                    """
+        
+        let rows = try dbController.executeFetchAll(query: query)
+        
+        if(rows.count > 0){
+            let min = DateFormatConverter.dateStrToInterval1970(str: rows[0]["tsStart"])
+            return min - min.truncatingRemainder(dividingBy: 3600) // round down
+        }
+            
+        return -1
+        
     }
+    catch{
+        print("error in getStartHour")
+        return -1 as TimeInterval
+    }
+}
+
+
+// TODO: what to do with this function?
+func getEndHour(date: Date) -> TimeInterval{
+    let dbController = DatabaseController.getDatabaseController()
+
+    let start = NSCalendar.current.startOfDay(for: date)
+    let end = NSCalendar.current.date(byAdding: .day, value: 1, to: start)
+    
+    let startStr = DateFormatConverter.dateToStr(date: start)
+    let endStr = DateFormatConverter.dateToStr(date: end!)
+    
+    do{
+        let query = """
+                    SELECT * FROM windows_activity
+                    WHERE tsEnd >= '\(startStr)' AND tsEnd < '\(endStr)' AND process <> 'Idle'
+                    """
+        
+        let rows = try dbController.executeFetchAll(query: query)
+        
+        if(rows.count > 0){
+            let max = DateFormatConverter.dateStrToInterval1970(str:  rows[rows.count - 1]["tsEnd"])
+            return max + (3600 - max.truncatingRemainder(dividingBy: 3600)) // round up
+        }
+            
+        return -1
+       
+    }
+    catch{
+        print("error in getEndHour")
+        return -1 as TimeInterval
+    }
+
 }

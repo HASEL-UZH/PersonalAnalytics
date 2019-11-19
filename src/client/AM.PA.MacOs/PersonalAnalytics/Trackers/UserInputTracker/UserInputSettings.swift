@@ -14,7 +14,8 @@ enum UserInputSettings {
     static let IsDetailedCollectionEnabled = false
     
     // MARK: - timer intervals
-    static let UserInputAggregationInterval = TimeInterval(60) // seconds
+    static let UserInputAggregationInterval = TimeInterval(60) // 1 min
+    static let UserInputVisInterval = TimeInterval(600) // 10 mins
     
     
     // MARK: - database tables
