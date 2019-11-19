@@ -180,7 +180,7 @@ class DataObjectController: NSObject{
                 input.tsEnd,
                 keyTotal,
                 input.keyCount,
-                -1, // TODO: input.deleteCount ??
+                input.deleteCount,
                 input.navigateCount,
                 clicksTotal,
                 -1, // TODO: clickOther
