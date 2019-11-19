@@ -11,21 +11,21 @@ import GRDB
 class InputSQLController: SQLController { 
 
 
-    var MouseClickKeyboardRatio: Double = 3
-    var MouseScrollingRatio: Double = 0.008
-    var MouseMovementRatio: Double = 0.0028
+    var MouseClickKeyboardRatio: Double = UserInputSettings.MouseClickKeyboardRatio
+    var MouseScrollingKeyboardRatio: Double = UserInputSettings.MouseScrollingKeyboardRatio
+    var MouseMovementKeyboardRatio: Double = UserInputSettings.MouseMovementKeyboardRatio
     
     override init() throws{
         try super.init()
         
         do{
             try dbQueue.inDatabase{ db in
-                let rows = try Row.fetchCursor(db, sql: "SELECT COUNT(*) FROM user_input")
+                let rows = try Row.fetchCursor(db, sql: "SELECT COUNT(*) FROM \(UserInputSettings.DbTableUserInput_v2)")
                 if let row = try rows.next(){
                     let count:Int = row["COUNT(*)"]
                     
                     if count > 100 {
-                        let rows = try Row.fetchCursor(db, sql: "SELECT SUM(clickTotal), SUM(keyTotal), SUM(scrollDelta), SUM(movedDistance) FROM user_input")
+                        let rows = try Row.fetchCursor(db, sql: "SELECT SUM(clickTotal), SUM(keyTotal), SUM(scrollDelta), SUM(movedDistance) FROM \(UserInputSettings.DbTableUserInput_v2)")
                         if let row = try rows.next(){
                             let clicks:Double = row["SUM(clickTotal)"]
                             let keystrokes:Double = row["SUM(keyTotal)"]
@@ -33,12 +33,12 @@ class InputSQLController: SQLController {
                             let distance:Double = row["SUM(movedDistance)"]
                             if(!(clicks == 0 || scrolls == 0 || distance == 0 || keystrokes == 0)){
                                 MouseClickKeyboardRatio = (keystrokes)/(clicks)
-                                MouseScrollingRatio = (keystrokes)/(scrolls)
-                                MouseMovementRatio = (keystrokes)/(distance)
+                                MouseScrollingKeyboardRatio = (keystrokes)/(scrolls)
+                                MouseMovementKeyboardRatio = (keystrokes)/(distance)
                             }
                         }
                     }
-                    print(MouseClickKeyboardRatio, MouseScrollingRatio, MouseMovementRatio)
+                    print(MouseClickKeyboardRatio, MouseScrollingKeyboardRatio, MouseMovementKeyboardRatio)
                 }
             }
         }
@@ -52,8 +52,8 @@ class InputSQLController: SQLController {
         var inputLevel: Double = 0
         inputLevel += row["clickTotal"] * MouseClickKeyboardRatio
         inputLevel += row["keyTotal"]
-        inputLevel += row["scrollDelta"] * MouseScrollingRatio
-        inputLevel += row["movedDistance"] * MouseMovementRatio
+        inputLevel += row["scrollDelta"] * MouseScrollingKeyboardRatio
+        inputLevel += row["movedDistance"] * MouseMovementKeyboardRatio
     
         inputLevel.round()
         return Int(inputLevel)
@@ -66,7 +66,7 @@ class InputSQLController: SQLController {
         do{
 
             try dbQueue.inDatabase{ db in
-                let rows = try Row.fetchCursor(db, "SELECT * FROM user_input")
+     let rows = try Row.fetchCursor(db, "SELECT * FROM \(UserInputSettings.DbTableUserInput_v2)")
                 inputLevel = calculateInputLevel(row: rows)
             }
         }
@@ -111,7 +111,7 @@ class InputSQLController: SQLController {
         var results = [TimeInterval: Int]()
         
         do{
-            let query = "SELECT * FROM user_input WHERE tsStart >= '\(startStr)' AND tsEnd < '\(endStr)'"
+            let query = "SELECT * FROM \(UserInputSettings.DbTableUserInput_v2) WHERE tsStart >= '\(startStr)' AND tsEnd < '\(endStr)'"
             let rows = try dbQueue.inDatabase{ db in
                 try Row.fetchAll(db, sql: query)
             }

@@ -68,7 +68,7 @@ class SQLController{
         let timeStr = DateFormatConverter.interval1970ToDateStr(interval: time)
         
         do{
-            let query: String = "SELECT * FROM user_input WHERE time >= \(timeStr) ORDER BY time"
+            let query: String = "SELECT * FROM \(UserInputSettings.DbTableUserInput_v2) WHERE time >= \(timeStr) ORDER BY time"
             let rows = try dbQueue.inDatabase{ db in
                 try Row.fetchAll(db, sql: query)
             }

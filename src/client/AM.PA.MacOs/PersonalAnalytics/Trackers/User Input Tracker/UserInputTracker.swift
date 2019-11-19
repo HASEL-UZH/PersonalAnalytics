@@ -7,16 +7,6 @@
 
 import Foundation
 
-fileprivate enum Settings{
-    static let IsDetailedCollectionEnabled = false
-    
-    static let DbTableUserInput_v2 = "user_input"; // aggregate of user inputs per minute (use this, not the *_v1 ones if possible!)
-    static let DbTableKeyboard_v1 = "user_input_keyboard"; // for old deployments & in case a study needs more detailed data
-    static let DbTableMouseClick_v1 = "user_input_mouse_click"; // for old deployments & in case a study needs more detailed data
-    static let DbTableMouseScrolling_v1 = "user_input_mouse_scrolling"; // for old deployments & in case a study needs more detailed data
-    static let DbTableMouseMovement_v1 = "user_input_mouse_movement"; // for old deployments & in case a study needs more detailed data
-}
-
 
 class UserInputTracker: ITracker{
     var name: String
@@ -37,7 +27,7 @@ class UserInputTracker: ITracker{
     let mouseController: MouseActionController
     let keystrokeController: KeystrokeController
     var inputTimer: Timer?
-    let inputInterval: TimeInterval = TimeInterval(60) // seconds
+    let inputInterval: TimeInterval = UserInputSettings.UserInputAggregationInterval
     var isPaused = false
 
     
@@ -56,7 +46,7 @@ class UserInputTracker: ITracker{
         self.scrollDelta = 0
         
         name = "User Input Tracker"
-        if(Settings.IsDetailedCollectionEnabled){
+        if(UserInputSettings.IsDetailedCollectionEnabled){
             name += " (detailed)"
         }
         isRunning = true
@@ -70,11 +60,11 @@ class UserInputTracker: ITracker{
     func createDatabaseTablesIfNotExist() {
         let dbController = DatabaseController.getDatabaseController()
         do{
-            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS \(Settings.DbTableUserInput_v2) (id INTEGER PRIMARY KEY, time TEXT, tsStart TEXT, tsEnd TEXT, keyTotal INTEGER, keyOther INTEGER, keyBackspace INTEGER, keyNavigate INTEGER, clickTotal INTEGER, clickOther INTEGER, clickLeft INTEGER, clickRight INTEGER, scrollDelta INTEGER, movedDistance INTEGER)")
-            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS \(Settings.DbTableKeyboard_v1) (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, keystrokeType TEXT)")
-            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS \(Settings.DbTableMouseClick_v1) (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, button TEXT)")
-            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS \(Settings.DbTableMouseScrolling_v1) (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, scrollDelta INTEGER)")
-            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS \(Settings.DbTableMouseMovement_v1) (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, movedDistance INTEGER)")
+            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS \(UserInputSettings.DbTableUserInput_v2) (id INTEGER PRIMARY KEY, time TEXT, tsStart TEXT, tsEnd TEXT, keyTotal INTEGER, keyOther INTEGER, keyBackspace INTEGER, keyNavigate INTEGER, clickTotal INTEGER, clickOther INTEGER, clickLeft INTEGER, clickRight INTEGER, scrollDelta INTEGER, movedDistance INTEGER)")
+            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS \(UserInputSettings.DbTableKeyboard_v1) (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, keystrokeType TEXT)")
+            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS \(UserInputSettings.DbTableMouseClick_v1) (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, button TEXT)")
+            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS \(UserInputSettings.DbTableMouseScrolling_v1) (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, scrollDelta INTEGER)")
+            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS \(UserInputSettings.DbTableMouseMovement_v1) (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, movedDistance INTEGER)")
         }
         catch{
             print(error)

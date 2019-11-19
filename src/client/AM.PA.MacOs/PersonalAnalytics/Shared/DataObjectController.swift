@@ -190,7 +190,7 @@ class DataObjectController: NSObject{
                 input.distance]
             
             let q = """
-                    INSERT INTO user_input (time, tsStart, tsEnd, keyTotal, keyOther, keyBackspace, keyNavigate, clickTotal, clickOther, clickLeft, clickRight, scrollDelta, movedDistance)
+                    INSERT INTO \(UserInputSettings.DbTableUserInput_v2) (time, tsStart, tsEnd, keyTotal, keyOther, keyBackspace, keyNavigate, clickTotal, clickOther, clickLeft, clickRight, scrollDelta, movedDistance)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """
             
