@@ -7,7 +7,6 @@
 
 import Cocoa
 import Foundation
-import CoreData
 
 struct Questionnaire {
     var timestamp: Date
@@ -63,7 +62,7 @@ class EmotionTracker: ITracker {
         let dbController = DatabaseController.getDatabaseController()
 
         do{
-            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS EmotionalState (id INTEGER PRIMARY KEY, timestamp TEXT, activity TEXT, valence INTEGER, arousal INTEGER)");
+            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS emotional_state (id INTEGER PRIMARY KEY, timestamp TEXT, activity TEXT, valence INTEGER, arousal INTEGER)");
         }
         catch{
             print(error)

@@ -19,15 +19,15 @@ class TaskProductivityTracker: ITracker{
     var notificationTimer: Timer?
     var isIdle = false
     var isPaused = false
-    let summaryIntervalMinutes: Double = 90
+    let summaryIntervalMinutes: Double = 60
     //var notificationsDisabled: Boolean = false
 
 
     init(){
         name = "User Efficiency Survey"
         isRunning = true
-        //notificationTimer = Timer.scheduledTimer(timeInterval: summaryIntervalMinutes * 60.0, target: self, selector: #selector(showNotificationThatLinksToSummary), userInfo: nil, repeats: true)
-        //notificationTimer?.tolerance = 120
+        notificationTimer = Timer.scheduledTimer(timeInterval: summaryIntervalMinutes * 60.0, target: self, selector: #selector(showNotificationThatLinksToSummary), userInfo: nil, repeats: true)
+        notificationTimer?.tolerance = 120
         
         NotificationCenter.default.addObserver(self, selector: #selector(self.handleIdle(_:)), name: NSNotification.Name(rawValue: "isIdle"), object: nil)
     }

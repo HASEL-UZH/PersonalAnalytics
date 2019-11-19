@@ -43,30 +43,30 @@ class ProductivitySQLController: SQLController{
             end = getEndHour(date: date)
         }
         
+        let startStr = DateFormatConverter.interval1970ToDateStr(interval: start)
+        let endStr = DateFormatConverter.interval1970ToDateStr(interval: end)
         
         do{
-            var query = "SELECT * FROM ZACTIVEAPPLICATION"
-            query += " WHERE ZSTARTTIME >= " + String(start)
-            query += " AND ZENDTIME <= " + String(end)
-            query += " AND ZNAME IN (SELECT ZNAME FROM ZACTIVEAPPLICATION"
-            query += " WHERE ZSTARTTIME >= " + String(start)
-            query += " AND ZENDTIME <= " + String(end)
-            query += " AND ZNAME <> 'Idle'"
-            query += " AND ZNAME <> 'System Events'"
-            query += " GROUP BY ZNAME"
-            query += " ORDER BY SUM(ZENDTIME-ZSTARTTIME) DESC"
-            query += " LIMIT " + String(max) + ")"
-            query += " ORDER BY ZSTARTTIME"
+            let query = """
+                        SELECT * FROM windows_activity
+                        WHERE tsStart >= '\(startStr)' AND tsEnd <= '\(endStr)' AND process IN
+                            (SELECT process FROM windows_activity
+                            WHERE tsStart >= '\(startStr)' AND tsEnd <= '\(endStr)' AND process <> 'Idle' AND process <> 'System Events'
+                            GROUP BY process
+                            ORDER BY SUM((strftime('%s', tsEnd) - strftime('%s', tsStart))) DESC
+                            LIMIT \(max))
+                        ORDER BY tsStart
+                        """
             
             let rows = try dbQueue.inDatabase{ db in
-                try Row.fetchAll(db, query)
+                try Row.fetchAll(db, sql: query)
             }
             
             for row in rows{
-                let start: TimeInterval = row["ZSTARTTIME"]
-                let end: TimeInterval = row["ZENDTIME"]
-                let name: String = row["ZNAME"]
-                var title: String? = row["ZTITLE"]
+                let start: TimeInterval = DateFormatConverter.dateStrToInterval1970(str: row["tsStart"])
+                let end: TimeInterval = DateFormatConverter.dateStrToInterval1970(str: row["tsEnd"])
+                let name: String = row["process"]
+                var title: String? = row["window"]
                 //TODO: remove later
                 if(title == nil){
                     title = ""
@@ -85,30 +85,38 @@ class ProductivitySQLController: SQLController{
         
         let start: TimeInterval
         let end: TimeInterval
+        let table: String
+        
         if(type == "week"){
             start = date.startOfWeek!.timeIntervalSince1970
             end = date.endOfWeek!.timeIntervalSince1970
+            // TODO: table name from settings
+            table = "user_efficiency_survey_day"
         }
         else{
             start = getStartHour(date: date)
             end = getEndHour(date: date)
+            table = "user_efficiency_survey"
         }
         
         var resultDict = [TimeInterval:Int]()
-
+        let startStr = DateFormatConverter.interval1970ToDateStr(interval: start)
+        let endStr = DateFormatConverter.interval1970ToDateStr(interval: end)
         
         do{
-            var query = "SELECT * FROM ZSUMMARY "
-            query += "WHERE ZSUBMISSIONTIME >= " + String(start)
-            query += " AND ZSUBMISSIONTIME < " + String(end)
-            
+            let query = """
+                        SELECT * FROM \(table)
+                        WHERE time >= '\(startStr)' AND time < '\(endStr)'
+                        """
+
             let results = try dbQueue.inDatabase{ db in
-                try Row.fetchAll(db, query)
+                try Row.fetchAll(db, sql: query)
             }
             
             
             for result in results{
-                resultDict[result["ZSUBMISSIONTIME"]] = result["ZPERCIEVEDPRODUCTIVITY"]
+                let interval = DateFormatConverter.dateStrToInterval1970(str: result["time"])
+                resultDict[interval] = result["userProductivity"]
             }
         }
         catch{
@@ -118,5 +126,4 @@ class ProductivitySQLController: SQLController{
         return resultDict
         
     }
-    
 }

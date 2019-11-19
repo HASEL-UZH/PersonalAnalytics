@@ -41,7 +41,6 @@ class EmotionPopUpWindowController: NSWindowController {
     }
 
     @objc func showEmotionPopUp(_ sender: AnyObject) {
-        DataObjectController.sharedInstance.saveContext()
         self.showWindow(nil)
         NSApp.activate(ignoringOtherApps: true)
 

@@ -25,10 +25,12 @@ class UserInputTracker: ITracker{
 
     
     let dataController : DataObjectController
-    var clickCount: Int
+    var leftClickCount: Int
+    var rightClickCount: Int
     var distance: Int
     var scrollDelta: Int
-    var time: Date
+    var tsStart: Date
+    var tsEnd: Date
     var keyCount: Int
     var navigateCount: Int
     var deleteCount: Int
@@ -43,8 +45,10 @@ class UserInputTracker: ITracker{
         self.dataController = DataObjectController.sharedInstance
         mouseController = MouseActionController()
         keystrokeController = KeystrokeController()
-        self.time = Date()
-        self.clickCount = 0
+        self.tsStart = Date()
+        self.tsEnd = Date()
+        self.leftClickCount = 0
+        self.rightClickCount = 0
         self.distance = 0
         self.keyCount = 0
         self.navigateCount = 0
@@ -66,10 +70,11 @@ class UserInputTracker: ITracker{
     func createDatabaseTablesIfNotExist() {
         let dbController = DatabaseController.getDatabaseController()
         do{
-            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS " + Settings.DbTableKeyboard_v1 + " (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, keystrokeType TEXT)");
-            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS " + Settings.DbTableMouseClick_v1 + " (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, button TEXT)");
-            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS " + Settings.DbTableMouseScrolling_v1 + " (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, scrollDelta INTEGER)");
-            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS " + Settings.DbTableMouseMovement_v1 + " (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, movedDistance INTEGER)");
+            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS \(Settings.DbTableUserInput_v2) (id INTEGER PRIMARY KEY, time TEXT, tsStart TEXT, tsEnd TEXT, keyTotal INTEGER, keyOther INTEGER, keyBackspace INTEGER, keyNavigate INTEGER, clickTotal INTEGER, clickOther INTEGER, clickLeft INTEGER, clickRight INTEGER, scrollDelta INTEGER, movedDistance INTEGER)")
+            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS \(Settings.DbTableKeyboard_v1) (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, keystrokeType TEXT)")
+            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS \(Settings.DbTableMouseClick_v1) (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, button TEXT)")
+            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS \(Settings.DbTableMouseScrolling_v1) (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, scrollDelta INTEGER)")
+            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS \(Settings.DbTableMouseMovement_v1) (id INTEGER PRIMARY KEY, time TEXT, timestamp TEXT, x INTEGER, y INTEGER, movedDistance INTEGER)")
         }
         catch{
             print(error)
@@ -119,12 +124,13 @@ class UserInputTracker: ITracker{
     }
 
     @objc func save(){
-        (clickCount, scrollDelta, distance) = mouseController.getValues()
+        (leftClickCount, rightClickCount, scrollDelta, distance) = mouseController.getValues()
         mouseController.reset()
         (keyCount, navigateCount, deleteCount) = keystrokeController.getValues()
         keystrokeController.reset()
-        time = Date()
+        tsEnd = Date()
         dataController.saveUserInput(aggregatedInput: self)
+        tsStart = Date() // reset for next aggregate
     }
     
     deinit{

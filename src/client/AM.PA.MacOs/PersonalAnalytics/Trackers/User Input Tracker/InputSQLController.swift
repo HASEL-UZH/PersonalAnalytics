@@ -20,17 +20,17 @@ class InputSQLController: SQLController {
         
         do{
             try dbQueue.inDatabase{ db in
-                let rows = try Row.fetchCursor(db, "SELECT COUNT(*) FROM ZAGGREGATEDINPUT")
+                let rows = try Row.fetchCursor(db, sql: "SELECT COUNT(*) FROM user_input")
                 if let row = try rows.next(){
                     let count:Int = row["COUNT(*)"]
                     
                     if count > 100 {
-                        let rows = try Row.fetchCursor(db, "SELECT SUM(ZCLICKCOUNT), SUM(ZKEYTOTAL), SUM(ZSCROLLDELTA), SUM(ZDISTANCE) FROM ZAGGREGATEDINPUT")
+                        let rows = try Row.fetchCursor(db, sql: "SELECT SUM(clickTotal), SUM(keyTotal), SUM(scrollDelta), SUM(movedDistance) FROM user_input")
                         if let row = try rows.next(){
-                            let clicks:Double = row["SUM(ZCLICKCOUNT)"]
-                            let keystrokes:Double = row["SUM(ZKEYTOTAL)"]
-                            let scrolls:Double = row["SUM(ZSCROLLDELTA)"]
-                            let distance:Double = row["SUM(ZDISTANCE)"]
+                            let clicks:Double = row["SUM(clickTotal)"]
+                            let keystrokes:Double = row["SUM(keyTotal)"]
+                            let scrolls:Double = row["SUM(scrollDelta)"]
+                            let distance:Double = row["SUM(movedDistance)"]
                             if(!(clicks == 0 || scrolls == 0 || distance == 0 || keystrokes == 0)){
                                 MouseClickKeyboardRatio = (keystrokes)/(clicks)
                                 MouseScrollingRatio = (keystrokes)/(scrolls)
@@ -50,11 +50,10 @@ class InputSQLController: SQLController {
     
     func calculateInputLevel(row: Row) -> Int {
         var inputLevel: Double = 0
-        
-        inputLevel += row["ZCLICKCOUNT"] * MouseClickKeyboardRatio
-        inputLevel += row["ZKEYTOTAL"]
-        inputLevel += row["ZSCROLLDELTA"] * MouseScrollingRatio
-        inputLevel += row["ZDISTANCE"] * MouseMovementRatio
+        inputLevel += row["clickTotal"] * MouseClickKeyboardRatio
+        inputLevel += row["keyTotal"]
+        inputLevel += row["scrollDelta"] * MouseScrollingRatio
+        inputLevel += row["movedDistance"] * MouseMovementRatio
     
         inputLevel.round()
         return Int(inputLevel)
@@ -67,7 +66,7 @@ class InputSQLController: SQLController {
         do{
 
             try dbQueue.inDatabase{ db in
-                let rows = try Row.fetchCursor(db, "SELECT * FROM ZAGGREGATEDINPUT")
+                let rows = try Row.fetchCursor(db, "SELECT * FROM user_input")
                 inputLevel = calculateInputLevel(row: rows)
             }
         }
@@ -102,19 +101,19 @@ class InputSQLController: SQLController {
     
     func GetUserInputTimelineData(date: Date) -> Dictionary<TimeInterval,Int>{
         let start = getStartHour(date:date)
+        let startStr = DateFormatConverter.interval1970ToDateStr(interval: start)
         let end = getEndHour(date:date)
-                
+        let endStr = DateFormatConverter.interval1970ToDateStr(interval: end)
+        
         let intervalSize: TimeInterval = 600 //10 minute intervals
         var current = start
         
         var results = [TimeInterval: Int]()
         
-        
         do{
-            var query = "SELECT * FROM ZAGGREGATEDINPUT WHERE ZTIME>=" + String(start)
-            query += " AND ZTIME <" + String(end)
+            let query = "SELECT * FROM user_input WHERE tsStart >= '\(startStr)' AND tsEnd < '\(endStr)'"
             let rows = try dbQueue.inDatabase{ db in
-                try Row.fetchAll(db, query)
+                try Row.fetchAll(db, sql: query)
             }
             
             while(current < end){
@@ -123,10 +122,11 @@ class InputSQLController: SQLController {
                 //print(inputLevel)
 
                 for row in rows{
-                    if(row["ZTIME"] < current){
+                    let time = DateFormatConverter.dateStrToInterval1970(str: row["time"])
+                    if(time < current){
                         continue
                     }
-                    else if(row["ZTIME"] >= next){
+                    else if(time >= next){
                         break
                     }
                     else{

@@ -11,36 +11,22 @@ import Cocoa
 import CoreData
 class SummaryViewController: NSViewController {
 
-    let previousTask: String = DataObjectController.sharedInstance.previousTask
-
-    var taskName: String?
     var percievedProductivity: Int = 1
-    var estimatedTotalTime: Double = 0.5
-    var estimatedTaskCompletionPercent: Int = 25
-    var similarityToPreviousTask: Int = 0
-    var hidePreviousTaskElements: Bool {
-        return previousTask == ""
-    }
-
-    
+    var surveyStartTime: Date = Date()
+    var surveyNotifyTime: Date = Date()
+       
     @IBAction func submit(_ sender: NSButton) {
-        if let taskName = taskName{
-            DataObjectController.sharedInstance.saveSummary(taskName, totalEsimatedTime: estimatedTotalTime, percentageDone: estimatedTaskCompletionPercent, percentSimilarToBefore: similarityToPreviousTask, createdByUser: true, percievedProductivity: percievedProductivity)
-                NotificationCenter.default.post(name: Notification.Name(rawValue: AppConstants.summarySubmittedNotification), object: nil)
-                print("Submitted \(taskName): \(estimatedTotalTime), \(estimatedTaskCompletionPercent), \(similarityToPreviousTask)")
-        } else {
-            let noTaskNotification = NSUserNotification()
-            noTaskNotification.title = "No task entered"
-            noTaskNotification.informativeText = "Please enter task into taskbar"
-            noTaskNotification.hasActionButton = false
-            NSUserNotificationCenter.default.deliver(noTaskNotification)
-            // Send NSUserNotification saying thanks!
-        }
-
+                
+        DataObjectController.sharedInstance.saveUserEfficiency(userProductivity: percievedProductivity, surveyNotifyTime: surveyNotifyTime, surveyStartTime: surveyStartTime, surveyEndTime: Date())
+        
+        NotificationCenter.default.post(name: Notification.Name(rawValue: AppConstants.summarySubmittedNotification), object: nil)
+        
+        print("Submitted user efficiency update")
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        surveyStartTime = Date()
         print("****** summarycontroller being allocated!!!! *****")
     }
     deinit{
