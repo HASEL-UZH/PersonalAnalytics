@@ -143,30 +143,6 @@ class DataObjectController: NSObject{
     }
     
     
-    func saveActiveApplication(app: ActiveApplication) {
-        let dbController = DatabaseController.getDatabaseController()
-        
-        do {
-            let args:StatementArguments = [
-                app.time,
-                app.tsStart,
-                app.tsEnd,
-                app.window,
-                app.process
-            ]
-            
-            let q = """
-                    INSERT INTO windows_activity (time, tsStart, tsEnd, window, process)
-                    VALUES (?, ?, ?, ?, ?)
-                    """
-                   
-            try dbController.executeUpdate(query: q, arguments:args)
-                   
-        } catch {
-            print(error)
-        }
-    }
-    
     func buildCSVString(input: [UserInputQueries.AggregatedInputEntry]) -> String{
         var result = "Time,KeyTotal,ClickCount,Distance,ScrollDelta\n"
         for row in input {
@@ -179,7 +155,7 @@ class DataObjectController: NSObject{
         return result
     }
     
-    func buildCSVString(input: [SQLController.ActiveApplicationEntry]) -> String{
+    func buildCSVString(input: [WindowsActivityQueries.ActiveApplicationEntry]) -> String{
         var result = "StartTime,EndTime,AppName,WindowTitle\n"
         for row in input {
             result += String(row.startTime) + ","
@@ -211,11 +187,12 @@ class DataObjectController: NSObject{
     func exportStudyData(startTime: Double){
         do{
             let sql = try SQLController()
-            let activeApplications = sql.fetchActiveApplicationsSince(time: startTime)
+    
             let emotionalStates = sql.fetchEmotionalStateSince(time: startTime)
             
             // TODO: this will need refactoring. We should not user UserInputQueries here
             let aggregatedInput = UserInputQueries.fetchAggregatedInputSince(time: startTime)
+            let activeApplications = WindowsActivityQueries.fetchActiveApplicationsSince(time: startTime)
             
             let inputString = buildCSVString(input: aggregatedInput)
             let appString = buildCSVString(input: activeApplications)

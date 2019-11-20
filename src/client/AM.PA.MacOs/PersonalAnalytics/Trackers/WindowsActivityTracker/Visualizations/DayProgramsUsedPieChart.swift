@@ -14,13 +14,11 @@ class DayProgamsUsedPieChart: IVisualization {
     let Size:String
     let color = AppConstants.retrospectiveColor
     var title: String
-    let sql: ActivitySQLController
     var _type: [String] = [VisConstants.Day]
     let _minTimeWorked = 0.0
     
     required init() throws{
         Size = "Square"
-        sql = try ActivitySQLController()
         title = "Top Programs Used"
     }
     
@@ -44,7 +42,7 @@ class DayProgamsUsedPieChart: IVisualization {
         /////////////////////
         //var chartQueryPieChartData = new Dictionary<string, long>();
         var chartQueryResultsLocal: [String:Double]
-        chartQueryResultsLocal = sql.GetActivityPieChartData(date: _date)
+        chartQueryResultsLocal = WindowsActivityQueries.GetActivityPieChartData(date: _date)
         
         
         // merge with remote data if necessary //TODO: REMOTE DATA

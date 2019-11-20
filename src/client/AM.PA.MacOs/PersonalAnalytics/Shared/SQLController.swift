@@ -17,42 +17,11 @@ class SQLController{
         return appSupportURL.appendingPathComponent("PersonalAnalytics")
     }()
     
-    struct ActiveApplicationEntry {
-        var windowTitle: String
-        var appName: String
-        var startTime: Double
-        var endTime: Double
-    }
-    
     struct EmotionalStateEntry {
         var timestamp: Double
         var activity: String
         var valence: Int
         var arousal: Int
-    }
-    
-    func fetchActiveApplicationsSince(time: Double) -> [ActiveApplicationEntry] {
-        var results: [ActiveApplicationEntry] = []
-
-        do{
-            let timeStr = DateFormatConverter.interval1970ToDateStr(interval: time)
-            let query: String = "SELECT * FROM windows_activity WHERE tsStart >= \(timeStr) ORDER BY tsStart"
-            let rows = try dbQueue.inDatabase{ db in
-                try Row.fetchAll(db, sql: query)
-            }
-            for row in rows {
-                let startTime: Double = DateFormatConverter.dateStrToInterval1970(str: row["tsStart"])
-                let endTime: Double = DateFormatConverter.dateStrToInterval1970(str: row["tsEnd"])
-                let appName: String = row["process"]
-                let windowTitle: String = row["window"]
-                
-                results.append(ActiveApplicationEntry(windowTitle: windowTitle, appName: appName, startTime: startTime, endTime: endTime))
-            }
-        }
-        catch{
-            print(error)
-        }
-        return results
     }
     
 

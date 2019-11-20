@@ -237,7 +237,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         }
         
         TrackerManager.shared.register(tracker: UserInputTracker())
-        TrackerManager.shared.register(tracker: ActiveApplicationTracker())
+        TrackerManager.shared.register(tracker: WindowsActivityTracker())
         //TrackerManager.shared.register(tracker: TaskProductivityTracker())
         //TrackerManager.shared.register(tracker: EmotionTracker())
         

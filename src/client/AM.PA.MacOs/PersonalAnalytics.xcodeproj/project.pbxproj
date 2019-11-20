@@ -23,6 +23,7 @@
 		B017DECF237964C800B0EB19 /* DateFormatConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B017DECE237964C800B0EB19 /* DateFormatConverter.swift */; };
 		B061EC262382F52F005AD5FD /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B061EC252382F52F005AD5FD /* WebKit.framework */; };
 		B0BA0F7A2384062A00042775 /* UserInputSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BA0F792384062A00042775 /* UserInputSettings.swift */; };
+		B0CAC0EC23852B24002DBC55 /* WindowsActivitySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAC0EB23852B24002DBC55 /* WindowsActivitySettings.swift */; };
 		B904C25C1F01AEF000624D9C /* TrackerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B904C25B1F01AEF000624D9C /* TrackerManager.swift */; };
 		B90790251F01CC27003B9CF7 /* TaskProductivityTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90790241F01CC27003B9CF7 /* TaskProductivityTracker.swift */; };
 		B958F34E1EE0CB7600E54D81 /* ASHDatePicker.m in Sources */ = {isa = PBXBuildFile; fileRef = B958F34D1EE0CB7600E54D81 /* ASHDatePicker.m */; };
@@ -56,10 +57,10 @@
 		B9873A7C1EBA92DA0050E864 /* UserInputTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9873A7B1EBA92DA0050E864 /* UserInputTracker.swift */; };
 		B9A0B7A51EDA373900BE6F71 /* ITracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7A41EDA373900BE6F71 /* ITracker.swift */; };
 		B9A0B7A71EDA540F00BE6F71 /* IVisualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7A61EDA540F00BE6F71 /* IVisualization.swift */; };
-		B9A0B7AA1EDC924300BE6F71 /* ActiveApplicationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7A91EDC924300BE6F71 /* ActiveApplicationTracker.swift */; };
+		B9A0B7AA1EDC924300BE6F71 /* WindowsActivityTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7A91EDC924300BE6F71 /* WindowsActivityTracker.swift */; };
 		B9A0B7AC1EDCB8B600BE6F71 /* SQLController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7AB1EDCB8B600BE6F71 /* SQLController.swift */; };
 		B9A0B7AE1EDCBCFD00BE6F71 /* DayProgramsUsedPieChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7AD1EDCBCFD00BE6F71 /* DayProgramsUsedPieChart.swift */; };
-		B9A0B7B01EDCC42F00BE6F71 /* ActivitySQLController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7AF1EDCC42E00BE6F71 /* ActivitySQLController.swift */; };
+		B9A0B7B01EDCC42F00BE6F71 /* WindowsActivityQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7AF1EDCC42E00BE6F71 /* WindowsActivityQueries.swift */; };
 		B9A0B7B21EDCE0EA00BE6F71 /* DayMostFocusedProgram.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7B11EDCE0EA00BE6F71 /* DayMostFocusedProgram.swift */; };
 		B9A310371EC4E985003B2470 /* PreferencesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A310361EC4E985003B2470 /* PreferencesViewController.swift */; };
 		B9A3103B1EC50C1E003B2470 /* PreferencesView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B9A3103A1EC50C1E003B2470 /* PreferencesView.xib */; };
@@ -131,6 +132,7 @@
 		B017DECE237964C800B0EB19 /* DateFormatConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatConverter.swift; sourceTree = "<group>"; };
 		B061EC252382F52F005AD5FD /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		B0BA0F792384062A00042775 /* UserInputSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInputSettings.swift; sourceTree = "<group>"; };
+		B0CAC0EB23852B24002DBC55 /* WindowsActivitySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowsActivitySettings.swift; sourceTree = "<group>"; };
 		B904C25B1F01AEF000624D9C /* TrackerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TrackerManager.swift; sourceTree = "<group>"; };
 		B90790241F01CC27003B9CF7 /* TaskProductivityTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaskProductivityTracker.swift; sourceTree = "<group>"; };
 		B958F34C1EE0CB7600E54D81 /* ASHDatePicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASHDatePicker.h; sourceTree = "<group>"; };
@@ -165,10 +167,10 @@
 		B9873A7B1EBA92DA0050E864 /* UserInputTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserInputTracker.swift; sourceTree = "<group>"; };
 		B9A0B7A41EDA373900BE6F71 /* ITracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ITracker.swift; sourceTree = "<group>"; };
 		B9A0B7A61EDA540F00BE6F71 /* IVisualization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IVisualization.swift; sourceTree = "<group>"; };
-		B9A0B7A91EDC924300BE6F71 /* ActiveApplicationTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActiveApplicationTracker.swift; sourceTree = "<group>"; };
+		B9A0B7A91EDC924300BE6F71 /* WindowsActivityTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WindowsActivityTracker.swift; sourceTree = "<group>"; };
 		B9A0B7AB1EDCB8B600BE6F71 /* SQLController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SQLController.swift; sourceTree = "<group>"; };
 		B9A0B7AD1EDCBCFD00BE6F71 /* DayProgramsUsedPieChart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DayProgramsUsedPieChart.swift; sourceTree = "<group>"; };
-		B9A0B7AF1EDCC42E00BE6F71 /* ActivitySQLController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActivitySQLController.swift; sourceTree = "<group>"; };
+		B9A0B7AF1EDCC42E00BE6F71 /* WindowsActivityQueries.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WindowsActivityQueries.swift; sourceTree = "<group>"; };
 		B9A0B7B11EDCE0EA00BE6F71 /* DayMostFocusedProgram.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DayMostFocusedProgram.swift; sourceTree = "<group>"; };
 		B9A310361EC4E985003B2470 /* PreferencesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferencesViewController.swift; sourceTree = "<group>"; };
 		B9A3103A1EC50C1E003B2470 /* PreferencesView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PreferencesView.xib; sourceTree = "<group>"; };
@@ -347,10 +349,11 @@
 			isa = PBXGroup;
 			children = (
 				B97A0E3B1EE77689000DCCEC /* Visualizations */,
-				B9A0B7A91EDC924300BE6F71 /* ActiveApplicationTracker.swift */,
-				B9A0B7AF1EDCC42E00BE6F71 /* ActivitySQLController.swift */,
+				B9A0B7A91EDC924300BE6F71 /* WindowsActivityTracker.swift */,
+				B9A0B7AF1EDCC42E00BE6F71 /* WindowsActivityQueries.swift */,
 				B9D50B7D1EDF443900145EC8 /* Activity.swift */,
 				B9D50B7F1EDF588E00145EC8 /* ActivityCategory.swift */,
+				B0CAC0EB23852B24002DBC55 /* WindowsActivitySettings.swift */,
 			);
 			path = WindowsActivityTracker;
 			sourceTree = "<group>";
@@ -604,7 +607,7 @@
 				B9851FE91ED6594A002C24AF /* VisHelper.swift in Sources */,
 				0DDEDB7C1BC61F57002B3E0D /* SummaryViewController.swift in Sources */,
 				B017DECF237964C800B0EB19 /* DateFormatConverter.swift in Sources */,
-				B9A0B7B01EDCC42F00BE6F71 /* ActivitySQLController.swift in Sources */,
+				B9A0B7B01EDCC42F00BE6F71 /* WindowsActivityQueries.swift in Sources */,
 				B9851FE11ED62CA9002C24AF /* Stats.swift in Sources */,
 				B9873A7C1EBA92DA0050E864 /* UserInputTracker.swift in Sources */,
 				B9851FE51ED64F2F002C24AF /* ActivityVisualization.swift in Sources */,
@@ -616,12 +619,13 @@
 				B90790251F01CC27003B9CF7 /* TaskProductivityTracker.swift in Sources */,
 				B9D50B6C1EDF38D300145EC8 /* DayFragmentationTimeline.swift in Sources */,
 				B9D50B7E1EDF443900145EC8 /* Activity.swift in Sources */,
+				B0CAC0EC23852B24002DBC55 /* WindowsActivitySettings.swift in Sources */,
 				A3B37CFF21DE0D35008784B1 /* EmotionPopUpWindowController.swift in Sources */,
 				B9873A7A1EBA5DEF0050E864 /* MouseActionController.swift in Sources */,
 				B9AA5C671F2939B500ED3432 /* WeekActivityVisualization.swift in Sources */,
 				B97A0E381EE5FA2E000DCCEC /* DayProductivityTimeline.swift in Sources */,
 				B9A0B7AE1EDCBCFD00BE6F71 /* DayProgramsUsedPieChart.swift in Sources */,
-				B9A0B7AA1EDC924300BE6F71 /* ActiveApplicationTracker.swift in Sources */,
+				B9A0B7AA1EDC924300BE6F71 /* WindowsActivityTracker.swift in Sources */,
 				B9D50B9E1EE0A62000145EC8 /* RetrospectiveWindowController.swift in Sources */,
 				B9851F941ED4B8E2002C24AF /* RetrospectiveViewController.swift in Sources */,
 				B97A0E641EE9F16E000DCCEC /* DayWeekProductivivityTimeline.swift in Sources */,

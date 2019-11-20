@@ -27,12 +27,10 @@ class WeekProgramsUsedTable: IVisualization{
     var title: String
     var _type: [String] = [VisConstants.Week]
     var color: String
-    var sql: ActivitySQLController
     
     required init() throws
     {
         Size = "Square"
-        sql = try ActivitySQLController()
         color = AppConstants.retrospectiveColor
         title = "Top Programs Used During the Week"
     }
@@ -143,7 +141,7 @@ class WeekProgramsUsedTable: IVisualization{
         // fetch & format data
         while (first < last)
         {
-            let programsDay = sql.GetActivityPieChartData(date: first)
+            let programsDay = WindowsActivityQueries.GetActivityPieChartData(date: first)
             let dayNumber = getDayOfWeek(first) - 1
             
             for program in programsDay
