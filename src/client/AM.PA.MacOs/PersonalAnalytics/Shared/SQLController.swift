@@ -6,33 +6,6 @@
 //
 
 import Foundation
-import GRDB
-
-class SQLController{
-    
-    var applicationDocumentsDirectory: URL = {
-        // The directory the application uses to store the Core Data store file. This code uses a directory named "PersonalAnalytics" in the user's Application Support directory.
-        let urls = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
-        let appSupportURL = urls[urls.count - 1]
-        return appSupportURL.appendingPathComponent("PersonalAnalytics")
-    }()
-    
-    
-    let dbQueue: DatabaseQueue
-    
-    init() throws{
-        ()
-        var config = Configuration()
-        config.readonly = true
-        do{
-            dbQueue = try DatabaseQueue(path: applicationDocumentsDirectory.appendingPathComponent("PersonalAnalytics.dat").absoluteString, configuration: config)
-        }
-        catch{
-            dbQueue = try DatabaseQueue(path: applicationDocumentsDirectory.appendingPathComponent("PersonalAnalytics.dat").absoluteString, configuration: config)
-        }
-        
-    }
-}
 
 
 // TODO: what to do with this function?

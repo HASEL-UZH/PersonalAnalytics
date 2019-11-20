@@ -135,9 +135,7 @@ class DataObjectController: NSObject{
     }
     
     func exportStudyData(startTime: Double){
-        do{
-            let sql = try SQLController()
-            
+        do{            
             // TODO: this will need refactoring. We should not user UserInputQueries here
             let aggregatedInput = UserInputQueries.fetchAggregatedInputSince(time: startTime)
             let activeApplications = WindowsActivityQueries.fetchActiveApplicationsSince(time: startTime)
