@@ -58,15 +58,7 @@ class EmotionTracker: ITracker {
 
 
     func createDatabaseTablesIfNotExist() {
-
-        let dbController = DatabaseController.getDatabaseController()
-
-        do{
-            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS emotional_state (id INTEGER PRIMARY KEY, timestamp TEXT, activity TEXT, valence INTEGER, arousal INTEGER)");
-        }
-        catch{
-            print(error)
-        }
+        EmotionTrackerQueries.createDatabaseTablesIfNotExist()
     }
 
     // Not yet implemented
@@ -132,7 +124,7 @@ class EmotionTracker: ITracker {
     }
 
     func save(questionnaire: Questionnaire){
-        dataController.saveEmotionalState(questionnaire: questionnaire)
+        EmotionTrackerQueries.saveEmotionalState(questionnaire: questionnaire)
     }
 
 }

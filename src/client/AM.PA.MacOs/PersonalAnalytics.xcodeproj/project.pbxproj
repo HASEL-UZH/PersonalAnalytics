@@ -25,6 +25,8 @@
 		B0BA0F7A2384062A00042775 /* UserInputSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BA0F792384062A00042775 /* UserInputSettings.swift */; };
 		B0CAC0EC23852B24002DBC55 /* WindowsActivitySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAC0EB23852B24002DBC55 /* WindowsActivitySettings.swift */; };
 		B0CAC0EE23854484002DBC55 /* UserEfficiencySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAC0ED23854484002DBC55 /* UserEfficiencySettings.swift */; };
+		B0CAC0F023854A68002DBC55 /* EmotionTrackerQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAC0EF23854A68002DBC55 /* EmotionTrackerQueries.swift */; };
+		B0CAC0F223854A83002DBC55 /* EmotionTrackerSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAC0F123854A83002DBC55 /* EmotionTrackerSettings.swift */; };
 		B904C25C1F01AEF000624D9C /* TrackerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B904C25B1F01AEF000624D9C /* TrackerManager.swift */; };
 		B90790251F01CC27003B9CF7 /* UserEfficiencyTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90790241F01CC27003B9CF7 /* UserEfficiencyTracker.swift */; };
 		B958F34E1EE0CB7600E54D81 /* ASHDatePicker.m in Sources */ = {isa = PBXBuildFile; fileRef = B958F34D1EE0CB7600E54D81 /* ASHDatePicker.m */; };
@@ -135,6 +137,8 @@
 		B0BA0F792384062A00042775 /* UserInputSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInputSettings.swift; sourceTree = "<group>"; };
 		B0CAC0EB23852B24002DBC55 /* WindowsActivitySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowsActivitySettings.swift; sourceTree = "<group>"; };
 		B0CAC0ED23854484002DBC55 /* UserEfficiencySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserEfficiencySettings.swift; sourceTree = "<group>"; };
+		B0CAC0EF23854A68002DBC55 /* EmotionTrackerQueries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmotionTrackerQueries.swift; sourceTree = "<group>"; };
+		B0CAC0F123854A83002DBC55 /* EmotionTrackerSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmotionTrackerSettings.swift; sourceTree = "<group>"; };
 		B904C25B1F01AEF000624D9C /* TrackerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TrackerManager.swift; sourceTree = "<group>"; };
 		B90790241F01CC27003B9CF7 /* UserEfficiencyTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserEfficiencyTracker.swift; sourceTree = "<group>"; };
 		B958F34C1EE0CB7600E54D81 /* ASHDatePicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASHDatePicker.h; sourceTree = "<group>"; };
@@ -263,7 +267,9 @@
 			children = (
 				A3B37CE921DD1CDC008784B1 /* EmotionPopUp.xib */,
 				A3B37CF221DD258C008784B1 /* EmotionTracker.swift */,
+				B0CAC0F123854A83002DBC55 /* EmotionTrackerSettings.swift */,
 				A3B37CFE21DE0D35008784B1 /* EmotionPopUpWindowController.swift */,
+				B0CAC0EF23854A68002DBC55 /* EmotionTrackerQueries.swift */,
 			);
 			path = EmotionTracker;
 			sourceTree = "<group>";
@@ -612,6 +618,7 @@
 				B017DECF237964C800B0EB19 /* DateFormatConverter.swift in Sources */,
 				B9A0B7B01EDCC42F00BE6F71 /* WindowsActivityQueries.swift in Sources */,
 				B9851FE11ED62CA9002C24AF /* Stats.swift in Sources */,
+				B0CAC0F023854A68002DBC55 /* EmotionTrackerQueries.swift in Sources */,
 				B9873A7C1EBA92DA0050E864 /* UserInputTracker.swift in Sources */,
 				B9851FE51ED64F2F002C24AF /* ActivityVisualization.swift in Sources */,
 				0DC4BF2D1BF2B57A00366771 /* WindowGrabber.m in Sources */,
@@ -632,6 +639,7 @@
 				B9A0B7AA1EDC924300BE6F71 /* WindowsActivityTracker.swift in Sources */,
 				B9D50B9E1EE0A62000145EC8 /* RetrospectiveWindowController.swift in Sources */,
 				B9851F941ED4B8E2002C24AF /* RetrospectiveViewController.swift in Sources */,
+				B0CAC0F223854A83002DBC55 /* EmotionTrackerSettings.swift in Sources */,
 				B97A0E641EE9F16E000DCCEC /* DayWeekProductivivityTimeline.swift in Sources */,
 				B9D50B801EDF588E00145EC8 /* ActivityCategory.swift in Sources */,
 				B0BA0F7A2384062A00042775 /* UserInputSettings.swift in Sources */,

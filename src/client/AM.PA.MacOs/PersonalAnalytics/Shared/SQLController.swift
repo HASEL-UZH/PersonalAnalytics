@@ -17,47 +17,6 @@ class SQLController{
         return appSupportURL.appendingPathComponent("PersonalAnalytics")
     }()
     
-    struct EmotionalStateEntry {
-        var timestamp: Double
-        var activity: String
-        var valence: Int
-        var arousal: Int
-    }
-    
-
-    func fetchEmotionalStateSince(time: Double) -> [EmotionalStateEntry] {
-
-        var results: [EmotionalStateEntry] = []
-        let timeStr = DateFormatConverter.interval1970ToDateStr(interval: time)
-        
-        do {
-            let query = """
-                        SELECT * FROM emotional_state
-                        WHERE timestamp >= '\(timeStr)'
-                        ORDER BY timestamp
-                        """
-            
-            let rows = try dbQueue.inDatabase { db in
-                try Row.fetchAll(db, sql: query)
-            }
-            
-            for row in rows {
-
-                let timestamp: Double = DateFormatConverter.dateStrToInterval1970(str: row["timestamp"])
-                let activity: String = row["activity"]
-                let valence: Int = row["valence"]
-                let arousal: Int = row["arousal"]
-
-                results.append(EmotionalStateEntry(timestamp: timestamp, activity: activity, valence: valence, arousal: arousal))
-            }
-
-        } catch {
-            print(error)
-        }
-
-        return results
-
-    }
     
     let dbQueue: DatabaseQueue
     

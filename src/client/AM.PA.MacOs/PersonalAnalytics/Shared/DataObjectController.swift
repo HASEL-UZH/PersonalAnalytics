@@ -92,32 +92,7 @@ class DataObjectController: NSObject{
     // (Percent)
     typealias Percent = Int
     
-    // MARK: - Save tracker data to sqlite
-   
-    func saveEmotionalState(questionnaire: Questionnaire) {
-        let dbController = DatabaseController.getDatabaseController()
         
-        do {
-            let args:StatementArguments = [
-                questionnaire.timestamp,
-                questionnaire.activity,
-                questionnaire.valence,
-                questionnaire.arousal
-            ]
-
-            let q = """
-                    INSERT INTO emotional_state (timestamp, activity, valence, arousal)
-                    VALUES (?, ?, ?, ?)
-                    """
-                   
-            try dbController.executeUpdate(query: q, arguments:args)
-                   
-        } catch {
-            print(error)
-        }
-    }
-    
-    
     func buildCSVString(input: [UserInputQueries.AggregatedInputEntry]) -> String{
         var result = "Time,KeyTotal,ClickCount,Distance,ScrollDelta\n"
         for row in input {
@@ -141,7 +116,7 @@ class DataObjectController: NSObject{
         return result
     }
 
-    func buildCSVString(input: [SQLController.EmotionalStateEntry]) -> String {
+    func buildCSVString(input: [EmotionTrackerQueries.EmotionalStateEntry]) -> String {
 
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat =  "yyyy-MM-dd HH:mm:ss"
@@ -162,12 +137,11 @@ class DataObjectController: NSObject{
     func exportStudyData(startTime: Double){
         do{
             let sql = try SQLController()
-    
-            let emotionalStates = sql.fetchEmotionalStateSince(time: startTime)
             
             // TODO: this will need refactoring. We should not user UserInputQueries here
             let aggregatedInput = UserInputQueries.fetchAggregatedInputSince(time: startTime)
             let activeApplications = WindowsActivityQueries.fetchActiveApplicationsSince(time: startTime)
+            let emotionalStates = EmotionTrackerQueries.fetchEmotionalStateSince(time: startTime)
             
             let inputString = buildCSVString(input: aggregatedInput)
             let appString = buildCSVString(input: activeApplications)
