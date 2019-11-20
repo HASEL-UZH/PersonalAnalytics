@@ -1,5 +1,5 @@
 //
-//  TaskProductivityTracker.swift
+//  UserEfficiencyTracker.swift
 //  PersonalAnalytics
 //
 //  Created by Chris Satterfield on 2017-06-26.
@@ -12,7 +12,7 @@ fileprivate enum Settings{
     static let DbTableDailyPopup = "user_efficiency_survey_day"
 }
 
-class TaskProductivityTracker: ITracker{
+class UserEfficiencyTracker: ITracker{
     
     var name: String
     var isRunning: Bool

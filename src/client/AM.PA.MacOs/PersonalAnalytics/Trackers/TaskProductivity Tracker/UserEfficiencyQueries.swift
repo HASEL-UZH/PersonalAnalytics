@@ -1,5 +1,5 @@
 //
-//  ProductivitySQLController.swift
+//  UserEfficiencyQueries.swift
 //  PersonalAnalytics
 //
 //  Created by Chris Satterfield on 2017-06-05.
@@ -8,7 +8,7 @@
 import Foundation
 import GRDB
 
-class ProductivitySQLController: SQLController{
+class UserEfficiencyQueries: SQLController{
     
     
     func CalculateLineChartAxisTicks(date: Date) -> String
