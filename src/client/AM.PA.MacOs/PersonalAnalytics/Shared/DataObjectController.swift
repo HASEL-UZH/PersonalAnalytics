@@ -93,32 +93,7 @@ class DataObjectController: NSObject{
     typealias Percent = Int
     
     // MARK: - Save tracker data to sqlite
-    
-    func saveUserEfficiency(userProductivity: Int, surveyNotifyTime: Date, surveyStartTime: Date, surveyEndTime: Date){
-        let dbController = DatabaseController.getDatabaseController()
-        
-        do {
-            let args:StatementArguments = [
-                Date(),
-                surveyNotifyTime,
-                surveyStartTime,
-                surveyEndTime,
-                userProductivity
-            ]
-            
-            let q = """
-                    INSERT INTO user_efficiency_survey (time, surveyNotifyTime, surveyStartTime, surveyEndTime, userProductivity)
-                    VALUES (?, ?, ?, ?, ?)
-                    """
-                    
-            try dbController.executeUpdate(query: q, arguments:args)
-                    
-        } catch {
-            print(error)
-        }
-    }
-
-    
+   
     func saveEmotionalState(questionnaire: Questionnaire) {
         let dbController = DatabaseController.getDatabaseController()
         

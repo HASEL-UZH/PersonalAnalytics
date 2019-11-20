@@ -17,7 +17,7 @@ class SummaryViewController: NSViewController {
        
     @IBAction func submit(_ sender: NSButton) {
                 
-        DataObjectController.sharedInstance.saveUserEfficiency(userProductivity: percievedProductivity, surveyNotifyTime: surveyNotifyTime, surveyStartTime: surveyStartTime, surveyEndTime: Date())
+        UserEfficiencyQueries.saveUserEfficiency(userProductivity: percievedProductivity, surveyNotifyTime: surveyNotifyTime, surveyStartTime: surveyStartTime, surveyEndTime: Date())
         
         NotificationCenter.default.post(name: Notification.Name(rawValue: AppConstants.summarySubmittedNotification), object: nil)
         

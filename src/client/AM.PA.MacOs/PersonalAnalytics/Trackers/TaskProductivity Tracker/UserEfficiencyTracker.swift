@@ -7,10 +7,6 @@
 
 import Foundation
 
-fileprivate enum Settings{
-    static let DbTableIntervalPopup = "user_efficiency_survey"
-    static let DbTableDailyPopup = "user_efficiency_survey_day"
-}
 
 class UserEfficiencyTracker: ITracker{
     
@@ -33,14 +29,7 @@ class UserEfficiencyTracker: ITracker{
     }
     
     func createDatabaseTablesIfNotExist() {
-        let dbController = DatabaseController.getDatabaseController()
-        do{
-            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS " + Settings.DbTableIntervalPopup + " (id INTEGER PRIMARY KEY, time TEXT, surveyNotifyTime TEXT, surveyStartTime TEXT, surveyEndTime TEXT, userProductivity NUMBER, column1 TEXT, column2 TEXT, column3 TEXT, column4 TEXT, column5 TEXT, column6 TEXT, column7 TEXT, column8 TEXT )");
-            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS " + Settings.DbTableDailyPopup + " (id INTEGER PRIMARY KEY, time TEXT, workDay TEXT, surveyNotifyTime TEXT, surveyStartTime TEXT, surveyEndTime TEXT, userProductivity NUMBER, column1 TEXT, column2 TEXT, column3 TEXT, column4 TEXT, column5 TEXT, column6 TEXT, column7 TEXT, column8 TEXT )");
-        }
-        catch{
-            print(error)
-        }
+        UserEfficiencyQueries.createDatabaseTablesIfNotExist()
     }
     
     func updateDatabaseTables(version: Int) {
