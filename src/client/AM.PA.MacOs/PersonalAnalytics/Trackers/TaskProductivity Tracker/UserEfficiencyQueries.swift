@@ -47,8 +47,8 @@ class UserEfficiencyQueries {
     }
     
     static func CalculateLineChartAxisTicks(date: Date) -> String {
-        let start = getStartHour(date: date)
-        let end = getEndHour(date: date)
+        let start = date.getStartHour()
+        let end = date.getEndHour()
         
         let intervalSize: TimeInterval = 3600 //60 minute intervals
         
@@ -74,8 +74,8 @@ class UserEfficiencyQueries {
             end = date.endOfWeek!.timeIntervalSince1970
         }
         else{
-            start = getStartHour(date: date)
-            end = getEndHour(date: date)
+            start = date.getStartHour()
+            end = date.getEndHour()
         }
         
         let startStr = DateFormatConverter.interval1970ToDateStr(interval: start)
@@ -127,8 +127,8 @@ class UserEfficiencyQueries {
             table = UserEfficiencySettings.DbTableDailyPopup
         }
         else{
-            start = getStartHour(date: date)
-            end = getEndHour(date: date)
+            start = date.getStartHour()
+            end = date.getEndHour()
             table = UserEfficiencySettings.DbTableIntervalPopup
         }
         

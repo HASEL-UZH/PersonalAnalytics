@@ -163,8 +163,8 @@ class UserInputQueries {
     }*/
     
     static func CalculateLineChartAxisTicks(date: Date) -> String {
-        let start = getStartHour(date: date)
-        let end = getEndHour(date: date)
+        let start = date.getStartHour()
+        let end = date.getEndHour()
         
         let intervalSize: TimeInterval = 3600 //60 minute intervals
         
@@ -184,8 +184,8 @@ class UserInputQueries {
     
     static func GetUserInputTimelineData(date: Date) -> Dictionary<TimeInterval,Int> {
         let dbController = DatabaseController.getDatabaseController()
-        let start = getStartHour(date:date)
-        let end = getEndHour(date:date)
+        let start = date.getStartHour()
+        let end = date.getEndHour()
         
         let startStr = DateFormatConverter.interval1970ToDateStr(interval: start)
         let endStr = DateFormatConverter.interval1970ToDateStr(interval: end)

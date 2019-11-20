@@ -12,8 +12,8 @@ class WindowsActivityQueries {
     
 //    func getTaskTimes(date: Date, task: String) -> [(TimeInterval, TimeInterval)]{
 //
-//        let startStr = DateFormatConverter.interval1970ToDateStr(interval: getStartHour(date: date))
-//        let endStr = DateFormatConverter.interval1970ToDateStr(interval: getEndHour(date: date))
+//        let startStr = DateFormatConverter.interval1970ToDateStr(interval: date.getStartHour())
+//        let endStr = DateFormatConverter.interval1970ToDateStr(interval: date.getEndHour())
 //
 //        let query = "SELECT * FROM tasks WHERE task == \(task) AND start >= \(startStr) AND end <= \(endStr)"
 //        var results: [(TimeInterval, TimeInterval)] = []
@@ -55,7 +55,6 @@ class WindowsActivityQueries {
       }
       
     
-    
       static func saveActiveApplication(app: ActiveApplication) {
           let dbController = DatabaseController.getDatabaseController()
           
@@ -83,8 +82,8 @@ class WindowsActivityQueries {
     
     static func GetActivityPieChartData(date: Date) -> [String:Double] {
         let dbController = DatabaseController.getDatabaseController()
-        let startStr = DateFormatConverter.interval1970ToDateStr(interval: getStartHour(date: date))
-        let endStr = DateFormatConverter.interval1970ToDateStr(interval: getEndHour(date: date))
+        let startStr = DateFormatConverter.interval1970ToDateStr(interval: date.getStartHour())
+        let endStr = DateFormatConverter.interval1970ToDateStr(interval: date.getEndHour())
         
         var results =  [String: Double]()
     
@@ -131,8 +130,8 @@ class WindowsActivityQueries {
     
     static func GetLongestFocusOnProgram(date: Date) -> FocusedWorkDict? {
         let dbController = DatabaseController.getDatabaseController()
-        let startStr = DateFormatConverter.interval1970ToDateStr(interval: getStartHour(date:date))
-        let endStr = DateFormatConverter.interval1970ToDateStr(interval: getEndHour(date:date))
+        let startStr = DateFormatConverter.interval1970ToDateStr(interval: date.getStartHour())
+        let endStr = DateFormatConverter.interval1970ToDateStr(interval: date.getEndHour())
         
         do{
             let query = """
@@ -163,8 +162,8 @@ class WindowsActivityQueries {
     static func GetDayTimelineData(date: Date) -> [Activity]{
         var results: [Activity] = []
         let dbController = DatabaseController.getDatabaseController()
-        let startStr = DateFormatConverter.interval1970ToDateStr(interval: getStartHour(date: date))
-        let endStr = DateFormatConverter.interval1970ToDateStr(interval: getEndHour(date: date))
+        let startStr = DateFormatConverter.interval1970ToDateStr(interval: date.getStartHour())
+        let endStr = DateFormatConverter.interval1970ToDateStr(interval: date.getEndHour())
         
         do{
             let query = """
