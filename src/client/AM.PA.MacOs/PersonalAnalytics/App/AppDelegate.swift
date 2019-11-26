@@ -43,11 +43,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     var pauseItem : NSMenuItem?
     var isPaused: Bool = false
         
-    lazy var applicationDocumentsDirectory: URL = {
+    lazy var applicationDocumentsDirectory: URL = {        
         // The directory the application uses to store the Core Data store file. This code uses a directory named "PersonalAnalytics" in the user's Application Support directory.
         let urls = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
         let appSupportURL = urls[urls.count - 1]
-        return appSupportURL.appendingPathComponent("PersonalAnalytics")
+        return appSupportURL.appendingPathComponent(Environment.appSupportDir)
     }()
     
     // MARK: -- Menu Bar Info
@@ -114,7 +114,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(delegate.quit), keyEquivalent: "q"))
 
         // Setting up the summary popup
-        statusItem.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImage"))
+        statusItem.image = NSImage(named: NSImage.Name(rawValue: Environment.statusBarIcon))
         setUpSummaryView()
         setUpPreferencesView()
         setUpRetrospective()
@@ -267,13 +267,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     }
     
     func launchPermissionPanel(){
-        var script: String
-        let version = ProcessInfo().operatingSystemVersionString as NSString
-        if  version.substring(to: 12) == "Version 10.7" || version.substring(to: 12) == "Version 10.8" {
-            script = "tell application \"System Preferences\" \n set the current pane to pane id \"com.apple.preference.universalaccess\" \n activate \n end tell"
-        } else {
-            script = "tell application \"System Preferences\" \n reveal anchor \"Privacy_Accessibility\" of pane id \"com.apple.preference.security\" \n activate \n end tell"
-        }
+        let script = """
+        tell application "System Preferences"
+        reveal anchor "Privacy_Accessibility" of pane id "com.apple.preference.security"
+        activate
+        end tell
+        """
+        
         let scriptObject = NSAppleScript(source: script)
         scriptObject?.executeAndReturnError(nil)
     }

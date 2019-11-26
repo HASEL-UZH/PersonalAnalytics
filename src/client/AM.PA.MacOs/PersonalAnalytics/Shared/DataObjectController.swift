@@ -21,12 +21,12 @@ class DatabaseController{
         // The directory the application uses to store the Core Data store file. This code uses a directory named "PersonalAnalytics" in the user's Application Support directory.
         let urls = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
         let appSupportURL = urls[urls.count - 1]
-        return appSupportURL.appendingPathComponent("PersonalAnalytics")
+        return appSupportURL.appendingPathComponent(Environment.appSupportDir)
     }()
     
     fileprivate init(){
         do{
-            dbQueue = try DatabaseQueue(path: applicationDocumentsDirectory.appendingPathComponent("PersonalAnalytics.dat").absoluteString)
+            dbQueue = try DatabaseQueue(path: applicationDocumentsDirectory.appendingPathComponent(Environment.sqliteDbName).absoluteString)
         }
         catch{
             fatalError("Could not initialize Database: \(error)")

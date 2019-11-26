@@ -22,6 +22,8 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>LSApplicationCategoryType</key>
+	<string></string>
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>LSMultipleInstancesProhibited</key>
@@ -32,5 +34,11 @@
 	<string>Main</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>STATUS_BAR_ICON</key>
+	<string>$(STATUS_BAR_ICON)</string>
+	<key>APP_SUPPORT_DIR</key>
+	<string>$(APP_SUPPORT_DIR)</string>
+	<key>SQLITE_DB_NAME</key>
+	<string>$(SQLITE_DB_NAME)</string>
 </dict>
 </plist>

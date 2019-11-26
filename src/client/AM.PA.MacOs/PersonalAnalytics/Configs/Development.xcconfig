@@ -1,0 +1,15 @@
+//
+//  Development.xcconfig
+//  PersonalAnalytics
+//
+//  Created by Roy Rutishauser on 25.11.19.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+#include "Pods/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics.debug.xcconfig"
+
+STATUS_BAR_ICON = StatusBarButtonImageDev
+APP_SUPPORT_DIR = PersonalAnalytics Dev
+SQLITE_DB_NAME = PersonalAnalytics.dat
