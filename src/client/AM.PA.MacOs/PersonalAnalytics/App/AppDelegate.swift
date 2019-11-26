@@ -188,6 +188,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         popover.behavior = .transient
     }
     
+    
     func resetSummaryView(){
         if(popover.isShown){
             popover.performClose(nil)
@@ -225,8 +226,45 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     }
     
     
-    
+    func createApplicationDocumentsDirectoryIfMissing() {
+        let fileManager = FileManager.default
+        var failError: NSError? = nil
+        var shouldFail = false
+        var failureReason = "There was an error creating or loading the application's saved data."
+        // Make sure the application files directory is there
+        do {
+            let properties = try (self.applicationDocumentsDirectory as NSURL).resourceValues(forKeys: [URLResourceKey.isDirectoryKey])
+            if !(properties[URLResourceKey.isDirectoryKey]! as AnyObject).boolValue {
+                failureReason = "Expected a folder to store application data, found a file \(self.applicationDocumentsDirectory.path)."
+                shouldFail = true
+            }
+        } catch  {
+            let nserror = error as NSError
+            if nserror.code == NSFileReadNoSuchFileError {
+                do {
+                    try fileManager.createDirectory(atPath: self.applicationDocumentsDirectory.path, withIntermediateDirectories: true, attributes: nil)
+                } catch {
+                    failError = nserror
+                }
+            } else {
+                failError = nserror
+            }
+        }
 
+        if shouldFail || (failError != nil) {
+            // Report any error we got.
+            var dict = [String: AnyObject]()
+            dict[NSLocalizedDescriptionKey] = "Failed to initialize the application's saved data" as AnyObject?
+            dict[NSLocalizedFailureReasonErrorKey] = failureReason as AnyObject?
+            if failError != nil {
+                dict[NSUnderlyingErrorKey] = failError
+            }
+            let error = NSError(domain: "YOUR_ERROR_DOMAIN", code: 9999, userInfo: dict)
+            NSApplication.shared.presentError(error)
+            abort()
+        }
+    }
+    
     
     // MARK: - Setup, teardown of application including timers
     func applicationDidFinishLaunching(_ aNotification: Notification) {
@@ -235,6 +273,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
             launchPermissionPanel()
             launchPermissionExplanationAlert()
         }
+        
+        createApplicationDocumentsDirectoryIfMissing()
         
         TrackerManager.shared.register(tracker: UserInputTracker())
         TrackerManager.shared.register(tracker: ActiveApplicationTracker())
