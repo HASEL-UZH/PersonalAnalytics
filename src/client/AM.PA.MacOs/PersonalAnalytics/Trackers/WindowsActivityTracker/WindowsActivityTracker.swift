@@ -150,9 +150,6 @@ class WindowsActivityTracker: ITracker{
                 saveCurrentApplicationToMemory()
             }
         }
-        else if(idleTime > 30 * 60){
-            NotificationCenter.default.post(name: NSNotification.Name(rawValue: "isIdle"), object: nil, userInfo: ["isidle":isIdle])
-        }
         else{
             if(isIdle){
                 isIdle = false
