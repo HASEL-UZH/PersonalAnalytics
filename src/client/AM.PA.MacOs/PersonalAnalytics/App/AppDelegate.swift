@@ -308,11 +308,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     
     func launchPermissionPanel(){
         let script = """
-        tell application "System Preferences"
-        reveal anchor "Privacy_Accessibility" of pane id "com.apple.preference.security"
-        activate
-        end tell
-        """
+                     tell application "System Preferences"
+                     reveal anchor "Privacy_Accessibility" of pane id "com.apple.preference.security"
+                     activate
+                     end tell
+                     """
         
         let scriptObject = NSAppleScript(source: script)
         scriptObject?.executeAndReturnError(nil)
