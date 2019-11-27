@@ -39,4 +39,18 @@ public enum Environment {
         }
         return dir
     }()
+    
+    static let retrospectivePort: String = {
+        guard let port = Environment.infoDictionary["RETROSPECTIVE_PORT"] as? String else {
+            fatalError("server port for retrospective not set in plist for this environment")
+        }
+        return port
+    }()
+    
+    static let errorsLogFile: String = {
+        guard let port = Environment.infoDictionary["ERRORS_LOG_FILE"] as? String else {
+            fatalError("errors log filename not set in plist for this environment")
+        }
+        return port
+    }()
 }

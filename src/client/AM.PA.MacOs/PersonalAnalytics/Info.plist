@@ -40,5 +40,9 @@
 	<string>$(APP_SUPPORT_DIR)</string>
 	<key>SQLITE_DB_NAME</key>
 	<string>$(SQLITE_DB_NAME)</string>
+	<key>RETROSPECTIVE_PORT</key>
+	<string>$(RETROSPECTIVE_PORT)</string>
+	<key>ERRORS_LOG_FILE</key>
+	<string>$(ERRORS_LOG_FILE)</string>
 </dict>
 </plist>

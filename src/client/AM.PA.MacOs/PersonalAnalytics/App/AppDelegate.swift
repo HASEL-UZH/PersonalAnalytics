@@ -220,7 +220,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
 
     //https://stackoverflow.com/questions/7271528/how-to-nslog-into-a-file
     func redirectLogToDocuments() {
-        let pathForErrors = self.applicationDocumentsDirectory.path.appendingFormat("/errors.txt")
+        let pathForErrors = self.applicationDocumentsDirectory.path.appendingFormat(Environment.errorsLogFile)
         //freopen(pathForLog.cString(using: String.Encoding.ascii)!, "a+", stdout)
         freopen(pathForErrors.cString(using: String.Encoding.ascii)!, "a+", stderr)
     }
