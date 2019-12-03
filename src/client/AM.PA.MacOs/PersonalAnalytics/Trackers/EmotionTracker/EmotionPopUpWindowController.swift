@@ -114,17 +114,6 @@ class EmotionPopUpWindowController: NSWindowController {
             } else {
                 arousalValidationLabel.isHidden = true
             }
-
         }
-
-    }
-
-
-    @IBAction func exportToCsvClicked(_ sender: Any) {
-
-        // Export study data to csv (starting from 1 month ago)
-        let oneMonthAgo = Date() - (30*24*60*60)
-        DataObjectController.sharedInstance.exportStudyData(startTime: oneMonthAgo.timeIntervalSince1970)
-
     }
 }

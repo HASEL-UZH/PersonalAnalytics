@@ -16,11 +16,7 @@ enum AppConstants {
     static let signUpClicked = "signUpHasBeenClicked"
     static let notificationsPersistKey = "userNotificationsWillPersist"
     static let projectBundleName = "PersonalAnalytics"
-    
-    static let MouseClickKeyboardRatio = 3.0
-    static let MouseMovementRatio = 0.0028
-    static let MouseScrollingRatio = 1.55
-    
+
     static let retrospectiveColor = "#007acc"
 
     static let emotionTrackerNotificationID = "EmotionTrackerNotification"

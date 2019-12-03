@@ -10,12 +10,6 @@ import Foundation
 
 class TrackerManager {
     
-    enum TrackerType {
-        static let UserInput: String = "UserInput"
-        static let ActiveApplication: String = "ActiveApplication"
-        static let TaskProductivity: String = "TaskProductivity"
-    }
-    
     //singleton instance
     static let shared: TrackerManager = TrackerManager()
     

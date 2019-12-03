@@ -36,13 +36,7 @@ class PAHttpServer: NSObject {
     let valid_secret = "key"
 
     let server = HttpServer()
-    // This is used to save requests into database
-    var dataController: DataObjectController
-    
-    init(coreDataController:DataObjectController) {
-        dataController = coreDataController
-    }
-    
+
     struct paHtml {
         var title = ""
         var url = ""

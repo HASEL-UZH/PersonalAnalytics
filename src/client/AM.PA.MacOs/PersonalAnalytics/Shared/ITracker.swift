@@ -7,13 +7,6 @@
 
 import Foundation
 
-enum TrackerConstants{
-    static let KeyboardEventNotification = Notification.Name("keyEvent")
-    static let MouseEventNotification = Notification.Name("mouseEvent")
-    static let MouseEvent = "mouseEvent"
-    static let KeyEvent = "keyEvent"
-}
-
 protocol ITracker {
     
     //list of visualizations to present for the tracker
