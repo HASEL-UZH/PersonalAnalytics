@@ -26,23 +26,14 @@ Change picture on notification
 - optional - Don't ask for summary untill the person stops typing for 20 seconds
 */
 
-import Cocoa
 import Foundation
-import Quartz
 
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDelegate {
     
     
-    // MARK: - Constants
-    let summaryEnabled = "Toggle Survey"
-
-    let maxAppCount = 100
-    var notificationTimer: Timer?
-    var pauseItem : NSMenuItem?
-    var isPaused: Bool = false
-        
+    // MARK: - App Support Directory
     lazy var applicationDocumentsDirectory: URL = {
         // The directory the application uses to store the Core Data store file. This code uses a directory named "PersonalAnalytics" in the user's Application Support directory.
         let urls = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
@@ -50,7 +41,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         return appSupportURL.appendingPathComponent("PersonalAnalytics")
     }()
     
-    // MARK: -- Menu Bar Info
+    
+    // MARK: - Menu Bar Info
     let popover = NSPopover()
     let statusItem = NSStatusBar.system.statusItem(withLength: -2)
     let menu = NSMenu()
@@ -59,14 +51,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     let preferencesController = PreferencesWindowController(windowNibName: NSNib.Name(rawValue: "PreferencesWindow"))
     let retrospectiveController = RetrospectiveWindowController(windowNibName:NSNib.Name(rawValue: "RetrospectiveWindow"))
 
+    
     // MARK: - Variables
-    var eventMonitor: AnyObject? = nil
-    var menuClickMonitor: AnyObject?
-    var alertWaitsUntilClicked = false
     var api : PAHttpServer? = nil
-    var keyboard: KeystrokeController?
-    var mouse: MouseActionController?
-
+    var pauseItem : NSMenuItem?
+    var isPaused: Bool = false
+    var firstTimeShowingPreferences = true
     
     
     // MARK: - App Functions
@@ -85,7 +75,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         
         let retrospectiveItem = NSMenuItem(title: "Show Retrospective", action: #selector(AppDelegate.showRetrospective(_:)), keyEquivalent: "R")
         
-        let toggleSummaryItem = NSMenuItem(title: summaryEnabled, action: #selector(AppDelegate.toggleSummary(_:)), keyEquivalent: "A")
+        let toggleSummaryItem = NSMenuItem(title: "Toggle Survey", action: #selector(AppDelegate.toggleSummary(_:)), keyEquivalent: "A")
         toggleSummaryItem.bind(NSBindingName(rawValue: "state"), to: defaultsController , withKeyPath: "values.\(AppConstants.summaryStateKey)", options: nil)
         // Grabbed this from here: https://github.com/producthunt/producthunt-osx/blob/ab3a0c42cf680a5b0231b3c99a76445cce9abb94/Source/Actions/PHOpenSettingsMenuAction.swift
         let delegate = NSApplication.shared.delegate as! AppDelegate
@@ -99,8 +89,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         
         menu.addItem(NSMenuItem.separator())
         menu.addItem(pauseItem!)
-        
-        
         
         menu.addItem(NSMenuItem.separator())
         menu.addItem(preferencesItem)
@@ -132,12 +120,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
             isPaused = true
         }
     }
-    
-    let notificationQueue = OperationQueue.main // TODO:  this to a side queue?
-    
+        
     func addNotificationListeners(){
-        let notificationCenter = NotificationCenter.default
-        let closeSummaryObserver = notificationCenter.addObserver(forName: NSNotification.Name(rawValue: AppConstants.summarySubmittedNotification), object: nil, queue: notificationQueue) {
+        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: AppConstants.summarySubmittedNotification), object: nil, queue: OperationQueue.main) {
             (summaryClosedNotification) -> Void in
             self.resetSummaryView()
         }
@@ -151,17 +136,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     func setUpRetrospective(){
         retrospectiveController.window?.contentViewController = RetrospectiveViewController(nibName: NSNib.Name(rawValue: "RetrospectiveView"), bundle: nil)
     }
-    
-    var firstTime = true
-    
+        
     @objc func showPreferences(_ sender:AnyObject){
         preferencesController.showWindow(nil)
         NSApp.activate(ignoringOtherApps: true)
         preferencesController.window?.makeKeyAndOrderFront(self)
         
-        if(firstTime){
+        if(firstTimeShowingPreferences){
             preferencesController.repositionWindow()
-            firstTime = false
+            firstTimeShowingPreferences = false
         }
         //flowlightController?.setGreen()
         preferencesController.window?.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.floatingWindow)))
@@ -208,7 +191,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
             //print("Using delelgate for NSUsernotification")
             self.toggleSummary(notification.self)
         }
-
     }
 
 
@@ -288,7 +270,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         // Start local server so chrome extension can send data to it
         api = PAHttpServer()
         api!.startServer()
-
     }
     
     func launchPermissionExplanationAlert(){
@@ -313,15 +294,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     }
     
     
-
-    
     func applicationWillTerminate(_ aNotification: Notification) {
         // Remove listeners so notification center doesn't have dangling references
         print("Terminating app")
-        //TODO: Remove tracker observers
-        if let monitor = eventMonitor{
-            NSEvent.removeMonitor(monitor)
-        }
         // This cannot be set to defer above because it will ask for connection, but before you can click
         // it will see the server is not connected and close it.
         api!.stopServer()
