@@ -17,7 +17,7 @@ class PreferencesViewController: NSViewController{
         // The directory the application uses to store the Core Data store file. This code uses a directory named "PersonalAnalytics" in the user's Application Support directory.
         let urls = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
         let appSupportURL = urls[urls.count - 1]
-        return appSupportURL.appendingPathComponent("PersonalAnalytics")
+        return appSupportURL.appendingPathComponent(Environment.appSupportDir)
     }()
     
     @IBOutlet weak var toggleTimer: NSButton!
@@ -49,8 +49,8 @@ class PreferencesViewController: NSViewController{
     
     
     @IBAction func openDataPressed(_ sender: Any) {
-        print("\(NSHomeDirectory())/Library/\"Application Support\"/" + AppConstants.projectBundleName)
-        NSWorkspace.shared.openFile("\(NSHomeDirectory())/Library/Application Support/" + AppConstants.projectBundleName)
+        print("Opening folder:", applicationDocumentsDirectory.path)
+        NSWorkspace.shared.openFile(applicationDocumentsDirectory.path)
     }
     
     
