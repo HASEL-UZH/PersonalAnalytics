@@ -62,7 +62,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     // MARK: - Variables
     var eventMonitor: AnyObject? = nil
     var menuClickMonitor: AnyObject?
-    var notificationListenersToRemove = [AnyObject]()
     var alertWaitsUntilClicked = false
     var api : PAHttpServer? = nil
     var keyboard: KeystrokeController?
@@ -142,11 +141,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
             (summaryClosedNotification) -> Void in
             self.resetSummaryView()
         }
-        notificationListenersToRemove.append(closeSummaryObserver)
-        
-        //        let notificationObserver =
-        //        notificationCenter.addObserverForName(nil, object: nil, queue: notificationQueue) { print($0) }
-        //        notificationListenersToRemove.append(notificationObserver)
     }
     
     // MARK: - Preferences Management
@@ -324,7 +318,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     func applicationWillTerminate(_ aNotification: Notification) {
         // Remove listeners so notification center doesn't have dangling references
         print("Terminating app")
-        NotificationCenter.default.removeObserver(self)
         //TODO: Remove tracker observers
         if let monitor = eventMonitor{
             NSEvent.removeMonitor(monitor)
