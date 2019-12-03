@@ -20,7 +20,6 @@ class EmotionTracker: ITracker {
     // MARK: Properties
     let emotionPopUpController = EmotionPopUpWindowController(windowNibName: NSNib.Name(rawValue: "EmotionPopUp"))
     let notificationCenter = NSUserNotificationCenter.default
-    let dataController = DataObjectController.sharedInstance
 
     // Properties for protocol conformity
     var name: String = "EmotionTracker"

@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0D0245F81BD1651300213D2A /* DataObjectController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D0245F71BD1651300213D2A /* DataObjectController.swift */; };
+		0D0245F81BD1651300213D2A /* DatabaseController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D0245F71BD1651300213D2A /* DatabaseController.swift */; };
 		0D0245FB1BD1C5AE00213D2A /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D0245FA1BD1C5AE00213D2A /* AppConstants.swift */; };
 		0D2B94241D57D3D5004DA61D /* PAHttpServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2B94231D57D3D5004DA61D /* PAHttpServer.swift */; };
 		0D4676491BD54C2000796D2D /* KeystrokeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D4676481BD54C2000796D2D /* KeystrokeController.swift */; };
@@ -104,7 +104,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		0D0245F71BD1651300213D2A /* DataObjectController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataObjectController.swift; sourceTree = "<group>"; };
+		0D0245F71BD1651300213D2A /* DatabaseController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DatabaseController.swift; sourceTree = "<group>"; };
 		0D0245FA1BD1C5AE00213D2A /* AppConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
 		0D2B94231D57D3D5004DA61D /* PAHttpServer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PAHttpServer.swift; sourceTree = "<group>"; };
 		0D4676481BD54C2000796D2D /* KeystrokeController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeystrokeController.swift; sourceTree = "<group>"; };
@@ -384,7 +384,7 @@
 			children = (
 				B9A0B7A61EDA540F00BE6F71 /* IVisualization.swift */,
 				B9A0B7A41EDA373900BE6F71 /* ITracker.swift */,
-				0D0245F71BD1651300213D2A /* DataObjectController.swift */,
+				0D0245F71BD1651300213D2A /* DatabaseController.swift */,
 				B9851FE71ED65937002C24AF /* Helpers */,
 			);
 			path = Shared;
@@ -598,7 +598,7 @@
 				B97A0E3F1EE7843A000DCCEC /* DateTimeHelper.swift in Sources */,
 				0D0245FB1BD1C5AE00213D2A /* AppConstants.swift in Sources */,
 				B9A310411EC5264E003B2470 /* PreferencesWindowController.swift in Sources */,
-				0D0245F81BD1651300213D2A /* DataObjectController.swift in Sources */,
+				0D0245F81BD1651300213D2A /* DatabaseController.swift in Sources */,
 				B97A0E3A1EE5FB84000DCCEC /* UserEfficiencyQueries.swift in Sources */,
 				B9A0B7A71EDA540F00BE6F71 /* IVisualization.swift in Sources */,
 				B9A0B7B21EDCE0EA00BE6F71 /* DayMostFocusedProgram.swift in Sources */,

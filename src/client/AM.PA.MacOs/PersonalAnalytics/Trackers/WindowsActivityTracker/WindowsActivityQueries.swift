@@ -192,39 +192,6 @@ class WindowsActivityQueries {
         }
         return results
     }
-    
-    struct ActiveApplicationEntry {
-          var windowTitle: String
-          var appName: String
-          var startTime: Double
-          var endTime: Double
-      }
-    
-    static func fetchActiveApplicationsSince(time: Double) -> [ActiveApplicationEntry] {
-        var results: [ActiveApplicationEntry] = []
-        let dbController = DatabaseController.getDatabaseController()
-
-        do{
-            let timeStr = DateFormatConverter.interval1970ToDateStr(interval: time)
-            let query: String = "SELECT * FROM \(WindowsActivitySettings.DbTable) WHERE tsStart >= \(timeStr) ORDER BY tsStart"
-            
-            let rows = try dbController.executeFetchAll(query: query)
-            
-            for row in rows {
-                let startTime: Double = DateFormatConverter.dateStrToInterval1970(str: row["tsStart"])
-                let endTime: Double = DateFormatConverter.dateStrToInterval1970(str: row["tsEnd"])
-                let appName: String = row["process"]
-                let windowTitle: String = row["window"]
-                
-                results.append(ActiveApplicationEntry(windowTitle: windowTitle, appName: appName, startTime: startTime, endTime: endTime))
-            }
-        }
-        catch{
-            print(error)
-        }
-        return results
-    }
-    
 }
 
 

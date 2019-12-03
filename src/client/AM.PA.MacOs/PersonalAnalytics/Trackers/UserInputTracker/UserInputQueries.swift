@@ -10,7 +10,7 @@ import GRDB
 
 class UserInputQueries {
 
-    
+//TODO: evaluate, are the results better with dynamically updated ratios?
 //    init() {
 //
 //        let dbController = DatabaseController.getDatabaseController()
@@ -93,44 +93,6 @@ class UserInputQueries {
             print(error)
         }
     }
-    
-    
-    // TODO: needs refactoring
-    struct AggregatedInputEntry {
-        var clickCount : Int
-        var distance: Int
-        var keyTotal: Int
-        var scrollDelta: Int
-        var time: Double
-    }
-
-    
-    static func fetchAggregatedInputSince(time: Double) -> [AggregatedInputEntry] {
-        var results: [AggregatedInputEntry] = []
-        let timeStr = DateFormatConverter.interval1970ToDateStr(interval: time)
-        let dbController = DatabaseController.getDatabaseController()
-
-        do{
-            let query: String = "SELECT * FROM \(UserInputSettings.DbTableUserInput_v2) WHERE time >= \(timeStr) ORDER BY time"
-            
-            let rows = try dbController.executeFetchAll(query: query)
-            
-            for row in rows {
-                let clickCount: Int = row["clickTotal"]
-                let distance: Int = row["movedDistance"]
-                let keyTotal: Int = row["keyTotal"]
-                let scrollDelta: Int = row["scrollDelta"]
-                let time: Double = row["time"]
-                
-                results.append(AggregatedInputEntry(clickCount: clickCount, distance: distance, keyTotal: keyTotal, scrollDelta: scrollDelta, time: time))
-            }
-        }
-        catch{
-            print(error)
-        }
-        return results
-    }
-    
     
     private static func calculateInputLevel(row: Row) -> Int {
         var inputLevel: Double = 0

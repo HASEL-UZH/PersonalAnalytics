@@ -14,7 +14,6 @@ class UserInputTracker: ITracker{
     let type: String = "UserInput"
 
     
-    let dataController : DataObjectController
     var leftClickCount: Int
     var rightClickCount: Int
     var distance: Int
@@ -32,7 +31,6 @@ class UserInputTracker: ITracker{
 
     
     init(){
-        self.dataController = DataObjectController.sharedInstance
         mouseController = MouseActionController()
         keystrokeController = KeystrokeController()
         self.tsStart = Date()

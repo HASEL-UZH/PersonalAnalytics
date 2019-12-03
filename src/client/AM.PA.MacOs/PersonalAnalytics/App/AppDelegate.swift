@@ -292,7 +292,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         
         addNotificationListeners()
         // Start local server so chrome extension can send data to it
-        api = PAHttpServer(coreDataController: DataObjectController.sharedInstance)
+        api = PAHttpServer()
         api!.startServer()
 
     }
