@@ -12,13 +12,9 @@ enum AppConstants {
     
     static let summaryStateKey = "summaryState"
 
-    static let summarySubmittedNotification = "summaryPosted"
     static let signUpClicked = "signUpHasBeenClicked"
     static let notificationsPersistKey = "userNotificationsWillPersist"
     static let projectBundleName = "PersonalAnalytics"
 
     static let retrospectiveColor = "#007acc"
-
-    static let emotionTrackerNotificationID = "EmotionTrackerNotification"
-
 }
