@@ -60,7 +60,7 @@ class UserInputQueries {
     }
     
     
-    static func saveUserInput(aggregatedInput input: UserInputTracker) {
+    static func saveUserInput(input: UserInputTracker) {
         let dbController = DatabaseController.getDatabaseController()
         
         let keyTotal = input.keyCount + input.deleteCount + input.navigateCount
