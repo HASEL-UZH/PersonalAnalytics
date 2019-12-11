@@ -10,25 +10,30 @@ import Foundation
 class MouseActionController{
 
     fileprivate var globalEventMonitor: AnyObject?
-    fileprivate var clickCountThisInterval: Int
+    fileprivate var leftClickCountThisInterval: Int
+    fileprivate var rightClickCountThisInterval: Int
     fileprivate var scrollDeltaThisInterval: Int
     fileprivate var mouseMovement: Int
     fileprivate var lastMouseLocation: NSPoint
 
     init(){
-        self.clickCountThisInterval = 0
+        self.leftClickCountThisInterval = 0
+        self.rightClickCountThisInterval = 0
         self.scrollDeltaThisInterval = 0
         self.mouseMovement = 0
         self.lastMouseLocation = NSEvent.mouseLocation //add initial mouse location
         
-        self.globalEventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [NSEvent.EventTypeMask.leftMouseDown, NSEvent.EventTypeMask.mouseMoved, NSEvent.EventTypeMask.scrollWheel], handler: self.recordActions) as AnyObject?
+        self.globalEventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [NSEvent.EventTypeMask.leftMouseDown, NSEvent.EventTypeMask.rightMouseDown, NSEvent.EventTypeMask.mouseMoved, NSEvent.EventTypeMask.scrollWheel], handler: self.recordActions) as AnyObject?
     }
     
     func recordActions(mouseEvent:NSEvent){
         //TODO: fill in switch
         switch mouseEvent.type{
         case .leftMouseDown:
-            clickCountThisInterval += 1
+            leftClickCountThisInterval += 1
+            NotificationCenter.default.post(name: TrackerConstants.MouseEventNotification, object:nil, userInfo: [TrackerConstants.MouseEvent:mouseEvent])
+        case .rightMouseDown:
+            rightClickCountThisInterval += 1
             NotificationCenter.default.post(name: TrackerConstants.MouseEventNotification, object:nil, userInfo: [TrackerConstants.MouseEvent:mouseEvent])
         case .mouseMoved:
             let currentLocation = NSEvent.mouseLocation
@@ -52,13 +57,14 @@ class MouseActionController{
     }
     
     func reset(){
-        self.clickCountThisInterval = 0
+        self.leftClickCountThisInterval = 0
+        self.rightClickCountThisInterval = 0
         self.scrollDeltaThisInterval = 0
         self.mouseMovement = 0
     }
     
-    func getValues() -> (Int, Int, Int){
-        return (clickCountThisInterval, scrollDeltaThisInterval, mouseMovement)
+    func getValues() -> (Int, Int, Int, Int){
+        return (leftClickCountThisInterval, rightClickCountThisInterval, scrollDeltaThisInterval, mouseMovement)
     }
     
     

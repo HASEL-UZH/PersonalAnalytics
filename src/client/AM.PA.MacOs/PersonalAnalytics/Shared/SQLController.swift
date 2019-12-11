@@ -43,15 +43,16 @@ class SQLController{
         var results: [ActiveApplicationEntry] = []
 
         do{
-            let query: String = "SELECT * FROM ZACTIVEAPPLICATION WHERE ZSTARTTIME >= " + String(time) + " ORDER BY ZSTARTTIME"
+            let timeStr = DateFormatConverter.interval1970ToDateStr(interval: time)
+            let query: String = "SELECT * FROM windows_activity WHERE tsStart >= \(timeStr) ORDER BY tsStart"
             let rows = try dbQueue.inDatabase{ db in
-                try Row.fetchAll(db, query)
+                try Row.fetchAll(db, sql: query)
             }
             for row in rows {
-                let startTime: Double = row["ZSTARTTIME"]
-                let endTime: Double = row["ZENDTIME"]
-                let appName: String = row["ZNAME"]
-                let windowTitle: String = row["ZTITLE"]
+                let startTime: Double = DateFormatConverter.dateStrToInterval1970(str: row["tsStart"])
+                let endTime: Double = DateFormatConverter.dateStrToInterval1970(str: row["tsEnd"])
+                let appName: String = row["process"]
+                let windowTitle: String = row["window"]
                 
                 results.append(ActiveApplicationEntry(windowTitle: windowTitle, appName: appName, startTime: startTime, endTime: endTime))
             }
@@ -64,18 +65,19 @@ class SQLController{
     
     func fetchAggregatedInputSince(time: Double) -> [AggregatedInputEntry] {
         var results: [AggregatedInputEntry] = []
+        let timeStr = DateFormatConverter.interval1970ToDateStr(interval: time)
         
         do{
-            let query: String = "SELECT * FROM ZAGGREGATEDINPUT WHERE ZTIME >= " + String(time) + " ORDER BY ZTIME"
+            let query: String = "SELECT * FROM user_input WHERE time >= \(timeStr) ORDER BY time"
             let rows = try dbQueue.inDatabase{ db in
-                try Row.fetchAll(db, query)
+                try Row.fetchAll(db, sql: query)
             }
             for row in rows {
-                let clickCount: Int = row["ZCLICKCOUNT"]
-                let distance: Int = row["ZDISTANCE"]
-                let keyTotal: Int = row["ZKEYTOTAL"]
-                let scrollDelta: Int = row["ZSCROLLDELTA"]
-                let time: Double = row["ZTIME"]
+                let clickCount: Int = row["clickTotal"]
+                let distance: Int = row["movedDistance"]
+                let keyTotal: Int = row["keyTotal"]
+                let scrollDelta: Int = row["scrollDelta"]
+                let time: Double = row["time"]
                 
                 results.append(AggregatedInputEntry(clickCount: clickCount, distance: distance, keyTotal: keyTotal, scrollDelta: scrollDelta, time: time))
             }
@@ -89,19 +91,25 @@ class SQLController{
     func fetchEmotionalStateSince(time: Double) -> [EmotionalStateEntry] {
 
         var results: [EmotionalStateEntry] = []
-
+        let timeStr = DateFormatConverter.interval1970ToDateStr(interval: time)
+        
         do {
+            let query = """
+                        SELECT * FROM emotional_state
+                        WHERE timestamp >= '\(timeStr)'
+                        ORDER BY timestamp
+                        """
             
-            let query: String = "SELECT * FROM ZEMOTIONALSTATE WHERE ZDATE >= " + String(time) + " ORDER BY ZDATE"
             let rows = try dbQueue.inDatabase { db in
-                try Row.fetchAll(db, query)
+                try Row.fetchAll(db, sql: query)
             }
+            
             for row in rows {
 
-                let timestamp: Double = row["ZDATE"]
-                let activity: String = row["ZACTIVITY"]
-                let valence: Int = row["ZVALENCE"]
-                let arousal: Int = row["ZAROUSAL"]
+                let timestamp: Double = DateFormatConverter.dateStrToInterval1970(str: row["timestamp"])
+                let activity: String = row["activity"]
+                let valence: Int = row["valence"]
+                let arousal: Int = row["arousal"]
 
                 results.append(EmotionalStateEntry(timestamp: timestamp, activity: activity, valence: valence, arousal: arousal))
             }
@@ -124,7 +132,6 @@ class SQLController{
             dbQueue = try DatabaseQueue(path: applicationDocumentsDirectory.appendingPathComponent("PersonalAnalytics.dat").absoluteString, configuration: config)
         }
         catch{
-            DataObjectController.sharedInstance.saveContext()
             dbQueue = try DatabaseQueue(path: applicationDocumentsDirectory.appendingPathComponent("PersonalAnalytics.dat").absoluteString, configuration: config)
         }
         
@@ -135,27 +142,26 @@ class SQLController{
         let s = NSCalendar.current.startOfDay(for: date)
         let e = NSCalendar.current.date(byAdding: .day, value: 1, to: s)
         
-        let start = s.timeIntervalSince1970
-        let end = e!.timeIntervalSince1970
-        
+        let startStr = DateFormatConverter.dateToStr(date: s)
+        let endStr = DateFormatConverter.dateToStr(date: e!)
+       
         do{
-            var query:String = "SELECT * FROM ZACTIVEAPPLICATION WHERE ZSTARTTIME>=" + String(start)
-            query += " AND ZSTARTTIME <" + String(end)
-            query += " AND ZNAME <> 'Idle'"
-            query += " ORDER BY ZSTARTTIME"
+            let query = """
+                        SELECT * FROM windows_activity
+                        WHERE tsStart >= '\(startStr)' AND tsStart < '\(endStr)' AND process <> 'Idle'
+                        ORDER BY tsStart
+                        """
+            
             let rows = try dbQueue.inDatabase{ db in
-                
-                try Row.fetchAll(db, query)
+                try Row.fetchAll(db, sql: query)
             }
-            var min: TimeInterval
+            
             if(rows.count > 0){
-                min = rows[0]["ZSTARTTIME"]
-                min = min - min.truncatingRemainder(dividingBy: 3600) // round down
+                let min = DateFormatConverter.dateStrToInterval1970(str: rows[0]["tsStart"])
+                return min - min.truncatingRemainder(dividingBy: 3600) // round down
             }
-            else{
-                min = -1
-            }
-            return min
+                
+            return -1
             
         }
         catch{
@@ -168,28 +174,29 @@ class SQLController{
         let s = NSCalendar.current.startOfDay(for: date)
         let e = NSCalendar.current.date(byAdding: .day, value: 1, to: s)
         
-        let start = s.timeIntervalSince1970
-        let end = e!.timeIntervalSince1970
+        let start = DateFormatConverter.dateToStr(date: s)
+        // TODO: is force unwrapping dangerous here?
+        let end = DateFormatConverter.dateToStr(date: e!)
         
         do{
-            var query:String = "SELECT * FROM ZACTIVEAPPLICATION WHERE ZENDTIME>=" + String(start)
-            query += " AND ZENDTIME <" + String(end)
-            query += " AND ZNAME <> 'Idle'"
+            var query:String = "SELECT * FROM windows_activity WHERE tsEnd >= '" + start
+            query += "' AND tsEnd < '" + end
+            query += "' AND process <> 'Idle'"
+            
             let rows = try dbQueue.inDatabase{ db in
-                try Row.fetchAll(db, query)
+                try Row.fetchAll(db, sql: query)
             }
-            var max: TimeInterval
+            
             if(rows.count > 0){
-                max = rows[rows.count - 1]["ZENDTIME"]
-                max = max + (3600 - max.truncatingRemainder(dividingBy: 3600)) // round up
+                let max = DateFormatConverter.dateStrToInterval1970(str:  rows[rows.count - 1]["tsEnd"])
+                return max + (3600 - max.truncatingRemainder(dividingBy: 3600)) // round up
             }
-            else{
-                max = -1
-            }
-            return max
+                
+            return -1
+           
         }
         catch{
-            print("error in getStartHour")
+            print("error in getEndHour")
             return -1 as TimeInterval
         }
 

@@ -13,12 +13,19 @@ fileprivate enum Settings{
     static let DbTable = "windows_activity"
 }
 
+struct ActiveApplication {
+    var time: Date
+    var tsStart: Date
+    var tsEnd: Date
+    var window: String
+    var process: String
+}
+
 class ActiveApplicationTracker: ITracker{
     var name: String
     var isRunning: Bool
     
-    var applications: [ActiveApplication] = []
-    let maxAppCount = 100
+    var lastApplication: ActiveApplication?
     let defaults = UserDefaults.standard
     var applicationTimer: Timer?
     var idleTime: CFTimeInterval = 0
@@ -117,7 +124,6 @@ class ActiveApplicationTracker: ITracker{
         applicationTimer?.invalidate()
         idleTimer?.invalidate()
         isPaused = true
-        DataObjectController.sharedInstance.acceptingWebsites = false
     }
     
     func start(){
@@ -127,8 +133,6 @@ class ActiveApplicationTracker: ITracker{
         
         isIdle = false
         isPaused = false
-        DataObjectController.sharedInstance.acceptingWebsites = true
-
 
         applicationTimer = Timer.scheduledTimer(timeInterval: 120, target: self, selector: #selector(saveCurrentApplicationToMemory), userInfo: nil, repeats: true)
         idleTimer = Timer.scheduledTimer(timeInterval: 10, target: self, selector: #selector(checkForIdle), userInfo: nil, repeats: true)
@@ -138,7 +142,7 @@ class ActiveApplicationTracker: ITracker{
     }
     
     @objc func onSleepReset(){
-        applications = []
+        lastApplication = nil
         isIdle = true
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: "isIdle"), object: nil, userInfo: ["isidle":isIdle])
     }
@@ -175,13 +179,6 @@ class ActiveApplicationTracker: ITracker{
             return
         }
         
-        func resetApplicationList(){
-            if(!applications.isEmpty){
-                let previousApp = applications.popLast()!
-                applications = [previousApp]
-            }
-        }
-        
         if let activeApp = NSWorkspace.shared.frontmostApplication {
         // I've had a problem with a thread being created which makes no apps active, so it crashed on activeApps.first!
         // Now I'm confirming it has a name
@@ -215,25 +212,19 @@ class ActiveApplicationTracker: ITracker{
                 return
             }
             
-            if applications.isEmpty {
-                applications.append(DataObjectController.sharedInstance.newActiveApplication(activeAppName, title: title))
+            if (lastApplication == nil) {
+                lastApplication = ActiveApplication(time: Date(), tsStart: Date(), tsEnd: Date(), window: title, process: activeAppName)
             } else {
-                let previousApp = applications.popLast()! // only gets here when it's not empty
-                //updated enddate
-                
-                previousApp.endTime = Date().timeIntervalSince1970
-                
-                applications.append(previousApp)
-                if (previousApp.name != activeAppName || previousApp.title != title){ // if no longer active add new app
-                    if applications.count > maxAppCount {
-                        resetApplicationList()
-                    }
-                    applications.append(DataObjectController.sharedInstance.newActiveApplication(activeAppName, title: title))
-                    print(title)
+                // the last app is still running since we last checked. Therefore, we need to extend the active lifetime by increasing .tsEnd
+                lastApplication!.tsEnd = Date()
+                               
+                if (lastApplication!.process != activeAppName || lastApplication!.window != title){
+                    // at this point, the last app is no longer active and we can persist it
+                    DataObjectController.sharedInstance.saveActiveApplication(app: lastApplication!)
+                    // new application which is currently running
+                    lastApplication = ActiveApplication(time: Date(), tsStart: Date(), tsEnd: Date(), window: title, process: activeAppName)
                 }
             }
-           
-        
         }
     }
     

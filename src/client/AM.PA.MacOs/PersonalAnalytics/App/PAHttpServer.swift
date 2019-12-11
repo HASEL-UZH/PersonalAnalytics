@@ -85,42 +85,7 @@ class PAHttpServer: NSObject {
             
             return .ok(.text("oauth_token=\(self.oauth_token)&oauth_token_secret=\(self.oauth_token_secret)" as String) )
         }
-        
-        server["1/pageUsage"] = { request in
-            guard request.method == "POST" else {
-                return HttpResponse.badRequest(.text("Method must be POST"))
-            }
-            let requestBody = request.parseUrlencodedForm()
-            let keys = requestBody.map({ (key,val) -> String in
-                key
-            })
-            let absentFields = self.requiredFields.filter({
-                (str) -> Bool in
-                !keys.contains(str)
-            })
-            guard absentFields.isEmpty else {
-                print("Request failed, keys were: \(String(describing: keys.reversed()))\n but needed \(self.requiredFields)\n encoded body was:\(requestBody)")
-                return .badRequest(.text("Did not contain all fields in params, absent fields were: \n\(absentFields)"))
-            }
-            // TODO: Do we want the title here?
-            /*TODO:
-             - parse encoded tuples into dict then access them
-             - Reverse any basic encrpytion, information hiding?
-             - */
-            let responseHTML = paHtml(
-                title:getValueFrom(requestBody, withKey: "title")!,
-                url: getValueFrom(requestBody, withKey: "url")!,
-                html: getValueFrom(requestBody, withKey: "html_code")!,
-                date: Double(getValueFrom(requestBody, withKey: "datetime")!)!)
-            
-            self.dataController.saveCurrentWebsite(responseHTML.title,
-                                                   url: responseHTML.url,
-                                                   html: responseHTML.html,
-                                                   datetime: Date() )
-            print("Successfully added page usage data")
-            return .ok(.text("SUCCESSFULLY ADDED PAGE USAGE DATA"))
-        }
-        
+                
         server["/stats"] = { request in
             
             guard request.method == "GET" else{
