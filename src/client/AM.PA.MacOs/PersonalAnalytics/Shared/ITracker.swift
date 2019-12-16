@@ -59,3 +59,9 @@ extension ITracker{
         return []
     }
 }
+
+
+/// Implement this protocol with your Tracker if you want to use UserNotifications in your codebase. The TrackerManager will then be able to call the implemented function "handleUserNotification" in order to forward the UserNotification back to the tracker.
+protocol TrackerUserNotificationHandling {
+    func handleUserNotification(notification: NSUserNotification)
+}

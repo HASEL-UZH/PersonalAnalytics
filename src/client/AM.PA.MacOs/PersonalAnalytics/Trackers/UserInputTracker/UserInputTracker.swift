@@ -105,14 +105,11 @@ class UserInputTracker: ITracker{
         (keyCount, navigateCount, deleteCount) = keystrokeController.getValues()
         keystrokeController.reset()
         tsEnd = Date()
-        UserInputQueries.saveUserInput(aggregatedInput: self)
+        UserInputQueries.saveUserInput(input: self)
         tsStart = Date() // reset for next aggregate
     }
     
     deinit{
         save()
     }
-    
-
-
 }

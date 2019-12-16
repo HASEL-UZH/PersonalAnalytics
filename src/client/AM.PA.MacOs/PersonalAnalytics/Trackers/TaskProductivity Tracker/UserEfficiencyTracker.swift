@@ -8,7 +8,7 @@
 import Foundation
 
 
-class UserEfficiencyTracker: ITracker{
+class UserEfficiencyTracker: ITracker, TrackerUserNotificationHandling {
     
     var name: String
     var isRunning: Bool
@@ -17,11 +17,15 @@ class UserEfficiencyTracker: ITracker{
     var isPaused = false
     let summaryIntervalMinutes: Double = 60
     //var notificationsDisabled: Boolean = false
+    
+    let viewController: SummaryViewController
+    let notificationCenter = NSUserNotificationCenter.default
 
 
     init(){
         name = "User Efficiency Survey"
         isRunning = true
+        viewController = SummaryViewController(nibName: NSNib.Name(rawValue: "SummaryView"), bundle: nil)
         notificationTimer = Timer.scheduledTimer(timeInterval: summaryIntervalMinutes * 60.0, target: self, selector: #selector(showNotificationThatLinksToSummary), userInfo: nil, repeats: true)
         notificationTimer?.tolerance = 120
         
@@ -87,6 +91,7 @@ class UserEfficiencyTracker: ITracker{
             return
         }*/
         let note = NSUserNotification()
+        note.identifier = name
         note.title = "Task Summarizing"
         note.informativeText = "\(summaryIntervalMinutes) minutes is up, please take 15 seconds to fill out the survey."
         //note.contentImage = NSImage(byReferencingURL: NSURL(string: "http://assets.brand.ubc.ca/signatures/2015/ubc_brand_assets_blue/4_logo/rgb/s4b282c2015.png")!)
@@ -94,7 +99,12 @@ class UserEfficiencyTracker: ITracker{
         note.responsePlaceholder = "Thanks! Please enter what you're working on"
         note.actionButtonTitle = "Answer Questions"
         note.hasActionButton = true
-        NSUserNotificationCenter.default.deliver(note)
+        notificationCenter.deliver(note)
+    }
+    
+    func handleUserNotification(notification: NSUserNotification) {
+        viewController.showSummaryPopup()
+        notificationCenter.removeDeliveredNotification(notification)
     }
     
     deinit{

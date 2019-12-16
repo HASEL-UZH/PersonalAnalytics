@@ -34,7 +34,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     
     // MARK: - App Support Directory
     lazy var applicationDocumentsDirectory: URL = {
-        // The directory the application uses to store the Core Data store file. This code uses a directory named "PersonalAnalytics" in the user's Application Support directory.
+        // The directory the application uses to store the sqlite .dat file. This code uses a directory named "PersonalAnalytics" in the user's Application Support directory.
         let urls = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
         let appSupportURL = urls[urls.count - 1]
         return appSupportURL.appendingPathComponent(Environment.appSupportDir)
@@ -42,7 +42,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     
     
     // MARK: - Menu Bar Info
-    let popover = NSPopover()
     let statusItem = NSStatusBar.system.statusItem(withLength: -2)
     let menu = NSMenu()
     let defaults = UserDefaults.standard
@@ -74,7 +73,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         
         let retrospectiveItem = NSMenuItem(title: "Show Retrospective", action: #selector(AppDelegate.showRetrospective(_:)), keyEquivalent: "R")
         
-        let toggleSummaryItem = NSMenuItem(title: "Toggle Survey", action: #selector(AppDelegate.toggleSummary(_:)), keyEquivalent: "A")
+        let toggleSummaryItem = NSMenuItem(title: "Toggle Survey", action: #selector(toggleSummary), keyEquivalent: "A")
         toggleSummaryItem.bind(NSBindingName(rawValue: "state"), to: defaultsController , withKeyPath: "values.\(AppConstants.summaryStateKey)", options: nil)
         // Grabbed this from here: https://github.com/producthunt/producthunt-osx/blob/ab3a0c42cf680a5b0231b3c99a76445cce9abb94/Source/Actions/PHOpenSettingsMenuAction.swift
         let delegate = NSApplication.shared.delegate as! AppDelegate
@@ -101,7 +100,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
 
         // Setting up the summary popup
         statusItem.image = NSImage(named: NSImage.Name(rawValue: Environment.statusBarIcon))
-        setUpSummaryView()
         setUpPreferencesView()
         setUpRetrospective()
     
@@ -120,12 +118,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         }
     }
         
-    func addNotificationListeners(){
-        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: AppConstants.summarySubmittedNotification), object: nil, queue: OperationQueue.main) {
-            (summaryClosedNotification) -> Void in
-            self.resetSummaryView()
-        }
-    }
     
     // MARK: - Preferences Management
     func setUpPreferencesView(){
@@ -157,39 +149,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         
     }
     
-
-    // MARK: - Popover Management
-    func setUpSummaryView(){
-        popover.contentViewController = SummaryViewController(nibName: NSNib.Name(rawValue: "SummaryView"), bundle: nil)
-        popover.behavior = .transient
-    }
-    
-    
-    func resetSummaryView(){
-        if(popover.isShown){
-            popover.performClose(nil)
-        }
-        setUpSummaryView()
-    }
-
-    
-    @objc func toggleSummary(_ sender:AnyObject){
-            if let button = statusItem.button {
-                popover.show(relativeTo: button.bounds, of: button, preferredEdge: NSRectEdge.minY)
-                NSApp.activate(ignoringOtherApps: true)
-            }
+    func toggleSummary(){
+        let viewController = SummaryViewController(nibName: NSNib.Name(rawValue: "SummaryView"), bundle: nil)
+        viewController.showSummaryPopup()
     }
 
     
     func userNotificationCenter(_ center: NSUserNotificationCenter, didActivate notification: NSUserNotification) {
-
-        switch notification.identifier {
-        case AppConstants.emotionTrackerNotificationID:
-            (TrackerManager.shared.getTracker(tracker: "EmotionTracker") as! EmotionTracker).manageNotification(notification: notification)
-        default:
-            //print("Using delelgate for NSUsernotification")
-            self.toggleSummary(notification.self)
-        }
+        TrackerManager.shared.handleTrackerUserNotifications(notification: notification)
     }
 
 
@@ -253,7 +220,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         
         TrackerManager.shared.register(tracker: UserInputTracker())
         TrackerManager.shared.register(tracker: WindowsActivityTracker())
-        //TrackerManager.shared.register(tracker: TaskProductivityTracker())
+        //TrackerManager.shared.register(tracker: UserEfficiencyTracker())
         //TrackerManager.shared.register(tracker: EmotionTracker())
         
         
@@ -265,7 +232,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         center.delegate = self
         
         
-        addNotificationListeners()
         // Start local server so chrome extension can send data to it
         api = PAHttpServer()
         api!.startServer()
