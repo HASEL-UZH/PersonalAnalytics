@@ -10,4 +10,5 @@ import Foundation
 enum UserEfficiencySettings {
     static let DbTableIntervalPopup = "user_efficiency_survey"
     static let DbTableDailyPopup = "user_efficiency_survey_day"
+    static let Name = "UserEfficiencyTracker"
 }

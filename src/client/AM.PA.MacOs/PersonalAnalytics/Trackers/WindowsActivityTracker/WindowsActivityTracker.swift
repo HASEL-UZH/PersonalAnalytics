@@ -18,7 +18,7 @@ struct ActiveApplication {
 }
 
 class WindowsActivityTracker: ITracker{
-    var name: String
+    var name = WindowsActivitySettings.Name
     var isRunning: Bool
     
     var lastApplication: ActiveApplication?
@@ -34,7 +34,7 @@ class WindowsActivityTracker: ITracker{
   
     init(){
         isIdle = false
-        name = "WindowsActivityTracker"
+        
         isRunning = true
         
         unsafeChars = NSCharacterSet.alphanumerics

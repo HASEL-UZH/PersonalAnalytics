@@ -70,8 +70,11 @@ class EmotionPopUpWindowController: NSWindowController {
         if let valenceValue = self.valence?.identifier?.rawValue,
             let arousalValue = self.arousal?.identifier?.rawValue,
             let activityValue = self.activityPopupButton.titleOfSelectedItem {
-
-            let emotionTracker = TrackerManager.shared.getTracker(tracker: "EmotionTracker") as! EmotionTracker
+            let name = EmotionTrackerSettings.Name
+            
+            guard let emotionTracker = TrackerManager.shared.getTracker(tracker: name) as? EmotionTracker else {
+                fatalError("Emotion Tracker with name '\(name)' does not exist or is not an emotion tracker.")
+            }
 
             let timestamp = Date()
             let activity = activityValue

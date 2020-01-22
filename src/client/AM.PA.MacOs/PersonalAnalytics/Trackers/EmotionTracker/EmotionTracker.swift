@@ -22,7 +22,7 @@ class EmotionTracker: ITracker, TrackerUserNotificationHandling {
     let notificationCenter = NSUserNotificationCenter.default
 
     // Properties for protocol conformity
-    var name: String = "EmotionTracker"
+    var name: String = EmotionTrackerSettings.Name
     var isRunning: Bool = false
 
 

@@ -9,11 +9,9 @@ import Foundation
 
 
 class UserInputTracker: ITracker{
-    var name: String
+    var name: String = UserInputSettings.Name
     var isRunning: Bool
-    let type: String = "UserInput"
-
-    
+        
     var leftClickCount: Int
     var rightClickCount: Int
     var distance: Int
@@ -43,7 +41,6 @@ class UserInputTracker: ITracker{
         self.deleteCount = 0
         self.scrollDelta = 0
         
-        name = "User Input Tracker"
         if(UserInputSettings.IsDetailedCollectionEnabled){
             name += " (detailed)"
         }

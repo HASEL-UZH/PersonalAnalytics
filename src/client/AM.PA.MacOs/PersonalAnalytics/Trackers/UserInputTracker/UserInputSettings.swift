@@ -10,8 +10,10 @@ import Foundation
 
 enum UserInputSettings {
     
-    static let isEnabledByDefault = true // not used yet
+    static let IsEnabledByDefault = true // not used yet
     static let IsDetailedCollectionEnabled = false
+    
+    static let Name = "UserInputTracker"
     
     // MARK: - timer intervals
     static let UserInputAggregationInterval = TimeInterval(60) // 1 min

@@ -65,8 +65,8 @@ class TrackerManager {
         }
     }
     
-    func getTracker(tracker: String) -> ITracker {
-        return trackers[tracker]!
+    func getTracker(tracker: String) -> ITracker? {
+        return trackers[tracker]
     }
     
     
