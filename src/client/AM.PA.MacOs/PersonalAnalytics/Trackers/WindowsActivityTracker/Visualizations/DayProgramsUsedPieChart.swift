@@ -17,7 +17,7 @@ class DayProgamsUsedPieChart: IVisualization {
     var _type: [String] = [VisConstants.Day]
     let _minTimeWorked = 0.0
     
-    required init() throws{
+    required init() {
         Size = "Square"
         title = "Top Programs Used"
     }

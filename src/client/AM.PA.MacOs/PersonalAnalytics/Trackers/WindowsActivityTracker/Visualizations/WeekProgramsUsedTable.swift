@@ -28,8 +28,7 @@ class WeekProgramsUsedTable: IVisualization{
     var _type: [String] = [VisConstants.Week]
     var color: String
     
-    required init() throws
-    {
+    required init() {
         Size = "Square"
         color = AppConstants.retrospectiveColor
         title = "Top Programs Used During the Week"

@@ -19,7 +19,7 @@ class ActivityVisualization: IVisualization{
     var title: String
     var _type = [VisConstants.Day]
         
-    required init() throws {
+    required init() {
         Size = "Square"
         title = "Active Times"
     }

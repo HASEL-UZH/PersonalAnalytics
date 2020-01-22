@@ -13,7 +13,7 @@ class WeekActivityVisualization: IVisualization{
     var title: String
     var _type = [VisConstants.Week]
 
-    required init() throws {
+    required init() {
         Size = "Square"
         title = "Activity Breakdown for this Week"
     }

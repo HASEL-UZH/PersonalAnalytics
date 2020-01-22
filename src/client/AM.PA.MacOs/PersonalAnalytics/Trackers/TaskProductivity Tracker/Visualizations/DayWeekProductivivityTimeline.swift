@@ -25,7 +25,7 @@ class DayWeekProductivityTimeline: IVisualization {
         
     }
 
-    required init() throws {
+    required init() {
         Size = "Square"
         title = "Top Programs Used during (Un-)Productive Times"
         _type = [VisConstants.Day, VisConstants.Week]
