@@ -39,20 +39,7 @@ class UserEfficiencyTracker: ITracker, TrackerUserNotificationHandling {
     }
     
     func getVisualizationsDay(date: Date) -> [IVisualization] {
-        var viz: [IVisualization] = []
-        do{
-            viz.append(try DayProductivityTimeline())
-        }
-        catch{
-            print(error)
-        }
-        do{
-            viz.append(try DayWeekProductivityTimeline())
-        }
-        catch{
-            print(error)
-        }
-        return viz
+        return [DayProductivityTimeline(), DayWeekProductivityTimeline()]
     }
     
     @objc

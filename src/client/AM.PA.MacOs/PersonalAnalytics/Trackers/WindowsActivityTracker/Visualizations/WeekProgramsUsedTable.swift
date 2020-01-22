@@ -47,7 +47,7 @@ class WeekProgramsUsedTable: IVisualization{
         // fetch data sets
         /////////////////////
         let programUsePerDay: [String:Programs] = GetProgramUsePerDay(_date: _date);
-        var totalHoursPerDay = GetTotalHoursPerDay(programs: programUsePerDay);
+        let totalHoursPerDay = GetTotalHoursPerDay(programs: programUsePerDay);
         
         if (programUsePerDay.count < 1)
         {
