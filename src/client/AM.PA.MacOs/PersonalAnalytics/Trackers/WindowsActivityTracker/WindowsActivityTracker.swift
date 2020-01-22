@@ -34,7 +34,7 @@ class WindowsActivityTracker: ITracker{
   
     init(){
         isIdle = false
-        name = "WindoesActivityTracker"
+        name = "WindowsActivityTracker"
         isRunning = true
         
         unsafeChars = NSCharacterSet.alphanumerics
