@@ -7,13 +7,6 @@
 
 import Foundation
 
-enum TrackerConstants{
-    static let KeyboardEventNotification = Notification.Name("keyEvent")
-    static let MouseEventNotification = Notification.Name("mouseEvent")
-    static let MouseEvent = "mouseEvent"
-    static let KeyEvent = "keyEvent"
-}
-
 protocol ITracker {
     
     //list of visualizations to present for the tracker
@@ -65,4 +58,10 @@ extension ITracker{
     func getVisualizationsWeek(date: Date) -> [IVisualization]{
         return []
     }
+}
+
+
+/// Implement this protocol with your Tracker if you want to use UserNotifications in your codebase. The TrackerManager will then be able to call the implemented function "handleUserNotification" in order to forward the UserNotification back to the tracker.
+protocol TrackerUserNotificationHandling {
+    func handleUserNotification(notification: NSUserNotification)
 }

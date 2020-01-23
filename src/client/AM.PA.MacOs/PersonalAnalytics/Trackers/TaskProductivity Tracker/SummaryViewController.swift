@@ -8,18 +8,21 @@
 
 //TODO: unsupress warnings when completed
 import Cocoa
-import CoreData
+
 class SummaryViewController: NSViewController {
 
+    // TODO: use NSWindowController instead of NSViewController instead (??)
+    let popover = NSPopover()
+    
     var percievedProductivity: Int = 1
     var surveyStartTime: Date = Date()
     var surveyNotifyTime: Date = Date()
        
     @IBAction func submit(_ sender: NSButton) {
                 
-        DataObjectController.sharedInstance.saveUserEfficiency(userProductivity: percievedProductivity, surveyNotifyTime: surveyNotifyTime, surveyStartTime: surveyStartTime, surveyEndTime: Date())
+        UserEfficiencyQueries.saveUserEfficiency(userProductivity: percievedProductivity, surveyNotifyTime: surveyNotifyTime, surveyStartTime: surveyStartTime, surveyEndTime: Date())
         
-        NotificationCenter.default.post(name: Notification.Name(rawValue: AppConstants.summarySubmittedNotification), object: nil)
+        closeSummaryPopup()
         
         print("Submitted user efficiency update")
     }
@@ -27,10 +30,22 @@ class SummaryViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         surveyStartTime = Date()
-        print("****** summarycontroller being allocated!!!! *****")
-    }
-    deinit{
-        print("***** summarycontroller being deallocated *****")
     }
     
+    func closeSummaryPopup(){
+        if(popover.isShown){
+            popover.performClose(nil)
+        }
+    }
+    
+    func showSummaryPopup() {
+        popover.contentViewController = self
+        popover.behavior = .transient
+        // TODO: Not nice to use the delegate here, better options?
+        let appDelegate = NSApplication.shared.delegate as! AppDelegate
+        if let button = appDelegate.statusItem.button {
+            popover.show(relativeTo: button.bounds, of: button, preferredEdge: NSRectEdge.minY)
+            NSApp.activate(ignoringOtherApps: true)
+        }
+    }
 }

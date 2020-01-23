@@ -15,15 +15,13 @@ class DayMostFocusedProgram: IVisualization{
     let Size: String
     let color = AppConstants.retrospectiveColor
     let title: String
-    let sql: ActivitySQLController
     var _type: [String] = [VisConstants.Day]
     let _minFocusTime = 2.0
 
     
-    required init() throws {
+    required init() {
         Size = "Small"
         title = "Longest Time Focused in an App"
-        sql = try ActivitySQLController()
     }
     
     struct FocusedWorkDict{
@@ -51,7 +49,7 @@ class DayMostFocusedProgram: IVisualization{
         /////////////////////
         // fetch data sets
         /////////////////////
-        let queryResultsLocal = sql.GetLongestFocusOnProgram(date: _date);
+        let queryResultsLocal = WindowsActivityQueries.GetLongestFocusOnProgram(date: _date);
         
         if(queryResultsLocal == nil){
             return ""

@@ -52,8 +52,6 @@ class KeystrokeController {
         default:
             print("\(keyEvent.modifierFlags)Somehow it made it here, event is: \(keyEvent)")
         }
-        NotificationCenter.default.post(Notification(name: TrackerConstants.MouseEventNotification))
-
     }
 
     func getValues() -> (Int, Int, Int){

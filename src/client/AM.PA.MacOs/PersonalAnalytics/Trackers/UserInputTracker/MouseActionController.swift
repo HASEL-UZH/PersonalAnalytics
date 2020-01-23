@@ -31,20 +31,16 @@ class MouseActionController{
         switch mouseEvent.type{
         case .leftMouseDown:
             leftClickCountThisInterval += 1
-            NotificationCenter.default.post(name: TrackerConstants.MouseEventNotification, object:nil, userInfo: [TrackerConstants.MouseEvent:mouseEvent])
         case .rightMouseDown:
             rightClickCountThisInterval += 1
-            NotificationCenter.default.post(name: TrackerConstants.MouseEventNotification, object:nil, userInfo: [TrackerConstants.MouseEvent:mouseEvent])
         case .mouseMoved:
             let currentLocation = NSEvent.mouseLocation
             let distance = calculateDistance(a: currentLocation, b: lastMouseLocation)
             lastMouseLocation = currentLocation
             mouseMovement += distance
-            NotificationCenter.default.post(name: TrackerConstants.MouseEventNotification, object:nil, userInfo: [TrackerConstants.MouseEvent:mouseEvent, "distance": distance])
         case .scrollWheel:
             let scroll = Int(abs(mouseEvent.scrollingDeltaY))
             scrollDeltaThisInterval += scroll
-            NotificationCenter.default.post(name: TrackerConstants.MouseEventNotification, object:nil, userInfo: [TrackerConstants.MouseEvent:mouseEvent, "scrollDelta":scroll])
         default:
             print("Whoops! how did we get here")
         }

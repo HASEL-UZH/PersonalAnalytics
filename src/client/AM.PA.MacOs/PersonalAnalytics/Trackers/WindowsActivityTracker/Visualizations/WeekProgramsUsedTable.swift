@@ -27,12 +27,9 @@ class WeekProgramsUsedTable: IVisualization{
     var title: String
     var _type: [String] = [VisConstants.Week]
     var color: String
-    var sql: ActivitySQLController
     
-    required init() throws
-    {
+    required init() {
         Size = "Square"
-        sql = try ActivitySQLController()
         color = AppConstants.retrospectiveColor
         title = "Top Programs Used During the Week"
     }
@@ -50,7 +47,7 @@ class WeekProgramsUsedTable: IVisualization{
         // fetch data sets
         /////////////////////
         let programUsePerDay: [String:Programs] = GetProgramUsePerDay(_date: _date);
-        var totalHoursPerDay = GetTotalHoursPerDay(programs: programUsePerDay);
+        let totalHoursPerDay = GetTotalHoursPerDay(programs: programUsePerDay);
         
         if (programUsePerDay.count < 1)
         {
@@ -143,7 +140,7 @@ class WeekProgramsUsedTable: IVisualization{
         // fetch & format data
         while (first < last)
         {
-            let programsDay = sql.GetActivityPieChartData(date: first)
+            let programsDay = WindowsActivityQueries.GetActivityPieChartData(date: first)
             let dayNumber = getDayOfWeek(first) - 1
             
             for program in programsDay

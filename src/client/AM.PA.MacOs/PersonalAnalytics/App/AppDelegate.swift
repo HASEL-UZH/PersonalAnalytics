@@ -26,32 +26,23 @@ Change picture on notification
 - optional - Don't ask for summary untill the person stops typing for 20 seconds
 */
 
-import Cocoa
 import Foundation
-import Quartz
 
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDelegate {
     
     
-    // MARK: - Constants
-    let summaryEnabled = "Toggle Survey"
-
-    let maxAppCount = 100
-    var notificationTimer: Timer?
-    var pauseItem : NSMenuItem?
-    var isPaused: Bool = false
-        
+    // MARK: - App Support Directory
     lazy var applicationDocumentsDirectory: URL = {
-        // The directory the application uses to store the Core Data store file. This code uses a directory named "PersonalAnalytics" in the user's Application Support directory.
+        // The directory the application uses to store the sqlite .dat file. This code uses a directory named "PersonalAnalytics" in the user's Application Support directory.
         let urls = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
         let appSupportURL = urls[urls.count - 1]
         return appSupportURL.appendingPathComponent("PersonalAnalytics")
     }()
     
-    // MARK: -- Menu Bar Info
-    let popover = NSPopover()
+    
+    // MARK: - Menu Bar Info
     let statusItem = NSStatusBar.system.statusItem(withLength: -2)
     let menu = NSMenu()
     let defaults = UserDefaults.standard
@@ -59,15 +50,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     let preferencesController = PreferencesWindowController(windowNibName: NSNib.Name(rawValue: "PreferencesWindow"))
     let retrospectiveController = RetrospectiveWindowController(windowNibName:NSNib.Name(rawValue: "RetrospectiveWindow"))
 
+    
     // MARK: - Variables
-    var eventMonitor: AnyObject? = nil
-    var menuClickMonitor: AnyObject?
-    var notificationListenersToRemove = [AnyObject]()
-    var alertWaitsUntilClicked = false
     var api : PAHttpServer? = nil
-    var keyboard: KeystrokeController?
-    var mouse: MouseActionController?
-
+    var pauseItem : NSMenuItem?
+    var isPaused: Bool = false
+    var firstTimeShowingPreferences = true
     
     
     // MARK: - App Functions
@@ -86,7 +74,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         
         let retrospectiveItem = NSMenuItem(title: "Show Retrospective", action: #selector(AppDelegate.showRetrospective(_:)), keyEquivalent: "R")
         
-        let toggleSummaryItem = NSMenuItem(title: summaryEnabled, action: #selector(AppDelegate.toggleSummary(_:)), keyEquivalent: "A")
+        let toggleSummaryItem = NSMenuItem(title: "Toggle Survey", action: #selector(toggleSummary), keyEquivalent: "A")
         toggleSummaryItem.bind(NSBindingName(rawValue: "state"), to: defaultsController , withKeyPath: "values.\(AppConstants.summaryStateKey)", options: nil)
         // Grabbed this from here: https://github.com/producthunt/producthunt-osx/blob/ab3a0c42cf680a5b0231b3c99a76445cce9abb94/Source/Actions/PHOpenSettingsMenuAction.swift
         let delegate = NSApplication.shared.delegate as! AppDelegate
@@ -101,8 +89,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         menu.addItem(NSMenuItem.separator())
         menu.addItem(pauseItem!)
         
-        
-        
         menu.addItem(NSMenuItem.separator())
         menu.addItem(preferencesItem)
 
@@ -115,7 +101,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
 
         // Setting up the summary popup
         statusItem.image = NSImage(named: NSImage.Name(rawValue: "StatusBarButtonImage"))
-        setUpSummaryView()
+        
         setUpPreferencesView()
         setUpRetrospective()
     
@@ -133,21 +119,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
             isPaused = true
         }
     }
-    
-    let notificationQueue = OperationQueue.main // TODO:  this to a side queue?
-    
-    func addNotificationListeners(){
-        let notificationCenter = NotificationCenter.default
-        let closeSummaryObserver = notificationCenter.addObserver(forName: NSNotification.Name(rawValue: AppConstants.summarySubmittedNotification), object: nil, queue: notificationQueue) {
-            (summaryClosedNotification) -> Void in
-            self.resetSummaryView()
-        }
-        notificationListenersToRemove.append(closeSummaryObserver)
         
-        //        let notificationObserver =
-        //        notificationCenter.addObserverForName(nil, object: nil, queue: notificationQueue) { print($0) }
-        //        notificationListenersToRemove.append(notificationObserver)
-    }
     
     // MARK: - Preferences Management
     func setUpPreferencesView(){
@@ -157,17 +129,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     func setUpRetrospective(){
         retrospectiveController.window?.contentViewController = RetrospectiveViewController(nibName: NSNib.Name(rawValue: "RetrospectiveView"), bundle: nil)
     }
-    
-    var firstTime = true
-    
+        
     @objc func showPreferences(_ sender:AnyObject){
         preferencesController.showWindow(nil)
         NSApp.activate(ignoringOtherApps: true)
         preferencesController.window?.makeKeyAndOrderFront(self)
         
-        if(firstTime){
+        if(firstTimeShowingPreferences){
             preferencesController.repositionWindow()
-            firstTime = false
+            firstTimeShowingPreferences = false
         }
         //flowlightController?.setGreen()
         preferencesController.window?.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.floatingWindow)))
@@ -181,40 +151,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         
     }
     
-
-    // MARK: - Popover Management
-    func setUpSummaryView(){
-        popover.contentViewController = SummaryViewController(nibName: NSNib.Name(rawValue: "SummaryView"), bundle: nil)
-        popover.behavior = .transient
-    }
-    
-    
-    func resetSummaryView(){
-        if(popover.isShown){
-            popover.performClose(nil)
-        }
-        setUpSummaryView()
-    }
-
-    
-    @objc func toggleSummary(_ sender:AnyObject){
-            if let button = statusItem.button {
-                popover.show(relativeTo: button.bounds, of: button, preferredEdge: NSRectEdge.minY)
-                NSApp.activate(ignoringOtherApps: true)
-            }
+    func toggleSummary(){
+        let viewController = SummaryViewController(nibName: NSNib.Name(rawValue: "SummaryView"), bundle: nil)
+        viewController.showSummaryPopup()
     }
 
     
     func userNotificationCenter(_ center: NSUserNotificationCenter, didActivate notification: NSUserNotification) {
-
-        switch notification.identifier {
-        case AppConstants.emotionTrackerNotificationID:
-            (TrackerManager.shared.getTracker(tracker: "EmotionTracker") as! EmotionTracker).manageNotification(notification: notification)
-        default:
-            //print("Using delelgate for NSUsernotification")
-            self.toggleSummary(notification.self)
-        }
-
+        TrackerManager.shared.handleTrackerUserNotifications(notification: notification)
     }
 
 
@@ -277,8 +221,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         createApplicationDocumentsDirectoryIfMissing()
         
         TrackerManager.shared.register(tracker: UserInputTracker())
-        TrackerManager.shared.register(tracker: ActiveApplicationTracker())
-        //TrackerManager.shared.register(tracker: TaskProductivityTracker())
+        TrackerManager.shared.register(tracker: WindowsActivityTracker())
+        //TrackerManager.shared.register(tracker: UserEfficiencyTracker())
         //TrackerManager.shared.register(tracker: EmotionTracker())
         
         
@@ -290,11 +234,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         center.delegate = self
         
         
-        addNotificationListeners()
-        // Start local server so chrome extension can send data to it
-        api = PAHttpServer(coreDataController: DataObjectController.sharedInstance)
+        // Start local server
+        api = PAHttpServer()
         api!.startServer()
-
     }
     
     func launchPermissionExplanationAlert(){
@@ -319,16 +261,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     }
     
     
-
-    
     func applicationWillTerminate(_ aNotification: Notification) {
         // Remove listeners so notification center doesn't have dangling references
         print("Terminating app")
-        NotificationCenter.default.removeObserver(self)
-        //TODO: Remove tracker observers
-        if let monitor = eventMonitor{
-            NSEvent.removeMonitor(monitor)
-        }
         // This cannot be set to defer above because it will ask for connection, but before you can click
         // it will see the server is not connected and close it.
         api!.stopServer()

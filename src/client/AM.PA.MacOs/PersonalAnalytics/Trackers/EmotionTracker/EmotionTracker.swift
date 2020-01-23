@@ -15,22 +15,21 @@ struct Questionnaire {
     var arousal: NSNumber
 }
 
-class EmotionTracker: ITracker {
+class EmotionTracker: ITracker, TrackerUserNotificationHandling {
 
     // MARK: Properties
     let emotionPopUpController = EmotionPopUpWindowController(windowNibName: NSNib.Name(rawValue: "EmotionPopUp"))
     let notificationCenter = NSUserNotificationCenter.default
-    let dataController = DataObjectController.sharedInstance
 
     // Properties for protocol conformity
-    var name: String = "EmotionTracker"
+    var name: String = EmotionTrackerSettings.Name
     var isRunning: Bool = false
 
 
     // MARK: Initializer
     init() {
         
-        // Set default time interval between notificaitons
+        // Set default time interval between notifications
         let minutes = 60 * 60
         UserDefaults.standard.set(minutes, forKey: "timeInterval")
 
@@ -49,7 +48,7 @@ class EmotionTracker: ITracker {
     func stop() {
         // Cancel scheduled notifications
         for notification in notificationCenter.scheduledNotifications {
-            if notification.identifier == AppConstants.emotionTrackerNotificationID {
+            if notification.identifier == name {
                 notificationCenter.removeScheduledNotification(notification)
             }
         }
@@ -58,15 +57,7 @@ class EmotionTracker: ITracker {
 
 
     func createDatabaseTablesIfNotExist() {
-
-        let dbController = DatabaseController.getDatabaseController()
-
-        do{
-            try dbController.executeUpdate(query: "CREATE TABLE IF NOT EXISTS emotional_state (id INTEGER PRIMARY KEY, timestamp TEXT, activity TEXT, valence INTEGER, arousal INTEGER)");
-        }
-        catch{
-            print(error)
-        }
+        EmotionTrackerQueries.createDatabaseTablesIfNotExist()
     }
 
     // Not yet implemented
@@ -79,7 +70,7 @@ class EmotionTracker: ITracker {
         let notification = NSUserNotification()
 
         // Notification properties
-        notification.identifier = AppConstants.emotionTrackerNotificationID
+        notification.identifier = name
         notification.title = "How are you feeling?"
         notification.subtitle = "Click here to open the pop-up!"
         notification.soundName = NSUserNotificationDefaultSoundName
@@ -102,13 +93,10 @@ class EmotionTracker: ITracker {
         notificationCenter.scheduleNotification(notification)
 
         // Debug prints
-        print("Time to wait for next notification:", TimeInterval(exactly: timeIntervalSinceNow)!)
-        print("NotificationID: " + (notification.identifier ?? "noID"))
-
+        print("Time to wait for next notification (s):", TimeInterval(exactly: timeIntervalSinceNow)!)
     }
 
-    func manageNotification(notification: NSUserNotification) {
-
+    func handleUserNotification(notification: NSUserNotification) {
         if let choosen = notification.additionalActivationAction, let actionIdentifier = choosen.identifier {
 
             // If the notification is postponed...
@@ -132,7 +120,7 @@ class EmotionTracker: ITracker {
     }
 
     func save(questionnaire: Questionnaire){
-        dataController.saveEmotionalState(questionnaire: questionnaire)
+        EmotionTrackerQueries.saveEmotionalState(questionnaire: questionnaire)
     }
 
 }

@@ -14,14 +14,12 @@ class DayProductivityTimeline: IVisualization{
     var Size: String
     var color: String
     var title: String
-    var sql: ProductivitySQLController
     var _type: [String] = [VisConstants.Day]
     
-    required init() throws {
+    required init() {
         Size = "Square"
         color = AppConstants.retrospectiveColor
         title = "Percieved Productivity over the Day"
-        sql = try ProductivitySQLController()
     }
     
     func getHtml(_ _date: Date, type: String) -> String {
@@ -35,7 +33,7 @@ class DayProductivityTimeline: IVisualization{
         /////////////////////
         // fetch data sets
         /////////////////////
-        let chartQueryResultsLocal = sql.GetUserProductivityTimelineData(date: _date, type: type)//, VisType.Day);
+        let chartQueryResultsLocal = UserEfficiencyQueries.GetUserProductivityTimelineData(date: _date, type: type)//, VisType.Day);
         
         if (chartQueryResultsLocal.count < 3) // 3 is the minimum number of input-data-items
         {
@@ -63,7 +61,7 @@ class DayProductivityTimeline: IVisualization{
         /////////////////////
         // JS
         /////////////////////
-        let ticks: String = sql.CalculateLineChartAxisTicks(date: _date)
+        let ticks: String = UserEfficiencyQueries.CalculateLineChartAxisTicks(date: _date)
         let timeAxis: String = VisHelper.makeTimeAxis(chartQueryResultsLocal)
         let productivityFormattedData: String = VisHelper.makeFormattedData(chartQueryResultsLocal)
         let colors: String = "'User_Input_Level' : '" + color + "'"

@@ -25,16 +25,14 @@ class DayWeekProductivityTimeline: IVisualization {
         
     }
 
-    required init() throws {
+    required init() {
         Size = "Square"
         title = "Top Programs Used during (Un-)Productive Times"
-        sql = try ProductivitySQLController()
         _type = [VisConstants.Day, VisConstants.Week]
         color = AppConstants.retrospectiveColor
     }
 
     var title: String
-    var sql: ProductivitySQLController
     var _type: [String]
     var color: String
     var Size: String
@@ -54,8 +52,8 @@ class DayWeekProductivityTimeline: IVisualization {
         /////////////////////
         // fetch data sets
         /////////////////////
-        var prodResponses = sql.GetUserProductivityTimelineData(date: _date, type: type);
-        var programsUsed = sql.GetTopProgramsUsedWithTimes(date: _date, type: type, max: maxNumberOfTopPrograms);
+        var prodResponses = UserEfficiencyQueries.GetUserProductivityTimelineData(date: _date, type: type);
+        var programsUsed = UserEfficiencyQueries.GetTopProgramsUsedWithTimes(date: _date, type: type, max: maxNumberOfTopPrograms);
         
         if (prodResponses.count < 3 || programsUsed.count < 1)
         {

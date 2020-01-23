@@ -10,16 +10,12 @@ import Foundation
 
 class DayTimeSpentVisualization: IVisualization {
     
-    let sql: ActivitySQLController
     let Size: String = "Wide"
     var title: String = "Details: Time Spent"
     let color: String = AppConstants.retrospectiveColor
     let _type: [String] = [VisConstants.Day]
-
-    required init() throws{
-        sql = try ActivitySQLController()
-    }
-
+    
+    required init() { }
     
     func getHtml(_ _date: Date, type: String) -> String
     {
@@ -34,7 +30,7 @@ class DayTimeSpentVisualization: IVisualization {
         // fetch & combine data sets
         /////////////////////
         
-        list = sql.GetDayTimelineData(date: _date)
+        list = WindowsActivityQueries.GetDayTimelineData(date: _date)
         
         /////////////////////
         // sort the list again

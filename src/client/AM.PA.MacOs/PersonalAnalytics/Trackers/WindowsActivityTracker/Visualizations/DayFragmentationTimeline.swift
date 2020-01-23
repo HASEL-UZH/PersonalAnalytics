@@ -12,14 +12,12 @@ class DayFragmentationTimeline: IVisualization{
     var title: String
     let color = AppConstants.retrospectiveColor
     var Size: String
-    let sql: ActivitySQLController
     let timelineZoomFactor = 1
     var _type: [String] = [VisConstants.Day]
     
-    required init() throws {
+    required init() {
         title = "Timeline: Activities over the Day"
         Size = "Wide"
-        sql = try ActivitySQLController()
     }
     
     func getHtml(_ _date: Date, type: String) -> String {
@@ -33,7 +31,7 @@ class DayFragmentationTimeline: IVisualization{
         /////////////////////
         // fetch data sets
         /////////////////////
-        let orderedTimelineList: [Activity] = sql.GetDayTimelineData(date: _date);
+        let orderedTimelineList: [Activity] = WindowsActivityQueries.GetDayTimelineData(date: _date);
         
         /////////////////////
         // data cleaning

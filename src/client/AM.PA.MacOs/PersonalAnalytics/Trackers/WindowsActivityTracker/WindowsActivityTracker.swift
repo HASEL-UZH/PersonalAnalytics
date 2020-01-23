@@ -1,5 +1,5 @@
 //
-//  ActiveApplicationTracker.swift
+//  WindowsActivityTracker.swift
 //  PersonalAnalytics
 //
 //  Created by Chris Satterfield on 2017-05-29.
@@ -9,10 +9,6 @@ import Foundation
 import CoreGraphics
 import Quartz
 
-fileprivate enum Settings{
-    static let DbTable = "windows_activity"
-}
-
 struct ActiveApplication {
     var time: Date
     var tsStart: Date
@@ -21,8 +17,8 @@ struct ActiveApplication {
     var process: String
 }
 
-class ActiveApplicationTracker: ITracker{
-    var name: String
+class WindowsActivityTracker: ITracker{
+    var name = WindowsActivitySettings.Name
     var isRunning: Bool
     
     var lastApplication: ActiveApplication?
@@ -38,7 +34,7 @@ class ActiveApplicationTracker: ITracker{
   
     init(){
         isIdle = false
-        name = "ActiveApplication"
+        
         isRunning = true
         
         unsafeChars = NSCharacterSet.alphanumerics
@@ -64,60 +60,23 @@ class ActiveApplicationTracker: ITracker{
     }
     
     func createDatabaseTablesIfNotExist() {
-        let dbController = DatabaseController.getDatabaseController()
-        let query: String = "CREATE TABLE IF NOT EXISTS " + Settings.DbTable +  " (id INTEGER PRIMARY KEY, time TEXT, tsStart TEXT, tsEnd TEXT, window TEXT, process TEXT);"
-        do{
-            try dbController.executeUpdate(query: query)
-        }
-        catch{
-            print(error)
-        }
+        WindowsActivityQueries.createDatabaseTablesIfNotExist()
     }
     
     func updateDatabaseTables(version: Int) {
     }
     
     func getVisualizationsDay(date: Date) -> [IVisualization] {
-        var viz: [IVisualization] = []
-        do{
-            viz.append(try DayProgamsUsedPieChart())
-        }
-        catch{
-            print(error)
-        }
-        
-        do{
-            viz.append(try DayMostFocusedProgram())
-        }
-        catch{
-            print(error)
-        }
-        
-        do{
-            viz.append(try DayFragmentationTimeline())
-        }
-        catch{
-            print(error)
-        }
-        do{
-            viz.append(try DayTimeSpentVisualization())
-        }
-        catch{
-            print(error)
-        }
-        return viz
+        return [
+            DayProgamsUsedPieChart(),
+            DayMostFocusedProgram(),
+            DayFragmentationTimeline(),
+            DayTimeSpentVisualization()
+        ]
     }
     
     func getVisualizationsWeek(date: Date) -> [IVisualization] {
-        var viz: [IVisualization] = []
-        do{
-            viz.append(try WeekProgramsUsedTable())
-        }
-        catch{
-            print(error)
-        }
-
-        return viz
+        return [WeekProgramsUsedTable()]
     }
     
     func stop(){
@@ -160,9 +119,6 @@ class ActiveApplicationTracker: ITracker{
                 isIdle = true
                 saveCurrentApplicationToMemory()
             }
-        }
-        else if(idleTime > 30 * 60){
-            NotificationCenter.default.post(name: NSNotification.Name(rawValue: "isIdle"), object: nil, userInfo: ["isidle":isIdle])
         }
         else{
             if(isIdle){
@@ -220,7 +176,7 @@ class ActiveApplicationTracker: ITracker{
                                
                 if (lastApplication!.process != activeAppName || lastApplication!.window != title){
                     // at this point, the last app is no longer active and we can persist it
-                    DataObjectController.sharedInstance.saveActiveApplication(app: lastApplication!)
+                    WindowsActivityQueries.saveActiveApplication(app: lastApplication!)
                     // new application which is currently running
                     lastApplication = ActiveApplication(time: Date(), tsStart: Date(), tsEnd: Date(), window: title, process: activeAppName)
                 }

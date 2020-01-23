@@ -70,8 +70,11 @@ class EmotionPopUpWindowController: NSWindowController {
         if let valenceValue = self.valence?.identifier?.rawValue,
             let arousalValue = self.arousal?.identifier?.rawValue,
             let activityValue = self.activityPopupButton.titleOfSelectedItem {
-
-            let emotionTracker = TrackerManager.shared.getTracker(tracker: "EmotionTracker") as! EmotionTracker
+            let name = EmotionTrackerSettings.Name
+            
+            guard let emotionTracker = TrackerManager.shared.getTracker(tracker: name) as? EmotionTracker else {
+                fatalError("Emotion Tracker with name '\(name)' does not exist or is not an emotion tracker.")
+            }
 
             let timestamp = Date()
             let activity = activityValue
@@ -114,17 +117,6 @@ class EmotionPopUpWindowController: NSWindowController {
             } else {
                 arousalValidationLabel.isHidden = true
             }
-
         }
-
-    }
-
-
-    @IBAction func exportToCsvClicked(_ sender: Any) {
-
-        // Export study data to csv (starting from 1 month ago)
-        let oneMonthAgo = Date() - (30*24*60*60)
-        DataObjectController.sharedInstance.exportStudyData(startTime: oneMonthAgo.timeIntervalSince1970)
-
     }
 }

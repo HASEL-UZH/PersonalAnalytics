@@ -18,11 +18,8 @@ class ActivityVisualization: IVisualization{
     //TODO
     var title: String
     var _type = [VisConstants.Day]
-    
-    let sql: InputSQLController
-    
-    required init() throws {
-        sql = try InputSQLController()
+        
+    required init() {
         Size = "Square"
         title = "Active Times"
     }
@@ -41,7 +38,7 @@ class ActivityVisualization: IVisualization{
         /////////////////////
         //TODO: add date information
         //returns a dictionary
-        let chartQueryResultsLocal: Dictionary<TimeInterval,Int> = sql.GetUserInputTimelineData(date: _date)
+        let chartQueryResultsLocal: Dictionary<TimeInterval,Int> = UserInputQueries.GetUserInputTimelineData(date: _date)
 
         // 3 is the minimum number of input-data-items - else, it makes no sense to show a visualization
         if (chartQueryResultsLocal.count < 3)
@@ -69,7 +66,7 @@ class ActivityVisualization: IVisualization{
         /////////////////////
         // JS
         /////////////////////
-        let ticks = sql.CalculateLineChartAxisTicks(date: _date)
+        let ticks = UserInputQueries.CalculateLineChartAxisTicks(date: _date)
         
         //aggregate the results of the dictionary to make axis
         let timeAxis = VisHelper.makeTimeAxis(chartQueryResultsLocal)//chartQueryResultsLocal.Aggregate("", (current, a) => current + (DateTimeHelper.JavascriptTimestampFromDateTime(a.Key) + ", ")).Trim().TrimEnd(",")
