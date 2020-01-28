@@ -61,25 +61,11 @@ class UserInputTracker: ITracker{
     }
     
     func getVisualizationsDay(date: Date) -> [IVisualization] {
-        var viz: [IVisualization] = []
-        do{
-            viz.append(try ActivityVisualization())
-        }
-        catch{
-            print(error)
-        }
-        return viz
+        return [ ActivityVisualization() ]
     }
     
     func getVisualizationsWeek(date: Date) -> [IVisualization] {
-        var viz: [IVisualization] = []
-        do{
-            viz.append(try WeekActivityVisualization())
-        }
-        catch{
-            print(error)
-        }
-        return viz
+        return [ WeekActivityVisualization() ]
     }
     
     func stop(){

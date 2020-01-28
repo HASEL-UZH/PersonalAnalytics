@@ -95,32 +95,6 @@ class TrackerManager {
         notifTracker.handleUserNotification(notification: notification)
     }
     
-    
-    /// Forwards a notification to the right tracker after the notification was acknowledged/seen by the user. To do so, it checks if the notification identifier matches with the name of a tracker. In order to handle the notification a tracker needs to implement the TrackerUserNotificationHandling protocol.
-    /// - Parameter notification: a user notification most likely scheduled by a tracker and acknowledged by the user.
-    func handleTrackerUserNotifications(notification: NSUserNotification) {
-        // check if a notification identifier exists
-        guard let id = notification.identifier else {
-            // programming "error". Fail early. Should never get this far in production.
-            fatalError("User notification is ignored. Notification needs an identifier.")
-        }
-        
-        // check if the notification identifier matches a tracker
-        guard let tracker = trackers[id] else {
-            fatalError("User notification [\(id)] is ignored. Notification identifier must be set to the name of the tracker itself.")
-        }
-        
-        // check if tracker implements the TrackerUserNotificationHandling protocol
-        guard let notifTracker = tracker as? TrackerUserNotificationHandling else {
-            fatalError("User notification [\(id)] is ignored. Tracker [\(id)] needs to implement the TrackerUserNotificationHandling protocol.")
-            
-        }
-        
-        // success!
-        print("Forwarding notification to [\(id)]")
-        notifTracker.handleUserNotification(notification: notification)
-    }
-    
     fileprivate func CreateDashboardItem(_ viz: IVisualization, date: Date, type: String) -> String{
         let html = viz.getHtml(date, type: type)
         if(html == ""){
