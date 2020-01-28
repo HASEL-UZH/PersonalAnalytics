@@ -15,7 +15,7 @@ class DayFragmentationTimeline: IVisualization{
     let timelineZoomFactor = 1
     var _type: [String] = [VisConstants.Day]
     
-    required init() throws {
+    required init() {
         title = "Timeline: Activities over the Day"
         Size = "Wide"
     }

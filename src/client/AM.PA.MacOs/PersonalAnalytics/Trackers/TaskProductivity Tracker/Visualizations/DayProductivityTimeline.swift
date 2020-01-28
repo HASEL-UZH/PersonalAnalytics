@@ -16,7 +16,7 @@ class DayProductivityTimeline: IVisualization{
     var title: String
     var _type: [String] = [VisConstants.Day]
     
-    required init() throws {
+    required init() {
         Size = "Square"
         color = AppConstants.retrospectiveColor
         title = "Percieved Productivity over the Day"

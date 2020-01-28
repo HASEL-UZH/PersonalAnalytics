@@ -232,7 +232,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         center.delegate = self
         
         
-        // Start local server so chrome extension can send data to it
+        // Start local server
         api = PAHttpServer()
         api!.startServer()
     }

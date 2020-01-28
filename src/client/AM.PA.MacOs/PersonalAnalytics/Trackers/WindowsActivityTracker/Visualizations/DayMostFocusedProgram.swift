@@ -19,7 +19,7 @@ class DayMostFocusedProgram: IVisualization{
     let _minFocusTime = 2.0
 
     
-    required init() throws {
+    required init() {
         Size = "Small"
         title = "Longest Time Focused in an App"
     }

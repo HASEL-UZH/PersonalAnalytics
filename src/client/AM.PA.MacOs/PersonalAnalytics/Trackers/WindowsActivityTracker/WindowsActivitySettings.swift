@@ -10,4 +10,5 @@ import Foundation
 
 enum WindowsActivitySettings {
     static let DbTable = "windows_activity"
+    static let Name = "WindowsActivityTracker"
 }

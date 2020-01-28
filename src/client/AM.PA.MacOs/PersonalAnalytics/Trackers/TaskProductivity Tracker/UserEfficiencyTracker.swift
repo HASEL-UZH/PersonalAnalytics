@@ -10,7 +10,7 @@ import Foundation
 
 class UserEfficiencyTracker: ITracker, TrackerUserNotificationHandling {
     
-    var name: String
+    var name = UserEfficiencySettings.Name
     var isRunning: Bool
     var notificationTimer: Timer?
     var isIdle = false
@@ -23,7 +23,6 @@ class UserEfficiencyTracker: ITracker, TrackerUserNotificationHandling {
 
 
     init(){
-        name = "User Efficiency Survey"
         isRunning = true
         viewController = SummaryViewController(nibName: NSNib.Name(rawValue: "SummaryView"), bundle: nil)
         notificationTimer = Timer.scheduledTimer(timeInterval: summaryIntervalMinutes * 60.0, target: self, selector: #selector(showNotificationThatLinksToSummary), userInfo: nil, repeats: true)
@@ -40,20 +39,7 @@ class UserEfficiencyTracker: ITracker, TrackerUserNotificationHandling {
     }
     
     func getVisualizationsDay(date: Date) -> [IVisualization] {
-        var viz: [IVisualization] = []
-        do{
-            viz.append(try DayProductivityTimeline())
-        }
-        catch{
-            print(error)
-        }
-        do{
-            viz.append(try DayWeekProductivityTimeline())
-        }
-        catch{
-            print(error)
-        }
-        return viz
+        return [DayProductivityTimeline(), DayWeekProductivityTimeline()]
     }
     
     @objc

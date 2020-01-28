@@ -10,4 +10,5 @@ import Foundation
 
 enum EmotionTrackerSettings {
     static let DbTable = "emotional_state"
+    static let Name = "EmotionTracker"
 }

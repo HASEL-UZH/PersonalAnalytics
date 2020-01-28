@@ -21,7 +21,7 @@ protocol IVisualization{
     var title: String { get }
     var _type: [String] { get }
     
-    init() throws
+    init()
     
     func getHtml(_ _date: Date, type: String) -> String
     

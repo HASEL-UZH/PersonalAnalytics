@@ -18,7 +18,8 @@ struct ActiveApplication {
 }
 
 class WindowsActivityTracker: ITracker{
-    var name: String
+
+    var name = WindowsActivitySettings.Name
     var isRunning: Bool
     
     var lastApplication: ActiveApplication?
@@ -34,7 +35,7 @@ class WindowsActivityTracker: ITracker{
   
     init(){
         isIdle = false
-        name = "WindoesActivityTracker"
+            
         isRunning = true
         
         unsafeChars = NSCharacterSet.alphanumerics
@@ -67,46 +68,16 @@ class WindowsActivityTracker: ITracker{
     }
     
     func getVisualizationsDay(date: Date) -> [IVisualization] {
-        var viz: [IVisualization] = []
-        do{
-            viz.append(try DayProgamsUsedPieChart())
-        }
-        catch{
-            print(error)
-        }
-        
-        do{
-            viz.append(try DayMostFocusedProgram())
-        }
-        catch{
-            print(error)
-        }
-        
-        do{
-            viz.append(try DayFragmentationTimeline())
-        }
-        catch{
-            print(error)
-        }
-        do{
-            viz.append(try DayTimeSpentVisualization())
-        }
-        catch{
-            print(error)
-        }
-        return viz
+        return [
+            DayProgamsUsedPieChart(),
+            DayMostFocusedProgram(),
+            DayFragmentationTimeline(),
+            DayTimeSpentVisualization()
+        ]
     }
     
     func getVisualizationsWeek(date: Date) -> [IVisualization] {
-        var viz: [IVisualization] = []
-        do{
-            viz.append(try WeekProgramsUsedTable())
-        }
-        catch{
-            print(error)
-        }
-
-        return viz
+        return [WeekProgramsUsedTable()]
     }
     
     func stop(){
