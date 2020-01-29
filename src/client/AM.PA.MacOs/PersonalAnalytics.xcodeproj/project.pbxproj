@@ -24,7 +24,7 @@
 		B01259B5238C169E00A7F0A9 /* DateTimeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97A0E3E1EE7843A000DCCEC /* DateTimeHelper.swift */; };
 		B01259B6238C169E00A7F0A9 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D0245FA1BD1C5AE00213D2A /* AppConstants.swift */; };
 		B01259B7238C169E00A7F0A9 /* PreferencesWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A310401EC5264E003B2470 /* PreferencesWindowController.swift */; };
-		B01259B8238C169E00A7F0A9 /* DataObjectController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D0245F71BD1651300213D2A /* DataObjectController.swift */; };
+		B01259B8238C169E00A7F0A9 /* DatabaseController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D0245F71BD1651300213D2A /* DatabaseController.swift */; };
 		B01259B9238C169E00A7F0A9 /* UserEfficiencyQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97A0E391EE5FB84000DCCEC /* UserEfficiencyQueries.swift */; };
 		B01259BA238C169E00A7F0A9 /* IVisualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7A61EDA540F00BE6F71 /* IVisualization.swift */; };
 		B01259BB238C169E00A7F0A9 /* DayMostFocusedProgram.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7B11EDCE0EA00BE6F71 /* DayMostFocusedProgram.swift */; };
@@ -93,6 +93,10 @@
 		B01259FD238C169E00A7F0A9 /* EmotionPopUp.xib in Resources */ = {isa = PBXBuildFile; fileRef = A3B37CE921DD1CDC008784B1 /* EmotionPopUp.xib */; };
 		B017DECF237964C800B0EB19 /* DateFormatConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B017DECE237964C800B0EB19 /* DateFormatConverter.swift */; };
 		B061EC262382F52F005AD5FD /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B061EC252382F52F005AD5FD /* WebKit.framework */; };
+		B0A4006923A7D5FB0032035A /* KeyboardInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A4006823A7D5FB0032035A /* KeyboardInput.swift */; };
+		B0A4006A23A7D5FB0032035A /* KeyboardInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A4006823A7D5FB0032035A /* KeyboardInput.swift */; };
+		B0A4006C23A7D60B0032035A /* MouseInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A4006B23A7D60B0032035A /* MouseInput.swift */; };
+		B0A4006D23A7D60B0032035A /* MouseInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A4006B23A7D60B0032035A /* MouseInput.swift */; };
 		B0BA0F7A2384062A00042775 /* UserInputSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BA0F792384062A00042775 /* UserInputSettings.swift */; };
 		B0CAC0EC23852B24002DBC55 /* WindowsActivitySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAC0EB23852B24002DBC55 /* WindowsActivitySettings.swift */; };
 		B0CAC0EE23854484002DBC55 /* UserEfficiencySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAC0ED23854484002DBC55 /* UserEfficiencySettings.swift */; };
@@ -224,6 +228,8 @@
 		B0125A0A238C251200A7F0A9 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
 		B017DECE237964C800B0EB19 /* DateFormatConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatConverter.swift; sourceTree = "<group>"; };
 		B061EC252382F52F005AD5FD /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		B0A4006823A7D5FB0032035A /* KeyboardInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardInput.swift; sourceTree = "<group>"; };
+		B0A4006B23A7D60B0032035A /* MouseInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MouseInput.swift; sourceTree = "<group>"; };
 		B0BA0F792384062A00042775 /* UserInputSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInputSettings.swift; sourceTree = "<group>"; };
 		B0CAC0EB23852B24002DBC55 /* WindowsActivitySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowsActivitySettings.swift; sourceTree = "<group>"; };
 		B0CAC0ED23854484002DBC55 /* UserEfficiencySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserEfficiencySettings.swift; sourceTree = "<group>"; };
@@ -390,6 +396,15 @@
 			path = Configs;
 			sourceTree = "<group>";
 		};
+		B0A4006723A7D5A20032035A /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B0A4006823A7D5FB0032035A /* KeyboardInput.swift */,
+				B0A4006B23A7D60B0032035A /* MouseInput.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		B97A0E261EE5F964000DCCEC /* Visualizations */ = {
 			isa = PBXGroup;
 			children = (
@@ -459,6 +474,7 @@
 		B9A0B7A11EDA356A00BE6F71 /* UserInputTracker */ = {
 			isa = PBXGroup;
 			children = (
+				B0A4006723A7D5A20032035A /* Models */,
 				B9B5C48B1F0456DA00AC7DE9 /* Visualizations */,
 				0D4676481BD54C2000796D2D /* KeystrokeController.swift */,
 				B9873A791EBA5DEF0050E864 /* MouseActionController.swift */,
@@ -825,6 +841,7 @@
 				0D0245FB1BD1C5AE00213D2A /* AppConstants.swift in Sources */,
 				B9A310411EC5264E003B2470 /* PreferencesWindowController.swift in Sources */,
 				0D0245F81BD1651300213D2A /* DatabaseController.swift in Sources */,
+				B0A4006C23A7D60B0032035A /* MouseInput.swift in Sources */,
 				B97A0E3A1EE5FB84000DCCEC /* UserEfficiencyQueries.swift in Sources */,
 				B9A0B7A71EDA540F00BE6F71 /* IVisualization.swift in Sources */,
 				B9A0B7B21EDCE0EA00BE6F71 /* DayMostFocusedProgram.swift in Sources */,
@@ -854,6 +871,7 @@
 				B9D50B7E1EDF443900145EC8 /* Activity.swift in Sources */,
 				B0CAC0EC23852B24002DBC55 /* WindowsActivitySettings.swift in Sources */,
 				A3B37CFF21DE0D35008784B1 /* EmotionPopUpWindowController.swift in Sources */,
+				B0A4006923A7D5FB0032035A /* KeyboardInput.swift in Sources */,
 				B0CAC0EE23854484002DBC55 /* UserEfficiencySettings.swift in Sources */,
 				B9873A7A1EBA5DEF0050E864 /* MouseActionController.swift in Sources */,
 				B9AA5C671F2939B500ED3432 /* WeekActivityVisualization.swift in Sources */,
@@ -877,7 +895,8 @@
 				B01259B5238C169E00A7F0A9 /* DateTimeHelper.swift in Sources */,
 				B01259B6238C169E00A7F0A9 /* AppConstants.swift in Sources */,
 				B01259B7238C169E00A7F0A9 /* PreferencesWindowController.swift in Sources */,
-				B01259B8238C169E00A7F0A9 /* DataObjectController.swift in Sources */,
+				B01259B8238C169E00A7F0A9 /* DatabaseController.swift in Sources */,
+				B0A4006D23A7D60B0032035A /* MouseInput.swift in Sources */,
 				B01259B9238C169E00A7F0A9 /* UserEfficiencyQueries.swift in Sources */,
 				B01259BA238C169E00A7F0A9 /* IVisualization.swift in Sources */,
 				B01259BB238C169E00A7F0A9 /* DayMostFocusedProgram.swift in Sources */,
@@ -907,6 +926,7 @@
 				B01259D2238C169E00A7F0A9 /* Activity.swift in Sources */,
 				B01259D3238C169E00A7F0A9 /* WindowsActivitySettings.swift in Sources */,
 				B01259D4238C169E00A7F0A9 /* EmotionPopUpWindowController.swift in Sources */,
+				B0A4006A23A7D5FB0032035A /* KeyboardInput.swift in Sources */,
 				B01259D5238C169E00A7F0A9 /* UserEfficiencySettings.swift in Sources */,
 				B01259D6238C169E00A7F0A9 /* MouseActionController.swift in Sources */,
 				B01259D7238C169E00A7F0A9 /* WeekActivityVisualization.swift in Sources */,

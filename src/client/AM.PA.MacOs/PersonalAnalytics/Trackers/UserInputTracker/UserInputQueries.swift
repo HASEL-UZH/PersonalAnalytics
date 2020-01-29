@@ -60,6 +60,175 @@ class UserInputQueries {
     }
     
     
+    /// Detailed tracking of mouse clicks.
+    /// - Parameter clicks: a list of clicks tracked over a 1-min period
+    static func saveMouseClicks(clicks: [MouseClickEvent]) {
+        let dbController = DatabaseController.getDatabaseController()
+        
+        if clicks.count == 0 {
+            return
+        }
+        
+        do {
+            let values = clicks.map({ c -> String in
+                let nowStr = DateFormatConverter.dateToStr(date: Date())
+                let tsStr = DateFormatConverter.dateToStr(date: c.timestamp)
+                return "('\(nowStr)', '\(tsStr)', \(c.x), \(c.y), '\(c.button)')"
+            })
+            
+            let q = """
+                    INSERT INTO \(UserInputSettings.DbTableMouseClick_v1) (time, timestamp, x, y, button)
+                    VALUES \(values.joined(separator: ","));
+                    """
+            
+            try dbController.executeUpdate(query: q)
+            
+        } catch {
+            print(error)
+        }
+    }
+    
+    
+    /// Detailed tracking of keystrokes
+    /// - Parameter keystrokes: a list of keystrokes over a 1 min period
+    static func saveKeystrokes(keystrokes: [KeyStrokeEvent]) {
+        let dbController = DatabaseController.getDatabaseController()
+        
+        if keystrokes.count == 0 {
+            return
+        }
+        
+        do {
+            let values = keystrokes.map({ ks -> String in
+                let nowStr = DateFormatConverter.dateToStr(date: Date())
+                let tsStr = DateFormatConverter.dateToStr(date: ks.timestamp)
+                return "('\(nowStr)', '\(tsStr)', '\(ks.type)')"
+            })
+            
+            let q = """
+                    INSERT INTO \(UserInputSettings.DbTableKeyboard_v1) (time, timestamp, keystrokeType)
+                    VALUES \(values.joined(separator: ","));
+                    """
+            
+            try dbController.executeUpdate(query: q)
+            
+        } catch {
+            print(error)
+        }
+    }
+    
+    
+    /// Saves detailed mouse scrolls with a per-second aggregate
+    /// - Parameter scrolls: tracked mouse scrolls over a 1 min period
+    static func saveMouseScrolls(scrolls: [MouseScrollSnapshot]) {
+        
+        if scrolls.count == 0 { return }
+        
+        var tsCurrent = scrolls.first!.timestamp
+        let tsEnd = scrolls.last!.timestamp
+        var scrollAggregatedPerSecond = [MouseScrollSnapshot]()
+
+        while (tsCurrent <= tsEnd) {
+            let tsCurrentEnd = tsCurrent.addingTimeInterval(1) // 1 sec
+            let scrollsThisSec = scrolls.filter { $0.timestamp >= tsCurrent && $0.timestamp < tsCurrentEnd }
+            let scrollDeltaThisSec = scrollsThisSec.reduce(0, { sum, scroll in sum + scroll.scrollDelta })
+            
+            tsCurrent = tsCurrentEnd
+            
+            if (scrollDeltaThisSec == 0) {
+                continue // no data this second
+            }
+            
+            // we use the logic from the Windows version:
+            // take the last scroll snapshot of the second and
+            // set scrollDelta to the total scrolled distance per sec
+            var last = scrollsThisSec.last! // last element does exist here
+            last.scrollDelta = scrollDeltaThisSec
+            scrollAggregatedPerSecond.append(last)
+        }
+
+        if scrollAggregatedPerSecond.count == 0 {
+            return
+        }
+        
+        do {
+            let dbController = DatabaseController.getDatabaseController()
+            
+            let values = scrollAggregatedPerSecond.map({ s -> String in
+                let nowStr = DateFormatConverter.dateToStr(date: Date())
+                let tsStr = DateFormatConverter.dateToStr(date: s.timestamp)
+                return "('\(nowStr)', '\(tsStr)', \(s.x), \(s.y), '\(s.scrollDelta)')"
+            })
+                        
+            let q = """
+                    INSERT INTO \(UserInputSettings.DbTableMouseScrolling_v1) (time, timestamp, x, y, scrollDelta)
+                    VALUES \(values.joined(separator: ","));
+                    """
+            
+            try dbController.executeUpdate(query: q)
+            
+        } catch {
+            print(error)
+        }
+    }
+    
+    
+    /// Save detailed mouse movements with a per-second aggregate
+    /// - Parameter movements: tracked mouse movements over a 1 min period
+    static func saveMouseMovements(movements: [MouseMovementSnapshot]) {
+        if movements.count == 0 { return }
+        
+        var tsCurrent = movements.first!.timestamp
+        let tsEnd = movements.last!.timestamp
+        var movementAggregatedPerSecond = [MouseMovementSnapshot]()
+
+        while (tsCurrent <= tsEnd) {
+            let tsCurrentEnd = tsCurrent.addingTimeInterval(1) // 1 sec
+            let movementsThisSec = movements.filter { $0.timestamp >= tsCurrent && $0.timestamp < tsCurrentEnd }
+            let movedDistanceThisSec = movementsThisSec.reduce(0, { sum, movement in sum + movement.movedDistance })
+            
+            tsCurrent = tsCurrentEnd
+            
+            if (movedDistanceThisSec == 0) {
+                continue // no data this second
+            }
+            
+            // we use the logic from the Windows version:
+            // take the last mouse movement snapshot of the second
+            // and set movedDistance to the total distance per sec
+            var last = movementsThisSec.last! // last element does exist here
+            last.movedDistance = movedDistanceThisSec
+            movementAggregatedPerSecond.append(last)
+        }
+
+        if movementAggregatedPerSecond.count == 0 {
+            return
+        }
+        
+        do {
+            let dbController = DatabaseController.getDatabaseController()
+            
+            let values = movementAggregatedPerSecond.map({ m -> String in
+                let nowStr = DateFormatConverter.dateToStr(date: Date())
+                let tsStr = DateFormatConverter.dateToStr(date: m.timestamp)
+                return "('\(nowStr)', '\(tsStr)', \(m.x), \(m.y), '\(m.movedDistance)')"
+            })
+                        
+            let q = """
+                    INSERT INTO \(UserInputSettings.DbTableMouseMovement_v1) (time, timestamp, x, y, movedDistance)
+                    VALUES \(values.joined(separator: ","));
+                    """
+            
+            try dbController.executeUpdate(query: q)
+            
+        } catch {
+            print(error)
+        }
+    }
+    
+    
+    /// minute-aggregate of all user inputs
+    /// - Parameter input: the user input counts
     static func saveUserInput(input: UserInputTracker) {
         let dbController = DatabaseController.getDatabaseController()
         

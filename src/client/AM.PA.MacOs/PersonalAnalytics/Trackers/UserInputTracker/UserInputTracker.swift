@@ -9,11 +9,9 @@ import Foundation
 
 
 class UserInputTracker: ITracker{
-    var name: String
+    var name: String = UserInputSettings.Name
     var isRunning: Bool
-    let type: String = "UserInput"
 
-    
     var leftClickCount: Int
     var rightClickCount: Int
     var distance: Int
@@ -43,7 +41,6 @@ class UserInputTracker: ITracker{
         self.deleteCount = 0
         self.scrollDelta = 0
         
-        name = "User Input Tracker"
         if(UserInputSettings.IsDetailedCollectionEnabled){
             name += " (detailed)"
         }
@@ -79,23 +76,31 @@ class UserInputTracker: ITracker{
         if(isPaused == false){
             return
         }
-        inputTimer = Timer.scheduledTimer(timeInterval: inputInterval, target: self,
-                                          selector: #selector(save), userInfo: nil, repeats: true)
+        inputTimer = Timer.scheduledTimer(timeInterval: inputInterval, target: self, selector: #selector(save), userInfo: nil, repeats: true)
         inputTimer?.tolerance = 5
         isPaused = false
     }
-
+    
     @objc func save(){
-        (leftClickCount, rightClickCount, scrollDelta, distance) = mouseController.getValues()
-        mouseController.reset()
-        (keyCount, navigateCount, deleteCount) = keystrokeController.getValues()
-        keystrokeController.reset()
+        // detailed aggregation (per-second)
+        if (UserInputSettings.IsDetailedCollectionEnabled) {
+            mouseController.saveDetailedMouseInputs()
+            keystrokeController.saveDetailedKeyStrokes()
+        }
+        
+        // default aggregation (per-minute)
+        let mouseValues = mouseController.getValues()
+        (leftClickCount, rightClickCount, scrollDelta, distance) = mouseValues
+                
+        let keystrokeValues = keystrokeController.getValues()
+        (keyCount, navigateCount, deleteCount) = keystrokeValues
+        
         tsEnd = Date()
         UserInputQueries.saveUserInput(input: self)
-        tsStart = Date() // reset for next aggregate
-    }
-    
-    deinit{
-        save()
+        
+        // prepare/reset for next aggregate
+        tsStart = tsEnd
+        mouseController.reset()
+        keystrokeController.reset()
     }
 }
