@@ -233,7 +233,7 @@ class UserInputQueries {
         let dbController = DatabaseController.getDatabaseController()
         
         let keyTotal = input.keyCount + input.deleteCount + input.navigateCount
-        let clicksTotal = input.leftClickCount + input.rightClickCount
+        let clicksTotal = input.leftClickCount + input.rightClickCount + input.otherClickCount
                 
         do {
             let args:StatementArguments = [
@@ -245,7 +245,7 @@ class UserInputQueries {
                 input.deleteCount,
                 input.navigateCount,
                 clicksTotal,
-                -1, // TODO: clickOther
+                input.otherClickCount,
                 input.leftClickCount,
                 input.rightClickCount,
                 input.scrollDelta,

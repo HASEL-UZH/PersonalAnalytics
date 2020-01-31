@@ -14,6 +14,7 @@ class UserInputTracker: ITracker{
 
     var leftClickCount: Int
     var rightClickCount: Int
+    var otherClickCount: Int
     var distance: Int
     var scrollDelta: Int
     var tsStart: Date
@@ -35,6 +36,7 @@ class UserInputTracker: ITracker{
         self.tsEnd = Date()
         self.leftClickCount = 0
         self.rightClickCount = 0
+        self.otherClickCount = 0
         self.distance = 0
         self.keyCount = 0
         self.navigateCount = 0
@@ -90,7 +92,7 @@ class UserInputTracker: ITracker{
         
         // default aggregation (per-minute)
         let mouseValues = mouseController.getValues()
-        (leftClickCount, rightClickCount, scrollDelta, distance) = mouseValues
+        (leftClickCount, rightClickCount, otherClickCount, scrollDelta, distance) = mouseValues
                 
         let keystrokeValues = keystrokeController.getValues()
         (keyCount, navigateCount, deleteCount) = keystrokeValues

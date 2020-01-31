@@ -64,9 +64,10 @@ class MouseActionController{
         mouseMovementList.removeAll()
     }
     
-    func getValues() -> (Int, Int, Int, Int){
+    func getValues() -> (Int, Int, Int, Int, Int){
         let leftClicks = mouseClickList.filter { $0.button == .Left }
         let rightClicks = mouseClickList.filter { $0.button == .Right }
+        let otherClicks = mouseClickList.filter { $0.button == .Middle || $0.button == .XButton1 || $0.button == .XButton2 }
         
         let scrollDelta = mouseScrollList.reduce(0, { sum, scroll in
             sum + scroll.scrollDelta
@@ -76,7 +77,7 @@ class MouseActionController{
             sum + move.movedDistance
         })
         
-        return (leftClicks.count, rightClicks.count, scrollDelta, mouseMovement)
+        return (leftClicks.count, rightClicks.count, otherClicks.count, scrollDelta, mouseMovement)
     }
     
     func saveDetailedMouseInputs() {
