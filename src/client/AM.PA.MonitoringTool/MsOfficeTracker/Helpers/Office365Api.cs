@@ -513,6 +513,57 @@ namespace MsOfficeTracker.Helpers
         }
 
         /// <summary>
+        /// Returns a list of emails subjects which were received on a given date AND are unread 
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public async Task<List<string>> GetSubjectOfUnreadEmailsReceived(DateTimeOffset date)
+        {
+            if (await ConnectionToApiFailing()) return new List<string>();
+
+            try
+            {
+                var dtStart = date.Date.ToUniversalTime();
+                var dtEnd = date.Date.AddDays(1).ToUniversalTime();
+
+                var options = new List<QueryOption>
+                {
+                    new QueryOption("$filter", "receivedDateTime ge " + dtStart.ToString(DateTimeToFormatString) + " and receivedDateTime le " + dtEnd.ToString(DateTimeToFormatString) + " and isRead eq false"),
+                };
+                var result = await _client.Me.Messages.Request(options).GetAsync();
+
+                if (result?.Count > 0)
+                {
+                    var receivedUnfilter = new List<Message>();
+                    receivedUnfilter.AddRange(result.CurrentPage);  
+                    while (result.NextPageRequest != null)
+                    {
+                        result = await result.NextPageRequest.GetAsync();
+                        receivedUnfilter.AddRange(result.CurrentPage);
+                    }
+
+                    // delete emails in IgnoreFolders and Drafts and IM-copies from S4B/Teams
+                    var ignoreFolders = await GetFoldersToIgnoreIds();
+                    var unreadEmailsReceived = receivedUnfilter.Count(m => m.IsDraft == false && !ignoreFolders.Contains(m.ParentFolderId) && m.Subject != "IM");
+
+                    // extract subjects from emails and save them in a new string list
+                    var unreadEmailSubjectsReceived = new List<string>();
+                    for (int i = 0; i < receivedUnfilter.Count; i++)
+                    {
+                        unreadEmailSubjectsReceived.Add(receivedUnfilter[i].Subject);
+                    }
+                    return unreadEmailSubjectsReceived;
+                }
+                return new List<string>();
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+            return new List<string>();
+        }
+
+        /// <summary>
         /// Returns a list of emails which were received on a given date
         /// </summary>
         /// <param name="date"></param>

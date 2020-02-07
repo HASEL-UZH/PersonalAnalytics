@@ -309,6 +309,17 @@ namespace Shared.Data
         }
 
         /// <summary>
+        /// Q is the James-Bond guy. Joins the string list together and improves it for query string as to allow us to write the content into a single database column
+        /// </summary>
+        /// <param name="strlist"></param>
+        /// <returns></returns>
+        public string Q(List<string> strlist)
+        {
+            string joinedString = string.Join(";", strlist.ToArray());
+            return Q(joinedString);
+        }
+
+        /// <summary>
         /// Q is the James-Bond guy. But for ints.
         /// </summary>
         /// <param name="str"></param>
