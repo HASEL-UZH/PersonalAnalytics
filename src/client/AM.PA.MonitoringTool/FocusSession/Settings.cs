@@ -1,0 +1,12 @@
+﻿// Created by Philip Hofmann (philip.hofmann@uzh.ch) from the University of Zurich
+// Created: 2020-02-11
+// 
+// Licensed under the MIT License.
+
+namespace FocusSession
+{
+    public static class Settings
+    {
+        public static bool IsEnabledByDefault = true;
+    }
+}
