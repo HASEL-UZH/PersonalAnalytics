@@ -53,6 +53,7 @@ namespace PersonalAnalytics
         /// <summary>
         /// Register trackers for the TrackerManager (i.e. monitoring tool)
         /// (add a new tracker here to make it being integrated into the monitoring tool and retrospection)
+        /// If namespace not recognized, check in References -> right click -> add Reference -> Project -> make sure that [Your Tracker] is checked
         /// </summary>
         public List<ITracker> RegisterTrackers()
         {
@@ -63,6 +64,7 @@ namespace PersonalAnalytics
             Register(new MsOfficeTracker.Daemon());
             Register(new PolarTracker.Deamon());
             Register(new FitbitTracker.Deamon());
+            Register(new FocusSession.Daemon());
 
 #if Dev
             //Register(new PeopleVisualizer.PeopleVisualizer()); // disabled, as it's not finished and pretty slow

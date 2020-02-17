@@ -8,36 +8,45 @@ using Shared;
 
 namespace FocusSession
 {
-    public sealed class Daemon : BaseTrackerDisposable, ITracker
+    public sealed class Daemon : BaseTracker, ITracker
     {
-        public override void CreateDatabaseTablesIfNotExist()
-        {
-            throw new NotImplementedException();
-        }
 
-        public override string GetVersion()
+        public Daemon()
         {
-            throw new NotImplementedException();
-        }
-
-        public override bool IsEnabled()
-        {
-            throw new NotImplementedException();
+            Name = Settings.TrackerName;
         }
 
         public override void Start()
         {
-            throw new NotImplementedException();
+            IsRunning = true;
         }
 
         public override void Stop()
         {
-            throw new NotImplementedException();
+            IsRunning = false;
+        }
+
+        public override void CreateDatabaseTablesIfNotExist()
+        {
+            Data.Queries.CreateFocusTable();
         }
 
         public override void UpdateDatabaseTables(int version)
         {
-            throw new NotImplementedException();
+            Data.Queries.UpdateDatabaseTables(version);
         }
+
+        public override string GetVersion()
+        {
+            var v = new System.Reflection.AssemblyName(System.Reflection.Assembly.GetExecutingAssembly().FullName).Version;
+            return Shared.Helpers.VersionHelper.GetFormattedVersion(v);
+        }
+
+        // TODO implement this, that the user can enable or disable, change when user updates settings, include in settings editor
+        public override bool IsEnabled()
+        {
+            return true;
+        }
+
     }
 }
