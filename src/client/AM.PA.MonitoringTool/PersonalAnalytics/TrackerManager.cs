@@ -57,13 +57,13 @@ namespace PersonalAnalytics
         /// </summary>
         public List<ITracker> RegisterTrackers()
         {
-            Register(new WindowsActivityTracker.Daemon());
-            Register(new TimeSpentVisualizer.Visualizers.TimeSpentVisualizer());
-            Register(new UserEfficiencyTracker.Daemon());
-            Register(new UserInputTracker.Daemon());
-            Register(new MsOfficeTracker.Daemon());
-            Register(new PolarTracker.Deamon());
-            Register(new FitbitTracker.Deamon());
+            //Register(new WindowsActivityTracker.Daemon());
+            //Register(new TimeSpentVisualizer.Visualizers.TimeSpentVisualizer());
+            //Register(new UserEfficiencyTracker.Daemon());
+            //Register(new UserInputTracker.Daemon());
+            //Register(new MsOfficeTracker.Daemon());
+            //Register(new PolarTracker.Deamon());
+            //Register(new FitbitTracker.Deamon());
             Register(new FocusSession.Daemon());
 
 #if Dev

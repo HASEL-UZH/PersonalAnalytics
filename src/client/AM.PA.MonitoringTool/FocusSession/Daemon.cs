@@ -4,6 +4,7 @@
 // Licensed under the MIT License.
 
 using System;
+using MsOfficeTracker.Visualizations;
 using Shared;
 
 namespace FocusSession
@@ -24,6 +25,12 @@ namespace FocusSession
         public override void Stop()
         {
             IsRunning = false;
+        }
+
+        public override System.Collections.Generic.List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
+        {
+            var vis = new Visualizations.TimerButton(date);
+            return new System.Collections.Generic.List<IVisualization> { vis };
         }
 
         public override void CreateDatabaseTablesIfNotExist()
