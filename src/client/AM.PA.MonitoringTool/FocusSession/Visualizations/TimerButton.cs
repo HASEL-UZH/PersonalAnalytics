@@ -1,4 +1,5 @@
-﻿// Created by Philip Hofmann (philip.hofmann@uzh.ch) from the University of Zurich
+﻿
+// Created by Philip Hofmann (philip.hofmann@uzh.ch) from the University of Zurich
 // Created: 2020-02-11
 // 
 // Licensed under the MIT License.
@@ -41,13 +42,10 @@ namespace FocusSession.Visualizations
             /////////////////////
             // HTML
             /////////////////////
-            ///
-            // take the feedback helper as a reference. There is a visual window "got feedback?" that has a button with functionality
-            // Retrospection -> FeedbackBox -> Retrospection/ObjectForScriptingHelper
-
             html += "<table>";
-            html += "<p style='text-align: center;'>Click on the Button to start a Focus Session</p>";
-            html += "<button class='button' onclick=\"Test()\">Focus Session</button>";
+            html += "<p style='text-align: center;'>Click on the Buttons to manage your Focus Session</p>";
+            html += "<button class='button' onclick=\"window.external.JS_StartFocusSession\" style=\"display:inline-block;margin-right:20px;margin-left:50px;\">Start Focus Session</button>";
+            html += "<button class='button' onclick=\"window.external.JS_StopFocusSession\" style=\"display:inline-block;\">Stop Focus Session</button>";
 
             html += "</table>";
 

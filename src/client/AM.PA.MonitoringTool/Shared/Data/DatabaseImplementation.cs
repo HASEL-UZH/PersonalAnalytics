@@ -363,6 +363,18 @@ namespace Shared.Data
         }
 
         /// <summary>
+        /// Formats and magicifies a datetime
+        /// '%Y-%m-%d %H:%M:%S'
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <returns></returns>
+        public string QTime(TimeSpan dateTime)
+        {
+            var dateTimeString = dateTime.ToString();
+            return Q(dateTimeString);
+        }
+
+        /// <summary>
         /// Formats and magicifies a datetime with fractional seconds
         /// '%Y-%m-%d %H:%M:%f'
         /// </summary>

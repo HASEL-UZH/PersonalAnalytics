@@ -9,7 +9,6 @@ namespace FocusSession
     {
         public const string TrackerName = "FocusSession Tracker";
         public static bool IsEnabledByDefault = true;
-
-        public static string FocusTimerTable { get; internal set; }
+        public const string FocusTimerTable = "focusTimer";
     }
 }

@@ -10,6 +10,7 @@ using System;
 using Shared;
 using Shared.Helpers;
 using System.Globalization;
+using FocusSession;
 
 namespace Retrospection
 {
@@ -20,6 +21,16 @@ namespace Retrospection
         public void JS_SendFeedback()
         {
             Handler.GetInstance().SendFeedback();
+        }
+
+        public void JS_StartFocusSession()
+        {
+            FocusSession.Controls.Timer.StartTimer();
+        }
+
+        public void JS_StopFocusSession()
+        {
+            FocusSession.Controls.Timer.StopTimer();
         }
 
         public void JS_ThumbsVote(string voteType, string chartTitle, string typeString, string dateString)

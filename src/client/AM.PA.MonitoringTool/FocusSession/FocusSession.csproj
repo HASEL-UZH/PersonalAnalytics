@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\Timer.cs" />
     <Compile Include="Daemon.cs" />
     <Compile Include="Data\Queries.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
