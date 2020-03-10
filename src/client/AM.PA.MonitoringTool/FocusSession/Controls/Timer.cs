@@ -6,14 +6,16 @@ namespace FocusSession.Controls
     public class Timer
     {
 
-        //private static System.Timers.Timer aTimer;  // timer functionality
+        // private static System.Timers.Timer aTimer;  // timer functionality
         // setting them equal to control sessions (default value means equal). As soon as startTime is different it means a session is running
-        private static DateTime startTime = DateTime.Now;
-        private static DateTime stopTime = DateTime.Now;
+        private static DateTime startTime = new DateTime(2019, 2, 22, 14, 0, 0);    //just a default value, important is that is is equal to stopTime and in the past (so .now will never return the same value)
+        private static DateTime stopTime = new DateTime(2019, 2, 22, 14, 0, 0);
+        private static DateTime endTime = DateTime.Now;
+        private static System.Timers.Timer aTimer;
 
         public static void StartTimer()
         {
-            // there is no session currently running so we get the now. User is not meant to overwrite startTime randomly.
+            // there is no session currently running so we get the now. User is not meant to overwrite startTime randomly. In case of user clicks start button multiple times, nothing will happen.
             if (DateTime.Compare(startTime, stopTime) == 0)
             {
                 startTime = DateTime.Now;
@@ -21,9 +23,10 @@ namespace FocusSession.Controls
         }
         public static void StopTimer()
         {
-            //there is no session running so we do nothing
+            // there is no session running so we do nothing
             if (DateTime.Compare(startTime, stopTime) == 0)
             {
+                Console.WriteLine("no session running");
             }
             else
             {
@@ -39,20 +42,14 @@ namespace FocusSession.Controls
             }
         }
 
-        /*
-         * TIMER FUNCTIONALITY
-         * 
-         * 
-        public static void Main()
+
+        public static void Countdown()
         {
             SetTimer();
 
             Console.WriteLine("The application started at {0:HH:mm:ss.fff}", DateTime.Now);
             startTime = DateTime.Now;
-            aTimer.Stop();
-            aTimer.Dispose();
-
-            Console.WriteLine("Terminating the application...");
+            endTime = DateTime.Now.AddSeconds(10);
         }
 
         private static void SetTimer()
@@ -67,11 +64,20 @@ namespace FocusSession.Controls
 
         private static void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
-            Console.WriteLine("The Elapsed event was raised at {0:HH:mm:ss.fff}",
-                              e.SignalTime);
+            if (DateTime.Compare(DateTime.Now, endTime) > 0)
+            {
+                Console.WriteLine("Timer elapsed");
+                Console.WriteLine("The Timer elapsed at {0:HH:mm:ss.fff}",
+                                  e.SignalTime);
+                aTimer.Stop();
+                aTimer.Dispose();
+            }
+            else
+            {
+                Console.WriteLine("The Elapsed event was raised at {0:HH:mm:ss.fff}",
+                                  e.SignalTime);
+            }
         }
-
-    */
     }
 }
 
