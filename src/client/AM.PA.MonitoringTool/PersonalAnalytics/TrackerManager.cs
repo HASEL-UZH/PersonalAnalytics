@@ -38,6 +38,7 @@ namespace PersonalAnalytics
         private MenuItem _pauseContinueMenuItem;
         private string _publishedAppVersion;
         private bool _isPaused;
+        private bool _isRunningFocusSession; //default value is false
 
         #region Initialize & Handle TrackerManager
 
@@ -334,6 +335,32 @@ namespace PersonalAnalytics
         }
 
         /// <summary>
+        /// starts a focus session
+        /// </summary>
+        public void StartFocusTimer()
+        {
+            // start focus session
+            FocusSession.Controls.Timer.StartTimer();
+
+            _isRunningFocusSession = true;
+
+            Database.GetInstance().LogInfo("The participant started a Focus Session.");
+        }
+
+        /// <summary>
+        /// stops a focus session
+        /// </summary>
+        public void StopFocusTimer()
+        {
+            // stop focus session
+            FocusSession.Controls.Timer.StopTimer();
+
+            _isRunningFocusSession = false;
+
+            Database.GetInstance().LogInfo("The participant stopped the Focus Session.");
+        }
+
+        /// <summary>
         /// Tracker registers its service to the TrackerManager
         /// </summary>
         /// <param name="t"></param>
@@ -409,6 +436,9 @@ namespace PersonalAnalytics
                 m8.Click += (o, i) => UploadTrackedData();
                 _taskbarIcon.ContextMenu.Items.Add(m8);
             }
+            var m9 = new MenuItem { Header = "Start Focus Timer" };
+            m9.Click += (o, i) => StartStopFocusTimer(m9);
+            _taskbarIcon.ContextMenu.Items.Add(m9);
 
             var m4 = new MenuItem { Header = "Open collected data" };
             m4.Click += (o, i) => OpenDataExportDirectory();
@@ -470,6 +500,27 @@ namespace PersonalAnalytics
             {
                 Pause();
                 item.Header = "Resume " + Dict.ToolName;
+            }
+        }
+
+        /// <summary>
+        /// depending on the variable _isRunningFocusSession, the tracker is
+        /// started or stopped
+        /// </summary>
+        /// <param name="item"></param>
+        private void StartStopFocusTimer(MenuItem item)
+        {
+            // start
+            if (!_isRunningFocusSession)
+            {
+                StartFocusTimer();
+                item.Header = "Stop Focus Timer";
+            }
+            // stop
+            else
+            {
+                StopFocusTimer();
+                item.Header = "Start Focus Timer";
             }
         }
 
