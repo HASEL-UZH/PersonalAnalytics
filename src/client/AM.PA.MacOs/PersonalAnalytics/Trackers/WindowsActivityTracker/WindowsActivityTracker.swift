@@ -35,7 +35,6 @@ class WindowsActivityTracker: ITracker{
   
     init(){
         isIdle = false
-            
         isRunning = true
         
         unsafeChars = NSCharacterSet.alphanumerics
@@ -48,6 +47,12 @@ class WindowsActivityTracker: ITracker{
         applicationTimer!.tolerance = 10
         idleTimer!.tolerance = 5
         
+        // screen recording is required to read process window titles in catalina (10.15).
+        // https://developer.apple.com/videos/play/wwdc2019/701/
+        if !canRecordScreen() {
+            triggerScreenRecordingPrivacyDialog()
+        }
+        
         NSWorkspace.shared.notificationCenter.addObserver(self,
                                                             selector: #selector(saveCurrentApplicationToMemory),
                                                             name: NSWorkspace.didActivateApplicationNotification,
@@ -58,6 +63,21 @@ class WindowsActivityTracker: ITracker{
                                                             name: NSWorkspace.willSleepNotification,
                                                             object: nil)
 
+    }
+    
+    private func triggerScreenRecordingPrivacyDialog() {
+        // this should trigger a system warning and lead the user
+        // to the Security/Privacy --> Screen Recording List with PA in it.
+        CGDisplayCreateImage(CGMainDisplayID())
+    }
+    
+    // https://stackoverflow.com/questions/56597221/detecting-screen-recording-settings-on-macos-catalina
+    private func canRecordScreen() -> Bool {
+        guard let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: AnyObject]] else { return false }
+        return windows.allSatisfy({ window in
+            let windowName = window[kCGWindowName as String] as? String
+            return windowName != nil
+        })
     }
     
     func createDatabaseTablesIfNotExist() {
@@ -149,6 +169,9 @@ class WindowsActivityTracker: ITracker{
                 //https://stackoverflow.com/questions/5292204/macosx-get-foremost-window-title
                 activeAppName = activeApp.localizedName!
                 let options = CGWindowListOption(arrayLiteral: CGWindowListOption.excludeDesktopElements, CGWindowListOption.optionOnScreenOnly)
+                // Starting from Catalina 10.15 CGWindowListCopyWindowInfo does not return meta data
+                // kCGWindowName unless the user approves screen recording.
+                // more infos here: https://developer.apple.com/videos/play/wwdc2019/701/
                 let windowListInfo = CGWindowListCopyWindowInfo(options, kCGNullWindowID)
                 let infoList = windowListInfo as NSArray? as? [[String: AnyObject]]
                 let flattenedInfoList = infoList.flatMap { $0 }
@@ -172,14 +195,20 @@ class WindowsActivityTracker: ITracker{
             if (lastApplication == nil) {
                 lastApplication = ActiveApplication(time: Date(), tsStart: Date(), tsEnd: Date(), window: title, process: activeAppName)
             } else {
-                // the last app is still running since we last checked. Therefore, we need to extend the active lifetime by increasing .tsEnd
+                // the last app is still running since we last checked. Therefore, we have to extend the active lifetime by increasing .tsEnd
                 lastApplication!.tsEnd = Date()
-                               
-                if (lastApplication!.process != activeAppName || lastApplication!.window != title){
+                // I have noticed that there are consecutive db records of the same process - the first record without a window title and the second records a few ms later with a window title (in Chrome, Xcode). The following if clause prevents this.
+                if (lastApplication!.process == activeAppName && lastApplication!.window == "") {
+                    lastApplication!.window = title
+                }
+                else if (lastApplication!.process != activeAppName || (lastApplication!.window != title)){
                     // at this point, the last app is no longer active and we can persist it
                     WindowsActivityQueries.saveActiveApplication(app: lastApplication!)
                     // new application which is currently running
                     lastApplication = ActiveApplication(time: Date(), tsStart: Date(), tsEnd: Date(), window: title, process: activeAppName)
+                    
+                    // other trackers might be intersted when the active application changes
+                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "activeApplicationChange"), object: nil, userInfo: ["activeApplication":activeApp])
                 }
             }
         }
