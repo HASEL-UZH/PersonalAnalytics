@@ -93,6 +93,28 @@
 		B01259FD238C169E00A7F0A9 /* EmotionPopUp.xib in Resources */ = {isa = PBXBuildFile; fileRef = A3B37CE921DD1CDC008784B1 /* EmotionPopUp.xib */; };
 		B017DECF237964C800B0EB19 /* DateFormatConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B017DECE237964C800B0EB19 /* DateFormatConverter.swift */; };
 		B061EC262382F52F005AD5FD /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B061EC252382F52F005AD5FD /* WebKit.framework */; };
+		B09DC4A423E9705F00845428 /* ResourceActivityTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4A323E9705F00845428 /* ResourceActivityTracker.swift */; };
+		B09DC4A523E9705F00845428 /* ResourceActivityTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4A323E9705F00845428 /* ResourceActivityTracker.swift */; };
+		B09DC4A723E970BA00845428 /* ResourceActivityQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4A623E970BA00845428 /* ResourceActivityQueries.swift */; };
+		B09DC4A823E970BA00845428 /* ResourceActivityQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4A623E970BA00845428 /* ResourceActivityQueries.swift */; };
+		B09DC4AA23E970E400845428 /* ResourceActivitySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4A923E970E400845428 /* ResourceActivitySettings.swift */; };
+		B09DC4AB23E970E400845428 /* ResourceActivitySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4A923E970E400845428 /* ResourceActivitySettings.swift */; };
+		B09DC4B623E97A7C00845428 /* EonilFSEventStreamEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4AE23E97A7C00845428 /* EonilFSEventStreamEvent.swift */; };
+		B09DC4B723E97A7C00845428 /* EonilFSEventStreamEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4AE23E97A7C00845428 /* EonilFSEventStreamEvent.swift */; };
+		B09DC4B823E97A7C00845428 /* EonilFSEventStreamEventID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4AF23E97A7C00845428 /* EonilFSEventStreamEventID.swift */; };
+		B09DC4B923E97A7C00845428 /* EonilFSEventStreamEventID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4AF23E97A7C00845428 /* EonilFSEventStreamEventID.swift */; };
+		B09DC4BA23E97A7C00845428 /* EonilFSEventStreamIllogicalErrorLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B023E97A7C00845428 /* EonilFSEventStreamIllogicalErrorLog.swift */; };
+		B09DC4BB23E97A7C00845428 /* EonilFSEventStreamIllogicalErrorLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B023E97A7C00845428 /* EonilFSEventStreamIllogicalErrorLog.swift */; };
+		B09DC4BC23E97A7C00845428 /* EonilFSEventStreamEventFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B123E97A7C00845428 /* EonilFSEventStreamEventFlags.swift */; };
+		B09DC4BD23E97A7C00845428 /* EonilFSEventStreamEventFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B123E97A7C00845428 /* EonilFSEventStreamEventFlags.swift */; };
+		B09DC4BE23E97A7C00845428 /* EonilFSEventStreamError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B223E97A7C00845428 /* EonilFSEventStreamError.swift */; };
+		B09DC4BF23E97A7C00845428 /* EonilFSEventStreamError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B223E97A7C00845428 /* EonilFSEventStreamError.swift */; };
+		B09DC4C023E97A7C00845428 /* EonilFSEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B323E97A7C00845428 /* EonilFSEvents.swift */; };
+		B09DC4C123E97A7C00845428 /* EonilFSEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B323E97A7C00845428 /* EonilFSEvents.swift */; };
+		B09DC4C223E97A7C00845428 /* EonilFSEventStreamCreateFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B423E97A7C00845428 /* EonilFSEventStreamCreateFlags.swift */; };
+		B09DC4C323E97A7C00845428 /* EonilFSEventStreamCreateFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B423E97A7C00845428 /* EonilFSEventStreamCreateFlags.swift */; };
+		B09DC4C423E97A7C00845428 /* EonilFSEventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B523E97A7C00845428 /* EonilFSEventStream.swift */; };
+		B09DC4C523E97A7C00845428 /* EonilFSEventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B523E97A7C00845428 /* EonilFSEventStream.swift */; };
 		B0A4006923A7D5FB0032035A /* KeyboardInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A4006823A7D5FB0032035A /* KeyboardInput.swift */; };
 		B0A4006A23A7D5FB0032035A /* KeyboardInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A4006823A7D5FB0032035A /* KeyboardInput.swift */; };
 		B0A4006C23A7D60B0032035A /* MouseInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A4006B23A7D60B0032035A /* MouseInput.swift */; };
@@ -228,6 +250,20 @@
 		B0125A0A238C251200A7F0A9 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
 		B017DECE237964C800B0EB19 /* DateFormatConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatConverter.swift; sourceTree = "<group>"; };
 		B061EC252382F52F005AD5FD /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		B076EE832428B8D30081FDF9 /* PersonalAnalytics DevDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "PersonalAnalytics DevDebug.entitlements"; sourceTree = "<group>"; };
+		B076EE84242B533D0081FDF9 /* PersonalAnalyticsDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PersonalAnalyticsDebug.entitlements; sourceTree = "<group>"; };
+		B076EE85242B54C40081FDF9 /* PersonalAnalyticsRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PersonalAnalyticsRelease.entitlements; sourceTree = "<group>"; };
+		B09DC4A323E9705F00845428 /* ResourceActivityTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourceActivityTracker.swift; sourceTree = "<group>"; };
+		B09DC4A623E970BA00845428 /* ResourceActivityQueries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourceActivityQueries.swift; sourceTree = "<group>"; };
+		B09DC4A923E970E400845428 /* ResourceActivitySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourceActivitySettings.swift; sourceTree = "<group>"; };
+		B09DC4AE23E97A7C00845428 /* EonilFSEventStreamEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EonilFSEventStreamEvent.swift; sourceTree = "<group>"; };
+		B09DC4AF23E97A7C00845428 /* EonilFSEventStreamEventID.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EonilFSEventStreamEventID.swift; sourceTree = "<group>"; };
+		B09DC4B023E97A7C00845428 /* EonilFSEventStreamIllogicalErrorLog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EonilFSEventStreamIllogicalErrorLog.swift; sourceTree = "<group>"; };
+		B09DC4B123E97A7C00845428 /* EonilFSEventStreamEventFlags.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EonilFSEventStreamEventFlags.swift; sourceTree = "<group>"; };
+		B09DC4B223E97A7C00845428 /* EonilFSEventStreamError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EonilFSEventStreamError.swift; sourceTree = "<group>"; };
+		B09DC4B323E97A7C00845428 /* EonilFSEvents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EonilFSEvents.swift; sourceTree = "<group>"; };
+		B09DC4B423E97A7C00845428 /* EonilFSEventStreamCreateFlags.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EonilFSEventStreamCreateFlags.swift; sourceTree = "<group>"; };
+		B09DC4B523E97A7C00845428 /* EonilFSEventStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EonilFSEventStream.swift; sourceTree = "<group>"; };
 		B0A4006823A7D5FB0032035A /* KeyboardInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardInput.swift; sourceTree = "<group>"; };
 		B0A4006B23A7D60B0032035A /* MouseInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MouseInput.swift; sourceTree = "<group>"; };
 		B0BA0F792384062A00042775 /* UserInputSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInputSettings.swift; sourceTree = "<group>"; };
@@ -333,6 +369,7 @@
 		0DB3DF1B1BAF49AC00144935 = {
 			isa = PBXGroup;
 			children = (
+				B076EE832428B8D30081FDF9 /* PersonalAnalytics DevDebug.entitlements */,
 				0D7AA11C1BCC1D7B00101142 /* Frameworks */,
 				0DB3DF261BAF49AC00144935 /* PersonalAnalytics */,
 				0DB3DF251BAF49AC00144935 /* Products */,
@@ -352,6 +389,8 @@
 		0DB3DF261BAF49AC00144935 /* PersonalAnalytics */ = {
 			isa = PBXGroup;
 			children = (
+				B076EE85242B54C40081FDF9 /* PersonalAnalyticsRelease.entitlements */,
+				B076EE84242B533D0081FDF9 /* PersonalAnalyticsDebug.entitlements */,
 				B0125A08238C24AB00A7F0A9 /* Configs */,
 				0DC4BF241BF28D5F00366771 /* PersonalAnalytics-Bridging-Header.h */,
 				0DB3DF331BAF49AC00144935 /* Info.plist */,
@@ -394,6 +433,32 @@
 				B0D6E437238D4F8C00DF40FC /* Environment.swift */,
 			);
 			path = Configs;
+			sourceTree = "<group>";
+		};
+		B09DC4A223E9703700845428 /* ResourceActivityTracker */ = {
+			isa = PBXGroup;
+			children = (
+				B09DC4AD23E979A500845428 /* EonilFSEvents */,
+				B09DC4A323E9705F00845428 /* ResourceActivityTracker.swift */,
+				B09DC4A623E970BA00845428 /* ResourceActivityQueries.swift */,
+				B09DC4A923E970E400845428 /* ResourceActivitySettings.swift */,
+			);
+			path = ResourceActivityTracker;
+			sourceTree = "<group>";
+		};
+		B09DC4AD23E979A500845428 /* EonilFSEvents */ = {
+			isa = PBXGroup;
+			children = (
+				B09DC4B323E97A7C00845428 /* EonilFSEvents.swift */,
+				B09DC4B523E97A7C00845428 /* EonilFSEventStream.swift */,
+				B09DC4B423E97A7C00845428 /* EonilFSEventStreamCreateFlags.swift */,
+				B09DC4B223E97A7C00845428 /* EonilFSEventStreamError.swift */,
+				B09DC4AE23E97A7C00845428 /* EonilFSEventStreamEvent.swift */,
+				B09DC4B123E97A7C00845428 /* EonilFSEventStreamEventFlags.swift */,
+				B09DC4AF23E97A7C00845428 /* EonilFSEventStreamEventID.swift */,
+				B09DC4B023E97A7C00845428 /* EonilFSEventStreamIllogicalErrorLog.swift */,
+			);
+			path = EonilFSEvents;
 			sourceTree = "<group>";
 		};
 		B0A4006723A7D5A20032035A /* Models */ = {
@@ -536,6 +601,7 @@
 		B9C79F801ECA6BCA00E005F0 /* Trackers */ = {
 			isa = PBXGroup;
 			children = (
+				B09DC4A223E9703700845428 /* ResourceActivityTracker */,
 				B904C25B1F01AEF000624D9C /* TrackerManager.swift */,
 				A3B37CEF21DD24C3008784B1 /* EmotionTracker */,
 				B9A0B7A11EDA356A00BE6F71 /* UserInputTracker */,
@@ -633,7 +699,7 @@
 					0DB3DF231BAF49AC00144935 = {
 						CreatedOnToolsVersion = 7.0;
 						LastSwiftMigration = 1000;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 					};
 				};
 			};
@@ -838,17 +904,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				B97A0E3F1EE7843A000DCCEC /* DateTimeHelper.swift in Sources */,
+				B09DC4BC23E97A7C00845428 /* EonilFSEventStreamEventFlags.swift in Sources */,
 				0D0245FB1BD1C5AE00213D2A /* AppConstants.swift in Sources */,
 				B9A310411EC5264E003B2470 /* PreferencesWindowController.swift in Sources */,
 				0D0245F81BD1651300213D2A /* DatabaseController.swift in Sources */,
+				B09DC4B623E97A7C00845428 /* EonilFSEventStreamEvent.swift in Sources */,
 				B0A4006C23A7D60B0032035A /* MouseInput.swift in Sources */,
 				B97A0E3A1EE5FB84000DCCEC /* UserEfficiencyQueries.swift in Sources */,
+				B09DC4BE23E97A7C00845428 /* EonilFSEventStreamError.swift in Sources */,
 				B9A0B7A71EDA540F00BE6F71 /* IVisualization.swift in Sources */,
 				B9A0B7B21EDCE0EA00BE6F71 /* DayMostFocusedProgram.swift in Sources */,
 				B9A0B7A51EDA373900BE6F71 /* ITracker.swift in Sources */,
 				0DB3DF281BAF49AC00144935 /* AppDelegate.swift in Sources */,
 				0D2B94241D57D3D5004DA61D /* PAHttpServer.swift in Sources */,
 				B958F34E1EE0CB7600E54D81 /* ASHDatePicker.m in Sources */,
+				B09DC4B823E97A7C00845428 /* EonilFSEventStreamEventID.swift in Sources */,
 				B9C79F841ECA6CF200E005F0 /* UserInputQueries.swift in Sources */,
 				B904C25C1F01AEF000624D9C /* TrackerManager.swift in Sources */,
 				B0D6E438238D4F8C00DF40FC /* Environment.swift in Sources */,
@@ -862,9 +932,13 @@
 				B9873A7C1EBA92DA0050E864 /* UserInputTracker.swift in Sources */,
 				B9851FE51ED64F2F002C24AF /* ActivityVisualization.swift in Sources */,
 				0DC4BF2D1BF2B57A00366771 /* WindowGrabber.m in Sources */,
+				B09DC4A723E970BA00845428 /* ResourceActivityQueries.swift in Sources */,
 				0D4676491BD54C2000796D2D /* KeystrokeController.swift in Sources */,
 				A3B37CF321DD258C008784B1 /* EmotionTracker.swift in Sources */,
 				B9D50B841EDF7A3100145EC8 /* DayTimeSpentVisualizer.swift in Sources */,
+				B09DC4C423E97A7C00845428 /* EonilFSEventStream.swift in Sources */,
+				B09DC4C223E97A7C00845428 /* EonilFSEventStreamCreateFlags.swift in Sources */,
+				B09DC4AA23E970E400845428 /* ResourceActivitySettings.swift in Sources */,
 				B97A0E3D1EE77704000DCCEC /* WeekProgramsUsedTable.swift in Sources */,
 				B90790251F01CC27003B9CF7 /* UserEfficiencyTracker.swift in Sources */,
 				B9D50B6C1EDF38D300145EC8 /* DayFragmentationTimeline.swift in Sources */,
@@ -873,7 +947,10 @@
 				A3B37CFF21DE0D35008784B1 /* EmotionPopUpWindowController.swift in Sources */,
 				B0A4006923A7D5FB0032035A /* KeyboardInput.swift in Sources */,
 				B0CAC0EE23854484002DBC55 /* UserEfficiencySettings.swift in Sources */,
+				B09DC4C023E97A7C00845428 /* EonilFSEvents.swift in Sources */,
+				B09DC4BA23E97A7C00845428 /* EonilFSEventStreamIllogicalErrorLog.swift in Sources */,
 				B9873A7A1EBA5DEF0050E864 /* MouseActionController.swift in Sources */,
+				B09DC4A423E9705F00845428 /* ResourceActivityTracker.swift in Sources */,
 				B9AA5C671F2939B500ED3432 /* WeekActivityVisualization.swift in Sources */,
 				B97A0E381EE5FA2E000DCCEC /* DayProductivityTimeline.swift in Sources */,
 				B9A0B7AE1EDCBCFD00BE6F71 /* DayProgramsUsedPieChart.swift in Sources */,
@@ -893,17 +970,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				B01259B5238C169E00A7F0A9 /* DateTimeHelper.swift in Sources */,
+				B09DC4BD23E97A7C00845428 /* EonilFSEventStreamEventFlags.swift in Sources */,
 				B01259B6238C169E00A7F0A9 /* AppConstants.swift in Sources */,
 				B01259B7238C169E00A7F0A9 /* PreferencesWindowController.swift in Sources */,
 				B01259B8238C169E00A7F0A9 /* DatabaseController.swift in Sources */,
+				B09DC4B723E97A7C00845428 /* EonilFSEventStreamEvent.swift in Sources */,
 				B0A4006D23A7D60B0032035A /* MouseInput.swift in Sources */,
 				B01259B9238C169E00A7F0A9 /* UserEfficiencyQueries.swift in Sources */,
+				B09DC4BF23E97A7C00845428 /* EonilFSEventStreamError.swift in Sources */,
 				B01259BA238C169E00A7F0A9 /* IVisualization.swift in Sources */,
 				B01259BB238C169E00A7F0A9 /* DayMostFocusedProgram.swift in Sources */,
 				B01259BC238C169E00A7F0A9 /* ITracker.swift in Sources */,
 				B01259BD238C169E00A7F0A9 /* AppDelegate.swift in Sources */,
 				B01259BE238C169E00A7F0A9 /* PAHttpServer.swift in Sources */,
 				B01259BF238C169E00A7F0A9 /* ASHDatePicker.m in Sources */,
+				B09DC4B923E97A7C00845428 /* EonilFSEventStreamEventID.swift in Sources */,
 				B01259C0238C169E00A7F0A9 /* UserInputQueries.swift in Sources */,
 				B01259C1238C169E00A7F0A9 /* TrackerManager.swift in Sources */,
 				B0D6E439238D4F8C00DF40FC /* Environment.swift in Sources */,
@@ -917,9 +998,13 @@
 				B01259C9238C169E00A7F0A9 /* UserInputTracker.swift in Sources */,
 				B01259CA238C169E00A7F0A9 /* ActivityVisualization.swift in Sources */,
 				B01259CB238C169E00A7F0A9 /* WindowGrabber.m in Sources */,
+				B09DC4A823E970BA00845428 /* ResourceActivityQueries.swift in Sources */,
 				B01259CC238C169E00A7F0A9 /* KeystrokeController.swift in Sources */,
 				B01259CD238C169E00A7F0A9 /* EmotionTracker.swift in Sources */,
 				B01259CE238C169E00A7F0A9 /* DayTimeSpentVisualizer.swift in Sources */,
+				B09DC4C523E97A7C00845428 /* EonilFSEventStream.swift in Sources */,
+				B09DC4C323E97A7C00845428 /* EonilFSEventStreamCreateFlags.swift in Sources */,
+				B09DC4AB23E970E400845428 /* ResourceActivitySettings.swift in Sources */,
 				B01259CF238C169E00A7F0A9 /* WeekProgramsUsedTable.swift in Sources */,
 				B01259D0238C169E00A7F0A9 /* UserEfficiencyTracker.swift in Sources */,
 				B01259D1238C169E00A7F0A9 /* DayFragmentationTimeline.swift in Sources */,
@@ -928,7 +1013,10 @@
 				B01259D4238C169E00A7F0A9 /* EmotionPopUpWindowController.swift in Sources */,
 				B0A4006A23A7D5FB0032035A /* KeyboardInput.swift in Sources */,
 				B01259D5238C169E00A7F0A9 /* UserEfficiencySettings.swift in Sources */,
+				B09DC4C123E97A7C00845428 /* EonilFSEvents.swift in Sources */,
+				B09DC4BB23E97A7C00845428 /* EonilFSEventStreamIllogicalErrorLog.swift in Sources */,
 				B01259D6238C169E00A7F0A9 /* MouseActionController.swift in Sources */,
+				B09DC4A523E9705F00845428 /* ResourceActivityTracker.swift in Sources */,
 				B01259D7238C169E00A7F0A9 /* WeekActivityVisualization.swift in Sources */,
 				B01259D8238C169E00A7F0A9 /* DayProductivityTimeline.swift in Sources */,
 				B01259D9238C169E00A7F0A9 /* DayProgramsUsedPieChart.swift in Sources */,
@@ -1080,9 +1168,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_ENTITLEMENTS = PersonalAnalytics/PersonalAnalyticsDebug.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -1111,9 +1202,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_ENTITLEMENTS = PersonalAnalytics/PersonalAnalyticsRelease.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 68F846QH67;
+				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -1142,9 +1235,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconDev;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_ENTITLEMENTS = "PersonalAnalytics DevDebug.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 68F846QH67;
+				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
