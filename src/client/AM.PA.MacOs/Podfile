@@ -4,6 +4,7 @@ use_frameworks!
 def pa_pods
     pod 'GRDB.swift'
     pod 'Swifter', '~>1.4.5'
+    pod 'Sparkle'
 end
  
 target 'PersonalAnalytics' do

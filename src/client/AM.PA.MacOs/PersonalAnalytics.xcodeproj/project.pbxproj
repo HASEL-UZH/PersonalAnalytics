@@ -251,7 +251,6 @@
 		B017DECE237964C800B0EB19 /* DateFormatConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatConverter.swift; sourceTree = "<group>"; };
 		B061EC252382F52F005AD5FD /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		B076EE832428B8D30081FDF9 /* PersonalAnalytics DevDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "PersonalAnalytics DevDebug.entitlements"; sourceTree = "<group>"; };
-		B076EE84242B533D0081FDF9 /* PersonalAnalyticsDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PersonalAnalyticsDebug.entitlements; sourceTree = "<group>"; };
 		B076EE85242B54C40081FDF9 /* PersonalAnalyticsRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PersonalAnalyticsRelease.entitlements; sourceTree = "<group>"; };
 		B09DC4A323E9705F00845428 /* ResourceActivityTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourceActivityTracker.swift; sourceTree = "<group>"; };
 		B09DC4A623E970BA00845428 /* ResourceActivityQueries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourceActivityQueries.swift; sourceTree = "<group>"; };
@@ -369,7 +368,6 @@
 		0DB3DF1B1BAF49AC00144935 = {
 			isa = PBXGroup;
 			children = (
-				B076EE832428B8D30081FDF9 /* PersonalAnalytics DevDebug.entitlements */,
 				0D7AA11C1BCC1D7B00101142 /* Frameworks */,
 				0DB3DF261BAF49AC00144935 /* PersonalAnalytics */,
 				0DB3DF251BAF49AC00144935 /* Products */,
@@ -390,7 +388,7 @@
 			isa = PBXGroup;
 			children = (
 				B076EE85242B54C40081FDF9 /* PersonalAnalyticsRelease.entitlements */,
-				B076EE84242B533D0081FDF9 /* PersonalAnalyticsDebug.entitlements */,
+				B076EE832428B8D30081FDF9 /* PersonalAnalytics DevDebug.entitlements */,
 				B0125A08238C24AB00A7F0A9 /* Configs */,
 				0DC4BF241BF28D5F00366771 /* PersonalAnalytics-Bridging-Header.h */,
 				0DB3DF331BAF49AC00144935 /* Info.plist */,
@@ -701,6 +699,9 @@
 						LastSwiftMigration = 1000;
 						ProvisioningStyle = Manual;
 					};
+					B01259B2238C169E00A7F0A9 = {
+						ProvisioningStyle = Manual;
+					};
 				};
 			};
 			buildConfigurationList = 0DB3DF1F1BAF49AC00144935 /* Build configuration list for PBXProject "PersonalAnalytics" */;
@@ -838,11 +839,15 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PersonalAnalytics Dev/Pods-PersonalAnalytics Dev-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/GRDB.swift/GRDB.framework",
+				"${PODS_ROOT}/Sparkle/Sparkle.framework",
+				"${PODS_ROOT}/Sparkle/Sparkle.framework.dSYM",
 				"${BUILT_PRODUCTS_DIR}/Swifter/Swifter.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GRDB.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sparkle.framework",
+				"${DWARF_DSYM_FOLDER_PATH}/Sparkle.framework.dSYM",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Swifter.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -884,11 +889,15 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/GRDB.swift/GRDB.framework",
+				"${PODS_ROOT}/Sparkle/Sparkle.framework",
+				"${PODS_ROOT}/Sparkle/Sparkle.framework.dSYM",
 				"${BUILT_PRODUCTS_DIR}/Swifter/Swifter.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GRDB.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sparkle.framework",
+				"${DWARF_DSYM_FOLDER_PATH}/Sparkle.framework.dSYM",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Swifter.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1169,11 +1178,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PersonalAnalytics/PersonalAnalyticsDebug.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = "";
-				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_HARDENED_RUNTIME = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -1186,7 +1195,7 @@
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				PRODUCT_BUNDLE_IDENTIFIER = PersonalAnalytics;
+				PRODUCT_BUNDLE_IDENTIFIER = "";
 				PRODUCT_NAME = PersonalAnalytics;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "PersonalAnalytics/PersonalAnalytics-Bridging-Header.h";
@@ -1219,7 +1228,7 @@
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				PRODUCT_BUNDLE_IDENTIFIER = PersonalAnalytics;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sealuzh.personalanalytics;
 				PRODUCT_NAME = PersonalAnalytics;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "PersonalAnalytics/PersonalAnalytics-Bridging-Header.h";
@@ -1237,6 +1246,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "PersonalAnalytics DevDebug.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 68F846QH67;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1252,7 +1262,7 @@
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.PersonalAnalytics;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sealuzh.personalanalytics.dev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "PersonalAnalytics/PersonalAnalytics-Bridging-Header.h";
@@ -1283,7 +1293,7 @@
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				PRODUCT_BUNDLE_IDENTIFIER = dev.PersonalAnalytics;
+				PRODUCT_BUNDLE_IDENTIFIER = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_COMPILATION_MODE = wholemodule;

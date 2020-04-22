@@ -2,14 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSAppleEventsUsageDescription</key>
-	<string>Please give Personal Analytics access to Google Chrome or Safari via Apple Script.</string>
+	<key>APP_SUPPORT_DIR</key>
+	<string>$(APP_SUPPORT_DIR)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundleIconFile</key>
-	<string></string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -19,32 +19,36 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>0.0.1</string>
 	<key>CFBundleSignature</key>
-	<string>????</string>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>0.0.1.2</string>
+	<key>ERRORS_LOG_FILE</key>
+	<string>$(ERRORS_LOG_FILE)</string>
 	<key>LSApplicationCategoryType</key>
-	<string></string>
+	<string>public.app-category.productivity</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>LSMultipleInstancesProhibited</key>
 	<true/>
 	<key>LSUIElement</key>
 	<true/>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Please give Personal Analytics access to Google Chrome or Safari via Apple Script.</string>
 	<key>NSMainStoryboardFile</key>
 	<string>Main</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
-	<key>STATUS_BAR_ICON</key>
-	<string>$(STATUS_BAR_ICON)</string>
-	<key>APP_SUPPORT_DIR</key>
-	<string>$(APP_SUPPORT_DIR)</string>
-	<key>SQLITE_DB_NAME</key>
-	<string>$(SQLITE_DB_NAME)</string>
 	<key>RETROSPECTIVE_PORT</key>
 	<string>$(RETROSPECTIVE_PORT)</string>
-	<key>ERRORS_LOG_FILE</key>
-	<string>$(ERRORS_LOG_FILE)</string>
+	<key>SQLITE_DB_NAME</key>
+	<string>$(SQLITE_DB_NAME)</string>
+	<key>STATUS_BAR_ICON</key>
+	<string>$(STATUS_BAR_ICON)</string>
+	<key>SUFeedURL</key>
+	<string>https://localhost:443/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>ftdekm+o5Fq6IaZ3o1/97JSW1+UvnwxZ5G9ExMxWHD8=</string>
 </dict>
 </plist>
