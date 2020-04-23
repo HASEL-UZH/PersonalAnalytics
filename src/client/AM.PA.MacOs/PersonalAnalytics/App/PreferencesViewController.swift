@@ -14,51 +14,109 @@ class PreferencesViewController: NSViewController{
     let appDelegate = NSApplication.shared.delegate as! AppDelegate
 
     lazy var applicationDocumentsDirectory: URL = {
-        // The directory the application uses to store the Core Data store file. This code uses a directory named "PersonalAnalytics" in the user's Application Support directory.
         let urls = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
-        let appSupportURL = urls[urls.count - 1]
-        return appSupportURL.appendingPathComponent(Environment.appSupportDir)
+        return urls[urls.count-1].appendingPathComponent(Environment.appSupportDir)
     }()
     
-    @IBOutlet weak var toggleTimer: NSButton!
-    @IBOutlet weak var toggleSwitching: NSButton!
-    @IBOutlet weak var resetData: NSButton!
+    @IBOutlet weak var keyboardTrackingStatusLabel: NSTextField!
+    @IBOutlet weak var resourceTrackingStatusLabel: NSTextField!
+    @IBOutlet weak var safariURLTrackingStatusLabel: NSTextField!
+    @IBOutlet weak var chromeURLTrackingStatusLabel: NSTextField!
     
-    //http://stackoverflow.com/questions/12161654/restrict-nstextfield-to-only-allow-numbers
-    fileprivate class OnlyIntegerValueFormatter: NumberFormatter {
+    override func viewDidLoad() {
+        super.viewDidLoad()
         
-        override func isPartialStringValid(_ partialString: String, newEditingString newString: AutoreleasingUnsafeMutablePointer<NSString?>?, errorDescription error: AutoreleasingUnsafeMutablePointer<NSString?>?) -> Bool {
-            
-            // Ability to reset your field (otherwise you can't delete the content)
-            // You can check if the field is empty later
-            if partialString.isEmpty {
-                return true
-            }
-            
-            // Optional: limit input length
-            /*
-             if partialString.characters.count>3 {
-             return false
-             }
-             */
-            
-            // Actual check
-            return Int(partialString) != nil
+        if isKeyboardTrackingEnabled() {
+            keyboardTrackingStatusLabel.stringValue = "enabled"
+        }
+        
+        if isWindowNameTrackingEnabled() {
+            resourceTrackingStatusLabel.stringValue = "enabled"
+        }
+        
+        if isURLTrackingEnabled(browser: "Safari") {
+            safariURLTrackingStatusLabel.stringValue = "enabled"
+        }
+        
+        if isURLTrackingEnabled(browser: "Google Chrome") {
+            chromeURLTrackingStatusLabel.stringValue = "enabled"
         }
     }
     
+    func isKeyboardTrackingEnabled() -> Bool {
+         return AXIsProcessTrusted()
+    }
     
+    func isWindowNameTrackingEnabled() -> Bool {
+        // 22.4.2020 - the latest privacy measures in Catalina require screen capture permission in order to access the window name of an application. See: https://stackoverflow.com/questions/56597221/detecting-screen-recording-settings-on-macos-catalina
+        guard let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: AnyObject]] else { return false }
+        return windows.allSatisfy({ window in
+            let windowName = window[kCGWindowName as String] as? String
+            return windowName != nil
+        })
+    }
+    
+    func isURLTrackingEnabled(browser: String) -> Bool {
+        let script = "tell application \"\(browser)\" to return URL of active tab of front window"
+        let scriptObject = NSAppleScript(source: script)
+        var error: NSDictionary?
+        scriptObject?.executeAndReturnError(&error)
+        if (error != nil) {
+            return false //
+        }
+        return true
+    }
+       
     @IBAction func openDataPressed(_ sender: Any) {
         print("Opening folder:", applicationDocumentsDirectory.path)
         NSWorkspace.shared.openFile(applicationDocumentsDirectory.path)
     }
     
+    @IBAction func goToAccessibilityPane(_ sender: Any) {
+           let script = """
+                        tell application "System Preferences"
+                        reveal anchor "Privacy_Accessibility" of pane id "com.apple.preference.security"
+                        activate
+                        end tell
+                        """
+
+           let scriptObject = NSAppleScript(source: script)
+           scriptObject?.executeAndReturnError(nil)
+       }
+       
+       @IBAction func goToScreenRecordingPane(_ sender: Any) {
+           // 22.4.2020 this should trigger a system warning and lead the user
+           // to the Security/Privacy --> Screen Recording List with PA in it.
+           CGDisplayCreateImage(CGMainDisplayID())
+           
+           // 22.4.2020 I could not find a way to jump to the "Screen Recording" pane directly
+           let script = """
+                        tell application "System Preferences"
+                        reveal anchor "Privacy" of pane id "com.apple.preference.security"
+                        activate
+                        end tell
+                        """
+
+           let scriptObject = NSAppleScript(source: script)
+           scriptObject?.executeAndReturnError(nil)
+       }
+       
+       @IBAction func goToAutomationPane(_ sender: Any) {
+           // 22.4.2020 I could not find a way to jump to the "Automation" pane directly
+          let script = """
+                       tell application "System Preferences"
+                       reveal anchor "Privacy" of pane id "com.apple.preference.security"
+                       activate
+                       end tell
+                       """
+
+          let scriptObject = NSAppleScript(source: script)
+          scriptObject?.executeAndReturnError(nil)
+      }
     
     override var representedObject: Any? {
         didSet{
             //Update the view, if already loaded.
         }
     }
-    
-    
 }

@@ -54,7 +54,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     var api : PAHttpServer? = nil
     var pauseItem : NSMenuItem?
     var isPaused: Bool = false
-    var firstTimeShowingPreferences = true
     
     
     // MARK: - App Functions
@@ -127,18 +126,16 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     func setUpRetrospective(){
         retrospectiveController.window?.contentViewController = RetrospectiveViewController(nibName: NSNib.Name(rawValue: "RetrospectiveView"), bundle: nil)
     }
-        
-    @objc func showPreferences(_ sender:AnyObject){
+    
+    func showPreferences() {
         preferencesController.showWindow(nil)
         NSApp.activate(ignoringOtherApps: true)
         preferencesController.window?.makeKeyAndOrderFront(self)
-        
-        if(firstTimeShowingPreferences){
-            preferencesController.repositionWindow()
-            firstTimeShowingPreferences = false
-        }
-        //flowlightController?.setGreen()
         preferencesController.window?.level = NSWindow.Level(rawValue: Int(CGWindowLevelForKey(.floatingWindow)))
+    }
+        
+    @objc func showPreferences(_ sender:AnyObject){
+        showPreferences()
     }
     
     @objc func showRetrospective(_ sender: AnyObject){
@@ -210,11 +207,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
     
     // MARK: - Setup, teardown of application including timers
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-
-        if !AXIsProcessTrusted(){
-            launchPermissionPanel()
-            launchPermissionExplanationAlert()
-        }
+        
+        // opening the preference window to show which trackers are working and which are missing permission
+        showPreferences()
+        preferencesController.repositionWindow()
         
         createApplicationDocumentsDirectoryIfMissing()
         
@@ -236,27 +232,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         // Start local server
         api = PAHttpServer()
         api!.startServer()
-    }
-    
-    func launchPermissionExplanationAlert(){
-        let alert = NSAlert()
-        alert.showsHelp = true
-        alert.helpAnchor = NSHelpManager.AnchorName(rawValue: "https://support.apple.com/en-us/HT201642")
-        alert.messageText = "The accessibility window just opened, to keep track of events this app needs to access background events.\n" +
-        "Please\n1. Click the add button at the bottom of the accessibility page. \n2. Acessibility's app list, add PersonalAnalytics"
-        alert.runModal()
-    }
-    
-    func launchPermissionPanel(){
-        let script = """
-                     tell application "System Preferences"
-                     reveal anchor "Privacy_Accessibility" of pane id "com.apple.preference.security"
-                     activate
-                     end tell
-                     """
-        
-        let scriptObject = NSAppleScript(source: script)
-        scriptObject?.executeAndReturnError(nil)
     }
     
     
