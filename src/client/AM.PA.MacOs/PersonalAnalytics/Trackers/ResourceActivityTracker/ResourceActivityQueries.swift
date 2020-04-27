@@ -27,7 +27,7 @@ class ResourceActivityQueries {
         
         do {
             let args:StatementArguments = [
-                date,
+                DateFormatConverter.dateToStr(date: date),
                 path,
                 flags.description
             ]
@@ -50,7 +50,7 @@ class ResourceActivityQueries {
         
         do {
             let args:StatementArguments = [
-                date,
+                DateFormatConverter.dateToStr(date: date),
                 path,
                 process
             ]

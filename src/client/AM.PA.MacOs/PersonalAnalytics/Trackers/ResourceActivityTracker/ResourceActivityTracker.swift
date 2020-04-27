@@ -62,6 +62,7 @@ class ResourceActivityTracker: ITracker{
                     return
                 }
             
+                // 27.4.2020 - this is only for debugging
                 // if event.path.contains("roy/Desktop") {
                 //    let attr = try? FileManager.default.attributesOfItem(atPath: event.path)
                 //    print(event.path)
@@ -69,9 +70,7 @@ class ResourceActivityTracker: ITracker{
                 //    print(flags)
                 //    print("###")
                 // }
-                
-                print(event.path)
-                
+                                
                 do {
                     // this throws if the file still no longer exists at this point.
                     // It might have already been deleted by the system...
