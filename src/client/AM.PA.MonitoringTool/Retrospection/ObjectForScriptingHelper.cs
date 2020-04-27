@@ -23,6 +23,11 @@ namespace Retrospection
             Handler.GetInstance().SendFeedback();
         }
 
+        public void JS_FocusSessionCustomTimer()
+        {
+            FocusSession.Controls.Timer.CustomTimer();
+        }
+
         public void JS_StartFocusSession()
         {
             FocusSession.Controls.Timer.StartTimer();
@@ -31,6 +36,11 @@ namespace Retrospection
         public void JS_StopFocusSession()
         {
             FocusSession.Controls.Timer.StopTimer();
+        }
+
+        public void JS_FocusSessionCountdown()
+        {
+            FocusSession.Controls.Timer.Countdown();
         }
 
         public void JS_ThumbsVote(string voteType, string chartTitle, string typeString, string dateString)

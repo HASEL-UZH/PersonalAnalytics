@@ -112,6 +112,7 @@
     <Compile Include="Helpers\DateTimeHelper.cs" />
     <Compile Include="Helpers\FeedbackHelper.cs" />
     <Compile Include="Helpers\FeedbackThumbs.cs" />
+    <Compile Include="Helpers\FocusSessionHelper.cs" />
     <Compile Include="Helpers\FormatStringHelper.cs" />
     <Compile Include="Helpers\ProcessNameHelper.cs" />
     <Compile Include="Helpers\VersionHelper.cs" />

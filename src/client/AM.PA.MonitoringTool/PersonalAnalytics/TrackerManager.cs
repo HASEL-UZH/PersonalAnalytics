@@ -38,7 +38,7 @@ namespace PersonalAnalytics
         private MenuItem _pauseContinueMenuItem;
         private string _publishedAppVersion;
         private bool _isPaused;
-        private bool _isRunningFocusSession; //default value is false
+        //public bool _isRunningFocusSession; //default value is false
 
         #region Initialize & Handle TrackerManager
 
@@ -58,13 +58,13 @@ namespace PersonalAnalytics
         /// </summary>
         public List<ITracker> RegisterTrackers()
         {
-            //Register(new WindowsActivityTracker.Daemon());
-            //Register(new TimeSpentVisualizer.Visualizers.TimeSpentVisualizer());
-            //Register(new UserEfficiencyTracker.Daemon());
-            //Register(new UserInputTracker.Daemon());
-            //Register(new MsOfficeTracker.Daemon());
-            //Register(new PolarTracker.Deamon());
-            //Register(new FitbitTracker.Deamon());
+            Register(new WindowsActivityTracker.Daemon());
+            Register(new TimeSpentVisualizer.Visualizers.TimeSpentVisualizer());
+            Register(new UserEfficiencyTracker.Daemon());
+            Register(new UserInputTracker.Daemon());
+            Register(new MsOfficeTracker.Daemon());
+            Register(new PolarTracker.Deamon());
+            Register(new FitbitTracker.Deamon());
             Register(new FocusSession.Daemon());
 
 #if Dev
@@ -339,12 +339,20 @@ namespace PersonalAnalytics
         /// </summary>
         public void StartFocusTimer()
         {
-            // start focus session
-            FocusSession.Controls.Timer.StartTimer();
+            if (Shared.Helpers.FocusSessionHelper._isRunningFocusSession)
+            {
+                // display a message that there is a session already running
+                System.Windows.Forms.MessageBox.Show("There is already a timer session running");
+            }
+            else
+            {
+                // start focus session
+                FocusSession.Controls.Timer.StartTimer();
 
-            _isRunningFocusSession = true;
+                Shared.Helpers.FocusSessionHelper._isRunningFocusSession = true;
 
-            Database.GetInstance().LogInfo("The participant started a Focus Session.");
+                Database.GetInstance().LogInfo("The participant started a Focus Session.");
+            }
         }
 
         /// <summary>
@@ -355,9 +363,35 @@ namespace PersonalAnalytics
             // stop focus session
             FocusSession.Controls.Timer.StopTimer();
 
-            _isRunningFocusSession = false;
+            Shared.Helpers.FocusSessionHelper._isRunningFocusSession = false;
 
             Database.GetInstance().LogInfo("The participant stopped the Focus Session.");
+        }
+
+        /// <summary>
+        /// starts a predefined focus session 25 min (pomodo)
+        /// </summary>
+        public void StartPreFocusTimer()
+        {
+            if (Shared.Helpers.FocusSessionHelper._isRunningFocusSession)
+            {
+                // display a message that there is a session already running
+                System.Windows.Forms.MessageBox.Show("There is already a focus session running");
+            }
+            else
+            {
+                Shared.Helpers.FocusSessionHelper._isRunningFocusSession = true;
+
+                // start focus session
+                FocusSession.Controls.Timer.Countdown();
+
+                
+                // TODO if the countdown is finished, you need to set the variable _isRunningFocusSession to false again.
+                
+                
+
+                Database.GetInstance().LogInfo("The participant started a Predefined Focus Session.");
+            }
         }
 
         /// <summary>
@@ -440,6 +474,10 @@ namespace PersonalAnalytics
             m9.Click += (o, i) => StartStopFocusTimer(m9);
             _taskbarIcon.ContextMenu.Items.Add(m9);
 
+            var m10 = new MenuItem { Header = "Start Pomodo Timer" };
+            m10.Click += (o, i) => StartPreFocusTimer(m10);
+            _taskbarIcon.ContextMenu.Items.Add(m10);
+
             var m4 = new MenuItem { Header = "Open collected data" };
             m4.Click += (o, i) => OpenDataExportDirectory();
             _taskbarIcon.ContextMenu.Items.Add(m4);
@@ -511,7 +549,7 @@ namespace PersonalAnalytics
         private void StartStopFocusTimer(MenuItem item)
         {
             // start
-            if (!_isRunningFocusSession)
+            if (!Shared.Helpers.FocusSessionHelper._isRunningFocusSession)
             {
                 StartFocusTimer();
                 item.Header = "Stop Focus Timer";
@@ -521,6 +559,27 @@ namespace PersonalAnalytics
             {
                 StopFocusTimer();
                 item.Header = "Start Focus Timer";
+            }
+        }
+
+        /// <summary>
+        /// depending on the variable _isRunningFocusSession, the predefined tracker is
+        /// started or stopped
+        /// </summary>
+        /// <param name="item"></param>
+        private void StartPreFocusTimer(MenuItem item)
+        {
+            // start
+            if (!Shared.Helpers.FocusSessionHelper._isRunningFocusSession)
+            {
+                StartPreFocusTimer();
+                item.Header = "Cancel Pomodo Timer";
+            }
+            // stop
+            else
+            {
+                StopFocusTimer();
+                item.Header = "Start Pomodo Timer";
             }
         }
 
