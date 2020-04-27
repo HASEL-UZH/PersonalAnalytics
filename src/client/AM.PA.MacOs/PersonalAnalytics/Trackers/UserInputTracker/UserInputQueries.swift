@@ -238,8 +238,8 @@ class UserInputQueries {
         do {
             let args:StatementArguments = [
                 DateFormatConverter.dateToStr(date: Date()),
-                input.tsStart,
-                input.tsEnd,
+                DateFormatConverter.dateToStr(date: input.tsStart),
+                DateFormatConverter.dateToStr(date: input.tsEnd),
                 keyTotal,
                 input.keyCount,
                 input.deleteCount,
