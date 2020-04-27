@@ -27,6 +27,7 @@ Change picture on notification
 */
 
 import Foundation
+import Sparkle
 
 
 @NSApplicationMain
@@ -74,6 +75,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         
         let toggleSummaryItem = NSMenuItem(title: "Toggle Survey", action: #selector(toggleSummary), keyEquivalent: "A")
         toggleSummaryItem.bind(NSBindingName(rawValue: "state"), to: defaultsController , withKeyPath: "values.\(AppConstants.summaryStateKey)", options: nil)
+        
+        let checkUpdatesItem = NSMenuItem(title: "Check for Updates...", action: #selector(SUUpdater.checkForUpdates(_:)), keyEquivalent: "U")
+        
         // Grabbed this from here: https://github.com/producthunt/producthunt-osx/blob/ab3a0c42cf680a5b0231b3c99a76445cce9abb94/Source/Actions/PHOpenSettingsMenuAction.swift
         let delegate = NSApplication.shared.delegate as! AppDelegate
     //    let leaveReminderNotificationUntilClickedItem = NSMenuItem(title: "Notification Stays", action: Selector("togglePersistantUserNotifications:"), keyEquivalent: "P")
@@ -92,6 +96,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
 
         //menu.addItem(flowlightItem)
         //menu.addItem(leaveReminderNotificationUntilClickedItem)
+        menu.addItem(NSMenuItem.separator())
+        
+        menu.addItem(checkUpdatesItem)
         menu.addItem(NSMenuItem.separator())
         
         // It doesn't seem to work if I change the selector, so I'm leaving it for now (working is better for now than slowing down)
