@@ -6,6 +6,9 @@
         xmlns:paColors="clr-namespace:Shared;assembly=Shared"
         mc:Ignorable="d"
         Title="PersonalAnalytics: Settings" Height="750" Width="770" ResizeMode="NoResize">
+       <!-- TODO CustomTimerDuration 
+        Title="PersonalAnalytics: Settings" Height="820" Width="770" ResizeMode="NoResize"> --> 
+        
 
     <Grid>
         <Grid.RowDefinitions>
@@ -80,6 +83,26 @@
                     <CheckBox x:Name="FitbitEnabled" Margin="0 20 0 0" Content="Fitbit Tracker enabled" />
                     <TextBlock Margin="20 0 0 0" Foreground="Gray" Text="Hint: If enabled, this tracker collects your heart rate, sleep, activity and step data from your Fitbit account." />
                     <Button x:Name="FitbitRevoke" Margin="20 0 0 0" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" Foreground="White" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" VerticalAlignment="Center" HorizontalAlignment="Left" Click="FitbitRevoke_Click">Revoke Access Token</Button>
+
+                    <!-- TODO CustomTimerDuration
+                    <TextBlock Margin="0 15 0 0" Text="FocusTimer: Set the time duration for the custom timer here" />
+                    <TextBlock Margin="20 0 0 0" Foreground="Gray" Text="Hint: If once set, all further uses of CustomFocusTimer will use this time duration. To set a new one, change time duration here." />
+                    <ComboBox x:Name="CbCustomTimerDuration"
+                                  Width="200"
+                                  Margin="0 5 10 0"
+                                  HorizontalAlignment="Left"
+                                  SelectedValuePath="Content">
+                        <ComboBoxItem>10 minutes</ComboBoxItem>
+                        <ComboBoxItem>20 minutes</ComboBoxItem>
+                        <ComboBoxItem>30 minutes</ComboBoxItem>
+                        <ComboBoxItem>40 minutes</ComboBoxItem>
+                        <ComboBoxItem>50 minutes</ComboBoxItem>
+                        <ComboBoxItem>60 minutes</ComboBoxItem>
+                        <ComboBoxItem>90 minutes</ComboBoxItem>
+                        <ComboBoxItem>120 minutes</ComboBoxItem>
+                    </ComboBox>
+                    -->
+                    
                 </StackPanel>
             </TabItem>
         </TabControl>

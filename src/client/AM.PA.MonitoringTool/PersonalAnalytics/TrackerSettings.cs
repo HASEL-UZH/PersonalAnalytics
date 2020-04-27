@@ -85,6 +85,12 @@ namespace PersonalAnalytics
                 {
                     FitbitConnector.RevokeAccessToken(SecretStorage.GetAccessToken());
                 }
+                /* TODO CustomTimerDuration
+                if (updatedSettings.CustomTimerDuration.HasValue)
+                {
+                    if (GetUserEfficiencyTracker() != null) GetUserEfficiencyTracker().CustomTimerDurationInMins = TimeSpan.FromMinutes(updatedSettings.CustomTimerDuration.Value);
+                }
+                */
             }
             catch (Exception e)
             {
@@ -125,6 +131,11 @@ namespace PersonalAnalytics
                 dto.FitbitTrackerEnabled = fitbitTracker.IsEnabled();
                 dto.FitbitTokenRevokeEnabled = SecretStorage.GetAccessToken() != null && fitbitTracker.IsEnabled();
                 dto.FitbitTokenRevoked = dto.FitbitTokenRevokeEnabled;
+
+                /* TODO CustomTimerDuration
+                var focusSession = GetFocusSessionTracker();
+                if (userEfficiencyTracker != null) dto.CustomTimerDuration = (int)userEfficiencyTracker.CustomTimerDurationInMins.TotalMinutes;
+                */
             }
             catch (Exception e)
             {
@@ -185,6 +196,21 @@ namespace PersonalAnalytics
             }
             catch { return null; }
         }
+
+        /* TODO CustomTimerDuration
+        private FocusSession.Daemon GetFocusSessionTracker()
+        {
+            try
+            {
+                var tracker = _trackers.Where(t => t is FocusSession.Daemon)
+                    .Cast<FocusSession.Daemon>()
+                    .FirstOrDefault();
+
+                return tracker;
+            }
+            catch { return null; }
+        }
+        */
 
         private UserEfficiencyTracker.Daemon GetUserEfficiencyTracker()
         {

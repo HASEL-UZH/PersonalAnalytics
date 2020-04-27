@@ -55,5 +55,35 @@ namespace FocusSession
             return true;
         }
 
+        /* TODO CustomTimerDuration
+        private TimeSpan _CustomTimerDurationInMins;
+        public TimeSpan CustomTimerDurationInMins
+        {
+            get
+            {
+                var value = Database.GetInstance().GetSettingsInt("CustomTimerDuration", Settings.DefaultCustomTimerDuration);
+                _popUpIntervalInMins = TimeSpan.FromMinutes(value);
+                return _popUpIntervalInMins;
+            }
+            set
+            {
+                var updatedInterval = value;
+
+                // only update if settings changed
+                //if (updatedInterval == _popUpIntervalInMins) return;
+                //_popUpIntervalInMins = updatedInterval;
+
+                // update settings
+                //Database.GetInstance().SetSettings("PopUpInterval", updatedInterval.TotalMinutes.ToString(CultureInfo.InvariantCulture));
+
+                // update interval time
+                //_timeRemainingUntilNextSurvey = _popUpIntervalInMins;
+
+                // log
+                //Database.GetInstance().LogInfo("The participant updated the setting 'PopUpInterval' to " + _popUpIntervalInMins);
+            }
+        }
+        */
+
     }
 }

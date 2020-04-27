@@ -20,7 +20,7 @@ namespace Retrospection
         private const string MinutesStr = " minutes";
 
         private bool _defaultPopUpIsEnabled;
-        private int _defaultPopUpInterval;
+        private int  _defaultPopUpInterval;
         private bool _defaultOffice365ApiEnabled;
         private bool _defaultUserInputTrackerEnabled;
         private bool _defaultOpenRetrospectionInFullScreen;
@@ -30,6 +30,9 @@ namespace Retrospection
         private bool _defaultPolarTrackerEnabled;
         private bool _defaultFitbitTrackerEnabled;
         private bool _defaultFitbitTokenRemoveEnabled;
+        /* TODO CustomTimerDuration
+        private int  _defaultCustomTimerDuration;
+        */
 
         public SettingsDto UpdatedSettingsDto;
 
@@ -54,6 +57,9 @@ namespace Retrospection
             _defaultPolarTrackerEnabled = dto.PolarTrackerEnabled.Value;
             _defaultFitbitTrackerEnabled = dto.FitbitTrackerEnabled.Value;
             _defaultFitbitTokenRemoveEnabled = dto.FitbitTokenRevokeEnabled.Value;
+            /* TODO CustomTimerDuration
+            _defaultCustomTimerDuration = dto.CustomTimerDuration.Value;
+            */
 
             // no changes yet, disable buttons by default
             SaveButtonsEnabled(false);
@@ -104,6 +110,11 @@ namespace Retrospection
             FitbitEnabled.Unchecked += CbChecked_Update;
 
             FitbitRevoke.IsEnabled = _defaultFitbitTokenRemoveEnabled;
+
+            /* TODO CustomTimerDuration
+            CbCustomTimerDuration.SelectedValue = _defaultCustomTimerDuration + MinutesStr;
+            CbCustomTimerDuration.SelectionChanged += CbCustomTimerDuration_SelectionChanged;
+            */
         }
 
         #region User Changed Values
@@ -124,6 +135,13 @@ namespace Retrospection
             UpdateSettingsChanged();
         }
 
+        /* TODO CustomTimerDuration
+        private void CbCustomTimerDuration_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            UpdateSettingsChanged();
+        }
+        */
+
         private void UpdateSettingsChanged()
         {
             try
@@ -138,6 +156,9 @@ namespace Retrospection
                  || _defaultTimeSpentShowProgramsEnabled != CbTimeSpentShowProgramsEnabled.IsChecked.Value
                  || _defaultPolarTrackerEnabled != PolarEnabled.IsChecked.Value
                  || _defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value)
+                    /* TODO CustomTimerDuration
+                    _defaultCustomTimerDuration + MinutesStr != CbCustomTimerDuration.SelectedValue.ToString()
+                    */
                 {
                     SaveButtonsEnabled(true);
                 }
@@ -225,6 +246,15 @@ namespace Retrospection
                     dto.FitbitTrackerEnabled = FitbitEnabled.IsChecked.Value;
                 }
                 else { dto.FitbitTrackerEnabled = null; }
+
+                /* TODO CustomTimerDuration
+                if (_defaultCustomTimerDuration + MinutesStr != CbCustomTimerDuration.SelectedValue.ToString())
+                {
+                    var intervalString = CbCustomTimerDuration.SelectedValue.ToString().Replace(MinutesStr, "");
+                    dto.CustomTimerDuration = int.Parse(intervalString, CultureInfo.InvariantCulture);
+                }
+                else { dto.CustomTimerDuration = null; }
+                */
             }
             catch { }
 
