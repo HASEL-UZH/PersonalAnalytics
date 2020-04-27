@@ -14,18 +14,39 @@ class ResourceActivityTracker: ITracker{
     var name = ResourceActivitySettings.Name
     var isRunning = true
     
-    
     init() {
         
         NotificationCenter.default.addObserver(self, selector: #selector(self.onActiveApplicationChange(_:)), name: NSNotification.Name(rawValue: "activeApplicationChange"), object: nil)
-
+        
+        trackFSEvents()
+    }
+    
+    func stop() {
+        isRunning = false
+        EonilFSEvents.stopWatching(for: ObjectIdentifier(self))
+    }
+    
+    func start() {
+        isRunning = true
+        trackFSEvents()
+    }
+    
+    func createDatabaseTablesIfNotExist() {
+        ResourceActivityQueries.createDatabaseTablesIfNotExist()
+    }
+    
+    func updateDatabaseTables(version: Int) {}
+    
+    func trackFSEvents() {
+        
+        // https://github.com/eonil/FSEvents
         try? EonilFSEvents.startWatching(
             paths: [NSHomeDirectory()],
             for: ObjectIdentifier(self),
             with: { event in
                 
                 let flags = event.flag!
-                
+                                
                 // not interested in caches, logs and other system related stuff
                 if event.path.contains("Library/") {
                     return
@@ -36,99 +57,35 @@ class ResourceActivityTracker: ITracker{
                     return
                 }
                 
+                // not quite sure if we need to filter this
                 if flags.contains(EonilFSEventsEventFlags.itemChangeOwner) {
-//                    print("changed owner", event.path)
                     return
                 }
+            
+                // if event.path.contains("roy/Desktop") {
+                //    let attr = try? FileManager.default.attributesOfItem(atPath: event.path)
+                //    print(event.path)
+                //    print(attr)
+                //    print(flags)
+                //    print("###")
+                // }
                 
-                //  if event.path.contains("roy/Desktop") {
-                //                    let attr = try? FileManager.default.attributesOfItem(atPath: event.path)
-                //                    print(event.path)
-                //                    print(attr)
-                //                    print(flags)
-                //                    print("###")
-                //                }
-                //                return
-                                
+                print(event.path)
                 
                 do {
                     // this throws if the file still no longer exists at this point.
                     // It might have already been deleted by the system...
                     let attr = try FileManager.default.attributesOfItem(atPath: event.path)
-                    //                        print("created", event.path)
                     ResourceActivityQueries.saveResourceActivity(date: attr[FileAttributeKey.modificationDate] as! Date, path: event.path, flags: flags)
 
                 } catch {
                     //print(error)
                 }
-                
-                return
- 
-                
-                // MARK: - Created
-                if flags.contains(EonilFSEventsEventFlags.itemCreated) {
-                    do {
-                        // this throws if the file still no longer exists at this point.
-                        // It might have already been deleted by the system...
-                        let attr = try FileManager.default.attributesOfItem(atPath: event.path)
-//                        print("created", event.path)
-                    } catch {
-                        //print(error)
-                    }
-                }
-
-                // MARK: - Removed
-                else if flags.contains(EonilFSEventsEventFlags.itemRemoved) {
-//                    print("removed", event.path)
-                }
-                    
-                // MARK: - Modified
-                //TODO: why is itemRenamed in the condition and not only itemXattrMod?
-                else if flags.contains(EonilFSEventsEventFlags.itemXattrMod) && flags.contains(EonilFSEventsEventFlags.itemRenamed) {
-                    do {
-                        let attr = try FileManager.default.attributesOfItem(atPath: event.path)
-                        if Date().addingTimeInterval(-5.0 * 60.0) < (attr[FileAttributeKey.modificationDate] as! Date) || (attr[FileAttributeKey.busy] as? Int) != nil {
-                            print("modified", event.path)
-                        }
-                    } catch {
-                        print("error getting file date")
-                    }
-                }
-                    
-                // MARK: - InodeMeta
-                else if flags.contains(EonilFSEventsEventFlags.itemInodeMetaMod) {
-                    print("InodeMeta", event.path)
-                }
-                    
-                // MARK: - Renamed
-                else if flags.contains(EonilFSEventsEventFlags.itemRenamed) {
-                    do {
-                        // this checks if the file still exists at this point, might have already
-                        // been deleted by the system...
-                        let attr = try FileManager.default.attributesOfItem(atPath: event.path)
-                        print("renamed (new name)", event.path)
-                    } catch {
-                        print("renamed (old name)", event.path)
-                    }
-                }
         })
     }
     
-    func stop() {
-        isRunning = false
-    }
-    
-    func start() {
-        isRunning = true
-    }
-    
-    func createDatabaseTablesIfNotExist() {
-        ResourceActivityQueries.createDatabaseTablesIfNotExist()
-    }
-    
-    func updateDatabaseTables(version: Int) {}
-    
     @objc func onActiveApplicationChange(_ notification: NSNotification) {
+        
         if let activeApp = notification.userInfo?["activeApplication"] as? NSRunningApplication {
             let appName = activeApp.localizedName ?? ""
             var resourcePath: String
