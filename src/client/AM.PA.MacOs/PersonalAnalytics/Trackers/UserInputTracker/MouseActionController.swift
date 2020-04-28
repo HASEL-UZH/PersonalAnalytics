@@ -24,11 +24,11 @@ class MouseActionController{
     func recordActions(mouseEvent:NSEvent){
         let currentLocation = NSEvent.mouseLocation
 
-        switch mouseEvent.type{
+        switch mouseEvent.type {
         case .leftMouseDown:
-            mouseClickList.append(MouseClickEvent(button: .Left, location:  currentLocation))
+            mouseClickList.append(MouseClickEvent(button: .Left, location: currentLocation))
         case .rightMouseDown:
-             mouseClickList.append(MouseClickEvent(button: .Right, location:  currentLocation))
+            mouseClickList.append(MouseClickEvent(button: .Right, location: currentLocation))
         case .otherMouseDown:
             // middle button
             if (mouseEvent.buttonNumber == 2) {
@@ -36,11 +36,11 @@ class MouseActionController{
             }
             // Xbutton1 (thumb button on the side)
             else if (mouseEvent.buttonNumber == 3) {
-                mouseClickList.append(MouseClickEvent(button: .XButton1, location:  currentLocation))
+                mouseClickList.append(MouseClickEvent(button: .XButton1, location: currentLocation))
             }
             // Xbutton2 (thumb button on the side)
             else if (mouseEvent.buttonNumber == 4) {
-                mouseClickList.append(MouseClickEvent(button: .XButton2, location:  currentLocation))
+                mouseClickList.append(MouseClickEvent(button: .XButton2, location: currentLocation))
             }
         case .mouseMoved:
             let distance = calculateDistance(a: currentLocation, b: lastMouseLocation)
