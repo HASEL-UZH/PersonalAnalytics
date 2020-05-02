@@ -33,7 +33,8 @@ namespace MsOfficeTracker
         // constants for using the Office 365 API
         internal const string LoginApiEndpoint = "https://login.microsoftonline.com/{0}"; // default: "common"
         //internal const string ClientId = ""; // register app here to get the ClientId: https://apps.dev.microsoft.com/#/appList
-        internal static readonly string[] Scopes = { "mail.read", "calendars.read" };           
+        // Mail.Read and Mail.Send and Calendars.Read are delegated, microsoft account supported permissions, no admin consent required
+        internal static readonly string[] Scopes = { "Mail.Read", "Mail.Send", "Calendars.Read" };           
         internal const string GraphApiEndpoint = "https://outlook.office.com/api/v2.0";
     }
 }
