@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Timers;
 
 namespace FocusSession.Controls
@@ -15,6 +15,7 @@ namespace FocusSession.Controls
         private static DateTime endTime = DateTime.Now;
         private static System.Timers.Timer aTimer;
         private static System.Collections.Generic.List<Microsoft.Graph.Message> emailsReplied = new System.Collections.Generic.List<Microsoft.Graph.Message>(); // this list is simply to keep track of the already replied to emails during the session
+        private static String replyMessage = "Thank you for your Email. This is an automatically generated response by PersonalAnalytics. This mail-inbox is currently paused for a specific timeframe, after which your email will be received.";
 
         public static void CustomTimer()
         {
@@ -87,16 +88,15 @@ namespace FocusSession.Controls
         {
             // empty replied Emails list
             emailsReplied = new System.Collections.Generic.List<Microsoft.Graph.Message>();
-            // Interval to check
-            aTimer = new System.Timers.Timer(300000); // 5 min interval, checking and replying to emails or ending session
-            //aTimer = new System.Timers.Timer(30000); // for testing
+            // 10 sec interval, checking and replying to emails or ending session
+            aTimer = new System.Timers.Timer(10000); 
             // Hook up the Elapsed event for the timer. 
             aTimer.Elapsed += OnTimedEvent;
             aTimer.AutoReset = true;
             aTimer.Enabled = true;
         }
 
-        private static void OnTimedEvent(Object source, ElapsedEventArgs e)
+        private static async void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
             if (DateTime.Compare(DateTime.Now, endTime) > 0)
             {
@@ -142,11 +142,10 @@ namespace FocusSession.Controls
                         else
                         {
                             //TODO add reply call to office365Api, call it here (with the email.From.EmailAddress as reply parameter?)
-                            
-
+                            // if ReplyTo is speficied, per RFC 2822 we should send it to that address, otherwise to the from address
+                            await MsOfficeTracker.Helpers.Office365Api.GetInstance().SendReplyEmail(email.Id, email.From.EmailAddress.Name, email.From.EmailAddress.Address, replyMessage);
                             //add email to list of already replied emails during this focus session
                             emailsReplied.Add(email);
-
                         }
                     }
                 }
@@ -154,5 +153,3 @@ namespace FocusSession.Controls
         }
     }
 }
-
-
