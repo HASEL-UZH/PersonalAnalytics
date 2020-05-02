@@ -535,7 +535,7 @@ namespace MsOfficeTracker.Helpers
                 if (result?.Count > 0)
                 {
                     var receivedUnfilter = new List<Message>();
-                    receivedUnfilter.AddRange(result.CurrentPage);  
+                    receivedUnfilter.AddRange(result.CurrentPage);
                     while (result.NextPageRequest != null)
                     {
                         result = await result.NextPageRequest.GetAsync();
@@ -598,7 +598,7 @@ namespace MsOfficeTracker.Helpers
                     var unreadEmailsReceived = receivedUnfilter.Count(m => m.IsDraft == false && !ignoreFolders.Contains(m.ParentFolderId) && m.Subject != "IM");
 
                     // extract subjects from emails and save them in a new string list
-                    var unreadEmailsReceivedList= new List<Microsoft.Graph.Message>();
+                    var unreadEmailsReceivedList = new List<Microsoft.Graph.Message>();
                     for (int i = 0; i < receivedUnfilter.Count; i++)
                     {
                         unreadEmailsReceivedList.Add(receivedUnfilter[i]);
@@ -612,6 +612,31 @@ namespace MsOfficeTracker.Helpers
                 Logger.WriteToLogFile(e);
             }
             return new List<Microsoft.Graph.Message>();
+        }
+
+
+        /// <summary>
+        /// Returns a list of emails which were received on a given date
+        /// </summary>
+        /// <param name = "messageId" > The Id of the message to reply to </ param >
+        /// <param name = "recipientName" > The Name of the Recipient </ param >
+        /// <param name = "recipientAddress" > The Email of the Recipient </ param >
+        /// <param name = "comment" > The comment to send with the reply </ param >
+        public async Task SendReplyEmail(String messageId, String recipientName, String recipientAddress, String comment)
+        {
+            var message = new Message
+            {
+                ToRecipients = new List<Recipient>() {
+                    new Recipient {
+                        EmailAddress = new EmailAddress {
+                            Address = recipientAddress,
+                            Name = recipientName
+                        }
+                    }
+                }
+            };
+
+            await _client.Me.Messages[messageId].Reply(comment).Request().PostAsync();
         }
 
         /// <summary>
