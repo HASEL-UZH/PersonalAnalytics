@@ -49,6 +49,38 @@ namespace FocusSession
             return Shared.Helpers.VersionHelper.GetFormattedVersion(v);
         }
 
+        // Indicates in the hover menu if there is an active Session and for how long
+        public override string GetStatus()
+        {
+            String currentSessionStatus;
+            // no Session
+            if (!(Controls.Timer.openSession || Controls.Timer.closedSession))
+            {
+                currentSessionStatus = "FocusSession is currently not being used.";
+            }
+            else
+            {
+                // open Session
+                if (Controls.Timer.openSession)
+                {
+                    if (Controls.Timer.getSessionTime() == TimeSpan.Zero)
+                    {
+                        currentSessionStatus = "There is an open FocusSession running.";
+                    }
+                    else
+                    {
+                        currentSessionStatus = "There is an open FocusSession running since " + Controls.Timer.getSessionTime().Minutes + " minutes.";
+                    }
+                }
+                // closed Session
+                else
+                {
+                    currentSessionStatus = "There is a closed FocusSession running for another " + Controls.Timer.getSessionTime().Minutes + " minutes.";
+                }
+            }
+            return currentSessionStatus;
+        }
+
         // TODO implement this, that the user can enable or disable, change when user updates settings, include in settings editor
         public override bool IsEnabled()
         {

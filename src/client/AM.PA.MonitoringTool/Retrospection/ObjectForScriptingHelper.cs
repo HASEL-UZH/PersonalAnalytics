@@ -25,7 +25,7 @@ namespace Retrospection
 
         public void JS_FocusSessionCustomTimer()
         {
-            FocusSession.Controls.Timer.CustomTimer();
+            //FocusSession.Controls.Timer.CustomTimer();
         }
 
         public void JS_StartFocusSession()
