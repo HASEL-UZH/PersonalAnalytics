@@ -63,7 +63,7 @@ namespace FocusSession
                 // open Session
                 if (Controls.Timer.openSession)
                 {
-                    if (Controls.Timer.getSessionTime() == TimeSpan.Zero)
+                    if (Controls.Timer.getSessionTime().TotalMinutes < 1) // if it has been running for 0 minutes, just shot that a session is running, not that is has been running for 0 minutes
                     {
                         currentSessionStatus = "There is an open FocusSession running.";
                     }
