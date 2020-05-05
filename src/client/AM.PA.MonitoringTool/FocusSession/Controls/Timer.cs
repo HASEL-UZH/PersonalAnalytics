@@ -51,6 +51,9 @@ namespace FocusSession.Controls
 
                 // workaround: calling twice because of 'splash screen dismisses dialog box' bug. More here https://stackoverflow.com/questions/576503/how-to-set-wpf-messagebox-owner-to-desktop-window-because-splashscreen-closes-mes/5328590#5328590
                 System.Windows.Forms.MessageBox.Show("FocusSession started. Please make sure you have Windows Focus Assistant turned on.");
+
+                // set the timer for email reply functionality
+                SetTimer();
             }
         }
         public static void StopTimer()
@@ -85,6 +88,7 @@ namespace FocusSession.Controls
 
                 // workaround: calling twice because of 'splash screen dismisses dialog box' bug. More here https://stackoverflow.com/questions/576503/how-to-set-wpf-messagebox-owner-to-desktop-window-because-splashscreen-closes-mes/5328590#5328590
                 System.Windows.Forms.MessageBox.Show("You did focus for " + elapsedTime.Hours + " hours and " + elapsedTime.Minutes + " Minutes. Good job :)");
+
             }
         }
 
@@ -126,7 +130,8 @@ namespace FocusSession.Controls
 
         private static async void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
-            if (DateTime.Compare(DateTime.Now, endTime) > 0)
+            // check if this is a closed session where a timer actually runs out, and if we hit the endTime already
+            if (closedSession && DateTime.Compare(DateTime.Now, endTime) > 0)
             {
                 // get the current timestamp
                 stopTime = DateTime.Now;
