@@ -19,6 +19,7 @@ namespace FocusSession.Controls
         public static bool openSession { get; set; } = false;   // indicate if an openSession is running
         public static bool closedSession { get; set; } = false; // indicate if a closedSession is running
 
+        // for icon hover information
         public static TimeSpan getSessionTime()  // get the current session Time
         {
             if (openSession)
@@ -35,6 +36,7 @@ namespace FocusSession.Controls
             }
         }
 
+        // Session has been manually started by user. This is an open session.
         public static void StartTimer()
         {
             // there is no session currently running so we get the now. User is not meant to overwrite startTime randomly. In case of user clicks start button multiple times, nothing will happen.
@@ -56,6 +58,8 @@ namespace FocusSession.Controls
                 SetTimer();
             }
         }
+        
+        // Session has been manually stopped by user
         public static void StopTimer()
         {
             if (openSession || closedSession)
@@ -83,16 +87,25 @@ namespace FocusSession.Controls
                     aTimer.Dispose();
                 }
 
+                String endMessage = "You did focus for " + elapsedTime.Hours + " hours and " + elapsedTime.Minutes + " Minutes. Good job :)";
+
+                if (emailsReplied.Count > 0) {
+                    endMessage += "During this Session, " + emailsReplied.Count + " Emails have been automatically replied.";
+                }
+
                 // display a message to the user so the user gets feedback (important)
                 System.Windows.Forms.MessageBox.Show("FocusSession stopped.");
 
                 // workaround: calling twice because of 'splash screen dismisses dialog box' bug. More here https://stackoverflow.com/questions/576503/how-to-set-wpf-messagebox-owner-to-desktop-window-because-splashscreen-closes-mes/5328590#5328590
-                System.Windows.Forms.MessageBox.Show("You did focus for " + elapsedTime.Hours + " hours and " + elapsedTime.Minutes + " Minutes. Good job :)");
+                System.Windows.Forms.MessageBox.Show(endMessage);
+
+                // empty replied Emails list
+                emailsReplied = new System.Collections.Generic.List<Microsoft.Graph.Message>();
 
             }
         }
 
-
+        // user manually starts a closed session
         public static void Countdown()
         {
             // add start time
@@ -116,9 +129,6 @@ namespace FocusSession.Controls
 
         private static void SetTimer()
         {
-            // empty replied Emails list
-            emailsReplied = new System.Collections.Generic.List<Microsoft.Graph.Message>();
-
             // 10 sec interval, checking and replying to emails or ending session
             aTimer = new System.Timers.Timer(10000);
 
@@ -157,6 +167,10 @@ namespace FocusSession.Controls
 
                 // display a message that counter run out. TODO maybe less intrusive way, this might interrupt the users workflow
                 System.Windows.Forms.MessageBox.Show("FocusSession timer elapsed. Well done :)");
+                
+                // empty replied Emails list
+                emailsReplied = new System.Collections.Generic.List<Microsoft.Graph.Message>();
+
             }
             else
             {
