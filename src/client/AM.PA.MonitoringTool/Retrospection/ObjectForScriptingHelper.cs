@@ -30,17 +30,17 @@ namespace Retrospection
 
         public void JS_StartFocusSession()
         {
-            FocusSession.Controls.Timer.StartTimer();
+            FocusSession.Controls.Timer.StartOpenFocusSession();
         }
 
         public void JS_StopFocusSession()
         {
-            FocusSession.Controls.Timer.StopTimer();
+            FocusSession.Controls.Timer.StopFocusSession();
         }
 
         public void JS_FocusSessionCountdown()
         {
-            FocusSession.Controls.Timer.Countdown();
+            FocusSession.Controls.Timer.StartClosedFocusSession();
         }
 
         public void JS_ThumbsVote(string voteType, string chartTitle, string typeString, string dateString)

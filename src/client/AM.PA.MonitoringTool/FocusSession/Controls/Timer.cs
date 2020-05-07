@@ -37,7 +37,7 @@ namespace FocusSession.Controls
         }
 
         // Session has been manually started by user. This is an open session.
-        public static void StartTimer()
+        public static void StartOpenFocusSession()
         {
             // there is no session currently running so we get the now. User is not meant to overwrite startTime randomly. In case of user clicks start button multiple times, nothing will happen.
             if (!openSession && !closedSession)
@@ -58,9 +58,9 @@ namespace FocusSession.Controls
                 SetTimer();
             }
         }
-        
+
         // Session has been manually stopped by user
-        public static void StopTimer()
+        public static void StopFocusSession()
         {
             if (openSession || closedSession)
             {
@@ -70,6 +70,7 @@ namespace FocusSession.Controls
 
                 // indicate that session stopped
                 openSession = false;
+                closedSession = false;
 
                 // calculate the timespan
                 TimeSpan elapsedTime = stopTime - startTime;
@@ -89,7 +90,8 @@ namespace FocusSession.Controls
 
                 String endMessage = "You did focus for " + elapsedTime.Hours + " hours and " + elapsedTime.Minutes + " Minutes. Good job :)";
 
-                if (emailsReplied.Count > 0) {
+                if (emailsReplied.Count > 0)
+                {
                     endMessage += "During this Session, " + emailsReplied.Count + " Emails have been automatically replied.";
                 }
 
@@ -106,7 +108,7 @@ namespace FocusSession.Controls
         }
 
         // user manually starts a closed session
-        public static void Countdown()
+        public static void StartClosedFocusSession()
         {
             // add start time
             startTime = DateTime.Now;
@@ -162,12 +164,9 @@ namespace FocusSession.Controls
                 // update indicator
                 closedSession = false;
 
-                // reset variable for context menu (in TrackerManager)
-                Shared.Helpers.FocusSessionHelper._isRunningFocusSession = false;
-
                 // display a message that counter run out. TODO maybe less intrusive way, this might interrupt the users workflow
                 System.Windows.Forms.MessageBox.Show("FocusSession timer elapsed. Well done :)");
-                
+
                 // empty replied Emails list
                 emailsReplied = new System.Collections.Generic.List<Microsoft.Graph.Message>();
 

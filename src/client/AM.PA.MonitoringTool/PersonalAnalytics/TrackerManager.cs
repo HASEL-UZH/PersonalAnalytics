@@ -38,7 +38,7 @@ namespace PersonalAnalytics
         private MenuItem _pauseContinueMenuItem;
         private string _publishedAppVersion;
         private bool _isPaused;
-        //public bool _isRunningFocusSession; //default value is false
+
 
         #region Initialize & Handle TrackerManager
 
@@ -334,65 +334,6 @@ namespace PersonalAnalytics
             Database.GetInstance().LogInfo("The participant resumed the trackers.");
         }
 
-        /// <summary>
-        /// starts a focus session
-        /// </summary>
-        public void StartFocusTimer()
-        {
-            if (Shared.Helpers.FocusSessionHelper._isRunningFocusSession)
-            {
-                // display a message that there is a session already running
-                System.Windows.Forms.MessageBox.Show("There is already a timer session running");
-            }
-            else
-            {
-                // start focus session
-                FocusSession.Controls.Timer.StartTimer();
-
-                Shared.Helpers.FocusSessionHelper._isRunningFocusSession = true;
-
-                Database.GetInstance().LogInfo("The participant started a Focus Session.");
-            }
-        }
-
-        /// <summary>
-        /// stops a focus session
-        /// </summary>
-        public void StopFocusTimer()
-        {
-            // stop focus session
-            FocusSession.Controls.Timer.StopTimer();
-
-            Shared.Helpers.FocusSessionHelper._isRunningFocusSession = false;
-
-            Database.GetInstance().LogInfo("The participant stopped the Focus Session.");
-        }
-
-        /// <summary>
-        /// starts a predefined focus session 25 min (pomodo)
-        /// </summary>
-        public void StartPreFocusTimer()
-        {
-            if (Shared.Helpers.FocusSessionHelper._isRunningFocusSession)
-            {
-                // display a message that there is a session already running
-                System.Windows.Forms.MessageBox.Show("There is already a focus session running");
-            }
-            else
-            {
-                Shared.Helpers.FocusSessionHelper._isRunningFocusSession = true;
-
-                // start focus session
-                FocusSession.Controls.Timer.Countdown();
-
-                
-                // TODO if the countdown is finished, you need to set the variable _isRunningFocusSession to false again.
-                
-                
-
-                Database.GetInstance().LogInfo("The participant started a Predefined Focus Session.");
-            }
-        }
 
         /// <summary>
         /// Tracker registers its service to the TrackerManager
@@ -470,12 +411,12 @@ namespace PersonalAnalytics
                 m8.Click += (o, i) => UploadTrackedData();
                 _taskbarIcon.ContextMenu.Items.Add(m8);
             }
-            var m9 = new MenuItem { Header = "Start Focus Timer" };
-            m9.Click += (o, i) => StartStopFocusTimer(m9);
+            var m9 = new MenuItem { Header = "Start Open Focus Session" };
+            m9.Click += (o, i) => StartStopOpenFocusSession(m9);
             _taskbarIcon.ContextMenu.Items.Add(m9);
 
-            var m10 = new MenuItem { Header = "Start Pomodo Timer" };
-            m10.Click += (o, i) => StartPreFocusTimer(m10);
+            var m10 = new MenuItem { Header = "Start Closed Focus Session" };
+            m10.Click += (o, i) => StartStopClosedSession(m10);
             _taskbarIcon.ContextMenu.Items.Add(m10);
 
             var m4 = new MenuItem { Header = "Open collected data" };
@@ -546,19 +487,38 @@ namespace PersonalAnalytics
         /// started or stopped
         /// </summary>
         /// <param name="item"></param>
-        private void StartStopFocusTimer(MenuItem item)
+        private void StartStopOpenFocusSession(MenuItem item)
         {
-            // start
-            if (!Shared.Helpers.FocusSessionHelper._isRunningFocusSession)
+            // is there already another focus session running?
+            if (FocusSession.Controls.Timer.closedSession)
             {
-                StartFocusTimer();
-                item.Header = "Stop Focus Timer";
+                MessageBox.Show("There is currently a closed focus session running");
+                // the message box closes right away again bug circumvention
+                MessageBox.Show("There is currently a closed focus session running");
+            }
+            // start
+            else if (!FocusSession.Controls.Timer.openSession)    // there is no open session currently running
+            {
+                // start the open focus session
+                FocusSession.Controls.Timer.StartOpenFocusSession();
+
+                // log the info that the user started an open session
+                Database.GetInstance().LogInfo("The participant started an Open Focus Session at " + DateTime.Now + " .");
+
+                // set the menu item label
+                item.Header = "Stop Open Focus Session";
             }
             // stop
             else
             {
-                StopFocusTimer();
-                item.Header = "Start Focus Timer";
+                // stop the open focus session
+                FocusSession.Controls.Timer.StopFocusSession();
+
+                // log the info that the user stopped an open session
+                Database.GetInstance().LogInfo("The participant stopped the Open Focus Session at " + DateTime.Now + " .");
+
+                // set the menu item label
+                item.Header = "Start Open Focus Session";
             }
         }
 
@@ -567,19 +527,38 @@ namespace PersonalAnalytics
         /// started or stopped
         /// </summary>
         /// <param name="item"></param>
-        private void StartPreFocusTimer(MenuItem item)
+        private void StartStopClosedSession(MenuItem item)
         {
-            // start
-            if (!Shared.Helpers.FocusSessionHelper._isRunningFocusSession)
+            // is there already another focus session running?
+            if (FocusSession.Controls.Timer.openSession)
             {
-                StartPreFocusTimer();
-                item.Header = "Cancel Pomodo Timer";
+                MessageBox.Show("There is currently a open focus session running");
+                // the message box closes right away again bug circumvention
+                MessageBox.Show("There is currently a open focus session running");
             }
-            // stop
+            // start
+            if (!FocusSession.Controls.Timer.closedSession)
+            {
+                // start focus session
+                FocusSession.Controls.Timer.StartClosedFocusSession();
+
+                // log the info that the user started a closed session
+                Database.GetInstance().LogInfo("The participant started a Closed Focus Session at " + DateTime.Now + " .");
+
+                // set the menu item label
+                item.Header = "Cancel Closed Focus Session";
+            }
+            // cancel
             else
             {
-                StopFocusTimer();
-                item.Header = "Start Pomodo Timer";
+                // stop closed focus session
+                FocusSession.Controls.Timer.StopFocusSession();
+
+                // log the info that the user stopped a closed session
+                Database.GetInstance().LogInfo("The participant stopped a Closed Focus Session at " + DateTime.Now + " .");
+
+                // set the menu item label
+                item.Header = "Start Closed Focus Session";
             }
         }
 
