@@ -4,14 +4,15 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Globalization;
 using MsOfficeTracker.Visualizations;
 using Shared;
+using Shared.Data;
 
 namespace FocusSession
 {
     public sealed class Daemon : BaseTracker, ITracker
     {
-
         public Daemon()
         {
             Name = Settings.TrackerName;
@@ -30,7 +31,7 @@ namespace FocusSession
         public override System.Collections.Generic.List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
         {
             var vis = new Visualizations.TimerButton(date);
-            return new System.Collections.Generic.List<IVisualization> { vis };
+            return new System.Collections.Generic.List<IVisualization> {vis};
         }
 
         public override void CreateDatabaseTablesIfNotExist()
@@ -45,7 +46,8 @@ namespace FocusSession
 
         public override string GetVersion()
         {
-            var v = new System.Reflection.AssemblyName(System.Reflection.Assembly.GetExecutingAssembly().FullName).Version;
+            var v = new System.Reflection.AssemblyName(System.Reflection.Assembly.GetExecutingAssembly().FullName)
+                .Version;
             return Shared.Helpers.VersionHelper.GetFormattedVersion(v);
         }
 
@@ -63,21 +65,25 @@ namespace FocusSession
                 // open Session
                 if (Controls.Timer.openSession)
                 {
-                    if (Controls.Timer.getSessionTime().TotalMinutes < 1) // if it has been running for 0 minutes, just shot that a session is running, not that is has been running for 0 minutes
+                    if (Controls.Timer.getSessionTime().TotalMinutes < 1
+                    ) // if it has been running for 0 minutes, just shot that a session is running, not that is has been running for 0 minutes
                     {
                         currentSessionStatus = "There is an open FocusSession running.";
                     }
                     else
                     {
-                        currentSessionStatus = "There is an open FocusSession running since " + Controls.Timer.getSessionTime().Minutes + " minutes.";
+                        currentSessionStatus = "There is an open FocusSession running since " +
+                                               Controls.Timer.getSessionTime().Minutes + " minutes.";
                     }
                 }
                 // closed Session
                 else
                 {
-                    currentSessionStatus = "There is a closed FocusSession running for another " + Controls.Timer.getSessionTime().Minutes + " minutes.";
+                    currentSessionStatus = "There is a closed FocusSession running for another " +
+                                           Controls.Timer.getSessionTime().Minutes + " minutes.";
                 }
             }
+
             return currentSessionStatus;
         }
 
@@ -87,35 +93,39 @@ namespace FocusSession
             return true;
         }
 
-        /* TODO CustomTimerDuration
-        private TimeSpan _CustomTimerDurationInMins;
-        public TimeSpan CustomTimerDurationInMins
+
+        private int _closedSessionDuration;
+
+        public int ClosedSessionDuration
         {
             get
             {
-                var value = Database.GetInstance().GetSettingsInt("CustomTimerDuration", Settings.DefaultCustomTimerDuration);
-                _popUpIntervalInMins = TimeSpan.FromMinutes(value);
-                return _popUpIntervalInMins;
+                _closedSessionDuration = Database.GetInstance()
+                    .GetSettingsInt("ClosedSessionDuration", Settings.ClosedSessionDuration);
+                return _closedSessionDuration;
             }
             set
             {
-                var updatedInterval = value;
+                var updatedClosedSessionDuration = value;
 
                 // only update if settings changed
-                //if (updatedInterval == _popUpIntervalInMins) return;
-                //_popUpIntervalInMins = updatedInterval;
+                if (updatedClosedSessionDuration == _closedSessionDuration)
+                {
+                    return;
+                }
+
+                _closedSessionDuration = updatedClosedSessionDuration;
+                // update variable
+                Settings.ClosedSessionDuration = _closedSessionDuration;
 
                 // update settings
-                //Database.GetInstance().SetSettings("PopUpInterval", updatedInterval.TotalMinutes.ToString(CultureInfo.InvariantCulture));
-
-                // update interval time
-                //_timeRemainingUntilNextSurvey = _popUpIntervalInMins;
+                Database.GetInstance().SetSettings("ClosedSessionDuration",
+                    updatedClosedSessionDuration.ToString(CultureInfo.InvariantCulture));
 
                 // log
-                //Database.GetInstance().LogInfo("The participant updated the setting 'PopUpInterval' to " + _popUpIntervalInMins);
+                Database.GetInstance().LogInfo("The participant updated the setting 'ClosedSessionDuration' to " +
+                                               _closedSessionDuration);
             }
         }
-        */
-
     }
 }

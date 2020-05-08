@@ -10,5 +10,6 @@ namespace FocusSession
         public const string TrackerName = "FocusSession Tracker";
         public static bool IsEnabledByDefault = true;
         public const string FocusTimerTable = "focusTimer";
+        public static int ClosedSessionDuration = 25;
     }
 }

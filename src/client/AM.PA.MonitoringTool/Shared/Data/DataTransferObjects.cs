@@ -36,9 +36,7 @@ namespace Shared.Data
         public bool? FitbitTrackerEnabled { get; set; }
         public bool? FitbitTokenRevokeEnabled { get; set; }
         public bool? FitbitTokenRevoked { get; set; }
-        /* TODO CustomTimerDuration
-        public int? CustomTimerDuration { get; set; }
-        */
+        public int? ClosedSessionDuration { get; set; }
     }
     public class StartEndTimeDto
     {

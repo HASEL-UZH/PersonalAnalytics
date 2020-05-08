@@ -30,9 +30,7 @@ namespace Retrospection
         private bool _defaultPolarTrackerEnabled;
         private bool _defaultFitbitTrackerEnabled;
         private bool _defaultFitbitTokenRemoveEnabled;
-        /* TODO CustomTimerDuration
-        private int  _defaultCustomTimerDuration;
-        */
+        private int  _defaultClosedSessionDuration;
 
         public SettingsDto UpdatedSettingsDto;
 
@@ -57,9 +55,7 @@ namespace Retrospection
             _defaultPolarTrackerEnabled = dto.PolarTrackerEnabled.Value;
             _defaultFitbitTrackerEnabled = dto.FitbitTrackerEnabled.Value;
             _defaultFitbitTokenRemoveEnabled = dto.FitbitTokenRevokeEnabled.Value;
-            /* TODO CustomTimerDuration
-            _defaultCustomTimerDuration = dto.CustomTimerDuration.Value;
-            */
+            _defaultClosedSessionDuration = dto.ClosedSessionDuration.Value;
 
             // no changes yet, disable buttons by default
             SaveButtonsEnabled(false);
@@ -111,10 +107,8 @@ namespace Retrospection
 
             FitbitRevoke.IsEnabled = _defaultFitbitTokenRemoveEnabled;
 
-            /* TODO CustomTimerDuration
-            CbCustomTimerDuration.SelectedValue = _defaultCustomTimerDuration + MinutesStr;
-            CbCustomTimerDuration.SelectionChanged += CbCustomTimerDuration_SelectionChanged;
-            */
+            CbClosedSessionDuration.SelectedValue = _defaultClosedSessionDuration;
+            CbClosedSessionDuration.SelectionChanged += CbClosedSessionDuration_SelectionChanged;
         }
 
         #region User Changed Values
@@ -134,13 +128,11 @@ namespace Retrospection
         {
             UpdateSettingsChanged();
         }
-
-        /* TODO CustomTimerDuration
-        private void CbCustomTimerDuration_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        
+        private void CbClosedSessionDuration_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             UpdateSettingsChanged();
         }
-        */
 
         private void UpdateSettingsChanged()
         {
@@ -155,10 +147,8 @@ namespace Retrospection
                  || _defaultTimeSpentHideMeetingsWithoutAttendeesEnabled != CbTimeSpentHideMeetingsWithoutAttendeesEnabled.IsChecked.Value
                  || _defaultTimeSpentShowProgramsEnabled != CbTimeSpentShowProgramsEnabled.IsChecked.Value
                  || _defaultPolarTrackerEnabled != PolarEnabled.IsChecked.Value
-                 || _defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value)
-                    /* TODO CustomTimerDuration
-                    _defaultCustomTimerDuration + MinutesStr != CbCustomTimerDuration.SelectedValue.ToString()
-                    */
+                 || _defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value
+                 || _defaultClosedSessionDuration.ToString() != CbClosedSessionDuration.SelectedValue.ToString())
                 {
                     SaveButtonsEnabled(true);
                 }
@@ -246,15 +236,12 @@ namespace Retrospection
                     dto.FitbitTrackerEnabled = FitbitEnabled.IsChecked.Value;
                 }
                 else { dto.FitbitTrackerEnabled = null; }
-
-                /* TODO CustomTimerDuration
-                if (_defaultCustomTimerDuration + MinutesStr != CbCustomTimerDuration.SelectedValue.ToString())
+                
+                if (_defaultClosedSessionDuration.ToString() != CbClosedSessionDuration.SelectedValue.ToString())
                 {
-                    var intervalString = CbCustomTimerDuration.SelectedValue.ToString().Replace(MinutesStr, "");
-                    dto.CustomTimerDuration = int.Parse(intervalString, CultureInfo.InvariantCulture);
+                    dto.ClosedSessionDuration = int.Parse(CbClosedSessionDuration.SelectedValue.ToString(), CultureInfo.InvariantCulture);
                 }
-                else { dto.CustomTimerDuration = null; }
-                */
+                else { dto.ClosedSessionDuration = null; }
             }
             catch { }
 

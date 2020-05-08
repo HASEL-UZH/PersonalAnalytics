@@ -26,14 +26,11 @@ namespace FocusSession.Controls
             {
                 return DateTime.Now - startTime;    // return for how long the open session has been running
             }
-            else if (closedSession)
+            if (closedSession)
             {
                 return endTime - startTime;         // return for how long the closed session will still be running
             }
-            else
-            {
-                return TimeSpan.Zero;
-            }
+            return TimeSpan.Zero;
         }
 
         // Session has been manually started by user. This is an open session.
@@ -113,8 +110,8 @@ namespace FocusSession.Controls
             // add start time
             startTime = DateTime.Now;
 
-            // add the timeperiod, currently Pomodoro Timer: 25 min
-            endTime = DateTime.Now.AddMinutes(25);
+            // add the timeperiod, default is Pomodoro Timer 25 min, unless changed through the Settings
+            endTime = DateTime.Now.AddMinutes(Settings.ClosedSessionDuration);
 
             // update indicator
             closedSession = true;
@@ -123,7 +120,7 @@ namespace FocusSession.Controls
             System.Windows.Forms.MessageBox.Show("");
 
             // workaround: calling twice because of 'splash screen dismisses dialog box' bug. More here https://stackoverflow.com/questions/576503/how-to-set-wpf-messagebox-owner-to-desktop-window-because-splashscreen-closes-mes/5328590#5328590
-            System.Windows.Forms.MessageBox.Show("FocusSession started for 25 min. Please make sure you have Windows Focus Assistant turned on.");
+            System.Windows.Forms.MessageBox.Show("FocusSession started for " + Settings.ClosedSessionDuration + " min. Please make sure you have Windows Focus Assistant turned on.");
 
             // set the timer
             SetTimer();
