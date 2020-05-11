@@ -19,6 +19,8 @@ namespace FocusSession.Controls
         public static bool openSession { get; set; } = false;   // indicate if an openSession is running
         public static bool closedSession { get; set; } = false; // indicate if a closedSession is running
 
+        private static String[] windowFlaggerList = new string[3] { "Zulip", "Microsoft Teams", "Mozilla Thunderbird" };   // list of potentially distracting programs that we use for flagging check
+
         // for icon hover information
         public static TimeSpan getSessionTime()  // get the current session Time
         {
@@ -197,5 +199,17 @@ namespace FocusSession.Controls
                 }
             }
         }
+
+        // this method is calles by the WindowsActivityTracker Demon, upon a foreground window/program switch, in case of an active FocusSession running
+        // it checks if it is a potentially distracting program according to the list, currently printing to the Console
+        public static void WindowFlagger(String currentWindowTitle) {
+
+            foreach (String windowFlagger in windowFlaggerList)
+                if (currentWindowTitle.Contains(windowFlagger))
+                {
+                    Console.WriteLine("Potentially distracting program detected: " + currentWindowTitle);
+                }
+        }
+
     }
 }

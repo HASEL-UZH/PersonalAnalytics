@@ -455,6 +455,13 @@ namespace WindowsActivityTracker
             // is a WindowActivityEntry-Switch
             if ((differentProcessNotIdle || differentWindowTitle) && notIdleLastInterval)
             {
+                // check if there is a FocusSession currently running
+                if(FocusSession.Controls.Timer.openSession || FocusSession.Controls.Timer.closedSession)
+                {
+                    // if yes, send the FocusSessionTracker the required information in case of an active window switch
+                    FocusSession.Controls.Timer.WindowFlagger(currentWindowTitle);
+                }
+
                 SetCurrentAndStorePrevious_WindowsActivityEvent(currentTimeStamp, currentWindowTitle, currentProcess, currentHandle);
             }
         }
