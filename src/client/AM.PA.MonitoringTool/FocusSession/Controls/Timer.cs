@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Timers;
+using System.Windows.Forms;
 
 namespace FocusSession.Controls
 {
@@ -202,13 +203,35 @@ namespace FocusSession.Controls
 
         // this method is calles by the WindowsActivityTracker Demon, upon a foreground window/program switch, in case of an active FocusSession running
         // it checks if it is a potentially distracting program according to the list, currently printing to the Console
-        public static void WindowFlagger(String currentWindowTitle) {
+        public static void WindowFlagger(String currentWindowTitle)
+        {
 
             foreach (String windowFlagger in windowFlaggerList)
                 if (currentWindowTitle.Contains(windowFlagger))
                 {
-                    Console.WriteLine("Potentially distracting program detected: " + currentWindowTitle);
+                    // show message box to ask if this is task-related
+                    var selectedOption = MessageBox.Show("You opened a potentially distracting program during an active FocusSession. Do you want to read or reply to a message that is related to the task you are currently focussing on?", "Potentially distracting Program detected", MessageBoxButtons.YesNo);
+
+                    // check answer
+                    // TODO store in database entry for study rather then just console-outprinting
+                    if (selectedOption == DialogResult.Yes)
+
+                    {
+
+                        Console.WriteLine("The participant opened " + currentWindowTitle + " to read or reply to a message that is task-related");
+
+
+                    }
+
+                    else if (selectedOption == DialogResult.No)
+
+                    {
+
+                        Console.WriteLine("The participant opened " + currentWindowTitle + " to read or reply to a message that is not task-related");
+
+                    }
                 }
+
         }
 
     }

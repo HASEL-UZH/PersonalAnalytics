@@ -38,6 +38,7 @@ namespace WindowsActivityTracker
         private NativeMethods.LASTINPUTINFO _lastInputInfo;
         private WindowsActivityEntry _previousEntry;
         private DateTime _previousIdleSleepValidated = DateTime.MinValue;
+        private String _lastWinEventProc = "Initial";
 
         #region ITracker Stuff
 
@@ -293,13 +294,13 @@ namespace WindowsActivityTracker
                     DateTime.Now.AddMilliseconds(-Settings.NotCountingAsIdleInterval_ms), // subtract IDLE time
                     Dict.Idle, Dict.Idle, IntPtr.Zero);
             }
-            else if (! isIdle && _previousEntry.WasIdle)
+            else if (!isIdle && _previousEntry.WasIdle)
             {
                 // resumed work in the same program (i.e. from IDLE -> current process)
                 StoreProcess();
                 // TODO later: maybe check if not just moved the mouse a little, but actually inserted some data
             }
-            else if (! isIdle && !_previousEntry.WasIdle)
+            else if (!isIdle && !_previousEntry.WasIdle)
             {
                 // nothing to do here
             }
@@ -332,7 +333,7 @@ namespace WindowsActivityTracker
                 _previousIdleSleepValidated = DateTime.Now;
                 Database.GetInstance().SetSettings(Settings.IdleSleepLastValidated, _previousIdleSleepValidated.ToString(DatabaseImplementation.DB_FORMAT_DAY_AND_TIME));
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Database.GetInstance().LogError(ex.Message);
             }
@@ -396,6 +397,20 @@ namespace WindowsActivityTracker
 
                 // run on separate thread (to avoid lags)
                 await Task.Run(() => StoreProcess());
+
+                /* FocusSession potentially distracting window flagger */
+                var currentHandle = NativeMethods.GetForegroundWindow();
+                var currentWindowTitle = GetActiveWindowTitle(currentHandle);
+                // check if the active window changed. The MessageBox will be ignored here. && check if there is a FocusSession currently running
+                if (_lastWinEventProc != currentWindowTitle && (FocusSession.Controls.Timer.openSession || FocusSession.Controls.Timer.closedSession))
+                {
+                    // if yes, send the FocusSessionTracker the required information in case of an active window switch
+                    FocusSession.Controls.Timer.WindowFlagger(currentWindowTitle);
+
+                }
+                // set control variable
+                _lastWinEventProc = currentWindowTitle;
+                /* End of FocusSession WindowFlagger part */
             }
             catch (Exception e)
             {
@@ -434,6 +449,7 @@ namespace WindowsActivityTracker
             // [special case] Windows 10 apps (e.g. Edge, Photos, Mail)
             else if (!string.IsNullOrEmpty(currentProcess) && currentProcess.ToLower().Equals("applicationframehost"))
             {
+                Console.WriteLine("Special Case Triggered");
                 var lastDash = currentWindowTitle.LastIndexOf("- ");
                 if (lastDash > 0)
                 {
@@ -455,13 +471,6 @@ namespace WindowsActivityTracker
             // is a WindowActivityEntry-Switch
             if ((differentProcessNotIdle || differentWindowTitle) && notIdleLastInterval)
             {
-                // check if there is a FocusSession currently running
-                if(FocusSession.Controls.Timer.openSession || FocusSession.Controls.Timer.closedSession)
-                {
-                    // if yes, send the FocusSessionTracker the required information in case of an active window switch
-                    FocusSession.Controls.Timer.WindowFlagger(currentWindowTitle);
-                }
-
                 SetCurrentAndStorePrevious_WindowsActivityEvent(currentTimeStamp, currentWindowTitle, currentProcess, currentHandle);
             }
         }
@@ -527,7 +536,7 @@ namespace WindowsActivityTracker
                 // 2017-01-24 usually slower:
                 //var pN = Process.GetProcessById((int)processId).ProcessName;
             }
-            catch {}
+            catch { }
             return string.Empty;
         }
 
@@ -548,7 +557,7 @@ namespace WindowsActivityTracker
                     return buff.ToString();
                 }
             }
-            catch {}
+            catch { }
             return string.Empty;
         }
 
