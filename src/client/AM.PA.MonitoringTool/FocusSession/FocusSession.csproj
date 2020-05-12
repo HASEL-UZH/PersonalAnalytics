@@ -38,6 +38,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Graph, Version=1.8.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -58,6 +62,139 @@
     <Compile Include="Data\Queries.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="SlackAPI\Attachment.cs" />
+    <Compile Include="SlackAPI\Block.cs" />
+    <Compile Include="SlackAPI\Bot.cs" />
+    <Compile Include="SlackAPI\Channel.cs" />
+    <Compile Include="SlackAPI\ContextMessage.cs" />
+    <Compile Include="SlackAPI\Conversation.cs" />
+    <Compile Include="SlackAPI\Dialog.cs" />
+    <Compile Include="SlackAPI\DirectMessageConversation.cs" />
+    <Compile Include="SlackAPI\Extensions.cs" />
+    <Compile Include="SlackAPI\File.cs" />
+    <Compile Include="SlackAPI\JavascriptDateTimeConverter.cs" />
+    <Compile Include="SlackAPI\Message.cs" />
+    <Compile Include="SlackAPI\MimeTypes.cs" />
+    <Compile Include="SlackAPI\OwnedStampedMessage.cs" />
+    <Compile Include="SlackAPI\Preferences.cs" />
+    <Compile Include="SlackAPI\ProfileIcons.cs" />
+    <Compile Include="SlackAPI\Properties\InternalsVisibleTo.cs" />
+    <Compile Include="SlackAPI\Reaction.cs" />
+    <Compile Include="SlackAPI\ReactionAddedResponse.cs" />
+    <Compile Include="SlackAPI\Request.cs" />
+    <Compile Include="SlackAPI\RequestStateForTask.cs" />
+    <Compile Include="SlackAPI\Response.cs" />
+    <Compile Include="SlackAPI\RPCMessages\AccessTokenResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\AuthSigninResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\AuthStartResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\AuthTestResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\ChannelCreateResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\ChannelInviteResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\ChannelListResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\ChannelMessageHistory.cs" />
+    <Compile Include="SlackAPI\RPCMessages\ChannelSetTopicResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\DeletedResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\DialogOpenResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\DirectMessageConversationListResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\FileDeleteResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\FileInfoResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\FileListResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\FileUploadResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\FindTeamResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\GroupArchiveResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\GroupCloseResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\GroupCreateChildResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\GroupCreateResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\GroupInviteResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\GroupKickResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\GroupLeaveResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\GroupListResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\GroupMarkResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\GroupMessageHistory.cs" />
+    <Compile Include="SlackAPI\RPCMessages\GroupOpenResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\GroupRenameResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\GroupResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\GroupSetPurposeResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\GroupSetTopicResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\GroupUnarchiveResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\JoinDirectMessageChannelResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\LoginResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\MarkResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\MessageHistory.cs" />
+    <Compile Include="SlackAPI\RPCMessages\PostEphemeralResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\PostMessageResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\PresenseResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\SearchResponseAll.cs" />
+    <Compile Include="SlackAPI\RPCMessages\SearchResponseFiles.cs" />
+    <Compile Include="SlackAPI\RPCMessages\SearchResponseMessages.cs" />
+    <Compile Include="SlackAPI\RPCMessages\StarListResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\UpdateResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\UserCountsResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\UserEmailLookupResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\UserGetPresenceResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\UserInfoResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\UserListResponse.cs" />
+    <Compile Include="SlackAPI\RPCMessages\UserPreferencesResponse.cs" />
+    <Compile Include="SlackAPI\SlackClient.cs" />
+    <Compile Include="SlackAPI\SlackClientBase.cs" />
+    <Compile Include="SlackAPI\SlackClientHelpers.cs" />
+    <Compile Include="SlackAPI\SlackScope.cs" />
+    <Compile Include="SlackAPI\SlackSocket.cs" />
+    <Compile Include="SlackAPI\SlackSocketClient.cs" />
+    <Compile Include="SlackAPI\SlackTaskClient.cs" />
+    <Compile Include="SlackAPI\Team.cs" />
+    <Compile Include="SlackAPI\TeamPreferences.cs" />
+    <Compile Include="SlackAPI\User.cs" />
+    <Compile Include="SlackAPI\UserProfile.cs" />
+    <Compile Include="SlackAPI\UserTeamCombo.cs" />
+    <Compile Include="SlackAPI\Utilities\ILockFree.cs" />
+    <Compile Include="SlackAPI\Utilities\LockFreeQueue.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\ChannelArchive.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\ChannelCreated.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\ChannelDeleted.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\ChannelHistoryChanged.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\ChannelMarked.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\ChannelRename.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\ChannelUnarchive.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\DeletedMessage.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\DndUpdatedUser.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\EmailDomainChanged.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\EmojiChangedAdd.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\EmojiChangedRemove.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\FileChange.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\FileCommentDeleted.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\FileCommentEdited.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\FileCreated.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\FileDeleted.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\FilePublic.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\FileShareMessage.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\FileUnshared.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\GroupArchive.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\GroupClose.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\GroupHistoryChanged.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\GroupJoined.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\GroupLeft.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\GroupOpen.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\GroupRename.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\GroupUnarchive.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\Hello.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\ImClosed.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\ImHistoryChanged.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\ImOpen.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\ManualPresenceChange.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\MessageReceived.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\NewMessage.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\Ping.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\Pong.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\PresenceChange.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\PresenceChangeSubscription.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\ReactionAdded.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\SubteamSelfAdded.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\SubteamSelfRemoved.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\TeamDomainChange.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\TeamJoin.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\Typing.cs" />
+    <Compile Include="SlackAPI\WebSocketMessages\UserChange.cs" />
     <Compile Include="Visualizations\TimerButton.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -69,6 +206,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -78,6 +216,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="SlackAPI\SlackAPI.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
