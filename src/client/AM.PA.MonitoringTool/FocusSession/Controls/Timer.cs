@@ -1,4 +1,6 @@
-﻿using System;
+using SlackAPI;
+using System;
+using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
 
@@ -173,6 +175,11 @@ namespace FocusSession.Controls
             }
             else
             {
+                // test sending message to slack via FocusSession Bot
+                var p = new Async();
+                p.SendSlackMessage("TOKEN HERE").Wait();
+         
+
                 // check mail and send an automatic reply if there was a new email.
                 var unreadEmailsReceived = MsOfficeTracker.Helpers.Office365Api.GetInstance().GetUnreadEmailsReceived(DateTime.Now.Date);
                 unreadEmailsReceived.Wait();
@@ -232,6 +239,30 @@ namespace FocusSession.Controls
                     }
                 }
 
+        }
+
+        class Async
+        {
+            public async Task SendSlackMessage(string token)
+            {
+                // instantiate a new Slack Client by provding a token
+                var client = new SlackTaskClient(token);
+
+                // send simple message to channel and wait for the call to complete
+                var channel = "#general";
+                var text = "hello world";
+                var response = await client.PostMessageAsync(channel, text);
+
+                // process response from API call
+                if (response.ok)
+                {
+                    Console.WriteLine("Message sent successfully");
+                }
+                else
+                {
+                    Console.WriteLine("Message sending failed. error: " + response.error);
+                }
+            }
         }
 
     }
