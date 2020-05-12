@@ -69,38 +69,28 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
             AppConstants.summaryStateKey: 0,
             AppConstants.notificationsPersistKey: true])
         
-        let preferencesItem = NSMenuItem(title: "Preferences...", action: #selector(AppDelegate.showPreferences(_:)), keyEquivalent: "P")
-        
-        let retrospectiveItem = NSMenuItem(title: "Show Retrospective", action: #selector(AppDelegate.showRetrospective(_:)), keyEquivalent: "R")
-        
-        let toggleSummaryItem = NSMenuItem(title: "Toggle Survey", action: #selector(toggleSummary), keyEquivalent: "A")
-        toggleSummaryItem.bind(NSBindingName(rawValue: "state"), to: defaultsController , withKeyPath: "values.\(AppConstants.summaryStateKey)", options: nil)
-        
-        let checkUpdatesItem = NSMenuItem(title: "Check for Updates...", action: #selector(SUUpdater.checkForUpdates(_:)), keyEquivalent: "U")
-        
         // Grabbed this from here: https://github.com/producthunt/producthunt-osx/blob/ab3a0c42cf680a5b0231b3c99a76445cce9abb94/Source/Actions/PHOpenSettingsMenuAction.swift
         let delegate = NSApplication.shared.delegate as! AppDelegate
-    //    let leaveReminderNotificationUntilClickedItem = NSMenuItem(title: "Notification Stays", action: Selector("togglePersistantUserNotifications:"), keyEquivalent: "P")
-     //   leaveReminderNotificationUntilClickedItem.bind("state", to: defaultsController, withKeyPath: "values.\(AppConstants.notificationsPersistKey)", options: nil)
         
+        let retrospectiveItem = NSMenuItem(title: "Show Retrospective", action: #selector(AppDelegate.showRetrospective(_:)), keyEquivalent: "R")
         pauseItem = NSMenuItem(title: "Pause Trackers", action: #selector(delegate.togglePause), keyEquivalent: "u")
+        let preferencesItem = NSMenuItem(title: "Preferences...", action: #selector(AppDelegate.showPreferences(_:)), keyEquivalent: "P")
+        let openDataItem = NSMenuItem(title: "Open Data Folder...", action: #selector(AppDelegate.openDataFolder(_:)), keyEquivalent: "O")
+        let checkUpdatesItem = NSMenuItem(title: "Check for Updates...", action: #selector(SUUpdater.checkForUpdates(_:)), keyEquivalent: "U")
+        // let toggleSummaryItem = NSMenuItem(title: "Toggle Survey", action: #selector(toggleSummary), keyEquivalent: "A")
+        // toggleSummaryItem.bind(NSBindingName(rawValue: "state"), to: defaultsController , withKeyPath: "values.\(AppConstants.summaryStateKey)", options: nil)
+        // let leaveReminderNotificationUntilClickedItem = NSMenuItem(title: "Notification Stays", action: Selector("togglePersistantUserNotifications:"), keyEquivalent: "P")
+        // leaveReminderNotificationUntilClickedItem.bind("state", to: defaultsController, withKeyPath: "values.\(AppConstants.notificationsPersistKey)", options: nil)
         
-        //menu.addItem(toggleSummaryItem)
         menu.addItem(retrospectiveItem)
-        
         menu.addItem(NSMenuItem.separator())
         menu.addItem(pauseItem!)
-        
         menu.addItem(NSMenuItem.separator())
+        menu.addItem(openDataItem)
         menu.addItem(preferencesItem)
-
-        //menu.addItem(flowlightItem)
-        //menu.addItem(leaveReminderNotificationUntilClickedItem)
         menu.addItem(NSMenuItem.separator())
-        
         menu.addItem(checkUpdatesItem)
         menu.addItem(NSMenuItem.separator())
-        
         // It doesn't seem to work if I change the selector, so I'm leaving it for now (working is better for now than slowing down)
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(delegate.quit), keyEquivalent: "q"))
 
@@ -108,7 +98,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         statusItem.image = NSImage(named: NSImage.Name(rawValue: Environment.statusBarIcon))
         setUpPreferencesView()
         setUpRetrospective()
-    
     }
 
     @objc func togglePause(){
@@ -150,7 +139,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSUserNotificationCenterDele
         NSApp.activate(ignoringOtherApps: true)
 
         retrospectiveController.window?.makeKeyAndOrderFront(self)
-        
+    }
+    
+    @objc func openDataFolder(_ sender: AnyObject) {
+        NSWorkspace.shared.openFile(applicationDocumentsDirectory.path)
     }
     
     func toggleSummary(){
