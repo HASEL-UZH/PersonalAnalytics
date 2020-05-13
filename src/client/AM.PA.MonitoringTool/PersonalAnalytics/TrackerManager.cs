@@ -144,6 +144,16 @@ namespace PersonalAnalytics
 
             // update taskbar icons (e.g. menu items that are added later)
             SetContextMenuOptions();
+
+            // create cache for slack config
+            if (File.Exists(Path.Combine(Settings.ExportFilePath, @"SlackConfig.json")))
+            {
+                Console.WriteLine("SlackConfig JSON file exists");
+            } else
+            {
+                File.WriteAllText(Path.Combine(Settings.ExportFilePath, @"SlackConfig.json"), FocusSession.Configuration.SlackConfig.InitializeCacheJSONFile);
+                Console.WriteLine("SlackConfig JSON File created");
+            }
         }
 
         /// <summary>

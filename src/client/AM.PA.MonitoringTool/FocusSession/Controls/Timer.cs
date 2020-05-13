@@ -1,17 +1,17 @@
+﻿using Newtonsoft.Json;
 using SlackAPI;
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
+
 
 namespace FocusSession.Controls
 {
     public class Timer
     {
 
-        // https://www.codeproject.com/Articles/824887/How-To-List-The-Name-of-Current-Active-Window-in-C
-
-        // private static System.Timers.Timer aTimer;  // timer functionality
         // setting them equal to control sessions (default value means equal). As soon as startTime is different it means a session is running
         private static DateTime startTime = new DateTime(2019, 2, 22, 14, 0, 0);    //just a default value, important is that is is equal to stopTime and in the past (so .now will never return the same value)
         private static DateTime stopTime = new DateTime(2019, 2, 22, 14, 0, 0);
@@ -22,7 +22,10 @@ namespace FocusSession.Controls
         public static bool openSession { get; set; } = false;   // indicate if an openSession is running
         public static bool closedSession { get; set; } = false; // indicate if a closedSession is running
 
-        private static String[] windowFlaggerList = new string[3] { "Zulip", "Microsoft Teams", "Mozilla Thunderbird" };   // list of potentially distracting programs that we use for flagging check
+
+        // list of potentially distracting programs that we use for flagging check
+        private static String[] windowFlaggerList = new string[3] { "Zulip", "Microsoft Teams", "Mozilla Thunderbird" };
+
 
         // for icon hover information
         public static TimeSpan getSessionTime()  // get the current session Time
@@ -44,6 +47,7 @@ namespace FocusSession.Controls
             // there is no session currently running so we get the now. User is not meant to overwrite startTime randomly. In case of user clicks start button multiple times, nothing will happen.
             if (!openSession && !closedSession)
             {
+
                 // set startTime
                 startTime = DateTime.Now;
 
@@ -175,10 +179,19 @@ namespace FocusSession.Controls
             }
             else
             {
-                // test sending message to slack via FocusSession Bot
-                var p = new Async();
-                p.SendSlackMessage("TOKEN HERE").Wait();
-         
+
+                if (System.IO.File.Exists(Path.Combine(Shared.Settings.ExportFilePath, @"SlackConfig.json")))
+                {
+                    // deserialized config.json to fetch tokens from class
+                    string allText = System.IO.File.ReadAllText(Path.Combine(Shared.Settings.ExportFilePath, @"SlackConfig.json"));
+                    Configuration.SlackConfig slackConfig = JsonConvert.DeserializeObject<Configuration.SlackConfig>(allText);
+
+                    // test sending message to slack via FocusSession Bot
+                    // does an asynchronous call mess up the messagebox flagging?
+                    var p = new Async();
+                    p.SendSlackMessage(slackConfig.botAuthToken).Wait();
+
+                }
 
                 // check mail and send an automatic reply if there was a new email.
                 var unreadEmailsReceived = MsOfficeTracker.Helpers.Office365Api.GetInstance().GetUnreadEmailsReceived(DateTime.Now.Date);
