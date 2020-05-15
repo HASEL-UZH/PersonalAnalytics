@@ -42,19 +42,10 @@ namespace FocusSession.Visualizations
             /////////////////////
             // HTML
             /////////////////////
+            ///
+            // TODO maybe show interesting stats here like total amount of time focussed with FocusTimer; total amount of emails answered 
             html += "<table>";
-            html += "<p style='text-align: center;'>Click on the Buttons to manually manage your Focus Session</p>";
-            html += "<button class='button' onclick=\"window.external.JS_StartFocusSession\" style=\"display:inline-block;margin-right:20px;margin-left:50px;\">Start Focus Session</button>";
-            html += "<button class='button' onclick=\"window.external.JS_StopFocusSession\" style=\"display:inline-block;\">Stop Focus Session</button>";
-            html += "<p style='text-align: center;'>You can also declare the amount of time (minutes) that a focus session shall run and then click on the countdown button</p>";
-            html += "<input type=\"number\" style=\"display:inline-block;\">";
-            html += "<button class='button' onclick=\"window.external.JS_FocusSessionCustomTimer()\" style=\"display:inline-block;\">Submit Counter</button>";
-
-            //html += " < input type = \"number\" id = \"ctime\" name = \"ctime\" > ";
-            // why not giving predefined time buttons instead of let them freely insert times? This way we can also extend the context menu with options, like 15min, 30min, 45min. Then they can choose it withouth having retrospection open.
-            // then we show timer functionality. We can differentiate between people wanting a set time or to manually (selbstkontrolle) start and stop focus sessions.
-            html += "<p style='text-align: center;'>Or use these predefined timers.</p>";
-            html += "<button class='button' onclick=\"window.external.JS_FocusSessionCountdown\" style=\"display:inline-block;\">Pomodo Timer</button>";
+            html += "<p style='text-align: center;'>This view is in development</p>";
             html += "</table>";
 
             return html;
