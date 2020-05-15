@@ -505,15 +505,17 @@ namespace PersonalAnalytics
                 MessageBox.Show("There is currently a closed focus session running");
                 // the message box closes right away again bug circumvention
                 MessageBox.Show("There is currently a closed focus session running");
+
+                // log the info
+                Database.GetInstance().LogInfo("The participant tried to start a openSession with an closedSession already running .");
+
             }
             // start
             else if (!FocusSession.Controls.Timer.openSession)    // there is no open session currently running
             {
-                // start the open focus session
-                FocusSession.Controls.Timer.StartOpenFocusSession();
 
-                // log the info that the user started an open session
-                Database.GetInstance().LogInfo("The participant started an Open Focus Session at " + DateTime.Now + " .");
+                // start the open focus session
+                FocusSession.Controls.Timer.StartSession(FocusSession.Enum.SessionEnum.Session.openSession);
 
                 // set the menu item label
                 item.Header = "Stop Open Focus Session";
@@ -522,10 +524,7 @@ namespace PersonalAnalytics
             else
             {
                 // stop the open focus session
-                FocusSession.Controls.Timer.StopFocusSession();
-
-                // log the info that the user stopped an open session
-                Database.GetInstance().LogInfo("The participant stopped the Open Focus Session at " + DateTime.Now + " .");
+                FocusSession.Controls.Timer.StopSession(FocusSession.Enum.SessionEnum.StopEvent.manual);
 
                 // set the menu item label
                 item.Header = "Start Open Focus Session";
@@ -545,15 +544,15 @@ namespace PersonalAnalytics
                 MessageBox.Show("There is currently a open focus session running");
                 // the message box closes right away again bug circumvention
                 MessageBox.Show("There is currently a open focus session running");
+
+                // log the info that the user started a closed session
+                Database.GetInstance().LogInfo("The participant tried to start a closedSession with an openSession already running .");
             }
             // start
             if (!FocusSession.Controls.Timer.closedSession)
             {
                 // start focus session
-                FocusSession.Controls.Timer.StartClosedFocusSession();
-
-                // log the info that the user started a closed session
-                Database.GetInstance().LogInfo("The participant started a Closed Focus Session at " + DateTime.Now + " .");
+                FocusSession.Controls.Timer.StartSession(FocusSession.Enum.SessionEnum.Session.closedSession);
 
                 // set the menu item label
                 item.Header = "Cancel Closed Focus Session";
@@ -562,10 +561,7 @@ namespace PersonalAnalytics
             else
             {
                 // stop closed focus session
-                FocusSession.Controls.Timer.StopFocusSession();
-
-                // log the info that the user stopped a closed session
-                Database.GetInstance().LogInfo("The participant stopped a Closed Focus Session at " + DateTime.Now + " .");
+                FocusSession.Controls.Timer.StopSession(FocusSession.Enum.SessionEnum.StopEvent.manual);
 
                 // set the menu item label
                 item.Header = "Start Closed Focus Session";
