@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SlackAPI;
 using System;
+using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ namespace FocusSession.Controls
         private static System.Timers.Timer aTimer;
         private static System.Collections.Generic.List<Microsoft.Graph.Message> emailsReplied = new System.Collections.Generic.List<Microsoft.Graph.Message>(); // this list is simply to keep track of the already replied to emails during the session
         private static readonly string replyMessage = "Thank you for your Email. This is an automatically generated response by PersonalAnalytics. This mail-inbox is currently paused for a specific timeframe, after which your email will be received.";
+        private static NotifyIcon notification; // workaround: this is to show a ballontip, if focusAssist is not set to 'alarms only', the user will see it. The icon itself will show that a focusSession is running
 
         public static bool openSession { get; set; } = false;   // indicate if an openSession is running
         public static bool closedSession { get; set; } = false; // indicate if a closedSession is running
@@ -51,16 +53,10 @@ namespace FocusSession.Controls
                 // set startTime
                 startTime = DateTime.Now;
 
-                // initialize message to show
-                string message = "";
-
                 if (session == Enum.SessionEnum.Session.openSession)
                 {
                     // update indicator
                     openSession = true;
-
-                    // set message
-                    message = "FocusSession started. Please make sure you have Windows Focus Assistant turned on.";
 
                     // log that the user started an openSession
                     Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant started an openFocusSession at " + DateTime.Now);
@@ -74,17 +70,20 @@ namespace FocusSession.Controls
                     // update indicator
                     closedSession = true;
 
-                    message = "FocusSession started for " + Settings.ClosedSessionDuration + " min. Please make sure you have Windows Focus Assistant turned on.";
-
                     // log that the user started a closedFocusSession
                     Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant started a closedFocusSession at " + DateTime.Now + " for " + Settings.ClosedSessionDuration + " minutes.");
                 }
 
-                // display a message to the user so the user gets feedback (important)
-                MessageBox.Show("FocusSession started.");
-
-                // workaround: calling twice because of 'splash screen dismisses dialog box' bug. More here https://stackoverflow.com/questions/576503/how-to-set-wpf-messagebox-owner-to-desktop-window-because-splashscreen-closes-mes/5328590#5328590
-                MessageBox.Show(message);
+                // since there if no officially supported API by Microsoft to check the Focus assist status, we have this little workaround
+                // if Focus assist is not active / not set to 'Priority only' nor 'Alarms only', the user will actually see the message. Otherwise, it will not show up. It is viewable in the Notifications tray, but will be disposed when a session is stopped.
+                // The icon at the same time serves as indicator that there is an active session running
+                notification = new NotifyIcon(); // make a new instance of the object, since when stopping the session, the instance will be disposed
+                notification.Visible = true;
+                notification.BalloonTipTitle = "FocusSession";
+                notification.BalloonTipText = "Set FocusAssist to 'Alarms only'";
+                notification.Icon = SystemIcons.Information;
+                notification.Text = "FocusSession: Session active";
+                notification.ShowBalloonTip(40000); // attempting maximum timeout value. This is enforced and handled by the operating system, typically 30 seconds is the max
 
                 // set the timer, which also handles session functionality. We start a timer in the openSession to make use of the session functionality
                 SetTimer();
@@ -175,6 +174,8 @@ namespace FocusSession.Controls
 
                 // empty replied Emails list
                 emailsReplied = new System.Collections.Generic.List<Microsoft.Graph.Message>();
+
+                notification.Dispose();
             }
         }
 
@@ -200,7 +201,7 @@ namespace FocusSession.Controls
             }
             else
             {
-                SendSlackMessage();
+                //SendSlackMessage();
                 await CheckMail();
             }
         }
@@ -245,7 +246,10 @@ namespace FocusSession.Controls
                 // test sending message to slack via FocusSession Bot
                 // does an asynchronous call mess up the messagebox flagging?
                 var p = new Async();
-                p.SendSlackMessageUsingAPI(slackConfig.botAuthToken).Wait();
+                if (!(slackConfig.botAuthToken == null || slackConfig.botAuthToken.Equals("")))
+                {
+                    p.SendSlackMessageUsingAPI(slackConfig.botAuthToken).Wait();
+                }
             }
         }
 
