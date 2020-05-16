@@ -17,7 +17,7 @@ namespace FocusSession.Controls
         private static DateTime endTime;
         private static System.Timers.Timer aTimer;
         private static System.Collections.Generic.List<Microsoft.Graph.Message> emailsReplied = new System.Collections.Generic.List<Microsoft.Graph.Message>(); // this list is simply to keep track of the already replied to emails during the session
-        private static readonly string replyMessage = "Thank you for your Email. This is an automatically generated response by PersonalAnalytics. This mail-inbox is currently paused for a specific timeframe, after which your email will be received.";
+        private static string replyMessage;
         private static NotifyIcon notification; // workaround: this is to show a ballontip, if focusAssist is not set to 'alarms only', the user will see it. The icon itself will show that a focusSession is running
 
         public static bool openSession { get; set; } = false;   // indicate if an openSession is running
@@ -60,6 +60,9 @@ namespace FocusSession.Controls
 
                     // log that the user started an openSession
                     Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant started an openFocusSession at " + DateTime.Now);
+
+                    // set static automatic email reply message
+                    replyMessage = "This is an automatically generated response by the FocusSession Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. The recepient of this email is currently in a focused work session, and will receive and reply to your message after completing the current task.";
                 }
                 // start closedSession
                 else if (session == Enum.SessionEnum.Session.closedSession)
@@ -72,6 +75,9 @@ namespace FocusSession.Controls
 
                     // log that the user started a closedFocusSession
                     Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant started a closedFocusSession at " + DateTime.Now + " for " + Settings.ClosedSessionDuration + " minutes.");
+
+                    // set dynamic automatic email reply message
+                    replyMessage = "This is an automatically generated response by the FocusSession Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. The recepient of this email is currently in a focused work session for another " + Settings.ClosedSessionDuration + " minutes, and will receive and reply to your message after completing the current task.";
                 }
 
                 // since there if no officially supported API by Microsoft to check the Focus assist status, we have this little workaround
@@ -218,7 +224,7 @@ namespace FocusSession.Controls
             else
             {
                 // make checks and replies necessary
-                
+
                 // this is currently for demonstration purposes, the bot will post a message in the general channel all 10 seconds
                 // if a reply function is wished, refactor this into desired functionality (like responding on user mention message)
                 SendSlackMessage();
