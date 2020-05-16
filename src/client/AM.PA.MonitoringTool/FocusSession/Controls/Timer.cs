@@ -24,7 +24,7 @@ namespace FocusSession.Controls
         public static bool closedSession { get; set; } = false; // indicate if a closedSession is running
 
         // list of potentially distracting programs that we use for flagging check
-        private static String[] windowFlaggerList = new string[3] { "Zulip", "Microsoft Teams", "Mozilla Thunderbird" };
+        private static string[] windowFlaggerList = new string[] { "Skype", "WhatsApp", "Zoom", "Microsoft Outlook", "Google Hangouts", "Discord", "LINE", "Signal", "Trilian", "Viber", "Pidgin", "eM Client", "Thunderbird", "Whatsapp Web", "Facebook", "Winmail", "Telegram", "Yahoo Mail", "Camfrog", "Messenger", "TextNow", "Slack", "mIRC", "BlueMail", "Paltalk", "Mailbird", "Jisti", "Jabber", "OpenTalk", "ICQ", "Gmail", "Tango", "Lync", "Pegasus", "Mailspring", "Teamspeak", "QuizUp", "IGA", "Zello", "Jelly SMS", "Mammail", "Line", "MSN", "inSpeak", "Spark", "TorChat", "ChatBox", "AIM", "HexChat", "HydraIRC", "Mulberry", "Claws Mail", "Pandion", "ZChat", "Franz", "Microsoft Teams", "Zulip" };
 
         /* getter */
 
