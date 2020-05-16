@@ -155,15 +155,31 @@ namespace FocusSession.Controls
                     aTimer.Dispose();
                 }
 
+
+                // emails
                 string emailsAnswered = "During this Session, " + emailsReplied.Count + " Emails have been automatically replied.";
 
                 // log how many emails have been answered
-                Shared.Data.Database.GetInstance().LogInfo("StopSession : " + emailsAnswered);
+                Shared.Data.Database.GetInstance().LogInfo("StopSession : Emails answered " + emailsAnswered);
 
                 // add emails replied info if there were any
                 if (emailsReplied.Count > 0)
                 {
                     endMessage.Append(emailsAnswered);
+                }
+
+                // get total amount of missed slack messages.
+                int totalMissedSlackMessages = CheckSlack();
+
+                string missedSlackMessagesMessage = "During this Session, " + totalMissedSlackMessages + " Slack Messages have been received.";
+
+                // log how many slack messages have been received during the session
+                Shared.Data.Database.GetInstance().LogInfo("StopSession : Slack Messages missed " + totalMissedSlackMessages);
+
+                // add emails replied info if there were any
+                if (totalMissedSlackMessages > 0)
+                {
+                    endMessage.Append(missedSlackMessagesMessage);
                 }
 
                 // display a message to the user so the user gets feedback (important)
@@ -201,7 +217,13 @@ namespace FocusSession.Controls
             }
             else
             {
-                //SendSlackMessage();
+                // make checks and replies necessary
+                
+                // this is currently for demonstration purposes, the bot will post a message in the general channel all 10 seconds
+                // if a reply function is wished, refactor this into desired functionality (like responding on user mention message)
+                SendSlackMessage();
+
+                // this checks for missed emails and replies, adds replied emails to the list 'emailsReplied', which will be used at the end of the session to report on emails and then be emptied
                 await CheckMail();
             }
         }
@@ -235,6 +257,7 @@ namespace FocusSession.Controls
             }
         }
 
+        // this method is currently for demonstration purposes, the bot will simply post messages in the channel
         private static void SendSlackMessage()
         {
             if (System.IO.File.Exists(Path.Combine(Shared.Settings.ExportFilePath, @"SlackConfig.json")))
@@ -243,14 +266,38 @@ namespace FocusSession.Controls
                 string allText = System.IO.File.ReadAllText(Path.Combine(Shared.Settings.ExportFilePath, @"SlackConfig.json"));
                 Configuration.SlackConfig slackConfig = JsonConvert.DeserializeObject<Configuration.SlackConfig>(allText);
 
-                // test sending message to slack via FocusSession Bot
                 // does an asynchronous call mess up the messagebox flagging?
                 var p = new Async();
                 if (!(slackConfig.botAuthToken == null || slackConfig.botAuthToken.Equals("")))
                 {
                     p.SendSlackMessageUsingAPI(slackConfig.botAuthToken).Wait();
                 }
+
             }
+        }
+
+        // check slack for missed messages
+        private static int CheckSlack()
+        {
+            if (System.IO.File.Exists(Path.Combine(Shared.Settings.ExportFilePath, @"SlackConfig.json")))
+            {
+                // deserialized config.json to fetch tokens from class
+                string allText = System.IO.File.ReadAllText(Path.Combine(Shared.Settings.ExportFilePath, @"SlackConfig.json"));
+                Configuration.SlackConfig slackConfig = JsonConvert.DeserializeObject<Configuration.SlackConfig>(allText);
+
+                // get the number of in this session missed slack messages
+                // does an asynchronous call mess up the messagebox flagging?
+                var p = new Async();
+                // checks if we got a token from the json file
+                if (!(slackConfig.botAuthToken == null || slackConfig.botAuthToken.Equals("")))
+                {
+                    // checks for total missed slack messages during session, in the corresponding workspace of the token, in channels where the bot has been addded to
+                    // Task.Result will block async code, and should be used carefully.
+                    return p.CheckForMissedSlackMessagesInWorkspace(slackConfig.botAuthToken).Result;
+                }
+
+            }
+            return -1; // if something did not work (could not read token)
         }
 
         // this method is called by the WindowsActivityTracker Demon, upon a foreground window/program switch, in case of an active FocusSession running
@@ -289,12 +336,13 @@ namespace FocusSession.Controls
 
         private class Async
         {
-            public async Task SendSlackMessageUsingAPI(string token)
+            // this is a simple posting method for demonstration purposes
+            internal async Task SendSlackMessageUsingAPI(string token)
             {
                 // instantiate a new Slack Client by provding a token
                 var client = new SlackTaskClient(token);
 
-                // send simple message to channel and wait for the call to complete
+                // send simple message to general channel and wait for the call to complete
                 var channel = "#general";
                 var text = "hello world";
                 var response = await client.PostMessageAsync(channel, text);
@@ -308,7 +356,60 @@ namespace FocusSession.Controls
                 {
                     Console.WriteLine("Message sending failed. error: " + response.error);
                 }
+
             }
+
+            // Checks all channels from the workspace in which the focussession-bot had been added to (being watched), and returns a total sum or all missed messages
+            internal async Task<int> CheckForMissedSlackMessagesInWorkspace(string token)
+            {
+                // total number of missed messages to return
+                int numberOfMissedMessages = 0;
+
+                // instantiate a new Slack Client by provding a token
+                SlackTaskClient client = new SlackTaskClient(token);
+
+                // get the list of all channels from that workspace
+                ChannelListResponse channelList = await client.GetChannelListAsync();
+
+                // loop trough the channels in the workspace
+                for (int channelCounter = 0; channelCounter < channelList.channels.Length; channelCounter++)
+                {
+                    // i could also return a list of messages missed per channel, so we can show the user detailed info on where he missed messages exactly (in which channel that is)
+                    //var name = channelList.channels[channelCounter].name;
+
+                    // check if the bot is a member of this channel
+                    // remember this is using a bot-token. If it were with a user token, a more elegant way would be to check the channel for unread messages with 'channelList.channels[i].unread_count>0'
+                    // and then on the channel itself, read the message history backwards, so loop thorugh it from latest to earliest, with earliest being the oldest unread message (channelMessageHistory.latest would fetch the reading cursor or the user, so the beginning of the yet unread messages.). 
+                    // If the very latest is earlier than the focus Session start, then none
+                    // of those unread messages had been received during the session, otherwise just read the history backwards till a message is earlier than focussessionstart
+                    if (channelList.channels[channelCounter].is_member)
+                    {
+                        // get message histroy
+                        ChannelMessageHistory channelMessageHistory = await client.GetChannelHistoryAsync(channelList.channels[channelCounter]);
+
+                        // loop thorugh the messages backwards for efficiency (latest to oldest)
+                        for (int messageCounter = channelMessageHistory.messages.Length - 1; messageCounter >= 0; messageCounter--)
+                        {
+                            DateTime messageDate = channelMessageHistory.messages[channelCounter].ts; // Date of the message
+
+                            // check if received after we started the focusSession
+                            if (messageDate > startTime)
+                            {
+                                numberOfMissedMessages++;
+                            }
+                            else
+                            {
+                                // jump out of loop, all other messages will also be older than the session start, we do not need to continue processing
+                                messageCounter = -1;
+                            }
+                        }
+                    }
+                }
+
+                // return total sum of missed messages
+                return numberOfMissedMessages;
+            }
+
         }
     }
 }
