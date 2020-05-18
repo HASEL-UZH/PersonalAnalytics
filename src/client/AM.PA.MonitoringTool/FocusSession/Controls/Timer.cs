@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using SlackAPI;
 using System;
 using System.Drawing;
@@ -335,7 +335,7 @@ namespace FocusSession.Controls
                         Console.WriteLine("The participant opened " + currentWindowTitle + " to read or reply to a message that is not task-related");
 
                         // log the users answer
-                        Shared.Data.Database.GetInstance().LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " to read or reply to a message that is task-related");
+                        Shared.Data.Database.GetInstance().LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " to read or reply to a message that is not task-related");
                     }
                 }
         }
