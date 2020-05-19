@@ -28,12 +28,14 @@ André Meyer (ameyer@ifi.uzh.ch)
 - [Prof. Dr. Thomas Fritz](http://www.ifi.uzh.ch/en/seal/people/fritz.html) (University of British Columbia)
 - [Manuela Züger](http://www.ifi.uzh.ch/en/seal/people/zueger.html) and [Sebastian Müller](http://www.ifi.uzh.ch/en/seal/people/mueller.html) (University of Zurich)
 - [Chris Satterfield](https://github.com/csatterfield) (main contributor of Mac version)
-- Boyang Li and Dave Shepherd (ABB Research)
+- [Roy Ru](https://github.com/royru) (contributor to Mac version)
 - Dr. Tom Zimmermann (Microsoft Research)
 - Prof. Dr. Gail C. Murphy (University of British Columbia)
 
 # Research
-This tool was developed for and used by the following researchs:
+This tool was developed for and used by the following research:
+- [CHI'20](https://andre-meyer.ch/CHI20) Supporting Software Developers’ Focused Work on Window-Based Desktops
+- [TSE'20](https://andre-meyer.ch/TSE20) Detecting Developers’ Task Switches and Types
 - [CSCW’18](https://www.andre-meyer.ch/CSCW18) Design Recommendations for Self-Monitoring in the Workplace: Studies in Software Development. André Meyer, Gail Murphy, Thomas Zimmermann, Thomas Fritz. (hint: in this paper, the tool described as WorkAnalytics refers to the PersonalAnalytics in this repository)
 - [CHI’18](http://www.zora.uzh.ch/id/eprint/151128/1/pn4597-zugerA.pdf) Sensing Interruptibility in the Office: A Field Study on the Use of Biometric and Computer Interaction Sensors. Manuela Züger, Sebastian Müller, André Meyer, Thomas Fritz. 
 - [TSE’17](https://www.andre-meyer.ch/TSE17) The Work Life of Developers: Activities, Switches and Perceived Productivity. André Meyer, Gail Murphy, Thomas Zimmermann, Laura Barton, Thomas Fritz. 
