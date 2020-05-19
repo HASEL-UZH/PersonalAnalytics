@@ -65,7 +65,7 @@ namespace FocusSession.Controls
                     Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant started an openFocusSession at " + DateTime.Now);
 
                     // set static automatic email reply message
-                    replyMessage = "This is an automatically generated response by the FocusSession Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. The recepient of this email is currently in a focused work session, and will receive and reply to your message after completing the current task.";
+                    replyMessage = "This is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \nThe recepient of this email is currently in a focused work session, and will receive your message after completing the current task.";
                 }
                 // start closedSession
                 else if (session == Enum.SessionEnum.Session.closedSession)
@@ -80,7 +80,7 @@ namespace FocusSession.Controls
                     Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant started a closedFocusSession at " + DateTime.Now + " for " + Settings.ClosedSessionDuration + " minutes.");
 
                     // set dynamic automatic email reply message
-                    replyMessage = "This is an automatically generated response by the FocusSession Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. The recepient of this email is currently in a focused work session for another " + Settings.ClosedSessionDuration + " minutes, and will receive and reply to your message after completing the current task.";
+                    replyMessage = "This is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \nThe recepient of this email is currently in a focused work session for another " + Settings.ClosedSessionDuration + " minutes, and will receive your message after completing the current task.";
                 }
 
                 // since there if no officially supported API by Microsoft to check the Focus assist status, we have this little workaround
@@ -136,8 +136,9 @@ namespace FocusSession.Controls
                         Shared.Data.Database.GetInstance().LogInfo("StopSession : The participant stopped a closedFocusSession at " + DateTime.Now);
                     }
 
-                    // update indicator
+                    // update indicator. Manual means the user stopped an open Session or Cancelled a closed Session
                     openSession = false;
+                    closedSession = false;
                 }
                 else
                 {
@@ -165,7 +166,8 @@ namespace FocusSession.Controls
                 }
 
                 // messages received during session
-                endMessage.Append("\n\nMessages received during this session: \n  Emails: " + emailsReplied.Count + "\n  Slack:   " + numberOfReceivedSlackMessages);
+                // TODO sort after number of messages received
+                endMessage.Append("\n\nMessages received during this session: \n" + emailsReplied.Count + " Email \n" + numberOfReceivedSlackMessages + " Slack");
 
                 // display a message to the user so the user gets feedback (important)
                 MessageBox.Show("FocusSession stopped.");
@@ -180,6 +182,11 @@ namespace FocusSession.Controls
                 numberOfReceivedSlackMessages = 0;
 
                 notification.Dispose();
+            }
+            else
+            {
+                // log that the user tried to stop a session but there was no session currently running
+                Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant tried to stop a session with no active session running)");
             }
         }
 
