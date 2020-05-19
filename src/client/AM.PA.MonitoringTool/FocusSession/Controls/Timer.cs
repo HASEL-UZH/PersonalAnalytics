@@ -19,6 +19,7 @@ namespace FocusSession.Controls
         private static System.Collections.Generic.List<Microsoft.Graph.Message> emailsReplied = new System.Collections.Generic.List<Microsoft.Graph.Message>(); // this list is simply to keep track of the already replied to emails during the session
         private static string replyMessage;
         private static NotifyIcon notification; // workaround: this is to show a ballontip, if focusAssist is not set to 'alarms only', the user will see it. The icon itself will show that a focusSession is running
+        private static int numberOfReceivedSlackMessages = 0;
 
         public static bool openSession { get; set; } = false;   // indicate if an openSession is running
         public static bool closedSession { get; set; } = false; // indicate if a closedSession is running
@@ -174,16 +175,15 @@ namespace FocusSession.Controls
                     endMessage.Append(emailsAnswered);
                 }
 
-                // get total amount of missed slack messages.
-                int totalMissedSlackMessages = CheckSlack();
+                // slack messages
 
-                string missedSlackMessagesMessage = "During this Session, " + totalMissedSlackMessages + " Slack Messages have been received.";
+                string missedSlackMessagesMessage = "During this Session, " + numberOfReceivedSlackMessages + " Slack Messages have been received.";
 
                 // log how many slack messages have been received during the session
-                Shared.Data.Database.GetInstance().LogInfo("StopSession : Slack Messages missed " + totalMissedSlackMessages);
+                Shared.Data.Database.GetInstance().LogInfo("StopSession : Slack Messages received " + numberOfReceivedSlackMessages);
 
-                // add emails replied info if there were any
-                if (totalMissedSlackMessages > 0)
+                // add slack missed messegas if there were any
+                if (numberOfReceivedSlackMessages > 0)
                 {
                     endMessage.Append(missedSlackMessagesMessage);
                 }
@@ -228,6 +228,9 @@ namespace FocusSession.Controls
                 // this is currently for demonstration purposes, the bot will post a message in the general channel all 10 seconds
                 // if a reply function is wished, refactor this into desired functionality (like responding on user mention message)
                 SendSlackMessage();
+
+                numberOfReceivedSlackMessages = CheckSlack();
+                Console.WriteLine("totalMissedSlackMessages: " + numberOfReceivedSlackMessages);
 
                 // this checks for missed emails and replies, adds replied emails to the list 'emailsReplied', which will be used at the end of the session to report on emails and then be emptied
                 await CheckMail();
@@ -393,10 +396,11 @@ namespace FocusSession.Controls
                         // get message histroy
                         ChannelMessageHistory channelMessageHistory = await client.GetChannelHistoryAsync(channelList.channels[channelCounter]);
 
-                        // loop thorugh the messages backwards for efficiency (latest to oldest)
-                        for (int messageCounter = channelMessageHistory.messages.Length - 1; messageCounter >= 0; messageCounter--)
+                        // loop thorugh the messages
+                        for (int messageCounter = 0; messageCounter < channelMessageHistory.messages.Length; messageCounter++)
                         {
-                            DateTime messageDate = channelMessageHistory.messages[channelCounter].ts; // Date of the message
+
+                            DateTime messageDate = channelMessageHistory.messages[messageCounter].ts; // Date of the message
 
                             // check if received after we started the focusSession
                             if (messageDate > startTime)
@@ -406,7 +410,7 @@ namespace FocusSession.Controls
                             else
                             {
                                 // jump out of loop, all other messages will also be older than the session start, we do not need to continue processing
-                                messageCounter = -1;
+                                messageCounter = channelMessageHistory.messages.Length;
                             }
                         }
                     }
