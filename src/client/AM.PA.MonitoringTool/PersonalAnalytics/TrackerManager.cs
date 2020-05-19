@@ -63,7 +63,7 @@ namespace PersonalAnalytics
             Register(new UserEfficiencyTracker.Daemon());
             Register(new UserInputTracker.Daemon());
             Register(new MsOfficeTracker.Daemon());
-            //Register(new PolarTracker.Deamon());
+            Register(new PolarTracker.Deamon());
             Register(new FitbitTracker.Deamon());
             Register(new FocusSession.Daemon());
 
