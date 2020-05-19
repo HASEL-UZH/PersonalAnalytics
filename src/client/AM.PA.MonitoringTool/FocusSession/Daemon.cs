@@ -65,7 +65,7 @@ namespace FocusSession
                 // open Session
                 if (Controls.Timer.openSession)
                 {
-                    if (Controls.Timer.getSessionTime().TotalMinutes < 1
+                    if (Controls.Timer.getSessionTime() < 1
                     ) // if it has been running for 0 minutes, just shot that a session is running, not that is has been running for 0 minutes
                     {
                         currentSessionStatus = "There is an open FocusSession running.";
@@ -73,14 +73,14 @@ namespace FocusSession
                     else
                     {
                         currentSessionStatus = "There is an open FocusSession running since " +
-                                               Controls.Timer.getSessionTime().Minutes + " minutes.";
+                                               Controls.Timer.getSessionTime() + " minutes.";
                     }
                 }
                 // closed Session
                 else
                 {
                     currentSessionStatus = "There is a closed FocusSession running for another " +
-                                           Controls.Timer.getSessionTime().Minutes + " minutes.";
+                                           Controls.Timer.getSessionTime() + " minutes.";
                 }
             }
 

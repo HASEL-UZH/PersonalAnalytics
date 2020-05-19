@@ -22,6 +22,7 @@ namespace FocusSession.Controls
         private static int numberOfReceivedSlackMessages = 0;
         private static bool slackClientInitialized = false;
         private static SlackClient slackClient;
+        private static int slackTestMessageLimit = 3;
 
         public static bool openSession { get; set; } = false;   // indicate if an openSession is running
         public static bool closedSession { get; set; } = false; // indicate if a closedSession is running
@@ -31,18 +32,18 @@ namespace FocusSession.Controls
 
         /* getter */
 
-        // for icon hover information
-        public static TimeSpan getSessionTime()  // get the current session Time
+        // for icon hover information and email reply
+        public static int getSessionTime()  // get the current session Time
         {
             if (openSession)
             {
-                return DateTime.Now - startTime;    // return for how long the open session has been running
+                return (DateTime.Now - startTime).Minutes;    // return for how long the open session has been running (= elapsed Time)
             }
             if (closedSession)
             {
-                return endTime - startTime;         // return for how long the closed session will still be running
+                return Settings.ClosedSessionDuration - (DateTime.Now - startTime).Minutes;         // return for how long the closed session will still be running (= remaining Time)
             }
-            return TimeSpan.Zero;
+            return 0;
         }
 
         /* main methods */
@@ -221,8 +222,11 @@ namespace FocusSession.Controls
                 }
                 else
                 {
-                    // this method is currently for demonstration purposes, the bot will simply post/spam a message in the general channel
-                    slackClient.SendSlackMessage().Wait();
+                    if (numberOfReceivedSlackMessages < slackTestMessageLimit)
+                    {
+                        // this method is currently for demonstration purposes, the bot will simply post/spam a message in the general channel
+                        slackClient.SendSlackMessage().Wait();
+                    }
 
                     // checks for total missed slack messages during session, in the corresponding workspace of the token, in channels where the bot has been addded to
                     // Task.Result will block async code, and should be used carefully.
@@ -230,6 +234,9 @@ namespace FocusSession.Controls
                 }
 
                 // email
+
+                // set dynamic automatic email reply message
+                replyMessage = "This is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \nThe recepient of this email is currently in a focused work session for another " + getSessionTime() + " minutes, and will receive your message after completing the current task.";
 
                 // this checks for missed emails and replies, adds replied emails to the list 'emailsReplied', which will be used at the end of the session to report on emails and then be emptied
                 await CheckMail();
