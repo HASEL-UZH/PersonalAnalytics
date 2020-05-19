@@ -162,31 +162,8 @@ namespace FocusSession.Controls
                     aTimer.Dispose();
                 }
 
-
-                // emails
-                string emailsAnswered = "During this Session, " + emailsReplied.Count + " Emails have been automatically replied.";
-
-                // log how many emails have been answered
-                Shared.Data.Database.GetInstance().LogInfo("StopSession : Emails answered " + emailsAnswered);
-
-                // add emails replied info if there were any
-                if (emailsReplied.Count > 0)
-                {
-                    endMessage.Append(emailsAnswered);
-                }
-
-                // slack messages
-
-                string missedSlackMessagesMessage = "During this Session, " + numberOfReceivedSlackMessages + " Slack Messages have been received.";
-
-                // log how many slack messages have been received during the session
-                Shared.Data.Database.GetInstance().LogInfo("StopSession : Slack Messages received " + numberOfReceivedSlackMessages);
-
-                // add slack missed messegas if there were any
-                if (numberOfReceivedSlackMessages > 0)
-                {
-                    endMessage.Append(missedSlackMessagesMessage);
-                }
+                // messages received during session
+                endMessage.Append("\n\nMessages received during this session: \n  Emails: " + emailsReplied.Count + "\n  Slack: " + numberOfReceivedSlackMessages);
 
                 // display a message to the user so the user gets feedback (important)
                 MessageBox.Show("FocusSession stopped.");
@@ -196,6 +173,9 @@ namespace FocusSession.Controls
 
                 // empty replied Emails list
                 emailsReplied = new System.Collections.Generic.List<Microsoft.Graph.Message>();
+
+                // reset SlackMessages
+                numberOfReceivedSlackMessages = 0;
 
                 notification.Dispose();
             }
