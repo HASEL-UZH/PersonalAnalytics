@@ -22,6 +22,7 @@ André Meyer (ameyer@ifi.uzh.ch)
 - September 2018: [Jan Pilzer](https://github.com/hirse) and [Raphael](https://github.com/raphaelro) started integrating their work on Tobii Eytracking. Work in progress.
 - January 2019: [Louie Quaranta](https://github.com/louieQ) added an emotion state experience sampling pop-up to PersonalAnalytics for Mac (merged to [mac-branch](https://github.com/sealuzh/PersonalAnalytics/tree/mac)).
 - October 2019: [Roy Ru](https://github.com/royru) started unifying PersonalAnalytics for Mac and make it more similar to the Windows version
+- May 2020: [Jan Pilzer](https://github/hirse) created a [pull-request](https://github.com/sealuzh/PersonalAnalytics/pull/258) to include WindowDimmer into the official PersonalAnalytics release
 
 # Main Contributors and People Involved
 - [André Meyer](https://www.andre-meyer.ch) (University of Zurich, main contributor of Windows version)
