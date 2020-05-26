@@ -81,6 +81,7 @@ namespace PersonalAnalytics
                 {
                     if (GetFitbitTracker() != null) GetFitbitTracker().ChangeEnabledState(updatedSettings.FitbitTrackerEnabled);
                 }
+
                 if (updatedSettings.FitbitTokenRevoked.HasValue)
                 {
                     FitbitConnector.RevokeAccessToken(SecretStorage.GetAccessToken());
@@ -88,7 +89,12 @@ namespace PersonalAnalytics
                 
                 if (updatedSettings.ClosedSessionDuration.HasValue)
                 {
-                    GetFocusSessionTracker().ClosedSessionDuration = updatedSettings.ClosedSessionDuration.Value;
+                    if (GetFocusSessionTracker() != null) GetFocusSessionTracker().ClosedSessionDuration = updatedSettings.ClosedSessionDuration.Value;
+                }
+
+                if (updatedSettings.ReplyMessageEnabled.HasValue)
+                {
+                    if (GetFocusSessionTracker() != null) GetFocusSessionTracker().ChangeReplyMessageEnabledState(updatedSettings.ReplyMessageEnabled);
                 }
             }
             catch (Exception e)
@@ -133,6 +139,7 @@ namespace PersonalAnalytics
                 
                 var focusSession = GetFocusSessionTracker();
                 dto.ClosedSessionDuration = focusSession.ClosedSessionDuration;
+                dto.ReplyMessageEnabled = focusSession.ReplyMessageIsEnabled();
             }
             catch (Exception e)
             {

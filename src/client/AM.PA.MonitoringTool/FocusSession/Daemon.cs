@@ -127,5 +127,32 @@ namespace FocusSession
                                                _closedSessionDuration);
             }
         }
+
+        public bool ReplyMessageIsEnabled()
+        {
+            return Database.GetInstance().GetSettingsBool(Settings.REPLYMESSAGE_ENEABLED_SETTING, Settings.IsEnabledByDefault);
+        }
+
+        public void ChangeReplyMessageEnabledState(bool? ReplyMessageEnabled)
+        {
+            Console.WriteLine(" ReplyMessage is now " + (ReplyMessageEnabled.Value ? "enabled" : "disabled"));
+            Database.GetInstance().SetSettings(Settings.REPLYMESSAGE_ENEABLED_SETTING, ReplyMessageEnabled.Value);
+            Database.GetInstance().LogInfo("The participant updated the setting '" + Settings.REPLYMESSAGE_ENEABLED_SETTING + "' to " + ReplyMessageEnabled.Value);
+
+            if (ReplyMessageEnabled.Value)
+            {
+                CreateDatabaseTablesIfNotExist();
+                Controls.Timer.ReplyMessageEnabled = true;
+            }
+            else if (!ReplyMessageEnabled.Value)
+            {
+                Controls.Timer.ReplyMessageEnabled = false;
+            }
+            else
+            {
+                Logger.WriteToConsole("ChangeReplyMessageEnabledState else statement");
+            }
+        }
+
     }
 }

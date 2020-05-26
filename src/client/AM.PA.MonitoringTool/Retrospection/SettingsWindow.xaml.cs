@@ -31,6 +31,7 @@ namespace Retrospection
         private bool _defaultFitbitTrackerEnabled;
         private bool _defaultFitbitTokenRemoveEnabled;
         private int  _defaultClosedSessionDuration;
+        private bool _defaultReplyMessageEnabled;
 
         public SettingsDto UpdatedSettingsDto;
 
@@ -56,6 +57,7 @@ namespace Retrospection
             _defaultFitbitTrackerEnabled = dto.FitbitTrackerEnabled.Value;
             _defaultFitbitTokenRemoveEnabled = dto.FitbitTokenRevokeEnabled.Value;
             _defaultClosedSessionDuration = dto.ClosedSessionDuration.Value;
+            _defaultReplyMessageEnabled = dto.ReplyMessageEnabled.Value;
 
             // no changes yet, disable buttons by default
             SaveButtonsEnabled(false);
@@ -109,6 +111,10 @@ namespace Retrospection
 
             CbClosedSessionDuration.SelectedValue = _defaultClosedSessionDuration;
             CbClosedSessionDuration.SelectionChanged += CbClosedSessionDuration_SelectionChanged;
+
+            ReplyMessageEnabled.IsChecked = _defaultReplyMessageEnabled;
+            ReplyMessageEnabled.Checked += CbChecked_Update;
+            ReplyMessageEnabled.Unchecked += CbChecked_Update;
         }
 
         #region User Changed Values
@@ -148,7 +154,8 @@ namespace Retrospection
                  || _defaultTimeSpentShowProgramsEnabled != CbTimeSpentShowProgramsEnabled.IsChecked.Value
                  || _defaultPolarTrackerEnabled != PolarEnabled.IsChecked.Value
                  || _defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value
-                 || _defaultClosedSessionDuration.ToString() != CbClosedSessionDuration.SelectedValue.ToString())
+                 || _defaultClosedSessionDuration.ToString() != CbClosedSessionDuration.SelectedValue.ToString()
+                 || _defaultReplyMessageEnabled != ReplyMessageEnabled.IsChecked.Value)
                 {
                     SaveButtonsEnabled(true);
                 }
@@ -242,6 +249,12 @@ namespace Retrospection
                     dto.ClosedSessionDuration = int.Parse(CbClosedSessionDuration.SelectedValue.ToString(), CultureInfo.InvariantCulture);
                 }
                 else { dto.ClosedSessionDuration = null; }
+
+                if (_defaultReplyMessageEnabled != ReplyMessageEnabled.IsChecked.Value)
+                {
+                    dto.ReplyMessageEnabled = ReplyMessageEnabled.IsChecked.Value;
+                }
+                else { dto.ReplyMessageEnabled = null; }
             }
             catch { }
 

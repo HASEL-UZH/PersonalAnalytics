@@ -17,7 +17,6 @@ namespace FocusSession.Controls
         private static DateTime endTime;
         private static System.Timers.Timer aTimer;
         private static System.Collections.Generic.List<Microsoft.Graph.Message> emailsReplied = new System.Collections.Generic.List<Microsoft.Graph.Message>(); // this list is simply to keep track of the already replied to emails during the session
-        private static string replyMessage;
         private static NotifyIcon notification; // workaround: this is to show a ballontip, if focusAssist is not set to 'alarms only', the user will see it. The icon itself will show that a focusSession is running
         private static int numberOfReceivedSlackMessages = 0;
         private static bool slackClientInitialized = false;
@@ -27,6 +26,9 @@ namespace FocusSession.Controls
         public static bool openSession { get; set; } = false;   // indicate if an openSession is running
         public static bool closedSession { get; set; } = false; // indicate if a closedSession is running
         public static bool WindowFlaggerMessageBoxActive { get; set; } = false;
+        public static string ReplyMessage { get; set; }
+
+        public static bool ReplyMessageEnabled { get; set; } = true;
 
         // list of potentially distracting programs that we use for flagging check
         private static string[] windowFlaggerList = new string[] { "Skype", "WhatsApp", "Zoom", "Microsoft Outlook", "Google Hangouts", "Discord", "LINE", "Signal", "Trilian", "Viber", "Pidgin", "eM Client", "Thunderbird", "Whatsapp Web", "Facebook", "Winmail", "Telegram", "Yahoo Mail", "Camfrog", "Messenger", "TextNow", "Slack", "mIRC", "BlueMail", "Paltalk", "Mailbird", "Jisti", "Jabber", "OpenTalk", "ICQ", "Gmail", "Tango", "Lync", "Pegasus", "Mailspring", "Teamspeak", "QuizUp", "IGA", "Zello", "Jelly SMS", "Mammail", "Line", "MSN", "inSpeak", "Spark", "TorChat", "ChatBox", "AIM", "HexChat", "HydraIRC", "Mulberry", "Claws Mail", "Pandion", "ZChat", "Franz", "Microsoft Teams", "Zulip" };
@@ -67,7 +69,7 @@ namespace FocusSession.Controls
                     Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant started an openFocusSession at " + DateTime.Now);
 
                     // set static automatic email reply message
-                    replyMessage = "\nThe recepient of this email is currently in a focused work session, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                    ReplyMessage = "\nThe recepient of this email is currently in a focused work session, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
                 }
                 // start closedSession
                 else if (session == Enum.SessionEnum.Session.closedSession)
@@ -82,7 +84,7 @@ namespace FocusSession.Controls
                     Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant started a closedFocusSession at " + DateTime.Now + " for " + Settings.ClosedSessionDuration + " minutes.");
 
                     // set dynamic automatic email reply message
-                    replyMessage = "\nThe recepient of this email is currently in a focused work session for another " + Settings.ClosedSessionDuration + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                    ReplyMessage = "\nThe recepient of this email is currently in a focused work session for another " + Settings.ClosedSessionDuration + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
                 }
 
                 // since there if no officially supported API by Microsoft to check the Focus assist status, we have this little workaround
@@ -237,7 +239,7 @@ namespace FocusSession.Controls
                 // email
 
                 // set dynamic automatic email reply message
-                replyMessage = "\nThe recepient of this email is currently in a focused work session for another " + getSessionTime() + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                ReplyMessage = "\nThe recepient of this email is currently in a focused work session for another " + getSessionTime() + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
 
                 // this checks for missed emails and replies, adds replied emails to the list 'emailsReplied', which will be used at the end of the session to report on emails and then be emptied
                 await CheckMail();
@@ -262,15 +264,18 @@ namespace FocusSession.Controls
                     // else reply to the email and add it to the emailsReplied List
                     else
                     {
-                        string address = email.From.EmailAddress.Address.ToLower();
-                        // exclude emails that contain do not reply, or postmaster which sends a message if the mail could not be delivered
-                        if (!address.Contains("do-not-reply") || !address.Contains("no-reply") || !address.Contains("noreply") || !address.Contains("postmaster@logmeininc.onmicrosoft.com"))
+                        if (ReplyMessageEnabled)
                         {
-                            // send reply message
-                            await MsOfficeTracker.Helpers.Office365Api.GetInstance().SendReplyEmail(email.Id, email.From.EmailAddress.Name, email.From.EmailAddress.Address, replyMessage);
+                            string address = email.From.EmailAddress.Address.ToLower();
+                            // exclude emails that contain do not reply, or postmaster which sends a message if the mail could not be delivered
+                            if (!address.Contains("do-not-reply") || !address.Contains("no-reply") || !address.Contains("noreply") || !address.Contains("postmaster@logmeininc.onmicrosoft.com"))
+                            {
+                                // send reply message
+                                await MsOfficeTracker.Helpers.Office365Api.GetInstance().SendReplyEmail(email.Id, email.From.EmailAddress.Name, email.From.EmailAddress.Address, ReplyMessage);
 
-                            //add email to list of already replied emails during this focus session
-                            emailsReplied.Add(email);
+                                //add email to list of already replied emails during this focus session
+                                emailsReplied.Add(email);
+                            }
                         }
                     }
                 }

@@ -11,5 +11,6 @@ namespace FocusSession
         public static bool IsEnabledByDefault = true;
         public const string FocusTimerTable = "focusTimer";
         public static int ClosedSessionDuration = 25;
+        internal const string REPLYMESSAGE_ENEABLED_SETTING = "ReplyMessageEnabled";
     }
 }

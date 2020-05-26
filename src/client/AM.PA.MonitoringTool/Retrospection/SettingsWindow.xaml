@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:paColors="clr-namespace:Shared;assembly=Shared"
         mc:Ignorable="d"
-        Title="PersonalAnalytics: Settings" Height="850" Width="770" ResizeMode="NoResize"> 
+        Title="PersonalAnalytics: Settings" Height="900" Width="770" ResizeMode="NoResize"> 
 
     <Grid>
         <Grid.RowDefinitions>
@@ -31,7 +31,7 @@
                                Text="Hint: This will show you a pop-up to chose your perceived productivity in an interval specified below. We suggest you to enable this feature as it may give you additional, unique insights."
                                TextWrapping="Wrap" />
 
-                    <StackPanel Margin="20 20 0 0">
+                    <StackPanel Margin="20 5 0 0">
                         <TextBlock Text="How often should the pop-up be displayed to ask you about your perceived productivity?" />
                         <ComboBox x:Name="CbPopUpInterval"
                                   Width="200"
@@ -46,7 +46,7 @@
                     </StackPanel>
 
                     <CheckBox x:Name="CbUserInputTrackerEnabled"
-                              Margin="0 20 0 0"
+                              Margin="0 10 0 0"
                               Content="User Input Tracker enabled" />
                     <TextBlock Margin="20 0 0 0"
                                Foreground="Gray"
@@ -54,11 +54,11 @@
                                TextWrapping="Wrap" />
 
                     <CheckBox x:Name="CbOpenRetrospectionInFullScreen"
-                              Margin="0 20 0 0"
+                              Margin="0 10 0 0"
                               Content="Always open the retrospection in full screen" />
 
                     <CheckBox x:Name="CbTimeSpentShowProgramsEnabled"
-                              Margin="0 20 0 0"
+                              Margin="0 5 0 0"
                               Content="Show programs used in the Time Spent-table" />
                     <CheckBox x:Name="CbTimeSpentHideMeetingsWithoutAttendeesEnabled"
                               Margin="0 5 0 0"
@@ -71,22 +71,23 @@
                                Text="Hint: The time spent reading/writing emails might not be perfect as this metric bases on the Outlook window title, which is not changed if you are not reading/writing emails in new window, but the Outlook main window."
                                TextWrapping="Wrap" />
 
-                    <CheckBox x:Name="CbOfficeApiEnabled" Margin="0 20 0 0" Content="Office 365 Tracker enabled" />
+                    <CheckBox x:Name="CbOfficeApiEnabled" Margin="0 10 0 0" Content="Office 365 Tracker enabled" />
                     <TextBlock Margin="20 0 0 0" Foreground="Gray" Text="Hint: If you enable it, you need to log-in with your Office 365 work account. This tracker will then regularly collect the meetings in your calendar, and the number of emails sent, received and your inbox size. The contents of the emails and meetings are NOT accessed." TextWrapping="Wrap" />
 
-                    <CheckBox x:Name="PolarEnabled" Margin="0 20 0 0" Content="Polar Tracker enabled" />
+                    <CheckBox x:Name="PolarEnabled" Margin="0 10 0 0" Content="Polar Tracker enabled" />
                     <TextBlock Margin="20 0 0 0" Foreground="Gray" Text="Hint: If enabled, this tracker collects your heart rate measurement with a Polar chest strap." />
 
-                    <CheckBox x:Name="FitbitEnabled" Margin="0 20 0 0" Content="Fitbit Tracker enabled" />
+                    <CheckBox x:Name="FitbitEnabled" Margin="0 10 0 0" Content="Fitbit Tracker enabled" />
                     <TextBlock Margin="20 0 0 0" Foreground="Gray" Text="Hint: If enabled, this tracker collects your heart rate, sleep, activity and step data from your Fitbit account." />
                     <Button x:Name="FitbitRevoke" Margin="20 0 0 0" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" Foreground="White" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" VerticalAlignment="Center" HorizontalAlignment="Left" Click="FitbitRevoke_Click">Revoke Access Token</Button>
 
-                    <!-- TODO ClosedSessionDuration -->
-                    <TextBlock Margin="0 15 0 0" Text="FocusTimer: Set the time duration for the closed session here" />
+                    <!-- ClosedSessionDuration -->
+                    <TextBlock Margin="0 10 0 0" Text=" --- FocusSession --- " />
+                    <TextBlock Margin="20 5 0 0" Text="Set the time duration for the closed session here" />
                     <TextBlock Margin="20 0 0 0" Foreground="Gray" Text="Hint: If once set, all further uses of the closed Session will use this time duration. To set a new one, change time duration here." />
                     <ComboBox x:Name="CbClosedSessionDuration"
                                   Width="200"
-                                  Margin="0 5 10 0"
+                                  Margin="20 5 10 0"
                                   HorizontalAlignment="Left"
                                   SelectedValuePath="Content">
                         <ComboBoxItem>10</ComboBoxItem>
@@ -98,7 +99,19 @@
                         <ComboBoxItem>90</ComboBoxItem>
                         <ComboBoxItem>120</ComboBoxItem>
                     </ComboBox>
+
+
+                    <CheckBox x:Name="ReplyMessageEnabled" Margin="0 10 0 0" Content="Automatically reply to emails received during session" />
                     
+                    <!--
+                    
+                    <TextBlock Margin="20 10 0 0" Text="Customize the text of the automatic message reply here:" />
+                    <TextBox x:Name="TbReplyMessage" Margin="20 2 0 0" Height="50" TextWrapping="Wrap">
+                        \nThe recepient of this email is currently in a focused work session, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n
+                    </TextBox>
+                    <Button x:Name="ReplyMessageRevert" Margin="20 5 0 0" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" Foreground="White" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" VerticalAlignment="Center" HorizontalAlignment="Left" Click="ReplyMessage_Click">Restore Reply Message</Button>
+                   -->
+
                 </StackPanel>
             </TabItem>
         </TabControl>
