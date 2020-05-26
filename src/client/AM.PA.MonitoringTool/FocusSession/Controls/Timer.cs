@@ -26,6 +26,7 @@ namespace FocusSession.Controls
 
         public static bool openSession { get; set; } = false;   // indicate if an openSession is running
         public static bool closedSession { get; set; } = false; // indicate if a closedSession is running
+        public static bool WindowFlaggerMessageBoxActive { get; set; } = false;
 
         // list of potentially distracting programs that we use for flagging check
         private static string[] windowFlaggerList = new string[] { "Skype", "WhatsApp", "Zoom", "Microsoft Outlook", "Google Hangouts", "Discord", "LINE", "Signal", "Trilian", "Viber", "Pidgin", "eM Client", "Thunderbird", "Whatsapp Web", "Facebook", "Winmail", "Telegram", "Yahoo Mail", "Camfrog", "Messenger", "TextNow", "Slack", "mIRC", "BlueMail", "Paltalk", "Mailbird", "Jisti", "Jabber", "OpenTalk", "ICQ", "Gmail", "Tango", "Lync", "Pegasus", "Mailspring", "Teamspeak", "QuizUp", "IGA", "Zello", "Jelly SMS", "Mammail", "Line", "MSN", "inSpeak", "Spark", "TorChat", "ChatBox", "AIM", "HexChat", "HydraIRC", "Mulberry", "Claws Mail", "Pandion", "ZChat", "Franz", "Microsoft Teams", "Zulip" };
@@ -222,7 +223,7 @@ namespace FocusSession.Controls
                 }
                 else
                 {
-                    if (numberOfReceivedSlackMessages < slackTestMessageLimit)
+                    if (numberOfReceivedSlackMessages < slackTestMessageLimit && closedSession)
                     {
                         // this method is currently for demonstration purposes, the bot will simply post/spam a message in the general channel
                         slackClient.SendSlackMessage().Wait();
@@ -261,12 +262,16 @@ namespace FocusSession.Controls
                     // else reply to the email and add it to the emailsReplied List
                     else
                     {
-                        //TODO add reply call to office365Api, call it here (with the email.From.EmailAddress as reply parameter?)
-                        // if ReplyTo is speficied, per RFC 2822 we should send it to that address, otherwise to the from address
-                        await MsOfficeTracker.Helpers.Office365Api.GetInstance().SendReplyEmail(email.Id, email.From.EmailAddress.Name, email.From.EmailAddress.Address, replyMessage);
+                        string address = email.From.EmailAddress.Address.ToLower();
+                        // exclude emails that contain do not reply, or postmaster which sends a message if the mail could not be delivered
+                        if (!address.Contains("do-not-reply") || !address.Contains("no-reply") || !address.Contains("noreply") || !address.Contains("postmaster@logmeininc.onmicrosoft.com"))
+                        {
+                            // send reply message
+                            await MsOfficeTracker.Helpers.Office365Api.GetInstance().SendReplyEmail(email.Id, email.From.EmailAddress.Name, email.From.EmailAddress.Address, replyMessage);
 
-                        //add email to list of already replied emails during this focus session
-                        emailsReplied.Add(email);
+                            //add email to list of already replied emails during this focus session
+                            emailsReplied.Add(email);
+                        }
                     }
                 }
             }
@@ -293,32 +298,47 @@ namespace FocusSession.Controls
         // it checks if it is a potentially distracting program according to the list, currently printing to the Console
         public static void WindowFlagger(String currentWindowTitle)
         {
+
             foreach (String windowFlagger in windowFlaggerList)
                 if (currentWindowTitle.Contains(windowFlagger))
                 {
-                    // show message box to ask if this is task-related
-                    var selectedOption = MessageBox.Show("You opened a potentially distracting program during an active FocusSession. Do you want to read or reply to a message that is related to the task you are currently focussing on?", "Potentially distracting Program detected", MessageBoxButtons.YesNo);
-
-                    // log the users answer
-                    Shared.Data.Database.GetInstance().LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " and was shown the WindowFlagger Messagebox");
-
-                    // check answer
-                    // TODO store in database entry for study rather then just console-outprinting
-                    if (selectedOption == DialogResult.Yes)
-
+                    if (WindowFlaggerMessageBoxActive) { return; }
+                    else
                     {
-                        Console.WriteLine("The participant opened " + currentWindowTitle + " to read or reply to a message that is task-related");
+                        // show message box to ask if this is task-related
+                        var selectedOption = MessageBox.Show("You opened a potentially distracting program during an active FocusSession. Do you want to read or reply to a message that is related to the task you are currently focussing on?", "Potentially distracting Program detected", MessageBoxButtons.YesNo);
 
                         // log the users answer
-                        Shared.Data.Database.GetInstance().LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " to read or reply to a message that is task-related");
-                    }
-                    else if (selectedOption == DialogResult.No)
+                        Shared.Data.Database.GetInstance().LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " and was shown the WindowFlagger Messagebox");
 
-                    {
-                        Console.WriteLine("The participant opened " + currentWindowTitle + " to read or reply to a message that is not task-related");
+                        // set active MessageBox. We do not want to stack boxes, user will also not know anymore which box would have belonged to which application in the end if user would just let them stack
+                        WindowFlaggerMessageBoxActive = true;
 
-                        // log the users answer
-                        Shared.Data.Database.GetInstance().LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " to read or reply to a message that is not task-related");
+                        // check answer
+                        // TODO store in database entry for study rather then just console-outprinting
+                        if (selectedOption == DialogResult.Yes)
+
+                        {
+                            Console.WriteLine("The participant opened " + currentWindowTitle + " to read or reply to a message that is task-related");
+
+                            // log the users answer
+                            Shared.Data.Database.GetInstance().LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " to read or reply to a message that is task-related");
+
+                            // user responded to messagebox
+                            WindowFlaggerMessageBoxActive = false;
+
+                        }
+                        else if (selectedOption == DialogResult.No)
+
+                        {
+                            Console.WriteLine("The participant opened " + currentWindowTitle + " to read or reply to a message that is not task-related");
+
+                            // log the users answer
+                            Shared.Data.Database.GetInstance().LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " to read or reply to a message that is not task-related");
+
+                            // user responded to messagebox
+                            WindowFlaggerMessageBoxActive = false;
+                        }
                     }
                 }
         }
