@@ -42,7 +42,7 @@ class DatabaseController{
     **/
     func executeUpdate(query: String) throws {
         try dbQueue.write{ db in
-            try db.execute(sql: query)
+            try db.execute(query)
         }
     }
     
@@ -51,7 +51,7 @@ class DatabaseController{
     **/
     func executeUpdate(query: String, arguments args: StatementArguments) throws {
         try dbQueue.write{ db in
-            try db.execute(sql: query, arguments:args)
+            try db.execute(query, arguments:args)
         }
     }
     
@@ -60,14 +60,14 @@ class DatabaseController{
      **/
     func executeFetchAll(query: String) throws -> [Row]{
         let rows = try dbQueue.read{ db in
-            try Row.fetchAll(db, sql: query)
+            try Row.fetchAll(db, query)
         }
         return rows
     }
     
     func executeFetchOne(query: String) throws -> Row {
         let row = try dbQueue.read{ db in
-            try Row.fetchOne(db, sql: query)
+            try Row.fetchOne(db, query)
         }
         if((row) != nil){
             return row!
