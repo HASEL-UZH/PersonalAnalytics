@@ -31,6 +31,8 @@ namespace FocusSession.Controls
         // get the setting from the database, it will default to true
         public static bool ReplyMessageEnabled { get; set; } = Shared.Data.Database.GetInstance().GetSettingsBool(Settings.REPLYMESSAGE_ENEABLED_SETTING, true);
         public static bool WindowFlaggingEnabled { get; set; } = Shared.Data.Database.GetInstance().GetSettingsBool(Settings.WINDOWFLAGGING_ENEABLED_SETTING, true);
+        public static bool CustomizedReplyMessageEnabled { get; set; } = Shared.Data.Database.GetInstance().GetSettingsBool(Settings.CUSTOMIZEDREPLYMESSAGE_ENEABLED_SETTING, true);
+        public static string CustomizedReplyMessage { get; set; } = Shared.Data.Database.GetInstance().GetSettingsString(Settings.CUSTOMIZEDREPLYMESSAGE_TEXT_SETTING, "\nThe recepient of this email is currently in a focused work session, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n");
 
         // list of potentially distracting programs that we use for flagging check
         private static string[] windowFlaggerList = new string[] { "Skype", "WhatsApp", "Zoom", "Microsoft Outlook", "Google Hangouts", "Discord", "LINE", "Signal", "Trilian", "Viber", "Pidgin", "eM Client", "Thunderbird", "Whatsapp Web", "Facebook", "Winmail", "Telegram", "Yahoo Mail", "Camfrog", "Messenger", "TextNow", "Slack", "mIRC", "BlueMail", "Paltalk", "Mailbird", "Jisti", "Jabber", "OpenTalk", "ICQ", "Gmail", "Tango", "Lync", "Pegasus", "Mailspring", "Teamspeak", "QuizUp", "IGA", "Zello", "Jelly SMS", "Mammail", "Line", "MSN", "inSpeak", "Spark", "TorChat", "ChatBox", "AIM", "HexChat", "HydraIRC", "Mulberry", "Claws Mail", "Pandion", "ZChat", "Franz", "Microsoft Teams", "Zulip" };
@@ -71,7 +73,14 @@ namespace FocusSession.Controls
                     Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant started an openFocusSession at " + DateTime.Now);
 
                     // set static automatic email reply message
-                    ReplyMessage = "\nThe recepient of this email is currently in a focused work session, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                    if (CustomizedReplyMessageEnabled)
+                    {
+                        ReplyMessage = CustomizedReplyMessage;
+                    }
+                    else
+                    {
+                        ReplyMessage = "\nThe recepient of this email is currently in a focused work session, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                    }
                 }
                 // start closedSession
                 else if (session == Enum.SessionEnum.Session.closedSession)
@@ -86,7 +95,14 @@ namespace FocusSession.Controls
                     Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant started a closedFocusSession at " + DateTime.Now + " for " + Settings.ClosedSessionDuration + " minutes.");
 
                     // set dynamic automatic email reply message
-                    ReplyMessage = "\nThe recepient of this email is currently in a focused work session for another " + Settings.ClosedSessionDuration + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                    if (CustomizedReplyMessageEnabled)
+                    {
+                        ReplyMessage = CustomizedReplyMessage;
+                    }
+                    else
+                    {
+                        ReplyMessage = "\nThe recepient of this email is currently in a focused work session for another " + Settings.ClosedSessionDuration + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                    }
                 }
 
                 // since there if no officially supported API by Microsoft to check the Focus assist status, we have this little workaround

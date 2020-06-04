@@ -180,5 +180,53 @@ namespace FocusSession
             }
         }
 
+        public bool CustomizedReplyMessageIsEnabled()
+        {
+            return Database.GetInstance().GetSettingsBool(Settings.CUSTOMIZEDREPLYMESSAGE_ENEABLED_SETTING, Settings.IsEnabledByDefault);
+        }
+
+        public void ChangeCustomizedReplyMessageEnabledState(bool? CustomizedReplyMessageEnabled)
+        {
+            Console.WriteLine(" CustomizedReplyMessageEnabled is now " + (CustomizedReplyMessageEnabled.Value ? "enabled" : "disabled"));
+            Database.GetInstance().SetSettings(Settings.CUSTOMIZEDREPLYMESSAGE_ENEABLED_SETTING, CustomizedReplyMessageEnabled.Value);
+            Database.GetInstance().LogInfo("The participant updated the setting '" + Settings.CUSTOMIZEDREPLYMESSAGE_ENEABLED_SETTING + "' to " + CustomizedReplyMessageEnabled.Value);
+
+            if (CustomizedReplyMessageEnabled.Value)
+            {
+                CreateDatabaseTablesIfNotExist();
+                Controls.Timer.CustomizedReplyMessageEnabled = true;
+            }
+            else if (!CustomizedReplyMessageEnabled.Value)
+            {
+                Controls.Timer.CustomizedReplyMessageEnabled = false;
+            }
+            else
+            {
+                Logger.WriteToConsole("ChangeCustomizedReplyMessageEnabledState else statement");
+            }
+        }
+
+        public string CustomizedReplyMessageIsText()
+        {
+            return Database.GetInstance().GetSettingsString(Settings.CUSTOMIZEDREPLYMESSAGE_TEXT_SETTING, Settings.IsTextMessageByDefault);
+        }
+
+        public void ChangeCustomizedReplyMessageState(string CustomizedReplyMessage)
+        {
+            Console.WriteLine(" CustomizedReplyMessage is now " + (CustomizedReplyMessage));
+            Database.GetInstance().SetSettings(Settings.CUSTOMIZEDREPLYMESSAGE_TEXT_SETTING, CustomizedReplyMessage);
+            Database.GetInstance().LogInfo("The participant updated the setting '" + Settings.CUSTOMIZEDREPLYMESSAGE_TEXT_SETTING + "' to " + CustomizedReplyMessage);
+
+            if (CustomizedReplyMessage != null)
+            {
+                CreateDatabaseTablesIfNotExist();
+                Controls.Timer.CustomizedReplyMessage = CustomizedReplyMessage;
+            }
+            else
+            {
+                Logger.WriteToConsole("ChangeCustomizedReplyMessageState else statement");
+            }
+        }
+
     }
 }

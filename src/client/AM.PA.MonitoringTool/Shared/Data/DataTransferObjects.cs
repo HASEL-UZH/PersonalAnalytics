@@ -39,6 +39,8 @@ namespace Shared.Data
         public int? ClosedSessionDuration { get; set; }
         public bool? ReplyMessageEnabled { get; set; }
         public bool? WindowFlaggingEnabled { get; set; }
+        public bool? CustomizedReplyMessageEnabled { get; set; }
+        public string CustomizedReplyMessage { get; set; }
     }
     public class StartEndTimeDto
     {

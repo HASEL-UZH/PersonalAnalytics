@@ -33,6 +33,8 @@ namespace Retrospection
         private int  _defaultClosedSessionDuration;
         private bool _defaultReplyMessageEnabled;
         private bool _defaultWindowFlaggingEnabled;
+        private bool _defaultCustomizedReplyMessageEnabled;
+        private string _defaultCustomizedReplyMessage;
 
         public SettingsDto UpdatedSettingsDto;
 
@@ -60,6 +62,8 @@ namespace Retrospection
             _defaultClosedSessionDuration = dto.ClosedSessionDuration.Value;
             _defaultReplyMessageEnabled = dto.ReplyMessageEnabled.Value;
             _defaultWindowFlaggingEnabled = dto.WindowFlaggingEnabled.Value;
+            _defaultCustomizedReplyMessageEnabled = dto.CustomizedReplyMessageEnabled.Value;
+            _defaultCustomizedReplyMessage = dto.CustomizedReplyMessage;
 
             // no changes yet, disable buttons by default
             SaveButtonsEnabled(false);
@@ -121,6 +125,13 @@ namespace Retrospection
             WindowFlaggingEnabled.IsChecked = _defaultWindowFlaggingEnabled;
             WindowFlaggingEnabled.Checked += CbChecked_Update;
             WindowFlaggingEnabled.Unchecked += CbChecked_Update;
+
+            CustomizedReplyMessageEnabled.IsChecked = _defaultCustomizedReplyMessageEnabled;
+            CustomizedReplyMessageEnabled.Checked += CbChecked_Update;
+            CustomizedReplyMessageEnabled.Unchecked += CbChecked_Update;
+
+            CustomizedReplyMessage.Text = _defaultCustomizedReplyMessage;
+            CustomizedReplyMessage.TextChanged += TbChanged_Update;
         }
 
         #region User Changed Values
@@ -140,7 +151,12 @@ namespace Retrospection
         {
             UpdateSettingsChanged();
         }
-        
+
+        private void TbChanged_Update(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            UpdateSettingsChanged();
+        }
+
         private void CbClosedSessionDuration_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             UpdateSettingsChanged();
@@ -162,7 +178,9 @@ namespace Retrospection
                  || _defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value
                  || _defaultClosedSessionDuration.ToString() != CbClosedSessionDuration.SelectedValue.ToString()
                  || _defaultReplyMessageEnabled != ReplyMessageEnabled.IsChecked.Value
-                 || _defaultWindowFlaggingEnabled != WindowFlaggingEnabled.IsChecked.Value)
+                 || _defaultWindowFlaggingEnabled != WindowFlaggingEnabled.IsChecked.Value
+                 || _defaultCustomizedReplyMessageEnabled != CustomizedReplyMessageEnabled.IsChecked.Value
+                 || _defaultCustomizedReplyMessage != CustomizedReplyMessage.Text)
                 {
                     SaveButtonsEnabled(true);
                 }
@@ -268,6 +286,18 @@ namespace Retrospection
                     dto.WindowFlaggingEnabled = WindowFlaggingEnabled.IsChecked.Value;
                 }
                 else { dto.WindowFlaggingEnabled = null; }
+
+                if (_defaultCustomizedReplyMessageEnabled != CustomizedReplyMessageEnabled.IsChecked.Value)
+                {
+                    dto.CustomizedReplyMessageEnabled = CustomizedReplyMessageEnabled.IsChecked.Value;
+                }
+                else { dto.CustomizedReplyMessageEnabled = null; }
+
+                if (_defaultCustomizedReplyMessage != CustomizedReplyMessage.Text)
+                {
+                    dto.CustomizedReplyMessage = CustomizedReplyMessage.Text;
+                }
+                else { dto.CustomizedReplyMessage = null; }
             }
             catch { }
 
