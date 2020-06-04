@@ -154,5 +154,31 @@ namespace FocusSession
             }
         }
 
+        public bool WindowFlaggingIsEnabled()
+        {
+            return Database.GetInstance().GetSettingsBool(Settings.WINDOWFLAGGING_ENEABLED_SETTING, Settings.IsEnabledByDefault);
+        }
+
+        public void ChangeWindowFlaggingEnabledState(bool? WindowFlaggingEnabled)
+        {
+            Console.WriteLine(" WindowFlagging is now " + (WindowFlaggingEnabled.Value ? "enabled" : "disabled"));
+            Database.GetInstance().SetSettings(Settings.WINDOWFLAGGING_ENEABLED_SETTING, WindowFlaggingEnabled.Value);
+            Database.GetInstance().LogInfo("The participant updated the setting '" + Settings.WINDOWFLAGGING_ENEABLED_SETTING + "' to " + WindowFlaggingEnabled.Value);
+
+            if (WindowFlaggingEnabled.Value)
+            {
+                CreateDatabaseTablesIfNotExist();
+                Controls.Timer.WindowFlaggingEnabled = true;
+            }
+            else if (!WindowFlaggingEnabled.Value)
+            {
+                Controls.Timer.WindowFlaggingEnabled = false;
+            }
+            else
+            {
+                Logger.WriteToConsole("ChangeWindowFlaggingEnabledState else statement");
+            }
+        }
+
     }
 }

@@ -103,14 +103,17 @@
 
                     <CheckBox x:Name="ReplyMessageEnabled" Margin="0 10 0 0" Content="Automatically reply to emails received during session" />
                     
-                    <!--
+                   <!-- 
                     
                     <TextBlock Margin="20 10 0 0" Text="Customize the text of the automatic message reply here:" />
                     <TextBox x:Name="TbReplyMessage" Margin="20 2 0 0" Height="50" TextWrapping="Wrap">
                         \nThe recepient of this email is currently in a focused work session, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n
                     </TextBox>
                     <Button x:Name="ReplyMessageRevert" Margin="20 5 0 0" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" Foreground="White" BorderBrush="{x:Static paColors:Settings.RetrospectionColorBrush}" VerticalAlignment="Center" HorizontalAlignment="Left" Click="ReplyMessage_Click">Restore Reply Message</Button>
-                   -->
+                   
+                    -->
+
+                    <CheckBox x:Name="WindowFlaggingEnabled" Margin="0 10 0 0" Content="Flag potentially distracting communication applications" />
 
                 </StackPanel>
             </TabItem>

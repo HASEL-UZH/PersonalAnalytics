@@ -30,6 +30,7 @@ namespace FocusSession.Controls
 
         // get the setting from the database, it will default to true
         public static bool ReplyMessageEnabled { get; set; } = Shared.Data.Database.GetInstance().GetSettingsBool(Settings.REPLYMESSAGE_ENEABLED_SETTING, true);
+        public static bool WindowFlaggingEnabled { get; set; } = Shared.Data.Database.GetInstance().GetSettingsBool(Settings.WINDOWFLAGGING_ENEABLED_SETTING, true);
 
         // list of potentially distracting programs that we use for flagging check
         private static string[] windowFlaggerList = new string[] { "Skype", "WhatsApp", "Zoom", "Microsoft Outlook", "Google Hangouts", "Discord", "LINE", "Signal", "Trilian", "Viber", "Pidgin", "eM Client", "Thunderbird", "Whatsapp Web", "Facebook", "Winmail", "Telegram", "Yahoo Mail", "Camfrog", "Messenger", "TextNow", "Slack", "mIRC", "BlueMail", "Paltalk", "Mailbird", "Jisti", "Jabber", "OpenTalk", "ICQ", "Gmail", "Tango", "Lync", "Pegasus", "Mailspring", "Teamspeak", "QuizUp", "IGA", "Zello", "Jelly SMS", "Mammail", "Line", "MSN", "inSpeak", "Spark", "TorChat", "ChatBox", "AIM", "HexChat", "HydraIRC", "Mulberry", "Claws Mail", "Pandion", "ZChat", "Franz", "Microsoft Teams", "Zulip" };
@@ -307,49 +308,52 @@ namespace FocusSession.Controls
         // it checks if it is a potentially distracting program according to the list, currently printing to the Console
         public static void WindowFlagger(String currentWindowTitle)
         {
+            if (WindowFlaggingEnabled)
+            {
 
-            foreach (String windowFlagger in windowFlaggerList)
-                if (currentWindowTitle.Contains(windowFlagger))
-                {
-                    if (WindowFlaggerMessageBoxActive) { return; }
-                    else
+                foreach (String windowFlagger in windowFlaggerList)
+                    if (currentWindowTitle.Contains(windowFlagger))
                     {
-                        // show message box to ask if this is task-related
-                        var selectedOption = MessageBox.Show("You opened a potentially distracting program during an active FocusSession. Do you want to read or reply to a message that is related to the task you are currently focussing on?", "Potentially distracting Program detected", MessageBoxButtons.YesNo);
-
-                        // log the users answer
-                        Shared.Data.Database.GetInstance().LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " and was shown the WindowFlagger Messagebox");
-
-                        // set active MessageBox. We do not want to stack boxes, user will also not know anymore which box would have belonged to which application in the end if user would just let them stack
-                        WindowFlaggerMessageBoxActive = true;
-
-                        // check answer
-                        // TODO store in database entry for study rather then just console-outprinting
-                        if (selectedOption == DialogResult.Yes)
-
+                        if (WindowFlaggerMessageBoxActive) { return; }
+                        else
                         {
-                            Console.WriteLine("The participant opened " + currentWindowTitle + " to read or reply to a message that is task-related");
+                            // show message box to ask if this is task-related
+                            var selectedOption = MessageBox.Show("You opened a potentially distracting program during an active FocusSession. Do you want to read or reply to a message that is related to the task you are currently focussing on?", "Potentially distracting Program detected", MessageBoxButtons.YesNo);
 
                             // log the users answer
-                            Shared.Data.Database.GetInstance().LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " to read or reply to a message that is task-related");
+                            Shared.Data.Database.GetInstance().LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " and was shown the WindowFlagger Messagebox");
 
-                            // user responded to messagebox
-                            WindowFlaggerMessageBoxActive = false;
+                            // set active MessageBox. We do not want to stack boxes, user will also not know anymore which box would have belonged to which application in the end if user would just let them stack
+                            WindowFlaggerMessageBoxActive = true;
 
-                        }
-                        else if (selectedOption == DialogResult.No)
+                            // check answer
+                            // TODO store in database entry for study rather then just console-outprinting
+                            if (selectedOption == DialogResult.Yes)
 
-                        {
-                            Console.WriteLine("The participant opened " + currentWindowTitle + " to read or reply to a message that is not task-related");
+                            {
+                                Console.WriteLine("The participant opened " + currentWindowTitle + " to read or reply to a message that is task-related");
 
-                            // log the users answer
-                            Shared.Data.Database.GetInstance().LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " to read or reply to a message that is not task-related");
+                                // log the users answer
+                                Shared.Data.Database.GetInstance().LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " to read or reply to a message that is task-related");
 
-                            // user responded to messagebox
-                            WindowFlaggerMessageBoxActive = false;
+                                // user responded to messagebox
+                                WindowFlaggerMessageBoxActive = false;
+
+                            }
+                            else if (selectedOption == DialogResult.No)
+
+                            {
+                                Console.WriteLine("The participant opened " + currentWindowTitle + " to read or reply to a message that is not task-related");
+
+                                // log the users answer
+                                Shared.Data.Database.GetInstance().LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " to read or reply to a message that is not task-related");
+
+                                // user responded to messagebox
+                                WindowFlaggerMessageBoxActive = false;
+                            }
                         }
                     }
-                }
+            }
         }
 
         private class SlackClient

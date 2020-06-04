@@ -96,6 +96,11 @@ namespace PersonalAnalytics
                 {
                     if (GetFocusSessionTracker() != null) GetFocusSessionTracker().ChangeReplyMessageEnabledState(updatedSettings.ReplyMessageEnabled);
                 }
+
+                if (updatedSettings.WindowFlaggingEnabled.HasValue)
+                {
+                    if (GetFocusSessionTracker() != null) GetFocusSessionTracker().ChangeWindowFlaggingEnabledState(updatedSettings.WindowFlaggingEnabled);
+                }
             }
             catch (Exception e)
             {
@@ -140,6 +145,7 @@ namespace PersonalAnalytics
                 var focusSession = GetFocusSessionTracker();
                 dto.ClosedSessionDuration = focusSession.ClosedSessionDuration;
                 dto.ReplyMessageEnabled = focusSession.ReplyMessageIsEnabled();
+                dto.WindowFlaggingEnabled = focusSession.WindowFlaggingIsEnabled();
             }
             catch (Exception e)
             {

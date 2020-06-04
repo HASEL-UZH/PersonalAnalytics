@@ -32,6 +32,7 @@ namespace Retrospection
         private bool _defaultFitbitTokenRemoveEnabled;
         private int  _defaultClosedSessionDuration;
         private bool _defaultReplyMessageEnabled;
+        private bool _defaultWindowFlaggingEnabled;
 
         public SettingsDto UpdatedSettingsDto;
 
@@ -58,6 +59,7 @@ namespace Retrospection
             _defaultFitbitTokenRemoveEnabled = dto.FitbitTokenRevokeEnabled.Value;
             _defaultClosedSessionDuration = dto.ClosedSessionDuration.Value;
             _defaultReplyMessageEnabled = dto.ReplyMessageEnabled.Value;
+            _defaultWindowFlaggingEnabled = dto.WindowFlaggingEnabled.Value;
 
             // no changes yet, disable buttons by default
             SaveButtonsEnabled(false);
@@ -115,6 +117,10 @@ namespace Retrospection
             ReplyMessageEnabled.IsChecked = _defaultReplyMessageEnabled;
             ReplyMessageEnabled.Checked += CbChecked_Update;
             ReplyMessageEnabled.Unchecked += CbChecked_Update;
+
+            WindowFlaggingEnabled.IsChecked = _defaultWindowFlaggingEnabled;
+            WindowFlaggingEnabled.Checked += CbChecked_Update;
+            WindowFlaggingEnabled.Unchecked += CbChecked_Update;
         }
 
         #region User Changed Values
@@ -155,7 +161,8 @@ namespace Retrospection
                  || _defaultPolarTrackerEnabled != PolarEnabled.IsChecked.Value
                  || _defaultFitbitTrackerEnabled != FitbitEnabled.IsChecked.Value
                  || _defaultClosedSessionDuration.ToString() != CbClosedSessionDuration.SelectedValue.ToString()
-                 || _defaultReplyMessageEnabled != ReplyMessageEnabled.IsChecked.Value)
+                 || _defaultReplyMessageEnabled != ReplyMessageEnabled.IsChecked.Value
+                 || _defaultWindowFlaggingEnabled != WindowFlaggingEnabled.IsChecked.Value)
                 {
                     SaveButtonsEnabled(true);
                 }
@@ -255,6 +262,12 @@ namespace Retrospection
                     dto.ReplyMessageEnabled = ReplyMessageEnabled.IsChecked.Value;
                 }
                 else { dto.ReplyMessageEnabled = null; }
+
+                if (_defaultWindowFlaggingEnabled != WindowFlaggingEnabled.IsChecked.Value)
+                {
+                    dto.WindowFlaggingEnabled = WindowFlaggingEnabled.IsChecked.Value;
+                }
+                else { dto.WindowFlaggingEnabled = null; }
             }
             catch { }
 

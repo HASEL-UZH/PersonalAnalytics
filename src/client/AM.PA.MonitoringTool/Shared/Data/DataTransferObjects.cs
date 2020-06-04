@@ -38,6 +38,7 @@ namespace Shared.Data
         public bool? FitbitTokenRevoked { get; set; }
         public int? ClosedSessionDuration { get; set; }
         public bool? ReplyMessageEnabled { get; set; }
+        public bool? WindowFlaggingEnabled { get; set; }
     }
     public class StartEndTimeDto
     {

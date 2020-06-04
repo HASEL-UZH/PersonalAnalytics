@@ -402,11 +402,9 @@ namespace WindowsActivityTracker
                 var currentHandle = NativeMethods.GetForegroundWindow();
                 var currentWindowTitle = GetActiveWindowTitle(currentHandle);
                 // check if the active window changed. The MessageBox will be ignored here. && check if there is a FocusSession currently running
-                if (_lastWinEventProc != currentWindowTitle && (FocusSession.Controls.Timer.openSession || FocusSession.Controls.Timer.closedSession))
+                if (_lastWinEventProc != currentWindowTitle && (FocusSession.Controls.Timer.openSession || FocusSession.Controls.Timer.closedSession) && !FocusSession.Controls.Timer.WindowFlaggerMessageBoxActive)
                 {
-                    // if yes, send the FocusSessionTracker the required information in case of an active window switch
                     FocusSession.Controls.Timer.WindowFlagger(currentWindowTitle);
-
                 }
                 // set control variable
                 _lastWinEventProc = currentWindowTitle;
