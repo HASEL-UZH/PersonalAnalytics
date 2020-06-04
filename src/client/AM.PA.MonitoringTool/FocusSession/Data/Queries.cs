@@ -3,6 +3,9 @@
 // 
 // Licensed under the MIT License.
 
+using System;
+using System.Data;
+
 namespace FocusSession.Data
 {
     public class Queries
@@ -11,7 +14,7 @@ namespace FocusSession.Data
         {
             try
             {
-                Shared.Data.Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.FocusTimerTable + " (id INTEGER PRIMARY KEY, startTime TEXT, endTime TEXT, timeDuration TEXT);");
+                Shared.Data.Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.FocusTimerTable + " (id INTEGER PRIMARY KEY, startTime TEXT, endTime TEXT, " + Settings.FocusTimerSessionDuration + " TEXT);");
 
             }
             catch (System.Exception e)
@@ -44,11 +47,40 @@ namespace FocusSession.Data
         {
             try
             {
-                Shared.Data.Database.GetInstance().ExecuteDefaultQuery("INSERT INTO " + Settings.FocusTimerTable + " (startTime, endTime, timeDuration) VALUES (" + Shared.Data.Database.GetInstance().QTime(startTime) + ", " + Shared.Data.Database.GetInstance().QTime(stopTime) + ", " + Shared.Data.Database.GetInstance().QTime(timeDuration) + ");");
+                Shared.Data.Database.GetInstance().ExecuteDefaultQuery("INSERT INTO " + Settings.FocusTimerTable + " (startTime, endTime, " + Settings.FocusTimerSessionDuration + ") VALUES (" + Shared.Data.Database.GetInstance().QTime(startTime) + ", " + Shared.Data.Database.GetInstance().QTime(stopTime) + ", " + Shared.Data.Database.GetInstance().QTime(timeDuration) + ");");
             }
             catch (System.Exception e)
             {
                 Shared.Logger.WriteToLogFile(e);
+            }
+        }
+
+
+        /// <summary>
+        /// Retrieves the total amount of focused time of the day
+        /// </summary>
+        /// <param name="date"> Provide the startTime. Returns TimeSpan.Zero if unsuccessful </param>
+
+        internal static TimeSpan GetFocusTimeDay(DateTime startTime)
+        {
+            try
+            {
+                DataTable timeDurationDayTable = Shared.Data.Database.GetInstance().ExecuteReadQuery("SELECT " + Settings.FocusTimerSessionDuration + " FROM " + Settings.FocusTimerTable + " WHERE startTime >= '2020-06-04 00:00:00' ;");
+
+                TimeSpan totalDay = TimeSpan.Zero;
+
+                foreach (DataRow row in timeDurationDayTable.Rows)
+                {
+                    totalDay = totalDay.Add(TimeSpan.Parse(row.ItemArray[0].ToString()));
+                }
+
+                return totalDay;
+
+            }
+            catch (System.Exception e)
+            {
+                Shared.Logger.WriteToLogFile(e);
+                return TimeSpan.Zero;
             }
         }
 

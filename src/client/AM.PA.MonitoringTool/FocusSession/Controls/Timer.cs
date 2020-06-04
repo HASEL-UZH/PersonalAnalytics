@@ -171,9 +171,15 @@ namespace FocusSession.Controls
                     aTimer.Dispose();
                 }
 
+                // get the amount of time total focused for today
+                TimeSpan totalDay = Data.Queries.GetFocusTimeDay(startTime);
+
                 // messages received during session
                 // TODO sort after number of messages received
                 endMessage.Append("\n\nMessages received during this session: \n" + emailsReplied.Count + " Email \n" + numberOfReceivedSlackMessages + " Slack");
+
+                // time statistics
+                endMessage.Append("\n\nTotal time focused this day: " + totalDay.Hours + " hours and " + totalDay.Minutes + " minutes.");
 
                 // display a message to the user so the user gets feedback (important)
                 MessageBox.Show("FocusSession stopped.");
