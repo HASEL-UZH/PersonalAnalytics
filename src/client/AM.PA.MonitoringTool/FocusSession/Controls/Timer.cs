@@ -79,7 +79,7 @@ namespace FocusSession.Controls
                     }
                     else
                     {
-                        ReplyMessage = "\nThe recepient of this email is currently in a focused work session, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                        ReplyMessage = Settings.IsTextMessageByDefault;
                     }
                 }
                 // start closedSession
@@ -280,7 +280,24 @@ namespace FocusSession.Controls
                 // set dynamic automatic email reply message
                 if (closedSession)
                 {
-                    ReplyMessage = "\nThe recepient of this email is currently in a focused work session for another " + getSessionTime() + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                    if (CustomizedReplyMessageEnabled)
+                    {
+                        ReplyMessage = CustomizedReplyMessage;
+                    }
+                    else
+                    {
+                        ReplyMessage = "\nThe recepient of this email is currently in a focused work session for another " + getSessionTime() + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                    }
+                }
+                else {
+                    if (CustomizedReplyMessageEnabled)
+                    {
+                        ReplyMessage = CustomizedReplyMessage;
+                    }
+                    else
+                    {
+                        ReplyMessage = "\nThe recepient of this email is currently in a focused work session for another " + getSessionTime() + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                    }
                 }
 
                 // this checks for missed emails and replies, adds replied emails to the list 'emailsReplied', which will be used at the end of the session to report on emails and then be emptied
