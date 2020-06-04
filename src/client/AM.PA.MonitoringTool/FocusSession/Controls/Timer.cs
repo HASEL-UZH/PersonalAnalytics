@@ -172,7 +172,13 @@ namespace FocusSession.Controls
                 }
 
                 // get the amount of time total focused for today
-                TimeSpan totalDay = Data.Queries.GetFocusTimeDay(startTime);
+                TimeSpan totalDay = Data.Queries.GetFocusTimeFromDay(DateTime.Now);
+
+                // get the amount of time total focused for this week
+                TimeSpan totalWeek = Data.Queries.GetFocusTimeFromDay(StartOfWeek(DayOfWeek.Monday));
+
+                // get the amount of time total focused for this month
+                TimeSpan totalMonth = Data.Queries.GetFocusTimeFromDay(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1));
 
                 // messages received during session
                 // TODO sort after number of messages received
@@ -180,6 +186,8 @@ namespace FocusSession.Controls
 
                 // time statistics
                 endMessage.Append("\n\nTotal time focused this day: " + totalDay.Hours + " hours and " + totalDay.Minutes + " minutes.");
+                endMessage.Append("\nTotal time focused this week: " + totalWeek.Hours + " hours and " + totalWeek.Minutes + " minutes.");
+                endMessage.Append("\nTotal time focused this month: " + totalMonth.Hours + " hours and " + totalMonth.Minutes + " minutes.");
 
                 // display a message to the user so the user gets feedback (important)
                 MessageBox.Show("FocusSession stopped.");
@@ -213,6 +221,13 @@ namespace FocusSession.Controls
             aTimer.Elapsed += OnTimedEvent;
             aTimer.AutoReset = true;
             aTimer.Enabled = true;
+        }
+
+        public static DateTime StartOfWeek(DayOfWeek startOfWeek)
+        {
+            DateTime dt = DateTime.Now;
+            int diff = (7 + (dt.DayOfWeek - startOfWeek)) % 7;
+            return dt.AddDays(-1 * diff).Date;
         }
 
         private static async void OnTimedEvent(Object source, ElapsedEventArgs e)

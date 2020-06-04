@@ -57,15 +57,15 @@ namespace FocusSession.Data
 
 
         /// <summary>
-        /// Retrieves the total amount of focused time of the day
+        /// Retrieves the total amount of focused time from a specific day. Today, beginning of week, beginning of month ...
         /// </summary>
-        /// <param name="date"> Provide the startTime. Returns TimeSpan.Zero if unsuccessful </param>
+        /// <param name="date"> Provide the day. Returns TimeSpan.Zero if unsuccessful </param>
 
-        internal static TimeSpan GetFocusTimeDay(DateTime startTime)
+        internal static TimeSpan GetFocusTimeFromDay(DateTime day)
         {
             try
             {
-                DataTable timeDurationDayTable = Shared.Data.Database.GetInstance().ExecuteReadQuery("SELECT " + Settings.FocusTimerSessionDuration + " FROM " + Settings.FocusTimerTable + " WHERE startTime >= '2020-06-04 00:00:00' ;");
+                DataTable timeDurationDayTable = Shared.Data.Database.GetInstance().ExecuteReadQuery("SELECT " + Settings.FocusTimerSessionDuration + " FROM " + Settings.FocusTimerTable + " WHERE startTime >= '" + Convert.ToDateTime(day.Date).ToString("yyyy-MM-dd HH:mm:ss") + "' ;");
 
                 TimeSpan totalDay = TimeSpan.Zero;
 
