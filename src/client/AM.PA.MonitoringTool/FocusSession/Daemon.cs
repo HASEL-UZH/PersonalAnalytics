@@ -228,5 +228,53 @@ namespace FocusSession
             }
         }
 
+        public bool CustomizedFlaggingListIsEnabled()
+        {
+            return Database.GetInstance().GetSettingsBool(Settings.CUSTOMIZEDFLAGGINGLIST_ENEABLED_SETTING, Settings.IsDisabledByDefault);
+        }
+
+        public void ChangeCustomizedFlaggingListEnabledState(bool? CustomizedFlaggingListEnabled)
+        {
+            Console.WriteLine(" CustomizedFlaggingListEnabled is now " + (CustomizedFlaggingListEnabled.Value ? "enabled" : "disabled"));
+            Database.GetInstance().SetSettings(Settings.CUSTOMIZEDFLAGGINGLIST_ENEABLED_SETTING, CustomizedFlaggingListEnabled.Value);
+            Database.GetInstance().LogInfo("The participant updated the setting '" + Settings.CUSTOMIZEDFLAGGINGLIST_ENEABLED_SETTING + "' to " + CustomizedFlaggingListEnabled.Value);
+
+            if (CustomizedFlaggingListEnabled.Value)
+            {
+                CreateDatabaseTablesIfNotExist();
+                Controls.Timer.CustomizedFlaggingListEnabled = true;
+            }
+            else if (!CustomizedFlaggingListEnabled.Value)
+            {
+                Controls.Timer.CustomizedFlaggingListEnabled = false;
+            }
+            else
+            {
+                Logger.WriteToConsole("ChangeCustomizedFlaggingListEnabledState else statement");
+            }
+        }
+
+        public string CustomizedFlaggingListIsText()
+        {
+            return Database.GetInstance().GetSettingsString(Settings.CUSTOMIZEDFLAGGINGLIST_TEXT_SETTING, Settings.IsTextListByDefault);
+        }
+
+        public void ChangeCustomizedFlaggingListState(string CustomizedFlaggingList)
+        {
+            Console.WriteLine(" CustomizedFlaggingList is now " + (CustomizedFlaggingList));
+            Database.GetInstance().SetSettings(Settings.CUSTOMIZEDFLAGGINGLIST_TEXT_SETTING, CustomizedFlaggingList);
+            Database.GetInstance().LogInfo("The participant updated the setting '" + Settings.CUSTOMIZEDFLAGGINGLIST_TEXT_SETTING + "' to " + CustomizedFlaggingList);
+
+            if (CustomizedFlaggingList != null)
+            {
+                CreateDatabaseTablesIfNotExist();
+                Controls.Timer.CustomizedFlaggingList = CustomizedFlaggingList;
+            }
+            else
+            {
+                Logger.WriteToConsole("ChangeCustomizedFlaggingListState else statement");
+            }
+        }
+
     }
 }

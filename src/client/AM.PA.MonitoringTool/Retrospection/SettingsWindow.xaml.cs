@@ -20,7 +20,7 @@ namespace Retrospection
         private const string MinutesStr = " minutes";
 
         private bool _defaultPopUpIsEnabled;
-        private int  _defaultPopUpInterval;
+        private int _defaultPopUpInterval;
         private bool _defaultOffice365ApiEnabled;
         private bool _defaultUserInputTrackerEnabled;
         private bool _defaultOpenRetrospectionInFullScreen;
@@ -30,11 +30,13 @@ namespace Retrospection
         private bool _defaultPolarTrackerEnabled;
         private bool _defaultFitbitTrackerEnabled;
         private bool _defaultFitbitTokenRemoveEnabled;
-        private int  _defaultClosedSessionDuration;
+        private int _defaultClosedSessionDuration;
         private bool _defaultReplyMessageEnabled;
         private bool _defaultWindowFlaggingEnabled;
         private bool _defaultCustomizedReplyMessageEnabled;
         private string _defaultCustomizedReplyMessage;
+        private bool _defaultCustomizedFlaggingListEnabled;
+        private string _defaultCustomizedFlaggingList;
 
         public SettingsDto UpdatedSettingsDto;
 
@@ -64,6 +66,8 @@ namespace Retrospection
             _defaultWindowFlaggingEnabled = dto.WindowFlaggingEnabled.Value;
             _defaultCustomizedReplyMessageEnabled = dto.CustomizedReplyMessageEnabled.Value;
             _defaultCustomizedReplyMessage = dto.CustomizedReplyMessage;
+            _defaultCustomizedFlaggingListEnabled = dto.CustomizedFlaggingListEnabled.Value;
+            _defaultCustomizedFlaggingList = dto.CustomizedFlaggingList;
 
             // no changes yet, disable buttons by default
             SaveButtonsEnabled(false);
@@ -132,6 +136,13 @@ namespace Retrospection
 
             CustomizedReplyMessage.Text = _defaultCustomizedReplyMessage;
             CustomizedReplyMessage.TextChanged += TbChanged_Update;
+
+            CustomizedFlaggingListEnabled.IsChecked = _defaultCustomizedFlaggingListEnabled;
+            CustomizedFlaggingListEnabled.Checked += CbChecked_Update;
+            CustomizedFlaggingListEnabled.Unchecked += CbChecked_Update;
+
+            CustomizedFlaggingList.Text = _defaultCustomizedFlaggingList;
+            CustomizedFlaggingList.TextChanged += TbChanged_Update;
         }
 
         #region User Changed Values
@@ -180,7 +191,9 @@ namespace Retrospection
                  || _defaultReplyMessageEnabled != ReplyMessageEnabled.IsChecked.Value
                  || _defaultWindowFlaggingEnabled != WindowFlaggingEnabled.IsChecked.Value
                  || _defaultCustomizedReplyMessageEnabled != CustomizedReplyMessageEnabled.IsChecked.Value
-                 || _defaultCustomizedReplyMessage != CustomizedReplyMessage.Text)
+                 || _defaultCustomizedReplyMessage != CustomizedReplyMessage.Text
+                 || _defaultCustomizedFlaggingListEnabled != CustomizedFlaggingListEnabled.IsChecked.Value
+                 || _defaultCustomizedFlaggingList != CustomizedFlaggingList.Text)
                 {
                     SaveButtonsEnabled(true);
                 }
@@ -268,7 +281,7 @@ namespace Retrospection
                     dto.FitbitTrackerEnabled = FitbitEnabled.IsChecked.Value;
                 }
                 else { dto.FitbitTrackerEnabled = null; }
-                
+
                 if (_defaultClosedSessionDuration.ToString() != CbClosedSessionDuration.SelectedValue.ToString())
                 {
                     dto.ClosedSessionDuration = int.Parse(CbClosedSessionDuration.SelectedValue.ToString(), CultureInfo.InvariantCulture);
@@ -298,6 +311,18 @@ namespace Retrospection
                     dto.CustomizedReplyMessage = CustomizedReplyMessage.Text;
                 }
                 else { dto.CustomizedReplyMessage = null; }
+
+                if (_defaultCustomizedFlaggingListEnabled != CustomizedFlaggingListEnabled.IsChecked.Value)
+                {
+                    dto.CustomizedFlaggingListEnabled = CustomizedFlaggingListEnabled.IsChecked.Value;
+                }
+                else { dto.CustomizedFlaggingListEnabled = null; }
+
+                if (_defaultCustomizedFlaggingList != CustomizedFlaggingList.Text)
+                {
+                    dto.CustomizedFlaggingList = CustomizedFlaggingList.Text;
+                }
+                else { dto.CustomizedFlaggingList = null; }
             }
             catch { }
 

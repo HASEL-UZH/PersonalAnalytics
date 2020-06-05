@@ -32,7 +32,9 @@ namespace FocusSession.Controls
         public static bool ReplyMessageEnabled { get; set; } = Shared.Data.Database.GetInstance().GetSettingsBool(Settings.REPLYMESSAGE_ENEABLED_SETTING, true);
         public static bool WindowFlaggingEnabled { get; set; } = Shared.Data.Database.GetInstance().GetSettingsBool(Settings.WINDOWFLAGGING_ENEABLED_SETTING, true);
         public static bool CustomizedReplyMessageEnabled { get; set; } = Shared.Data.Database.GetInstance().GetSettingsBool(Settings.CUSTOMIZEDREPLYMESSAGE_ENEABLED_SETTING, true);
-        public static string CustomizedReplyMessage { get; set; } = Shared.Data.Database.GetInstance().GetSettingsString(Settings.CUSTOMIZEDREPLYMESSAGE_TEXT_SETTING, "\nThe recepient of this email is currently in a focused work session, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n");
+        public static string CustomizedReplyMessage { get; set; } = Shared.Data.Database.GetInstance().GetSettingsString(Settings.CUSTOMIZEDREPLYMESSAGE_TEXT_SETTING, Settings.IsTextMessageByDefault);
+        public static bool CustomizedFlaggingListEnabled { get; set; } = Shared.Data.Database.GetInstance().GetSettingsBool(Settings.CUSTOMIZEDFLAGGINGLIST_ENEABLED_SETTING, true);
+        public static string CustomizedFlaggingList { get; set; } = Shared.Data.Database.GetInstance().GetSettingsString(Settings.CUSTOMIZEDFLAGGINGLIST_TEXT_SETTING, Settings.IsTextListByDefault);
 
         // list of potentially distracting programs that we use for flagging check
         private static string[] windowFlaggerList = new string[] { "Skype", "WhatsApp", "Zoom", "Microsoft Outlook", "Google Hangouts", "Discord", "LINE", "Signal", "Trilian", "Viber", "Pidgin", "eM Client", "Thunderbird", "Whatsapp Web", "Facebook", "Winmail", "Telegram", "Yahoo Mail", "Camfrog", "Messenger", "TextNow", "Slack", "mIRC", "BlueMail", "Paltalk", "Mailbird", "Jisti", "Jabber", "OpenTalk", "ICQ", "Gmail", "Tango", "Lync", "Pegasus", "Mailspring", "Teamspeak", "QuizUp", "IGA", "Zello", "Jelly SMS", "Mammail", "Line", "MSN", "inSpeak", "Spark", "TorChat", "ChatBox", "AIM", "HexChat", "HydraIRC", "Mulberry", "Claws Mail", "Pandion", "ZChat", "Franz", "Microsoft Teams", "Zulip" };
@@ -364,8 +366,16 @@ namespace FocusSession.Controls
         {
             if (WindowFlaggingEnabled)
             {
+                var localWindowFlaggerList = windowFlaggerList;
 
-                foreach (String windowFlagger in windowFlaggerList)
+                // we overwrite, this way we still keep the original list/values, but overwrite when user activates the setting during a session (no session restart needed)
+                if (CustomizedFlaggingListEnabled)
+                {
+                    // replace whitespace after commata, and split it into an array for foreach loop
+                    localWindowFlaggerList = CustomizedFlaggingList.Replace(", ", ",").Split(',');
+                }
+
+                foreach (String windowFlagger in localWindowFlaggerList)
                     if (currentWindowTitle.Contains(windowFlagger))
                     {
                         if (WindowFlaggerMessageBoxActive) { return; }
@@ -407,6 +417,7 @@ namespace FocusSession.Controls
                             }
                         }
                     }
+            
             }
         }
 

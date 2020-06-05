@@ -111,6 +111,16 @@ namespace PersonalAnalytics
                 {
                     if (GetFocusSessionTracker() != null) GetFocusSessionTracker().ChangeCustomizedReplyMessageState(updatedSettings.CustomizedReplyMessage);
                 }
+
+                if (updatedSettings.CustomizedFlaggingListEnabled.HasValue)
+                {
+                    if (GetFocusSessionTracker() != null) GetFocusSessionTracker().ChangeCustomizedFlaggingListEnabledState(updatedSettings.CustomizedFlaggingListEnabled);
+                }
+
+                if (updatedSettings.CustomizedFlaggingList != null)
+                {
+                    if (GetFocusSessionTracker() != null) GetFocusSessionTracker().ChangeCustomizedFlaggingListState(updatedSettings.CustomizedFlaggingList);
+                }
             }
             catch (Exception e)
             {
@@ -158,6 +168,8 @@ namespace PersonalAnalytics
                 dto.WindowFlaggingEnabled = focusSession.WindowFlaggingIsEnabled();
                 dto.CustomizedReplyMessageEnabled = focusSession.CustomizedReplyMessageIsEnabled();
                 dto.CustomizedReplyMessage = focusSession.CustomizedReplyMessageIsText();
+                dto.CustomizedFlaggingListEnabled = focusSession.CustomizedFlaggingListIsEnabled();
+                dto.CustomizedFlaggingList = focusSession.CustomizedFlaggingListIsText();
             }
             catch (Exception e)
             {

@@ -41,6 +41,8 @@ namespace Shared.Data
         public bool? WindowFlaggingEnabled { get; set; }
         public bool? CustomizedReplyMessageEnabled { get; set; }
         public string CustomizedReplyMessage { get; set; }
+        public bool? CustomizedFlaggingListEnabled { get; set; }
+        public string CustomizedFlaggingList { get; set; }
     }
     public class StartEndTimeDto
     {
