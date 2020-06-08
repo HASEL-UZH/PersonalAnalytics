@@ -10,8 +10,8 @@
 import Cocoa
 
 class SummaryViewController: NSViewController {
-
-    // TODO: use NSWindowController instead of NSViewController instead (??)
+    
+    // TODO: use a regular window
     let popover = NSPopover()
     
     var percievedProductivity: Int = 1
@@ -43,7 +43,7 @@ class SummaryViewController: NSViewController {
         popover.behavior = .transient
         // TODO: Not nice to use the delegate here, better options?
         let appDelegate = NSApplication.shared.delegate as! AppDelegate
-        if let button = appDelegate.statusItem.button {
+        if let button = appDelegate.menu.statusItem.button {
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: NSRectEdge.minY)
             NSApp.activate(ignoringOtherApps: true)
         }
