@@ -92,6 +92,8 @@
 		B01259FC238C169E00A7F0A9 /* RetrospectiveWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = B9D50B851EDFC5C600145EC8 /* RetrospectiveWindow.xib */; };
 		B01259FD238C169E00A7F0A9 /* EmotionPopUp.xib in Resources */ = {isa = PBXBuildFile; fileRef = A3B37CE921DD1CDC008784B1 /* EmotionPopUp.xib */; };
 		B017DECF237964C800B0EB19 /* DateFormatConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B017DECE237964C800B0EB19 /* DateFormatConverter.swift */; };
+		B0259684248E26B0005E9915 /* MenuBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0259683248E26B0005E9915 /* MenuBar.swift */; };
+		B0259685248E26B0005E9915 /* MenuBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0259683248E26B0005E9915 /* MenuBar.swift */; };
 		B061EC262382F52F005AD5FD /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B061EC252382F52F005AD5FD /* WebKit.framework */; };
 		B09DC4A423E9705F00845428 /* ResourceActivityTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4A323E9705F00845428 /* ResourceActivityTracker.swift */; };
 		B09DC4A523E9705F00845428 /* ResourceActivityTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4A323E9705F00845428 /* ResourceActivityTracker.swift */; };
@@ -249,6 +251,7 @@
 		B0125A09238C24F900A7F0A9 /* Development.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Development.xcconfig; sourceTree = "<group>"; };
 		B0125A0A238C251200A7F0A9 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
 		B017DECE237964C800B0EB19 /* DateFormatConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatConverter.swift; sourceTree = "<group>"; };
+		B0259683248E26B0005E9915 /* MenuBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBar.swift; sourceTree = "<group>"; };
 		B061EC252382F52F005AD5FD /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		B076EE832428B8D30081FDF9 /* PersonalAnalytics DevDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "PersonalAnalytics DevDebug.entitlements"; sourceTree = "<group>"; };
 		B076EE85242B54C40081FDF9 /* PersonalAnalyticsRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PersonalAnalyticsRelease.entitlements; sourceTree = "<group>"; };
@@ -628,6 +631,7 @@
 				B9782F51216D6264006CCB73 /* Main.storyboard */,
 				0D2B94231D57D3D5004DA61D /* PAHttpServer.swift */,
 				0DB3DF271BAF49AC00144935 /* AppDelegate.swift */,
+				B0259683248E26B0005E9915 /* MenuBar.swift */,
 				0D0245FA1BD1C5AE00213D2A /* AppConstants.swift */,
 				B9A3103A1EC50C1E003B2470 /* PreferencesView.xib */,
 				B9A3103E1EC5262E003B2470 /* PreferencesWindow.xib */,
@@ -967,6 +971,7 @@
 				B9A0B7AA1EDC924300BE6F71 /* WindowsActivityTracker.swift in Sources */,
 				B9D50B9E1EE0A62000145EC8 /* RetrospectiveWindowController.swift in Sources */,
 				B9851F941ED4B8E2002C24AF /* RetrospectiveViewController.swift in Sources */,
+				B0259684248E26B0005E9915 /* MenuBar.swift in Sources */,
 				B0CAC0F223854A83002DBC55 /* EmotionTrackerSettings.swift in Sources */,
 				B97A0E641EE9F16E000DCCEC /* DayWeekProductivivityTimeline.swift in Sources */,
 				B9D50B801EDF588E00145EC8 /* ActivityCategory.swift in Sources */,
@@ -1033,6 +1038,7 @@
 				B01259DA238C169E00A7F0A9 /* WindowsActivityTracker.swift in Sources */,
 				B01259DB238C169E00A7F0A9 /* RetrospectiveWindowController.swift in Sources */,
 				B01259DC238C169E00A7F0A9 /* RetrospectiveViewController.swift in Sources */,
+				B0259685248E26B0005E9915 /* MenuBar.swift in Sources */,
 				B01259DD238C169E00A7F0A9 /* EmotionTrackerSettings.swift in Sources */,
 				B01259DE238C169E00A7F0A9 /* DayWeekProductivivityTimeline.swift in Sources */,
 				B01259DF238C169E00A7F0A9 /* ActivityCategory.swift in Sources */,

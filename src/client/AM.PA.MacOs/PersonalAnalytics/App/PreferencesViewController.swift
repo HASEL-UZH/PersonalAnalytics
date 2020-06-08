@@ -43,6 +43,10 @@ class PreferencesViewController: NSViewController{
         }
     }
     
+    func areAllTrackersEnabled() -> Bool {
+        return isWindowNameTrackingEnabled() && isKeyboardTrackingEnabled() && isURLTrackingEnabled(browser: "Safari") && isURLTrackingEnabled(browser: "Google Chrome")
+    }
+    
     func isKeyboardTrackingEnabled() -> Bool {
          return AXIsProcessTrusted()
     }
@@ -57,12 +61,20 @@ class PreferencesViewController: NSViewController{
     }
     
     func isURLTrackingEnabled(browser: String) -> Bool {
-        let script = "tell application \"\(browser)\" to return URL of active tab of front window"
+        var script = ""
+        if browser == "Google Chrome" {
+            script = "tell application \"Google Chrome\" to return URL of active tab of front window"
+        } else if browser == "Safari" {
+            script = "tell application \"Safari\" to return URL of front document"
+        } else {
+            return false
+        }
+        
         let scriptObject = NSAppleScript(source: script)
         var error: NSDictionary?
         scriptObject?.executeAndReturnError(&error)
         if (error != nil) {
-            return false //
+            return false
         }
         return true
     }
