@@ -21,7 +21,7 @@ André Meyer (ameyer@ifi.uzh.ch)
 - September, 2018: [Chris Satterfield](https://github.com/csatterfield) and [Anna Scholtz](https://github.com/scholtzan) (master students at University of British Columbia, Canada) started integrating their port from Windows to Mac. Work in progress.
 - September 2018: [Jan Pilzer](https://github.com/hirse) and [Raphael](https://github.com/raphaelro) started integrating their work on Tobii Eytracking. Work in progress.
 - January 2019: [Louie Quaranta](https://github.com/louieQ) added an emotion state experience sampling pop-up to PersonalAnalytics for Mac (merged to [mac-branch](https://github.com/sealuzh/PersonalAnalytics/tree/mac)).
-- October 2019: [Roy Ru](https://github.com/royru) started unifying PersonalAnalytics for Mac and make it more similar to the Windows version
+- October 2019: [Roy Rutishauser](https://github.com/royru) started unifying PersonalAnalytics for Mac and make it more similar to the Windows version
 - May 2020: [Jan Pilzer](https://github/hirse) created a [pull-request](https://github.com/sealuzh/PersonalAnalytics/pull/258) to include WindowDimmer into the official PersonalAnalytics release
 
 # Main Contributors and People Involved
@@ -29,7 +29,7 @@ André Meyer (ameyer@ifi.uzh.ch)
 - [Prof. Dr. Thomas Fritz](http://www.ifi.uzh.ch/en/seal/people/fritz.html) (University of British Columbia)
 - [Manuela Züger](http://www.ifi.uzh.ch/en/seal/people/zueger.html) and [Sebastian Müller](http://www.ifi.uzh.ch/en/seal/people/mueller.html) (University of Zurich)
 - [Chris Satterfield](https://github.com/csatterfield) (main contributor of Mac version)
-- [Roy Ru](https://github.com/royru) (contributor to Mac version)
+- [Roy Rutishauser](https://github.com/royru) (contributor to Mac version)
 - Dr. Tom Zimmermann (Microsoft Research)
 - Prof. Dr. Gail C. Murphy (University of British Columbia)
 
@@ -46,11 +46,17 @@ This tool was developed for and used by the following research:
 We want to thank the following developers for providing us with the fantastic libraries:
 - MouseKeyHook https://github.com/gmamaladze/globalmousekeyhook MIT License
 - Hardcodet.NotifyIcon https://bitbucket.org/hardcodet/notifyicon-wpf Code Project Open License
-- Jquery https://jquery.org/license/ MIT LIcense
+- Jquery https://jquery.org/license/ MIT License
 - Masonry https://github.com/desandro/masonry MIT License
 - SQLite www.sqlite.org/copyright.html Open Domain 
 - D3 Visualization https://github.com/mbostock/d3 BSD License
 - C3.js https://github.com/masayuki0812/c3 MIT License 
-- HTML FilterTable https://github.com/koalyptus/TableFilter MIT license
-- Newtonsoft Json http://www.newtonsoft.com/json MIT license
-- OpenNLP https://github.com/AlexPoint/OpenNlp MIT license 
+- HTML FilterTable https://github.com/koalyptus/TableFilter MIT License
+- Newtonsoft Json http://www.newtonsoft.com/json MIT License
+- OpenNLP https://github.com/AlexPoint/OpenNlp MIT License 
+- CocoaPods https://cocoapods.org/ MIT License
+- EonilFSEvents https://github.com/eonil/FSEvents MIT License
+- Sparkle https://sparkle-project.org/ MIT License
+- create-dmg https://github.com/sindresorhus/create-dmg MIT License
+- GRDB.swift https://github.com/groue/GRDB.swift MIT License
+- Swifter https://github.com/httpswift/swifter MIT License
