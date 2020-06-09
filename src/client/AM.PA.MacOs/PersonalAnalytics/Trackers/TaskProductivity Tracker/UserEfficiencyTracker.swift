@@ -15,7 +15,7 @@ class UserEfficiencyTracker: ITracker, TrackerUserNotificationHandling {
     var notificationTimer: Timer?
     var isIdle = false
     var isPaused = false
-    let summaryIntervalMinutes: Double = 60
+    let summaryIntervalMinutes = UserEfficiencySettings.SummaryIntervalMinutes
     //var notificationsDisabled: Boolean = false
     
     let viewController: SummaryViewController

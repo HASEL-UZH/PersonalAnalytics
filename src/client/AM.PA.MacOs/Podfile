@@ -1,6 +1,16 @@
+inhibit_all_warnings! 
+use_frameworks!
+
+def pa_pods
+    pod 'GRDB.swift'
+    pod 'Swifter', '~>1.4.5'
+    pod 'Sparkle'
+end
+ 
 target 'PersonalAnalytics' do
-	inhibit_all_warnings!
-	use_frameworks!
-	pod 'GRDB.swift'
-	pod 'Swifter', '~>1.4.5'
+    pa_pods
+end
+ 
+target 'PersonalAnalytics Dev' do
+    pa_pods
 end

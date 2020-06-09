@@ -10,64 +10,85 @@ import Foundation
 class MouseActionController{
 
     fileprivate var globalEventMonitor: AnyObject?
-    fileprivate var leftClickCountThisInterval: Int
-    fileprivate var rightClickCountThisInterval: Int
-    fileprivate var scrollDeltaThisInterval: Int
-    fileprivate var mouseMovement: Int
     fileprivate var lastMouseLocation: NSPoint
+    
+    fileprivate var mouseClickList = [MouseClickEvent]()
+    fileprivate var mouseMovementList = [MouseMovementSnapshot]()
+    fileprivate var mouseScrollList = [MouseScrollSnapshot]()
 
     init(){
-        self.leftClickCountThisInterval = 0
-        self.rightClickCountThisInterval = 0
-        self.scrollDeltaThisInterval = 0
-        self.mouseMovement = 0
         self.lastMouseLocation = NSEvent.mouseLocation //add initial mouse location
-        
-        self.globalEventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [NSEvent.EventTypeMask.leftMouseDown, NSEvent.EventTypeMask.rightMouseDown, NSEvent.EventTypeMask.mouseMoved, NSEvent.EventTypeMask.scrollWheel], handler: self.recordActions) as AnyObject?
+        self.globalEventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [NSEvent.EventTypeMask.leftMouseDown, NSEvent.EventTypeMask.rightMouseDown, NSEvent.EventTypeMask.otherMouseDown, NSEvent.EventTypeMask.mouseMoved, NSEvent.EventTypeMask.scrollWheel], handler: self.recordActions) as AnyObject?
     }
     
     func recordActions(mouseEvent:NSEvent){
-        //TODO: fill in switch
-        switch mouseEvent.type{
+        let currentLocation = NSEvent.mouseLocation
+
+        switch mouseEvent.type {
         case .leftMouseDown:
-            leftClickCountThisInterval += 1
+            mouseClickList.append(MouseClickEvent(button: .Left, location: currentLocation))
         case .rightMouseDown:
-            rightClickCountThisInterval += 1
+            mouseClickList.append(MouseClickEvent(button: .Right, location: currentLocation))
+        case .otherMouseDown:
+            // middle button
+            if (mouseEvent.buttonNumber == 2) {
+                mouseClickList.append(MouseClickEvent(button: .Middle, location:  currentLocation))
+            }
+            // Xbutton1 (thumb button on the side)
+            else if (mouseEvent.buttonNumber == 3) {
+                mouseClickList.append(MouseClickEvent(button: .XButton1, location: currentLocation))
+            }
+            // Xbutton2 (thumb button on the side)
+            else if (mouseEvent.buttonNumber == 4) {
+                mouseClickList.append(MouseClickEvent(button: .XButton2, location: currentLocation))
+            }
         case .mouseMoved:
-            let currentLocation = NSEvent.mouseLocation
             let distance = calculateDistance(a: currentLocation, b: lastMouseLocation)
             lastMouseLocation = currentLocation
-            mouseMovement += distance
+            mouseMovementList.append(MouseMovementSnapshot(movedDistance: distance, location: currentLocation))
         case .scrollWheel:
             let scroll = Int(abs(mouseEvent.scrollingDeltaY))
-            scrollDeltaThisInterval += scroll
+            mouseScrollList.append(MouseScrollSnapshot(scrollDelta: scroll, location: currentLocation))
         default:
             print("Whoops! how did we get here")
         }
     }
     
     func calculateDistance(a: NSPoint, b: NSPoint) -> Int{
-
         return Int(sqrt(pow(b.x-a.x,2) + pow(b.y-a.y,2)))
-    
     }
     
     func reset(){
-        self.leftClickCountThisInterval = 0
-        self.rightClickCountThisInterval = 0
-        self.scrollDeltaThisInterval = 0
-        self.mouseMovement = 0
+        mouseClickList.removeAll()
+        mouseScrollList.removeAll()
+        mouseMovementList.removeAll()
     }
     
-    func getValues() -> (Int, Int, Int, Int){
-        return (leftClickCountThisInterval, rightClickCountThisInterval, scrollDeltaThisInterval, mouseMovement)
+    func getValues() -> (Int, Int, Int, Int, Int){
+        let leftClicks = mouseClickList.filter { $0.button == .Left }
+        let rightClicks = mouseClickList.filter { $0.button == .Right }
+        let otherClicks = mouseClickList.filter { $0.button == .Middle || $0.button == .XButton1 || $0.button == .XButton2 }
+        
+        let scrollDelta = mouseScrollList.reduce(0, { sum, scroll in
+            sum + scroll.scrollDelta
+        })
+        
+        let mouseMovement = mouseMovementList.reduce(0, { sum, move in
+            sum + move.movedDistance
+        })
+        
+        return (leftClicks.count, rightClicks.count, otherClicks.count, scrollDelta, mouseMovement)
     }
     
+    func saveDetailedMouseInputs() {
+        UserInputQueries.saveMouseClicks(clicks: mouseClickList)
+        UserInputQueries.saveMouseScrolls(scrolls: mouseScrollList)
+        UserInputQueries.saveMouseMovements(movements: mouseMovementList)
+    }
     
     deinit{
         if let monitor = self.globalEventMonitor {
             NSEvent.removeMonitor(monitor)
         }
     }
-    
 }

@@ -16,17 +16,118 @@
 		0DC4BF2D1BF2B57A00366771 /* WindowGrabber.m in Sources */ = {isa = PBXBuildFile; fileRef = 0DC4BF2C1BF2B57A00366771 /* WindowGrabber.m */; };
 		0DDEDB7C1BC61F57002B3E0D /* SummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DDEDB7A1BC61F57002B3E0D /* SummaryViewController.swift */; settings = {COMPILER_FLAGS = "-w"; }; };
 		0DDEDB7D1BC61F57002B3E0D /* SummaryView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0DDEDB7B1BC61F57002B3E0D /* SummaryView.xib */; };
+		87127D5927B005AAEB9EFC38 /* Pods_PersonalAnalytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 639321AA141095A614B280EE /* Pods_PersonalAnalytics.framework */; };
 		A3B37CE721DD1CDC008784B1 /* EmotionPopUp.xib in Resources */ = {isa = PBXBuildFile; fileRef = A3B37CE921DD1CDC008784B1 /* EmotionPopUp.xib */; };
 		A3B37CF321DD258C008784B1 /* EmotionTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B37CF221DD258C008784B1 /* EmotionTracker.swift */; };
 		A3B37CFF21DE0D35008784B1 /* EmotionPopUpWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B37CFE21DE0D35008784B1 /* EmotionPopUpWindowController.swift */; };
 		A3D1B62B21DD181D000C8A66 /* Pods_PersonalAnalytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 639321AA141095A614B280EE /* Pods_PersonalAnalytics.framework */; };
+		B01259B5238C169E00A7F0A9 /* DateTimeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97A0E3E1EE7843A000DCCEC /* DateTimeHelper.swift */; };
+		B01259B6238C169E00A7F0A9 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D0245FA1BD1C5AE00213D2A /* AppConstants.swift */; };
+		B01259B7238C169E00A7F0A9 /* PreferencesWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A310401EC5264E003B2470 /* PreferencesWindowController.swift */; };
+		B01259B8238C169E00A7F0A9 /* DatabaseController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D0245F71BD1651300213D2A /* DatabaseController.swift */; };
+		B01259B9238C169E00A7F0A9 /* UserEfficiencyQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97A0E391EE5FB84000DCCEC /* UserEfficiencyQueries.swift */; };
+		B01259BA238C169E00A7F0A9 /* IVisualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7A61EDA540F00BE6F71 /* IVisualization.swift */; };
+		B01259BB238C169E00A7F0A9 /* DayMostFocusedProgram.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7B11EDCE0EA00BE6F71 /* DayMostFocusedProgram.swift */; };
+		B01259BC238C169E00A7F0A9 /* ITracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7A41EDA373900BE6F71 /* ITracker.swift */; };
+		B01259BD238C169E00A7F0A9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DB3DF271BAF49AC00144935 /* AppDelegate.swift */; };
+		B01259BE238C169E00A7F0A9 /* PAHttpServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D2B94231D57D3D5004DA61D /* PAHttpServer.swift */; };
+		B01259BF238C169E00A7F0A9 /* ASHDatePicker.m in Sources */ = {isa = PBXBuildFile; fileRef = B958F34D1EE0CB7600E54D81 /* ASHDatePicker.m */; };
+		B01259C0238C169E00A7F0A9 /* UserInputQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9C79F831ECA6CF200E005F0 /* UserInputQueries.swift */; };
+		B01259C1238C169E00A7F0A9 /* TrackerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B904C25B1F01AEF000624D9C /* TrackerManager.swift */; };
+		B01259C2238C169E00A7F0A9 /* PreferencesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A310361EC4E985003B2470 /* PreferencesViewController.swift */; };
+		B01259C3238C169E00A7F0A9 /* VisHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9851FE81ED6594A002C24AF /* VisHelper.swift */; };
+		B01259C4238C169E00A7F0A9 /* SummaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DDEDB7A1BC61F57002B3E0D /* SummaryViewController.swift */; settings = {COMPILER_FLAGS = "-w"; }; };
+		B01259C5238C169E00A7F0A9 /* DateFormatConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B017DECE237964C800B0EB19 /* DateFormatConverter.swift */; };
+		B01259C6238C169E00A7F0A9 /* WindowsActivityQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7AF1EDCC42E00BE6F71 /* WindowsActivityQueries.swift */; };
+		B01259C7238C169E00A7F0A9 /* Stats.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9851FE01ED62CA9002C24AF /* Stats.swift */; };
+		B01259C8238C169E00A7F0A9 /* EmotionTrackerQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAC0EF23854A68002DBC55 /* EmotionTrackerQueries.swift */; };
+		B01259C9238C169E00A7F0A9 /* UserInputTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9873A7B1EBA92DA0050E864 /* UserInputTracker.swift */; };
+		B01259CA238C169E00A7F0A9 /* ActivityVisualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9851FE41ED64F2F002C24AF /* ActivityVisualization.swift */; };
+		B01259CB238C169E00A7F0A9 /* WindowGrabber.m in Sources */ = {isa = PBXBuildFile; fileRef = 0DC4BF2C1BF2B57A00366771 /* WindowGrabber.m */; };
+		B01259CC238C169E00A7F0A9 /* KeystrokeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D4676481BD54C2000796D2D /* KeystrokeController.swift */; };
+		B01259CD238C169E00A7F0A9 /* EmotionTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B37CF221DD258C008784B1 /* EmotionTracker.swift */; };
+		B01259CE238C169E00A7F0A9 /* DayTimeSpentVisualizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D50B831EDF7A3000145EC8 /* DayTimeSpentVisualizer.swift */; };
+		B01259CF238C169E00A7F0A9 /* WeekProgramsUsedTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97A0E3C1EE77704000DCCEC /* WeekProgramsUsedTable.swift */; };
+		B01259D0238C169E00A7F0A9 /* UserEfficiencyTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90790241F01CC27003B9CF7 /* UserEfficiencyTracker.swift */; };
+		B01259D1238C169E00A7F0A9 /* DayFragmentationTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D50B6B1EDF38D300145EC8 /* DayFragmentationTimeline.swift */; };
+		B01259D2238C169E00A7F0A9 /* Activity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D50B7D1EDF443900145EC8 /* Activity.swift */; };
+		B01259D3238C169E00A7F0A9 /* WindowsActivitySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAC0EB23852B24002DBC55 /* WindowsActivitySettings.swift */; };
+		B01259D4238C169E00A7F0A9 /* EmotionPopUpWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B37CFE21DE0D35008784B1 /* EmotionPopUpWindowController.swift */; };
+		B01259D5238C169E00A7F0A9 /* UserEfficiencySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAC0ED23854484002DBC55 /* UserEfficiencySettings.swift */; };
+		B01259D6238C169E00A7F0A9 /* MouseActionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9873A791EBA5DEF0050E864 /* MouseActionController.swift */; };
+		B01259D7238C169E00A7F0A9 /* WeekActivityVisualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9AA5C661F2939B500ED3432 /* WeekActivityVisualization.swift */; };
+		B01259D8238C169E00A7F0A9 /* DayProductivityTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97A0E371EE5FA2E000DCCEC /* DayProductivityTimeline.swift */; };
+		B01259D9238C169E00A7F0A9 /* DayProgramsUsedPieChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7AD1EDCBCFD00BE6F71 /* DayProgramsUsedPieChart.swift */; };
+		B01259DA238C169E00A7F0A9 /* WindowsActivityTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9A0B7A91EDC924300BE6F71 /* WindowsActivityTracker.swift */; };
+		B01259DB238C169E00A7F0A9 /* RetrospectiveWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D50B9D1EE0A62000145EC8 /* RetrospectiveWindowController.swift */; };
+		B01259DC238C169E00A7F0A9 /* RetrospectiveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9851F931ED4B8E2002C24AF /* RetrospectiveViewController.swift */; };
+		B01259DD238C169E00A7F0A9 /* EmotionTrackerSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAC0F123854A83002DBC55 /* EmotionTrackerSettings.swift */; };
+		B01259DE238C169E00A7F0A9 /* DayWeekProductivivityTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97A0E631EE9F16E000DCCEC /* DayWeekProductivivityTimeline.swift */; };
+		B01259DF238C169E00A7F0A9 /* ActivityCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D50B7F1EDF588E00145EC8 /* ActivityCategory.swift */; };
+		B01259E0238C169E00A7F0A9 /* UserInputSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BA0F792384062A00042775 /* UserInputSettings.swift */; };
+		B01259E1238C169E00A7F0A9 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D50B811EDF5ABE00145EC8 /* Category.swift */; };
+		B01259E3238C169E00A7F0A9 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B061EC252382F52F005AD5FD /* WebKit.framework */; };
+		B01259E6238C169E00A7F0A9 /* masonry.pkgd.min.js in Resources */ = {isa = PBXBuildFile; fileRef = B9851FC41ED5F951002C24AF /* masonry.pkgd.min.js */; };
+		B01259E7238C169E00A7F0A9 /* thumbDownBlue_png in Resources */ = {isa = PBXBuildFile; fileRef = B9851FCB1ED5F951002C24AF /* thumbDownBlue_png */; };
+		B01259E8238C169E00A7F0A9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0DB3DF2E1BAF49AC00144935 /* Assets.xcassets */; };
+		B01259E9238C169E00A7F0A9 /* PreferencesWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = B9A3103E1EC5262E003B2470 /* PreferencesWindow.xib */; };
+		B01259EA238C169E00A7F0A9 /* RetrospectiveView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B9D50B871EDFC66C00145EC8 /* RetrospectiveView.xib */; };
+		B01259EB238C169E00A7F0A9 /* tablefilter.css in Resources */ = {isa = PBXBuildFile; fileRef = B9851FC91ED5F951002C24AF /* tablefilter.css */; };
+		B01259EC238C169E00A7F0A9 /* personalanalytics.html in Resources */ = {isa = PBXBuildFile; fileRef = B9851FC51ED5F951002C24AF /* personalanalytics.html */; };
+		B01259ED238C169E00A7F0A9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B9782F51216D6264006CCB73 /* Main.storyboard */; };
+		B01259EE238C169E00A7F0A9 /* d3.min.js in Resources */ = {isa = PBXBuildFile; fileRef = B9851FC11ED5F951002C24AF /* d3.min.js */; };
+		B01259EF238C169E00A7F0A9 /* styles.css in Resources */ = {isa = PBXBuildFile; fileRef = B9851FC81ED5F951002C24AF /* styles.css */; };
+		B01259F0238C169E00A7F0A9 /* jquery.1.11.3.min.js in Resources */ = {isa = PBXBuildFile; fileRef = B9851FC31ED5F951002C24AF /* jquery.1.11.3.min.js */; };
+		B01259F1238C169E00A7F0A9 /* PreferencesView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B9A3103A1EC50C1E003B2470 /* PreferencesView.xib */; };
+		B01259F2238C169E00A7F0A9 /* thumbDownGray_png in Resources */ = {isa = PBXBuildFile; fileRef = B9851FCC1ED5F951002C24AF /* thumbDownGray_png */; };
+		B01259F3238C169E00A7F0A9 /* thumbUpBlue_png in Resources */ = {isa = PBXBuildFile; fileRef = B9851FCD1ED5F951002C24AF /* thumbUpBlue_png */; };
+		B01259F4238C169E00A7F0A9 /* SummaryView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0DDEDB7B1BC61F57002B3E0D /* SummaryView.xib */; };
+		B01259F5238C169E00A7F0A9 /* tablefilter.js in Resources */ = {isa = PBXBuildFile; fileRef = B9851FCA1ED5F951002C24AF /* tablefilter.js */; };
+		B01259F6238C169E00A7F0A9 /* c3.min.js in Resources */ = {isa = PBXBuildFile; fileRef = B9851FC01ED5F951002C24AF /* c3.min.js */; };
+		B01259F7238C169E00A7F0A9 /* thumbUpGray_png in Resources */ = {isa = PBXBuildFile; fileRef = B9851FCE1ED5F951002C24AF /* thumbUpGray_png */; };
+		B01259F8238C169E00A7F0A9 /* Resources.resx in Resources */ = {isa = PBXBuildFile; fileRef = B9851FC61ED5F951002C24AF /* Resources.resx */; };
+		B01259F9238C169E00A7F0A9 /* c3.min.css in Resources */ = {isa = PBXBuildFile; fileRef = B9851FBF1ED5F951002C24AF /* c3.min.css */; };
+		B01259FA238C169E00A7F0A9 /* Settings.settings in Resources */ = {isa = PBXBuildFile; fileRef = B9851FC71ED5F951002C24AF /* Settings.settings */; };
+		B01259FB238C169E00A7F0A9 /* d3.timeline.js in Resources */ = {isa = PBXBuildFile; fileRef = B9851FC21ED5F951002C24AF /* d3.timeline.js */; };
+		B01259FC238C169E00A7F0A9 /* RetrospectiveWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = B9D50B851EDFC5C600145EC8 /* RetrospectiveWindow.xib */; };
+		B01259FD238C169E00A7F0A9 /* EmotionPopUp.xib in Resources */ = {isa = PBXBuildFile; fileRef = A3B37CE921DD1CDC008784B1 /* EmotionPopUp.xib */; };
 		B017DECF237964C800B0EB19 /* DateFormatConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B017DECE237964C800B0EB19 /* DateFormatConverter.swift */; };
+		B0259684248E26B0005E9915 /* MenuBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0259683248E26B0005E9915 /* MenuBar.swift */; };
+		B0259685248E26B0005E9915 /* MenuBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0259683248E26B0005E9915 /* MenuBar.swift */; };
 		B061EC262382F52F005AD5FD /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B061EC252382F52F005AD5FD /* WebKit.framework */; };
+		B09DC4A423E9705F00845428 /* ResourceActivityTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4A323E9705F00845428 /* ResourceActivityTracker.swift */; };
+		B09DC4A523E9705F00845428 /* ResourceActivityTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4A323E9705F00845428 /* ResourceActivityTracker.swift */; };
+		B09DC4A723E970BA00845428 /* ResourceActivityQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4A623E970BA00845428 /* ResourceActivityQueries.swift */; };
+		B09DC4A823E970BA00845428 /* ResourceActivityQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4A623E970BA00845428 /* ResourceActivityQueries.swift */; };
+		B09DC4AA23E970E400845428 /* ResourceActivitySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4A923E970E400845428 /* ResourceActivitySettings.swift */; };
+		B09DC4AB23E970E400845428 /* ResourceActivitySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4A923E970E400845428 /* ResourceActivitySettings.swift */; };
+		B09DC4B623E97A7C00845428 /* EonilFSEventStreamEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4AE23E97A7C00845428 /* EonilFSEventStreamEvent.swift */; };
+		B09DC4B723E97A7C00845428 /* EonilFSEventStreamEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4AE23E97A7C00845428 /* EonilFSEventStreamEvent.swift */; };
+		B09DC4B823E97A7C00845428 /* EonilFSEventStreamEventID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4AF23E97A7C00845428 /* EonilFSEventStreamEventID.swift */; };
+		B09DC4B923E97A7C00845428 /* EonilFSEventStreamEventID.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4AF23E97A7C00845428 /* EonilFSEventStreamEventID.swift */; };
+		B09DC4BA23E97A7C00845428 /* EonilFSEventStreamIllogicalErrorLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B023E97A7C00845428 /* EonilFSEventStreamIllogicalErrorLog.swift */; };
+		B09DC4BB23E97A7C00845428 /* EonilFSEventStreamIllogicalErrorLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B023E97A7C00845428 /* EonilFSEventStreamIllogicalErrorLog.swift */; };
+		B09DC4BC23E97A7C00845428 /* EonilFSEventStreamEventFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B123E97A7C00845428 /* EonilFSEventStreamEventFlags.swift */; };
+		B09DC4BD23E97A7C00845428 /* EonilFSEventStreamEventFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B123E97A7C00845428 /* EonilFSEventStreamEventFlags.swift */; };
+		B09DC4BE23E97A7C00845428 /* EonilFSEventStreamError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B223E97A7C00845428 /* EonilFSEventStreamError.swift */; };
+		B09DC4BF23E97A7C00845428 /* EonilFSEventStreamError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B223E97A7C00845428 /* EonilFSEventStreamError.swift */; };
+		B09DC4C023E97A7C00845428 /* EonilFSEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B323E97A7C00845428 /* EonilFSEvents.swift */; };
+		B09DC4C123E97A7C00845428 /* EonilFSEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B323E97A7C00845428 /* EonilFSEvents.swift */; };
+		B09DC4C223E97A7C00845428 /* EonilFSEventStreamCreateFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B423E97A7C00845428 /* EonilFSEventStreamCreateFlags.swift */; };
+		B09DC4C323E97A7C00845428 /* EonilFSEventStreamCreateFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B423E97A7C00845428 /* EonilFSEventStreamCreateFlags.swift */; };
+		B09DC4C423E97A7C00845428 /* EonilFSEventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B523E97A7C00845428 /* EonilFSEventStream.swift */; };
+		B09DC4C523E97A7C00845428 /* EonilFSEventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09DC4B523E97A7C00845428 /* EonilFSEventStream.swift */; };
+		B0A4006923A7D5FB0032035A /* KeyboardInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A4006823A7D5FB0032035A /* KeyboardInput.swift */; };
+		B0A4006A23A7D5FB0032035A /* KeyboardInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A4006823A7D5FB0032035A /* KeyboardInput.swift */; };
+		B0A4006C23A7D60B0032035A /* MouseInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A4006B23A7D60B0032035A /* MouseInput.swift */; };
+		B0A4006D23A7D60B0032035A /* MouseInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A4006B23A7D60B0032035A /* MouseInput.swift */; };
 		B0BA0F7A2384062A00042775 /* UserInputSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0BA0F792384062A00042775 /* UserInputSettings.swift */; };
 		B0CAC0EC23852B24002DBC55 /* WindowsActivitySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAC0EB23852B24002DBC55 /* WindowsActivitySettings.swift */; };
 		B0CAC0EE23854484002DBC55 /* UserEfficiencySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAC0ED23854484002DBC55 /* UserEfficiencySettings.swift */; };
 		B0CAC0F023854A68002DBC55 /* EmotionTrackerQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAC0EF23854A68002DBC55 /* EmotionTrackerQueries.swift */; };
 		B0CAC0F223854A83002DBC55 /* EmotionTrackerSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CAC0F123854A83002DBC55 /* EmotionTrackerSettings.swift */; };
+		B0D6E438238D4F8C00DF40FC /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D6E437238D4F8C00DF40FC /* Environment.swift */; };
+		B0D6E439238D4F8C00DF40FC /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D6E437238D4F8C00DF40FC /* Environment.swift */; };
 		B904C25C1F01AEF000624D9C /* TrackerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B904C25B1F01AEF000624D9C /* TrackerManager.swift */; };
 		B90790251F01CC27003B9CF7 /* UserEfficiencyTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90790241F01CC27003B9CF7 /* UserEfficiencyTracker.swift */; };
 		B958F34E1EE0CB7600E54D81 /* ASHDatePicker.m in Sources */ = {isa = PBXBuildFile; fileRef = B958F34D1EE0CB7600E54D81 /* ASHDatePicker.m */; };
@@ -78,6 +179,8 @@
 		B9D50B861EDFC5C600145EC8 /* RetrospectiveWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = B9D50B851EDFC5C600145EC8 /* RetrospectiveWindow.xib */; };
 		B9D50B881EDFC66C00145EC8 /* RetrospectiveView.xib in Resources */ = {isa = PBXBuildFile; fileRef = B9D50B871EDFC66C00145EC8 /* RetrospectiveView.xib */; };
 		B9D50B9E1EE0A62000145EC8 /* RetrospectiveWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9D50B9D1EE0A62000145EC8 /* RetrospectiveWindowController.swift */; };
+		DEF7C9C4DCD6A7E9A7468332 /* Pods_PersonalAnalytics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 639321AA141095A614B280EE /* Pods_PersonalAnalytics.framework */; };
+		FEB0237DAA6D0B96DE23A285 /* Pods_PersonalAnalytics_Dev.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0330BB43E824C6A5EA9868 /* Pods_PersonalAnalytics_Dev.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -89,6 +192,16 @@
 			files = (
 			);
 			name = "Copy Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B01259FF238C169E00A7F0A9 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B9F09FF71EB7D68D00162EE0 /* Embed Frameworks */ = {
@@ -123,21 +236,44 @@
 		0DC4BF2F1BF2B59A00366771 /* WindowGrabber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WindowGrabber.h; sourceTree = "<group>"; };
 		0DDEDB7A1BC61F57002B3E0D /* SummaryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SummaryViewController.swift; sourceTree = "<group>"; };
 		0DDEDB7B1BC61F57002B3E0D /* SummaryView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SummaryView.xib; sourceTree = "<group>"; };
-		4DA28D738A1335A21DB8B36E /* Pods-PersonalAnalytics.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PersonalAnalytics.release.xcconfig"; path = "Pods/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics.release.xcconfig"; sourceTree = "<group>"; };
+		3D9067790D83793F44384E39 /* Pods-PersonalAnalytics.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PersonalAnalytics.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics.debug.xcconfig"; sourceTree = "<group>"; };
+		43059DA4128B1E6455470D9F /* Pods-PersonalAnalytics.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PersonalAnalytics.release.xcconfig"; path = "Pods/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics.release.xcconfig"; sourceTree = "<group>"; };
+		44D6AD11A96A7964AA56FC24 /* Pods-PersonalAnalytics Dev.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PersonalAnalytics Dev.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PersonalAnalytics Dev/Pods-PersonalAnalytics Dev.debug.xcconfig"; sourceTree = "<group>"; };
 		639321AA141095A614B280EE /* Pods_PersonalAnalytics.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PersonalAnalytics.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		9C9534675C9D8400DA2E81D5 /* Pods-PersonalAnalytics.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PersonalAnalytics.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics.debug.xcconfig"; sourceTree = "<group>"; };
+		8B0330BB43E824C6A5EA9868 /* Pods_PersonalAnalytics_Dev.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PersonalAnalytics_Dev.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		91FC05ED907E01F592280DF7 /* Pods-PersonalAnalytics Dev.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PersonalAnalytics Dev.release.xcconfig"; path = "Pods/Target Support Files/Pods-PersonalAnalytics Dev/Pods-PersonalAnalytics Dev.release.xcconfig"; sourceTree = "<group>"; };
 		A39E252521E6B7DB0059D094 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/EmotionPopUp.strings; sourceTree = "<group>"; };
 		A3B37CE821DD1CDC008784B1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/EmotionPopUp.xib; sourceTree = "<group>"; };
 		A3B37CEE21DD1D72008784B1 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/EmotionPopUp.strings; sourceTree = "<group>"; };
 		A3B37CF221DD258C008784B1 /* EmotionTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmotionTracker.swift; sourceTree = "<group>"; };
 		A3B37CFE21DE0D35008784B1 /* EmotionPopUpWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmotionPopUpWindowController.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		B0125A05238C169E00A7F0A9 /* PersonalAnalytics Dev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PersonalAnalytics Dev.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B0125A09238C24F900A7F0A9 /* Development.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Development.xcconfig; sourceTree = "<group>"; };
+		B0125A0A238C251200A7F0A9 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
 		B017DECE237964C800B0EB19 /* DateFormatConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatConverter.swift; sourceTree = "<group>"; };
+		B0259683248E26B0005E9915 /* MenuBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBar.swift; sourceTree = "<group>"; };
 		B061EC252382F52F005AD5FD /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		B076EE832428B8D30081FDF9 /* PersonalAnalytics DevDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "PersonalAnalytics DevDebug.entitlements"; sourceTree = "<group>"; };
+		B076EE85242B54C40081FDF9 /* PersonalAnalyticsRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PersonalAnalyticsRelease.entitlements; sourceTree = "<group>"; };
+		B09DC4A323E9705F00845428 /* ResourceActivityTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourceActivityTracker.swift; sourceTree = "<group>"; };
+		B09DC4A623E970BA00845428 /* ResourceActivityQueries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourceActivityQueries.swift; sourceTree = "<group>"; };
+		B09DC4A923E970E400845428 /* ResourceActivitySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResourceActivitySettings.swift; sourceTree = "<group>"; };
+		B09DC4AE23E97A7C00845428 /* EonilFSEventStreamEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EonilFSEventStreamEvent.swift; sourceTree = "<group>"; };
+		B09DC4AF23E97A7C00845428 /* EonilFSEventStreamEventID.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EonilFSEventStreamEventID.swift; sourceTree = "<group>"; };
+		B09DC4B023E97A7C00845428 /* EonilFSEventStreamIllogicalErrorLog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EonilFSEventStreamIllogicalErrorLog.swift; sourceTree = "<group>"; };
+		B09DC4B123E97A7C00845428 /* EonilFSEventStreamEventFlags.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EonilFSEventStreamEventFlags.swift; sourceTree = "<group>"; };
+		B09DC4B223E97A7C00845428 /* EonilFSEventStreamError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EonilFSEventStreamError.swift; sourceTree = "<group>"; };
+		B09DC4B323E97A7C00845428 /* EonilFSEvents.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EonilFSEvents.swift; sourceTree = "<group>"; };
+		B09DC4B423E97A7C00845428 /* EonilFSEventStreamCreateFlags.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EonilFSEventStreamCreateFlags.swift; sourceTree = "<group>"; };
+		B09DC4B523E97A7C00845428 /* EonilFSEventStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EonilFSEventStream.swift; sourceTree = "<group>"; };
+		B0A4006823A7D5FB0032035A /* KeyboardInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardInput.swift; sourceTree = "<group>"; };
+		B0A4006B23A7D60B0032035A /* MouseInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MouseInput.swift; sourceTree = "<group>"; };
 		B0BA0F792384062A00042775 /* UserInputSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInputSettings.swift; sourceTree = "<group>"; };
 		B0CAC0EB23852B24002DBC55 /* WindowsActivitySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowsActivitySettings.swift; sourceTree = "<group>"; };
 		B0CAC0ED23854484002DBC55 /* UserEfficiencySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserEfficiencySettings.swift; sourceTree = "<group>"; };
 		B0CAC0EF23854A68002DBC55 /* EmotionTrackerQueries.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmotionTrackerQueries.swift; sourceTree = "<group>"; };
 		B0CAC0F123854A83002DBC55 /* EmotionTrackerSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmotionTrackerSettings.swift; sourceTree = "<group>"; };
+		B0D6E437238D4F8C00DF40FC /* Environment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Environment.swift; sourceTree = "<group>"; };
 		B904C25B1F01AEF000624D9C /* TrackerManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TrackerManager.swift; sourceTree = "<group>"; };
 		B90790241F01CC27003B9CF7 /* UserEfficiencyTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserEfficiencyTracker.swift; sourceTree = "<group>"; };
 		B958F34C1EE0CB7600E54D81 /* ASHDatePicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASHDatePicker.h; sourceTree = "<group>"; };
@@ -199,6 +335,17 @@
 			files = (
 				B061EC262382F52F005AD5FD /* WebKit.framework in Frameworks */,
 				A3D1B62B21DD181D000C8A66 /* Pods_PersonalAnalytics.framework in Frameworks */,
+				DEF7C9C4DCD6A7E9A7468332 /* Pods_PersonalAnalytics.framework in Frameworks */,
+				87127D5927B005AAEB9EFC38 /* Pods_PersonalAnalytics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B01259E2238C169E00A7F0A9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B01259E3238C169E00A7F0A9 /* WebKit.framework in Frameworks */,
+				FEB0237DAA6D0B96DE23A285 /* Pods_PersonalAnalytics_Dev.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -216,6 +363,7 @@
 				0D7AA1291BCC1E8C00101142 /* CoreGraphics.framework */,
 				0D7AA1271BCC1E6D00101142 /* CFNetwork.framework */,
 				639321AA141095A614B280EE /* Pods_PersonalAnalytics.framework */,
+				8B0330BB43E824C6A5EA9868 /* Pods_PersonalAnalytics_Dev.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -234,6 +382,7 @@
 			isa = PBXGroup;
 			children = (
 				0DB3DF241BAF49AC00144935 /* PersonalAnalytics.app */,
+				B0125A05238C169E00A7F0A9 /* PersonalAnalytics Dev.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -241,6 +390,9 @@
 		0DB3DF261BAF49AC00144935 /* PersonalAnalytics */ = {
 			isa = PBXGroup;
 			children = (
+				B076EE85242B54C40081FDF9 /* PersonalAnalyticsRelease.entitlements */,
+				B076EE832428B8D30081FDF9 /* PersonalAnalytics DevDebug.entitlements */,
+				B0125A08238C24AB00A7F0A9 /* Configs */,
 				0DC4BF241BF28D5F00366771 /* PersonalAnalytics-Bridging-Header.h */,
 				0DB3DF331BAF49AC00144935 /* Info.plist */,
 				B9C79F851ECA6F0D00E005F0 /* App */,
@@ -254,8 +406,10 @@
 		97E60155E0EE0C74EDF1EBFE /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				9C9534675C9D8400DA2E81D5 /* Pods-PersonalAnalytics.debug.xcconfig */,
-				4DA28D738A1335A21DB8B36E /* Pods-PersonalAnalytics.release.xcconfig */,
+				3D9067790D83793F44384E39 /* Pods-PersonalAnalytics.debug.xcconfig */,
+				43059DA4128B1E6455470D9F /* Pods-PersonalAnalytics.release.xcconfig */,
+				44D6AD11A96A7964AA56FC24 /* Pods-PersonalAnalytics Dev.debug.xcconfig */,
+				91FC05ED907E01F592280DF7 /* Pods-PersonalAnalytics Dev.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -270,6 +424,51 @@
 				B0CAC0EF23854A68002DBC55 /* EmotionTrackerQueries.swift */,
 			);
 			path = EmotionTracker;
+			sourceTree = "<group>";
+		};
+		B0125A08238C24AB00A7F0A9 /* Configs */ = {
+			isa = PBXGroup;
+			children = (
+				B0125A09238C24F900A7F0A9 /* Development.xcconfig */,
+				B0125A0A238C251200A7F0A9 /* Production.xcconfig */,
+				B0D6E437238D4F8C00DF40FC /* Environment.swift */,
+			);
+			path = Configs;
+			sourceTree = "<group>";
+		};
+		B09DC4A223E9703700845428 /* ResourceActivityTracker */ = {
+			isa = PBXGroup;
+			children = (
+				B09DC4AD23E979A500845428 /* EonilFSEvents */,
+				B09DC4A323E9705F00845428 /* ResourceActivityTracker.swift */,
+				B09DC4A623E970BA00845428 /* ResourceActivityQueries.swift */,
+				B09DC4A923E970E400845428 /* ResourceActivitySettings.swift */,
+			);
+			path = ResourceActivityTracker;
+			sourceTree = "<group>";
+		};
+		B09DC4AD23E979A500845428 /* EonilFSEvents */ = {
+			isa = PBXGroup;
+			children = (
+				B09DC4B323E97A7C00845428 /* EonilFSEvents.swift */,
+				B09DC4B523E97A7C00845428 /* EonilFSEventStream.swift */,
+				B09DC4B423E97A7C00845428 /* EonilFSEventStreamCreateFlags.swift */,
+				B09DC4B223E97A7C00845428 /* EonilFSEventStreamError.swift */,
+				B09DC4AE23E97A7C00845428 /* EonilFSEventStreamEvent.swift */,
+				B09DC4B123E97A7C00845428 /* EonilFSEventStreamEventFlags.swift */,
+				B09DC4AF23E97A7C00845428 /* EonilFSEventStreamEventID.swift */,
+				B09DC4B023E97A7C00845428 /* EonilFSEventStreamIllogicalErrorLog.swift */,
+			);
+			path = EonilFSEvents;
+			sourceTree = "<group>";
+		};
+		B0A4006723A7D5A20032035A /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B0A4006823A7D5FB0032035A /* KeyboardInput.swift */,
+				B0A4006B23A7D60B0032035A /* MouseInput.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		B97A0E261EE5F964000DCCEC /* Visualizations */ = {
@@ -341,6 +540,7 @@
 		B9A0B7A11EDA356A00BE6F71 /* UserInputTracker */ = {
 			isa = PBXGroup;
 			children = (
+				B0A4006723A7D5A20032035A /* Models */,
 				B9B5C48B1F0456DA00AC7DE9 /* Visualizations */,
 				0D4676481BD54C2000796D2D /* KeystrokeController.swift */,
 				B9873A791EBA5DEF0050E864 /* MouseActionController.swift */,
@@ -402,6 +602,7 @@
 		B9C79F801ECA6BCA00E005F0 /* Trackers */ = {
 			isa = PBXGroup;
 			children = (
+				B09DC4A223E9703700845428 /* ResourceActivityTracker */,
 				B904C25B1F01AEF000624D9C /* TrackerManager.swift */,
 				A3B37CEF21DD24C3008784B1 /* EmotionTracker */,
 				B9A0B7A11EDA356A00BE6F71 /* UserInputTracker */,
@@ -430,6 +631,7 @@
 				B9782F51216D6264006CCB73 /* Main.storyboard */,
 				0D2B94231D57D3D5004DA61D /* PAHttpServer.swift */,
 				0DB3DF271BAF49AC00144935 /* AppDelegate.swift */,
+				B0259683248E26B0005E9915 /* MenuBar.swift */,
 				0D0245FA1BD1C5AE00213D2A /* AppConstants.swift */,
 				B9A3103A1EC50C1E003B2470 /* PreferencesView.xib */,
 				B9A3103E1EC5262E003B2470 /* PreferencesWindow.xib */,
@@ -453,8 +655,8 @@
 				0DB3DF221BAF49AC00144935 /* Resources */,
 				0D7AA1371BCC218300101142 /* Copy Files */,
 				B9F09FF71EB7D68D00162EE0 /* Embed Frameworks */,
-				B9DC419F1EF1D65600A8F9C6 /* ShellScript */,
 				D59365EE0636FF4B03868BEA /* [CP] Embed Pods Frameworks */,
+				B9DC419F1EF1D65600A8F9C6 /* Run Script - Deep Signing Sparkle Framework */,
 			);
 			buildRules = (
 			);
@@ -463,6 +665,27 @@
 			name = PersonalAnalytics;
 			productName = Collector;
 			productReference = 0DB3DF241BAF49AC00144935 /* PersonalAnalytics.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B01259B2238C169E00A7F0A9 /* PersonalAnalytics Dev */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B0125A02238C169E00A7F0A9 /* Build configuration list for PBXNativeTarget "PersonalAnalytics Dev" */;
+			buildPhases = (
+				78FF44DA4EA85B4E2440FCED /* [CP] Check Pods Manifest.lock */,
+				B01259B4238C169E00A7F0A9 /* Sources */,
+				B01259E2238C169E00A7F0A9 /* Frameworks */,
+				B01259E5238C169E00A7F0A9 /* Resources */,
+				B01259FF238C169E00A7F0A9 /* Embed Frameworks */,
+				B0125A00238C169E00A7F0A9 /* ShellScript */,
+				85517C862DA687261D7FD70E /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "PersonalAnalytics Dev";
+			productName = Collector;
+			productReference = B0125A05238C169E00A7F0A9 /* PersonalAnalytics Dev.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -478,7 +701,10 @@
 					0DB3DF231BAF49AC00144935 = {
 						CreatedOnToolsVersion = 7.0;
 						LastSwiftMigration = 1000;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
+					};
+					B01259B2238C169E00A7F0A9 = {
+						ProvisioningStyle = Manual;
 					};
 				};
 			};
@@ -498,6 +724,7 @@
 			projectRoot = "";
 			targets = (
 				0DB3DF231BAF49AC00144935 /* PersonalAnalytics */,
+				B01259B2238C169E00A7F0A9 /* PersonalAnalytics Dev */,
 			);
 		};
 /* End PBXProject section */
@@ -534,6 +761,37 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B01259E5238C169E00A7F0A9 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B01259E6238C169E00A7F0A9 /* masonry.pkgd.min.js in Resources */,
+				B01259E7238C169E00A7F0A9 /* thumbDownBlue_png in Resources */,
+				B01259E8238C169E00A7F0A9 /* Assets.xcassets in Resources */,
+				B01259E9238C169E00A7F0A9 /* PreferencesWindow.xib in Resources */,
+				B01259EA238C169E00A7F0A9 /* RetrospectiveView.xib in Resources */,
+				B01259EB238C169E00A7F0A9 /* tablefilter.css in Resources */,
+				B01259EC238C169E00A7F0A9 /* personalanalytics.html in Resources */,
+				B01259ED238C169E00A7F0A9 /* Main.storyboard in Resources */,
+				B01259EE238C169E00A7F0A9 /* d3.min.js in Resources */,
+				B01259EF238C169E00A7F0A9 /* styles.css in Resources */,
+				B01259F0238C169E00A7F0A9 /* jquery.1.11.3.min.js in Resources */,
+				B01259F1238C169E00A7F0A9 /* PreferencesView.xib in Resources */,
+				B01259F2238C169E00A7F0A9 /* thumbDownGray_png in Resources */,
+				B01259F3238C169E00A7F0A9 /* thumbUpBlue_png in Resources */,
+				B01259F4238C169E00A7F0A9 /* SummaryView.xib in Resources */,
+				B01259F5238C169E00A7F0A9 /* tablefilter.js in Resources */,
+				B01259F6238C169E00A7F0A9 /* c3.min.js in Resources */,
+				B01259F7238C169E00A7F0A9 /* thumbUpGray_png in Resources */,
+				B01259F8238C169E00A7F0A9 /* Resources.resx in Resources */,
+				B01259F9238C169E00A7F0A9 /* c3.min.css in Resources */,
+				B01259FA238C169E00A7F0A9 /* Settings.settings in Resources */,
+				B01259FB238C169E00A7F0A9 /* d3.timeline.js in Resources */,
+				B01259FC238C169E00A7F0A9 /* RetrospectiveWindow.xib in Resources */,
+				B01259FD238C169E00A7F0A9 /* EmotionPopUp.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
@@ -555,7 +813,53 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		B9DC419F1EF1D65600A8F9C6 /* ShellScript */ = {
+		78FF44DA4EA85B4E2440FCED /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-PersonalAnalytics Dev-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		85517C862DA687261D7FD70E /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-PersonalAnalytics Dev/Pods-PersonalAnalytics Dev-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/GRDB.swift/GRDB.framework",
+				"${PODS_ROOT}/Sparkle/Sparkle.framework",
+				"${PODS_ROOT}/Sparkle/Sparkle.framework.dSYM",
+				"${BUILT_PRODUCTS_DIR}/Swifter/Swifter.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GRDB.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sparkle.framework",
+				"${DWARF_DSYM_FOLDER_PATH}/Sparkle.framework.dSYM",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Swifter.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-PersonalAnalytics Dev/Pods-PersonalAnalytics Dev-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B0125A00238C169E00A7F0A9 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -568,6 +872,20 @@
 			shellPath = /bin/sh;
 			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n";
 		};
+		B9DC419F1EF1D65600A8F9C6 /* Run Script - Deep Signing Sparkle Framework */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script - Deep Signing Sparkle Framework";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#https://dev.to/prashant/how-to-add-auto-update-feature-in-macos-app-step-by-step-guide-to-setup-sparkle-framework-part-2-4p2e\n#For Apple notarization, we need to deep sign Sparkle framework\nLOCATION=\"${BUILT_PRODUCTS_DIR}\"/\"${FRAMEWORKS_FOLDER_PATH}\"\nIDENTITY=${EXPANDED_CODE_SIGN_IDENTITY_NAME}\n\ncodesign --verbose --force --deep -o runtime --sign \"$IDENTITY\" \"$LOCATION/Sparkle.framework/Versions/A/Resources/AutoUpdate.app\"\ncodesign --verbose --force -o runtime --sign \"$IDENTITY\" \"$LOCATION/Sparkle.framework/Versions/A\"\n";
+		};
 		D59365EE0636FF4B03868BEA /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -576,11 +894,15 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/GRDB.swift/GRDB.framework",
+				"${PODS_ROOT}/Sparkle/Sparkle.framework",
+				"${PODS_ROOT}/Sparkle/Sparkle.framework.dSYM",
 				"${BUILT_PRODUCTS_DIR}/Swifter/Swifter.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GRDB.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Sparkle.framework",
+				"${DWARF_DSYM_FOLDER_PATH}/Sparkle.framework.dSYM",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Swifter.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -596,18 +918,24 @@
 			buildActionMask = 2147483647;
 			files = (
 				B97A0E3F1EE7843A000DCCEC /* DateTimeHelper.swift in Sources */,
+				B09DC4BC23E97A7C00845428 /* EonilFSEventStreamEventFlags.swift in Sources */,
 				0D0245FB1BD1C5AE00213D2A /* AppConstants.swift in Sources */,
 				B9A310411EC5264E003B2470 /* PreferencesWindowController.swift in Sources */,
 				0D0245F81BD1651300213D2A /* DatabaseController.swift in Sources */,
+				B09DC4B623E97A7C00845428 /* EonilFSEventStreamEvent.swift in Sources */,
+				B0A4006C23A7D60B0032035A /* MouseInput.swift in Sources */,
 				B97A0E3A1EE5FB84000DCCEC /* UserEfficiencyQueries.swift in Sources */,
+				B09DC4BE23E97A7C00845428 /* EonilFSEventStreamError.swift in Sources */,
 				B9A0B7A71EDA540F00BE6F71 /* IVisualization.swift in Sources */,
 				B9A0B7B21EDCE0EA00BE6F71 /* DayMostFocusedProgram.swift in Sources */,
 				B9A0B7A51EDA373900BE6F71 /* ITracker.swift in Sources */,
 				0DB3DF281BAF49AC00144935 /* AppDelegate.swift in Sources */,
 				0D2B94241D57D3D5004DA61D /* PAHttpServer.swift in Sources */,
 				B958F34E1EE0CB7600E54D81 /* ASHDatePicker.m in Sources */,
+				B09DC4B823E97A7C00845428 /* EonilFSEventStreamEventID.swift in Sources */,
 				B9C79F841ECA6CF200E005F0 /* UserInputQueries.swift in Sources */,
 				B904C25C1F01AEF000624D9C /* TrackerManager.swift in Sources */,
+				B0D6E438238D4F8C00DF40FC /* Environment.swift in Sources */,
 				B9A310371EC4E985003B2470 /* PreferencesViewController.swift in Sources */,
 				B9851FE91ED6594A002C24AF /* VisHelper.swift in Sources */,
 				0DDEDB7C1BC61F57002B3E0D /* SummaryViewController.swift in Sources */,
@@ -618,28 +946,104 @@
 				B9873A7C1EBA92DA0050E864 /* UserInputTracker.swift in Sources */,
 				B9851FE51ED64F2F002C24AF /* ActivityVisualization.swift in Sources */,
 				0DC4BF2D1BF2B57A00366771 /* WindowGrabber.m in Sources */,
+				B09DC4A723E970BA00845428 /* ResourceActivityQueries.swift in Sources */,
 				0D4676491BD54C2000796D2D /* KeystrokeController.swift in Sources */,
 				A3B37CF321DD258C008784B1 /* EmotionTracker.swift in Sources */,
 				B9D50B841EDF7A3100145EC8 /* DayTimeSpentVisualizer.swift in Sources */,
+				B09DC4C423E97A7C00845428 /* EonilFSEventStream.swift in Sources */,
+				B09DC4C223E97A7C00845428 /* EonilFSEventStreamCreateFlags.swift in Sources */,
+				B09DC4AA23E970E400845428 /* ResourceActivitySettings.swift in Sources */,
 				B97A0E3D1EE77704000DCCEC /* WeekProgramsUsedTable.swift in Sources */,
 				B90790251F01CC27003B9CF7 /* UserEfficiencyTracker.swift in Sources */,
 				B9D50B6C1EDF38D300145EC8 /* DayFragmentationTimeline.swift in Sources */,
 				B9D50B7E1EDF443900145EC8 /* Activity.swift in Sources */,
 				B0CAC0EC23852B24002DBC55 /* WindowsActivitySettings.swift in Sources */,
 				A3B37CFF21DE0D35008784B1 /* EmotionPopUpWindowController.swift in Sources */,
+				B0A4006923A7D5FB0032035A /* KeyboardInput.swift in Sources */,
 				B0CAC0EE23854484002DBC55 /* UserEfficiencySettings.swift in Sources */,
+				B09DC4C023E97A7C00845428 /* EonilFSEvents.swift in Sources */,
+				B09DC4BA23E97A7C00845428 /* EonilFSEventStreamIllogicalErrorLog.swift in Sources */,
 				B9873A7A1EBA5DEF0050E864 /* MouseActionController.swift in Sources */,
+				B09DC4A423E9705F00845428 /* ResourceActivityTracker.swift in Sources */,
 				B9AA5C671F2939B500ED3432 /* WeekActivityVisualization.swift in Sources */,
 				B97A0E381EE5FA2E000DCCEC /* DayProductivityTimeline.swift in Sources */,
 				B9A0B7AE1EDCBCFD00BE6F71 /* DayProgramsUsedPieChart.swift in Sources */,
 				B9A0B7AA1EDC924300BE6F71 /* WindowsActivityTracker.swift in Sources */,
 				B9D50B9E1EE0A62000145EC8 /* RetrospectiveWindowController.swift in Sources */,
 				B9851F941ED4B8E2002C24AF /* RetrospectiveViewController.swift in Sources */,
+				B0259684248E26B0005E9915 /* MenuBar.swift in Sources */,
 				B0CAC0F223854A83002DBC55 /* EmotionTrackerSettings.swift in Sources */,
 				B97A0E641EE9F16E000DCCEC /* DayWeekProductivivityTimeline.swift in Sources */,
 				B9D50B801EDF588E00145EC8 /* ActivityCategory.swift in Sources */,
 				B0BA0F7A2384062A00042775 /* UserInputSettings.swift in Sources */,
 				B9D50B821EDF5ABE00145EC8 /* Category.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B01259B4238C169E00A7F0A9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B01259B5238C169E00A7F0A9 /* DateTimeHelper.swift in Sources */,
+				B09DC4BD23E97A7C00845428 /* EonilFSEventStreamEventFlags.swift in Sources */,
+				B01259B6238C169E00A7F0A9 /* AppConstants.swift in Sources */,
+				B01259B7238C169E00A7F0A9 /* PreferencesWindowController.swift in Sources */,
+				B01259B8238C169E00A7F0A9 /* DatabaseController.swift in Sources */,
+				B09DC4B723E97A7C00845428 /* EonilFSEventStreamEvent.swift in Sources */,
+				B0A4006D23A7D60B0032035A /* MouseInput.swift in Sources */,
+				B01259B9238C169E00A7F0A9 /* UserEfficiencyQueries.swift in Sources */,
+				B09DC4BF23E97A7C00845428 /* EonilFSEventStreamError.swift in Sources */,
+				B01259BA238C169E00A7F0A9 /* IVisualization.swift in Sources */,
+				B01259BB238C169E00A7F0A9 /* DayMostFocusedProgram.swift in Sources */,
+				B01259BC238C169E00A7F0A9 /* ITracker.swift in Sources */,
+				B01259BD238C169E00A7F0A9 /* AppDelegate.swift in Sources */,
+				B01259BE238C169E00A7F0A9 /* PAHttpServer.swift in Sources */,
+				B01259BF238C169E00A7F0A9 /* ASHDatePicker.m in Sources */,
+				B09DC4B923E97A7C00845428 /* EonilFSEventStreamEventID.swift in Sources */,
+				B01259C0238C169E00A7F0A9 /* UserInputQueries.swift in Sources */,
+				B01259C1238C169E00A7F0A9 /* TrackerManager.swift in Sources */,
+				B0D6E439238D4F8C00DF40FC /* Environment.swift in Sources */,
+				B01259C2238C169E00A7F0A9 /* PreferencesViewController.swift in Sources */,
+				B01259C3238C169E00A7F0A9 /* VisHelper.swift in Sources */,
+				B01259C4238C169E00A7F0A9 /* SummaryViewController.swift in Sources */,
+				B01259C5238C169E00A7F0A9 /* DateFormatConverter.swift in Sources */,
+				B01259C6238C169E00A7F0A9 /* WindowsActivityQueries.swift in Sources */,
+				B01259C7238C169E00A7F0A9 /* Stats.swift in Sources */,
+				B01259C8238C169E00A7F0A9 /* EmotionTrackerQueries.swift in Sources */,
+				B01259C9238C169E00A7F0A9 /* UserInputTracker.swift in Sources */,
+				B01259CA238C169E00A7F0A9 /* ActivityVisualization.swift in Sources */,
+				B01259CB238C169E00A7F0A9 /* WindowGrabber.m in Sources */,
+				B09DC4A823E970BA00845428 /* ResourceActivityQueries.swift in Sources */,
+				B01259CC238C169E00A7F0A9 /* KeystrokeController.swift in Sources */,
+				B01259CD238C169E00A7F0A9 /* EmotionTracker.swift in Sources */,
+				B01259CE238C169E00A7F0A9 /* DayTimeSpentVisualizer.swift in Sources */,
+				B09DC4C523E97A7C00845428 /* EonilFSEventStream.swift in Sources */,
+				B09DC4C323E97A7C00845428 /* EonilFSEventStreamCreateFlags.swift in Sources */,
+				B09DC4AB23E970E400845428 /* ResourceActivitySettings.swift in Sources */,
+				B01259CF238C169E00A7F0A9 /* WeekProgramsUsedTable.swift in Sources */,
+				B01259D0238C169E00A7F0A9 /* UserEfficiencyTracker.swift in Sources */,
+				B01259D1238C169E00A7F0A9 /* DayFragmentationTimeline.swift in Sources */,
+				B01259D2238C169E00A7F0A9 /* Activity.swift in Sources */,
+				B01259D3238C169E00A7F0A9 /* WindowsActivitySettings.swift in Sources */,
+				B01259D4238C169E00A7F0A9 /* EmotionPopUpWindowController.swift in Sources */,
+				B0A4006A23A7D5FB0032035A /* KeyboardInput.swift in Sources */,
+				B01259D5238C169E00A7F0A9 /* UserEfficiencySettings.swift in Sources */,
+				B09DC4C123E97A7C00845428 /* EonilFSEvents.swift in Sources */,
+				B09DC4BB23E97A7C00845428 /* EonilFSEventStreamIllogicalErrorLog.swift in Sources */,
+				B01259D6238C169E00A7F0A9 /* MouseActionController.swift in Sources */,
+				B09DC4A523E9705F00845428 /* ResourceActivityTracker.swift in Sources */,
+				B01259D7238C169E00A7F0A9 /* WeekActivityVisualization.swift in Sources */,
+				B01259D8238C169E00A7F0A9 /* DayProductivityTimeline.swift in Sources */,
+				B01259D9238C169E00A7F0A9 /* DayProgramsUsedPieChart.swift in Sources */,
+				B01259DA238C169E00A7F0A9 /* WindowsActivityTracker.swift in Sources */,
+				B01259DB238C169E00A7F0A9 /* RetrospectiveWindowController.swift in Sources */,
+				B01259DC238C169E00A7F0A9 /* RetrospectiveViewController.swift in Sources */,
+				B0259685248E26B0005E9915 /* MenuBar.swift in Sources */,
+				B01259DD238C169E00A7F0A9 /* EmotionTrackerSettings.swift in Sources */,
+				B01259DE238C169E00A7F0A9 /* DayWeekProductivivityTimeline.swift in Sources */,
+				B01259DF238C169E00A7F0A9 /* ActivityCategory.swift in Sources */,
+				B01259E0238C169E00A7F0A9 /* UserInputSettings.swift in Sources */,
+				B01259E1238C169E00A7F0A9 /* Category.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -670,6 +1074,7 @@
 		0DB3DF4A1BAF49AC00144935 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -726,6 +1131,7 @@
 		0DB3DF4B1BAF49AC00144935 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -774,14 +1180,17 @@
 		};
 		0DB3DF4D1BAF49AC00144935 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9C9534675C9D8400DA2E81D5 /* Pods-PersonalAnalytics.debug.xcconfig */;
+			baseConfigurationReference = B0125A09238C24F900A7F0A9 /* Development.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_ENTITLEMENTS = PersonalAnalytics/PersonalAnalyticsDebug.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 0.0.1;
 				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -794,8 +1203,8 @@
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				PRODUCT_BUNDLE_IDENTIFIER = PersonalAnalytics;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				MARKETING_VERSION = 0.1;
+				PRODUCT_NAME = PersonalAnalytics;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "PersonalAnalytics/PersonalAnalytics-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -806,13 +1215,83 @@
 		};
 		0DB3DF4E1BAF49AC00144935 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4DA28D738A1335A21DB8B36E /* Pods-PersonalAnalytics.release.xcconfig */;
+			baseConfigurationReference = B0125A0A238C251200A7F0A9 /* Production.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_ENTITLEMENTS = PersonalAnalytics/PersonalAnalyticsRelease.entitlements;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 0.0.1;
+				DEVELOPMENT_TEAM = 68F846QH67;
+				ENABLE_HARDENED_RUNTIME = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				INFOPLIST_FILE = PersonalAnalytics/Info.plist;
+				LD_DYLIB_INSTALL_NAME = "";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/Frameworks $(PROJECT_DIR)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MARKETING_VERSION = 0.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sealuzh.personalanalytics;
+				PRODUCT_NAME = PersonalAnalytics;
+				PROVISIONING_PROFILE_SPECIFIER = "PersonalAnalytics Provisioning Profile";
+				SWIFT_OBJC_BRIDGING_HEADER = "PersonalAnalytics/PersonalAnalytics-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
+			};
+			name = Release;
+		};
+		B0125A03238C169E00A7F0A9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B0125A09238C24F900A7F0A9 /* Development.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconDev;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = "PersonalAnalytics DevDebug.entitlements";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				INFOPLIST_FILE = PersonalAnalytics/Info.plist;
+				LD_DYLIB_INSTALL_NAME = "";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/Frameworks $(PROJECT_DIR)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sealuzh.personalanalytics.dev;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "PersonalAnalytics/PersonalAnalytics-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
+			};
+			name = Debug;
+		};
+		B0125A04238C169E00A7F0A9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B0125A0A238C251200A7F0A9 /* Production.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconDev;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -826,11 +1305,12 @@
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				PRODUCT_BUNDLE_IDENTIFIER = PersonalAnalytics;
+				PRODUCT_BUNDLE_IDENTIFIER = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OBJC_BRIDGING_HEADER = "PersonalAnalytics/PersonalAnalytics-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
 				SWIFT_VERSION = 4.0;
 			};
@@ -853,6 +1333,15 @@
 			buildConfigurations = (
 				0DB3DF4D1BAF49AC00144935 /* Debug */,
 				0DB3DF4E1BAF49AC00144935 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B0125A02238C169E00A7F0A9 /* Build configuration list for PBXNativeTarget "PersonalAnalytics Dev" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B0125A03238C169E00A7F0A9 /* Debug */,
+				B0125A04238C169E00A7F0A9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

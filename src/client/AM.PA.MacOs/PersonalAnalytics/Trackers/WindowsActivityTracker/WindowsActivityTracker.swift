@@ -18,6 +18,7 @@ struct ActiveApplication {
 }
 
 class WindowsActivityTracker: ITracker{
+
     var name = WindowsActivitySettings.Name
     var isRunning: Bool
     
@@ -34,7 +35,6 @@ class WindowsActivityTracker: ITracker{
   
     init(){
         isIdle = false
-        
         isRunning = true
         
         unsafeChars = NSCharacterSet.alphanumerics
@@ -47,6 +47,12 @@ class WindowsActivityTracker: ITracker{
         applicationTimer!.tolerance = 10
         idleTimer!.tolerance = 5
         
+        // screen recording is required to read process window titles in catalina (10.15).
+        // https://developer.apple.com/videos/play/wwdc2019/701/
+        if !canRecordScreen() {
+            triggerScreenRecordingPrivacyDialog()
+        }
+        
         NSWorkspace.shared.notificationCenter.addObserver(self,
                                                             selector: #selector(saveCurrentApplicationToMemory),
                                                             name: NSWorkspace.didActivateApplicationNotification,
@@ -57,6 +63,21 @@ class WindowsActivityTracker: ITracker{
                                                             name: NSWorkspace.willSleepNotification,
                                                             object: nil)
 
+    }
+    
+    private func triggerScreenRecordingPrivacyDialog() {
+        // this should trigger a system warning and lead the user
+        // to the Security/Privacy --> Screen Recording List with PA in it.
+        CGDisplayCreateImage(CGMainDisplayID())
+    }
+    
+    // https://stackoverflow.com/questions/56597221/detecting-screen-recording-settings-on-macos-catalina
+    private func canRecordScreen() -> Bool {
+        guard let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: AnyObject]] else { return false }
+        return windows.allSatisfy({ window in
+            let windowName = window[kCGWindowName as String] as? String
+            return windowName != nil
+        })
     }
     
     func createDatabaseTablesIfNotExist() {
@@ -148,6 +169,9 @@ class WindowsActivityTracker: ITracker{
                 //https://stackoverflow.com/questions/5292204/macosx-get-foremost-window-title
                 activeAppName = activeApp.localizedName!
                 let options = CGWindowListOption(arrayLiteral: CGWindowListOption.excludeDesktopElements, CGWindowListOption.optionOnScreenOnly)
+                // Starting from Catalina 10.15 CGWindowListCopyWindowInfo does not return meta data
+                // kCGWindowName unless the user approves screen recording.
+                // more infos here: https://developer.apple.com/videos/play/wwdc2019/701/
                 let windowListInfo = CGWindowListCopyWindowInfo(options, kCGNullWindowID)
                 let infoList = windowListInfo as NSArray? as? [[String: AnyObject]]
                 let flattenedInfoList = infoList.flatMap { $0 }
@@ -171,64 +195,22 @@ class WindowsActivityTracker: ITracker{
             if (lastApplication == nil) {
                 lastApplication = ActiveApplication(time: Date(), tsStart: Date(), tsEnd: Date(), window: title, process: activeAppName)
             } else {
-                // the last app is still running since we last checked. Therefore, we need to extend the active lifetime by increasing .tsEnd
+                // the last app is still running since we last checked. Therefore, we have to extend the active lifetime by increasing .tsEnd
                 lastApplication!.tsEnd = Date()
-                               
-                if (lastApplication!.process != activeAppName || lastApplication!.window != title){
+                // I have noticed that there are consecutive db records of the same process - the first record without a window title and the second records a few ms later with a window title (in Chrome, Xcode). The following if clause prevents this.
+                if (lastApplication!.process == activeAppName && lastApplication!.window == "") {
+                    lastApplication!.window = title
+                }
+                else if (lastApplication!.process != activeAppName || (lastApplication!.window != title)){
                     // at this point, the last app is no longer active and we can persist it
                     WindowsActivityQueries.saveActiveApplication(app: lastApplication!)
                     // new application which is currently running
                     lastApplication = ActiveApplication(time: Date(), tsStart: Date(), tsEnd: Date(), window: title, process: activeAppName)
+                    
+                    // other trackers might be intersted when the active application changes
+                    NotificationCenter.default.post(name: NSNotification.Name(rawValue: "activeApplicationChange"), object: nil, userInfo: ["activeApplication":activeApp])
                 }
             }
         }
     }
-    
-    // MARK: - Current Application
-    //var lastWebsiteCaptureTime: Date = Date()
-    //let browserURLandTitleInterval = TimeInterval( 20 ) // seconds
-    
-    //    typealias currentTab = (name:String, url:String)?
-    
-    //    func saveTabURLAndTitle(_ activeApplication: String)->currentTab{
-    //        //Helper function
-    //        func runApplescript(_ applescriptString: String) -> String?{
-    //            var error: NSDictionary?
-    //            if let scriptObject = NSAppleScript(source: applescriptString) {
-    //                if let output: NSAppleEventDescriptor = scriptObject.executeAndReturnError(
-    //                    &error) {
-    //                        if let URL = output.stringValue {
-    //                            return URL // This is the important outcome, the rest don't matter
-    //                        }
-    //                } else if (error != nil) {
-    //                    print("error: \(error)")
-    //                }
-    //            }
-    //            return nil
-    //        }
-    //        // Only works with Safari or Chrome
-    //        switch activeApplication{
-    //            // TODO: Took this out since the extension now gets the below data and more!
-    ////
-    ////        case "Google Chrome":
-    ////            let urlReturn = runApplescript("tell application \"Google Chrome\" to return URL of active tab of front window")
-    ////            let titleReturn = runApplescript("tell application \"Google Chrome\" to return title of active tab of front window")
-    ////
-    ////            guard let url = urlReturn else { return nil }
-    ////            guard let title = titleReturn else { return nil }
-    //////            DataObjectController.sharedInstance.saveCurrentWebsite(title, url: url)
-    ////            return (name: title, url:url)
-    ////        case "Safari":
-    ////            let urlReturn = runApplescript("tell application \"Safari\" to return URL of front document")
-    ////            let titleReturn = runApplescript("tell application \"Safari\" to return name of front document")
-    ////            guard let url = urlReturn else { return nil }
-    ////            guard let title = titleReturn else { return nil }
-    ////  //          DataObjectController.sharedInstance.saveCurrentWebsite(title, url: url)
-    ////            return (name: title, url:url)
-    //        default:
-    //            break
-    //        }
-    //        return nil
-    //    }
-    
 }

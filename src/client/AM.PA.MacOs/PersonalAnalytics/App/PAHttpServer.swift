@@ -13,10 +13,8 @@ class PAHttpServer: NSObject {
 
     // Constants
     let requiredFields: [String] = ["html_code", "datetime", "title","url"]
-    
-    let port: in_port_t = 8765
-    
-    var baseurl: String { return "http://localhost:\(self.port)/" }
+        
+    var baseurl: String { return "http://localhost:\(Environment.retrospectivePort)/" }
     
     // API constants
     var v1: String { return "\(baseurl)1/" }
@@ -142,7 +140,7 @@ class PAHttpServer: NSObject {
 
     
         do{
-            try server.start(self.port)
+            try server.start(UInt16(Environment.retrospectivePort)!)
         } catch {
             print(error)
         }

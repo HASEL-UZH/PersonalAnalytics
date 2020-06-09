@@ -15,38 +15,30 @@ class KeystrokeController {
     let navigationKeyCodes: Set<UInt16> = [123,124,125,126, 0x77, 0x74, 0x79] //left, right, up, down, pagedown, pageup, home, end, next
     let deleteKeyCodes: Set<UInt16> = [51,0x75]
     
-    
-    fileprivate var globaEventlMonitor: AnyObject?
-    fileprivate var deleteCount:Int
-    fileprivate var navigateCount:Int
-    fileprivate var keyCount:Int
-   
+    fileprivate var globaEventMonitor: AnyObject?
+    fileprivate var keystrokeList = [KeyStrokeEvent]()
+
     init(){
         
         if(!AXIsProcessTrusted()){
             print("KeystrokeController requires accessibility privileges to function properly")
         }
-
-        self.deleteCount = 0
-        self.navigateCount = 0
-        self.keyCount = 0
         
-        self.globaEventlMonitor = NSEvent.addGlobalMonitorForEvents(matching: [NSEvent.EventTypeMask.keyDown], handler:  self.recordKeyboardKeys) as AnyObject?
-        
+        self.globaEventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [NSEvent.EventTypeMask.keyDown], handler:  self.recordKeyboardKeys) as AnyObject?
     }
 
     func recordKeyboardKeys(_ keyEvent:NSEvent){
-        switch keyEvent.type{
+        switch keyEvent.type {
             // All events to record
         case .keyDown:
             if(deleteKeyCodes.contains(keyEvent.keyCode)){
-                deleteCount += 1
+                keystrokeList.append(KeyStrokeEvent(type: .Backspace))
             }
             else if(navigationKeyCodes.contains(keyEvent.keyCode)){
-                navigateCount += 1
+                keystrokeList.append(KeyStrokeEvent(type: .Navigate))
             }
             else{
-                keyCount += 1
+                keystrokeList.append(KeyStrokeEvent(type: .Key))
             }
 
         default:
@@ -54,19 +46,25 @@ class KeystrokeController {
         }
     }
 
+    
     func getValues() -> (Int, Int, Int){
-        return(keyCount, navigateCount, deleteCount)
+        let keyList = keystrokeList.filter { $0.type == .Key }
+        let navigateList = keystrokeList.filter { $0.type == .Navigate }
+        let deleteList = keystrokeList.filter { $0.type == .Backspace }
+        
+        return (keyList.count, navigateList.count, deleteList.count)
     }
     
     func reset(){
-        self.keyCount = 0
-        self.navigateCount = 0
-        self.deleteCount = 0
+        keystrokeList.removeAll()
     }
-
+    
+    func saveDetailedKeyStrokes() {
+        UserInputQueries.saveKeystrokes(keystrokes: keystrokeList)
+    }
     
     deinit{
-        if let monitor = self.globaEventlMonitor {
+        if let monitor = self.globaEventMonitor {
             NSEvent.removeMonitor(monitor)
         }
     }

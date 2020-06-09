@@ -11,9 +11,10 @@ import Foundation
 class UserInputTracker: ITracker{
     var name: String = UserInputSettings.Name
     var isRunning: Bool
-        
+
     var leftClickCount: Int
     var rightClickCount: Int
+    var otherClickCount: Int
     var distance: Int
     var scrollDelta: Int
     var tsStart: Date
@@ -35,6 +36,7 @@ class UserInputTracker: ITracker{
         self.tsEnd = Date()
         self.leftClickCount = 0
         self.rightClickCount = 0
+        self.otherClickCount = 0
         self.distance = 0
         self.keyCount = 0
         self.navigateCount = 0
@@ -58,13 +60,11 @@ class UserInputTracker: ITracker{
     }
     
     func getVisualizationsDay(date: Date) -> [IVisualization] {
-        var viz: [IVisualization] = []
-        viz.append(ActivityVisualization())
-        return viz
+        return [ ActivityVisualization() ]
     }
     
     func getVisualizationsWeek(date: Date) -> [IVisualization] {
-        return [WeekActivityVisualization()]
+        return [ WeekActivityVisualization() ]
     }
     
     func stop(){
@@ -78,23 +78,31 @@ class UserInputTracker: ITracker{
         if(isPaused == false){
             return
         }
-        inputTimer = Timer.scheduledTimer(timeInterval: inputInterval, target: self,
-                                          selector: #selector(save), userInfo: nil, repeats: true)
+        inputTimer = Timer.scheduledTimer(timeInterval: inputInterval, target: self, selector: #selector(save), userInfo: nil, repeats: true)
         inputTimer?.tolerance = 5
         isPaused = false
     }
-
+    
     @objc func save(){
-        (leftClickCount, rightClickCount, scrollDelta, distance) = mouseController.getValues()
-        mouseController.reset()
-        (keyCount, navigateCount, deleteCount) = keystrokeController.getValues()
-        keystrokeController.reset()
+        // detailed aggregation (per-second)
+        if (UserInputSettings.IsDetailedCollectionEnabled) {
+            mouseController.saveDetailedMouseInputs()
+            keystrokeController.saveDetailedKeyStrokes()
+        }
+        
+        // default aggregation (per-minute)
+        let mouseValues = mouseController.getValues()
+        (leftClickCount, rightClickCount, otherClickCount, scrollDelta, distance) = mouseValues
+                
+        let keystrokeValues = keystrokeController.getValues()
+        (keyCount, navigateCount, deleteCount) = keystrokeValues
+        
         tsEnd = Date()
         UserInputQueries.saveUserInput(input: self)
-        tsStart = Date() // reset for next aggregate
-    }
-    
-    deinit{
-        save()
+        
+        // prepare/reset for next aggregate
+        tsStart = tsEnd
+        mouseController.reset()
+        keystrokeController.reset()
     }
 }

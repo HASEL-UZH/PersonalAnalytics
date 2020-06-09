@@ -71,7 +71,7 @@ class RetrospectiveViewController: NSViewController, WKNavigationDelegate {
         dateFormatter.dateFormat = "yyyy-MM-dd"
         let dateString = dateFormatter.string(from: date)
         
-        let urlString: String? = "http://127.0.0.1:8765/stats?type=" + type + "&date=" + dateString
+        let urlString: String? = "http://127.0.0.1:\(Environment.retrospectivePort)/stats?type=\(type)&date=\(dateString)"
 
             let url = URL(string: urlString!)!
             webView.load(URLRequest(url:url))

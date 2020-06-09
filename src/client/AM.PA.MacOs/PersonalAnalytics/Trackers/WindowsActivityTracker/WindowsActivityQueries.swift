@@ -60,9 +60,9 @@ class WindowsActivityQueries {
           
           do {
               let args:StatementArguments = [
-                  app.time,
-                  app.tsStart,
-                  app.tsEnd,
+                DateFormatConverter.dateToStr(date: app.time),
+                DateFormatConverter.dateToStr(date: app.tsStart),
+                DateFormatConverter.dateToStr(date: app.tsEnd),
                   app.window,
                   app.process
               ]

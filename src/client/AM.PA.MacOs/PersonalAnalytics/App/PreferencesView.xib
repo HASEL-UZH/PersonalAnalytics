@@ -1,35 +1,322 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="14109" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="15705" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14109"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="15705"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="PreferencesViewController" customModule="PersonalAnalytics" customModuleProvider="target">
             <connections>
+                <outlet property="chromeURLTrackingStatusLabel" destination="kCJ-Hy-RQY" id="mmG-YQ-CjH"/>
+                <outlet property="keyboardTrackingStatusLabel" destination="DGM-0b-Jb4" id="kS3-32-crv"/>
+                <outlet property="resourceTrackingStatusLabel" destination="iHX-Y8-cMO" id="0Bj-yy-uJQ"/>
+                <outlet property="safariURLTrackingStatusLabel" destination="H1X-mE-FC0" id="nll-fT-xWu"/>
                 <outlet property="view" destination="c22-O7-iKe" id="orl-Bo-bvm"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customView id="c22-O7-iKe">
-            <rect key="frame" x="0.0" y="0.0" width="480" height="272"/>
-            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <rect key="frame" x="0.0" y="0.0" width="529" height="409"/>
+            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
             <subviews>
-                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bTe-aP-ioy">
-                    <rect key="frame" x="154" y="13" width="172" height="32"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="push" title="Open data folder" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="aTe-oL-xz1">
-                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="system"/>
-                        <connections>
-                            <action selector="openDataPressed:" target="-2" id="TNo-tK-D3O"/>
-                        </connections>
-                    </buttonCell>
-                </button>
+                <stackView distribution="equalSpacing" orientation="vertical" alignment="leading" spacing="15" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="V4A-OZ-8EZ" userLabel="Vstack">
+                    <rect key="frame" x="15" y="15" width="499" height="379"/>
+                    <subviews>
+                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="r2k-xD-OhO">
+                            <rect key="frame" x="-2" y="363" width="173" height="16"/>
+                            <textFieldCell key="cell" lineBreakMode="clipping" title="System Permission Status" id="ct0-dv-zkf">
+                                <font key="font" metaFont="systemBold"/>
+                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
+                        <stackView distribution="fillProportionally" orientation="horizontal" alignment="centerY" spacing="0.0" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="j6l-U2-1kA">
+                            <rect key="frame" x="0.0" y="304" width="499" height="40"/>
+                            <subviews>
+                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="DGM-0b-Jb4" userLabel="Not allowed">
+                                    <rect key="frame" x="-2" y="12" width="154" height="16"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" constant="150" id="cQ8-zK-CKC"/>
+                                    </constraints>
+                                    <textFieldCell key="cell" lineBreakMode="clipping" title="Not allowed" id="ZyZ-w8-Ka2">
+                                        <font key="font" metaFont="system"/>
+                                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                </textField>
+                                <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="z22-TR-ctA">
+                                    <rect key="frame" x="150" y="0.0" width="349" height="40"/>
+                                    <subviews>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Xhn-xL-2Hs">
+                                            <rect key="frame" x="-2" y="24" width="117" height="16"/>
+                                            <textFieldCell key="cell" lineBreakMode="clipping" title="Keyboard Tracking" id="6ld-4G-4SK">
+                                                <font key="font" usesAppearanceFont="YES"/>
+                                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ce3-0G-zVN">
+                                            <rect key="frame" x="0.0" y="-1" width="299" height="17"/>
+                                            <buttonCell key="cell" type="inline" title="System Preferences &gt; Security &amp; Privacy &gt; Acessibility" bezelStyle="inline" alignment="center" borderStyle="border" inset="2" id="lQt-bv-GSa">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="menu" size="11"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="goToAccessibilityPane:" target="-2" id="b0V-9Y-fh7"/>
+                                            </connections>
+                                        </button>
+                                    </subviews>
+                                    <visibilityPriorities>
+                                        <integer value="1000"/>
+                                        <integer value="1000"/>
+                                    </visibilityPriorities>
+                                    <customSpacing>
+                                        <real value="3.4028234663852886e+38"/>
+                                        <real value="3.4028234663852886e+38"/>
+                                    </customSpacing>
+                                </stackView>
+                            </subviews>
+                            <visibilityPriorities>
+                                <integer value="1000"/>
+                                <integer value="1000"/>
+                            </visibilityPriorities>
+                            <customSpacing>
+                                <real value="3.4028234663852886e+38"/>
+                                <real value="3.4028234663852886e+38"/>
+                            </customSpacing>
+                        </stackView>
+                        <stackView distribution="fillEqually" orientation="horizontal" alignment="centerY" spacing="0.0" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ITJ-Mi-Jk3">
+                            <rect key="frame" x="0.0" y="246" width="483" height="40"/>
+                            <subviews>
+                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="iHX-Y8-cMO" userLabel="Not allowed">
+                                    <rect key="frame" x="-2" y="12" width="154" height="16"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" constant="150" id="lNq-od-pdD"/>
+                                    </constraints>
+                                    <textFieldCell key="cell" lineBreakMode="clipping" title="Not allowed" id="1Nl-XT-fR7">
+                                        <font key="font" metaFont="system"/>
+                                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                </textField>
+                                <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1Jf-Fr-AEc">
+                                    <rect key="frame" x="150" y="0.0" width="333" height="40"/>
+                                    <subviews>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gDp-S8-o08">
+                                            <rect key="frame" x="-2" y="24" width="147" height="16"/>
+                                            <textFieldCell key="cell" lineBreakMode="clipping" title="Window Name Tracking" id="ZgK-Od-MpF">
+                                                <font key="font" usesAppearanceFont="YES"/>
+                                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="yR9-HW-Men">
+                                            <rect key="frame" x="0.0" y="-1" width="333" height="17"/>
+                                            <buttonCell key="cell" type="inline" title="System Preferences &gt; Security &amp; Privacy &gt; Screen Recording" bezelStyle="inline" alignment="center" borderStyle="border" inset="2" id="Uri-jt-4Wb">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="menu" size="11"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="goToScreenRecordingPane:" target="-2" id="8Ur-sW-24x"/>
+                                            </connections>
+                                        </button>
+                                    </subviews>
+                                    <visibilityPriorities>
+                                        <integer value="1000"/>
+                                        <integer value="1000"/>
+                                    </visibilityPriorities>
+                                    <customSpacing>
+                                        <real value="3.4028234663852886e+38"/>
+                                        <real value="3.4028234663852886e+38"/>
+                                    </customSpacing>
+                                </stackView>
+                            </subviews>
+                            <visibilityPriorities>
+                                <integer value="1000"/>
+                                <integer value="1000"/>
+                            </visibilityPriorities>
+                            <customSpacing>
+                                <real value="3.4028234663852886e+38"/>
+                                <real value="3.4028234663852886e+38"/>
+                            </customSpacing>
+                        </stackView>
+                        <stackView distribution="fillEqually" orientation="horizontal" alignment="centerY" spacing="0.0" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="k97-lh-1ao">
+                            <rect key="frame" x="0.0" y="187" width="450" height="40"/>
+                            <subviews>
+                                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="H1X-mE-FC0" userLabel="Not allowed">
+                                    <rect key="frame" x="-2" y="12" width="154" height="16"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" constant="150" id="7dW-jx-nAJ"/>
+                                    </constraints>
+                                    <textFieldCell key="cell" lineBreakMode="clipping" title="Not allowed" id="GwA-bZ-Q6t">
+                                        <font key="font" metaFont="system"/>
+                                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                </textField>
+                                <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="sqe-q2-rUo">
+                                    <rect key="frame" x="150" y="0.0" width="300" height="40"/>
+                                    <subviews>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ZZs-TG-eAV">
+                                            <rect key="frame" x="-2" y="24" width="133" height="16"/>
+                                            <textFieldCell key="cell" lineBreakMode="clipping" title="URL Tracking (Safari)" id="gsa-jX-XfB">
+                                                <font key="font" usesAppearanceFont="YES"/>
+                                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="835-2x-rFR">
+                                            <rect key="frame" x="0.0" y="-1" width="300" height="17"/>
+                                            <buttonCell key="cell" type="inline" title="System Preferences &gt; Security &amp; Privacy &gt; Automation" bezelStyle="inline" alignment="center" borderStyle="border" inset="2" id="sFv-b1-oaG">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="menu" size="11"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="goToAutomationPane:" target="-2" id="TtE-E3-lEK"/>
+                                            </connections>
+                                        </button>
+                                    </subviews>
+                                    <visibilityPriorities>
+                                        <integer value="1000"/>
+                                        <integer value="1000"/>
+                                    </visibilityPriorities>
+                                    <customSpacing>
+                                        <real value="3.4028234663852886e+38"/>
+                                        <real value="3.4028234663852886e+38"/>
+                                    </customSpacing>
+                                </stackView>
+                            </subviews>
+                            <visibilityPriorities>
+                                <integer value="1000"/>
+                                <integer value="1000"/>
+                            </visibilityPriorities>
+                            <customSpacing>
+                                <real value="3.4028234663852886e+38"/>
+                                <real value="3.4028234663852886e+38"/>
+                            </customSpacing>
+                        </stackView>
+                        <stackView distribution="fillEqually" orientation="horizontal" alignment="centerY" spacing="0.0" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="KmX-3E-IrO">
+                            <rect key="frame" x="0.0" y="129" width="450" height="40"/>
+                            <subviews>
+                                <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kCJ-Hy-RQY" userLabel="Not allowed">
+                                    <rect key="frame" x="-2" y="12" width="154" height="16"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" constant="150" id="VIU-IQ-Aen"/>
+                                    </constraints>
+                                    <textFieldCell key="cell" lineBreakMode="clipping" title="Not allowed" id="Jy5-x5-2Rz">
+                                        <font key="font" metaFont="system"/>
+                                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                </textField>
+                                <stackView distribution="fill" orientation="vertical" alignment="leading" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Wze-ey-AxJ">
+                                    <rect key="frame" x="150" y="0.0" width="300" height="40"/>
+                                    <subviews>
+                                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="rPF-pn-u34">
+                                            <rect key="frame" x="-2" y="24" width="146" height="16"/>
+                                            <textFieldCell key="cell" lineBreakMode="clipping" title="URL Tracking (Chrome)" id="YtT-ht-6hC">
+                                                <font key="font" usesAppearanceFont="YES"/>
+                                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                            </textFieldCell>
+                                        </textField>
+                                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Tan-Ck-quG">
+                                            <rect key="frame" x="0.0" y="-1" width="300" height="17"/>
+                                            <buttonCell key="cell" type="inline" title="System Preferences &gt; Security &amp; Privacy &gt; Automation" bezelStyle="inline" alignment="center" borderStyle="border" inset="2" id="NzL-P6-nF8">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="menu" size="11"/>
+                                            </buttonCell>
+                                            <connections>
+                                                <action selector="goToAutomationPane:" target="-2" id="UQM-Id-L5E"/>
+                                            </connections>
+                                        </button>
+                                    </subviews>
+                                    <visibilityPriorities>
+                                        <integer value="1000"/>
+                                        <integer value="1000"/>
+                                    </visibilityPriorities>
+                                    <customSpacing>
+                                        <real value="3.4028234663852886e+38"/>
+                                        <real value="3.4028234663852886e+38"/>
+                                    </customSpacing>
+                                </stackView>
+                            </subviews>
+                            <visibilityPriorities>
+                                <integer value="1000"/>
+                                <integer value="1000"/>
+                            </visibilityPriorities>
+                            <customSpacing>
+                                <real value="3.4028234663852886e+38"/>
+                                <real value="3.4028234663852886e+38"/>
+                            </customSpacing>
+                        </stackView>
+                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="aFB-nj-lDh">
+                            <rect key="frame" x="-2" y="94" width="353" height="16"/>
+                            <textFieldCell key="cell" lineBreakMode="clipping" title="Restart PersonalAnalytics to see if changes were effective." id="isv-bq-AU7">
+                                <font key="font" metaFont="systemLight" size="13"/>
+                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
+                        <box verticalHuggingPriority="750" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="HVp-gu-NGZ">
+                            <rect key="frame" x="0.0" y="72" width="460" height="5"/>
+                        </box>
+                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="aqZ-SV-gnP">
+                            <rect key="frame" x="-2" y="40" width="122" height="16"/>
+                            <textFieldCell key="cell" lineBreakMode="clipping" title="Data Management" id="fcD-xG-6vW">
+                                <font key="font" metaFont="systemBold"/>
+                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
+                        <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bTe-aP-ioy">
+                            <rect key="frame" x="-6" y="-7" width="142" height="32"/>
+                            <buttonCell key="cell" type="push" title="Open data folder" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="aTe-oL-xz1">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                            <connections>
+                                <action selector="openDataPressed:" target="-2" id="0qH-LQ-FXP"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <constraints>
+                        <constraint firstAttribute="trailing" secondItem="j6l-U2-1kA" secondAttribute="trailing" id="1u8-we-fOE"/>
+                        <constraint firstItem="j6l-U2-1kA" firstAttribute="leading" secondItem="V4A-OZ-8EZ" secondAttribute="leading" id="e1D-aa-dgq"/>
+                    </constraints>
+                    <visibilityPriorities>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                        <integer value="1000"/>
+                    </visibilityPriorities>
+                    <customSpacing>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                        <real value="3.4028234663852886e+38"/>
+                    </customSpacing>
+                </stackView>
             </subviews>
-            <point key="canvasLocation" x="-366" y="107"/>
+            <constraints>
+                <constraint firstItem="V4A-OZ-8EZ" firstAttribute="leading" secondItem="c22-O7-iKe" secondAttribute="leading" constant="15" id="6MK-Z5-0la"/>
+                <constraint firstAttribute="trailing" secondItem="V4A-OZ-8EZ" secondAttribute="trailing" constant="15" id="Wkc-Z9-GOa"/>
+                <constraint firstAttribute="bottom" secondItem="V4A-OZ-8EZ" secondAttribute="bottom" constant="15" id="fgh-IO-wtR"/>
+                <constraint firstItem="V4A-OZ-8EZ" firstAttribute="top" secondItem="c22-O7-iKe" secondAttribute="top" constant="15" id="lrB-cb-88t"/>
+            </constraints>
+            <point key="canvasLocation" x="-1052.5" y="38.5"/>
         </customView>
     </objects>
 </document>

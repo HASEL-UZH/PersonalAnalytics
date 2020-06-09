@@ -1,0 +1,17 @@
+//
+//  Production.xcconfig
+//  PersonalAnalytics
+//
+//  Created by Roy Rutishauser on 25.11.19.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+#include "Pods/Target Support Files/Pods-PersonalAnalytics/Pods-PersonalAnalytics.release.xcconfig"
+
+STATUS_BAR_ICON = StatusBarButtonImage
+APP_SUPPORT_DIR = PersonalAnalytics
+SQLITE_DB_NAME = PersonalAnalytics.dat
+RETROSPECTIVE_PORT = 8765
+ERRORS_LOG_FILE = errors.txt

@@ -94,7 +94,7 @@ class EmotionTracker: ITracker, TrackerUserNotificationHandling {
 
         // Debug prints
         print("Time to wait for next notification (s):", TimeInterval(exactly: timeIntervalSinceNow)!)
-    }
+        }
 
     func handleUserNotification(notification: NSUserNotification) {
         if let choosen = notification.additionalActivationAction, let actionIdentifier = choosen.identifier {
