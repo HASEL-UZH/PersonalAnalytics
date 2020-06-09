@@ -378,17 +378,19 @@ namespace FocusSession.Controls
                 foreach (String windowFlagger in localWindowFlaggerList)
                     if (currentWindowTitle.Contains(windowFlagger))
                     {
-                        if (WindowFlaggerMessageBoxActive) { return; }
+                        if (WindowFlaggerMessageBoxActive) {
+                            return; 
+                        }
                         else
                         {
+                            // set active MessageBox. We do not want to stack boxes, user will also not know anymore which box would have belonged to which application in the end if user would just let them stack
+                            WindowFlaggerMessageBoxActive = true;
+
                             // show message box to ask if this is task-related
-                            var selectedOption = MessageBox.Show("You opened a potentially distracting program during an active FocusSession. Do you want to read or reply to a message that is related to the task you are currently focussing on?", "Potentially distracting Program detected", MessageBoxButtons.YesNo);
+                            var selectedOption = MessageBox.Show("You opened a potentially distracting program during an active FocusSession. Is "+currentWindowTitle+" related to the task you are currently focussing on?", "Potentially distracting Program detected: " + currentWindowTitle, MessageBoxButtons.YesNo);
 
                             // log the users answer
                             Shared.Data.Database.GetInstance().LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " and was shown the WindowFlagger Messagebox");
-
-                            // set active MessageBox. We do not want to stack boxes, user will also not know anymore which box would have belonged to which application in the end if user would just let them stack
-                            WindowFlaggerMessageBoxActive = true;
 
                             // check answer
                             // TODO store in database entry for study rather then just console-outprinting
