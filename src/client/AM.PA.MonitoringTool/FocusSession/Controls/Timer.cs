@@ -50,7 +50,8 @@ namespace FocusSession.Controls
             }
             if (closedSession)
             {
-                return Settings.ClosedSessionDuration - (DateTime.Now - startTime).Minutes;         // return for how long the closed session will still be running (= remaining Time)
+                return (endTime - startTime).Minutes;         // return for how long the closed session will still be running (= remaining Time)
+
             }
             return 0;
         }
