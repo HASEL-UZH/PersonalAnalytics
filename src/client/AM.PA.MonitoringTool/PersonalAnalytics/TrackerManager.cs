@@ -39,6 +39,8 @@ namespace PersonalAnalytics
         private string _publishedAppVersion;
         private bool _isPaused;
 
+        private RoutedEventHandler eventHandler = null; // FocusSession, used for the dynamic addition of button functionality for closed session
+
 
         #region Initialize & Handle TrackerManager
 
@@ -149,7 +151,8 @@ namespace PersonalAnalytics
             if (File.Exists(Path.Combine(Settings.ExportFilePath, @"SlackConfig.json")))
             {
                 Console.WriteLine("SlackConfig JSON file exists");
-            } else
+            }
+            else
             {
                 File.WriteAllText(Path.Combine(Settings.ExportFilePath, @"SlackConfig.json"), FocusSession.Configuration.SlackConfig.InitializeCacheJSONFile);
                 Console.WriteLine("SlackConfig JSON File created");
@@ -421,13 +424,53 @@ namespace PersonalAnalytics
                 m8.Click += (o, i) => UploadTrackedData();
                 _taskbarIcon.ContextMenu.Items.Add(m8);
             }
+
+            // FocusTimer // 
+
+            // open session
             var m9 = new MenuItem { Header = "Start Open Focus Session" };
             m9.Click += (o, i) => StartStopOpenFocusSession(m9);
             _taskbarIcon.ContextMenu.Items.Add(m9);
 
+            // closed session
+
+            // Dropdown Menu to choose for quick start
             var m10 = new MenuItem { Header = "Start Closed Focus Session" };
-            m10.Click += (o, i) => StartStopClosedSession(m10);
+
+            // add subitems
+
+            var m01 = new MenuItem { Header = "10 min" };             // menu item and title
+            m01.Click += (o, i) => StartClosedSession(m10, 10);       // give the parentitem, we use it to unload the dropdown options and change it to a 'cancel'
+            m10.Items.Add(m01);                                       // add it as an option
+
+            var m02 = new MenuItem { Header = "20 min" };
+            m02.Click += (o, i) => StartClosedSession(m10, 20);
+            m10.Items.Add(m02);
+
+            var m03 = new MenuItem { Header = "30 min" };
+            m03.Click += (o, i) => StartClosedSession(m10, 30);
+            m10.Items.Add(m03);
+
+            var m04 = new MenuItem { Header = "40 min" };
+            m04.Click += (o, i) => StartClosedSession(m10, 40);
+            m10.Items.Add(m04);
+
+            var m05 = new MenuItem { Header = "50 min" };
+            m05.Click += (o, i) => StartClosedSession(m10, 50);
+            m10.Items.Add(m05);
+
+            var m06 = new MenuItem { Header = "60 min" };
+            m06.Click += (o, i) => StartClosedSession(m10, 60);
+            m10.Items.Add(m06);
+
+            var m07 = new MenuItem { Header = "Custom" };
+            m07.Click += (o, i) => StartCustomClosedSession(m10);
+            m10.Items.Add(m07);
+
+            // add to context menu
             _taskbarIcon.ContextMenu.Items.Add(m10);
+
+            // end of FocusSession //
 
             var m4 = new MenuItem { Header = "Open collected data" };
             m4.Click += (o, i) => OpenDataExportDirectory();
@@ -459,6 +502,7 @@ namespace PersonalAnalytics
             var m7 = new MenuItem { Header = "Shutdown " + Dict.ToolName };
             m7.Click += (o, i) => Stop(true);
             _taskbarIcon.ContextMenu.Items.Add(m7);
+
 
             // Styling
             //var converter = new System.Windows.Media.BrushConverter();
@@ -493,8 +537,7 @@ namespace PersonalAnalytics
         }
 
         /// <summary>
-        /// depending on the variable _isRunningFocusSession, the tracker is
-        /// started or stopped
+        /// Starts or stops the open session, button functionality depending on state of openSession in FocusSession.Timer.cs
         /// </summary>
         /// <param name="item"></param>
         private void StartStopOpenFocusSession(MenuItem item)
@@ -532,40 +575,130 @@ namespace PersonalAnalytics
         }
 
         /// <summary>
-        /// depending on the variable _isRunningFocusSession, the predefined tracker is
-        /// started or stopped
+        /// starts a closed session according to the chosen option from the dropdown in the context menu
         /// </summary>
-        /// <param name="item"></param>
-        private void StartStopClosedSession(MenuItem item)
+        /// <param name="parentItem"></param>
+        /// <param name="sessionDuration"></param>
+        private void StartClosedSession(MenuItem parentItem, int sessionDuration)
         {
-            // is there already another focus session running?
+            // is there already an open focus session running?
             if (FocusSession.Controls.Timer.openSession)
             {
+                // inform the user
                 MessageBox.Show("There is currently a open focus session running");
                 // the message box closes right away again bug circumvention
                 MessageBox.Show("There is currently a open focus session running");
 
-                // log the info that the user started a closed session
+                // log the info that the user tired to start a closed session
                 Database.GetInstance().LogInfo("The participant tried to start a closedSession with an openSession already running .");
             }
-            // start
+            // there is no closed session currently active, so we start one
             if (!FocusSession.Controls.Timer.closedSession)
             {
-                // start focus session
+                // start focus session with the corresponding duration
+                FocusSession.Controls.Timer.StartSession(FocusSession.Enum.SessionEnum.Session.closedSession, sessionDuration);
+
+                // remove the dropdown options
+                parentItem.Items.Clear();
+
+                // set the menu item label to a cancel button
+                parentItem.Header = "Cancel Closed Focus Session";
+
+                // add click functionality. This RoutedEventHandler needs to be defined only once since parentItem is never removed.
+                // need it as class variable, since it is needed in the CancelClosedSession method. Cannot pass the RoutedEventHandler itself being created as a parameter for the method in itself.
+                if (eventHandler == null)
+                {
+                    eventHandler = new RoutedEventHandler((o, i) => CancelClosedSession(parentItem));
+                }
+                parentItem.Click += eventHandler;
+            }
+        }
+
+        /// <summary>
+        /// starts a custom closed session
+        /// </summary>
+        /// <param name="parentItem"></param>
+        private void StartCustomClosedSession(MenuItem parentItem)
+        {
+            // is there already an open focus session running?
+            if (FocusSession.Controls.Timer.openSession)
+            {
+                // inform the user
+                MessageBox.Show("There is currently a open focus session running");
+                // the message box closes right away again bug circumvention
+                MessageBox.Show("There is currently a open focus session running");
+
+                // log the info that the user tired to start a closed session
+                Database.GetInstance().LogInfo("The participant tried to start a closedSession with an openSession already running .");
+            }
+            // there is no closed session currently active, so we start one
+            if (!FocusSession.Controls.Timer.closedSession)
+            {
+                // start focus session with the corresponding duration
                 FocusSession.Controls.Timer.StartSession(FocusSession.Enum.SessionEnum.Session.closedSession);
 
-                // set the menu item label
-                item.Header = "Cancel Closed Focus Session";
-            }
-            // cancel
-            else
-            {
-                // stop closed focus session
-                FocusSession.Controls.Timer.StopSession(FocusSession.Enum.SessionEnum.StopEvent.manual);
+                // remove the dropdown options
+                parentItem.Items.Clear();
 
-                // set the menu item label
-                item.Header = "Start Closed Focus Session";
+                // set the menu item label to a cancel button
+                parentItem.Header = "Cancel Closed Focus Session";
+
+                // add click functionality. This RoutedEventHandler needs to be defined only once since parentItem is never removed.
+                // need it as class variable, since it is needed in the CancelClosedSession method. Cannot pass the RoutedEventHandler itself being created as a parameter for the method in itself.
+                if (eventHandler == null)
+                {
+                    eventHandler = new RoutedEventHandler((o, i) => CancelClosedSession(parentItem));
+                }
+                parentItem.Click += eventHandler;
             }
+        }
+
+
+        /// <summary>
+        /// cancels an active closed session
+        /// </summary>
+        /// <param name="item"></param>
+        private void CancelClosedSession(MenuItem item)
+        {
+            // stop closed focus session
+            FocusSession.Controls.Timer.StopSession(FocusSession.Enum.SessionEnum.StopEvent.manual);
+
+            // set the menu item label
+            item.Header = "Start Closed Focus Session";
+
+            // remove onclick behavior. Otherwise this method will be executed after the method of the submenuitem button would have been called (in this case, canelling the session right after it was started).
+            item.Click -= eventHandler;
+
+            // add subitems again
+
+            var m01 = new MenuItem { Header = "10 min" };
+            m01.Click += (o, i) => StartClosedSession(item, 10);
+            item.Items.Add(m01);
+
+            var m02 = new MenuItem { Header = "20 min" };
+            m02.Click += (o, i) => StartClosedSession(item, 20);
+            item.Items.Add(m02);
+
+            var m03 = new MenuItem { Header = "30 min" };
+            m03.Click += (o, i) => StartClosedSession(item, 30);
+            item.Items.Add(m03);
+
+            var m04 = new MenuItem { Header = "40 min" };
+            m04.Click += (o, i) => StartClosedSession(item, 40);
+            item.Items.Add(m04);
+
+            var m05 = new MenuItem { Header = "50 min" };
+            m05.Click += (o, i) => StartClosedSession(item, 50);
+            item.Items.Add(m05);
+
+            var m06 = new MenuItem { Header = "60 min" };
+            m06.Click += (o, i) => StartClosedSession(item, 60);
+            item.Items.Add(m06);
+
+            var m07 = new MenuItem { Header = "Custom" };
+            m07.Click += (o, i) => StartCustomClosedSession(item);
+            item.Items.Add(m07);
+
         }
 
         /// <summary>

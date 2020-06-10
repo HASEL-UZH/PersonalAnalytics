@@ -28,14 +28,14 @@ namespace FocusSession.Controls
         public static bool WindowFlaggerMessageBoxActive { get; set; } = false;
         public static string ReplyMessage { get; set; }
 
-        // get the setting from the database, it will default to true
+        // get the setting from the database
         public static bool ReplyMessageEnabled { get; set; } = Shared.Data.Database.GetInstance().GetSettingsBool(Settings.REPLYMESSAGE_ENEABLED_SETTING, true);
         public static bool WindowFlaggingEnabled { get; set; } = Shared.Data.Database.GetInstance().GetSettingsBool(Settings.WINDOWFLAGGING_ENEABLED_SETTING, true);
         public static bool CustomizedReplyMessageEnabled { get; set; } = Shared.Data.Database.GetInstance().GetSettingsBool(Settings.CUSTOMIZEDREPLYMESSAGE_ENEABLED_SETTING, true);
         public static string CustomizedReplyMessage { get; set; } = Shared.Data.Database.GetInstance().GetSettingsString(Settings.CUSTOMIZEDREPLYMESSAGE_TEXT_SETTING, Settings.IsTextMessageByDefault);
         public static bool CustomizedFlaggingListEnabled { get; set; } = Shared.Data.Database.GetInstance().GetSettingsBool(Settings.CUSTOMIZEDFLAGGINGLIST_ENEABLED_SETTING, true);
         public static string CustomizedFlaggingList { get; set; } = Shared.Data.Database.GetInstance().GetSettingsString(Settings.CUSTOMIZEDFLAGGINGLIST_TEXT_SETTING, Settings.IsTextListByDefault);
-
+        
         // list of potentially distracting programs that we use for flagging check
         private static string[] windowFlaggerList = new string[] { "Skype", "WhatsApp", "Zoom", "Microsoft Outlook", "Google Hangouts", "Discord", "LINE", "Signal", "Trilian", "Viber", "Pidgin", "eM Client", "Thunderbird", "Whatsapp Web", "Facebook", "Winmail", "Telegram", "Yahoo Mail", "Camfrog", "Messenger", "TextNow", "Slack", "mIRC", "BlueMail", "Paltalk", "Mailbird", "Jisti", "Jabber", "OpenTalk", "ICQ", "Gmail", "Tango", "Lync", "Pegasus", "Mailspring", "Teamspeak", "QuizUp", "IGA", "Zello", "Jelly SMS", "Mammail", "Line", "MSN", "inSpeak", "Spark", "TorChat", "ChatBox", "AIM", "HexChat", "HydraIRC", "Mulberry", "Claws Mail", "Pandion", "ZChat", "Franz", "Microsoft Teams", "Zulip" };
 
@@ -58,7 +58,7 @@ namespace FocusSession.Controls
         /* main methods */
 
         // starts a session. Input: Enum if open or closed Session
-        public static void StartSession(Enum.SessionEnum.Session session)
+        public static void StartSession(Enum.SessionEnum.Session session, int? sessionDuration = 0)
         {
             // check that there is not another session already running
             if (!openSession && !closedSession)
@@ -75,35 +75,44 @@ namespace FocusSession.Controls
                     Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant started an openFocusSession at " + DateTime.Now);
 
                     // set static automatic email reply message
+                    // either the default one, or the one set by the user in the settings, retrieved from the database
                     if (CustomizedReplyMessageEnabled)
                     {
-                        ReplyMessage = CustomizedReplyMessage;
+                        ReplyMessage = CustomizedReplyMessage;          // retrieved from database
                     }
                     else
                     {
-                        ReplyMessage = Settings.IsTextMessageByDefault;
+                        ReplyMessage = Settings.IsTextMessageByDefault; // default text
                     }
                 }
                 // start closedSession
                 else if (session == Enum.SessionEnum.Session.closedSession)
                 {
-                    // add the timeperiod, default is Pomodoro Timer 25 min, unless changed through the Settings
-                    endTime = DateTime.Now.AddMinutes(Settings.ClosedSessionDuration);
+                    // add the timeperiod
+                    if (sessionDuration != 0) {                                         // Quickstart from submenu
+                        endTime = DateTime.Now.AddMinutes((double)sessionDuration);     // set time with option from submenu  
+                        // log that the user started a closedFocusSession
+                        Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant started a closedFocusSession at " + DateTime.Now + " for " + (double)sessionDuration + " minutes.");
+                    }
+                    else
+                    {
+                        endTime = DateTime.Now.AddMinutes((double)Shared.Data.Database.GetInstance().GetSettingsInt(Settings.CUSTOMIZEDTIMERDURATION_INT_SETTING, 0));  // customTimer
+                        // log that the user started a closedFocusSession
+                        Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant started a closedFocusSession at " + DateTime.Now + " for " + (double)Shared.Data.Database.GetInstance().GetSettingsInt(Settings.CUSTOMIZEDTIMERDURATION_INT_SETTING, 0) + " minutes.");
+                    }
 
                     // update indicator
                     closedSession = true;
 
-                    // log that the user started a closedFocusSession
-                    Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant started a closedFocusSession at " + DateTime.Now + " for " + Settings.ClosedSessionDuration + " minutes.");
-
-                    // set dynamic automatic email reply message
+                    // set static automatic email reply message
+                    // either the default one, or the one set by the user in the settings, retrieved from the database
                     if (CustomizedReplyMessageEnabled)
                     {
-                        ReplyMessage = CustomizedReplyMessage;
+                        ReplyMessage = CustomizedReplyMessage;      // retrieved from database
                     }
                     else
                     {
-                        ReplyMessage = "\nThe recepient of this email is currently in a focused work session for another " + Settings.ClosedSessionDuration + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                        ReplyMessage = "\nThe recepient of this email is currently in a focused work session for another " + Shared.Data.Database.GetInstance().GetSettingsInt(Settings.CUSTOMIZEDTIMERDURATION_INT_SETTING, 0) + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";   // default message, with full time duration still remaining
                     }
                 }
 
@@ -120,16 +129,6 @@ namespace FocusSession.Controls
 
                 // set the timer, which also handles session functionality. We start a timer in the openSession to make use of the session functionality
                 SetTimer();
-            }
-            else if (openSession)
-            {
-                // log that the user tried to start a session
-                Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant tried to start a session with an active openSession already running)");
-            }
-            else
-            {
-                // log that the user tried to start a session
-                Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant tried to start a session with an active closedSession already running)");
             }
         }
 
@@ -219,12 +218,8 @@ namespace FocusSession.Controls
                 // reset SlackMessages
                 numberOfReceivedSlackMessages = 0;
 
+                // dispose notifications 
                 notification.Dispose();
-            }
-            else
-            {
-                // log that the user tried to stop a session but there was no session currently running
-                Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant tried to stop a session with no active session running)");
             }
         }
 
@@ -282,23 +277,16 @@ namespace FocusSession.Controls
                 // set dynamic automatic email reply message
                 if (closedSession)
                 {
-                    if (CustomizedReplyMessageEnabled)
+                    if (!CustomizedReplyMessageEnabled)
                     {
-                        ReplyMessage = CustomizedReplyMessage;
-                    }
-                    else
-                    {
+                        // update remaining time in message
                         ReplyMessage = "\nThe recepient of this email is currently in a focused work session for another " + getSessionTime() + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
                     }
                 }
                 else {
-                    if (CustomizedReplyMessageEnabled)
-                    {
-                        ReplyMessage = CustomizedReplyMessage;
-                    }
-                    else
-                    {
-                        ReplyMessage = "\nThe recepient of this email is currently in a focused work session for another " + getSessionTime() + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                    if (!CustomizedReplyMessageEnabled) {
+                        // update already running time in message
+                        ReplyMessage = "\nThe recepient of this email is currently in a focused work session since " + getSessionTime() + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
                     }
                 }
 

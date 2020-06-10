@@ -15,6 +15,7 @@ namespace FocusSession
         public const string FocusTimerTable = "focusTimer";
         public const string FocusTimerSessionDuration = "timeDuration";
         public static int ClosedSessionDuration = 25;
+        internal const string CUSTOMIZEDTIMERDURATION_INT_SETTING = "ClosedSessionDuration";
         internal const string REPLYMESSAGE_ENEABLED_SETTING = "ReplyMessageEnabled";
         internal const string WINDOWFLAGGING_ENEABLED_SETTING = "WindowFlaggingEnabled";
         internal const string CUSTOMIZEDREPLYMESSAGE_ENEABLED_SETTING = "CustomizedReplyMessageEnabled";
