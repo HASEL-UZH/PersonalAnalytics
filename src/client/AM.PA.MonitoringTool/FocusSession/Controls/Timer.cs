@@ -29,13 +29,13 @@ namespace FocusSession.Controls
         public static string ReplyMessage { get; set; }
 
         // get the setting from the database
-        public static bool ReplyMessageEnabled { get; set; } = Shared.Data.Database.GetInstance().GetSettingsBool(Settings.REPLYMESSAGE_ENEABLED_SETTING, true);
-        public static bool WindowFlaggingEnabled { get; set; } = Shared.Data.Database.GetInstance().GetSettingsBool(Settings.WINDOWFLAGGING_ENEABLED_SETTING, true);
-        public static bool CustomizedReplyMessageEnabled { get; set; } = Shared.Data.Database.GetInstance().GetSettingsBool(Settings.CUSTOMIZEDREPLYMESSAGE_ENEABLED_SETTING, true);
-        public static string CustomizedReplyMessage { get; set; } = Shared.Data.Database.GetInstance().GetSettingsString(Settings.CUSTOMIZEDREPLYMESSAGE_TEXT_SETTING, Settings.IsTextMessageByDefault);
-        public static bool CustomizedFlaggingListEnabled { get; set; } = Shared.Data.Database.GetInstance().GetSettingsBool(Settings.CUSTOMIZEDFLAGGINGLIST_ENEABLED_SETTING, true);
-        public static string CustomizedFlaggingList { get; set; } = Shared.Data.Database.GetInstance().GetSettingsString(Settings.CUSTOMIZEDFLAGGINGLIST_TEXT_SETTING, Settings.IsTextListByDefault);
-        
+        public static bool ReplyMessageEnabled { get; set; } = Data.Queries.GetReplyMessageEnabled();
+        public static bool WindowFlaggingEnabled { get; set; } = Data.Queries.GetWindowFlaggingEnabled();
+        public static bool CustomizedReplyMessageEnabled { get; set; } = Data.Queries.GetCustomizedReplyMessageEnabled();
+        public static string CustomizedReplyMessage { get; set; } = Data.Queries.GetCustomizedReplyMessage();
+        public static bool CustomizedFlaggingListEnabled { get; set; } = Data.Queries.GetCustomizedFlaggingListEnabled();
+        public static string CustomizedFlaggingList { get; set; } = Data.Queries.GetCustomizedFlaggingList();
+
         // list of potentially distracting programs that we use for flagging check
         private static string[] windowFlaggerList = new string[] { "Skype", "WhatsApp", "Zoom", "Microsoft Outlook", "Google Hangouts", "Discord", "LINE", "Signal", "Trilian", "Viber", "Pidgin", "eM Client", "Thunderbird", "Whatsapp Web", "Facebook", "Winmail", "Telegram", "Yahoo Mail", "Camfrog", "Messenger", "TextNow", "Slack", "mIRC", "BlueMail", "Paltalk", "Mailbird", "Jisti", "Jabber", "OpenTalk", "ICQ", "Gmail", "Tango", "Lync", "Pegasus", "Mailspring", "Teamspeak", "QuizUp", "IGA", "Zello", "Jelly SMS", "Mammail", "Line", "MSN", "inSpeak", "Spark", "TorChat", "ChatBox", "AIM", "HexChat", "HydraIRC", "Mulberry", "Claws Mail", "Pandion", "ZChat", "Franz", "Microsoft Teams", "Zulip" };
 
@@ -72,7 +72,7 @@ namespace FocusSession.Controls
                     openSession = true;
 
                     // log that the user started an openSession
-                    Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant started an openFocusSession at " + DateTime.Now);
+                    Data.Queries.LogInfo("StartSession : The participant started an openFocusSession at " + DateTime.Now);
 
                     // set static automatic email reply message
                     // either the default one, or the one set by the user in the settings, retrieved from the database
@@ -92,13 +92,13 @@ namespace FocusSession.Controls
                     if (sessionDuration != 0) {                                         // Quickstart from submenu
                         endTime = DateTime.Now.AddMinutes((double)sessionDuration);     // set time with option from submenu  
                         // log that the user started a closedFocusSession
-                        Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant started a closedFocusSession at " + DateTime.Now + " for " + (double)sessionDuration + " minutes.");
+                        Data.Queries.LogInfo("StartSession : The participant started a closedFocusSession at " + DateTime.Now + " for " + (double)sessionDuration + " minutes.");
                     }
                     else
                     {
-                        endTime = DateTime.Now.AddMinutes((double)Shared.Data.Database.GetInstance().GetSettingsInt(Settings.CUSTOMIZEDTIMERDURATION_INT_SETTING, 0));  // customTimer
+                        endTime = DateTime.Now.AddMinutes((double)Data.Queries.GetCustomizedSessionDuration());  // customTimer
                         // log that the user started a closedFocusSession
-                        Shared.Data.Database.GetInstance().LogInfo("StartSession : The participant started a closedFocusSession at " + DateTime.Now + " for " + (double)Shared.Data.Database.GetInstance().GetSettingsInt(Settings.CUSTOMIZEDTIMERDURATION_INT_SETTING, 0) + " minutes.");
+                        Data.Queries.LogInfo("StartSession : The participant started a closedFocusSession at " + DateTime.Now + " for " + Data.Queries.GetCustomizedSessionDuration() + " minutes.");
                     }
 
                     // update indicator
@@ -112,7 +112,7 @@ namespace FocusSession.Controls
                     }
                     else
                     {
-                        ReplyMessage = "\nThe recepient of this email is currently in a focused work session for another " + Shared.Data.Database.GetInstance().GetSettingsInt(Settings.CUSTOMIZEDTIMERDURATION_INT_SETTING, 0) + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";   // default message, with full time duration still remaining
+                        ReplyMessage = "\nThe recepient of this email is currently in a focused work session for another " + Data.Queries.GetCustomizedSessionDuration() + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";   // default message, with full time duration still remaining
                     }
                 }
 
@@ -152,11 +152,11 @@ namespace FocusSession.Controls
                     // log which session the user stopped
                     if (openSession)
                     {
-                        Shared.Data.Database.GetInstance().LogInfo("StopSession : The participant stopped an openFocusSession at " + DateTime.Now);
+                        Data.Queries.LogInfo("StopSession : The participant stopped an openFocusSession at " + DateTime.Now);
                     }
                     else
                     {
-                        Shared.Data.Database.GetInstance().LogInfo("StopSession : The participant stopped a closedFocusSession at " + DateTime.Now);
+                        Data.Queries.LogInfo("StopSession : The participant stopped a closedFocusSession at " + DateTime.Now);
                     }
 
                     // update indicator. Manual means the user stopped an open Session or Cancelled a closed Session
@@ -166,7 +166,7 @@ namespace FocusSession.Controls
                 else
                 {
                     // log that a closedFocusSession ran out
-                    Shared.Data.Database.GetInstance().LogInfo("StopSession : A closedFocusSession ran out at " + DateTime.Now);
+                    Data.Queries.LogInfo("StopSession : A closedFocusSession ran out at " + DateTime.Now);
 
                     // update indicator
                     closedSession = false;
@@ -179,7 +179,7 @@ namespace FocusSession.Controls
                 Data.Queries.SaveTime(startTime, stopTime, elapsedTime);
 
                 // also store in log
-                Shared.Data.Database.GetInstance().LogInfo("StopSession : The session had been running for " + elapsedTime);
+                Data.Queries.LogInfo("StopSession : The session had been running for " + elapsedTime);
 
                 // stop if a timer is running
                 if (aTimer != null && aTimer.Enabled)
@@ -378,7 +378,7 @@ namespace FocusSession.Controls
                             var selectedOption = MessageBox.Show("You opened a potentially distracting program during an active FocusSession. Is "+currentWindowTitle+" related to the task you are currently focussing on?", "Potentially distracting Program detected: " + currentWindowTitle, MessageBoxButtons.YesNo);
 
                             // log the users answer
-                            Shared.Data.Database.GetInstance().LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " and was shown the WindowFlagger Messagebox");
+                            Data.Queries.LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " and was shown the WindowFlagger Messagebox");
 
                             // check answer
                             // TODO store in database entry for study rather then just console-outprinting
@@ -388,7 +388,7 @@ namespace FocusSession.Controls
                                 Console.WriteLine("The participant opened " + currentWindowTitle + " to read or reply to a message that is task-related");
 
                                 // log the users answer
-                                Shared.Data.Database.GetInstance().LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " to read or reply to a message that is task-related");
+                                Data.Queries.LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " to read or reply to a message that is task-related");
 
                                 // user responded to messagebox
                                 WindowFlaggerMessageBoxActive = false;
@@ -400,7 +400,7 @@ namespace FocusSession.Controls
                                 Console.WriteLine("The participant opened " + currentWindowTitle + " to read or reply to a message that is not task-related");
 
                                 // log the users answer
-                                Shared.Data.Database.GetInstance().LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " to read or reply to a message that is not task-related");
+                                Data.Queries.LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " to read or reply to a message that is not task-related");
 
                                 // user responded to messagebox
                                 WindowFlaggerMessageBoxActive = false;

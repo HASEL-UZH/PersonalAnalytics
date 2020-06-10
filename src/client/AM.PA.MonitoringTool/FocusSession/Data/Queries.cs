@@ -8,7 +8,7 @@ using System.Data;
 
 namespace FocusSession.Data
 {
-    public class Queries
+    public static class Queries
     {
         internal static void CreateFocusTable()
         {
@@ -82,6 +82,70 @@ namespace FocusSession.Data
                 Shared.Logger.WriteToLogFile(e);
                 return TimeSpan.Zero;
             }
+        }
+
+        /// <summary>
+        /// Retrieves the desired setting value
+        /// </summary>
+        internal static bool GetReplyMessageEnabled()
+        {
+                return Shared.Data.Database.GetInstance().GetSettingsBool(Settings.REPLYMESSAGE_ENEABLED_SETTING, true);
+        }
+
+        /// <summary>
+        /// Retrieves the desired setting value
+        /// </summary>
+        internal static bool GetWindowFlaggingEnabled()
+        {
+            return Shared.Data.Database.GetInstance().GetSettingsBool(Settings.WINDOWFLAGGING_ENEABLED_SETTING, true);
+        }
+
+        /// <summary>
+        /// Retrieves the desired setting value
+        /// </summary>
+        internal static bool GetCustomizedReplyMessageEnabled()
+        {
+            return Shared.Data.Database.GetInstance().GetSettingsBool(Settings.CUSTOMIZEDREPLYMESSAGE_ENEABLED_SETTING, true);
+        }
+
+        /// <summary>
+        /// Retrieves the desired setting value
+        /// </summary>
+        internal static string GetCustomizedReplyMessage()
+        {
+            return Shared.Data.Database.GetInstance().GetSettingsString(Settings.CUSTOMIZEDREPLYMESSAGE_TEXT_SETTING, Settings.IsTextMessageByDefault);
+        }
+
+        /// <summary>
+        /// Retrieves the desired setting value
+        /// </summary>
+        internal static bool GetCustomizedFlaggingListEnabled()
+        {
+            return Shared.Data.Database.GetInstance().GetSettingsBool(Settings.CUSTOMIZEDFLAGGINGLIST_ENEABLED_SETTING, true);
+        }
+
+        /// <summary>
+        /// Retrieves the desired setting value
+        /// </summary>
+        internal static string GetCustomizedFlaggingList()
+        {
+            return Shared.Data.Database.GetInstance().GetSettingsString(Settings.CUSTOMIZEDFLAGGINGLIST_TEXT_SETTING, Settings.IsTextListByDefault);
+        }
+
+        /// <summary>
+        /// Retrieves the desired setting value
+        /// </summary>
+        internal static int GetCustomizedSessionDuration()
+        {
+            return Shared.Data.Database.GetInstance().GetSettingsInt(Settings.CUSTOMIZEDTIMERDURATION_INT_SETTING, 0);
+        }
+
+        /// <summary>
+        /// Log info
+        /// </summary>
+        internal static void LogInfo(string text)
+        {
+            Shared.Data.Database.GetInstance().LogInfo(text);
         }
 
     }
