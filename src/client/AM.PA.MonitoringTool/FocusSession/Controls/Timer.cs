@@ -42,18 +42,17 @@ namespace FocusSession.Controls
         /* getter */
 
         // for icon hover information and email reply
-        public static int getSessionTime()  // get the current session Time
+        public static TimeSpan getSessionTime()  // get the current session Time
         {
             if (openSession)
             {
-                return (DateTime.Now - startTime).Minutes;    // return for how long the open session has been running (= elapsed Time)
+                return DateTime.Now - startTime;    // return for how long the open session has been running (= elapsed Time)
             }
             if (closedSession)
             {
-                return (endTime - startTime).Minutes;         // return for how long the closed session will still be running (= remaining Time)
-
+                return endTime - startTime;         // return for how long the closed session will still be running (= remaining Time)
             }
-            return 0;
+            return TimeSpan.Zero;
         }
 
         /* main methods */
@@ -281,13 +280,13 @@ namespace FocusSession.Controls
                     if (!CustomizedReplyMessageEnabled)
                     {
                         // update remaining time in message
-                        ReplyMessage = "\nThe recepient of this email is currently in a focused work session for another " + getSessionTime() + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                        ReplyMessage = "\nThe recepient of this email is currently in a focused work session for another " + getSessionTime().Hours + "hours and " + getSessionTime().Minutes + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
                     }
                 }
                 else {
                     if (!CustomizedReplyMessageEnabled) {
                         // update already running time in message
-                        ReplyMessage = "\nThe recepient of this email is currently in a focused work session since " + getSessionTime() + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                        ReplyMessage = "\nThe recepient of this email is currently in a focused work session since " + getSessionTime().Hours + "hours and " + getSessionTime().Minutes + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
                     }
                 }
 
