@@ -14,7 +14,7 @@ namespace FocusSession.Data
         {
             try
             {
-                Shared.Data.Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.FocusTimerTable + " (id INTEGER PRIMARY KEY, startTime TEXT, endTime TEXT, " + Settings.FocusTimerSessionDuration + " TEXT);");
+                Shared.Data.Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.FocusTimerTable + " (id INTEGER PRIMARY KEY, startTime TEXT, endTime TEXT, " + Settings.FocusTimerSessionDuration + " TEXT, type TEXT);");
 
             }
             catch (System.Exception e)
@@ -43,11 +43,11 @@ namespace FocusSession.Data
         /// </summary>
         /// <param name="date"> Provide the start and endDate</param>
 
-        internal static void SaveTime(System.DateTime startTime, System.DateTime stopTime, System.TimeSpan timeDuration)
+        internal static void SaveTime(System.DateTime startTime, System.DateTime stopTime, System.TimeSpan timeDuration, string type)
         {
             try
             {
-                Shared.Data.Database.GetInstance().ExecuteDefaultQuery("INSERT INTO " + Settings.FocusTimerTable + " (startTime, endTime, " + Settings.FocusTimerSessionDuration + ") VALUES (" + Shared.Data.Database.GetInstance().QTime(startTime) + ", " + Shared.Data.Database.GetInstance().QTime(stopTime) + ", " + Shared.Data.Database.GetInstance().QTime(timeDuration) + ");");
+                Shared.Data.Database.GetInstance().ExecuteDefaultQuery("INSERT INTO " + Settings.FocusTimerTable + " (startTime, endTime, " + Settings.FocusTimerSessionDuration + ", type) VALUES (" + Shared.Data.Database.GetInstance().QTime(startTime) + ", " + Shared.Data.Database.GetInstance().QTime(stopTime) + ", " + Shared.Data.Database.GetInstance().QTime(timeDuration) + ", "+ Shared.Data.Database.GetInstance().Q(type) + ");");
             }
             catch (System.Exception e)
             {

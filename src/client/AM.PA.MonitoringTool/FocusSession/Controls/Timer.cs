@@ -146,17 +146,25 @@ namespace FocusSession.Controls
                 // initialize endMessage to display to the participant
                 StringBuilder endMessage = new StringBuilder("You did focus for " + elapsedTime.Hours + " hours and " + elapsedTime.Minutes + " Minutes. Good job :)");
 
+                
+
                 // specific to session type
                 if (stopEvent == Enum.SessionEnum.StopEvent.manual)
                 {
                     // log which session the user stopped
                     if (openSession)
                     {
+                        // store in log
                         Data.Queries.LogInfo("StopSession : The participant stopped an openFocusSession at " + DateTime.Now);
+                        // store in focusTimer table database
+                        Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "open");
                     }
                     else
                     {
+                        // store in log
                         Data.Queries.LogInfo("StopSession : The participant stopped a closedFocusSession at " + DateTime.Now);
+                        // store in focusTimer table database
+                        Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-manual");
                     }
 
                     // update indicator. Manual means the user stopped an open Session or Cancelled a closed Session
@@ -167,6 +175,8 @@ namespace FocusSession.Controls
                 {
                     // log that a closedFocusSession ran out
                     Data.Queries.LogInfo("StopSession : A closedFocusSession ran out at " + DateTime.Now);
+                    // store in focusTimer table database
+                    Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-automatic");
 
                     // update indicator
                     closedSession = false;
@@ -174,9 +184,6 @@ namespace FocusSession.Controls
                     // indicate that timer has run out in endMessage
                     endMessage.Insert(0, "FocusSession timer elapsed. ");
                 }
-
-                // store in database
-                Data.Queries.SaveTime(startTime, stopTime, elapsedTime);
 
                 // also store in log
                 Data.Queries.LogInfo("StopSession : The session had been running for " + elapsedTime);
