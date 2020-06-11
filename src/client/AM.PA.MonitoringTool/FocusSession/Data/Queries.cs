@@ -14,7 +14,7 @@ namespace FocusSession.Data
         {
             try
             {
-                Shared.Data.Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.FocusTimerTable + " (id INTEGER PRIMARY KEY, startTime TEXT, endTime TEXT, " + Settings.FocusTimerSessionDuration + " TEXT, type TEXT);");
+                Shared.Data.Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.FocusTimerTable + " (id INTEGER PRIMARY KEY, startTime TEXT, endTime TEXT, " + Settings.FocusTimerSessionDuration + " TEXT, type TEXT, emailsReceived INT, emailsReplied INT, slackReceived INT);");
 
             }
             catch (System.Exception e)
@@ -43,11 +43,11 @@ namespace FocusSession.Data
         /// </summary>
         /// <param name="date"> Provide the start and endDate</param>
 
-        internal static void SaveTime(System.DateTime startTime, System.DateTime stopTime, System.TimeSpan timeDuration, string type)
+        internal static void SaveTime(System.DateTime startTime, System.DateTime stopTime, System.TimeSpan timeDuration, string type, int numberOfReceivedEmailMessages, int emailsReplied, int numberOfReceivedSlackMessages)
         {
             try
             {
-                Shared.Data.Database.GetInstance().ExecuteDefaultQuery("INSERT INTO " + Settings.FocusTimerTable + " (startTime, endTime, " + Settings.FocusTimerSessionDuration + ", type) VALUES (" + Shared.Data.Database.GetInstance().QTime(startTime) + ", " + Shared.Data.Database.GetInstance().QTime(stopTime) + ", " + Shared.Data.Database.GetInstance().QTime(timeDuration) + ", "+ Shared.Data.Database.GetInstance().Q(type) + ");");
+                Shared.Data.Database.GetInstance().ExecuteDefaultQuery("INSERT INTO " + Settings.FocusTimerTable + " (startTime, endTime, " + Settings.FocusTimerSessionDuration + ", type, emailsReceived, emailsReplied, slackReceived) VALUES (" + Shared.Data.Database.GetInstance().QTime(startTime) + ", " + Shared.Data.Database.GetInstance().QTime(stopTime) + ", " + Shared.Data.Database.GetInstance().QTime(timeDuration) + ", " + Shared.Data.Database.GetInstance().Q(type) + ", " + Shared.Data.Database.GetInstance().Q(numberOfReceivedEmailMessages) + ", " + Shared.Data.Database.GetInstance().Q(emailsReplied) + ", " + Shared.Data.Database.GetInstance().Q(numberOfReceivedSlackMessages) + ");");
             }
             catch (System.Exception e)
             {
@@ -89,7 +89,7 @@ namespace FocusSession.Data
         /// </summary>
         internal static bool GetReplyMessageEnabled()
         {
-                return Shared.Data.Database.GetInstance().GetSettingsBool(Settings.REPLYMESSAGE_ENEABLED_SETTING, true);
+            return Shared.Data.Database.GetInstance().GetSettingsBool(Settings.REPLYMESSAGE_ENEABLED_SETTING, true);
         }
 
         /// <summary>

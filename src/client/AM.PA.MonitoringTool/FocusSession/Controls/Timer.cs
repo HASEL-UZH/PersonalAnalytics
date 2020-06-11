@@ -19,6 +19,7 @@ namespace FocusSession.Controls
         private static System.Collections.Generic.List<Microsoft.Graph.Message> emailsReplied = new System.Collections.Generic.List<Microsoft.Graph.Message>(); // this list is simply to keep track of the already replied to emails during the session
         private static NotifyIcon notification; // workaround: this is to show a ballontip, if focusAssist is not set to 'alarms only', the user will see it. The icon itself will show that a focusSession is running
         private static int numberOfReceivedSlackMessages = 0;
+        private static int numberOfReceivedEmailMessages = 0;
         private static bool slackClientInitialized = false;
         private static SlackClient slackClient;
         private static int slackTestMessageLimit = 3;
@@ -157,14 +158,14 @@ namespace FocusSession.Controls
                         // store in log
                         Data.Queries.LogInfo("StopSession : The participant stopped an openFocusSession at " + DateTime.Now);
                         // store in focusTimer table database
-                        Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "open");
+                        Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "open", numberOfReceivedEmailMessages, emailsReplied.Count, numberOfReceivedSlackMessages);
                     }
                     else
                     {
                         // store in log
                         Data.Queries.LogInfo("StopSession : The participant stopped a closedFocusSession at " + DateTime.Now);
                         // store in focusTimer table database
-                        Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-manual");
+                        Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-manual", numberOfReceivedEmailMessages, emailsReplied.Count, numberOfReceivedSlackMessages);
                     }
 
                     // update indicator. Manual means the user stopped an open Session or Cancelled a closed Session
@@ -176,7 +177,7 @@ namespace FocusSession.Controls
                     // log that a closedFocusSession ran out
                     Data.Queries.LogInfo("StopSession : A closedFocusSession ran out at " + DateTime.Now);
                     // store in focusTimer table database
-                    Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-automatic");
+                    Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-automatic", numberOfReceivedEmailMessages, emailsReplied.Count, numberOfReceivedSlackMessages);
 
                     // update indicator
                     closedSession = false;
@@ -206,7 +207,9 @@ namespace FocusSession.Controls
 
                 // messages received during session
                 // TODO sort after number of messages received
-                endMessage.Append("\n\nMessages received during this session: \n" + emailsReplied.Count + " Email \n" + numberOfReceivedSlackMessages + " Slack");
+                endMessage.Append("\n\nMessages received during this session: \n" + numberOfReceivedEmailMessages + " Email \n" + numberOfReceivedSlackMessages + " Slack");
+
+                endMessage.Append("\n\nEmails automatically replied to during this session: \n" + emailsReplied.Count);
 
                 // time statistics
                 endMessage.Append("\n\nTotal time focused this day: " + totalDay.Hours + " hours and " + totalDay.Minutes + " minutes.");
@@ -304,6 +307,9 @@ namespace FocusSession.Controls
 
         private static async Task CheckMail()
         {
+            // reset received messages. We want the last run number
+            numberOfReceivedEmailMessages = 0;
+
             // check mail and send an automatic reply if there was a new email.
             var unreadEmailsReceived = MsOfficeTracker.Helpers.Office365Api.GetInstance().GetUnreadEmailsReceived(DateTime.Now.Date);
             unreadEmailsReceived.Wait();
@@ -334,6 +340,8 @@ namespace FocusSession.Controls
                             }
                         }
                     }
+                    // total amount of received messages from the last mail check run.
+                    numberOfReceivedEmailMessages++;
                 }
             }
         }
