@@ -49,7 +49,7 @@ namespace MsOfficeTracker.Visualizations
                 (isToday && lastUpdatedMinsAgo > Settings.SaveEmailCountsInterval_InMinutes)) // request is for today and saved results are too old // could not fetch sent emails
             {
                 // create and save a new email snapshot (inbox, sent, received)
-                var res = Queries.CreateEmailsSnapshot(_date.Date, false);
+                var res = Queries.CreateEmailsSnapshot(_date.Date);
                 inbox = res.Item1;
                 inboxUnread = res.Item2;
                 sent = res.Item3;

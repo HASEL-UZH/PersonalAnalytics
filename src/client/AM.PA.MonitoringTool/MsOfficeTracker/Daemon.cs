@@ -172,10 +172,10 @@ namespace MsOfficeTracker
             try
             {
                 // don't do it if already done for the date; always check for the current date
-                if (date.Date != DateTime.Now.Date && Queries.HasEmailsEntriesForDate(date, true)) return;
+                if (date.Date != DateTime.Now.Date && Queries.HasEmailsEntriesForDate(date)) return;
 
                 // create and save a new email snapshot (inbox, sent, received)
-                Queries.CreateEmailsSnapshot(date, true);
+                Queries.CreateEmailsSnapshot(date);
             }
             catch (Exception e)
             {

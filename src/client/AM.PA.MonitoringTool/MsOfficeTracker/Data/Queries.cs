@@ -1,4 +1,4 @@
-﻿// Created by André Meyer at MSR
+// Created by André Meyer at MSR
 // Created: 2015-11-12
 // 
 // Licensed under the MIT License.
@@ -21,7 +21,7 @@ namespace MsOfficeTracker.Data
             try
             {
                 Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.MeetingsTable + " (id INTEGER PRIMARY KEY, timestamp TEXT, time TEXT, subject TEXT, durationInMins INTEGER, numAttendees INTEGER);");
-                Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.EmailsTable + " (id INTEGER PRIMARY KEY, timestamp TEXT, time TEXT, inbox INTEGER, inboxUnread INTEGER, sent INTEGER, received INTEGER, receivedUnread INTEGER, receivedUnreadSubject TEXT, isFromTimer INTEGER);");
+                Database.GetInstance().ExecuteDefaultQuery("CREATE TABLE IF NOT EXISTS " + Settings.EmailsTable + " (id INTEGER PRIMARY KEY, timestamp TEXT, time TEXT, inbox INTEGER, inboxUnread INTEGER, sent INTEGER, received INTEGER, receivedUnread INTEGER);");
             }
             catch (Exception e)
             {
@@ -33,14 +33,6 @@ namespace MsOfficeTracker.Data
         {
             try
             {
-                // database update 06.02.2020 (added a column to 'emails' table)
-                if (version == 6)
-                {
-                    if (Database.GetInstance().HasTable(Settings.EmailsTable))
-                    {
-                        Database.GetInstance().ExecuteDefaultQuery("ALTER TABLE " + Settings.EmailsTable + " ADD COLUMN receivedUnreadSubject TEXT;");
-                    }
-                }
 
                 // database update 07.12.2017 (added one column to 'meetings' table)
                 if (version == 5)
@@ -72,8 +64,7 @@ namespace MsOfficeTracker.Data
         /// (inbox size: is only collected for date = DateTime.Now)
         /// </summary>
         /// <param name="date"></param>
-        /// <param name="isFromTimer"></param>
-        internal static Tuple<long, long, long, long, int> CreateEmailsSnapshot(DateTime date, bool isFromTimer)
+        internal static Tuple<long, long, long, long, int> CreateEmailsSnapshot(DateTime date)
         {
             try
             {
@@ -81,7 +72,6 @@ namespace MsOfficeTracker.Data
                 var unreadInbox = Settings.NoValueDefault;
                 var inbox = Settings.NoValueDefault;
                 var unreadReceived = Settings.NoValueDefault;
-                var unreadReceivedSubject = new List<string>();
                         
                 if (date.Date == DateTime.Now.Date)
                 {
@@ -99,11 +89,6 @@ namespace MsOfficeTracker.Data
                     var unreadReceivedResult = Office365Api.GetInstance().GetNumberOfUnreadEmailsReceived(date.Date);
                     unreadReceivedResult.Wait();
                     unreadReceived = unreadReceivedResult.Result;
-
-                    // get subjects of unread emails received
-                    var unreadReceivedSubjectResponse = Office365Api.GetInstance().GetSubjectOfUnreadEmailsReceived(date.Date);
-                    unreadReceivedSubjectResponse.Wait();
-                    unreadReceivedSubject = unreadReceivedSubjectResponse.Result;
                 }
 
                 // get emails sent count
@@ -117,7 +102,7 @@ namespace MsOfficeTracker.Data
                 var received = receivedResult.Result;
 
                 // save into the database
-                SaveEmailsSnapshot(date, inbox, unreadInbox, sent, received, unreadReceived, unreadReceivedSubject, isFromTimer);
+                SaveEmailsSnapshot(date, inbox, unreadInbox, sent, received, unreadReceived);
 
                 // return for immediate use
                 return new Tuple<long, long, long, long, int>(inbox, unreadInbox, sent, received, unreadReceived);
@@ -138,13 +123,11 @@ namespace MsOfficeTracker.Data
         /// <param name="sent"></param>
         /// <param name="received"></param>
         /// <param name="unreadReceived"></param>
-        /// <param name="unreadReceivedSubject"></param>
-        /// <param name="isFromTimer"></param>
-        internal static void SaveEmailsSnapshot(DateTime date, long inbox, long unreadInbox, long sent, long received, int unreadReceived, List<string> unreadReceivedSubject, bool isFromTimer)
+        internal static void SaveEmailsSnapshot(DateTime date, long inbox, long unreadInbox, long sent, long received, int unreadReceived)
         {
-            Database.GetInstance().ExecuteDefaultQuery("INSERT INTO " + Settings.EmailsTable + " (timestamp, time, inbox, inboxUnread, sent, received, receivedUnread, receivedUnreadSubject, isFromTimer) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " +
+            Database.GetInstance().ExecuteDefaultQuery("INSERT INTO " + Settings.EmailsTable + " (timestamp, time, inbox, inboxUnread, sent, received, receivedUnread) VALUES (strftime('%Y-%m-%d %H:%M:%f', 'now', 'localtime'), " +
                 Database.GetInstance().QTime(date) + ", " + Database.GetInstance().Q(inbox) + ", " + Database.GetInstance().Q(unreadInbox) + ", " + Database.GetInstance().Q(sent) + ", "  +
-                Database.GetInstance().Q(received) + ", " + Database.GetInstance().Q(unreadReceived) + ", " + Database.GetInstance().Q(unreadReceivedSubject) + ", " + Database.GetInstance().Q(isFromTimer) + ");");
+                Database.GetInstance().Q(received) + ", " + Database.GetInstance().Q(unreadReceived) + ");");
         }
 
         /// <summary>
@@ -216,14 +199,13 @@ namespace MsOfficeTracker.Data
         /// Check if there is already emails (with isFromTimer = 0) stored for the date
         /// </summary>
         /// <returns>true if yes, false otherwise</returns>
-        internal static bool HasEmailsEntriesForDate(DateTimeOffset date, bool isFromTimer)
+        internal static bool HasEmailsEntriesForDate(DateTimeOffset date)
         {
             try
             {
                 var query = "SELECT EXISTS( "
                           + "SELECT 1 FROM " + Settings.EmailsTable + " "
-                          + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date) + " "
-                          + "AND isFromTimer = " + Database.GetInstance().Q(isFromTimer) + ");";
+                          + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date) + ");";
 
                 var count = Database.GetInstance().ExecuteScalar(query);
                 if (count == 0) return false;
