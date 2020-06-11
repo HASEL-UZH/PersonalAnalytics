@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace Shared.Data
 {
-    internal enum LogType { Info, Warning, Error }
+    internal enum LogType { Info, Warning, Error, FocusInfo }
 
     /// <inheritdoc />
     /// <summary>
@@ -285,6 +285,16 @@ namespace Shared.Data
         public void LogInfo(string message)
         {
             LogToDatabase(message, LogType.Info);
+        }
+
+        /// <summary>
+        /// Inserts the message (given as a parameter) into the log-database-table (flag: FocusInfo).
+        /// Also logs the query.
+        /// </summary>
+        /// <param name="message"></param>
+        public void LogFocusInfo(string message)
+        {
+            LogToDatabase(message, LogType.FocusInfo);
         }
 
         /// <summary>

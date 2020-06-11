@@ -141,11 +141,11 @@ namespace FocusSession.Data
         }
 
         /// <summary>
-        /// Log info
+        /// Log info as FocusInfo as to distringuish from rest of application for simpler analysis
         /// </summary>
         internal static void LogInfo(string text)
         {
-            Shared.Data.Database.GetInstance().LogInfo(text);
+            Shared.Data.Database.GetInstance().LogFocusInfo(text);
         }
 
     }
