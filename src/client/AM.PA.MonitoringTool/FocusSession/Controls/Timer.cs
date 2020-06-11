@@ -23,6 +23,7 @@ namespace FocusSession.Controls
         private static bool slackClientInitialized = false;
         private static SlackClient slackClient;
         private static int slackTestMessageLimit = 3;
+        private static int flaggerDisplayed = 0;
 
         public static bool openSession { get; set; } = false;   // indicate if an openSession is running
         public static bool closedSession { get; set; } = false; // indicate if a closedSession is running
@@ -158,14 +159,14 @@ namespace FocusSession.Controls
                         // store in log
                         Data.Queries.LogInfo("StopSession : The participant stopped an openFocusSession at " + DateTime.Now);
                         // store in focusTimer table database
-                        Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "open", numberOfReceivedEmailMessages, emailsReplied.Count, numberOfReceivedSlackMessages);
+                        Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "open", numberOfReceivedEmailMessages, emailsReplied.Count, numberOfReceivedSlackMessages, flaggerDisplayed);
                     }
                     else
                     {
                         // store in log
                         Data.Queries.LogInfo("StopSession : The participant stopped a closedFocusSession at " + DateTime.Now);
                         // store in focusTimer table database
-                        Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-manual", numberOfReceivedEmailMessages, emailsReplied.Count, numberOfReceivedSlackMessages);
+                        Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-manual", numberOfReceivedEmailMessages, emailsReplied.Count, numberOfReceivedSlackMessages, flaggerDisplayed);
                     }
 
                     // update indicator. Manual means the user stopped an open Session or Cancelled a closed Session
@@ -177,7 +178,7 @@ namespace FocusSession.Controls
                     // log that a closedFocusSession ran out
                     Data.Queries.LogInfo("StopSession : A closedFocusSession ran out at " + DateTime.Now);
                     // store in focusTimer table database
-                    Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-automatic", numberOfReceivedEmailMessages, emailsReplied.Count, numberOfReceivedSlackMessages);
+                    Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-automatic", numberOfReceivedEmailMessages, emailsReplied.Count, numberOfReceivedSlackMessages, flaggerDisplayed);
 
                     // update indicator
                     closedSession = false;
@@ -227,6 +228,9 @@ namespace FocusSession.Controls
 
                 // reset SlackMessages
                 numberOfReceivedSlackMessages = 0;
+
+                // reset flagger
+                flaggerDisplayed = 0;
 
                 // dispose notifications 
                 notification.Dispose();
@@ -394,6 +398,9 @@ namespace FocusSession.Controls
 
                             // log the users answer
                             Data.Queries.LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " and was shown the WindowFlagger Messagebox");
+
+                            // track how often the user has been shown the flagger message during a session
+                            flaggerDisplayed++;
 
                             // check answer
                             // TODO store in database entry for study rather then just console-outprinting
