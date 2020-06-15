@@ -41,6 +41,16 @@ namespace FocusSession.Controls
         // list of potentially distracting programs that we use for flagging check
         private static string[] windowFlaggerList = new string[] { "Skype", "WhatsApp", "Zoom", "Microsoft Outlook", "Google Hangouts", "Discord", "LINE", "Signal", "Trilian", "Viber", "Pidgin", "eM Client", "Thunderbird", "Whatsapp Web", "Facebook", "Winmail", "Telegram", "Yahoo Mail", "Camfrog", "Messenger", "TextNow", "Slack", "mIRC", "BlueMail", "Paltalk", "Mailbird", "Jisti", "Jabber", "OpenTalk", "ICQ", "Gmail", "Tango", "Lync", "Pegasus", "Mailspring", "Teamspeak", "QuizUp", "IGA", "Zello", "Jelly SMS", "Mammail", "Line", "MSN", "inSpeak", "Spark", "TorChat", "ChatBox", "AIM", "HexChat", "HydraIRC", "Mulberry", "Claws Mail", "Pandion", "ZChat", "Franz", "Microsoft Teams", "Zulip" };
 
+
+        // declaring closedsessionComplete event for context menu
+        public static event EventHandler ClosedSessionCompleted;
+
+        // use null sender since static method
+        protected static void OnProcessCompleted(EventArgs e)
+        {
+            ClosedSessionCompleted?.Invoke(null,e);
+        }
+
         /* getter */
 
         // for icon hover information and email reply
@@ -182,6 +192,9 @@ namespace FocusSession.Controls
 
                     // update indicator
                     closedSession = false;
+
+                    // send event for context menu update
+                    OnProcessCompleted(EventArgs.Empty);
 
                     // indicate that timer has run out in endMessage
                     endMessage.Insert(0, "FocusSession timer elapsed. ");
