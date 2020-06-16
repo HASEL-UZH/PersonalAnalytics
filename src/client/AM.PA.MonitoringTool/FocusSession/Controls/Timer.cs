@@ -17,13 +17,15 @@ namespace FocusSession.Controls
         private static DateTime endTime;
         private static System.Timers.Timer aTimer;
         private static System.Collections.Generic.List<Microsoft.Graph.Message> emailsReplied = new System.Collections.Generic.List<Microsoft.Graph.Message>(); // this list is simply to keep track of the already replied to emails during the session
+        private static System.Collections.Generic.List<int> slackMessagesResponded = new System.Collections.Generic.List<int>();
         private static NotifyIcon notification; // workaround: this is to show a ballontip, if focusAssist is not set to 'alarms only', the user will see it. The icon itself will show that a focusSession is running
         private static int numberOfReceivedSlackMessages = 0;
         private static int numberOfReceivedEmailMessages = 0;
         private static bool slackClientInitialized = false;
         private static SlackClient slackClient;
-        private static int slackTestMessageLimit = 3;
         private static int flaggerDisplayed = 0;
+        private static string slackMemberId;
+        private static string slackName;
 
         public static bool openSession { get; set; } = false;   // indicate if an openSession is running
         public static bool closedSession { get; set; } = false; // indicate if a closedSession is running
@@ -48,8 +50,9 @@ namespace FocusSession.Controls
         // use null sender since static method
         protected static void OnProcessCompleted(EventArgs e)
         {
-            ClosedSessionCompleted?.Invoke(null,e);
+            ClosedSessionCompleted?.Invoke(null, e);
         }
+
 
         /* getter */
 
@@ -101,7 +104,8 @@ namespace FocusSession.Controls
                 else if (session == Enum.SessionEnum.Session.closedSession)
                 {
                     // add the timeperiod
-                    if (sessionDuration != 0) {                                         // Quickstart from submenu
+                    if (sessionDuration != 0)
+                    {                                         // Quickstart from submenu
                         endTime = DateTime.Now.AddMinutes((double)sessionDuration);     // set time with option from submenu  
                         // log that the user started a closedFocusSession
                         Data.Queries.LogInfo("StartSession : The participant started a closedFocusSession at " + DateTime.Now + " for " + (double)sessionDuration + " minutes.");
@@ -158,7 +162,7 @@ namespace FocusSession.Controls
                 // initialize endMessage to display to the participant
                 StringBuilder endMessage = new StringBuilder("You did focus for " + elapsedTime.Hours + " hours and " + elapsedTime.Minutes + " Minutes. Good job :)");
 
-                
+
 
                 // specific to session type
                 if (stopEvent == Enum.SessionEnum.StopEvent.manual)
@@ -224,6 +228,7 @@ namespace FocusSession.Controls
                 endMessage.Append("\n\nMessages received during this session: \n" + numberOfReceivedEmailMessages + " Email \n" + numberOfReceivedSlackMessages + " Slack");
 
                 endMessage.Append("\n\nEmails automatically replied to during this session: \n" + emailsReplied.Count);
+                endMessage.Append("\n\nSlack mentions automatically replied to during this session: \n" + slackMessagesResponded.Count);
 
                 // time statistics
                 endMessage.Append("\n\nTotal time focused this day: " + totalDay.Hours + " hours and " + totalDay.Minutes + " minutes.");
@@ -231,16 +236,22 @@ namespace FocusSession.Controls
                 endMessage.Append("\nTotal time focused this month: " + totalMonth.Hours + " hours and " + totalMonth.Minutes + " minutes.");
 
                 // display a message to the user so the user gets feedback (important)
-                MessageBox.Show("FocusSession stopped.","FocusSession Summary");
+                MessageBox.Show("FocusSession stopped.", "FocusSession Summary");
 
                 // workaround: calling twice because of 'splash screen dismisses dialog box' bug. More here https://stackoverflow.com/questions/576503/how-to-set-wpf-messagebox-owner-to-desktop-window-because-splashscreen-closes-mes/5328590#5328590
                 MessageBox.Show(endMessage.ToString(), "FocusSession Summary");
 
+                // reset variables
+
+                // int emails received is reset in each check, so no need to reset it here.
+
+                numberOfReceivedSlackMessages = 0;
+
                 // empty replied Emails list
                 emailsReplied = new System.Collections.Generic.List<Microsoft.Graph.Message>();
 
-                // reset SlackMessages
-                numberOfReceivedSlackMessages = 0;
+                // empty replies Slack list
+                slackMessagesResponded = new System.Collections.Generic.List<int>();
 
                 // reset flagger
                 flaggerDisplayed = 0;
@@ -288,12 +299,6 @@ namespace FocusSession.Controls
                 }
                 else
                 {
-                    if (numberOfReceivedSlackMessages < slackTestMessageLimit && closedSession)
-                    {
-                        // this method is currently for demonstration purposes, the bot will simply post/spam a message in the general channel
-                        slackClient.SendSlackMessage().Wait();
-                    }
-
                     // checks for total missed slack messages during session, in the corresponding workspace of the token, in channels where the bot has been addded to
                     // Task.Result will block async code, and should be used carefully.
                     numberOfReceivedSlackMessages = slackClient.CheckReceivedSlackMessagesInWorkspace().Result;
@@ -310,8 +315,10 @@ namespace FocusSession.Controls
                         ReplyMessage = "\nThe recepient of this email is currently in a focused work session for another " + getSessionTime().Hours + "hours and " + getSessionTime().Minutes + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
                     }
                 }
-                else {
-                    if (!CustomizedReplyMessageEnabled) {
+                else
+                {
+                    if (!CustomizedReplyMessageEnabled)
+                    {
                         // update already running time in message
                         ReplyMessage = "\nThe recepient of this email is currently in a focused work session since " + getSessionTime().Hours + "hours and " + getSessionTime().Minutes + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
                     }
@@ -377,6 +384,12 @@ namespace FocusSession.Controls
                 // set control variable
                 slackClientInitialized = true;
 
+                // extract memberId
+                slackMemberId = slackConfig.memberId;
+
+                // extract slackName
+                slackName = slackConfig.memberName;
+
             }
         }
 
@@ -398,8 +411,9 @@ namespace FocusSession.Controls
                 foreach (String windowFlagger in localWindowFlaggerList)
                     if (currentWindowTitle.Contains(windowFlagger))
                     {
-                        if (WindowFlaggerMessageBoxActive) {
-                            return; 
+                        if (WindowFlaggerMessageBoxActive)
+                        {
+                            return;
                         }
                         else
                         {
@@ -407,7 +421,7 @@ namespace FocusSession.Controls
                             WindowFlaggerMessageBoxActive = true;
 
                             // show message box to ask if this is task-related
-                            var selectedOption = MessageBox.Show("You opened a potentially distracting program during an active FocusSession. Is "+currentWindowTitle+" related to the task you are currently focussing on?", "Potentially distracting Program detected: " + currentWindowTitle, MessageBoxButtons.YesNo);
+                            var selectedOption = MessageBox.Show("You opened a potentially distracting program during an active FocusSession. Is " + currentWindowTitle + " related to the task you are currently focussing on?", "Potentially distracting Program detected: " + currentWindowTitle, MessageBoxButtons.YesNo);
 
                             // log the users answer
                             Data.Queries.LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " and was shown the WindowFlagger Messagebox");
@@ -442,7 +456,7 @@ namespace FocusSession.Controls
                             }
                         }
                     }
-            
+
             }
         }
 
@@ -455,13 +469,14 @@ namespace FocusSession.Controls
             }
 
 
+
             // this is a simple posting method for demonstration purposes
-            internal async Task SendSlackMessage()
+            internal async Task SendSlackMessage(string channelName)
             {
 
                 // send simple message to general channel and wait for the call to complete
-                var channel = "#general";
-                var text = "hello world";
+                var channel = channelName;
+                var text = "The participant '" + slackName + "' mentioned in the previous message is currently in a focused work session and will receive your message after completing the current task.";
                 var response = await client.PostMessageAsync(channel, text);
 
                 // process response from API call
@@ -482,7 +497,7 @@ namespace FocusSession.Controls
                 // total number of missed messages to return
                 int numberOfMissedMessages = 0;
 
-                // get the list of all channels from that workspace
+                // get the list of all channels from that workspace. When testing, this only returns public channels.
                 ChannelListResponse channelList = await client.GetChannelListAsync();
 
                 // loop trough the channels in the workspace
@@ -496,6 +511,7 @@ namespace FocusSession.Controls
                     // and then on the channel itself, read the message history backwards, so loop thorugh it from latest to earliest, with earliest being the oldest unread message (channelMessageHistory.latest would fetch the reading cursor or the user, so the beginning of the yet unread messages.). 
                     if (channelList.channels[channelCounter].is_member)
                     {
+
                         // get message histroy
                         ChannelMessageHistory channelMessageHistory = await client.GetChannelHistoryAsync(channelList.channels[channelCounter]);
 
@@ -504,11 +520,15 @@ namespace FocusSession.Controls
                         {
 
                             DateTime messageDate = channelMessageHistory.messages[messageCounter].ts; // Date of the message
-
                             // check if received after we started the focusSession
                             if (messageDate > startTime)
                             {
                                 numberOfMissedMessages++;
+                                if (channelMessageHistory.messages[messageCounter].text.Contains(slackMemberId) && !slackMessagesResponded.Contains(channelMessageHistory.messages[messageCounter].id))
+                                {
+                                    await SendSlackMessage(channelList.channels[channelCounter].name);
+                                    slackMessagesResponded.Add(channelMessageHistory.messages[messageCounter].id);
+                                }
                             }
                             else
                             {
