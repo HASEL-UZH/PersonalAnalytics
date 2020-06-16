@@ -173,14 +173,14 @@ namespace FocusSession.Controls
                         // store in log
                         Data.Queries.LogInfo("StopSession : The participant stopped an openFocusSession at " + DateTime.Now);
                         // store in focusTimer table database
-                        Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "open", numberOfReceivedEmailMessages, emailsReplied.Count, numberOfReceivedSlackMessages, flaggerDisplayed);
+                        Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "open", numberOfReceivedEmailMessages, emailsReplied.Count, numberOfReceivedSlackMessages, slackMessagesResponded.Count, flaggerDisplayed);
                     }
                     else
                     {
                         // store in log
                         Data.Queries.LogInfo("StopSession : The participant stopped a closedFocusSession at " + DateTime.Now);
                         // store in focusTimer table database
-                        Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-manual", numberOfReceivedEmailMessages, emailsReplied.Count, numberOfReceivedSlackMessages, flaggerDisplayed);
+                        Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-manual", numberOfReceivedEmailMessages, emailsReplied.Count, numberOfReceivedSlackMessages, slackMessagesResponded.Count, flaggerDisplayed);
                     }
 
                     // update indicator. Manual means the user stopped an open Session or Cancelled a closed Session
@@ -192,7 +192,7 @@ namespace FocusSession.Controls
                     // log that a closedFocusSession ran out
                     Data.Queries.LogInfo("StopSession : A closedFocusSession ran out at " + DateTime.Now);
                     // store in focusTimer table database
-                    Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-automatic", numberOfReceivedEmailMessages, emailsReplied.Count, numberOfReceivedSlackMessages, flaggerDisplayed);
+                    Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-automatic", numberOfReceivedEmailMessages, emailsReplied.Count, numberOfReceivedSlackMessages, slackMessagesResponded.Count, flaggerDisplayed);
 
                     // update indicator
                     closedSession = false;
@@ -467,8 +467,6 @@ namespace FocusSession.Controls
             {
                 client = new SlackTaskClient(botToken);
             }
-
-
 
             // this is a simple posting method for demonstration purposes
             internal async Task SendSlackMessage(string channelName)
