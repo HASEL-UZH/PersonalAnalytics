@@ -231,10 +231,10 @@ namespace FocusSession.Controls
                 endMessage.Append("\nTotal time focused this month: " + totalMonth.Hours + " hours and " + totalMonth.Minutes + " minutes.");
 
                 // display a message to the user so the user gets feedback (important)
-                MessageBox.Show("FocusSession stopped.");
+                MessageBox.Show("FocusSession stopped.","FocusSession Summary");
 
                 // workaround: calling twice because of 'splash screen dismisses dialog box' bug. More here https://stackoverflow.com/questions/576503/how-to-set-wpf-messagebox-owner-to-desktop-window-because-splashscreen-closes-mes/5328590#5328590
-                MessageBox.Show(endMessage.ToString());
+                MessageBox.Show(endMessage.ToString(), "FocusSession Summary");
 
                 // empty replied Emails list
                 emailsReplied = new System.Collections.Generic.List<Microsoft.Graph.Message>();
