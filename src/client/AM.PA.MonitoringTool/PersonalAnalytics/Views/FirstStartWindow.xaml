@@ -21,13 +21,21 @@
 
         <StackPanel Grid.Row="0">
             <TextBlock TextWrapping="Wrap">
-                Thank you for installing PersonalAnalytics and participating in our study. A few hints before you start:
+                Thank you for installing the PersonalAnalytics-FocusSession tool and participating in this evaluation. A few hints before you start:
                 <LineBreak  /><LineBreak  />
-                <Span Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" FontWeight="Bold">Goal:</Span> Our goal is to make you more productive and happier, by increasing your awareness about your work (habits) and productivity.
+                <Span Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" FontWeight="Bold">Goal:</Span> FocusSession helps you being more productive, by supporting you to focus on a specific task during a timeframe of your choosing.
+                <LineBreak /><LineBreak />
+                <Span Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" FontWeight="Bold">Sessions:</Span> This is the heart of this tool. By starting a session, you commit to focus on a specific task during that timeframe. A closed session runs for a specific time duration, while an open session runs until you stop it. During this time, the tool will help you focus by suppressing notifications, flagging potentially distracting applications, and summarize how many emails or messages have been received and replied to.
+                <LineBreak /><LineBreak />
+                <Span Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" FontWeight="Bold">WindowFlagger:</Span> The WindowFlagger is active during a session. While active, it will notice if you actively open a window of a potentially distracting applications, and display a notification. This can be turned on or off, or the list of applications can be adjusted, in the settings.
+                <LineBreak /><LineBreak />
+                <Span Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" FontWeight="Bold">Summarizer:</Span> FocusSession will check for messages received during a session and display a summary. Enable the Office365 Tracker to connect a Microsoft live email account. To connect a slack workspace, install the focussession slack app and paste the bot authentication token into the slackConfig.json file, generated in the data folder (see Privacy Statement section).
+                <LineBreak /><LineBreak />
+                <Span Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" FontWeight="Bold">Expectation Management:</Span> FocusSession will automatically reply to emails received as to manage external expectations (of the sender). This functionality as well as the message can be adjusted in the settings. If slack is configured, the bot will respond to user mentions in added public channels.
                 <LineBreak /><LineBreak />
                 <Span Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" FontWeight="Bold">Monitoring Component:</Span> The tool can collect information about how you spend your time on your computer (e.g. the programs you use), how active you are (based on your keyboard and mouse use), the meetings you attend, the emails you send/receive, and more. Use the tool settings to chose what data you want to be collected.
                 <LineBreak /><LineBreak />
-                <Span Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" FontWeight="Bold">Retrospection:</Span> This is the heart of the tool. It visualized the collected data in a daily and weekly retrospection. If you use it regularly, you can learn more about your work patterns and get valuable insights into your productivity.
+                <Span Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" FontWeight="Bold">Retrospection:</Span> This visualizes the collected data in a daily and weekly retrospection. If you use it regularly, you can learn more about your work patterns and get valuable insights into your productivity.
                 <LineBreak /><LineBreak />
                 <Span Foreground="White" Background="{x:Static paColors:Settings.RetrospectionColorBrush}" FontWeight="Bold">The Icon:</Span> In your task bar on the bottom right, you will find the PersonalAnalytics icon (<Border Height="15" Width="15" Background="Black"><Image Source="../Assets/icon.ico" Width="15" Height="15" /></Border>), whenever the tool is running. Right click on the icon to access all features, such as opening the Retrospection, pausing/continuing the monitoring component, or looking at the collected data.
                 <LineBreak /><LineBreak />

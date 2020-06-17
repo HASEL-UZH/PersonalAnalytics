@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:PersonalAnalytics.Views"
         xmlns:paColors="clr-namespace:Shared;assembly=Shared"
         mc:Ignorable="d"
-        Title="PersonalAnalytics: Welcome" Height="540" Width="700">
+        Title="PersonalAnalytics: Welcome" Height="700" Width="700">
     
     <Grid>
         <Grid.RowDefinitions>
