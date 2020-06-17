@@ -61,6 +61,7 @@
     <Compile Include="Controls\Timer.cs" />
     <Compile Include="Daemon.cs" />
     <Compile Include="Data\Queries.cs" />
+    <Compile Include="Enum\SessionEnum.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="SlackAPI\Attachment.cs" />
@@ -207,7 +208,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="Configuration\config.json" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
