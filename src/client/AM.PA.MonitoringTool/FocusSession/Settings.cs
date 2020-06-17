@@ -14,7 +14,7 @@ namespace FocusSession
         public static string IsTextListByDefault = "Skype, WhatsApp, Zoom, Microsoft Outlook, Google Hangouts, Discord, LINE, Signal, Trilian, Viber, Pidgin, eM Client, Thunderbird, Whatsapp Web, Facebook, Winmail, Telegram, Yahoo Mail, Camfrog, Messenger, TextNow, Slack, mIRC, BlueMail, Paltalk, Mailbird, Jisti, Jabber, OpenTalk, ICQ, Gmail, Tango, Lync, Pegasus, Mailspring, Teamspeak, QuizUp, IGA, Zello, Jelly SMS, Mammail, Line, MSN, inSpeak, Spark, TorChat, ChatBox, AIM, HexChat, HydraIRC, Mulberry, Claws Mail, Pandion, ZChat, Franz, Microsoft Teams, Zulip";
         public const string FocusTimerTable = "focusTimer";
         public const string FocusTimerSessionDuration = "timeDuration";
-        public static int ClosedSessionDuration = 25;
+        public static int ClosedSessionDuration = 20;
         internal const string CUSTOMIZEDTIMERDURATION_INT_SETTING = "ClosedSessionDuration";
         internal const string REPLYMESSAGE_ENEABLED_SETTING = "ReplyMessageEnabled";
         internal const string WINDOWFLAGGING_ENEABLED_SETTING = "WindowFlaggingEnabled";
