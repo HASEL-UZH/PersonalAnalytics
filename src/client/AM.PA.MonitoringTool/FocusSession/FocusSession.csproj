@@ -42,9 +42,11 @@
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -54,6 +56,7 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\SlackConfig.cs" />
@@ -197,6 +200,9 @@
     <Compile Include="SlackAPI\WebSocketMessages\TeamJoin.cs" />
     <Compile Include="SlackAPI\WebSocketMessages\Typing.cs" />
     <Compile Include="SlackAPI\WebSocketMessages\UserChange.cs" />
+    <Compile Include="Views\FirstStartScreen.xaml.cs">
+      <DependentUpon>FirstStartScreen.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Visualizations\TimerButton.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -235,6 +241,12 @@
       <Project>{2BBDFA6D-20DD-4A7B-893E-43C388382C9A}</Project>
       <Name>Shared</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Views\FirstStartScreen.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

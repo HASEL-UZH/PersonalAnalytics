@@ -1,0 +1,23 @@
+﻿<UserControl x:Class="FocusSession.Views.FirstStartScreen"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MsOfficeTracker.Views"
+             xmlns:paColors="clr-namespace:Shared;assembly=Shared"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock TextWrapping="Wrap" Padding="0 5 0 5">This tracker allows you to focus for a specific task for a given timeperiod through the use of focus sessions in the context menu.</TextBlock>
+            <TextBlock TextWrapping="Wrap" Padding="0 5 0 5">It will suppress notifications, flag potentially distracting apps, summarize received mails and automatically replies mails, as well as slack messages. These functions can be adjusted in the 'Settings' option of the context menu.</TextBlock>
+            <TextBlock TextWrapping="Wrap" Padding="0 5 0 5">To use email, enable the Office365 Tracker and log in.</TextBlock>
+            <TextBlock TextWrapping="Wrap" Padding="0 5 0 5">FocusSession does also allow Slack to be used, for the public channels of one workspace. If not existing, add the 'focussession' bot to the workspace and add the app in the public channels you want to have summarized. To enable slack and connect it to a workspace, paste the bot authentication token into the slackConfig.json file (overwrite value corresponding to the 'botAuthToken' key). Additionally, to have the application respond to your username mention, paste your member ID of this workspace as a value of 'yourMemberId', and your slack name to 'memberName'. The slackConfig.json can be found from 'Open collected data' in the context menu. To disable slack, simply delete the slackConfig.json file, it will be regenerated with default values.</TextBlock>
+        </StackPanel>
+    </Grid>
+</UserControl>

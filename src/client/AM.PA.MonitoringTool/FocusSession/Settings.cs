@@ -22,5 +22,7 @@ namespace FocusSession
         internal const string CUSTOMIZEDREPLYMESSAGE_TEXT_SETTING = "CustomizedReplyMessage";
         internal const string CUSTOMIZEDFLAGGINGLIST_ENEABLED_SETTING = "CustomizedFlaggingListEnabled";
         internal const string CUSTOMIZEDFLAGGINGLIST_TEXT_SETTING = "CustomizedFlaggingList";
+        internal const string ISFIRSTSTART = "FocusSessionFirstStart";
+        internal const string TRACKER_ENEABLED_SETTING = "FocusSessionTrackerEnabled";
     }
 }

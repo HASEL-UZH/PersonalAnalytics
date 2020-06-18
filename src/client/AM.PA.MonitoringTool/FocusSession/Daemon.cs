@@ -90,7 +90,7 @@ namespace FocusSession
         // TODO implement this, that the user can enable or disable, change when user updates settings, include in settings editor
         public override bool IsEnabled()
         {
-            return true;
+            return Database.GetInstance().GetSettingsBool(Settings.TRACKER_ENEABLED_SETTING, Settings.IsEnabledByDefault);
         }
 
 
@@ -276,5 +276,11 @@ namespace FocusSession
             }
         }
 
+        // start window
+        public override System.Collections.Generic.List<IFirstStartScreen> GetStartScreens()
+        {
+            return new System.Collections.Generic.List<IFirstStartScreen>() { new Views.FirstStartScreen() };
+        }
+        public override bool IsFirstStart { get { return !Database.GetInstance().HasSetting(Settings.TRACKER_ENEABLED_SETTING);} }
     }
 }
