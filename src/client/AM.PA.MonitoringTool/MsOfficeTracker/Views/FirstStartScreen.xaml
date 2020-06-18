@@ -14,7 +14,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0">
-            <TextBlock TextWrapping="Wrap" Padding="0 5 0 5">This tracker allows you to collect information about the meetings you attend and the emails you send/receive in a work day. In case you enable this tracker, you will need to authenticate with your Office 365 or Microsoft account.</TextBlock>
+            <TextBlock TextWrapping="Wrap" Padding="0 5 0 5">This tracker allows you to have the focusSession app summarize your received/missed emails after an active focus session. Additionally, the application can automatically respond to emails during an active focus session as to manage external expectations (of the sender). In case you enable this tracker, you will need to authenticate with your Office 365 or Microsoft account.</TextBlock>
             <TextBlock TextWrapping="Wrap" Padding="0 5 0 5">The contents of the emails and meetings are NOT accessed. You can manually disable or enable this tracker anytime in the settings.</TextBlock>
             <TextBlock TextWrapping="Wrap" Padding="0 5 0 5">Do you want to enable the tracker?</TextBlock>
             <CheckBox Name="Enable" Checked="Enable_Checked" Unchecked="Enable_Unchecked">Enable the Office 365 Tracker</CheckBox>
