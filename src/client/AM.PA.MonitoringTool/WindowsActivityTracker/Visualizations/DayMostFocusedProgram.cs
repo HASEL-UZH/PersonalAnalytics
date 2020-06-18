@@ -22,8 +22,8 @@ namespace WindowsActivityTracker.Visualizations
 
             Title = "Longest Time<br />Focused in a Program";
             IsEnabled = true; //todo: handle by user
-            Order = 20; //todo: handle by user
-            Size = VisSize.Small;
+            Order = 2; //todo: handle by user
+            Size = VisSize.Square;
             Type = VisType.Day;
         }
 

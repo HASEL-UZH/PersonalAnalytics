@@ -85,6 +85,174 @@ namespace FocusSession.Data
         }
 
         /// <summary>
+        /// Retrieves the total amount of emails received stored in the database
+        /// </summary>
+
+        internal static int GetEmailMessagesReceived()
+        {
+            try
+            {
+                DataTable emailMessagesReceivedTable = Shared.Data.Database.GetInstance().ExecuteReadQuery("SELECT SUM(emailsReceived) as MyColumnSum FROM " + Settings.FocusTimerTable + ";");
+
+                int emailMessagesReceived = 0;
+
+                foreach (DataRow row in emailMessagesReceivedTable.Rows)
+                {
+                    emailMessagesReceived += Int16.Parse(row.ItemArray[0].ToString());
+                    Console.WriteLine(emailMessagesReceived);
+                }
+
+                return emailMessagesReceived;
+
+            }
+            catch (System.Exception e)
+            {
+                Shared.Logger.WriteToLogFile(e);
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the total amount of email messages replied stored in the database
+        /// </summary>
+
+        internal static int GetEmailMessagesReplied()
+        {
+            try
+            {
+                DataTable emailMessagesRepliedTable = Shared.Data.Database.GetInstance().ExecuteReadQuery("SELECT SUM(emailsReplied) as MyColumnSum FROM " + Settings.FocusTimerTable + ";");
+
+                int emailMessagesReplied = 0;
+
+                foreach (DataRow row in emailMessagesRepliedTable.Rows)
+                {
+                    emailMessagesReplied += Int16.Parse(row.ItemArray[0].ToString());
+                    Console.WriteLine(emailMessagesReplied);
+                }
+
+                return emailMessagesReplied;
+
+            }
+            catch (System.Exception e)
+            {
+                Shared.Logger.WriteToLogFile(e);
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the total amount of emails received stored in the database
+        /// </summary>
+
+        internal static int GetSlackMessagesReceived()
+        {
+            try
+            {
+                DataTable slackMessagesReceivedTable = Shared.Data.Database.GetInstance().ExecuteReadQuery("SELECT SUM(slackReceived) as MyColumnSum FROM " + Settings.FocusTimerTable + ";");
+
+                int slackMessagesReceived = 0;
+
+                foreach (DataRow row in slackMessagesReceivedTable.Rows)
+                {
+                    slackMessagesReceived += Int16.Parse(row.ItemArray[0].ToString());
+                    Console.WriteLine(slackMessagesReceived);
+                }
+
+                return slackMessagesReceived;
+
+            }
+            catch (System.Exception e)
+            {
+                Shared.Logger.WriteToLogFile(e);
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the total amount of slack messages replied stored in the database
+        /// </summary>
+
+        internal static int GetSlackMessagesReplied()
+        {
+            try
+            {
+                DataTable slackMessagesRepliedTable = Shared.Data.Database.GetInstance().ExecuteReadQuery("SELECT SUM(slackReplied) as MyColumnSum FROM " + Settings.FocusTimerTable + ";");
+
+                int slackMessagesReplied = 0;
+
+                foreach (DataRow row in slackMessagesRepliedTable.Rows)
+                {
+                    slackMessagesReplied += Int16.Parse(row.ItemArray[0].ToString());
+                    Console.WriteLine(slackMessagesReplied);
+                }
+
+                return slackMessagesReplied;
+
+            }
+            catch (System.Exception e)
+            {
+                Shared.Logger.WriteToLogFile(e);
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the total amount of flagger displayed stored in the database
+        /// </summary>
+
+        internal static int GetFlaggerDisplayed()
+        {
+            try
+            {
+                DataTable flaggerDisplayedTable = Shared.Data.Database.GetInstance().ExecuteReadQuery("SELECT SUM(flaggerDisplayed) as MyColumnSum FROM " + Settings.FocusTimerTable + ";");
+
+                int flaggerDisplayed = 0;
+
+                foreach (DataRow row in flaggerDisplayedTable.Rows)
+                {
+                    flaggerDisplayed += Int16.Parse(row.ItemArray[0].ToString());
+                    Console.WriteLine(flaggerDisplayed);
+                }
+
+                return flaggerDisplayed;
+
+            }
+            catch (System.Exception e)
+            {
+                Shared.Logger.WriteToLogFile(e);
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the total amount of sessions run stored in the database
+        /// </summary>
+
+        internal static int GetSessionsRun()
+        {
+            try
+            {
+                DataTable sessionsRunTable = Shared.Data.Database.GetInstance().ExecuteReadQuery("SELECT COUNT(*) as MyColumnSum FROM " + Settings.FocusTimerTable + ";");
+
+                int sessionsRun = 0;
+
+                foreach (DataRow row in sessionsRunTable.Rows)
+                {
+                    sessionsRun += Int16.Parse(row.ItemArray[0].ToString());
+                    Console.WriteLine(sessionsRun);
+                }
+
+                return sessionsRun;
+
+            }
+            catch (System.Exception e)
+            {
+                Shared.Logger.WriteToLogFile(e);
+                return 0;
+            }
+        }
+
+        /// <summary>
         /// Retrieves the desired setting value
         /// </summary>
         internal static bool GetReplyMessageEnabled()
