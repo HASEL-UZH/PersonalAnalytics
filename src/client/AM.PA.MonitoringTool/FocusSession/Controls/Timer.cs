@@ -21,11 +21,13 @@ namespace FocusSession.Controls
         private static NotifyIcon notification; // workaround: this is to show a ballontip, if focusAssist is not set to 'alarms only', the user will see it. The icon itself will show that a focusSession is running
         private static int numberOfReceivedSlackMessages = 0;
         private static int numberOfReceivedEmailMessages = 0;
-        private static bool slackClientInitialized = false;
         private static SlackClient slackClient;
         private static int flaggerDisplayed = 0;
         private static string slackMemberId;
         private static string slackName;
+        private static bool slackEnabledWorkspace = true;
+        private static bool slackEnabledReply = true;
+        private static bool emailEnabled = false;
 
         public static bool openSession { get; set; } = false;   // indicate if an openSession is running
         public static bool closedSession { get; set; } = false; // indicate if a closedSession is running
@@ -132,6 +134,9 @@ namespace FocusSession.Controls
                     }
                 }
 
+                // check if office365 tracker is enabled
+                emailEnabled = Shared.Data.Database.GetInstance().GetSettingsBool("MsOfficeTrackerEnabled", false);
+
                 // since there if no officially supported API by Microsoft to check the Focus assist status, we have this little workaround
                 // if Focus assist is not active / not set to 'Priority only' nor 'Alarms only', the user will actually see the message. Otherwise, it will not show up. It is viewable in the Notifications tray, but will be disposed when a session is stopped.
                 // The icon at the same time serves as indicator that there is an active session running
@@ -173,14 +178,14 @@ namespace FocusSession.Controls
                         // store in log
                         Data.Queries.LogInfo("StopSession : The participant stopped an openFocusSession at " + DateTime.Now);
                         // store in focusTimer table database
-                        Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "open", numberOfReceivedEmailMessages, emailsReplied.Count, numberOfReceivedSlackMessages, slackMessagesResponded.Count, flaggerDisplayed);
+                        Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "open", emailEnabled.ToString(), ReplyMessageEnabled.ToString(), numberOfReceivedEmailMessages, emailsReplied.Count, slackEnabledWorkspace.ToString(), slackEnabledReply.ToString(), numberOfReceivedSlackMessages, slackMessagesResponded.Count, flaggerDisplayed);
                     }
                     else
                     {
                         // store in log
                         Data.Queries.LogInfo("StopSession : The participant stopped a closedFocusSession at " + DateTime.Now);
                         // store in focusTimer table database
-                        Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-manual", numberOfReceivedEmailMessages, emailsReplied.Count, numberOfReceivedSlackMessages, slackMessagesResponded.Count, flaggerDisplayed);
+                        Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-manual", emailEnabled.ToString(), ReplyMessageEnabled.ToString(), numberOfReceivedEmailMessages, emailsReplied.Count, slackEnabledWorkspace.ToString(), slackEnabledReply.ToString(), numberOfReceivedSlackMessages, slackMessagesResponded.Count, flaggerDisplayed);
                     }
 
                     // update indicator. Manual means the user stopped an open Session or Cancelled a closed Session
@@ -192,7 +197,7 @@ namespace FocusSession.Controls
                     // log that a closedFocusSession ran out
                     Data.Queries.LogInfo("StopSession : A closedFocusSession ran out at " + DateTime.Now);
                     // store in focusTimer table database
-                    Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-automatic", numberOfReceivedEmailMessages, emailsReplied.Count, numberOfReceivedSlackMessages, slackMessagesResponded.Count, flaggerDisplayed);
+                    Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-automatic", emailEnabled.ToString(), ReplyMessageEnabled.ToString(), numberOfReceivedEmailMessages, emailsReplied.Count, slackEnabledWorkspace.ToString(), slackEnabledReply.ToString(), numberOfReceivedSlackMessages, slackMessagesResponded.Count, flaggerDisplayed);
 
                     // update indicator
                     closedSession = false;
@@ -223,12 +228,62 @@ namespace FocusSession.Controls
                 // get the amount of time total focused for this month
                 TimeSpan totalMonth = Data.Queries.GetFocusTimeFromDay(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1));
 
-                // messages received during session
-                // TODO sort after number of messages received
-                endMessage.Append("\n\nMessages received during this session: \n" + numberOfReceivedEmailMessages + " Email \n" + numberOfReceivedSlackMessages + " Slack");
+                // information about active functionality
+                if (slackEnabledWorkspace)
+                {
+                    endMessage.Append("\n\nSlack is enabled. ");
 
-                endMessage.Append("\n\nEmails automatically replied to during this session: \n" + emailsReplied.Count);
-                endMessage.Append("\n\nSlack mentions automatically replied to during this session: \n" + slackMessagesResponded.Count);
+                    if (slackEnabledReply)
+                    {
+                        endMessage.Append("Slack does automatically reply in public channels added on user mention. ");
+                    }
+                    else
+                    {
+                        // no memberId(and memberName) has been provided in the slackConfig.json file
+                        endMessage.Append("Slack does not automatically reply on user mention in added public channels. ");
+                    }
+                }
+                else
+                {
+                    // no botToken for a workspace has been provided in the slackConfig.json file
+                    endMessage.Append("\n\nSlack is not enabled. ");
+                }
+
+                if (emailEnabled)
+                {
+                    endMessage.Append("Email is enabled. ");
+
+                    if (ReplyMessageEnabled)
+                    {
+                        endMessage.Append("Automatic Email reply is active.");
+                    }
+                    else
+                    {
+                        endMessage.Append("Automatic Email reply is not active.");
+                    }
+                }
+                else
+                {
+                    endMessage.Append("Email is not enabled.");
+                }
+                endMessage.Append("\n\nMessages received during this session: \n");
+                if (emailEnabled)
+                {
+                    endMessage.Append(numberOfReceivedEmailMessages + " Email. \n");
+                }
+                if (slackEnabledWorkspace)
+                {
+                    endMessage.Append(numberOfReceivedSlackMessages + " Slack.");
+                }
+
+                    if (emailEnabled && ReplyMessageEnabled)
+                {
+                    endMessage.Append("\n\nEmails automatically replied to during this session: \n" + emailsReplied.Count);
+                }
+                if (slackEnabledReply)
+                {
+                    endMessage.Append("\n\nSlack mentions automatically replied to during this session: \n" + slackMessagesResponded.Count);
+                }
 
                 // time statistics
                 endMessage.Append("\n\nTotal time focused this day: " + totalDay.Hours + " hours and " + totalDay.Minutes + " minutes.");
@@ -292,40 +347,39 @@ namespace FocusSession.Controls
             {
                 // slack
 
-                // initialize slackClient if not already
-                if (!slackClientInitialized)
+                // initialize slackClient & get config / settings
+                InitializeSlackClient();
+                // checks for total missed slack messages during session, in the corresponding workspace of the token, in channels where the bot has been addded to
+                // Task.Result will block async code, and should be used carefully.
+                if (slackEnabledWorkspace)
                 {
-                    InitializeSlackClient();
-                }
-                else
-                {
-                    // checks for total missed slack messages during session, in the corresponding workspace of the token, in channels where the bot has been addded to
-                    // Task.Result will block async code, and should be used carefully.
                     numberOfReceivedSlackMessages = slackClient.CheckReceivedSlackMessagesInWorkspace().Result;
                 }
 
                 // email
 
                 // set dynamic automatic email reply message
-                if (closedSession)
+                if (emailEnabled)
                 {
-                    if (!CustomizedReplyMessageEnabled)
+                    if (closedSession)
                     {
-                        // update remaining time in message
-                        ReplyMessage = "\nThe recepient of this email is currently in a focused work session for another " + getSessionTime().Hours + "hours and " + getSessionTime().Minutes + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                        if (!CustomizedReplyMessageEnabled)
+                        {
+                            // update remaining time in message
+                            ReplyMessage = "\nThe recepient of this email is currently in a focused work session for another " + getSessionTime().Hours + "hours and " + getSessionTime().Minutes + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                        }
                     }
-                }
-                else
-                {
-                    if (!CustomizedReplyMessageEnabled)
+                    else
                     {
-                        // update already running time in message
-                        ReplyMessage = "\nThe recepient of this email is currently in a focused work session since " + getSessionTime().Hours + "hours and " + getSessionTime().Minutes + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                        if (!CustomizedReplyMessageEnabled)
+                        {
+                            // update already running time in message
+                            ReplyMessage = "\nThe recepient of this email is currently in a focused work session since " + getSessionTime().Hours + "hours and " + getSessionTime().Minutes + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                        }
                     }
+                    // this checks for missed emails and replies, adds replied emails to the list 'emailsReplied', which will be used at the end of the session to report on emails and then be emptied
+                    await CheckMail();
                 }
-
-                // this checks for missed emails and replies, adds replied emails to the list 'emailsReplied', which will be used at the end of the session to report on emails and then be emptied
-                await CheckMail();
             }
         }
 
@@ -381,14 +435,23 @@ namespace FocusSession.Controls
                 // initialize client
                 slackClient = new SlackClient(slackConfig.botAuthToken);
 
-                // set control variable
-                slackClientInitialized = true;
-
                 // extract memberId
                 slackMemberId = slackConfig.memberId;
 
                 // extract slackName
                 slackName = slackConfig.memberName;
+
+                // check for default values from config if slack is being used
+                // check for workspace
+                if (slackConfig.botAuthToken.Equals("bottoken-bottoken-bottoken-bottoken"))
+                {
+                    slackEnabledWorkspace = false;
+                }
+                // if workspace and public channels watched, check for memberId for automatic responce/ expectation management
+                else if (slackConfig.memberId.Equals("yourMemberId"))
+                {
+                    slackEnabledReply = false;
+                }
 
             }
         }
@@ -522,10 +585,14 @@ namespace FocusSession.Controls
                             if (messageDate > startTime)
                             {
                                 numberOfMissedMessages++;
-                                if (channelMessageHistory.messages[messageCounter].text.Contains(slackMemberId) && !slackMessagesResponded.Contains(channelMessageHistory.messages[messageCounter].id))
+                                // reply in public channel on user mention
+                                if (slackEnabledReply)
                                 {
-                                    await SendSlackMessage(channelList.channels[channelCounter].name);
-                                    slackMessagesResponded.Add(channelMessageHistory.messages[messageCounter].id);
+                                    if (channelMessageHistory.messages[messageCounter].text.Contains(slackMemberId) && !slackMessagesResponded.Contains(channelMessageHistory.messages[messageCounter].id))
+                                    {
+                                        await SendSlackMessage(channelList.channels[channelCounter].name);
+                                        slackMessagesResponded.Add(channelMessageHistory.messages[messageCounter].id);
+                                    }
                                 }
                             }
                             else
