@@ -276,7 +276,7 @@ namespace FocusSession.Controls
                     endMessage.Append(numberOfReceivedSlackMessages + " Slack.");
                 }
 
-                    if (emailEnabled && ReplyMessageEnabled)
+                if (emailEnabled && ReplyMessageEnabled)
                 {
                     endMessage.Append("\n\nEmails automatically replied to during this session: \n" + emailsReplied.Count);
                 }
@@ -446,11 +446,17 @@ namespace FocusSession.Controls
                 if (slackConfig.botAuthToken.Equals("bottoken-bottoken-bottoken-bottoken"))
                 {
                     slackEnabledWorkspace = false;
-                }
-                // if workspace and public channels watched, check for memberId for automatic responce/ expectation management
-                else if (slackConfig.memberId.Equals("yourMemberId"))
-                {
+                    // there is no connected workspace to respond to
                     slackEnabledReply = false;
+                }
+                else
+                {
+                    slackEnabledWorkspace = true;
+                    // if workspace and public channels watched, check for memberId for automatic responce/ expectation management
+                    if (!slackConfig.memberId.Equals("yourMemberId"))
+                    {
+                        slackEnabledReply = true;
+                    }
                 }
 
             }
@@ -538,6 +544,11 @@ namespace FocusSession.Controls
                 // send simple message to general channel and wait for the call to complete
                 var channel = channelName;
                 var text = "The participant '" + slackName + "' mentioned in the previous message is currently in a focused work session and will receive your message after completing the current task.";
+                // if default value / name not overwritten we display member id instead
+                if (slackName.Equals("yourSlackName"))
+                {
+                    text = "The participant with the member ID '" + slackMemberId + "' mentioned in the previous message is currently in a focused work session and will receive your message after completing the current task.";
+                }
                 var response = await client.PostMessageAsync(channel, text);
 
                 // process response from API call
