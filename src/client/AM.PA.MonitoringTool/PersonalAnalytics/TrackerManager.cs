@@ -4,6 +4,7 @@
 // Licensed under the MIT License.
 using Hardcodet.Wpf.TaskbarNotification;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 using PersonalAnalytics.Views;
 using Shared;
 using Shared.Data;
@@ -156,7 +157,12 @@ namespace PersonalAnalytics
             }
             else
             {
-                File.WriteAllText(Path.Combine(Settings.ExportFilePath, @"SlackConfig.json"), FocusSession.Configuration.SlackConfig.InitializeCacheJSONFile);
+
+                // prettify json file
+                object slackConfigJSONObject = JsonConvert.DeserializeObject(FocusSession.Configuration.SlackConfig.InitializeCacheJSONFile);
+                string slackConfigJSONString = JsonConvert.SerializeObject(slackConfigJSONObject, Formatting.Indented);
+
+                File.WriteAllText(Path.Combine(Settings.ExportFilePath, @"SlackConfig.json"), slackConfigJSONString);
                 Console.WriteLine("SlackConfig JSON File created");
             }
         }
