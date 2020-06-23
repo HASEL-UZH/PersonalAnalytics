@@ -302,6 +302,9 @@ namespace FocusSession.Controls
 
                 numberOfReceivedSlackMessages = 0;
 
+                // reset received messages. We want the last run number
+                numberOfReceivedEmailMessages = 0;
+
                 // empty replied Emails list
                 emailsReplied = new System.Collections.Generic.List<Microsoft.Graph.Message>();
 
@@ -385,12 +388,14 @@ namespace FocusSession.Controls
 
         private static async Task CheckMail()
         {
-            // reset received messages. We want the last run number
-            numberOfReceivedEmailMessages = 0;
 
             // check mail and send an automatic reply if there was a new email.
             var unreadEmailsReceived = MsOfficeTracker.Helpers.Office365Api.GetInstance().GetUnreadEmailsReceived(DateTime.Now.Date);
             unreadEmailsReceived.Wait();
+
+            // create message counter. Set to emailsReplied, since replied emails are not fetched anymore from the unreadEmails List
+            int numberOfReceivedEmailMessagesCounter = emailsReplied.Count;
+
             foreach (Microsoft.Graph.Message email in unreadEmailsReceived.Result)
             {
                 // check if this email had been received after the session started
@@ -418,10 +423,13 @@ namespace FocusSession.Controls
                             }
                         }
                     }
-                    // total amount of received messages from the last mail check run.
-                    numberOfReceivedEmailMessages++;
+                    // increase message counter
+                    numberOfReceivedEmailMessagesCounter++;
                 }
             }
+
+            // update how many emails were received during session
+            numberOfReceivedEmailMessages = numberOfReceivedEmailMessagesCounter;
         }
 
         private static void InitializeSlackClient()
