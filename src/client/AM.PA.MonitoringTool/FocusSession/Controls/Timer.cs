@@ -422,7 +422,7 @@ namespace FocusSession.Controls
                         if (!CustomizedReplyMessageEnabled)
                         {
                             // update remaining time in message
-                            ReplyMessage = "\nThe recepient of this email is currently in a focused work session for another " + getSessionTime().Hours + "hours and " + getSessionTime().Minutes + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                            ReplyMessage = "\nThe recepient of this email is currently in a focused work session for another " + getSessionTime().Hours + " hours and " + getSessionTime().Minutes + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
                         }
                     }
                     else
@@ -430,7 +430,7 @@ namespace FocusSession.Controls
                         if (!CustomizedReplyMessageEnabled)
                         {
                             // update already running time in message
-                            ReplyMessage = "\nThe recepient of this email is currently in a focused work session since " + getSessionTime().Hours + "hours and " + getSessionTime().Minutes + " minutes, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+                            ReplyMessage = "\nThe recepient of this email is currently in a focused work session, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
                         }
                     }
                     // this checks for missed emails and replies, adds replied emails to the list 'emailsReplied', which will be used at the end of the session to report on emails and then be emptied
