@@ -60,7 +60,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\SlackConfig.cs" />
-    <Compile Include="Controls\Session.cs" />
     <Compile Include="Controls\Timer.cs" />
     <Compile Include="Daemon.cs" />
     <Compile Include="Data\Queries.cs" />
