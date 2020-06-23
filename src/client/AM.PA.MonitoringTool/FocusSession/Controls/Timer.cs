@@ -167,25 +167,43 @@ namespace FocusSession.Controls
                 // initialize endMessage to display to the participant
                 StringBuilder endMessage = new StringBuilder("You did focus for " + elapsedTime.Hours + " hours and " + elapsedTime.Minutes + " Minutes. Good job :)");
 
-
-
                 // specific to session type
-                if (stopEvent == Enum.SessionEnum.StopEvent.manual)
+                if (stopEvent == Enum.SessionEnum.StopEvent.manual || stopEvent == Enum.SessionEnum.StopEvent.paused)
                 {
                     // log which session the user stopped
                     if (openSession)
                     {
-                        // store in log
-                        Data.Queries.LogInfo("StopSession : The participant stopped an openFocusSession at " + DateTime.Now);
-                        // store in focusTimer table database
-                        Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "open", emailEnabled.ToString(), ReplyMessageEnabled.ToString(), numberOfReceivedEmailMessages, emailsReplied.Count, slackEnabledWorkspace.ToString(), slackEnabledReply.ToString(), numberOfReceivedSlackMessages, slackMessagesResponded.Count, flaggerDisplayed);
+                        if (stopEvent == Enum.SessionEnum.StopEvent.paused)
+                        {
+                            // store in log
+                            Data.Queries.LogInfo("StopSession-Pause : The participant stopped an openFocusSession at " + DateTime.Now);
+                            // store in focusTimer table database
+                            Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "open-paused", emailEnabled.ToString(), ReplyMessageEnabled.ToString(), numberOfReceivedEmailMessages, emailsReplied.Count, slackEnabledWorkspace.ToString(), slackEnabledReply.ToString(), numberOfReceivedSlackMessages, slackMessagesResponded.Count, flaggerDisplayed);
+                        }
+                        else
+                        {
+                            // store in log
+                            Data.Queries.LogInfo("StopSession : The participant stopped an openFocusSession at " + DateTime.Now);
+                            // store in focusTimer table database
+                            Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "open", emailEnabled.ToString(), ReplyMessageEnabled.ToString(), numberOfReceivedEmailMessages, emailsReplied.Count, slackEnabledWorkspace.ToString(), slackEnabledReply.ToString(), numberOfReceivedSlackMessages, slackMessagesResponded.Count, flaggerDisplayed);
+                        }
                     }
                     else
                     {
-                        // store in log
-                        Data.Queries.LogInfo("StopSession : The participant stopped a closedFocusSession at " + DateTime.Now);
-                        // store in focusTimer table database
-                        Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-manual", emailEnabled.ToString(), ReplyMessageEnabled.ToString(), numberOfReceivedEmailMessages, emailsReplied.Count, slackEnabledWorkspace.ToString(), slackEnabledReply.ToString(), numberOfReceivedSlackMessages, slackMessagesResponded.Count, flaggerDisplayed);
+                        if (stopEvent == Enum.SessionEnum.StopEvent.paused)
+                        {
+                            // store in log
+                            Data.Queries.LogInfo("StopSession-Paused : The participant stopped a closedFocusSession at " + DateTime.Now);
+                            // store in focusTimer table database
+                            Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-paused", emailEnabled.ToString(), ReplyMessageEnabled.ToString(), numberOfReceivedEmailMessages, emailsReplied.Count, slackEnabledWorkspace.ToString(), slackEnabledReply.ToString(), numberOfReceivedSlackMessages, slackMessagesResponded.Count, flaggerDisplayed);
+                        }
+                        else
+                        {
+                            // store in log
+                            Data.Queries.LogInfo("StopSession : The participant stopped a closedFocusSession at " + DateTime.Now);
+                            // store in focusTimer table database
+                            Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-manual", emailEnabled.ToString(), ReplyMessageEnabled.ToString(), numberOfReceivedEmailMessages, emailsReplied.Count, slackEnabledWorkspace.ToString(), slackEnabledReply.ToString(), numberOfReceivedSlackMessages, slackMessagesResponded.Count, flaggerDisplayed);
+                        }
                     }
 
                     // update indicator. Manual means the user stopped an open Session or Cancelled a closed Session
@@ -317,6 +335,41 @@ namespace FocusSession.Controls
                 // dispose notifications 
                 notification.Dispose();
             }
+        }
+
+        // Input if manually stopped or timed out
+        public static void Shutdown()
+        {
+            // get the current timestamp
+            DateTime stopTime = DateTime.Now;
+
+            // calculate the timespan
+            TimeSpan elapsedTime = stopTime - startTime;
+
+            // log shutdown
+            Data.Queries.LogInfo("Participant Shutdown PersonalAnalytics with an active session running");
+
+            // log which session the user stopped
+            if (openSession)
+            {
+                // store in focusTimer table database
+                Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "open-shutdown", emailEnabled.ToString(), ReplyMessageEnabled.ToString(), numberOfReceivedEmailMessages, emailsReplied.Count, slackEnabledWorkspace.ToString(), slackEnabledReply.ToString(), numberOfReceivedSlackMessages, slackMessagesResponded.Count, flaggerDisplayed);
+            }
+            else
+            {
+                // store in focusTimer table database
+                Data.Queries.SaveTime(startTime, stopTime, elapsedTime, "closed-shutdown", emailEnabled.ToString(), ReplyMessageEnabled.ToString(), numberOfReceivedEmailMessages, emailsReplied.Count, slackEnabledWorkspace.ToString(), slackEnabledReply.ToString(), numberOfReceivedSlackMessages, slackMessagesResponded.Count, flaggerDisplayed);
+            }
+
+            // stop if a timer is running
+            if (aTimer != null && aTimer.Enabled)
+            {
+                aTimer.Stop();
+                aTimer.Dispose();
+            }
+
+            // dispose notifications 
+            notification.Dispose();
         }
 
         /* helper methods */

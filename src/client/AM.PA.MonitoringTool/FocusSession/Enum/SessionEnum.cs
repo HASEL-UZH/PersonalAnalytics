@@ -11,7 +11,8 @@
         public enum StopEvent
         {
             manual,
-            timed
+            timed,
+            paused
         }
     }
 }
