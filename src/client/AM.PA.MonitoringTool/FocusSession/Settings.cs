@@ -10,7 +10,7 @@ namespace FocusSession
         public const string TrackerName = "FocusSession Tracker";
         public static bool IsEnabledByDefault = true;
         public static bool IsDisabledByDefault = false;
-        public static string IsTextMessageByDefault = "\nThe recepient of this email is currently in a focused work session, and will receive your message after completing the current task. \nThis is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics. \n";
+        public static string IsTextMessageByDefault = "The recepient of this email is currently in a focused work session, and will receive your message after completing the current task. This is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics.";
         public static string IsTextListByDefault = "Skype, WhatsApp, Zoom, Microsoft Outlook, Google Hangouts, Discord, LINE, Signal, Trilian, Viber, Pidgin, eM Client, Thunderbird, Whatsapp Web, Facebook, Winmail, Telegram, Yahoo Mail, Camfrog, Messenger, TextNow, Slack, mIRC, BlueMail, Paltalk, Mailbird, Jisti, Jabber, OpenTalk, ICQ, Gmail, Tango, Lync, Pegasus, Mailspring, Teamspeak, QuizUp, IGA, Zello, Jelly SMS, Mammail, Line, MSN, inSpeak, Spark, TorChat, ChatBox, AIM, HexChat, HydraIRC, Mulberry, Claws Mail, Pandion, ZChat, Franz, Microsoft Teams, Zulip";
         public const string FocusTimerTable = "focusTimer";
         public const string FocusTimerSessionDuration = "timeDuration";
