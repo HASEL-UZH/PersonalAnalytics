@@ -42,8 +42,8 @@ namespace FocusSession.Visualizations
         {
             this._date = date;
             Title = "FocusTimer";
-            IsEnabled = true; //todo: handle by user
-            Order = 0; //todo: handle by user (its the order by whihc those will be displayed, 1 means left top corner)
+            IsEnabled = true;
+            Order = 0;
             Size = VisSize.Square;
             Type = VisType.Day;
         }
@@ -70,7 +70,6 @@ namespace FocusSession.Visualizations
             // HTML
             /////////////////////
             ///
-            // TODO maybe show interesting stats here like total amount of time focussed with FocusTimer; total amount of emails answered 
             html += "<table>";
             html += "<p style='text-align: left; font-size: medium;'>Total Amount of sessions run: " + sessionsRun + "</p>";
             html += "<p style='text-align: left; font-size: medium; margin: 0rem;'>Total time focused this day: " + totalDay.Hours + " hours and " + totalDay.Minutes + " minutes</p>";

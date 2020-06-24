@@ -614,7 +614,6 @@ namespace FocusSession.Controls
                             flaggerDisplayed++;
 
                             // check answer
-                            // TODO store in database entry for study rather then just console-outprinting
                             if (selectedOption == DialogResult.Yes)
 
                             {
@@ -648,6 +647,7 @@ namespace FocusSession.Controls
             }
         }
 
+        // This makes use of the third party implementation of Slack's API written in C#, taken from Inumedia/SlackAPI github repo (https://github.com/Inumedia/SlackAPI), copied into the "SlackAPI" Folder in FocusSession
         private class SlackClient
         {
             readonly SlackTaskClient client;

@@ -31,7 +31,7 @@ namespace FocusSession
         public override System.Collections.Generic.List<IVisualization> GetVisualizationsDay(DateTimeOffset date)
         {
             var vis = new Visualizations.TimerButton(date);
-            return new System.Collections.Generic.List<IVisualization> {vis};
+            return new System.Collections.Generic.List<IVisualization> { vis };
         }
 
         public override void CreateDatabaseTablesIfNotExist()
@@ -87,7 +87,6 @@ namespace FocusSession
             return currentSessionStatus;
         }
 
-        // TODO implement this, that the user can enable or disable, change when user updates settings, include in settings editor
         public override bool IsEnabled()
         {
             return Database.GetInstance().GetSettingsBool(Settings.TRACKER_ENEABLED_SETTING, Settings.IsEnabledByDefault);
@@ -281,6 +280,6 @@ namespace FocusSession
         {
             return new System.Collections.Generic.List<IFirstStartScreen>() { new Views.FirstStartScreen() };
         }
-        public override bool IsFirstStart { get { return !Database.GetInstance().HasSetting(Settings.TRACKER_ENEABLED_SETTING);} }
+        public override bool IsFirstStart { get { return !Database.GetInstance().HasSetting(Settings.TRACKER_ENEABLED_SETTING); } }
     }
 }
