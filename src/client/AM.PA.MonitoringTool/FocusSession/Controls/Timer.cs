@@ -28,6 +28,8 @@ namespace FocusSession.Controls
         private static bool slackEnabledWorkspace = true;
         private static bool slackEnabledReply = true;
         private static bool emailEnabled = false;
+        private static string lastFlaggedProgram;
+        private static System.Collections.Generic.List<string> windowFlaggerAllowedProgramForActiveSession = new System.Collections.Generic.List<string>();
 
         public static bool openSession { get; set; } = false;   // indicate if an openSession is running
         public static bool closedSession { get; set; } = false; // indicate if a closedSession is running
@@ -332,6 +334,9 @@ namespace FocusSession.Controls
                 // reset flagger
                 flaggerDisplayed = 0;
 
+                // reset list of allowed programs for a session
+                windowFlaggerAllowedProgramForActiveSession = new System.Collections.Generic.List<string>();
+
                 // dispose notifications 
                 notification.Dispose();
             }
@@ -527,8 +532,33 @@ namespace FocusSession.Controls
         // it checks if it is a potentially distracting program according to the list, currently printing to the Console
         public static void WindowFlagger(String currentWindowTitle)
         {
+            // check if window flagger is enabled
             if (WindowFlaggingEnabled)
             {
+                // first check if the user is still navigating in the same program, then we can jump out of this method
+                // check if lastFlaggedProgram was initialized
+                if (lastFlaggedProgram != null)
+                {
+                    // check if windowTitle contains the last flagged program. That would mean the user simply switched email in the same email program, or channel in the same messaging program, for example. We do not need to spam the user with those messageboxes once the user declared the intent
+                    if (currentWindowTitle.Contains(lastFlaggedProgram)) { return; }
+                }
+
+                // also check if this program is already in the list of allowed programs
+                // check if there is a program stored in there
+                if (windowFlaggerAllowedProgramForActiveSession.Count > 0)
+                {
+                    // go through the whole list
+                    foreach (String allowedProgram in windowFlaggerAllowedProgramForActiveSession)
+                    {
+                        // check if windowTitle contains an allowed program, then we return
+                        if (currentWindowTitle.Contains(allowedProgram)) { return; }
+                    }
+                }
+
+                // otherwise reset lastFlaggedProgram to uninitialized if there was a switch to another program
+                lastFlaggedProgram = null;
+
+                // load flagging list anew
                 var localWindowFlaggerList = windowFlaggerList;
 
                 // we overwrite, this way we still keep the original list/values, but overwrite when user activates the setting during a session (no session restart needed)
@@ -538,9 +568,27 @@ namespace FocusSession.Controls
                     localWindowFlaggerList = CustomizedFlaggingList.Replace(", ", ",").Split(',');
                 }
 
+                // go through each program listed in window flagger list
                 foreach (String windowFlagger in localWindowFlaggerList)
+                {
+                    // check if the current program from the list is contained in the window title
                     if (currentWindowTitle.Contains(windowFlagger))
                     {
+                        // more detailed now. We want to dissect the window title, which substring exactly related to the program
+                        var stringSplit = currentWindowTitle.Split(' ');
+
+                        // for each substring of the current window title
+                        foreach (String splitted in stringSplit)
+                        {
+                            // we check now which part of the windowTitle (which substring) is in the corresponding windowFlagger
+                            if (splitted.Contains(windowFlagger))
+                            {
+                                // we set this program as last falgged, so we can check that if user continues to work in this program, that is doesnt trigger with each tab/email/window switch
+                                lastFlaggedProgram = windowFlagger;
+                            }
+                        }
+
+                        // there is already a message being displayed, we do not need to layer messages
                         if (WindowFlaggerMessageBoxActive)
                         {
                             return;
@@ -551,10 +599,10 @@ namespace FocusSession.Controls
                             WindowFlaggerMessageBoxActive = true;
 
                             // show message box to ask if this is task-related
-                            var selectedOption = MessageBox.Show("You opened a potentially distracting program during an active FocusSession. Is " + currentWindowTitle + " related to the task you are currently focussing on?", "Potentially distracting Program detected: " + currentWindowTitle, MessageBoxButtons.YesNo);
+                            var selectedOption = MessageBox.Show("You opened a potentially distracting program during an active FocusSession. Is " + lastFlaggedProgram + " related to the task you are currently focussing on?", "Potentially distracting Program detected: " + currentWindowTitle, MessageBoxButtons.YesNo);
 
                             // log the users answer
-                            Data.Queries.LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " and was shown the WindowFlagger Messagebox");
+                            Data.Queries.LogInfo("WindowFlagger : The participant opened " + lastFlaggedProgram + " and was shown the WindowFlagger Messagebox");
 
                             // track how often the user has been shown the flagger message during a session
                             flaggerDisplayed++;
@@ -564,22 +612,25 @@ namespace FocusSession.Controls
                             if (selectedOption == DialogResult.Yes)
 
                             {
-                                Console.WriteLine("The participant opened " + currentWindowTitle + " to read or reply to a message that is task-related");
+                                Console.WriteLine("The participant opened " + lastFlaggedProgram + " to read or reply to a message that is task-related");
 
                                 // log the users answer
-                                Data.Queries.LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " to read or reply to a message that is task-related");
+                                Data.Queries.LogInfo("WindowFlagger : The participant opened " + lastFlaggedProgram + " to read or reply to a message that is task-related");
 
                                 // user responded to messagebox
                                 WindowFlaggerMessageBoxActive = false;
+
+                                // add to allowed program for this session
+                                windowFlaggerAllowedProgramForActiveSession.Add(lastFlaggedProgram);
 
                             }
                             else if (selectedOption == DialogResult.No)
 
                             {
-                                Console.WriteLine("The participant opened " + currentWindowTitle + " to read or reply to a message that is not task-related");
+                                Console.WriteLine("The participant opened " + lastFlaggedProgram + " to read or reply to a message that is not task-related");
 
                                 // log the users answer
-                                Data.Queries.LogInfo("WindowFlagger : The participant opened " + currentWindowTitle + " to read or reply to a message that is not task-related");
+                                Data.Queries.LogInfo("WindowFlagger : The participant opened " + lastFlaggedProgram + " to read or reply to a message that is not task-related");
 
                                 // user responded to messagebox
                                 WindowFlaggerMessageBoxActive = false;
@@ -587,6 +638,7 @@ namespace FocusSession.Controls
                         }
                     }
 
+                }
             }
         }
 
