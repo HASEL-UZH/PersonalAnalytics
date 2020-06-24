@@ -117,8 +117,8 @@
                     
                     <TextBlock Margin="20 10 0 0" Text="Customize List of Appliactions for flagging here. Keep the same syntax." />
                     <TextBox x:Name="CustomizedFlaggingList" Margin="20 2 0 0" Height="Auto" TextWrapping="Wrap">
-                        Skype, WhatsApp, Zoom, Microsoft Outlook, Google Hangouts, Discord, LINE, Signal, Trilian, Viber, Pidgin, eM Client, Thunderbird, Whatsapp Web, Facebook, Winmail, Telegram, Yahoo Mail, Camfrog, Messenger, TextNow, Slack, mIRC, BlueMail, Paltalk, Mailbird, Jisti, Jabber, OpenTalk, ICQ, Gmail, Tango, Lync, Pegasus, Mailspring, Teamspeak, QuizUp, IGA, Zello, Jelly SMS, Mammail, Line, MSN, inSpeak, Spark, TorChat, ChatBox, AIM, HexChat, HydraIRC, Mulberry, Claws Mail, Pandion, ZChat, Franz, Microsoft Teams, Zulip
-                    </TextBox>
+                            9GAG, YouTube, Instagram, Buzzfeed, Yahoo, reddit, Tumblr, Netflix, Twitter, Facebook, Skype, WhatsApp, Zoom, Outlook, Hangouts, Discord, LINE, Signal, Trilian, Viber, Pidgin, eM, Thunderbird, Whatsapp, Facebook, Winmail, Telegram, Yahoo, Camfrog, Messenger, TextNow, Slack, mIRC, BlueMail, Paltalk, Mailbird, Jisti, Jabber, OpenTalk, ICQ, Gmail, Tango, Lync, Pegasus, Mailspring, Teamspeak, QuizUp, IGA, Zello, SMS, Mammail, Line, MSN, inSpeak, Spark, TorChat, ChatBox, AIM, HexChat, HydraIRC, Mulberry, Claws, Pandion, ZChat, Franz, Teams, Zulip
+                        </TextBox>
 
                 </StackPanel>
             </TabItem>

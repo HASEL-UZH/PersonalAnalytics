@@ -45,7 +45,7 @@ namespace FocusSession.Controls
         public static string CustomizedFlaggingList { get; set; } = Data.Queries.GetCustomizedFlaggingList();
 
         // list of potentially distracting programs that we use for flagging check
-        private static string[] windowFlaggerList = new string[] { "Skype", "WhatsApp", "Zoom", "Microsoft Outlook", "Google Hangouts", "Discord", "LINE", "Signal", "Trilian", "Viber", "Pidgin", "eM Client", "Thunderbird", "Whatsapp Web", "Facebook", "Winmail", "Telegram", "Yahoo Mail", "Camfrog", "Messenger", "TextNow", "Slack", "mIRC", "BlueMail", "Paltalk", "Mailbird", "Jisti", "Jabber", "OpenTalk", "ICQ", "Gmail", "Tango", "Lync", "Pegasus", "Mailspring", "Teamspeak", "QuizUp", "IGA", "Zello", "Jelly SMS", "Mammail", "Line", "MSN", "inSpeak", "Spark", "TorChat", "ChatBox", "AIM", "HexChat", "HydraIRC", "Mulberry", "Claws Mail", "Pandion", "ZChat", "Franz", "Microsoft Teams", "Zulip" };
+        private static string[] windowFlaggerList = new string[] { "9GAG", "YouTube", "Instagram", "Buzzfeed", "Yahoo", "reddit", "Tumblr", "Netflix", "Twitter", "Facebook", "Skype", "WhatsApp", "Zoom", "Outlook", "Hangouts", "Discord", "LINE", "Signal", "Trilian", "Viber", "Pidgin", "eM", "Thunderbird", "Whatsapp", "Facebook", "Winmail", "Telegram", "Yahoo", "Camfrog", "Messenger", "TextNow", "Slack", "mIRC", "BlueMail", "Paltalk", "Mailbird", "Jisti", "Jabber", "OpenTalk", "ICQ", "Gmail", "Tango", "Lync", "Pegasus", "Mailspring", "Teamspeak", "QuizUp", "IGA", "Zello", "SMS", "Mammail", "Line", "MSN", "inSpeak", "Spark", "TorChat", "ChatBox", "AIM", "HexChat", "HydraIRC", "Mulberry", "Claws", "Pandion", "ZChat", "Franz", "Teams", "Zulip" };
 
 
         // declaring closedsessionComplete event for context menu
