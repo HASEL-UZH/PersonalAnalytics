@@ -446,7 +446,6 @@ namespace FocusSession.Controls
 
         private static async Task CheckMail()
         {
-
             // check mail and send an automatic reply if there was a new email.
             var unreadEmailsReceived = MsOfficeTracker.Helpers.Office365Api.GetInstance().GetUnreadEmailsReceived(DateTime.Now.Date);
             unreadEmailsReceived.Wait();
@@ -471,12 +470,19 @@ namespace FocusSession.Controls
                         {
                             string address = email.From.EmailAddress.Address.ToLower();
                             // exclude emails that contain do not reply, or postmaster which sends a message if the mail could not be delivered
-                            if (!address.Contains("do-not-reply") || !address.Contains("no-reply") || !address.Contains("noreply") || !address.Contains("postmaster@logmeininc.onmicrosoft.com"))
+                            if (!address.Contains("do-not-reply") && !address.Contains("no-reply") && !address.Contains("noreply") && !address.Contains("postmaster@logmeininc.onmicrosoft.com"))
                             {
                                 // send reply message
-                                await MsOfficeTracker.Helpers.Office365Api.GetInstance().SendReplyEmail(email.Id, email.From.EmailAddress.Name, email.From.EmailAddress.Address, ReplyMessage);
+                                try
+                                {
+                                    await MsOfficeTracker.Helpers.Office365Api.GetInstance().SendReplyEmail(email.Id, email.From.EmailAddress.Name, email.From.EmailAddress.Address, ReplyMessage);
+                                }
+                                catch (Exception e)
+                                {
+                                    Shared.Logger.WriteToLogFile(e);
+                                }
 
-                                //add email to list of already replied emails during this focus session
+                                //add email to list of already replied emails during this focus session (even if not successful in the case of answering to no-repliable addresses, this way we avoid resending to "faulty" addresses)
                                 emailsReplied.Add(email);
                             }
                         }
