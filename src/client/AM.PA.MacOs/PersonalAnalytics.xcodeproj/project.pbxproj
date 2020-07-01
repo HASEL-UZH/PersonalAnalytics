@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 48;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -132,6 +132,9 @@
 		B90790251F01CC27003B9CF7 /* UserEfficiencyTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = B90790241F01CC27003B9CF7 /* UserEfficiencyTracker.swift */; };
 		B958F34E1EE0CB7600E54D81 /* ASHDatePicker.m in Sources */ = {isa = PBXBuildFile; fileRef = B958F34D1EE0CB7600E54D81 /* ASHDatePicker.m */; };
 		B9782F53216D6264006CCB73 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B9782F51216D6264006CCB73 /* Main.storyboard */; };
+		B97A0DDD24AC491D0004FE78 /* PythonKit in Frameworks */ = {isa = PBXBuildFile; productRef = B97A0DDC24AC491D0004FE78 /* PythonKit */; };
+		B97A0DDF24AC4F5B0004FE78 /* Python in Resources */ = {isa = PBXBuildFile; fileRef = B97A0DDE24AC4F5B0004FE78 /* Python */; };
+		B97A0DE024AC4F5B0004FE78 /* Python in Resources */ = {isa = PBXBuildFile; fileRef = B97A0DDE24AC4F5B0004FE78 /* Python */; };
 		B97A0E381EE5FA2E000DCCEC /* DayProductivityTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97A0E371EE5FA2E000DCCEC /* DayProductivityTimeline.swift */; };
 		B97A0E3A1EE5FB84000DCCEC /* UserEfficiencyQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97A0E391EE5FB84000DCCEC /* UserEfficiencyQueries.swift */; };
 		B97A0E3D1EE77704000DCCEC /* WeekProgramsUsedTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97A0E3C1EE77704000DCCEC /* WeekProgramsUsedTable.swift */; };
@@ -279,6 +282,7 @@
 		B958F34C1EE0CB7600E54D81 /* ASHDatePicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASHDatePicker.h; sourceTree = "<group>"; };
 		B958F34D1EE0CB7600E54D81 /* ASHDatePicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ASHDatePicker.m; sourceTree = "<group>"; };
 		B9782F52216D6264006CCB73 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = PersonalAnalytics/Base.lproj/Main.storyboard; sourceTree = SOURCE_ROOT; };
+		B97A0DDE24AC4F5B0004FE78 /* Python */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Python; sourceTree = "<group>"; };
 		B97A0E371EE5FA2E000DCCEC /* DayProductivityTimeline.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DayProductivityTimeline.swift; sourceTree = "<group>"; };
 		B97A0E391EE5FB84000DCCEC /* UserEfficiencyQueries.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserEfficiencyQueries.swift; sourceTree = "<group>"; };
 		B97A0E3C1EE77704000DCCEC /* WeekProgramsUsedTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeekProgramsUsedTable.swift; sourceTree = "<group>"; };
@@ -337,6 +341,7 @@
 				A3D1B62B21DD181D000C8A66 /* Pods_PersonalAnalytics.framework in Frameworks */,
 				DEF7C9C4DCD6A7E9A7468332 /* Pods_PersonalAnalytics.framework in Frameworks */,
 				87127D5927B005AAEB9EFC38 /* Pods_PersonalAnalytics.framework in Frameworks */,
+				B97A0DDD24AC491D0004FE78 /* PythonKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -390,6 +395,7 @@
 		0DB3DF261BAF49AC00144935 /* PersonalAnalytics */ = {
 			isa = PBXGroup;
 			children = (
+				B97A0DDE24AC4F5B0004FE78 /* Python */,
 				B076EE85242B54C40081FDF9 /* PersonalAnalyticsRelease.entitlements */,
 				B076EE832428B8D30081FDF9 /* PersonalAnalytics DevDebug.entitlements */,
 				B0125A08238C24AB00A7F0A9 /* Configs */,
@@ -663,6 +669,9 @@
 			dependencies = (
 			);
 			name = PersonalAnalytics;
+			packageProductDependencies = (
+				B97A0DDC24AC491D0004FE78 /* PythonKit */,
+			);
 			productName = Collector;
 			productReference = 0DB3DF241BAF49AC00144935 /* PersonalAnalytics.app */;
 			productType = "com.apple.product-type.application";
@@ -719,6 +728,9 @@
 				it,
 			);
 			mainGroup = 0DB3DF1B1BAF49AC00144935;
+			packageReferences = (
+				B97A0DDB24AC491D0004FE78 /* XCRemoteSwiftPackageReference "PythonKit" */,
+			);
 			productRefGroup = 0DB3DF251BAF49AC00144935 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -739,6 +751,7 @@
 				0DB3DF2F1BAF49AC00144935 /* Assets.xcassets in Resources */,
 				B9A3103F1EC5262E003B2470 /* PreferencesWindow.xib in Resources */,
 				B9D50B881EDFC66C00145EC8 /* RetrospectiveView.xib in Resources */,
+				B97A0DDF24AC4F5B0004FE78 /* Python in Resources */,
 				B9851FD91ED5F951002C24AF /* tablefilter.css in Resources */,
 				B9851FD51ED5F951002C24AF /* personalanalytics.html in Resources */,
 				B9782F53216D6264006CCB73 /* Main.storyboard in Resources */,
@@ -770,6 +783,7 @@
 				B01259E8238C169E00A7F0A9 /* Assets.xcassets in Resources */,
 				B01259E9238C169E00A7F0A9 /* PreferencesWindow.xib in Resources */,
 				B01259EA238C169E00A7F0A9 /* RetrospectiveView.xib in Resources */,
+				B97A0DE024AC4F5B0004FE78 /* Python in Resources */,
 				B01259EB238C169E00A7F0A9 /* tablefilter.css in Resources */,
 				B01259EC238C169E00A7F0A9 /* personalanalytics.html in Resources */,
 				B01259ED238C169E00A7F0A9 /* Main.storyboard in Resources */,
@@ -1197,7 +1211,12 @@
 				);
 				INFOPLIST_FILE = PersonalAnalytics/Info.plist;
 				LD_DYLIB_INSTALL_NAME = "";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/Frameworks $(PROJECT_DIR)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/Frameworks",
+					"$(PROJECT_DIR)",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -1231,7 +1250,12 @@
 				);
 				INFOPLIST_FILE = PersonalAnalytics/Info.plist;
 				LD_DYLIB_INSTALL_NAME = "";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/Frameworks $(PROJECT_DIR)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/Frameworks",
+					"$(PROJECT_DIR)",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -1241,8 +1265,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.sealuzh.personalanalytics;
 				PRODUCT_NAME = PersonalAnalytics;
 				PROVISIONING_PROFILE_SPECIFIER = "PersonalAnalytics Provisioning Profile";
+				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OBJC_BRIDGING_HEADER = "PersonalAnalytics/PersonalAnalytics-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_SWIFT3_OBJC_INFERENCE = On;
 				SWIFT_VERSION = 4.0;
 			};
@@ -1267,7 +1292,12 @@
 				);
 				INFOPLIST_FILE = PersonalAnalytics/Info.plist;
 				LD_DYLIB_INSTALL_NAME = "";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/Frameworks $(PROJECT_DIR)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/Frameworks",
+					"$(PROJECT_DIR)",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -1299,7 +1329,12 @@
 				);
 				INFOPLIST_FILE = PersonalAnalytics/Info.plist;
 				LD_DYLIB_INSTALL_NAME = "";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/Frameworks $(PROJECT_DIR)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/Frameworks",
+					"$(PROJECT_DIR)",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -1347,6 +1382,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B97A0DDB24AC491D0004FE78 /* XCRemoteSwiftPackageReference "PythonKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pvieito/PythonKit.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B97A0DDC24AC491D0004FE78 /* PythonKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B97A0DDB24AC491D0004FE78 /* XCRemoteSwiftPackageReference "PythonKit" */;
+			productName = PythonKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 0DB3DF1C1BAF49AC00144935 /* Project object */;
 }

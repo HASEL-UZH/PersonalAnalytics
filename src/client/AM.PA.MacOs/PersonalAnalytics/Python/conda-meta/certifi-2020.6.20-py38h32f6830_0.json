@@ -1,0 +1,139 @@
+{
+  "arch": "x86_64",
+  "build": "py38h32f6830_0",
+  "build_number": 0,
+  "channel": "https://conda.anaconda.org/conda-forge/osx-64",
+  "constrains": [],
+  "depends": [
+    "python >=3.8,<3.9.0a0",
+    "python_abi 3.8.* *_cp38"
+  ],
+  "extracted_package_dir": "/Users/csatterfield/anaconda3/pkgs/certifi-2020.6.20-py38h32f6830_0",
+  "files": [
+    "lib/python3.8/site-packages/certifi-2020.6.20-py3.8.egg-info/PKG-INFO",
+    "lib/python3.8/site-packages/certifi-2020.6.20-py3.8.egg-info/SOURCES.txt",
+    "lib/python3.8/site-packages/certifi-2020.6.20-py3.8.egg-info/dependency_links.txt",
+    "lib/python3.8/site-packages/certifi-2020.6.20-py3.8.egg-info/installed-files.txt",
+    "lib/python3.8/site-packages/certifi-2020.6.20-py3.8.egg-info/not-zip-safe",
+    "lib/python3.8/site-packages/certifi-2020.6.20-py3.8.egg-info/top_level.txt",
+    "lib/python3.8/site-packages/certifi/__init__.py",
+    "lib/python3.8/site-packages/certifi/__main__.py",
+    "lib/python3.8/site-packages/certifi/__pycache__/__init__.cpython-38.pyc",
+    "lib/python3.8/site-packages/certifi/__pycache__/__main__.cpython-38.pyc",
+    "lib/python3.8/site-packages/certifi/__pycache__/core.cpython-38.pyc",
+    "lib/python3.8/site-packages/certifi/cacert.pem",
+    "lib/python3.8/site-packages/certifi/core.py"
+  ],
+  "fn": "certifi-2020.6.20-py38h32f6830_0.tar.bz2",
+  "license": "ISC",
+  "link": {
+    "source": "/Users/csatterfield/anaconda3/pkgs/certifi-2020.6.20-py38h32f6830_0",
+    "type": 1
+  },
+  "md5": "fab1139b40e8dd7fea9dbbb8dbe49f96",
+  "name": "certifi",
+  "package_tarball_full_path": "/Users/csatterfield/anaconda3/pkgs/certifi-2020.6.20-py38h32f6830_0.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "lib/python3.8/site-packages/certifi-2020.6.20-py3.8.egg-info/PKG-INFO",
+        "path_type": "hardlink",
+        "sha256": "3277899f0653539e3f0e10bdea91f0dfd420debcd0543ebaf877c63235f089f2",
+        "sha256_in_prefix": "3277899f0653539e3f0e10bdea91f0dfd420debcd0543ebaf877c63235f089f2",
+        "size_in_bytes": 3403
+      },
+      {
+        "_path": "lib/python3.8/site-packages/certifi-2020.6.20-py3.8.egg-info/SOURCES.txt",
+        "path_type": "hardlink",
+        "sha256": "c114f069d008d26b348202e02bfe15105bad6ff7bf233a1a3f874d4889c584b0",
+        "sha256_in_prefix": "c114f069d008d26b348202e02bfe15105bad6ff7bf233a1a3f874d4889c584b0",
+        "size_in_bytes": 278
+      },
+      {
+        "_path": "lib/python3.8/site-packages/certifi-2020.6.20-py3.8.egg-info/dependency_links.txt",
+        "path_type": "hardlink",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "sha256_in_prefix": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "size_in_bytes": 1
+      },
+      {
+        "_path": "lib/python3.8/site-packages/certifi-2020.6.20-py3.8.egg-info/installed-files.txt",
+        "path_type": "hardlink",
+        "sha256": "9002ccae0cbae43c1e5beed55879b1b8d345bc82a5defff700ad7e143f566c84",
+        "sha256_in_prefix": "9002ccae0cbae43c1e5beed55879b1b8d345bc82a5defff700ad7e143f566c84",
+        "size_in_bytes": 293
+      },
+      {
+        "_path": "lib/python3.8/site-packages/certifi-2020.6.20-py3.8.egg-info/not-zip-safe",
+        "path_type": "hardlink",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "sha256_in_prefix": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "size_in_bytes": 1
+      },
+      {
+        "_path": "lib/python3.8/site-packages/certifi-2020.6.20-py3.8.egg-info/top_level.txt",
+        "path_type": "hardlink",
+        "sha256": "28cbb8bd409fb232eb90f6d235d81d7a44bea552730402453bffe723c345ebe5",
+        "sha256_in_prefix": "28cbb8bd409fb232eb90f6d235d81d7a44bea552730402453bffe723c345ebe5",
+        "size_in_bytes": 8
+      },
+      {
+        "_path": "lib/python3.8/site-packages/certifi/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "bb513f0eb4868ff9e71242b956096f12a3fc0fcd0aa6084b5562f403fa6ae350",
+        "sha256_in_prefix": "bb513f0eb4868ff9e71242b956096f12a3fc0fcd0aa6084b5562f403fa6ae350",
+        "size_in_bytes": 62
+      },
+      {
+        "_path": "lib/python3.8/site-packages/certifi/__main__.py",
+        "path_type": "hardlink",
+        "sha256": "c410688fdd394d45812d118034e71fee88ba7beddd30fe1c1281bd3b232cd758",
+        "sha256_in_prefix": "c410688fdd394d45812d118034e71fee88ba7beddd30fe1c1281bd3b232cd758",
+        "size_in_bytes": 243
+      },
+      {
+        "_path": "lib/python3.8/site-packages/certifi/__pycache__/__init__.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "fae5f0836bc8746998228df7f7d63ff4a31740adcf4b6f8382dd34c480ab4cb5",
+        "sha256_in_prefix": "fae5f0836bc8746998228df7f7d63ff4a31740adcf4b6f8382dd34c480ab4cb5",
+        "size_in_bytes": 222
+      },
+      {
+        "_path": "lib/python3.8/site-packages/certifi/__pycache__/__main__.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "dea24369b163c72a49f1007b900034b20524dac94b2296e68f339d1c1b49031e",
+        "sha256_in_prefix": "dea24369b163c72a49f1007b900034b20524dac94b2296e68f339d1c1b49031e",
+        "size_in_bytes": 387
+      },
+      {
+        "_path": "lib/python3.8/site-packages/certifi/__pycache__/core.cpython-38.pyc",
+        "path_type": "hardlink",
+        "sha256": "43628ab30070330d3ec902d33a5976a9404b3945616a53e9bef2795d905b3ded",
+        "sha256_in_prefix": "43628ab30070330d3ec902d33a5976a9404b3945616a53e9bef2795d905b3ded",
+        "size_in_bytes": 1103
+      },
+      {
+        "_path": "lib/python3.8/site-packages/certifi/cacert.pem",
+        "path_type": "hardlink",
+        "sha256": "1a14f6e1fd11efff72e1863f8645f090eec1b616614460c210c3b7e3c13d4b5e",
+        "sha256_in_prefix": "1a14f6e1fd11efff72e1863f8645f090eec1b616614460c210c3b7e3c13d4b5e",
+        "size_in_bytes": 282394
+      },
+      {
+        "_path": "lib/python3.8/site-packages/certifi/core.py",
+        "path_type": "hardlink",
+        "sha256": "574bb2c4a398773eae9434aeb1c96b2e68db3e0397b03d019c47f4490ece9e81",
+        "sha256_in_prefix": "574bb2c4a398773eae9434aeb1c96b2e68db3e0397b03d019c47f4490ece9e81",
+        "size_in_bytes": 2303
+      }
+    ],
+    "paths_version": 1
+  },
+  "platform": "darwin",
+  "requested_spec": "None",
+  "size": 154230,
+  "subdir": "osx-64",
+  "timestamp": 1592689135622,
+  "url": "https://conda.anaconda.org/conda-forge/osx-64/certifi-2020.6.20-py38h32f6830_0.tar.bz2",
+  "version": "2020.6.20"
+}
