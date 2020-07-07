@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="15705" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="16097" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="15705"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="16097"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -10,6 +10,7 @@
             <connections>
                 <outlet property="chromeURLTrackingStatusLabel" destination="kCJ-Hy-RQY" id="mmG-YQ-CjH"/>
                 <outlet property="keyboardTrackingStatusLabel" destination="DGM-0b-Jb4" id="kS3-32-crv"/>
+                <outlet property="resourceTrackingButton" destination="yR9-HW-Men" id="fe7-BQ-daW"/>
                 <outlet property="resourceTrackingStatusLabel" destination="iHX-Y8-cMO" id="0Bj-yy-uJQ"/>
                 <outlet property="safariURLTrackingStatusLabel" destination="H1X-mE-FC0" id="nll-fT-xWu"/>
                 <outlet property="view" destination="c22-O7-iKe" id="orl-Bo-bvm"/>
@@ -114,7 +115,7 @@
                                         </textField>
                                         <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="yR9-HW-Men">
                                             <rect key="frame" x="0.0" y="-1" width="333" height="17"/>
-                                            <buttonCell key="cell" type="inline" title="System Preferences &gt; Security &amp; Privacy &gt; Screen Recording" bezelStyle="inline" alignment="center" borderStyle="border" inset="2" id="Uri-jt-4Wb">
+                                            <buttonCell key="cell" type="inline" title="System Preferences &gt; Security &amp; Privacy &gt; Screen Recording" bezelStyle="inline" alignment="center" enabled="NO" borderStyle="border" inset="2" id="Uri-jt-4Wb">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="menu" size="11"/>
                                             </buttonCell>

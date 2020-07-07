@@ -118,21 +118,21 @@ class RetrospectiveViewController: NSViewController, WKNavigationDelegate {
         }
     }
     
-    //@IBOutlet weak var loadAnimation: NSProgressIndicator!
+    @IBOutlet weak var loadAnimation: NSProgressIndicator!
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if keyPath == "estimatedProgress"{
             if(webView.estimatedProgress == 1.0){
-                //loadAnimation.stopAnimation(nil)
-                //loadAnimation.isHidden = true
+                loadAnimation.stopAnimation(nil)
+                loadAnimation.isHidden = true
                 webView.isHidden = false
-                //loadAnimation.resignFirstResponder()
+                loadAnimation.resignFirstResponder()
                 self.retrospectiveTitle.stringValue = webView.title!
             }
             else{
-                //loadAnimation.becomeFirstResponder()
-                //webView.isHidden = true
-                //loadAnimation.startAnimation(nil)
-                //loadAnimation.isHidden = false
+                loadAnimation.becomeFirstResponder()
+                webView.isHidden = true
+                loadAnimation.startAnimation(nil)
+                loadAnimation.isHidden = false
             }
         }
 

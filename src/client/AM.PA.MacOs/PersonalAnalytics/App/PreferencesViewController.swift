@@ -23,11 +23,17 @@ class PreferencesViewController: NSViewController{
     @IBOutlet weak var safariURLTrackingStatusLabel: NSTextField!
     @IBOutlet weak var chromeURLTrackingStatusLabel: NSTextField!
     
+    @IBOutlet weak var resourceTrackingButton: NSButton!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         if isKeyboardTrackingEnabled() {
             keyboardTrackingStatusLabel.stringValue = "enabled"
+        }
+        
+        if #available(macOS 10.15, *){
+            resourceTrackingButton.isEnabled = true
         }
         
         if isWindowNameTrackingEnabled() {
@@ -53,11 +59,16 @@ class PreferencesViewController: NSViewController{
     
     func isWindowNameTrackingEnabled() -> Bool {
         // 22.4.2020 - the latest privacy measures in Catalina require screen capture permission in order to access the window name of an application. See: https://stackoverflow.com/questions/56597221/detecting-screen-recording-settings-on-macos-catalina
-        guard let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: AnyObject]] else { return false }
-        return windows.allSatisfy({ window in
-            let windowName = window[kCGWindowName as String] as? String
-            return windowName != nil
-        })
+        if #available(macOS 10.15, *){
+            guard let windows = CGWindowListCopyWindowInfo([.optionOnScreenOnly], kCGNullWindowID) as? [[String: AnyObject]] else { return false }
+            return windows.allSatisfy({ window in
+                let windowName = window[kCGWindowName as String] as? String
+                return windowName != nil
+            })
+        }
+        else{
+            return true
+        }
     }
     
     func isURLTrackingEnabled(browser: String) -> Bool {
