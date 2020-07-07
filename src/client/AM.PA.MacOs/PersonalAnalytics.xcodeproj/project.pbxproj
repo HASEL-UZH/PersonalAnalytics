@@ -135,6 +135,7 @@
 		B97A0DDD24AC491D0004FE78 /* PythonKit in Frameworks */ = {isa = PBXBuildFile; productRef = B97A0DDC24AC491D0004FE78 /* PythonKit */; };
 		B97A0DDF24AC4F5B0004FE78 /* Python in Resources */ = {isa = PBXBuildFile; fileRef = B97A0DDE24AC4F5B0004FE78 /* Python */; };
 		B97A0DE024AC4F5B0004FE78 /* Python in Resources */ = {isa = PBXBuildFile; fileRef = B97A0DDE24AC4F5B0004FE78 /* Python */; };
+		B97A0DE424B432690004FE78 /* PythonKit in Frameworks */ = {isa = PBXBuildFile; productRef = B97A0DE324B432690004FE78 /* PythonKit */; };
 		B97A0E381EE5FA2E000DCCEC /* DayProductivityTimeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97A0E371EE5FA2E000DCCEC /* DayProductivityTimeline.swift */; };
 		B97A0E3A1EE5FB84000DCCEC /* UserEfficiencyQueries.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97A0E391EE5FB84000DCCEC /* UserEfficiencyQueries.swift */; };
 		B97A0E3D1EE77704000DCCEC /* WeekProgramsUsedTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B97A0E3C1EE77704000DCCEC /* WeekProgramsUsedTable.swift */; };
@@ -351,6 +352,7 @@
 			files = (
 				B01259E3238C169E00A7F0A9 /* WebKit.framework in Frameworks */,
 				FEB0237DAA6D0B96DE23A285 /* Pods_PersonalAnalytics_Dev.framework in Frameworks */,
+				B97A0DE424B432690004FE78 /* PythonKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -693,6 +695,9 @@
 			dependencies = (
 			);
 			name = "PersonalAnalytics Dev";
+			packageProductDependencies = (
+				B97A0DE324B432690004FE78 /* PythonKit */,
+			);
 			productName = Collector;
 			productReference = B0125A05238C169E00A7F0A9 /* PersonalAnalytics Dev.app */;
 			productType = "com.apple.product-type.application";
@@ -1396,6 +1401,11 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		B97A0DDC24AC491D0004FE78 /* PythonKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B97A0DDB24AC491D0004FE78 /* XCRemoteSwiftPackageReference "PythonKit" */;
+			productName = PythonKit;
+		};
+		B97A0DE324B432690004FE78 /* PythonKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B97A0DDB24AC491D0004FE78 /* XCRemoteSwiftPackageReference "PythonKit" */;
 			productName = PythonKit;
