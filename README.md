@@ -3,7 +3,7 @@ Personal Analytics project was originally initiated by [Prof. Dr. Thomas Fritz](
 
 Anyone is welcome to extend PersonalAnalytics with new trackers or improve existing ones. Feel free to use PersonalAnalytics to get insights into your own work habits, or use it for research studies. In case you re-use PersonalAnalytics, make sure to cite our work (specifically this Github repository and our CSCW'2018 paper below).
 
-The current public release can be downloaded from: http://pluto.ifi.uzh.ch/PersonalAnalytics-master
+The current public release can be downloaded from: https://pluto.ifi.uzh.ch/PersonalAnalytics-master
 
 # Contact
 André Meyer (ameyer@ifi.uzh.ch)
