@@ -6,7 +6,7 @@ Anyone is welcome to extend PersonalAnalytics with new trackers or improve exist
 The current public release can be downloaded from: https://pluto.ifi.uzh.ch/PersonalAnalytics-master
 
 # Contact
-André Meyer (ameyer@ifi.uzh.ch)
+Dr. André Meyer (ameyer@ifi.uzh.ch)
 
 # Updates & Branches
 - September 2014: Initiated by [André Meyer](https://www.andre-meyer.ch) and regularly updated since then.
@@ -25,9 +25,9 @@ André Meyer (ameyer@ifi.uzh.ch)
 - May 2020: [Jan Pilzer](https://github/hirse) created a [pull-request](https://github.com/sealuzh/PersonalAnalytics/pull/258) to include WindowDimmer into the official PersonalAnalytics release
 
 # Main Contributors and People Involved
-- [André Meyer](https://www.andre-meyer.ch) (University of Zurich, main contributor of Windows version)
+- [Dr. André Meyer](https://www.andre-meyer.ch) (University of Zurich, main contributor of Windows version)
 - [Prof. Dr. Thomas Fritz](http://www.ifi.uzh.ch/en/seal/people/fritz.html) (University of British Columbia)
-- [Manuela Züger](http://www.ifi.uzh.ch/en/seal/people/zueger.html) and [Sebastian Müller](http://www.ifi.uzh.ch/en/seal/people/mueller.html) (University of Zurich)
+- [Dr. Manuela Züger](http://www.ifi.uzh.ch/en/seal/people/zueger.html) and [Sebastian Müller](http://www.ifi.uzh.ch/en/seal/people/mueller.html) (University of Zurich)
 - [Chris Satterfield](https://github.com/csatterfield) (main contributor of Mac version)
 - [Roy Rutishauser](https://github.com/royru) (contributor to Mac version)
 - Dr. Tom Zimmermann (Microsoft Research)
