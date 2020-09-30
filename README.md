@@ -26,7 +26,7 @@ Dr. André Meyer (ameyer@ifi.uzh.ch)
 
 # Main Contributors and People Involved
 - [Dr. André Meyer](https://www.andre-meyer.ch) (University of Zurich, main contributor of Windows version)
-- [Prof. Dr. Thomas Fritz](http://www.ifi.uzh.ch/en/seal/people/fritz.html) (University of British Columbia)
+- [Prof. Dr. Thomas Fritz](http://www.ifi.uzh.ch/en/seal/people/fritz.html) (University of Zurich)
 - [Dr. Manuela Züger](http://www.ifi.uzh.ch/en/seal/people/zueger.html) (prev. University of Zurich)
 - [Dr. Sebastian Müller](http://www.ifi.uzh.ch/en/seal/people/mueller.html) (prev. University of Zurich)
 - [Chris Satterfield](https://github.com/csatterfield) (main contributor of Mac version)
