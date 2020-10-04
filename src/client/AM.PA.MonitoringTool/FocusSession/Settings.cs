@@ -8,10 +8,10 @@ namespace FocusSession
     public static class Settings
     {
         public const string TrackerName = "FocusSession Tracker";
-        public static bool IsEnabledByDefault = true;
-        public static bool IsDisabledByDefault = false;
-        public static string IsTextMessageByDefault = "The recepient of this email is currently in a focused work session, and will receive your message after completing the current task. This is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics.";
-        public static string IsTextListByDefault = "9GAG, YouTube, Instagram, Buzzfeed, Yahoo, reddit, Tumblr, Netflix, Twitter, Facebook, Skype, WhatsApp, Zoom, Outlook, Hangouts, Discord, LINE, Signal, Trilian, Viber, Pidgin, eM, Thunderbird, Whatsapp, Facebook, Winmail, Telegram, Yahoo, Camfrog, Messenger, TextNow, Slack, mIRC, BlueMail, Paltalk, Mailbird, Jisti, Jabber, OpenTalk, ICQ, Gmail, Tango, Lync, Pegasus, Mailspring, Teamspeak, QuizUp, IGA, Zello, SMS, Mammail, Line, MSN, inSpeak, Spark, TorChat, ChatBox, AIM, HexChat, HydraIRC, Mulberry, Claws, Pandion, ZChat, Franz, Teams, Zulip";
+        public static readonly bool IsEnabledByDefault = true;
+        public static readonly bool IsDisabledByDefault = false;
+        public static readonly string IsTextMessageByDefault = "The recepient of this email is currently in a focused work session, and will receive your message after completing the current task. This is an automatically generated response by the FocusSession-Extension of the PersonalAnalytics Tool https://github.com/Phhofm/PersonalAnalytics.";
+        public static readonly string IsTextListByDefault = "9GAG, YouTube, Instagram, Buzzfeed, Yahoo, reddit, Tumblr, Netflix, Twitter, Facebook, Skype, WhatsApp, Zoom, Outlook, Hangouts, Discord, LINE, Signal, Trilian, Viber, Pidgin, eM, Thunderbird, Whatsapp, Facebook, Winmail, Telegram, Yahoo, Camfrog, Messenger, TextNow, Slack, mIRC, BlueMail, Paltalk, Mailbird, Jisti, Jabber, OpenTalk, ICQ, Gmail, Tango, Lync, Pegasus, Mailspring, Teamspeak, QuizUp, IGA, Zello, SMS, Mammail, Line, MSN, inSpeak, Spark, TorChat, ChatBox, AIM, HexChat, HydraIRC, Mulberry, Claws, Pandion, ZChat, Franz, Teams, Zulip";
         public const string FocusTimerTable = "focusTimer";
         public const string FocusTimerSessionDuration = "timeDuration";
         public static int ClosedSessionDuration = 20;

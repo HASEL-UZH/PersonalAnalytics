@@ -543,11 +543,8 @@ namespace FocusSession.Controls
             {
                 // first check if the user is still navigating in the same program, then we can jump out of this method
                 // check if lastFlaggedProgram was initialized
-                if (lastFlaggedProgram != null)
-                {
-                    // check if windowTitle contains the last flagged program. That would mean the user simply switched email in the same email program, or channel in the same messaging program, for example. We do not need to spam the user with those messageboxes once the user declared the intent
-                    if (currentWindowTitle.Contains(lastFlaggedProgram)) { return; }
-                }
+                // check if windowTitle contains the last flagged program. That would mean the user simply switched email in the same email program, or channel in the same messaging program, for example. We do not need to spam the user with those messageboxes once the user declared the intent
+                if (lastFlaggedProgram != null && currentWindowTitle.Contains(lastFlaggedProgram)) { return; }
 
                 // also check if this program is already in the list of allowed programs
                 // check if there is a program stored in there
@@ -692,43 +689,45 @@ namespace FocusSession.Controls
                 ChannelListResponse channelList = await client.GetChannelListAsync();
 
                 // loop trough the channels in the workspace
-                for (int channelCounter = 0; channelCounter < channelList.channels.Length; channelCounter++)
+                if (channelList != null && channelList.channels != null)
                 {
-                    // i could also return a list of messages missed per channel, so we can show the user detailed info on where he missed messages exactly (in which channel that is)
-                    //var name = channelList.channels[channelCounter].name;
-
-                    // check if the bot is a member of this channel
-                    // remember this is using a bot-token. If it were with a user token, a more elegant way would be to check the channel for unread messages with 'channelList.channels[i].unread_count>0'
-                    // and then on the channel itself, read the message history backwards, so loop thorugh it from latest to earliest, with earliest being the oldest unread message (channelMessageHistory.latest would fetch the reading cursor or the user, so the beginning of the yet unread messages.). 
-                    if (channelList.channels[channelCounter].is_member)
+                    for (int channelCounter = 0; channelCounter < channelList.channels.Length; channelCounter++)
                     {
+                        // i could also return a list of messages missed per channel, so we can show the user detailed info on where he missed messages exactly (in which channel that is)
+                        //var name = channelList.channels[channelCounter].name;
 
-                        // get message histroy
-                        ChannelMessageHistory channelMessageHistory = await client.GetChannelHistoryAsync(channelList.channels[channelCounter]);
-
-                        // loop thorugh the messages
-                        for (int messageCounter = 0; messageCounter < channelMessageHistory.messages.Length; messageCounter++)
+                        // check if the bot is a member of this channel
+                        // remember this is using a bot-token. If it were with a user token, a more elegant way would be to check the channel for unread messages with 'channelList.channels[i].unread_count>0'
+                        // and then on the channel itself, read the message history backwards, so loop thorugh it from latest to earliest, with earliest being the oldest unread message (channelMessageHistory.latest would fetch the reading cursor or the user, so the beginning of the yet unread messages.). 
+                        if (channelList.channels[channelCounter].is_member)
                         {
 
-                            DateTime messageDate = channelMessageHistory.messages[messageCounter].ts; // Date of the message
-                            // check if received after we started the focusSession
-                            if (messageDate > startTime)
+                            // get message histroy
+                            ChannelMessageHistory channelMessageHistory = await client.GetChannelHistoryAsync(channelList.channels[channelCounter]);
+
+                            // loop thorugh the messages
+                            for (int messageCounter = 0; messageCounter < channelMessageHistory.messages.Length; messageCounter++)
                             {
-                                numberOfMissedMessages++;
-                                // reply in public channel on user mention
-                                if (slackEnabledReply)
+
+                                DateTime messageDate = channelMessageHistory.messages[messageCounter].ts; // Date of the message
+                                                                                                          // check if received after we started the focusSession
+                                if (messageDate > startTime)
                                 {
-                                    if (channelMessageHistory.messages[messageCounter].text.Contains(slackMemberId) && !slackMessagesResponded.Contains(channelMessageHistory.messages[messageCounter].id))
+                                    numberOfMissedMessages++;
+                                    // reply in public channel on user mention
+
+                                    if (slackEnabledReply && channelMessageHistory.messages[messageCounter].text.Contains(slackMemberId) && !slackMessagesResponded.Contains(channelMessageHistory.messages[messageCounter].id))
                                     {
                                         await SendSlackMessage(channelList.channels[channelCounter].name);
                                         slackMessagesResponded.Add(channelMessageHistory.messages[messageCounter].id);
                                     }
+
                                 }
-                            }
-                            else
-                            {
-                                // jump out of loop, all other messages will also be older than the session start, we do not need to continue processing
-                                messageCounter = channelMessageHistory.messages.Length;
+                                else
+                                {
+                                    // jump out of loop, all other messages will also be older than the session start, we do not need to continue processing
+                                    messageCounter = channelMessageHistory.messages.Length;
+                                }
                             }
                         }
                     }
