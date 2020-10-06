@@ -412,7 +412,7 @@ namespace FocusSession.Controls
                 InitializeSlackClient();
                 // checks for total missed slack messages during session, in the corresponding workspace of the token, in channels where the bot has been addded to
                 // Task.Result will block async code, and should be used carefully.
-                if (slackEnabledWorkspace)
+                if (slackEnabledWorkspace && CheckForSlackConnection())
                 {
                     numberOfReceivedSlackMessages = slackClient.CheckReceivedSlackMessagesInWorkspace().Result;
                 }
@@ -441,6 +441,21 @@ namespace FocusSession.Controls
                     // this checks for missed emails and replies, adds replied emails to the list 'emailsReplied', which will be used at the end of the session to report on emails and then be emptied
                     await CheckMail();
                 }
+            }
+        }
+
+        // check if connection to slack can be established - the included Slack API does not handle this, throws WebSocketError otherwise.
+        private static bool CheckForSlackConnection()
+        {
+            try
+            {
+                using (var client = new System.Net.WebClient())
+                using (client.OpenRead("http://slack.com/"))
+                    return true;
+            }
+            catch
+            {
+                return false;
             }
         }
 
@@ -686,51 +701,71 @@ namespace FocusSession.Controls
                 int numberOfMissedMessages = 0;
 
                 // get the list of all channels from that workspace. When testing, this only returns public channels.
-                ChannelListResponse channelList = await client.GetChannelListAsync();
+                ChannelListResponse channelList = null;
 
-                // loop trough the channels in the workspace
-                if (channelList != null && channelList.channels != null)
-                {
-                    for (int channelCounter = 0; channelCounter < channelList.channels.Length; channelCounter++)
+                if (CheckForSlackConnection())
+                { // if we cannot reach slack server, we do not need to make an API call (for example user has no active internet connection)
+                    // API call and related processing in try/catch block in case something goes wrong by using the third-party API that we did not write ourselves.
+                    try
                     {
-                        // i could also return a list of messages missed per channel, so we can show the user detailed info on where he missed messages exactly (in which channel that is)
-                        //var name = channelList.channels[channelCounter].name;
+                        channelList = await client.GetChannelListAsync();
 
-                        // check if the bot is a member of this channel
-                        // remember this is using a bot-token. If it were with a user token, a more elegant way would be to check the channel for unread messages with 'channelList.channels[i].unread_count>0'
-                        // and then on the channel itself, read the message history backwards, so loop thorugh it from latest to earliest, with earliest being the oldest unread message (channelMessageHistory.latest would fetch the reading cursor or the user, so the beginning of the yet unread messages.). 
-                        if (channelList.channels[channelCounter].is_member)
+                        // loop trough the channels in the workspace
+                        if (channelList != null && channelList.channels != null)
                         {
-
-                            // get message histroy
-                            ChannelMessageHistory channelMessageHistory = await client.GetChannelHistoryAsync(channelList.channels[channelCounter]);
-
-                            // loop thorugh the messages
-                            for (int messageCounter = 0; messageCounter < channelMessageHistory.messages.Length; messageCounter++)
+                            for (int channelCounter = 0; channelCounter < channelList.channels.Length; channelCounter++)
                             {
+                                // i could also return a list of messages missed per channel, so we can show the user detailed info on where he missed messages exactly (in which channel that is)
+                                //var name = channelList.channels[channelCounter].name;
 
-                                DateTime messageDate = channelMessageHistory.messages[messageCounter].ts; // Date of the message
-                                                                                                          // check if received after we started the focusSession
-                                if (messageDate > startTime)
+                                // check if the bot is a member of this channel
+                                // remember this is using a bot-token. If it were with a user token, a more elegant way would be to check the channel for unread messages with 'channelList.channels[i].unread_count>0'
+                                // and then on the channel itself, read the message history backwards, so loop thorugh it from latest to earliest, with earliest being the oldest unread message (channelMessageHistory.latest would fetch the reading cursor or the user, so the beginning of the yet unread messages.). 
+                                if (channelList.channels[channelCounter].is_member)
                                 {
-                                    numberOfMissedMessages++;
-                                    // reply in public channel on user mention
 
-                                    if (slackEnabledReply && channelMessageHistory.messages[messageCounter].text.Contains(slackMemberId) && !slackMessagesResponded.Contains(channelMessageHistory.messages[messageCounter].id))
+                                    // get message histroy
+                                    ChannelMessageHistory channelMessageHistory = await client.GetChannelHistoryAsync(channelList.channels[channelCounter]);
+
+                                    if (channelMessageHistory.messages != null)
                                     {
-                                        await SendSlackMessage(channelList.channels[channelCounter].name);
-                                        slackMessagesResponded.Add(channelMessageHistory.messages[messageCounter].id);
-                                    }
+                                        // loop thorugh the messages
+                                        for (int messageCounter = 0; messageCounter < channelMessageHistory.messages.Length; messageCounter++)
+                                        {
 
-                                }
-                                else
-                                {
-                                    // jump out of loop, all other messages will also be older than the session start, we do not need to continue processing
-                                    messageCounter = channelMessageHistory.messages.Length;
+                                            DateTime messageDate = channelMessageHistory.messages[messageCounter].ts; // Date of the message
+                                                                                                                      // check if received after we started the focusSession
+                                            if (messageDate > startTime)
+                                            {
+                                                numberOfMissedMessages++;
+                                                // reply in public channel on user mention
+
+                                                if (slackEnabledReply && channelMessageHistory.messages[messageCounter].text.Contains(slackMemberId) && !slackMessagesResponded.Contains(channelMessageHistory.messages[messageCounter].id))
+                                                {
+                                                    await SendSlackMessage(channelList.channels[channelCounter].name);
+                                                    slackMessagesResponded.Add(channelMessageHistory.messages[messageCounter].id);
+                                                }
+
+                                            }
+                                            else
+                                            {
+                                                // jump out of loop, all other messages will also be older than the session start, we do not need to continue processing
+                                                messageCounter = channelMessageHistory.messages.Length;
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
+                    catch (Exception e) // catching WebExpection when slack not reachable due to diverse factors or something went wrong with the third party API
+                    {
+                        Console.Error.WriteLine(e);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("FocusSession could not reach slack servers");
                 }
 
                 // return total sum of missed messages
@@ -739,4 +774,5 @@ namespace FocusSession.Controls
 
         }
     }
+
 }
