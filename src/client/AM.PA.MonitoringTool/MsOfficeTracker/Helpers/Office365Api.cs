@@ -36,10 +36,11 @@ namespace MsOfficeTracker.Helpers
     public class Office365Api
     {
         private static Office365Api _api;
+
+        private string _clientId;
         private AuthenticationResult _authResult;
         private GraphServiceClient _client;
         private PublicClientApplication _app;
-        private readonly string _clientId = Settings.ClientId;
         private readonly string _authority = string.Format(CultureInfo.InvariantCulture, Settings.LoginApiEndpoint, "common"); // use microsoft.onmicrosoft.com for just this tenant, use "common" if used for everyone
 
         private const string DateTimeToFormatString = "yyyy-MM-ddTHH:mm:ssK";
@@ -102,15 +103,11 @@ namespace MsOfficeTracker.Helpers
             try
             {
                 // receive API client ID
-                /* This code stems from PersonalAnalytics, to receive the application clientId from the pluto server
-                 * Since we have a separate clientId for FocusSession, to be independent from pluto server running, this clientId is hardcoded and should never be null
-                 * Enable this again if integrating FocusSession into the main PersonalAnalytics, remove hardcoded clientId from Settings.
                 if (_clientId == null)
                 {
                     _clientId = GetOffice365ApiClientId();
                     if (_clientId == null) return false;
                 }
-                */
 
                 // register app (if not yet done)
                 if (_app == null)
