@@ -18,15 +18,17 @@ In the future, the aim is to also provide similar apps for mobile (Android and i
 - Data Trackers implement the `ITracker` interface
 - Visualizations are only provided in the retrospection for enabled trackers
 
-| Data Tracker           | Collected Data | Database Table Name | Maturity |
-|------------------------|----------------|---------------------|----------|
-| WindowsActivityTracker | for each application used, the time, duration, process name and window title is stored | windows_activity | frequently used |
-| UserInputTracker       |                | user_input | frequently used |
-| MsOfficeTracker        | Email info (number of emails in inbox, sent, received, unread), meeting info (time, subject, duration, number of attendees) | emails, meetings |          |
-| UserEfficiencyTracker  | participants' self-reports in interval pop-up (e.g. perceived productivity) | user_efficiency_survey, user_efficiency_survey_day | frequently used |
-| FitbitTracker          | synced data, such as heart rate | fitbit | not actively tested for 1-2 years |
-| PolarTracker          | synced data, such as heart rate | polar | not actively tested for 1-2 years |
+| Data Tracker           | Collected Data | Database Table Name | OS Support | Maturity |
+|------------------------|----------------|---------------------|------------|----------|
+| WindowsActivityTracker | for each application used, the time, duration, process name and window title is stored | windows_activity | Windows, macOS | frequently used |
+| UserInputTracker       | mouse movement, clicks, scrolls; keyboard strokes (not actual keys, only type (any, navigate, delete) | user_input | Windows, macOS | frequently used |
+| MsOfficeTracker        | Email info (number of emails in inbox, sent, received, unread), meeting info (time, subject, duration, number of attendees) | emails, meetings |          | Windows | frequently used |
+| UserEfficiencyTracker  | participants' self-reports in interval pop-up (e.g. perceived productivity) | user_efficiency_survey, user_efficiency_survey_day | Windows, macOS | frequently used |
+| FitbitTracker          | synced data, such as heart rate | fitbit | Windows | not actively tested for 1-2 years |
+| PolarTracker          | synced data, such as heart rate | polar | Windows | not actively tested for 1-2 years |
 
 ## Retrospection
 `TODO: describe basics and functionality of retrospection`
+
+
 ![Retrospection Screenshot](./images/retrospection_screenshot.png?raw=true)
