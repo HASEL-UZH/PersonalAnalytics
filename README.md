@@ -6,10 +6,12 @@ Anyone is welcome to contribute to PersonalAnalytics by extending it with new tr
 # Releases
 - [Windows (Release-Channel)](https://pluto.ifi.uzh.ch/PersonalAnalytics-master)
 - [Windows (Beta-Channel)](https://pluto.ifi.uzh.ch/PersonalAnalytics-dev)
-- MacOS (Release-Channel) (TBD)
+- [MacOS (Release-Channel)](https://pluto.ifi.uzh.ch/PersonalAnalytics-MAC-master)
 
-# Contact
-Dr. André Meyer (ameyer@ifi.uzh.ch)
+# Further Information
+- [Privacy information](https://github.com/HASE-UZH/PersonalAnalytics/blob/dev-am/documentation/PRIVACY.md)
+- [Architecture information](https://github.com/HASE-UZH/PersonalAnalytics/blob/dev-am/documentation/ARCHITECTURE.md)
+- Questions? contact [Dr. André Meyer](mailto:ameyer@ifi.uzh.ch)
 
 # Updates & Branches
 - September 2014: Initiated by [André Meyer](https://www.andre-meyer.ch) and regularly updated since then.
@@ -26,7 +28,7 @@ Dr. André Meyer (ameyer@ifi.uzh.ch)
 - January 2019: [Louie Quaranta](https://github.com/louieQ) added an emotion state experience sampling pop-up to PersonalAnalytics for Mac (merged to [mac-branch](https://github.com/sealuzh/PersonalAnalytics/tree/mac)).
 - October 2019: [Roy Rutishauser](https://github.com/royru) started unifying PersonalAnalytics for Mac and make it more similar to the Windows version
 - May 2020: [Jan Pilzer](https://github.com/hirse) created a [large pull-request](https://github.com/sealuzh/PersonalAnalytics/pull/258) to include WindowDimmer into the official PersonalAnalytics release. [Publication](https://andre-meyer.ch/CHI20)
-- October 2020 [Philip Hofmann](https://github.com/Phhofm) created a [large pull-request](https://github.com/HASE-UZH/PersonalAnalytics/pull/265) to include FocusSession into the official PersonalAnalytics release
+- October 2020: [Philip Hofmann](https://github.com/Phhofm) created a [large pull-request](https://github.com/HASE-UZH/PersonalAnalytics/pull/265) to include FocusSession into the official PersonalAnalytics release
 
 # Main Contributors and People Involved
 - [Dr. André Meyer](https://www.andre-meyer.ch) (University of Zurich, main contributor of Windows version)
@@ -36,7 +38,7 @@ Dr. André Meyer (ameyer@ifi.uzh.ch)
 - [Dr. Manuela Züger](http://www.ifi.uzh.ch/en/seal/people/zueger.html) (prev. University of Zurich)
 - [Dr. Sebastian Müller](http://www.ifi.uzh.ch/en/seal/people/mueller.html) (prev. University of Zurich)
 - [Dr. Tom Zimmermann](https://www.microsoft.com/en-us/research/people/tzimmer/) (Microsoft Research)
-- [Prof. Dr. Gail C. Murphy](https://blogs.ubc.ca/gailcmurphy/)(University of British Columbia)
+- [Prof. Dr. Gail C. Murphy](https://blogs.ubc.ca/gailcmurphy/) (University of British Columbia)
 
 # Research
 This tool was developed for and used by the following research:
