@@ -3,15 +3,18 @@ Personal Analytics project was originally initiated by [Dr. André N. Meyer](htt
 
 Anyone is welcome to contribute to PersonalAnalytics by extending it with new trackers or improving existing ones. Feel free to use PersonalAnalytics to get insights into your own work habits, or use it for research studies. In case you re-use PersonalAnalytics, make sure to cite our work (specifically this Github repository and our CSCW'2018 paper below).
 
-# Releases
+## Releases
 - [Windows (Release-Channel)](https://pluto.ifi.uzh.ch/PersonalAnalytics-master)
 - [Windows (Beta-Channel)](https://pluto.ifi.uzh.ch/PersonalAnalytics-dev)
 - [MacOS (Release-Channel)](https://pluto.ifi.uzh.ch/PersonalAnalytics-MAC-master)
 
-# Further Information
+## Further Information
 - [Privacy information](https://github.com/HASE-UZH/PersonalAnalytics/blob/dev-am/documentation/PRIVACY.md)
 - [Architecture information](https://github.com/HASE-UZH/PersonalAnalytics/blob/dev-am/documentation/ARCHITECTURE.md)
 - Questions? contact [Dr. André Meyer](mailto:ameyer@ifi.uzh.ch)
+
+
+![Retrospection Screenshot](./documentation/images/retrospection_screenshot.png?raw=true)
 
 # Updates & Branches
 - September 2014: Initiated by [André Meyer](https://www.andre-meyer.ch) and regularly updated since then.
