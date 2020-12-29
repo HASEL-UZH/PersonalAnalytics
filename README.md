@@ -6,7 +6,7 @@ Anyone is welcome to contribute to PersonalAnalytics by extending it with new tr
 # Releases
 - [Windows (Release-Channel)](https://pluto.ifi.uzh.ch/PersonalAnalytics-master)
 - [Windows (Beta-Channel)](https://pluto.ifi.uzh.ch/PersonalAnalytics-dev)
-- MacOS (Release-Channel) (https://pluto.ifi.uzh.ch/PersonalAnalytics-MAC-master)
+- [MacOS (Release-Channel)](https://pluto.ifi.uzh.ch/PersonalAnalytics-MAC-master)
 
 # Contact
 Dr. André Meyer (ameyer@ifi.uzh.ch)
