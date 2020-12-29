@@ -8,8 +8,10 @@ Anyone is welcome to contribute to PersonalAnalytics by extending it with new tr
 - [Windows (Beta-Channel)](https://pluto.ifi.uzh.ch/PersonalAnalytics-dev)
 - [MacOS (Release-Channel)](https://pluto.ifi.uzh.ch/PersonalAnalytics-MAC-master)
 
-# Contact
-Dr. André Meyer (ameyer@ifi.uzh.ch)
+# Further Information
+- [Privacy information](https://github.com/HASE-UZH/PersonalAnalytics/blob/dev-am/documentation/PRIVACY.md)
+- [Architecture information](https://github.com/HASE-UZH/PersonalAnalytics/blob/dev-am/documentation/ARCHITECTURE.md)
+- Questions? contact [Dr. André Meyer](mailto:ameyer@ifi.uzh.ch)
 
 # Updates & Branches
 - September 2014: Initiated by [André Meyer](https://www.andre-meyer.ch) and regularly updated since then.
@@ -36,7 +38,7 @@ Dr. André Meyer (ameyer@ifi.uzh.ch)
 - [Dr. Manuela Züger](http://www.ifi.uzh.ch/en/seal/people/zueger.html) (prev. University of Zurich)
 - [Dr. Sebastian Müller](http://www.ifi.uzh.ch/en/seal/people/mueller.html) (prev. University of Zurich)
 - [Dr. Tom Zimmermann](https://www.microsoft.com/en-us/research/people/tzimmer/) (Microsoft Research)
-- [Prof. Dr. Gail C. Murphy](https://blogs.ubc.ca/gailcmurphy/)(University of British Columbia)
+- [Prof. Dr. Gail C. Murphy](https://blogs.ubc.ca/gailcmurphy/) (University of British Columbia)
 
 # Research
 This tool was developed for and used by the following research:
