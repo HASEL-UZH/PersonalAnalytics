@@ -48,14 +48,14 @@ namespace Shared.Helpers
             if (process == "applicationframehost") return "Microsoft Edge"; // TODO: remove at some point (should be fixed now)
             else if (process == "devenv") return "Visual Studio";
             else if (process == "winword") return "Word";
-            else if (process == "powerpnt") return "Power Point";
-            else if (process == "onenote") return "One Note";
+            else if (process == "powerpnt") return "PowerPoint";
+            else if (process == "onenote") return "OneNote";
             else if (process == "iexplore") return "Internet Explorer";
             else if (process == "acrord32") return "Adobe Reader";
             else if (process == "acrobat") return "Adobe Acrobat";
             else if (process == "ps") return "Product Studio";
             else if (process == "lync") return "Skype for Business";
-            else if (process == "mstsc") return "Remote Desktop";
+            else if (process == "mstsc") return "RemoteDesktop";
             else if (process == "taskmgr") return "Task Manager";
             else if (process == "ssms") return "SQL Server Management Studio";
             else if (process == "mendeleydesktop") return "Mendeley";
