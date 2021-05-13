@@ -59,6 +59,7 @@ namespace Shared.Helpers
             else if (process == "taskmgr") return "Task Manager";
             else if (process == "ssms") return "SQL Server Management Studio";
             else if (process == "mendeleydesktop") return "Mendeley";
+            else if (process == "msedge") return "Microsoft Edge";
 
             return process;
             // todo: create or use program mapper
