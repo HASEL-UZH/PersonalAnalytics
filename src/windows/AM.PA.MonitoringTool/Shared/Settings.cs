@@ -85,15 +85,9 @@ namespace Shared
 
         ////////////////////////////////////////////////////////////
         // contact emails & privacy statement URI
-#if PilotMSR
-        public const string EmailAddress1 = "tzimmer@microsoft.com"; // main email address
-        public const string EmailAddress2 = "ameyer@ifi.uzh.ch";
-        public const string PrivacyStatementUri = "";
-#else
         public const string EmailAddress1 = "ameyer@ifi.uzh.ch"; // main email address
-        public static string EmailAddress2 = string.Empty;
-        public const string PrivacyStatementUri = @"https://pluto.ifi.uzh.ch/PersonalAnalytics";
-#endif
+        public static string EmailAddress2 = "fritz@ifi.uzh.ch"; // secondary email address
+        public const string PrivacyStatementUri = @"https://github.com/HASEL-UZH/PersonalAnalytics/blob/dev-am/documentation/PRIVACY.md"; // old link: @"https://pluto.ifi.uzh.ch/PersonalAnalytics";
 
 
         ////////////////////////////////////////////////////////////
