@@ -12,6 +12,7 @@ using Shared.Helpers;
 using WindowsActivityTracker.Data;
 using WindowsActivityTracker.Models;
 using Shared.Data.Extractors;
+using System.Diagnostics;
 
 namespace WindowsActivityTracker.Visualizations
 {
@@ -24,7 +25,6 @@ namespace WindowsActivityTracker.Visualizations
         public DayFragmentationTimeline(DateTimeOffset date)
         {
             this._date = date;
-
             Title = "Timeline: Activities over the Day"; //hint; overwritten below
             IsEnabled = true; //todo: handle by user
             Order = 2; //todo: handle by user
@@ -135,7 +135,7 @@ namespace WindowsActivityTracker.Visualizations
             html += "var " + activityTimeline + " = d3.timeline().width(" + TimelineZoomFactor + " * itemWidth).itemHeight(itemHeight)" + hover + mouseout + ";"; // .colors(colorScale).colorProperty('activity') // .stack()
             html += "var svg = d3.select('#" + activityTimeline + "').append('svg').attr('width', itemWidth).datum(data).call(" + activityTimeline + "); ";
 
-            html += "}; "; // end #1
+            html += " loadWindowTitleTimeline();}; "; // end #1, invoke DayWindowTitleList timeline
             html += "</script>";
 
             /////////////////////
@@ -222,8 +222,8 @@ namespace WindowsActivityTracker.Visualizations
 
         private static string FormatWindowTitle(string windowTitle)
         {
-            return string.IsNullOrEmpty(windowTitle) 
-                ? string.Empty 
+            return string.IsNullOrEmpty(windowTitle)
+                ? string.Empty
                 : windowTitle.Replace("'", "").Replace("'", "").Replace("/", "//").Replace(@"\", @"\\").Replace("\r\n", "").Replace("\t", "").Replace("\r", "").Replace("\n", "") + ", ";
         }
 
@@ -262,8 +262,8 @@ namespace WindowsActivityTracker.Visualizations
                     </style>";
 
             html += "<div><ul id='legend' align='center'>" // style='width:" + visWidth + "px'
-                   +  categoryList.Where(c => c != ActivityCategory.Idle).Aggregate(string.Empty, (current, cat) => current + ("<li style='color:" + GetHtmlColorForContextCategory(cat) + "'><span>" + GetDescriptionForContextCategory(cat) + "</span></li>"))
-                   +  "</ul></div>";
+                   + categoryList.Where(c => c != ActivityCategory.Idle).Aggregate(string.Empty, (current, cat) => current + ("<li style='color:" + GetHtmlColorForContextCategory(cat) + "'><span>" + GetDescriptionForContextCategory(cat) + "</span></li>"))
+                   + "</ul></div>";
 
             return html;
         }
@@ -331,7 +331,7 @@ namespace WindowsActivityTracker.Visualizations
                 case ActivityCategory.Idle:
                     return "white";
                 case ActivityCategory.Uncategorized:
-                    return noneColor; 
+                    return noneColor;
             }
 
             return noneColor; // default color

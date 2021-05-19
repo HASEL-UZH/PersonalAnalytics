@@ -174,7 +174,8 @@ namespace WindowsActivityTracker
             var vis1 = new DayProgramsUsedPieChart(date);
             var vis2 = new DayMostFocusedProgram(date);
             var vis3 = new DayFragmentationTimeline(date);
-            return new List<IVisualization> { vis1, vis2, vis3 };
+            var vis4 = new DayWindowTitleList(date);
+            return new List<IVisualization> { vis1, vis2,vis3,vis4};
         }
 
         public override List<IVisualization> GetVisualizationsWeek(DateTimeOffset date)

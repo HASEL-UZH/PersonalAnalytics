@@ -359,6 +359,147 @@ namespace WindowsActivityTracker.Data
         }
 
         /// <summary>
+        /// Fetches the activities a developer has on his computer for a given date in an
+        /// ordered list according to time. Each activity matched to a single window ** temporary **
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        internal static List<WindowsActivity> GetDayWindowTitleData(DateTimeOffset date)
+        {
+            var orderedActivityList = new List<WindowsActivity>();
+
+            try
+            {
+                var query = "SELECT tsStart, tsEnd, window, process, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'durInSec' "
+                              + "FROM " + Settings.DbTable + " "
+                              + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsStart") + " AND " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsEnd") + " "
+                              + "ORDER BY tsStart;";
+
+                var table = Database.GetInstance().ExecuteReadQuery(query);
+
+                if (table != null)
+                {
+                    WindowsActivity previousWindowsActivityEntry = null;
+
+                    foreach (DataRow row in table.Rows)
+                    {
+                        // fetch items from database
+                        var e = new WindowsActivity();
+                        e.StartTime = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
+                        e.EndTime = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
+                        e.DurationInSeconds = row.IsNull("durInSec") ? 0 : Convert.ToInt32(row["durInSec"], CultureInfo.InvariantCulture);
+                        var processName = (string)row["process"];
+
+                        // make window titles more readable (TODO: improve!)
+                        var windowTitle = (string)row["window"];
+                        windowTitle = WindowTitleWebsitesExtractor.GetWebsiteDetails(processName, windowTitle);
+                        //windowTitle = WindowTitleArtifactExtractor.GetArtifactDetails(processName, windowTitle);
+                        //windowTitle = WindowTitleCodeExtractor.GetProjectName(windowTitle);
+
+                        // map process and window to activity
+                        e.ActivityCategory = ProcessToActivityMapper.Map(processName, windowTitle);
+
+
+                        // check if we add a as first item or not
+                        if (previousWindowsActivityEntry != null)
+                        {
+                               e.WindowProcessList.Add(new WindowProcessItem(processName, windowTitle));
+                               orderedActivityList.Add(e);
+                        }
+                        else // first item
+                        {
+                            orderedActivityList.Add(e);
+                        }
+                        previousWindowsActivityEntry = e;
+                    }
+                    table.Dispose();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+
+            return orderedActivityList;
+        }
+
+        /// <summary>
+        /// Fetches window titles organized into specifed blocks of time
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="numSecs"></param>
+        /// <returns></returns>
+        internal static List<List<string>> GetWindowTitles(int numSecs,DateTimeOffset date)
+        {
+            int currBlock = 0; // current time block 
+            int currentTime = 0;
+            int x = 0;
+            List<List<string>> titles = new List<List<string>>();
+
+            try
+            {
+                var query = "SELECT tsStart, tsEnd, window, process, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'durInSec' "
+                              + "FROM " + Settings.DbTable + " "
+                              + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsStart") + " AND " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsEnd") + " "
+                              + "ORDER BY tsStart;";
+
+                var table = Database.GetInstance().ExecuteReadQuery(query);
+               
+                if (table != null)
+                {
+
+
+
+                    foreach (DataRow row in table.Rows)
+                    {
+                        // fetch items from database
+                        x++;
+                        // fetch items from database
+                        int duration = row.IsNull("durInSec") ? 0 : Convert.ToInt32(row["durInSec"], CultureInfo.InvariantCulture); // in seconds
+                        var processName = (string)row["process"];
+                        var startTime = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
+                        var endTime = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
+
+                        // make window titles more readable (TODO: improve!)
+                        var windowTitle = (string)row["window"];
+                        WindowTitleWebsitesExtractor.GetWebsiteDetails(processName, windowTitle);
+
+                        int startBlock = currentTime / numSecs; // block of time in which the window title began
+                        currentTime += duration;
+                        int endBlock = currentTime / numSecs; // block of time in which the window title ended
+                        x = currentTime;
+
+                        // add the window title to all blocks of time it occured in 
+                        for (int i = startBlock; i <= endBlock; i++)
+                        {
+
+                            if (i >= titles.Count) // if there is no block for this time window in the list
+                            {
+                                List<string> newBlock = new List<string>();
+                                newBlock.Add(windowTitle);
+                                titles.Add(newBlock);
+                            }
+                            else
+                            {
+                                titles[i].Add(windowTitle + ": " + startTime);
+                            }
+                            currBlock++;
+                        }
+                    }
+                    table.Dispose();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+ 
+            return titles;
+                
+        }
+
+
+        /// <summary>
         /// Fetches the activities a developer has on his computer for a given date and prepares the data
         /// to be visualized as a pie chart.
         /// </summary>
