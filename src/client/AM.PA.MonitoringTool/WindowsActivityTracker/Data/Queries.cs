@@ -12,6 +12,7 @@ using System.Linq;
 using System.Globalization;
 using WindowsActivityTracker.Helpers;
 using WindowsActivityTracker.Models;
+using Shared.Helpers;
 
 namespace WindowsActivityTracker.Data
 {
@@ -433,7 +434,7 @@ namespace WindowsActivityTracker.Data
         {
             int currBlock = 0; // current time block 
             int currentTime = 0;
-            int x = 0;
+            
             List<List<string>> titles = new List<List<string>>();
 
             try
@@ -452,8 +453,7 @@ namespace WindowsActivityTracker.Data
 
                     foreach (DataRow row in table.Rows)
                     {
-                        // fetch items from database
-                        x++;
+
                         // fetch items from database
                         int duration = row.IsNull("durInSec") ? 0 : Convert.ToInt32(row["durInSec"], CultureInfo.InvariantCulture); // in seconds
                         var processName = (string)row["process"];
@@ -462,12 +462,13 @@ namespace WindowsActivityTracker.Data
 
                         // make window titles more readable (TODO: improve!)
                         var windowTitle = (string)row["window"];
-                        WindowTitleWebsitesExtractor.GetWebsiteDetails(processName, windowTitle);
+                        windowTitle = WindowTitleWebsitesExtractor.GetWebsiteDetails(processName, windowTitle);
+                       
 
                         int startBlock = currentTime / numSecs; // block of time in which the window title began
                         currentTime += duration;
                         int endBlock = currentTime / numSecs; // block of time in which the window title ended
-                        x = currentTime;
+                        
 
                         // add the window title to all blocks of time it occured in 
                         for (int i = startBlock; i <= endBlock; i++)
@@ -476,12 +477,13 @@ namespace WindowsActivityTracker.Data
                             if (i >= titles.Count) // if there is no block for this time window in the list
                             {
                                 List<string> newBlock = new List<string>();
-                                newBlock.Add(windowTitle);
+                                newBlock.Add(windowTitle + " - (" + processName + ")");
                                 titles.Add(newBlock);
                             }
                             else
                             {
-                                titles[i].Add(windowTitle + ": " + startTime);
+                               
+                                titles[i].Add(windowTitle + " - (" + processName + ")");
                             }
                             currBlock++;
                         }
@@ -497,6 +499,8 @@ namespace WindowsActivityTracker.Data
             return titles;
                 
         }
+
+
 
 
         /// <summary>

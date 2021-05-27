@@ -8,8 +8,7 @@ using Shared;
 using Shared.Helpers;
 using WindowsActivityTracker.Models;
 using System.Diagnostics;
-
-
+using System.IO;
 
 namespace WindowsActivityTracker.Visualizations
     {
@@ -27,11 +26,16 @@ namespace WindowsActivityTracker.Visualizations
                 Order = 2; //todo: handle by user
                 Size = VisSize.Wide;
                 Type = VisType.Day;
-            }
+                Console.WriteLine("test print statement");
+        }
+
+  
 
             public override string GetHtml()
             {
-                var html = string.Empty;
+
+            
+            var html = string.Empty;
 
             /////////////////////
             // fetch data sets
@@ -67,9 +71,21 @@ namespace WindowsActivityTracker.Visualizations
             _sb.Append(GetActivityVisualizationContent(orderedTimelineList));
             return _sb.ToString();
 
+            //var data = Queries.GetWindowTitles(30, _date);
+
+            //foreach(List<string> list in data)
+            //{
+            //    foreach(string title in list)
+            //    {
+            //        html += title + " ";
+            //    }
+            //}
+            //return html;
+
         }
 
-            private string GetActivityVisualizationContent(List<WindowsActivity> activityList)
+
+        private string GetActivityVisualizationContent(List<WindowsActivity> activityList)
             {
                 var categories = activityList.Select(a => a.ActivityCategory).Distinct().OrderBy(a => a).ToList();
                 const string windowTitleTimeline = "WindowTitleTimeline";
@@ -196,7 +212,7 @@ namespace WindowsActivityTracker.Visualizations
 
 
             /// <summary>
-            /// Return a random color for each context category
+            /// Return a random color for each context category (temporary implementation)
             /// </summary>
             /// <param name="category"></param>
             /// <param name="num"></param>
@@ -249,11 +265,12 @@ namespace WindowsActivityTracker.Visualizations
             }
 
 
-            #endregion
+        #endregion
 
-            #region Other Helpers
+        #region Other Helpers
 
-            private static long JavascriptTimestampFromDateTime(DateTime date)
+
+        private static long JavascriptTimestampFromDateTime(DateTime date)
             {
                 var datetimeMinTimeTicks = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).Ticks;
                 return ((date.ToUniversalTime().Ticks - datetimeMinTimeTicks) / 10000);

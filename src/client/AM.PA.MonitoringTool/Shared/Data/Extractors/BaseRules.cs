@@ -134,6 +134,7 @@ namespace Shared.Data.Extractors
         /// <returns></returns>
         internal static List<string> GetRemovablesFromProcess(string process, List<ProgramInfo> rules)
         {
+
             foreach (var rule in rules)
             {
                 if (rule.ProcessName == process.ToLower()) return rule.RemovablesRegex;
