@@ -69,6 +69,7 @@ namespace WindowsActivityTracker
         {
             try
             {
+                
                 // Register for Window Events
                 _dele = new NativeMethods.WinEventDelegate(WinEventProc);
                 _hWinEventHookForWindowSwitch = NativeMethods.SetWinEventHook(NativeMethods.EVENT_SYSTEM_FOREGROUND, NativeMethods.EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, _dele, 0, 0, NativeMethods.WINEVENT_OUTOFCONTEXT);

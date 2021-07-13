@@ -460,34 +460,39 @@ namespace WindowsActivityTracker.Data
                         var startTime = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
                         var endTime = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
 
+
+
                         // make window titles more readable (TODO: improve!)
                         var windowTitle = (string)row["window"];
-                        windowTitle = WindowTitleWebsitesExtractor.GetWebsiteDetails(processName, windowTitle);
-                       
-
-                        int startBlock = currentTime / numSecs; // block of time in which the window title began
-                        currentTime += duration;
-                        int endBlock = currentTime / numSecs; // block of time in which the window title ended
-                        
-
-                        // add the window title to all blocks of time it occured in 
-                        for (int i = startBlock; i <= endBlock; i++)
+                        if (windowTitle.Length > 0)
                         {
+                            windowTitle = WindowTitleWebsitesExtractor.GetWebsiteDetails(processName, windowTitle);
 
-                            if (i >= titles.Count) // if there is no block for this time window in the list
+
+                            int startBlock = currentTime / numSecs; // block of time in which the window title began
+                            currentTime += duration;
+                            int endBlock = currentTime / numSecs; // block of time in which the window title ended
+
+
+                            // add the window title to all blocks of time it occured in 
+                            for (int i = startBlock; i <= endBlock; i++)
                             {
-                                List<string> newBlock = new List<string>();
-                                newBlock.Add(windowTitle + " - (" + processName + ")");
-                                titles.Add(newBlock);
+
+                                if (i >= titles.Count) // if there is no block for this time window in the list
+                                {
+                                    List<string> newBlock = new List<string>();
+                                    newBlock.Add(startTime + "," + endTime + "," + duration + "," + windowTitle);
+                                    titles.Add(newBlock);
+                                }
+                                else
+                                {
+
+                                    titles[i].Add(startTime + "," + endTime + "," + duration + "," + windowTitle);
+                                }
+                                currBlock++;
                             }
-                            else
-                            {
-                               
-                                titles[i].Add(windowTitle + " - (" + processName + ")");
-                            }
-                            currBlock++;
                         }
-                    }
+                    } 
                     table.Dispose();
                 }
             }
