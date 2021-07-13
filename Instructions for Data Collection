@@ -15,13 +15,14 @@ Steps:
    
 3. Once in your IDE, open the folder titled WindowsActivityTracker and open DayWindowTitleList.
 
-4. In the function writeToFile, add the file path that you will use to save the data (modify line 35). The program will create the file for you when it runs. 
+4. In the function writeToFile (the first function), add the file path that you will use to save the data (modify line 35). The program will create the file for you when it runs. 
    This file will be used to save all of your window titles. Make sure it is a .txt file. 
 
 5. Run the code by pressing start
 
-6. Go about your work day. When you are done, click on the system tray button -> right click on the Personal Analytics logo -> Click show retrospection. Then you may end 
-   the program by pressing stop.
+6. Go about your work day. When you are done, click on the system tray button (bottom right on the task bar) -> right click on the Personal Analytics logo (white portrait of a man) -> Click show retrospection. 
+   Then you may end the program by pressing stop.
 
 7. Thats it! You may now send me the .txt file you created at step 3 at pgousse@student.ubc.ca
 
+Thanks again!
