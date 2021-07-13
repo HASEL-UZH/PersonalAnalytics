@@ -505,6 +505,53 @@ namespace WindowsActivityTracker.Data
                 
         }
 
+        // ** temporary **
+        internal static List<string> FetchWindowTitles(DateTimeOffset date)
+        {
+            List<string> titles = new List<string>();
+
+            try
+            {
+                var query = "SELECT tsStart, tsEnd, window, process, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'durInSec' "
+                              + "FROM " + Settings.DbTable + " "
+                              + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsStart") + " AND " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsEnd") + " "
+                              + "ORDER BY tsStart;";
+
+                var table = Database.GetInstance().ExecuteReadQuery(query);
+
+                if (table != null)
+                {
+                    foreach (DataRow row in table.Rows)
+                    {
+
+                        // fetch items from database
+                        int duration = row.IsNull("durInSec") ? 0 : Convert.ToInt32(row["durInSec"], CultureInfo.InvariantCulture); // in seconds
+                        var processName = (string)row["process"];
+                        var startTime = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
+                        var endTime = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
+
+                        // make window titles more readable (TODO: improve!)
+                        var windowTitle = (string)row["window"];
+
+                        if (windowTitle.Length > 0 && duration > 0)
+                        {
+                            titles.Add(startTime + "," + endTime + "," + duration + "," + windowTitle);
+                        }
+                       
+
+                    }
+                    table.Dispose();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteToLogFile(e);
+            }
+
+            return titles;
+
+        }
+
 
 
 

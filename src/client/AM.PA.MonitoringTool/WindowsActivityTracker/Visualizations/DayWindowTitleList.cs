@@ -26,30 +26,24 @@ namespace WindowsActivityTracker.Visualizations
                 Order = 2; //todo: handle by user
                 Size = VisSize.Wide;
                 Type = VisType.Day;
-           // writeToFile();
-            //Console.ReadLine();
             
         }
 
         private void writeToFile()
         {
-            string filePath = @"C:\Users\pcgou\OneDrive\Documents\UBCResearch\file_writing_test.txt";
+           
+          //  string filePath = @"C:\modify\file\path\here\window_title_data.txt"; // ** Modify this file path **
+            string filePath = @"C:\Users\pcgou\OneDrive\Documents\UBCResearch\window_title_data.txt"; // ** Modify this file path **
+        
 
-            var windowTitles = Queries.GetWindowTitles(150, _date);
-            foreach(List<string> block in windowTitles)
+         var windowTitles = Queries.FetchWindowTitles(_date);
+
+            foreach (var title in windowTitles)
             {
-                foreach(string windowTitle in block)
-                {
-                    File.AppendAllText(filePath, windowTitle + Environment.NewLine);
-                }
-                File.AppendAllText(filePath, "switch" + Environment.NewLine);
-            }
-            // string toAdd = "success";
-
-              
-                    
                 
-            
+                File.AppendAllText(filePath, title + Environment.NewLine);
+                
+            }
         }
   
 
