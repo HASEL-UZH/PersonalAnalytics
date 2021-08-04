@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Meyer"
+  given-names: "André N."
+- family-names: "Fritz"
+  given-names: "Thomas"
+- family-names: "Murphy"
+  given-names: "Gail"
+- family-names: "Zimmermann"
+  given-names: "Thomas"
+title: "Design Recommendations for Self-Monitoring in the Workplace: Studies in Software Development"
+version: 1.0.0
+doi: 10.1145/3134714
+date-released: 2017-12-06
+url: "https://github.com/HASEL-UZH/PersonalAnalytics"
