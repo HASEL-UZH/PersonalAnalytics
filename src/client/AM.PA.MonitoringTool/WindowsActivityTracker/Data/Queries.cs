@@ -13,6 +13,7 @@ using System.Globalization;
 using WindowsActivityTracker.Helpers;
 using WindowsActivityTracker.Models;
 using Shared.Helpers;
+using System.IO;
 
 namespace WindowsActivityTracker.Data
 {
@@ -369,13 +370,22 @@ namespace WindowsActivityTracker.Data
         {
             var orderedActivityList = new List<WindowsActivity>();
 
+            DateTime endInterval = DateTime.Now;
+            DateTime beginInterval = endInterval.AddSeconds(-30);
+            string filePath2 = @"C:\Users\pcgou\OneDrive\Documents\UBCResearch\testInterval2.txt"; // ** Modify this file path **
+           // File.AppendAllText(filePath2,beginInterval + " - " + endInterval  + Environment.NewLine);
+
+
+
+            string filePath = @"C:\Users\pcgou\OneDrive\Documents\UBCResearch\testInterval.txt"; // ** Modify this file path **
             try
             {
                 var query = "SELECT tsStart, tsEnd, window, process, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'durInSec' "
                               + "FROM " + Settings.DbTable + " "
                               + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsStart") + " AND " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsEnd") + " "
-                              + "ORDER BY tsStart;";
-
+                            //  + "WHERE (tsStart" + " BETWEEN '" + beginInterval.ToString("yyyy-MM-dd HH:mm:ss") + "' AND '" + endInterval.ToString("yyyy-MM-dd HH:mm:ss") + "') OR (tsEnd" + " BETWEEN '" + beginInterval.ToString("yyyy-MM-dd HH:mm:ss") + "' AND '" + endInterval.ToString("yyyy-MM-dd HH:mm:ss") + "') OR (tsEnd" + " >= '" + endInterval.ToString("yyyy-MM-dd HH:mm:ss") +  "') "
+                              + "ORDER BY tsStart DESC;";
+              //  File.AppendAllText(filePath2, beginInterval.ToString("yyyy-MM-dd HH:mm:ss") + Environment.NewLine);
                 var table = Database.GetInstance().ExecuteReadQuery(query);
 
                 if (table != null)
@@ -401,16 +411,30 @@ namespace WindowsActivityTracker.Data
                         e.ActivityCategory = ProcessToActivityMapper.Map(processName, windowTitle);
 
 
-                        // check if we add a as first item or not
-                        if (previousWindowsActivityEntry != null)
+                        bool temp = e.StartTime > beginInterval;
+                        
+                        //File.AppendAllText(filePath, e.StartTime + " > " + intervalTime  + ": " + temp + Environment.NewLine);
+                        // TODO: nothing is being added to list
+                        if ((e.StartTime > beginInterval && e.StartTime < endInterval) || (e.EndTime > beginInterval && e.EndTime < endInterval) || (e.StartTime < beginInterval && e.EndTime > endInterval))
                         {
-                               e.WindowProcessList.Add(new WindowProcessItem(processName, windowTitle));
-                               orderedActivityList.Add(e);
+                           // File.AppendAllText(filePath, e.StartTime + " - " + e.EndTime +" since "+ beginInterval   + Environment.NewLine);
+                            if (previousWindowsActivityEntry != null)
+                            {
+                               // File.AppendAllText(filePath2, "//////////////////////////////// " + Environment.NewLine);
+                                e.WindowProcessList.Add(new WindowProcessItem(processName, windowTitle));
+                                orderedActivityList.Add(e);
+                            }
+                            else // first item
+                            {
+                                orderedActivityList.Add(e);
+                            }
                         }
-                        else // first item
+                        else
                         {
-                            orderedActivityList.Add(e);
+                            break;
+                            // file.appendalltext(filepath2, "**************** " + e.starttime + " - " + e.endtime + " false " + " **************** " + environment.newline);
                         }
+
                         previousWindowsActivityEntry = e;
                     }
                     table.Dispose();
@@ -420,7 +444,7 @@ namespace WindowsActivityTracker.Data
             {
                 Logger.WriteToLogFile(e);
             }
-
+          //  File.AppendAllText(filePath, orderedActivityList.Count + Environment.NewLine);
             return orderedActivityList;
         }
 

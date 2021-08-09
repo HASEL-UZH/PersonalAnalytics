@@ -134,7 +134,7 @@ namespace WindowsActivityTracker.Visualizations
             // define configuration
             html += "var " + activityTimeline + " = d3.timeline().width(" + TimelineZoomFactor + " * itemWidth).itemHeight(itemHeight)" + hover + mouseout + ";"; // .colors(colorScale).colorProperty('activity') // .stack()
             html += "var svg = d3.select('#" + activityTimeline + "').append('svg').attr('width', itemWidth).datum(data).call(" + activityTimeline + "); ";
-
+          // html += "}; ";
             html += " loadWindowTitleTimeline();}; "; // end #1, invoke DayWindowTitleList timeline
             html += "</script>";
 
