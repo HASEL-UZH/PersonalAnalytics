@@ -211,6 +211,7 @@ namespace WindowsActivityTracker.TaskDetection
             this.bag = importantWords.ToDictionary(x => x.Key, x => x.Value);
             try
             {
+                taskRepresentation = "";
                 for (int i = 0; i < 4; i++)
                 {
                     taskRepresentation += importantWords[importantWords.Count - 1 - i].Key + " | ";

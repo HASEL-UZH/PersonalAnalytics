@@ -80,7 +80,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TaskDetection\Summarizer.cs" />
     <Compile Include="TaskDetection\Task.cs" />
-    <Compile Include="Visualizations\DayWindowTitleList.cs" />
+    <Compile Include="Visualizations\DayTasksTimeline.cs" />
     <Compile Include="Visualizations\DayMostFocusedProgram.cs" />
     <Compile Include="Visualizations\DayFragmentationTimeline.cs" />
     <Compile Include="Visualizations\DayProgramsUsedPieChart.cs" />

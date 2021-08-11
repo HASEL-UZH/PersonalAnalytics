@@ -361,23 +361,17 @@ namespace WindowsActivityTracker.Data
         }
 
         /// <summary>
-        /// Fetches the activities a developer has on his computer for a given date in an
-        /// ordered list according to time. Each activity matched to a single window ** temporary **
+        /// Fetches the window titles used in the last numSecs
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
-        internal static List<WindowsActivity> GetDayWindowTitleData(DateTimeOffset date)
+        internal static List<WindowsActivity> GetDayWindowTitleData(DateTimeOffset date, int numSecs)
         {
             var orderedActivityList = new List<WindowsActivity>();
 
             DateTime endInterval = DateTime.Now;
-            DateTime beginInterval = endInterval.AddSeconds(-30);
-            string filePath2 = @"C:\Users\pcgou\OneDrive\Documents\UBCResearch\testInterval2.txt"; // ** Modify this file path **
-           // File.AppendAllText(filePath2,beginInterval + " - " + endInterval  + Environment.NewLine);
+            DateTime beginInterval = endInterval.AddSeconds(-numSecs);
 
-
-
-            string filePath = @"C:\Users\pcgou\OneDrive\Documents\UBCResearch\testInterval.txt"; // ** Modify this file path **
             try
             {
                 var query = "SELECT tsStart, tsEnd, window, process, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'durInSec' "
@@ -385,7 +379,7 @@ namespace WindowsActivityTracker.Data
                               + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsStart") + " AND " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsEnd") + " "
                             //  + "WHERE (tsStart" + " BETWEEN '" + beginInterval.ToString("yyyy-MM-dd HH:mm:ss") + "' AND '" + endInterval.ToString("yyyy-MM-dd HH:mm:ss") + "') OR (tsEnd" + " BETWEEN '" + beginInterval.ToString("yyyy-MM-dd HH:mm:ss") + "' AND '" + endInterval.ToString("yyyy-MM-dd HH:mm:ss") + "') OR (tsEnd" + " >= '" + endInterval.ToString("yyyy-MM-dd HH:mm:ss") +  "') "
                               + "ORDER BY tsStart DESC;";
-              //  File.AppendAllText(filePath2, beginInterval.ToString("yyyy-MM-dd HH:mm:ss") + Environment.NewLine);
+ 
                 var table = Database.GetInstance().ExecuteReadQuery(query);
 
                 if (table != null)
@@ -404,23 +398,15 @@ namespace WindowsActivityTracker.Data
                         // make window titles more readable (TODO: improve!)
                         var windowTitle = (string)row["window"];
                         windowTitle = WindowTitleWebsitesExtractor.GetWebsiteDetails(processName, windowTitle);
-                        //windowTitle = WindowTitleArtifactExtractor.GetArtifactDetails(processName, windowTitle);
-                        //windowTitle = WindowTitleCodeExtractor.GetProjectName(windowTitle);
 
                         // map process and window to activity
                         e.ActivityCategory = ProcessToActivityMapper.Map(processName, windowTitle);
 
-
-                        bool temp = e.StartTime > beginInterval;
-                        
-                        //File.AppendAllText(filePath, e.StartTime + " > " + intervalTime  + ": " + temp + Environment.NewLine);
-                        // TODO: nothing is being added to list
-                        if ((e.StartTime > beginInterval && e.StartTime < endInterval) || (e.EndTime > beginInterval && e.EndTime < endInterval) || (e.StartTime < beginInterval && e.EndTime > endInterval))
+                        // Add all window titles that began or ended in the last numSecs
+                        if ((e.StartTime > beginInterval && e.StartTime < endInterval) || (e.EndTime > beginInterval && e.EndTime < endInterval) || (e.StartTime < beginInterval && e.EndTime > endInterval)) 
                         {
-                           // File.AppendAllText(filePath, e.StartTime + " - " + e.EndTime +" since "+ beginInterval   + Environment.NewLine);
                             if (previousWindowsActivityEntry != null)
                             {
-                               // File.AppendAllText(filePath2, "//////////////////////////////// " + Environment.NewLine);
                                 e.WindowProcessList.Add(new WindowProcessItem(processName, windowTitle));
                                 orderedActivityList.Add(e);
                             }
@@ -432,19 +418,20 @@ namespace WindowsActivityTracker.Data
                         else
                         {
                             break;
-                            // file.appendalltext(filepath2, "**************** " + e.starttime + " - " + e.endtime + " false " + " **************** " + environment.newline);
                         }
 
                         previousWindowsActivityEntry = e;
                     }
                     table.Dispose();
+
+                    // Add current active window title
+                    orderedActivityList.Add(Daemon.getCurrentWindowsActivity());
                 }
             }
             catch (Exception e)
             {
                 Logger.WriteToLogFile(e);
             }
-          //  File.AppendAllText(filePath, orderedActivityList.Count + Environment.NewLine);
             return orderedActivityList;
         }
 

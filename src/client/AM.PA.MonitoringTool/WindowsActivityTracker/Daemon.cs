@@ -66,49 +66,8 @@ namespace WindowsActivityTracker
             base.Dispose(disposing);
         }
 
-        private void testInterval()
-        {
-            // Create a timer and set a two second interval.
-            Timer aTimer = new System.Timers.Timer();
-            aTimer.Interval = 30000;
-
-            // Hook up the Elapsed event for the timer. 
-            aTimer.Elapsed += OnTimedEvent;
-
-            // Have the timer fire repeated events (true is the default)
-            aTimer.AutoReset = true;
-
-            // Start the timer
-            aTimer.Enabled = true;
-        }
-
-        private static void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
-        {
-            Console.WriteLine("The Elapsed event was raised at {0}", e.SignalTime);
-            string filePath = @"C:\Users\pcgou\OneDrive\Documents\UBCResearch\testInterval2.txt"; // ** Modify this file path **
-            File.AppendAllText(filePath, "dd" + Environment.NewLine);
-            var windowTitleList = Queries.GetDayWindowTitleData(DateTime.Now);
-
-            foreach (WindowsActivity window in windowTitleList)
-            {
-                var list = window.WindowProcessList;
-                //File.AppendAllText(filePath, list.Count + Environment.NewLine);
-
-                foreach (WindowProcessItem process in list)
-                {
-                    //File.WriteAllText(filePath, process.WindowTitle + " : " + window.StartTime + " -" + window.EndTime + Environment.NewLine);
-                    File.AppendAllText(filePath, process.WindowTitle + " : " + window.StartTime + " -" + window.EndTime   + Environment.NewLine);
-                }
-               
-            }
-
-            File.AppendAllText(filePath, "-----------------------------------" + Environment.NewLine);
-
-        }
-
         public override void Start()
         {
-            testInterval();
            
             try
             {
@@ -143,8 +102,8 @@ namespace WindowsActivityTracker
                     _lastInputInfo.cbSize = (uint)Marshal.SizeOf(_lastInputInfo);
                     _lastInputInfo.dwTime = 0;
                 }
-                DayWindowTitleList.initializeSummarizer();
-                DayWindowTitleList.getData();
+                DayTasksTimeline.initializeSummarizer();
+                DayTasksTimeline.getData();
                 IsRunning = true;
             }
             catch (Exception e)
@@ -193,6 +152,7 @@ namespace WindowsActivityTracker
             IsRunning = false;
         }
 
+
         public override void CreateDatabaseTablesIfNotExist()
         {
             Queries.CreateWindowsActivityTable();
@@ -219,7 +179,7 @@ namespace WindowsActivityTracker
             var vis1 = new DayProgramsUsedPieChart(date);
             var vis2 = new DayMostFocusedProgram(date);
             var vis3 = new DayFragmentationTimeline(date);
-            var vis4 = new DayWindowTitleList(date);
+            var vis4 = new DayTasksTimeline(date);
             return new List<IVisualization> { vis1, vis2,vis3,vis4};
         }
 
@@ -590,6 +550,22 @@ namespace WindowsActivityTracker
             catch {}
             return string.Empty;
         }
+
+        /// <summary>
+        /// Get the current active WindowsActivity
+        /// </summary>
+        /// <returns></returns>
+        public static WindowsActivity getCurrentWindowsActivity()
+        {
+            var activeWindowsActivity = new WindowsActivity();
+            var currentHandle = IntPtr.Zero;
+            currentHandle = NativeMethods.GetForegroundWindow();
+            var currentWindowTitle = Daemon.GetActiveWindowTitle(currentHandle);
+            var currentProcess = "temp"; // TODO: get actual process name for window
+            activeWindowsActivity.WindowProcessList.Add(new WindowProcessItem(currentProcess, currentWindowTitle));
+            return activeWindowsActivity;
+        }
+
 
         #endregion
     }
