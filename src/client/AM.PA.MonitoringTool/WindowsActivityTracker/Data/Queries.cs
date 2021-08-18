@@ -362,6 +362,7 @@ namespace WindowsActivityTracker.Data
 
         /// <summary>
         /// Fetches the window titles used in the last numSecs
+        /// TODO: Rather than fetching all window titles then filtering, it should only fetch the window titles in the last 2 minutes
         /// </summary>
         /// <param name="date"></param>
         /// <returns></returns>
@@ -434,137 +435,6 @@ namespace WindowsActivityTracker.Data
             }
             return orderedActivityList;
         }
-
-        /// <summary>
-        /// Fetches window titles organized into specifed blocks of time
-        /// </summary>
-        /// <param name="date"></param>
-        /// <param name="numSecs"></param>
-        /// <returns></returns>
-        internal static List<List<string>> GetWindowTitles(int numSecs,DateTimeOffset date)
-        {
-            int currBlock = 0; // current time block 
-            int currentTime = 0;
-            
-            List<List<string>> titles = new List<List<string>>();
-
-            try
-            {
-                var query = "SELECT tsStart, tsEnd, window, process, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'durInSec' "
-                              + "FROM " + Settings.DbTable + " "
-                              + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsStart") + " AND " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsEnd") + " "
-                              + "ORDER BY tsStart;";
-
-                var table = Database.GetInstance().ExecuteReadQuery(query);
-               
-                if (table != null)
-                {
-
-
-
-                    foreach (DataRow row in table.Rows)
-                    {
-
-                        // fetch items from database
-                        int duration = row.IsNull("durInSec") ? 0 : Convert.ToInt32(row["durInSec"], CultureInfo.InvariantCulture); // in seconds
-                        var processName = (string)row["process"];
-                        var startTime = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
-                        var endTime = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
-
-
-
-                        // make window titles more readable (TODO: improve!)
-                        var windowTitle = (string)row["window"];
-                        if (windowTitle.Length > 0)
-                        {
-                            windowTitle = WindowTitleWebsitesExtractor.GetWebsiteDetails(processName, windowTitle);
-
-
-                            int startBlock = currentTime / numSecs; // block of time in which the window title began
-                            currentTime += duration;
-                            int endBlock = currentTime / numSecs; // block of time in which the window title ended
-
-
-                            // add the window title to all blocks of time it occured in 
-                            for (int i = startBlock; i <= endBlock; i++)
-                            {
-
-                                if (i >= titles.Count) // if there is no block for this time window in the list
-                                {
-                                    List<string> newBlock = new List<string>();
-                                    newBlock.Add(startTime + "," + endTime + "," + duration + "," + windowTitle);
-                                    titles.Add(newBlock);
-                                }
-                                else
-                                {
-
-                                    titles[i].Add(startTime + "," + endTime + "," + duration + "," + windowTitle);
-                                }
-                                currBlock++;
-                            }
-                        }
-                    } 
-                    table.Dispose();
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.WriteToLogFile(e);
-            }
- 
-            return titles;
-                
-        }
-
-        // ** temporary **
-        internal static List<string> FetchWindowTitles(DateTimeOffset date)
-        {
-            List<string> titles = new List<string>();
-
-            try
-            {
-                var query = "SELECT tsStart, tsEnd, window, process, (strftime('%s', tsEnd) - strftime('%s', tsStart)) as 'durInSec' "
-                              + "FROM " + Settings.DbTable + " "
-                              + "WHERE " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsStart") + " AND " + Database.GetInstance().GetDateFilteringStringForQuery(VisType.Day, date, "tsEnd") + " "
-                              + "ORDER BY tsStart;";
-
-                var table = Database.GetInstance().ExecuteReadQuery(query);
-
-                if (table != null)
-                {
-                    foreach (DataRow row in table.Rows)
-                    {
-
-                        // fetch items from database
-                        int duration = row.IsNull("durInSec") ? 0 : Convert.ToInt32(row["durInSec"], CultureInfo.InvariantCulture); // in seconds
-                        var processName = (string)row["process"];
-                        var startTime = DateTime.Parse((string)row["tsStart"], CultureInfo.InvariantCulture);
-                        var endTime = DateTime.Parse((string)row["tsEnd"], CultureInfo.InvariantCulture);
-
-                        // make window titles more readable (TODO: improve!)
-                        var windowTitle = (string)row["window"];
-
-                        if (windowTitle.Length > 0 && duration > 0)
-                        {
-                            titles.Add(startTime + "," + endTime + "," + duration + "," + windowTitle);
-                        }
-                       
-
-                    }
-                    table.Dispose();
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.WriteToLogFile(e);
-            }
-
-            return titles;
-
-        }
-
-
-
 
         /// <summary>
         /// Fetches the activities a developer has on his computer for a given date and prepares the data

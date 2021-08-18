@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Created by Patrick Gousseau (pcgousseau@gmail.com) from the University of British Columbia
+// Created: 2021-08-20
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +15,7 @@ using System.IO;
 using System.Timers;
 using WindowsActivityTracker.TaskDetection;
 using Task = WindowsActivityTracker.TaskDetection.Task;
+using Fernandezja.ColorHashSharp;
 
 namespace WindowsActivityTracker.Visualizations
     {
@@ -25,7 +29,6 @@ namespace WindowsActivityTracker.Visualizations
             private static int numSecs = 120; // Number of seconds per block of time
             private static double cosineSimilarity = 0.5;
        
-
             public DayTasksTimeline(DateTimeOffset date)
             {
                 this._date = date;
@@ -34,8 +37,6 @@ namespace WindowsActivityTracker.Visualizations
                 Order = 2; //todo: handle by user
                 Size = VisSize.Wide;
                 Type = VisType.Day;
-
- 
             }
 
             /// <summary>
@@ -45,9 +46,8 @@ namespace WindowsActivityTracker.Visualizations
             public static void initializeSummarizer()
             {
                 summarizer = new Summarizer(numSecs, cosineSimilarity);
-                startDate = DateTime.Now;                
+                startDate = DateTime.Now;
             }
-
 
             /// <summary>
             /// Calls method that updates summarizer every numSecs
@@ -55,17 +55,11 @@ namespace WindowsActivityTracker.Visualizations
             /// <returns></returns>
             public static void getData()
             {
-                // Create a timer and set a two second interval.
+                // Create a timer and set a two minute interval.
                 Timer aTimer = new System.Timers.Timer();
                 aTimer.Interval = numSecs * 1000;
-
-                // Hook up the Elapsed event for the timer. 
                 aTimer.Elapsed += OnTimedEvent;
-
-                // Have the timer fire repeated events (true is the default)
                 aTimer.AutoReset = true;
-
-                // Start the timer
                 aTimer.Enabled = true;
             }
 
@@ -270,48 +264,11 @@ namespace WindowsActivityTracker.Visualizations
             /// <param name="num"></param>
             /// <returns></returns>
             private static string GetHtmlColorForContextCategory(int num)//, ActivityCategory category)
-                {
-                    const string noneColor = "#DDDDDD";
-
-
-                    switch (num)
-                    {
-                        case 1:
-                            return "'#A547D1'";//"#6B238E";//"#00b300"; //"#007acb"; // darker blue
-                        case 2:
-                            return "'#C91BC7'";//"#8EC4E8"; // fairest blue
-                        case 3:
-                            return "'#D7ADEB'"; //"#1484CE"; //fairest blue
-                        case 4:
-                            return "'#F9D1F8'";// "#1484CE"; //fairest blue  
-                        case 5:
-                        case 6:
-                            return "'#99EBFF'";//#87CEEB";// "#3258E6";//  "#00b300"; // dark green
-                        case 7:
-                        case 8:
-                            return "'#12A5F4'";// "#C91BC7";//"#00cc00"; // fair green
-                        case 9:
-                            return "'#9DB7E8'"; // "#F9D1F8";//"#e855e8"; // dark violett
-                        case 10:
-                            return "'#326CCC'";// "#2858a5";//"#ED77EB"; // fair violett
-                                               //case ActivityCategory.WebBrowsing:
-                        case 11:
-                            return "'#FF9333'"; //orange "#FFE3CB";//"#FFA500"; 
-                        case 12:
-                            return "'#FFC999'"; // "red"; // fair orange
-                        case 13:
-                            return "#'d3d3d3'"; // light gray
-                        case 14:
-                        case 15:
-                        case 16:
-                            return "gray";
-                        case 17:
-                            return "white";
-                        case 18:
-                            return noneColor;
-                    }
-                    return noneColor; // default color
-                }
+            {
+                var colorHash = new ColorHash();
+                string hex = "'#" + colorHash.Hex(Convert.ToString(num)) + "'";
+                return hex;
+            }
 
 
             #endregion

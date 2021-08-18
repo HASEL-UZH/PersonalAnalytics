@@ -1,15 +1,15 @@
-﻿using System;
+﻿// Created by Patrick Gousseau (pcgousseau@gmail.com) from the University of British Columbia
+// Created: 2021-08-20
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WindowsActivityTracker.TaskDetection
 {
     class Summarizer
     {
 
-        private List<Task> tasks;
+        private List<Task> tasks; // List of all tasks found
         private double similarityThreshold; // Minimum cosine similarity for two bags of words to be considered alike
         private int numTasks = 0;
         private int totalTime = 0;
@@ -23,7 +23,7 @@ namespace WindowsActivityTracker.TaskDetection
         }
 
         /// <summary>
-        /// Adds task to the list of task segments
+        /// Adds task to the list of tasks
         /// </summary>
         /// <param name="newTask"></param>
         /// <returns></returns>
@@ -43,7 +43,6 @@ namespace WindowsActivityTracker.TaskDetection
                 if (similarTasks(tasks[tasks.Count - 1], newTask, similarityThreshold))
                 {
                     tasks[tasks.Count - 1].collapseTasks(newTask, numSecs);
-
                 }
                 else
                 {
@@ -102,25 +101,6 @@ namespace WindowsActivityTracker.TaskDetection
         public List<Task> getTasks()
         {
             return this.tasks;
-        }
-
-        public void printData()
-        {
-            int index = 0;
-            foreach (Task task in tasks)
-            {
-                TimeSpan time = TimeSpan.FromSeconds(task.getStartTime());
-                string hours = time.ToString(@"hh\:mm\:ss");
-
-                Console.WriteLine("---------------------------- Task: " + task.getTaskNum() + ", t = " + hours);
-                foreach (KeyValuePair<string, int> token in task.getBag())
-                {
-                    Console.WriteLine(token.Key + ": " + token.Value);
-
-                }
-                index++;
-            }
-            // Console.ReadLine();
         }
     }
 }

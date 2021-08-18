@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Created by Patrick Gousseau (pcgousseau@gmail.com) from the University of British Columbia
+// Created: 2021-08-20
+
 using System.Collections.Generic;
 using System.Linq;
 using Accord.Math;
@@ -6,21 +8,22 @@ using Microsoft.ML;
 using NHunspell;
 using System.IO;
 using System.Text.RegularExpressions;
+using System;
 
 namespace WindowsActivityTracker.TaskDetection
 {
     class Task
     {
 
-        private Dictionary<string, int> bag;
-        private string taskRepresentation = "";
+        private Dictionary<string, int> bagOfWords; 
+        private string taskRepresentation = ""; // Words that represent this task
         private int taskNum;
         double[] aveVector;
         private int startTime;
         private int endTime;
-        private double topPercentile;
-        private string path = @"C:\Users\pcgou\OneDrive\Documents\UBCResearch\GoogleNews-vectors-negative300-SLIM.bin\GoogleNews-vectors-negative300-SLIM.bin";
-        // private string path = @"C:\Users\pcgou\OneDrive\Documents\UBCResearch\SO_vectors_200.bin";
+        private double topPercentile; // Top percentage of words kept from the bag of words
+        private static string localAppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData); // Path to application data on local machine
+        private string modelPath = @"" + localAppDataPath + @"\PersonalAnalytics\task_detection_files\GoogleNews-vectors-negative300-SLIM.bin";
 
         public Task(List<string> windowTitles, double topPercentile)
         {
@@ -36,12 +39,12 @@ namespace WindowsActivityTracker.TaskDetection
         /// <returns></returns>
         private void createAverageVector()
         {
-            var vocabulary = new Word2vec.Tools.Word2VecBinaryReader().Read(path);
+            var vocabulary = new Word2vec.Tools.Word2VecBinaryReader().Read(modelPath);
             int vecSize = vocabulary.VectorDimensionsCount;
             double[] vector = new double[vecSize];
             int numTokens = 0;
 
-            foreach (KeyValuePair<string, int> token in bag)
+            foreach (KeyValuePair<string, int> token in bagOfWords)
             {
                 try
                 {
@@ -76,13 +79,13 @@ namespace WindowsActivityTracker.TaskDetection
             Dictionary<string, int> toAdd = newBag.getBag();
             foreach (KeyValuePair<string, int> token in toAdd)
             {
-                if (bag.ContainsKey(token.Key))
+                if (bagOfWords.ContainsKey(token.Key))
                 {
-                    bag[token.Key] = bag[token.Key] + toAdd[token.Key];
+                    bagOfWords[token.Key] = bagOfWords[token.Key] + toAdd[token.Key];
                 }
                 else
                 {
-                    bag.Add(token.Key, token.Value);
+                    bagOfWords.Add(token.Key, token.Value);
                 }
             }
             endTime += secondsToAdd;
@@ -98,20 +101,20 @@ namespace WindowsActivityTracker.TaskDetection
         public void createBagOfWords(List<string> data)
         {
             List<List<string>> cleanedData = clean(data);
-            this.bag = new Dictionary<string, int>();
+            this.bagOfWords = new Dictionary<string, int>();
 
             foreach (List<string> windowTitle in cleanedData)
             {
                 foreach (string token in windowTitle)
                 {
 
-                    if (bag.ContainsKey(token))
+                    if (bagOfWords.ContainsKey(token))
                     {
-                        bag[token] = bag[token] + 1;
+                        bagOfWords[token] = bagOfWords[token] + 1;
                     }
                     else
                     {
-                        bag.Add(token, 1);
+                        bagOfWords.Add(token, 1);
                     }
                 }
             }
@@ -149,9 +152,7 @@ namespace WindowsActivityTracker.TaskDetection
         /// <returns></returns>
         private List<string> removeNonEnglishWords(string[] words)
         {
-
-           // EnglishStemmer stemmer = new EnglishStemmer();
-            Hunspell hunspell = new Hunspell(@"C:\Users\pcgou\source\repos\TaskSummarization\TaskSummarization\bin\x64\Debug\en_us.aff", @"C:\Users\pcgou\source\repos\TaskSummarization\TaskSummarization\bin\x64\Debug\en_us.dic");
+            Hunspell hunspell = new Hunspell(@"" + localAppDataPath + @"\PersonalAnalytics\task_detection_files\en_us.aff", @"" + localAppDataPath + @"\PersonalAnalytics\task_detection_files\en_us.dic");
             List<string> englishWords = new List<string>();
             if (words.Length > 0)
             {
@@ -181,7 +182,6 @@ namespace WindowsActivityTracker.TaskDetection
         /// <returns></returns>
         private string[] tokenize(string text)
         {
-
             MLContext context = new MLContext();
             var emptyData = new List<TextData>();
             var data = context.Data.LoadFromEnumerable(emptyData);
@@ -194,7 +194,6 @@ namespace WindowsActivityTracker.TaskDetection
             var newText = engine.Predict(new TextData { Text = text });
 
             return newText.Tokens;
-
         }
 
         /// <summary>
@@ -204,11 +203,11 @@ namespace WindowsActivityTracker.TaskDetection
         /// <returns></returns>
         public void removeInfrequentWords()
         {
-            var importantWords = bag.ToList();
+            var importantWords = bagOfWords.ToList();
             importantWords.Sort((pair1, pair2) => pair1.Value.CompareTo(pair2.Value));
             int upperBound = (int)(importantWords.Count * (1 - topPercentile));
             importantWords.RemoveRange(0, upperBound);
-            this.bag = importantWords.ToDictionary(x => x.Key, x => x.Value);
+            this.bagOfWords = importantWords.ToDictionary(x => x.Key, x => x.Value);
             try
             {
                 taskRepresentation = "";
@@ -217,13 +216,9 @@ namespace WindowsActivityTracker.TaskDetection
                     taskRepresentation += importantWords[importantWords.Count - 1 - i].Key + " | ";
                 }
                 taskRepresentation += importantWords[importantWords.Count - 1 - 5].Key;
-            } catch
-            {
-
             }
+            catch { }
         }
-
-
 
         #endregion
 
@@ -232,7 +227,7 @@ namespace WindowsActivityTracker.TaskDetection
 
         public Dictionary<string, int> getBag()
         {
-            return this.bag;
+            return this.bagOfWords;
         }
 
         public void setTaskNum(int number)
