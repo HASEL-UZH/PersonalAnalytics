@@ -34,9 +34,9 @@ Anyone is welcome to contribute to PersonalAnalytics by extending it with new tr
 - October 2020: [Philip Hofmann](https://github.com/Phhofm) created a [large pull-request](https://github.com/HASE-UZH/PersonalAnalytics/pull/265) to include FocusSession into the official PersonalAnalytics release
 
 # Main Contributors and People Involved
-- [Dr. André Meyer](https://www.andre-meyer.ch) (University of Zurich, main contributor of Windows version)
+- [Dr. André Meyer](https://www.andre-meyer.ch) (University of Zurich, main contributor to Windows version)
 - [Prof. Dr. Thomas Fritz](http://www.ifi.uzh.ch/en/seal/people/fritz.html) (University of Zurich)
-- [Chris Satterfield](https://github.com/csatterfield) (main contributor of MacOS version)
+- [Chris Satterfield](https://github.com/csatterfield) (contributor to MacOS version)
 - [Roy Rutishauser](https://github.com/royru) (contributor to MacOS version)
 - [Dr. Manuela Züger](http://www.ifi.uzh.ch/en/seal/people/zueger.html) (prev. University of Zurich)
 - [Dr. Sebastian Müller](http://www.ifi.uzh.ch/en/seal/people/mueller.html) (prev. University of Zurich)
