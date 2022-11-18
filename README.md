@@ -3,7 +3,13 @@ Personal Analytics project was originally initiated by [Dr. André N. Meyer](htt
 
 Anyone is welcome to contribute to PersonalAnalytics by extending it with new trackers or improving existing ones. Feel free to use PersonalAnalytics to get insights into your own work habits, or use it for research studies. In case you re-use PersonalAnalytics, make sure to cite our work (specifically this Github repository and our CSCW'2018 paper below).
 
-## Releases
+
+## 🚀 Maintenance Status
+As you might have noticed, the project is not maintained super actively anymore due to changing priorities of the involved people. However, the most important [data trackers](https://github.com/HASEL-UZH/PersonalAnalytics/blob/dev-am/documentation/ARCHITECTURE.md#data-trackers) were ported to run on both `Windows` and `macOS` using `Typescript` and some OS-native code. They are OSS, actively used and maintained here:
+- [WindowsActivityTracker](https://github.com/HASEL-UZH/PA.WindowsActivityTracker/tree/main/typescript) that allows to log the timestamp, app name and window title of the currently active window, in addition to an automated catgorization into the `Activity` (method described in this [publication](https://andre-meyer.ch/TSE20).
+- [UserInputTracker](https://github.com/HASEL-UZH/PA.UserInputTracker/tree/main/typescript) that allows to log moue movement, clicks, scrolls and keystrokes with timestamps (not actual keys, only the type (any, navigate, delete) for privacy reasons)
+
+## Tool Releases
 - [Windows (Installer)](https://www.andre-meyer.ch/DATA/PA/RELEASE/index.html) (note that Windows SmartScreen might ask you to unblock the install) 
 - [Windows (Release)](https://github.com/HASEL-UZH/PersonalAnalytics/releases/tag/v0.9.6.3)
 - [MacOS (Preview Release)](https://github.com/HASEL-UZH/PersonalAnalytics/releases/tag/macOS-v0.0.2.0)
