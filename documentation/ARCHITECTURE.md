@@ -27,6 +27,10 @@ In the future, the aim is to also provide similar apps for mobile (Android and i
 | FitbitTracker          | synced data, such as heart rate | fitbit | Windows | not actively tested for 1-2 years |
 | PolarTracker          | synced data, such as heart rate | polar | Windows | not actively tested for 1-2 years |
 
+`Note:` The project is currently not maintained super actively. However, the most important data trackers were ported to run on both `Windows` and `macOS` using `Typescript` and some OS-native code. They are OSS, actively used and maintained here:
+- [WindowsActivityTracker](https://github.com/HASEL-UZH/PA.WindowsActivityTracker/tree/main/typescript) that allows to log the timestamp, app name and window title of the currently active window, in addition to an automated catgorization into the `Activity` (method described in this [publication](https://andre-meyer.ch/TSE20).
+- [UserInputTracker](https://github.com/HASEL-UZH/PA.UserInputTracker/tree/main/typescript) that allows to log moue movement, clicks, scrolls and keystrokes with timestamps (not actual keys, only the type (any, navigate, delete) for privacy reasons)
+
 ## Retrospection
 `TODO: describe basics and functionality of retrospection`
 
