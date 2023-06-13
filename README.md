@@ -44,6 +44,7 @@ As you might have noticed, the project is not maintained super actively anymore 
 - [Prof. Dr. Thomas Fritz](http://www.ifi.uzh.ch/en/seal/people/fritz.html) (University of Zurich)
 - [Chris Satterfield](https://github.com/csatterfield) (contributor to MacOS version)
 - [Roy Rutishauser](https://github.com/royru) (contributor to MacOS version)
+- [Jan Pilzer](https://github.com/hirse) (contributor to Windows version)
 - [Dr. Manuela Züger](http://www.ifi.uzh.ch/en/seal/people/zueger.html) (prev. University of Zurich)
 - [Dr. Sebastian Müller](http://www.ifi.uzh.ch/en/seal/people/mueller.html) (prev. University of Zurich)
 - [Dr. Tom Zimmermann](https://www.microsoft.com/en-us/research/people/tzimmer/) (Microsoft Research)
