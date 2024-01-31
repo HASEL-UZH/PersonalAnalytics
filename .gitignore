@@ -63,3 +63,6 @@ documentation/OCR Stuff/OcrPlayground.rar
 documentation/OCR Stuff/StandaloneOcr.rar
 /deployment/PersonalDeveloperAnalytics.old.rar
 *.dtbcache
+
+# IntelliJ
+.idea/*
