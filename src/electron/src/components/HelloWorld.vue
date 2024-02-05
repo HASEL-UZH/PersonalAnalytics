@@ -32,8 +32,26 @@ const count = ref(0);
   <p class="read-the-docs">Click on the Vite and Vue logos to learn more</p>
 </template>
 
-<style scoped>
+<style scoped lang="less">
 .read-the-docs {
   color: #888;
+}
+// Less Example
+// Variables
+@accent-color: #007acc;
+@link-color: @accent-color;
+@link-color-hover: darken(@link-color, 10%);
+
+// Usage
+a,
+.link {
+  color: @link-color;
+}
+a:hover {
+  color: @link-color-hover;
+}
+.widget {
+  color: #fff;
+  background: @link-color;
 }
 </style>
