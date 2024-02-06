@@ -2,6 +2,8 @@ import { app, BrowserWindow } from 'electron';
 import { release } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import log from 'electron-log/main';
+import { getLogger } from '../shared/Logger';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -36,6 +38,11 @@ if (!app.requestSingleInstanceLock()) {
   app.quit();
   process.exit(0);
 }
+
+// Optional, initialize the logger for any renderer process
+log.initialize();
+const LOG = getLogger('Main', true);
+LOG.info('Log from the main process');
 
 let win: BrowserWindow | null = null;
 const preload = join(__dirname, '../preload/index.mjs');
