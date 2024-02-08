@@ -5,9 +5,10 @@ Anyone is welcome to contribute to PersonalAnalytics by extending it with new tr
 
 
 ## 🚀 Maintenance Status
-As you might have noticed, the project is not maintained super actively anymore due to changing priorities of the involved people. However, the most important [data trackers](https://github.com/HASEL-UZH/PersonalAnalytics/blob/dev-am/documentation/ARCHITECTURE.md#data-trackers) were ported to run on both `Windows` and `macOS` using `Typescript` and some OS-native code. They are OSS, actively used and maintained here:
+As you might have noticed, the project was not maintained super actively anymore due to changing priorities of the involved people. However, the most important [data trackers](https://github.com/HASEL-UZH/PersonalAnalytics/blob/dev-am/documentation/ARCHITECTURE.md#data-trackers) were ported to run on both `Windows` and `macOS` using `Typescript` and some OS-native code. They are OSS, actively used and maintained here:
 - [WindowsActivityTracker](https://github.com/HASEL-UZH/PA.WindowsActivityTracker/tree/main/typescript) that allows to log the timestamp, app name and window title of the currently active window, in addition to an automated catgorization into the `Activity` (method described in this [publication](https://andre-meyer.ch/TSE20).
 - [UserInputTracker](https://github.com/HASEL-UZH/PA.UserInputTracker/tree/main/typescript) that allows to log moue movement, clicks, scrolls and keystrokes with timestamps (not actual keys, only the type (any, navigate, delete) for privacy reasons)
+In 2024, we've started porting the original PersonalAnalytics for Windows (written in C#) to Electron and hope to have an update at the end of Q1'2024.
 
 ## Tool Releases
 - [Windows (Installer)](https://www.andre-meyer.ch/DATA/PA/RELEASE/index.html) (note that Windows SmartScreen might ask you to unblock the install) 
@@ -38,6 +39,7 @@ As you might have noticed, the project is not maintained super actively anymore 
 - October 2019: [Roy Rutishauser](https://github.com/royru) started unifying PersonalAnalytics for Mac and make it more similar to the Windows version
 - May 2020: [Jan Pilzer](https://github.com/hirse) created a [large pull-request](https://github.com/sealuzh/PersonalAnalytics/pull/258) to include WindowDimmer into the official PersonalAnalytics release. [Publication](https://andre-meyer.ch/CHI20)
 - October 2020: [Philip Hofmann](https://github.com/Phhofm) created a [large pull-request](https://github.com/HASE-UZH/PersonalAnalytics/pull/265) to include FocusSession into the official PersonalAnalytics release
+- February 2024: Thanks to a DSI grant, we've started working on porting the Windows version to a new multi-platform version written in Electron
 
 # Main Contributors and People Involved
 - [Dr. André Meyer](https://www.andre-meyer.ch) (University of Zurich, main contributor to Windows version)
@@ -45,7 +47,7 @@ As you might have noticed, the project is not maintained super actively anymore 
 - [Chris Satterfield](https://github.com/csatterfield) (contributor to MacOS version)
 - [Roy Rutishauser](https://github.com/royru) (contributor to MacOS version)
 - [Jan Pilzer](https://github.com/hirse) (contributor to Windows version)
-- [Dr. Manuela Züger](http://www.ifi.uzh.ch/en/seal/people/zueger.html) (prev. University of Zurich)
+- [Sebastian Richner](https://github.com/SRichner) (contributor to Electron version)
 - [Dr. Sebastian Müller](http://www.ifi.uzh.ch/en/seal/people/mueller.html) (prev. University of Zurich)
 - [Dr. Tom Zimmermann](https://www.microsoft.com/en-us/research/people/tzimmer/) (Microsoft Research)
 - [Prof. Dr. Gail C. Murphy](https://blogs.ubc.ca/gailcmurphy/) (University of British Columbia)
