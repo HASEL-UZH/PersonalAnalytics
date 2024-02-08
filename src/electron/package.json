@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build && electron-builder",
+    "postinstall": "electron-builder install-app-deps",
     "preview": "vite preview",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts,.vue --fix",
     "lint:fix": "eslint --fix . --ext .js,.jsx,.ts,.tsx,.vue",
