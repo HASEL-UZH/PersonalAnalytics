@@ -3,9 +3,12 @@ import { app } from 'electron';
 import path from 'path';
 import { is } from './utils/helpers';
 import { getLogger } from '../../shared/Logger';
-import { WindowActivityEntity } from '../models/WindowActivityEntity';
+import { WindowActivityEntity } from '../entities/WindowActivityEntity';
+import { ExperienceSamplingResponseEntity } from '../entities/ExperienceSamplingResponseEntity';
+import { UserInputEntity } from '../entities/UserInputEntity';
 
 const LOG = getLogger('DatabaseService');
+
 export class DatabaseService {
   public dataSource: DataSource;
   private readonly options: DataSourceOptions;
@@ -23,13 +26,12 @@ export class DatabaseService {
       database: dbPath,
       synchronize: true,
       logging: false,
-      entities: [
-        WindowActivityEntity
-      ]
+      entities: [ExperienceSamplingResponseEntity, UserInputEntity, WindowActivityEntity]
     };
 
     this.dataSource = new DataSource(this.options);
   }
+
   public async init(): Promise<void> {
     try {
       await this.dataSource.initialize();
