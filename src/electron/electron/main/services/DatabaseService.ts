@@ -6,6 +6,7 @@ import { getLogger } from '../../shared/Logger';
 import { WindowActivityEntity } from '../entities/WindowActivityEntity';
 import { ExperienceSamplingResponseEntity } from '../entities/ExperienceSamplingResponseEntity';
 import { UserInputEntity } from '../entities/UserInputEntity';
+import { Settings } from '../entities/Settings';
 
 const LOG = getLogger('DatabaseService');
 
@@ -26,7 +27,7 @@ export class DatabaseService {
       database: dbPath,
       synchronize: true,
       logging: false,
-      entities: [ExperienceSamplingResponseEntity, UserInputEntity, WindowActivityEntity]
+      entities: [ExperienceSamplingResponseEntity, Settings, UserInputEntity, WindowActivityEntity]
     };
 
     this.dataSource = new DataSource(this.options);
