@@ -6,25 +6,19 @@ import { fileURLToPath } from 'node:url';
 import log from 'electron-log/main';
 import { getLogger } from '../shared/Logger';
 import { DatabaseService } from './services/DatabaseService';
+import { SettingsService } from './services/SettingsService';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// The built directory structure
-//
-// ├─┬ dist-electron
-// │ ├─┬ main
-// │ │ └── index.js    > Electron-Main
-// │ └─┬ preload
-// │   └── index.mjs    > Preload-Scripts
-// ├─┬ dist
-// │ └── index.html    > Electron-Renderer
-//
 process.env.DIST_ELECTRON = join(__dirname, '..');
 process.env.DIST = join(process.env.DIST_ELECTRON, '../dist');
 process.env.VITE_PUBLIC = process.env.VITE_DEV_SERVER_URL
   ? join(process.env.DIST_ELECTRON, '../public')
   : process.env.DIST;
+
+const databaseService: DatabaseService = new DatabaseService();
+const settingsService: SettingsService = new SettingsService();
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) {
@@ -45,8 +39,6 @@ if (!app.requestSingleInstanceLock()) {
 log.initialize();
 const LOG = getLogger('Main', true);
 LOG.info('Log from the main process');
-
-const databaseService: DatabaseService = new DatabaseService();
 
 let win: BrowserWindow | null = null;
 const preload = join(__dirname, '../preload/index.mjs');
@@ -79,6 +71,7 @@ app.whenReady().then(async () => {
     openAtLogin: true
   });
   await databaseService.init();
+  await settingsService.init();
   await createWindow();
 });
 
