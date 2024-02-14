@@ -8,7 +8,7 @@ const studyConfig: StudyConfig = {
   uploadUrl: 'https://hasel.dev/upload',
   contactName: 'Hasel Dev',
   contactEmail: 'study@hasel.dev',
-  userIdLength: 6,
+  subjectIdLength: 6,
   trackers: {
     windowActivityTracker: {
       enabled: true

@@ -26,7 +26,7 @@ export class Settings extends BaseEntity {
     nullable: false,
     update: false
   })
-  userId: string;
+  subjectId: string;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

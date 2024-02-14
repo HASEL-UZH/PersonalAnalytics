@@ -7,14 +7,14 @@ export class SettingsService {
     const isSettingsAlreadyCreated: boolean = await this.isSettingsAlreadyCreated();
 
     if (!isSettingsAlreadyCreated) {
-      await this.createProhibitUserIdUpdateTrigger();
+      await this.createProhibitSubjectIdUpdateTrigger();
       await this.createDefaultSettings();
     }
   }
 
   private async createDefaultSettings(): Promise<void> {
     await Settings.create({
-      userId: generateAlphaNumericString(studyConfig.userIdLength),
+      subjectId: generateAlphaNumericString(studyConfig.subjectIdLength),
       studyName: studyConfig.name
     }).save();
   }
@@ -24,11 +24,11 @@ export class SettingsService {
     return !!settings;
   }
 
-  private async createProhibitUserIdUpdateTrigger(): Promise<void> {
+  private async createProhibitSubjectIdUpdateTrigger(): Promise<void> {
     await Settings.query(`
-      create trigger onUpdateSettingsUserId before update of userId on settings
+      create trigger onUpdateSettingsSubjectId before update of subjectId on settings
       begin
-        select raise(ABORT, 'Updating settings.userId is prohibited');
+        select raise(ABORT, 'Updating settings.subjectId is prohibited');
       end;
     `);
   }
