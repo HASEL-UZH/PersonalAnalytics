@@ -1,6 +1,6 @@
 import { StudyConfig } from '../types/StudyConfig';
 
-export const studyConfig: StudyConfig = {
+const studyConfig: StudyConfig = {
   name: 'Personal Analytics',
   shortDescription: 'A study to understand how people...',
   infoUrl: 'https://hasel.dev',
@@ -8,7 +8,7 @@ export const studyConfig: StudyConfig = {
   uploadUrl: 'https://hasel.dev/upload',
   contactName: 'Hasel Dev',
   contactEmail: 'study@hasel.dev',
-
+  userIdLength: 6,
   trackers: {
     windowActivityTracker: {
       enabled: true
@@ -25,3 +25,4 @@ export const studyConfig: StudyConfig = {
     }
   }
 };
+export default studyConfig;

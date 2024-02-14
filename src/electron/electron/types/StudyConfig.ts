@@ -22,6 +22,7 @@ export interface StudyConfig {
   uploadUrl: string;
   contactName: string;
   contactEmail: string;
+  userIdLength: number;
   trackers: {
     windowActivityTracker: WindowActivityTrackerConfig;
     userInputTracker: UserInputTrackerConfig;
