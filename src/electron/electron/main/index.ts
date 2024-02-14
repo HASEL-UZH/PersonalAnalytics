@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { app, BrowserWindow } from 'electron';
 import { release } from 'node:os';
 import { join, dirname } from 'node:path';
