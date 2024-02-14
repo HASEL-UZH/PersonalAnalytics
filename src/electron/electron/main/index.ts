@@ -1,10 +1,11 @@
 import 'reflect-metadata';
 import { app, BrowserWindow } from 'electron';
 import { release } from 'node:os';
-import { join, dirname } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import log from 'electron-log/main';
 import { getLogger } from '../shared/Logger';
+import { DatabaseService } from './services/DatabaseService';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -45,6 +46,8 @@ log.initialize();
 const LOG = getLogger('Main', true);
 LOG.info('Log from the main process');
 
+const databaseService: DatabaseService = new DatabaseService();
+
 let win: BrowserWindow | null = null;
 const preload = join(__dirname, '../preload/index.mjs');
 const url = process.env.VITE_DEV_SERVER_URL;
@@ -68,7 +71,16 @@ async function createWindow() {
   }
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(async () => {
+  // TODO: Discuss
+  app.setAppUserModelId('dev.hasel.personal-analytics');
+
+  app.setLoginItemSettings({
+    openAtLogin: true
+  });
+  await databaseService.init();
+  await createWindow();
+});
 
 app.on('window-all-closed', () => {
   win = null;
