@@ -1,3 +1,6 @@
 [submodule "src/electron/PA.WindowsActivityTracker"]
 	path = src/electron/PA.WindowsActivityTracker
 	url = https://github.com/HASEL-UZH/PA.WindowsActivityTracker
+[submodule "src/electron/PA.UserInputTracker"]
+	path = src/electron/PA.UserInputTracker
+	url = https://github.com/HASEL-UZH/PA.UserInputTracker
