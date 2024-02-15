@@ -11,6 +11,7 @@ import { TrackerService } from './services/TrackerService';
 import studyConfig from '../config/study.config';
 import { TrackerType } from '../enums/TrackerType.enum';
 import { WindowActivityTrackerService } from './services/trackers/WindowActivityTrackerService';
+import { UserInputTrackerService } from './services/trackers/UserInputTrackerService';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -81,6 +82,11 @@ app.whenReady().then(async () => {
   await trackers.registerTrackerCallback(
     TrackerType.WindowsActivityTracker,
     WindowActivityTrackerService.handleWindowChange
+  );
+
+  await trackers.registerTrackerCallback(
+    TrackerType.UserInputTracker,
+    UserInputTrackerService.handleUserInputEvent
   );
 
   await trackers.startAllTrackers();
