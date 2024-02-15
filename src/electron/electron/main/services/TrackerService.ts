@@ -4,7 +4,7 @@ import { Tracker } from './trackers/Tracker';
 
 export class TrackerService {
   private trackers: Tracker[] = [];
-  private config: TrackerConfig;
+  private readonly config: TrackerConfig;
 
   constructor(trackerConfig: TrackerConfig) {
     this.config = trackerConfig;
@@ -17,6 +17,7 @@ export class TrackerService {
     if (this.isTrackerAlreadyRegistered(trackerType)) {
       throw new Error(`Tracker ${trackerType} already registered!`);
     }
+
     if (
       this.config.windowActivityTracker.enabled &&
       trackerType === TrackerType.WindowsActivityTracker
@@ -24,7 +25,17 @@ export class TrackerService {
       const WAT = await import('windows-activity-tracker');
       const userInputTracker = new WAT.WindowsActivityTracker(
         callback,
-        this.config.windowActivityTracker.checkingForWindowChangeIntervalInMs
+        this.config.windowActivityTracker.intervalInMs
+      );
+      this.trackers.push(userInputTracker);
+    } else if (
+      this.config.userInputTracker.enabled &&
+      trackerType === TrackerType.UserInputTracker
+    ) {
+      const UIT = await import('user-input-tracker');
+      const userInputTracker = new UIT.UserInputTracker(
+        callback,
+        this.config.userInputTracker.intervalInMs
       );
       this.trackers.push(userInputTracker);
     } else {
@@ -38,10 +49,6 @@ export class TrackerService {
 
   public async stopAllTrackers() {
     await Promise.all(this.trackers.map((t: Tracker) => t.stop()));
-  }
-
-  public async terminateAllTrackers() {
-    await Promise.all(this.trackers.map((t: Tracker) => t.terminate()));
   }
 
   public getRunningTrackerNames() {
