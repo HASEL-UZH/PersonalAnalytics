@@ -44,11 +44,15 @@ export class TrackerService {
   }
 
   public async startAllTrackers() {
-    await Promise.all(this.trackers.map((t: Tracker) => t.start()));
+    await Promise.all(
+      this.trackers.filter((t: Tracker) => !t.isRunning).map((t: Tracker) => t.start())
+    );
   }
 
   public async stopAllTrackers() {
-    await Promise.all(this.trackers.map((t: Tracker) => t.stop()));
+    await Promise.all(
+      this.trackers.filter((t: Tracker) => t.isRunning).map((t: Tracker) => t.stop())
+    );
   }
 
   public getRunningTrackerNames() {

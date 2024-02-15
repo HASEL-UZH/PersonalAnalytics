@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, powerMonitor } from 'electron';
 import { release } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -75,6 +75,7 @@ app.whenReady().then(async () => {
   app.setLoginItemSettings({
     openAtLogin: true
   });
+
   await databaseService.init();
   await settingsService.init();
 
@@ -93,6 +94,27 @@ app.whenReady().then(async () => {
   LOG.info(`Trackers started: ${trackers.getRunningTrackerNames()}`);
 
   await createWindow();
+
+  powerMonitor.on('suspend', async (): Promise<void> => {
+    LOG.debug('The system is going to sleep');
+    await trackers.stopAllTrackers();
+  });
+  powerMonitor.on('resume', async (): Promise<void> => {
+    LOG.debug('The system is resuming');
+    await trackers.startAllTrackers();
+  });
+  powerMonitor.on('shutdown', async (): Promise<void> => {
+    LOG.debug('The system is going to shutdown');
+    await trackers.stopAllTrackers();
+  });
+  powerMonitor.on('lock-screen', async (): Promise<void> => {
+    LOG.debug('The system is going to lock-screen');
+    await trackers.stopAllTrackers();
+  });
+  powerMonitor.on('unlock-screen', async (): Promise<void> => {
+    LOG.debug('The system is going to unlock-screen');
+    await trackers.startAllTrackers();
+  });
 });
 
 app.on('window-all-closed', () => {
