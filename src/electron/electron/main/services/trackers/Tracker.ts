@@ -5,6 +5,4 @@ export interface Tracker {
   start(): void;
 
   stop(): void;
-
-  terminate?(): Promise<void>;
 }
