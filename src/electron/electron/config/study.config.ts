@@ -11,7 +11,8 @@ const studyConfig: StudyConfig = {
   subjectIdLength: 6,
   trackers: {
     windowActivityTracker: {
-      enabled: true
+      enabled: true,
+      checkingForWindowChangeIntervalInMs: 1000
     },
     userInputTracker: {
       enabled: true

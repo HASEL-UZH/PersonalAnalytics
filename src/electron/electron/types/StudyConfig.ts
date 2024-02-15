@@ -4,6 +4,7 @@ export interface UserInputTrackerConfig {
 
 export interface WindowActivityTrackerConfig {
   enabled: boolean;
+  checkingForWindowChangeIntervalInMs: number;
 }
 
 export interface ExperienceSamplingConfig {
@@ -12,6 +13,12 @@ export interface ExperienceSamplingConfig {
   responseOptions: string[];
   samplingIntervalInMinutes: number;
   samplingRandomization: boolean;
+}
+
+export interface TrackerConfig {
+  windowActivityTracker: WindowActivityTrackerConfig;
+  userInputTracker: UserInputTrackerConfig;
+  experienceSampling: ExperienceSamplingConfig;
 }
 
 export interface StudyConfig {
@@ -23,9 +30,5 @@ export interface StudyConfig {
   contactName: string;
   contactEmail: string;
   subjectIdLength: number;
-  trackers: {
-    windowActivityTracker: WindowActivityTrackerConfig;
-    userInputTracker: UserInputTrackerConfig;
-    experienceSampling: ExperienceSamplingConfig;
-  };
+  trackers: TrackerConfig;
 }
