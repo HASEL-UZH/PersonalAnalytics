@@ -14,6 +14,9 @@ export class TrackerService {
     trackerType: TrackerType,
     callback: (data: unknown) => void
   ): Promise<void> {
+    if (this.isTrackerAlreadyRegistered(trackerType)) {
+      throw new Error(`Tracker ${trackerType} already registered!`);
+    }
     if (
       this.config.windowActivityTracker.enabled &&
       trackerType === TrackerType.WindowsActivityTracker
@@ -41,11 +44,15 @@ export class TrackerService {
     await Promise.all(this.trackers.map((t: Tracker) => t.terminate()));
   }
 
-  public getActiveTrackerNames() {
+  public getRunningTrackerNames() {
     return this.trackers.filter((t: Tracker) => t.isRunning).map((t: Tracker) => t.name);
   }
 
   public isAnyTrackerRunning() {
     return this.trackers.some((t: Tracker) => t.isRunning);
+  }
+
+  private isTrackerAlreadyRegistered(trackerType: TrackerType) {
+    return this.trackers.some((t: Tracker) => t.name === trackerType);
   }
 }
