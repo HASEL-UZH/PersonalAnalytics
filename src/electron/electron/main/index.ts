@@ -7,11 +7,11 @@ import log from 'electron-log/main';
 import { getLogger } from '../shared/Logger';
 import { DatabaseService } from './services/DatabaseService';
 import { SettingsService } from './services/SettingsService';
-import { TrackerService } from './services/TrackerService';
 import studyConfig from '../config/study.config';
 import { TrackerType } from '../enums/TrackerType.enum';
 import { WindowActivityTrackerService } from './services/trackers/WindowActivityTrackerService';
 import { UserInputTrackerService } from './services/trackers/UserInputTrackerService';
+import { TrackerService } from './services/trackers/TrackerService';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

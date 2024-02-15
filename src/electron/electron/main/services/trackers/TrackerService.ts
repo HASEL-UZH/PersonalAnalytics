@@ -1,6 +1,6 @@
-import { TrackerConfig } from '../../types/StudyConfig';
-import { TrackerType } from '../../enums/TrackerType.enum';
-import { Tracker } from './trackers/Tracker';
+import { Tracker } from './Tracker';
+import { TrackerConfig } from '../../../types/StudyConfig';
+import { TrackerType } from '../../../enums/TrackerType.enum';
 
 export class TrackerService {
   private trackers: Tracker[] = [];
