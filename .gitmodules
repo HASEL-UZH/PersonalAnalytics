@@ -1,0 +1,3 @@
+[submodule "src/electron/PA.WindowsActivityTracker"]
+	path = src/electron/PA.WindowsActivityTracker
+	url = https://github.com/HASEL-UZH/PA.WindowsActivityTracker
