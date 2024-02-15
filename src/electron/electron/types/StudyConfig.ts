@@ -1,10 +1,11 @@
 export interface UserInputTrackerConfig {
   enabled: boolean;
+  intervalInMs: number;
 }
 
 export interface WindowActivityTrackerConfig {
   enabled: boolean;
-  checkingForWindowChangeIntervalInMs: number;
+  intervalInMs: number;
 }
 
 export interface ExperienceSamplingConfig {

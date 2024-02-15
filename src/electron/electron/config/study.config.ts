@@ -12,10 +12,11 @@ const studyConfig: StudyConfig = {
   trackers: {
     windowActivityTracker: {
       enabled: true,
-      checkingForWindowChangeIntervalInMs: 1000
+      intervalInMs: 1000
     },
     userInputTracker: {
-      enabled: true
+      enabled: true,
+      intervalInMs: 2000
     },
     experienceSampling: {
       enabled: true,
