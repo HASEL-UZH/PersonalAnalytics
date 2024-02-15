@@ -7,6 +7,10 @@ import log from 'electron-log/main';
 import { getLogger } from '../shared/Logger';
 import { DatabaseService } from './services/DatabaseService';
 import { SettingsService } from './services/SettingsService';
+import { TrackerService } from './services/TrackerService';
+import studyConfig from '../config/study.config';
+import { TrackerType } from '../enums/TrackerType.enum';
+import { WindowActivityTrackerService } from './services/trackers/WindowActivityTrackerService';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -72,6 +76,16 @@ app.whenReady().then(async () => {
   });
   await databaseService.init();
   await settingsService.init();
+
+  const trackers: TrackerService = new TrackerService(studyConfig.trackers);
+  await trackers.registerTrackerCallback(
+    TrackerType.WindowsActivityTracker,
+    WindowActivityTrackerService.handleWindowChange
+  );
+
+  await trackers.startAllTrackers();
+  LOG.info(`Trackers started: ${trackers.getRunningTrackerNames()}`);
+
   await createWindow();
 });
 
