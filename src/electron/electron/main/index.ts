@@ -93,8 +93,6 @@ app.whenReady().then(async () => {
   await trackers.startAllTrackers();
   LOG.info(`Trackers started: ${trackers.getRunningTrackerNames()}`);
 
-  await createWindow();
-
   powerMonitor.on('suspend', async (): Promise<void> => {
     LOG.debug('The system is going to sleep');
     await trackers.stopAllTrackers();

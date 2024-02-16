@@ -29,10 +29,10 @@ jobs:
         run: |
           npm ci
       - name: Build windows
-        run: npm run build:win
+        run: npm run build
         if: matrix.os == 'windows-latest'
       - name: Build macos
-        run: npm run build:mac
+        run: npm run build
         if: matrix.os == 'macos-latest'
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
