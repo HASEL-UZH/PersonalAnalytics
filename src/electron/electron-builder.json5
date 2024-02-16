@@ -13,16 +13,16 @@
     'dist',
     'dist-electron'
   ],
+  publish: {
+    provider: "github",
+    owner: "HASEL-UZH",
+    repo: "PersonalAnalytics",
+  },
   mac: {
     target: [
       'dmg'
     ],
-    artifactName: '${productName}-Mac-${version}-Installer.${ext}',
-    publish: {
-      provider: "github",
-      owner: "HASEL-UZH",
-      repo: "PersonalAnalytics",
-    }
+    artifactName: '${productName}-Mac-${version}-Installer.${ext}'
   },
   win: {
     target: [
@@ -33,12 +33,7 @@
         ]
       }
     ],
-    artifactName: '${productName}-Windows-${version}-Setup.${ext}',
-    publish: {
-      provider: "github",
-      owner: "HASEL-UZH",
-      repo: "PersonalAnalytics",
-    }
+    artifactName: '${productName}-Windows-${version}-Setup.${ext}'
   },
   nsis: {
     oneClick: false,
@@ -51,10 +46,5 @@
       'AppImage'
     ],
     artifactName: '${productName}-Linux-${version}.${ext}',
-    publish: {
-      provider: "github",
-      owner: "HASEL-UZH",
-      repo: "PersonalAnalytics",
-    }
   }
 }

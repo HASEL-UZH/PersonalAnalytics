@@ -12,6 +12,10 @@
     "lint:fix": "eslint --fix . --ext .js,.jsx,.ts,.tsx,.vue",
     "format": "prettier --write ."
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HASEL-UZH/PersonalAnalytics"
+  },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.7.2",
     "@typescript-eslint/eslint-plugin": "^6.20.0",
