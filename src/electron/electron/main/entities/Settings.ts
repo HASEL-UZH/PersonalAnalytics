@@ -4,7 +4,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
   UpdateDateColumn
 } from 'typeorm';
 
@@ -13,8 +13,8 @@ import {
 export class Settings extends BaseEntity {
   // This is a hack to ensure that only one entity of this type exists
   // Trying to save a new entity will fail with a unique constraint violation
-  @PrimaryGeneratedColumn({ update: false, type: 'int', default: () => '1', nullable: false })
-  public onlyOneEntityShouldExist: number = 1;
+  @PrimaryColumn({ update: false, type: 'int', default: (): number => 1, nullable: false })
+  readonly onlyOneEntityShouldExist: number = 1;
 
   @Column({ type: 'text', nullable: false })
   studyName: string;
