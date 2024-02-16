@@ -12,6 +12,8 @@ import { TrackerType } from '../enums/TrackerType.enum';
 import { WindowActivityTrackerService } from './services/trackers/WindowActivityTrackerService';
 import { UserInputTrackerService } from './services/trackers/UserInputTrackerService';
 import { TrackerService } from './services/trackers/TrackerService';
+import AppUpdaterService from './services/AppUpdaterService';
+import { WindowService } from './services/WindowService';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -24,6 +26,8 @@ process.env.VITE_PUBLIC = process.env.VITE_DEV_SERVER_URL
 
 const databaseService: DatabaseService = new DatabaseService();
 const settingsService: SettingsService = new SettingsService();
+const appUpdaterService: AppUpdaterService = new AppUpdaterService();
+const windowService: WindowService = new WindowService(appUpdaterService);
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) {
@@ -78,6 +82,9 @@ app.whenReady().then(async () => {
 
   await databaseService.init();
   await settingsService.init();
+  await windowService.init();
+  await appUpdaterService.checkForUpdates({ silent: true });
+  appUpdaterService.startCheckForUpdatesInterval();
 
   const trackers: TrackerService = new TrackerService(studyConfig.trackers);
   await trackers.registerTrackerCallback(
