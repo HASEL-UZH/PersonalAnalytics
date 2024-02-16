@@ -2,7 +2,6 @@
   "name": "personal-analytics",
   "version": "0.0.0",
   "main": "dist-electron/main/index.js",
-  "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
