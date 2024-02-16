@@ -51,6 +51,7 @@
     "electron-updater": "^6.1.7",
     "typeorm": "^0.3.20",
     "user-input-tracker": "file:PA.UserInputTracker/typescript",
+    "vue-router": "^4.2.5",
     "windows-activity-tracker": "file:PA.WindowsActivityTracker/typescript"
   }
 }
