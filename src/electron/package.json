@@ -18,6 +18,7 @@
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.7.2",
+    "@types/node-schedule": "^2.1.6",
     "@typescript-eslint/eslint-plugin": "^6.20.0",
     "@typescript-eslint/parser": "^6.20.0",
     "@vitejs/plugin-vue": "^5.0.3",
@@ -49,6 +50,7 @@
     "better-sqlite3": "^9.4.0",
     "electron-log": "^5.1.1",
     "electron-updater": "^6.1.7",
+    "node-schedule": "^2.1.1",
     "typeorm": "^0.3.20",
     "user-input-tracker": "file:PA.UserInputTracker/typescript",
     "vue-router": "^4.2.5",
