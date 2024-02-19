@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts,.vue --fix",
     "lint:fix": "eslint --fix . --ext .js,.jsx,.ts,.tsx,.vue",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "release": "electron-builder"
   },
   "repository": {
     "type": "git",
