@@ -73,8 +73,7 @@ async function createWindow() {
 }
 
 app.whenReady().then(async () => {
-  // TODO: Discuss
-  app.setAppUserModelId('dev.hasel.personal-analytics');
+  app.setAppUserModelId('ch.ifi.hasel.personal-analytics');
 
   app.setLoginItemSettings({
     openAtLogin: true
