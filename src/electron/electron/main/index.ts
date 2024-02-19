@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import '../ipc/Api';
 import { app, BrowserWindow, powerMonitor } from 'electron';
 import { release } from 'node:os';
 import { dirname, join } from 'node:path';

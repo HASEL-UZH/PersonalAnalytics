@@ -1,6 +1,7 @@
 import { ipcRenderer, contextBridge } from 'electron';
 
 contextBridge.exposeInMainWorld('ipcRenderer', withPrototype(ipcRenderer));
+window.ipcRenderer = ipcRenderer;
 
 // `exposeInMainWorld` can't detect attributes and methods of `prototype`, manually patching it.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
