@@ -10,8 +10,8 @@ export interface WindowActivityTrackerConfig {
 
 export interface ExperienceSamplingConfig {
   enabled: boolean;
-  question: string;
-  responseOptions: string[];
+  questions: string[];
+  responseOptions: string[][];
   samplingIntervalInMinutes: number;
   samplingRandomization: boolean;
 }

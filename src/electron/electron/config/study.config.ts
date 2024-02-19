@@ -1,4 +1,4 @@
-import { StudyConfig } from '../types/StudyConfig';
+import { StudyConfig } from '../shared/StudyConfig';
 
 const studyConfig: StudyConfig = {
   name: 'Personal Analytics',
@@ -20,8 +20,11 @@ const studyConfig: StudyConfig = {
     },
     experienceSampling: {
       enabled: true,
-      question: 'How are you feeling right now?',
-      responseOptions: ['Bad', 'Neutral', 'Good'],
+      questions: ['How are you feeling right now?', 'How is your day going?'],
+      responseOptions: [
+        ['Bad', 'Good'],
+        ['Bad', 'OK', 'Good']
+      ],
       samplingIntervalInMinutes: 60,
       samplingRandomization: true
     }
