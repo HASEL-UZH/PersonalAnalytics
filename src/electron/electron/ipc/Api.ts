@@ -1,10 +1,10 @@
-import { TypedIpcMain } from './TypedIpcMain';
-import Events from '../shared/Events';
-import Commands from '../shared/Commands';
 import { ExperienceSamplingService } from '../main/services/ExperienceSamplingService';
 import { ipcMain, IpcMainInvokeEvent } from 'electron';
 import { WindowService } from '../main/services/WindowService';
 import { getLogger } from '../shared/Logger';
+import { TypedIpcMain } from '../../src/utils/TypedIpcMain';
+import Commands from '../../src/utils/Commands';
+import Events from '../../src/utils/Events';
 
 
 const LOG = getLogger('IpcHandler')
