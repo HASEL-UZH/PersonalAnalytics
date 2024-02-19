@@ -13,10 +13,10 @@ export class SettingsService {
   }
 
   private async createDefaultSettings(): Promise<void> {
-    await Settings.create({
+    await Settings.save({
       subjectId: generateAlphaNumericString(studyConfig.subjectIdLength),
       studyName: studyConfig.name
-    }).save();
+    });
   }
 
   private async isSettingsAlreadyCreated(): Promise<boolean> {
