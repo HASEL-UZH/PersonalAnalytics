@@ -1,10 +1,12 @@
-import { app, Menu, nativeImage, shell, Tray } from 'electron';
+import { app, BrowserWindow, Menu, nativeImage, screen, shell, Tray } from 'electron';
 import { getLogger } from '../../shared/Logger';
 import AppUpdaterService from './AppUpdaterService';
 import { is } from './utils/helpers';
 import path from 'path';
 import studyConfig from '../../config/study.config';
 import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions;
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const LOG = getLogger('WindowService');
 
@@ -29,6 +31,55 @@ export class WindowService {
 
   public async init(): Promise<void> {
     this.createTray();
+  }
+
+  public async createExperienceSamplingWindow() {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    const preload = join(__dirname, '../preload/index.mjs');
+
+    const { width } = screen.getPrimaryDisplay().workAreaSize;
+    const windowPadding = 20;
+    const windowWidth = 500;
+    const windowHeight = 130;
+
+    const win = new BrowserWindow({
+      width: windowWidth,
+      height: windowHeight,
+      x: width - windowWidth - windowPadding,
+      y: 20 + windowPadding,
+      show: false,
+      opacity: 0,
+      frame: false,
+      alwaysOnTop: true,
+      visualEffectState: 'inactive',
+      minimizable: false,
+      maximizable: false,
+      fullscreenable: false,
+      resizable: false,
+      acceptFirstMouse: true,
+      title: 'Daily Planning',
+      webPreferences: {
+        preload
+      }
+    });
+
+    if (process.env.VITE_DEV_SERVER_URL) {
+      await win.loadURL(process.env.VITE_DEV_SERVER_URL + '#experience-sampling');
+    } else {
+      await win.loadFile(path.join(process.env.DIST, 'index.html'), {
+        hash: 'experience-sampling'
+      });
+    }
+
+    win.setVisibleOnAllWorkspaces(true);
+    let opacity = 0;
+    const interval = setInterval(() => {
+      if (opacity >= 1) clearInterval(interval);
+      win?.setOpacity(opacity);
+      opacity += 0.1;
+    }, 10);
+    win.show();
   }
 
   public updateTray(
@@ -64,7 +115,13 @@ export class WindowService {
       },
       { type: 'separator' }
     ];
-    const windowMenu: MenuItemConstructorOptions[] = [];
+    const windowMenu: MenuItemConstructorOptions[] = [
+      {
+        label: 'Open Experience Sampling',
+        click: () => this.createExperienceSamplingWindow()
+      },
+      { type: 'separator' }
+    ];
     const otherMenu: MenuItemConstructorOptions[] = [
       {
         label: 'Get Help',
