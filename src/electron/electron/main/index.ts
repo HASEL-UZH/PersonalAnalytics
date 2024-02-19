@@ -8,7 +8,6 @@ import log from 'electron-log/main';
 import { getLogger } from '../shared/Logger';
 import { DatabaseService } from './services/DatabaseService';
 import { SettingsService } from './services/SettingsService';
-import studyConfig from '../config/study.config';
 import { TrackerType } from '../enums/TrackerType.enum';
 import { WindowActivityTrackerService } from './services/trackers/WindowActivityTrackerService';
 import { UserInputTrackerService } from './services/trackers/UserInputTrackerService';

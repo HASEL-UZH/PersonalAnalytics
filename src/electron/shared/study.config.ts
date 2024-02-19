@@ -1,6 +1,6 @@
-import { StudyConfig } from '../shared/StudyConfig';
+import { StudyConfiguration } from './StudyConfiguration';
 
-const studyConfig: StudyConfig = {
+const studyConfig: StudyConfiguration = {
   name: 'Personal Analytics',
   shortDescription: 'A study to understand how people...',
   infoUrl: 'https://hasel.dev',
@@ -20,6 +20,7 @@ const studyConfig: StudyConfig = {
     },
     experienceSampling: {
       enabled: true,
+      scale: 5,
       questions: ['How are you feeling right now?', 'How is your day going?'],
       responseOptions: [
         ['Bad', 'Good'],

@@ -3,10 +3,10 @@ import { getLogger } from '../../shared/Logger';
 import AppUpdaterService from './AppUpdaterService';
 import { is } from './utils/helpers';
 import path from 'path';
-import studyConfig from '../../config/study.config';
 import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions;
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import studyConfig from '../../../shared/study.config';
 
 const LOG = getLogger('WindowService');
 
@@ -14,6 +14,7 @@ export class WindowService {
   private readonly appUpdaterService: AppUpdaterService;
   private tray: Tray;
   private readonly isDevelopment: boolean = is.dev;
+  private experienceSamplingWindow: BrowserWindow;
 
   constructor(appUpdaterService: AppUpdaterService) {
     this.appUpdaterService = appUpdaterService;
@@ -43,7 +44,7 @@ export class WindowService {
     const windowWidth = 500;
     const windowHeight = 130;
 
-    const win = new BrowserWindow({
+    this.experienceSamplingWindow = new BrowserWindow({
       width: windowWidth,
       height: windowHeight,
       x: width - windowWidth - windowPadding,
@@ -65,21 +66,31 @@ export class WindowService {
     });
 
     if (process.env.VITE_DEV_SERVER_URL) {
-      await win.loadURL(process.env.VITE_DEV_SERVER_URL + '#experience-sampling');
+      await this.experienceSamplingWindow.loadURL(
+        process.env.VITE_DEV_SERVER_URL + '#experience-sampling'
+      );
     } else {
-      await win.loadFile(path.join(process.env.DIST, 'index.html'), {
+      await this.experienceSamplingWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
         hash: 'experience-sampling'
       });
     }
 
-    win.setVisibleOnAllWorkspaces(true);
+    this.experienceSamplingWindow.setVisibleOnAllWorkspaces(true);
     let opacity = 0;
     const interval = setInterval(() => {
       if (opacity >= 1) clearInterval(interval);
-      win?.setOpacity(opacity);
+      this.experienceSamplingWindow?.setOpacity(opacity);
       opacity += 0.1;
     }, 10);
-    win.show();
+    this.experienceSamplingWindow.show();
+  }
+
+  public async closeExperienceSamplingWindow() {
+    if (this.experienceSamplingWindow) {
+      this.experienceSamplingWindow.close();
+      this.experienceSamplingWindow.setOpacity(0);
+      this.experienceSamplingWindow = null;
+    }
   }
 
   public updateTray(

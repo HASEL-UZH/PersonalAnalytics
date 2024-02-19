@@ -1,6 +1,6 @@
-import { TypedIpcRenderer } from '../../electron/ipc/TypedIpcMain';
-import Events from '../../electron/shared/Events';
-import Commands from '../../electron/shared/Commands';
+import Events from './Events';
+import Commands from './Commands';
+import { TypedIpcRenderer } from './TypedIpcMain';
 
 const typedIpcRenderer = window.ipcRenderer as TypedIpcRenderer<Events, Commands>;
 

@@ -1,6 +1,6 @@
 import { Settings } from '../entities/Settings';
-import studyConfig from '../../config/study.config';
 import { generateAlphaNumericString } from './utils/helpers';
+import studyConfig from '../../../shared/study.config';
 
 export class SettingsService {
   public async init(): Promise<void> {
