@@ -9,6 +9,6 @@ export class ExperienceSamplingResponseEntity extends BaseTrackedEntity {
   @Column('text')
   question: string;
 
-  @Column('text')
-  response: string;
+  @Column('int')
+  response: number;
 }

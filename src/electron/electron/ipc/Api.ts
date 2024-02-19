@@ -8,7 +8,7 @@ const typedIpcMain: TypedIpcMain<Events, Commands> = ipcMain as TypedIpcMain<Eve
 const experienceSamplingService: ExperienceSamplingService = new ExperienceSamplingService();
 typedIpcMain.handle(
   'createExperienceSample',
-  async (e, promptedAt: number, question: string, response: string): Promise<void> => {
+  async (e, promptedAt: number, question: string, response: number): Promise<void> => {
     await experienceSamplingService.createExperienceSample(promptedAt, question, response);
   }
 );
