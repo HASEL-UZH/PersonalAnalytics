@@ -6,6 +6,10 @@
   productName: 'PersonalAnalytics',
   appId: 'ch.ifi.hasel.personal-analytics',
   asar: true,
+  asarUnpack: [
+    'node_modules/better_sqlite3/**',
+    'node_modules/sqlite3/**',
+  ],
   directories: {
     output: 'release/${version}'
   },
@@ -16,7 +20,7 @@
   publish: {
     provider: "github",
     owner: "HASEL-UZH",
-    repo: "PersonalAnalytics",
+    repo: "PersonalAnalytics"
   },
   afterSign: 'build/notarize.cjs',
   mac: {
@@ -72,6 +76,6 @@
     target: [
       'AppImage'
     ],
-    artifactName: '${productName}-Linux-${version}.${ext}',
+    artifactName: '${productName}-Linux-${version}.${ext}'
   }
 }
