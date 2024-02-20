@@ -22,7 +22,33 @@
     target: [
       'dmg'
     ],
-    artifactName: '${productName}-Mac-${version}-Installer.${ext}'
+    artifactName: '${productName}-Mac-${version}-Installer.${ext}',
+    entitlements: 'build/entitlements.mac.plist',
+    entitlementsInherit: 'build/entitlements.mac.plist',
+    hardenedRuntime: true,
+    gatekeeperAssess: false,
+    extendInfo: [
+      {
+        key: 'NSAppleEventsUsageDescription',
+        value: 'TBD'
+      },
+      {
+        key: 'NSCameraUsageDescription',
+        value: 'TBD'
+      },
+      {
+        key: 'NSMicrophoneUsageDescription',
+        value: 'TBD'
+      },
+      {
+        key: 'NSDocumentsFolderUsageDescription',
+        value: 'TBD'
+      },
+      {
+        key: 'NSDownloadsFolderUsageDescription',
+        value: 'TBD'
+      }
+    ]
   },
   win: {
     target: [
