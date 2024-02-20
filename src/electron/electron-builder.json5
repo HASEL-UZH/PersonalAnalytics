@@ -18,7 +18,7 @@
     owner: "HASEL-UZH",
     repo: "PersonalAnalytics",
   },
-  afterSign: 'build/notarize.js',
+  afterSign: 'build/notarize.cjs',
   mac: {
     target: [
       'dmg'
