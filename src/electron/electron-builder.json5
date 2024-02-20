@@ -48,7 +48,10 @@
         key: 'NSDownloadsFolderUsageDescription',
         value: 'TBD'
       }
-    ]
+    ],
+    notarize: {
+      teamId: "${env.APPLE_TEAM_ID}",
+    }
   },
   win: {
     target: [
