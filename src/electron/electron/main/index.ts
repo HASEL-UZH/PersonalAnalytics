@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { app, BrowserWindow, powerMonitor } from 'electron';
+import { app, BrowserWindow, dialog, powerMonitor } from 'electron';
 import { release } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -85,48 +85,56 @@ app.whenReady().then(async () => {
     openAtLogin: true
   });
 
-  await databaseService.init();
-  await settingsService.init();
-  await windowService.init();
-  ipcHandler.init();
-  schedulingService.init();
-  await appUpdaterService.checkForUpdates({ silent: true });
-  appUpdaterService.startCheckForUpdatesInterval();
+  try {
+    await databaseService.init();
+    await settingsService.init();
+    await windowService.init();
+    ipcHandler.init();
+    schedulingService.init();
+    await appUpdaterService.checkForUpdates({ silent: true });
+    appUpdaterService.startCheckForUpdatesInterval();
 
-  const trackers: TrackerService = new TrackerService(studyConfig.trackers);
-  await trackers.registerTrackerCallback(
-    TrackerType.WindowsActivityTracker,
-    WindowActivityTrackerService.handleWindowChange
-  );
+    const trackers: TrackerService = new TrackerService(studyConfig.trackers);
+    await trackers.registerTrackerCallback(
+      TrackerType.WindowsActivityTracker,
+      WindowActivityTrackerService.handleWindowChange
+    );
 
-  await trackers.registerTrackerCallback(
-    TrackerType.UserInputTracker,
-    UserInputTrackerService.handleUserInputEvent
-  );
+    await trackers.registerTrackerCallback(
+      TrackerType.UserInputTracker,
+      UserInputTrackerService.handleUserInputEvent
+    );
 
-  await trackers.startAllTrackers();
-  LOG.info(`Trackers started: ${trackers.getRunningTrackerNames()}`);
-
-  powerMonitor.on('suspend', async (): Promise<void> => {
-    LOG.debug('The system is going to sleep');
-    await trackers.stopAllTrackers();
-  });
-  powerMonitor.on('resume', async (): Promise<void> => {
-    LOG.debug('The system is resuming');
     await trackers.startAllTrackers();
-  });
-  powerMonitor.on('shutdown', async (): Promise<void> => {
-    LOG.debug('The system is going to shutdown');
-    await trackers.stopAllTrackers();
-  });
-  powerMonitor.on('lock-screen', async (): Promise<void> => {
-    LOG.debug('The system is going to lock-screen');
-    await trackers.stopAllTrackers();
-  });
-  powerMonitor.on('unlock-screen', async (): Promise<void> => {
-    LOG.debug('The system is going to unlock-screen');
-    await trackers.startAllTrackers();
-  });
+    LOG.info(`Trackers started: ${trackers.getRunningTrackerNames()}`);
+
+    powerMonitor.on('suspend', async (): Promise<void> => {
+      LOG.debug('The system is going to sleep');
+      await trackers.stopAllTrackers();
+    });
+    powerMonitor.on('resume', async (): Promise<void> => {
+      LOG.debug('The system is resuming');
+      await trackers.startAllTrackers();
+    });
+    powerMonitor.on('shutdown', async (): Promise<void> => {
+      LOG.debug('The system is going to shutdown');
+      await trackers.stopAllTrackers();
+    });
+    powerMonitor.on('lock-screen', async (): Promise<void> => {
+      LOG.debug('The system is going to lock-screen');
+      await trackers.stopAllTrackers();
+    });
+    powerMonitor.on('unlock-screen', async (): Promise<void> => {
+      LOG.debug('The system is going to unlock-screen');
+      await trackers.startAllTrackers();
+    });
+  } catch (error) {
+    LOG.error('Error during app initialization', error);
+    dialog.showErrorBox(
+      'Error during app initialization',
+      `PersonalAnalytics couldn't be started. Please try again or contact us at ${studyConfig.contactEmail} for help. Error: ${error}`
+    );
+  }
 });
 
 app.on('window-all-closed', () => {
