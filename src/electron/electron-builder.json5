@@ -28,6 +28,9 @@
       'dmg'
     ],
     artifactName: '${productName}-Mac-${version}-Installer.${ext}',
+    asarUnpack: [
+      'node_modules/**/*.node',
+    ],
     entitlements: 'build/entitlements.mac.plist',
     entitlementsInherit: 'build/entitlements.mac.plist',
     hardenedRuntime: true,
