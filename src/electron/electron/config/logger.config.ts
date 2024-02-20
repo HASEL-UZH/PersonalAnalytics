@@ -9,5 +9,5 @@ export const LOG_FILE_NAME = {
 // see: https://github.com/megahertz/electron-log#log-levels
 export const LOG_LEVEL = {
   CONSOLE: 'silly' as LevelOption,
-  FILE: 'info' as LevelOption
+  FILE: 'silly' as LevelOption
 };
