@@ -53,7 +53,7 @@ if (!app.requestSingleInstanceLock()) {
 
 // Optional, initialize the logger for any renderer process
 log.initialize();
-const LOG = getLogger('Main', true);
+const LOG = getLogger('Main');
 
 app.whenReady().then(async () => {
   app.setAppUserModelId('ch.ifi.hasel.personal-analytics');

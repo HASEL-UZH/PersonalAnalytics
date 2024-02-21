@@ -1,6 +1,9 @@
 import { Tracker } from './Tracker';
 import { TrackerConfig } from '../../../types/StudyConfig';
 import { TrackerType } from '../../../enums/TrackerType.enum';
+import { getLogger } from '../../../shared/Logger';
+
+const LOG = getLogger('TrackerService');
 
 export class TrackerService {
   private trackers: Tracker[] = [];
@@ -17,6 +20,7 @@ export class TrackerService {
     if (this.isTrackerAlreadyRegistered(trackerType)) {
       throw new Error(`Tracker ${trackerType} already registered!`);
     }
+    LOG.info(`Registering tracker ${trackerType}...`);
 
     if (
       this.config.windowActivityTracker.enabled &&

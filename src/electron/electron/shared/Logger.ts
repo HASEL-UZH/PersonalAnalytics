@@ -2,7 +2,7 @@ import logger from 'electron-log/main';
 import { LogFunctions } from 'electron-log';
 import { LOG_FILE_NAME, LOG_LEVEL } from '../config/logger.config';
 
-const getLogger = (loggerName: string, background = false): LogFunctions => {
+const getLogger = (loggerName: string, background = true): LogFunctions => {
   const currentDate: string = new Date().toISOString().split('T')[0];
   const processName: string = background ? LOG_FILE_NAME.BACKGROUND : LOG_FILE_NAME.RENDERER;
   logger.transports.file.fileName = `${currentDate}-${processName}.log`;
