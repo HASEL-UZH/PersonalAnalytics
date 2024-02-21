@@ -24,9 +24,6 @@
   },
   afterSign: 'build/notarize.cjs',
   mac: {
-    target: [
-      'dmg'
-    ],
     artifactName: '${productName}-Mac-${version}-Installer.${ext}',
     asarUnpack: [
       'node_modules/**/*.node',
@@ -59,14 +56,6 @@
     ]
   },
   win: {
-    target: [
-      {
-        target: 'nsis',
-        arch: [
-          'x64'
-        ]
-      }
-    ],
     artifactName: '${productName}-Windows-${version}-Setup.${ext}'
   },
   nsis: {
@@ -76,9 +65,6 @@
     deleteAppDataOnUninstall: false
   },
   linux: {
-    target: [
-      'AppImage'
-    ],
     artifactName: '${productName}-Linux-${version}.${ext}'
   }
 }
