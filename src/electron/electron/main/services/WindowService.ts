@@ -13,7 +13,6 @@ const LOG = getLogger('WindowService');
 export class WindowService {
   private readonly appUpdaterService: AppUpdaterService;
   private tray: Tray;
-  private readonly isDevelopment: boolean = is.dev;
   private experienceSamplingWindow: BrowserWindow;
 
   constructor(appUpdaterService: AppUpdaterService) {
@@ -96,6 +95,34 @@ export class WindowService {
     }
   }
 
+  public async createAboutWindow() {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    const preload = join(__dirname, '../preload/index.mjs');
+    const aboutWindow = new BrowserWindow({
+      width: 800,
+      height: 600,
+      show: false,
+      minimizable: false,
+      maximizable: false,
+      fullscreenable: false,
+      resizable: false,
+      title: 'About',
+      webPreferences: {
+        preload
+      }
+    });
+
+    if (process.env.VITE_DEV_SERVER_URL) {
+      await aboutWindow.loadURL(process.env.VITE_DEV_SERVER_URL + '#about');
+    } else {
+      await aboutWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
+        hash: 'about'
+      });
+    }
+    aboutWindow.show();
+  }
+
   public updateTray(
     updaterLabel: string = 'Check for updates',
     updaterMenuEnabled: boolean = false
@@ -133,6 +160,10 @@ export class WindowService {
       {
         label: 'Open Experience Sampling',
         click: () => this.createExperienceSamplingWindow()
+      },
+      {
+        label: 'About',
+        click: () => this.createAboutWindow()
       },
       { type: 'separator' }
     ];

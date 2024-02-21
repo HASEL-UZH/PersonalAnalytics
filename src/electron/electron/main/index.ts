@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { app, BrowserWindow, dialog, powerMonitor } from 'electron';
+import { app, dialog, powerMonitor } from 'electron';
 import { release } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,7 +13,7 @@ import { UserInputTrackerService } from './services/trackers/UserInputTrackerSer
 import { TrackerService } from './services/trackers/TrackerService';
 import AppUpdaterService from './services/AppUpdaterService';
 import { WindowService } from './services/WindowService';
-import { IpcHandler } from '../ipc/Api';
+import { IpcHandler } from '../ipc/IpcHandler';
 import { ExperienceSamplingService } from './services/ExperienceSamplingService';
 import studyConfig from '../../shared/study.config';
 import { SchedulingService } from './services/SchedulingService';
@@ -32,7 +32,8 @@ const settingsService: SettingsService = new SettingsService();
 const appUpdaterService: AppUpdaterService = new AppUpdaterService();
 const windowService: WindowService = new WindowService(appUpdaterService);
 const experienceSamplingService: ExperienceSamplingService = new ExperienceSamplingService();
-const ipcHandler: IpcHandler = new IpcHandler(windowService, experienceSamplingService);
+const trackers: TrackerService = new TrackerService(studyConfig.trackers);
+const ipcHandler: IpcHandler = new IpcHandler(windowService, trackers, experienceSamplingService);
 const schedulingService: SchedulingService = new SchedulingService(windowService);
 
 // Disable GPU Acceleration for Windows 7
@@ -70,7 +71,6 @@ app.whenReady().then(async () => {
     await appUpdaterService.checkForUpdates({ silent: true });
     appUpdaterService.startCheckForUpdatesInterval();
 
-    const trackers: TrackerService = new TrackerService(studyConfig.trackers);
     await trackers.registerTrackerCallback(
       TrackerType.WindowsActivityTracker,
       WindowActivityTrackerService.handleWindowChange

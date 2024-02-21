@@ -4,7 +4,7 @@
 </template>
 <style lang="less">
 #app {
-  @apply bg-white;
+  @apply h-full overflow-hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
