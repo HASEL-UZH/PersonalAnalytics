@@ -51,7 +51,7 @@ export class WindowService {
       width: windowWidth,
       height: windowHeight,
       x: width - windowWidth - windowPadding,
-      y: 20 + windowPadding,
+      y: 20 + windowPadding * 2,
       show: false,
       opacity: 0,
       frame: false,
