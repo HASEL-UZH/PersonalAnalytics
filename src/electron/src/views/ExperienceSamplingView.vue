@@ -66,7 +66,9 @@ async function createExperienceSample(value: number) {
   </div>
 </template>
 <style lang="less" scoped>
+@import '../styles/index';
 .experience-sampling-notification {
+  @apply bg-white;
   user-select: none;
   overflow: hidden;
 
@@ -77,7 +79,8 @@ async function createExperienceSample(value: number) {
   }
 
   .prompt {
-    @apply font-medium text-gray-900;
+    @apply font-medium;
+    color: @primary-color;
   }
 
   .sample-answer {
