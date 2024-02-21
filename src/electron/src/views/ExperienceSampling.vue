@@ -24,47 +24,45 @@ async function createExperienceSample(value: number) {
 </script>
 <template>
   <div class="experience-sampling-notification">
-    <template v-if="true">
-      <div class="notification-top-bar">
-        <div>Self-Report: {{ studyConfig.name }}</div>
-        <div>{{ promptedAtString }}</div>
-      </div>
-      <div class="pointer-events-auto flex w-full">
-        <div class="w-0 flex-1 p-4 pt-1">
-          <div class="flex items-start">
-            <div class="w-0 flex-1">
-              <p class="prompt">{{ question }}</p>
-              <div class="-mx-2 mt-2 flex flex-row justify-between">
-                <div
-                  v-for="value in scale"
-                  :key="value"
-                  class="sample-answer"
-                  @click="createExperienceSample(value)"
-                >
-                  <span v-if="true" class="mx-auto flex font-medium">
-                    {{ value }}
-                  </span>
-                </div>
+    <div class="notification-top-bar">
+      <div>Self-Report: {{ studyConfig.name }}</div>
+      <div>{{ promptedAtString }}</div>
+    </div>
+    <div class="pointer-events-auto flex w-full">
+      <div class="w-0 flex-1 p-4 pt-1">
+        <div class="flex items-start">
+          <div class="w-0 flex-1">
+            <p class="prompt">{{ question }}</p>
+            <div class="-mx-2 mt-2 flex flex-row justify-between">
+              <div
+                v-for="value in scale"
+                :key="value"
+                class="sample-answer"
+                @click="createExperienceSample(value)"
+              >
+                <span v-if="true" class="mx-auto flex font-medium">
+                  {{ value }}
+                </span>
               </div>
-              <div class="mt-1 flex flex-row text-sm text-gray-400">
-                <div>{{ questionLabels[0] }}</div>
-                <div class="mx-auto">
-                  <span v-if="questionLabels.length === 3">{{ questionLabels[1] }}</span>
-                </div>
-                <div>{{ questionLabels[2] || questionLabels[1] }}</div>
+            </div>
+            <div class="mt-1 flex flex-row text-sm text-gray-400">
+              <div>{{ questionLabels[0] }}</div>
+              <div class="mx-auto">
+                <span v-if="questionLabels.length === 3">{{ questionLabels[1] }}</span>
               </div>
+              <div>{{ questionLabels[2] || questionLabels[1] }}</div>
             </div>
           </div>
         </div>
-        <div class="flex cursor-pointer border-l border-gray-200" @click="">
-          <div
-            class="flex w-full items-center justify-center rounded-none rounded-r-lg border border-transparent p-4 text-sm font-medium text-gray-600 hover:text-gray-900 focus:outline-none"
-          >
-            Skip
-          </div>
+      </div>
+      <div class="flex cursor-pointer border-l border-gray-200">
+        <div
+          class="flex w-full items-center justify-center rounded-none rounded-r-lg border border-transparent p-4 text-sm font-medium text-gray-600 hover:text-gray-900 focus:outline-none"
+        >
+          Skip
         </div>
       </div>
-    </template>
+    </div>
   </div>
 </template>
 <style lang="less" scoped>
