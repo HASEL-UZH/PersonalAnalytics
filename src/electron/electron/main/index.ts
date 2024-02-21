@@ -55,29 +55,6 @@ log.initialize();
 const LOG = getLogger('Main', true);
 LOG.info('Log from the main process');
 
-let win: BrowserWindow | null = null;
-const preload = join(__dirname, '../preload/index.mjs');
-const url = process.env.VITE_DEV_SERVER_URL;
-const indexHtml = join(process.env.DIST, 'index.html');
-
-async function createWindow() {
-  win = new BrowserWindow({
-    title: 'Main window',
-    icon: join(process.env.VITE_PUBLIC, 'favicon.ico'),
-    webPreferences: {
-      preload
-    }
-  });
-
-  if (process.env.VITE_DEV_SERVER_URL) {
-    // electron-vite-vue#298
-    win.loadURL(url);
-    win.webContents.openDevTools();
-  } else {
-    win.loadFile(indexHtml);
-  }
-}
-
 app.whenReady().then(async () => {
   app.setAppUserModelId('ch.ifi.hasel.personal-analytics');
 
@@ -134,21 +111,5 @@ app.whenReady().then(async () => {
       'Error during app initialization',
       `PersonalAnalytics couldn't be started. Please try again or contact us at ${studyConfig.contactEmail} for help. Error: ${error}`
     );
-  }
-});
-
-app.on('window-all-closed', () => {
-  win = null;
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-app.on('activate', () => {
-  const allWindows = BrowserWindow.getAllWindows();
-  if (allWindows.length) {
-    allWindows[0].focus();
-  } else {
-    createWindow();
   }
 });
