@@ -14,6 +14,7 @@ export class WindowService {
   private readonly appUpdaterService: AppUpdaterService;
   private tray: Tray;
   private experienceSamplingWindow: BrowserWindow;
+  private aboutWindow: BrowserWindow;
 
   constructor(appUpdaterService: AppUpdaterService) {
     this.appUpdaterService = appUpdaterService;
@@ -96,10 +97,13 @@ export class WindowService {
   }
 
   public async createAboutWindow() {
+    this.aboutWindow?.close();
+    this.aboutWindow = null;
+
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
     const preload = join(__dirname, '../preload/index.mjs');
-    const aboutWindow = new BrowserWindow({
+    this.aboutWindow = new BrowserWindow({
       width: 800,
       height: 600,
       show: false,
@@ -114,13 +118,19 @@ export class WindowService {
     });
 
     if (process.env.VITE_DEV_SERVER_URL) {
-      await aboutWindow.loadURL(process.env.VITE_DEV_SERVER_URL + '#about');
+      await this.aboutWindow.loadURL(process.env.VITE_DEV_SERVER_URL + '#about');
     } else {
-      await aboutWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
+      await this.aboutWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
         hash: 'about'
       });
     }
-    aboutWindow.show();
+
+    this.aboutWindow.webContents.setWindowOpenHandler((details) => {
+      shell.openExternal(details.url);
+      return { action: 'deny' };
+    });
+
+    this.aboutWindow.show();
   }
 
   public updateTray(
