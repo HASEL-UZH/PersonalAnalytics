@@ -71,18 +71,21 @@ app.whenReady().then(async () => {
     await appUpdaterService.checkForUpdates({ silent: true });
     appUpdaterService.startCheckForUpdatesInterval();
 
-    await trackers.registerTrackerCallback(
-      TrackerType.WindowsActivityTracker,
-      WindowActivityTrackerService.handleWindowChange
-    );
-
-    await trackers.registerTrackerCallback(
-      TrackerType.UserInputTracker,
-      UserInputTrackerService.handleUserInputEvent
-    );
+    if (studyConfig.trackers.windowActivityTracker.enabled) {
+      await trackers.registerTrackerCallback(
+        TrackerType.WindowsActivityTracker,
+        WindowActivityTrackerService.handleWindowChange
+      );
+    }
+    if (studyConfig.trackers.userInputTracker.enabled) {
+      await trackers.registerTrackerCallback(
+        TrackerType.UserInputTracker,
+        UserInputTrackerService.handleUserInputEvent
+      );
+    }
 
     await trackers.startAllTrackers();
-    LOG.info(`Trackers started: ${trackers.getRunningTrackerNames()}`);
+    LOG.info(`Trackers started: ${trackers.getRunningTrackerNames().join(', ')}`);
 
     powerMonitor.on('suspend', async (): Promise<void> => {
       LOG.debug('The system is going to sleep');
@@ -111,4 +114,24 @@ app.whenReady().then(async () => {
       `PersonalAnalytics couldn't be started. Please try again or contact us at ${studyConfig.contactEmail} for help. Error: ${error}`
     );
   }
+});
+
+let isAppQuitting = false;
+app.on('before-quit', async (event): Promise<void> => {
+  LOG.info('app.on(before-quit) called');
+  if (!isAppQuitting) {
+    event.preventDefault();
+    LOG.info(`Stopping all (${trackers.getRunningTrackerNames().join(', ')}) trackers...`);
+    await trackers.stopAllTrackers();
+    LOG.info(`All trackers stopped. Running: ${trackers.getRunningTrackerNames().length}`);
+    isAppQuitting = true;
+    app.exit();
+  }
+});
+
+// Don't quit when all windows are closed
+app.on('window-all-closed', () => {
+  //   if (process.platform !== 'darwin') {
+  //     app.quit();
+  //   }
 });
