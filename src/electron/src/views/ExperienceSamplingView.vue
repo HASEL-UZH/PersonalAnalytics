@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import typedIpcRenderer from '../utils/typedIpcRenderer';
 import studyConfig from '../../shared/study.config';
+import { ref } from 'vue';
 
 const esConfig = studyConfig.trackers.experienceSampling;
 const studyQuestions = esConfig.questions;
@@ -13,9 +14,34 @@ const scale = Array.from({ length: esConfig.scale }, (_, i) => i + 1);
 const promptedAt = new Date(Date.now());
 const promptedAtString = promptedAt.toLocaleTimeString().substring(0, 5);
 
+const sampleLoadingValue = ref<number | null>();
+
 async function createExperienceSample(value: number) {
+  sampleLoadingValue.value = value;
   try {
-    await typedIpcRenderer.invoke('createExperienceSample', promptedAt.getTime(), question, value);
+    await Promise.all([
+      typedIpcRenderer.invoke('createExperienceSample', promptedAt.getTime(), question, value),
+      new Promise((resolve) => setTimeout(resolve, 150))
+    ]);
+    await typedIpcRenderer.invoke('closeExperienceSamplingWindow');
+  } catch (error) {
+    console.error('Error creating team', error);
+  }
+}
+
+async function skipExperienceSample() {
+  sampleLoadingValue.value = null;
+  try {
+    await Promise.all([
+      typedIpcRenderer.invoke(
+        'createExperienceSample',
+        promptedAt.getTime(),
+        question,
+        undefined,
+        true
+      ),
+      new Promise((resolve) => setTimeout(resolve, 150))
+    ]);
     await typedIpcRenderer.invoke('closeExperienceSamplingWindow');
   } catch (error) {
     console.error('Error creating team', error);
@@ -33,33 +59,40 @@ async function createExperienceSample(value: number) {
         <div class="flex items-start">
           <div class="w-0 flex-1">
             <p class="prompt">{{ question }}</p>
-            <div class="-mx-2 mt-2 flex flex-row justify-between">
+            <div class="-mx-1 mt-2 flex flex-row justify-between">
               <div
                 v-for="value in scale"
                 :key="value"
                 class="sample-answer"
                 @click="createExperienceSample(value)"
               >
-                <span v-if="true" class="mx-auto flex font-medium">
+                <span v-if="sampleLoadingValue !== value" class="mx-auto flex font-medium">
                   {{ value }}
+                </span>
+                <span v-else class="mx-auto flex font-medium">
+                  <span class="loading loading-spinner loading-xs" />
                 </span>
               </div>
             </div>
             <div class="mt-1 flex flex-row text-sm text-gray-400">
-              <div>{{ questionLabels[0] }}</div>
-              <div class="mx-auto">
+              <div class="basis-1/3">{{ questionLabels[0] }}</div>
+              <div class="basis-1/3 text-center">
                 <span v-if="questionLabels.length === 3">{{ questionLabels[1] }}</span>
               </div>
-              <div>{{ questionLabels[2] || questionLabels[1] }}</div>
+              <div class="basis-1/3 text-right">{{ questionLabels[2] || questionLabels[1] }}</div>
             </div>
           </div>
         </div>
       </div>
       <div class="flex cursor-pointer border-l border-gray-200">
         <div
-          class="flex w-full items-center justify-center rounded-none rounded-r-lg border border-transparent p-4 text-sm font-medium text-gray-600 hover:text-gray-900 focus:outline-none"
+          class="flex w-full items-center justify-center rounded-none border border-transparent p-4 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none"
+          @click="skipExperienceSample()"
         >
-          Skip
+          <span v-if="sampleLoadingValue !== null" class="w-6"> Skip </span>
+          <span v-else class="w-6 font-medium">
+            <span class="loading loading-spinner loading-xs" />
+          </span>
         </div>
       </div>
     </div>
@@ -79,12 +112,12 @@ async function createExperienceSample(value: number) {
   }
 
   .prompt {
-    @apply font-medium;
+    @apply font-bold;
     color: @primary-color;
   }
 
   .sample-answer {
-    @apply mx-1 flex h-8 w-8 cursor-pointer items-center rounded-md border border-gray-200 bg-gray-100 text-center align-middle text-gray-500 outline-none ring-2 ring-gray-900 transition-all hover:bg-gray-700 hover:text-white;
+    @apply mx-1 flex h-8 w-8 cursor-pointer items-center rounded-md border border-gray-200 bg-gray-100 text-center align-middle text-gray-500  transition-all hover:bg-gray-700 hover:text-white;
   }
 }
 </style>

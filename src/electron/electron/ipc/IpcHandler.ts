@@ -49,8 +49,18 @@ export class IpcHandler {
     });
   }
 
-  private async createExperienceSample(promptedAt: number, question: string, response: number) {
-    await this.experienceSamplingService.createExperienceSample(promptedAt, question, response);
+  private async createExperienceSample(
+    promptedAt: number,
+    question: string,
+    response: number,
+    skipped: boolean = false
+  ) {
+    await this.experienceSamplingService.createExperienceSample(
+      promptedAt,
+      question,
+      response,
+      skipped
+    );
   }
 
   private async closeExperienceSamplingWindow(): Promise<void> {
