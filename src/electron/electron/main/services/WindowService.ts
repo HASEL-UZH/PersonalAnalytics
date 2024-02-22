@@ -15,6 +15,7 @@ export class WindowService {
   private tray: Tray;
   private experienceSamplingWindow: BrowserWindow;
   private aboutWindow: BrowserWindow;
+  private onboardingWindow: BrowserWindow;
 
   constructor(appUpdaterService: AppUpdaterService) {
     this.appUpdaterService = appUpdaterService;
@@ -44,7 +45,7 @@ export class WindowService {
     const { width } = screen.getPrimaryDisplay().workAreaSize;
     const windowPadding = 20;
     const windowWidth = 500;
-    const windowHeight = 130;
+    const windowHeight = 170;
 
     this.experienceSamplingWindow = new BrowserWindow({
       width: windowWidth,
@@ -145,6 +146,53 @@ export class WindowService {
     });
   }
 
+  private closeOnboardingWindow() {
+    if (this.onboardingWindow) {
+      this.onboardingWindow?.close();
+      this.onboardingWindow = null;
+    }
+  }
+
+  public async createOnboardingWindow() {
+    this.closeOnboardingWindow();
+
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    const preload = join(__dirname, '../preload/index.mjs');
+    this.onboardingWindow = new BrowserWindow({
+      width: 800,
+      height: 750,
+      show: false,
+      minimizable: false,
+      maximizable: false,
+      fullscreenable: false,
+      resizable: false,
+      title: 'PersonalAnalytics: About',
+      webPreferences: {
+        preload
+      }
+    });
+
+    if (process.env.VITE_DEV_SERVER_URL) {
+      await this.onboardingWindow.loadURL(process.env.VITE_DEV_SERVER_URL + '#onboarding');
+    } else {
+      await this.onboardingWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
+        hash: 'onboarding'
+      });
+    }
+
+    this.onboardingWindow.webContents.setWindowOpenHandler((details) => {
+      shell.openExternal(details.url);
+      return { action: 'deny' };
+    });
+
+    this.onboardingWindow.show();
+
+    this.onboardingWindow.on('close', () => {
+      this.onboardingWindow = null;
+    });
+  }
+
   public updateTray(
     updaterLabel: string = 'Check for updates',
     updaterMenuEnabled: boolean = false
@@ -182,6 +230,10 @@ export class WindowService {
       {
         label: 'Open Experience Sampling',
         click: () => this.createExperienceSamplingWindow()
+      },
+      {
+        label: 'Open Onboarding',
+        click: () => this.createOnboardingWindow()
       },
       {
         label: 'About',

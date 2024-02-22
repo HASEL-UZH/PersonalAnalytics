@@ -12,6 +12,11 @@ const router: Router = createRouter({
       path: '/experience-sampling',
       name: 'ExperienceSampling',
       component: () => import('../views/ExperienceSamplingView.vue')
+    },
+    {
+      path: '/onboarding',
+      name: 'Onboarding',
+      component: () => import('../views/OnboardingView.vue')
     }
   ]
 });
