@@ -1,0 +1,45 @@
+<script setup lang="ts">
+import { PropType } from 'vue';
+import { StudyInfoDto } from '../../shared/dto/StudyInfoDto';
+
+defineProps({
+  studyInfo: {
+    type: Object as PropType<StudyInfoDto>,
+    required: true
+  }
+});
+</script>
+<template>
+  <article class="prose-lg prose mt-4">
+    <h2>Study Info</h2>
+    <p>{{ studyInfo.shortDescription }}</p>
+    <table class="table-auto">
+      <tbody>
+        <tr>
+          <td>Your Subject Id:</td>
+          <td>
+            <span class="subject-badge">{{ studyInfo.subjectId }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td>Contact:</td>
+          <td>{{ studyInfo.contactName }} ({{ studyInfo.contactEmail }})</td>
+        </tr>
+        <tr>
+          <td>Study Website:</td>
+          <td>
+            <a :href="studyInfo.infoUrl" target="_blank">{{ studyInfo.infoUrl }}</a>
+          </td>
+        </tr>
+        <tr>
+          <td>Privacy Policy:</td>
+          <td>
+            <a :href="studyInfo.privacyPolicyUrl" target="_blank">{{
+              studyInfo.privacyPolicyUrl
+            }}</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </article>
+</template>
