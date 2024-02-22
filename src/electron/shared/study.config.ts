@@ -20,12 +20,11 @@ const studyConfig: StudyConfiguration = {
     },
     experienceSampling: {
       enabled: true,
-      scale: 5,
-      questions: ['How are you feeling right now?', 'How is your day going?'],
-      responseOptions: [
-        ['Bad', 'Good'],
-        ['Bad', 'OK', 'Good']
+      scale: 7,
+      questions: [
+        'Compared to your normal level of productivity, how productive do you consider the previous session?'
       ],
+      responseOptions: [['not at all productive', 'moderately productive', 'very productive']],
       samplingIntervalInMinutes: 60,
       samplingRandomization: true
     }
