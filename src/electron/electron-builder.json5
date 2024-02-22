@@ -35,23 +35,15 @@
     extendInfo: [
       {
         key: 'NSAppleEventsUsageDescription',
-        value: 'TBD'
-      },
-      {
-        key: 'NSCameraUsageDescription',
-        value: 'TBD'
-      },
-      {
-        key: 'NSMicrophoneUsageDescription',
-        value: 'TBD'
+        value: 'Please allow access to use the application.'
       },
       {
         key: 'NSDocumentsFolderUsageDescription',
-        value: 'TBD'
+        value: 'Please allow access to use the application.'
       },
       {
         key: 'NSDownloadsFolderUsageDescription',
-        value: 'TBD'
+        value: 'Please allow access to use the application.'
       }
     ]
   },
