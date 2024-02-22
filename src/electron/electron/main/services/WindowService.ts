@@ -113,7 +113,7 @@ export class WindowService {
     const preload = join(__dirname, '../preload/index.mjs');
     this.aboutWindow = new BrowserWindow({
       width: 800,
-      height: 600,
+      height: 750,
       show: false,
       minimizable: false,
       maximizable: false,
