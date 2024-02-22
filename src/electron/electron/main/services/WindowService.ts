@@ -209,7 +209,14 @@ export class WindowService {
         label: 'Open Logs',
         click: (): void => {
           LOG.info(`Opening logs at ${app.getPath('logs')}`);
-          shell.showItemInFolder(`${app.getPath('logs')}`);
+          shell.openPath(`${app.getPath('logs')}`);
+        }
+      },
+      {
+        label: 'Open Collected Data',
+        click: (): void => {
+          LOG.info(`Opening collected data at ${app.getPath('userData')}`);
+          shell.showItemInFolder(path.join(app.getPath('userData'), 'database.sqlite'));
         }
       },
       { type: 'separator' },
