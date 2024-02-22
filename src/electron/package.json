@@ -3,6 +3,10 @@
   "version": "0.0.15",
   "main": "dist-electron/main/index.js",
   "type": "module",
+  "author": {
+    "name": "HASEL",
+    "email": "dev@hasel.dev"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build && electron-builder --publish always",
