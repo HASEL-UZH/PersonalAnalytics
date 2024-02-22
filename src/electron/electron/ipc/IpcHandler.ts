@@ -63,8 +63,8 @@ export class IpcHandler {
     );
   }
 
-  private async closeExperienceSamplingWindow(): Promise<void> {
-    await this.windowService.closeExperienceSamplingWindow();
+  private closeExperienceSamplingWindow(): void {
+    this.windowService.closeExperienceSamplingWindow();
   }
 
   private async getStudyInfo(): Promise<StudyInfoDto> {

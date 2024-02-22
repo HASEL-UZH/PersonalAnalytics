@@ -7,7 +7,7 @@ type Commands = {
     response?: number,
     skipped?: boolean
   ) => Promise<void>;
-  closeExperienceSamplingWindow: () => Promise<void>;
+  closeExperienceSamplingWindow: () => void;
   getStudyInfo: () => Promise<StudyInfoDto>;
 };
 export default Commands;
