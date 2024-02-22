@@ -35,8 +35,7 @@ export class WindowService {
   }
 
   public async createExperienceSamplingWindow() {
-    this.experienceSamplingWindow?.close();
-    this.experienceSamplingWindow = null;
+    this.closeExperienceSamplingWindow();
 
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
@@ -86,19 +85,28 @@ export class WindowService {
       opacity += 0.1;
     }, 10);
     this.experienceSamplingWindow.show();
+
+    this.experienceSamplingWindow.on('close', () => {
+      this.experienceSamplingWindow = null;
+    });
   }
 
-  public async closeExperienceSamplingWindow() {
+  public closeExperienceSamplingWindow() {
     if (this.experienceSamplingWindow) {
       this.experienceSamplingWindow.close();
-      this.experienceSamplingWindow.setOpacity(0);
       this.experienceSamplingWindow = null;
     }
   }
 
+  private closeAboutWindow() {
+    if (this.aboutWindow) {
+      this.aboutWindow?.close();
+      this.aboutWindow = null;
+    }
+  }
+
   public async createAboutWindow() {
-    this.aboutWindow?.close();
-    this.aboutWindow = null;
+    this.closeAboutWindow();
 
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
@@ -131,6 +139,10 @@ export class WindowService {
     });
 
     this.aboutWindow.show();
+
+    this.aboutWindow.on('close', () => {
+      this.aboutWindow = null;
+    });
   }
 
   public updateTray(
