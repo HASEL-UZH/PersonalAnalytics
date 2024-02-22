@@ -203,6 +203,7 @@ export class WindowService {
     menuTemplate[1].enabled = updaterMenuEnabled;
 
     this.tray.setContextMenu(Menu.buildFromTemplate(menuTemplate));
+    this.tray.setToolTip(studyConfig.name);
   }
 
   private createTray(): void {
