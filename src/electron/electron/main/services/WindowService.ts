@@ -61,7 +61,7 @@ export class WindowService {
       fullscreenable: false,
       resizable: false,
       acceptFirstMouse: true,
-      title: 'Daily Planning',
+      title: 'PersonalAnalytics: Self-Report',
       webPreferences: {
         preload
       }
@@ -119,7 +119,7 @@ export class WindowService {
       maximizable: false,
       fullscreenable: false,
       resizable: false,
-      title: 'About',
+      title: 'PersonalAnalytics: About',
       webPreferences: {
         preload
       }
