@@ -12,7 +12,7 @@ export class UserInputEntity extends BaseTrackedEntity {
   @Column('float', { nullable: false })
   movedDistance: number;
 
-  @Column('float', { nullable: false })
+  @Column('int', { nullable: false })
   scrollDelta: number;
 
   @Column('datetime', { nullable: false })
