@@ -27,7 +27,7 @@ onMounted(async () => {
           <tr>
             <td>Your Subject Id:</td>
             <td>
-              <span class="badge badge-neutral">{{ studyInfo.subjectId }}</span>
+              <span class="subject-badge">{{ studyInfo.subjectId }}</span>
             </td>
           </tr>
           <tr>
@@ -103,6 +103,10 @@ onMounted(async () => {
 @import '../styles/index';
 .primary-blue {
   color: @primary-color;
+}
+.subject-badge {
+  @apply badge badge-neutral text-white;
+  background-color: @primary-color;
 }
 h1,
 h2,
