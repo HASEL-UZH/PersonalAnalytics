@@ -49,44 +49,42 @@ async function skipExperienceSample() {
 }
 </script>
 <template>
-  <div class="experience-sampling-notification">
+  <div class="experience-sampling-notification flex flex-col">
     <div class="notification-top-bar">
       <div>Self-Report: {{ studyConfig.name }}</div>
       <div>{{ promptedAtString }}</div>
     </div>
-    <div class="pointer-events-auto flex w-full">
-      <div class="w-0 flex-1 p-4 pt-1">
-        <div class="flex items-start">
-          <div class="w-0 flex-1">
-            <p class="prompt">{{ question }}</p>
-            <div class="-mx-1 mt-2 flex flex-row justify-between">
-              <div
-                v-for="value in scale"
-                :key="value"
-                class="sample-answer"
-                @click="createExperienceSample(value)"
-              >
-                <span v-if="sampleLoadingValue !== value" class="mx-auto flex font-medium">
-                  {{ value }}
-                </span>
-                <span v-else class="mx-auto flex font-medium">
-                  <span class="loading loading-spinner loading-xs" />
-                </span>
-              </div>
+    <div class="pointer-events-auto flex h-full flex-row">
+      <div class="flex-1 p-4 pt-1">
+        <div class="flex-1">
+          <p class="prompt">{{ question }}</p>
+          <div class="-mx-1 mt-2 flex flex-row justify-between">
+            <div
+              v-for="value in scale"
+              :key="value"
+              class="sample-answer"
+              @click="createExperienceSample(value)"
+            >
+              <span v-if="sampleLoadingValue !== value" class="mx-auto flex font-medium">
+                {{ value }}
+              </span>
+              <span v-else class="mx-auto flex font-medium">
+                <span class="loading loading-spinner loading-xs" />
+              </span>
             </div>
-            <div class="mt-1 flex flex-row text-sm text-gray-400">
-              <div class="basis-1/3">{{ questionLabels[0] }}</div>
-              <div class="basis-1/3 text-center">
-                <span v-if="questionLabels.length === 3">{{ questionLabels[1] }}</span>
-              </div>
-              <div class="basis-1/3 text-right">{{ questionLabels[2] || questionLabels[1] }}</div>
+          </div>
+          <div class="mt-1 flex flex-row text-sm text-gray-400">
+            <div class="basis-1/3">{{ questionLabels[0] }}</div>
+            <div class="basis-1/3 text-center">
+              <span v-if="questionLabels.length === 3">{{ questionLabels[1] }}</span>
             </div>
+            <div class="basis-1/3 text-right">{{ questionLabels[2] || questionLabels[1] }}</div>
           </div>
         </div>
       </div>
       <div class="flex cursor-pointer border-l border-gray-200">
         <div
-          class="flex w-full items-center justify-center rounded-none border border-transparent p-4 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none"
+          class="flex w-full items-center justify-center rounded-none border border-transparent px-4 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none"
           @click="skipExperienceSample()"
         >
           <span v-if="sampleLoadingValue !== null" class="w-6"> Skip </span>
@@ -101,12 +99,12 @@ async function skipExperienceSample() {
 <style lang="less" scoped>
 @import '../styles/index';
 .experience-sampling-notification {
-  @apply bg-white;
+  @apply h-full bg-white;
   user-select: none;
   overflow: hidden;
 
   .notification-top-bar {
-    @apply pointer-events-auto flex w-full justify-between bg-gray-200 px-2 py-1 text-xs text-gray-500;
+    @apply pointer-events-auto flex w-full flex-shrink-0 justify-between bg-gray-200 px-2 py-1 text-xs text-gray-500;
     line-height: 1.35rem;
     -webkit-app-region: drag;
   }
