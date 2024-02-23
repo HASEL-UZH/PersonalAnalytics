@@ -1,7 +1,7 @@
 import { StudyConfiguration } from './StudyConfiguration';
 
 const studyConfig: StudyConfiguration = {
-  name: 'Personal Analytics',
+  name: 'Personal Analytics Study',
   shortDescription: 'A study to understand how people...',
   infoUrl: 'https://hasel.dev',
   privacyPolicyUrl: 'https://hasel.dev/privacy',
