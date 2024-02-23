@@ -26,10 +26,16 @@ export class TrackerService {
       this.config.windowActivityTracker.enabled &&
       trackerType === TrackerType.WindowsActivityTracker
     ) {
+      // Used for getting URLs
+      const accessibilityPermission = false;
+      // Used for getting window titles
+      const screenRecordingPermission = true;
       const WAT = await import('windows-activity-tracker');
       const userInputTracker = new WAT.WindowsActivityTracker(
         callback,
-        this.config.windowActivityTracker.intervalInMs
+        this.config.windowActivityTracker.intervalInMs,
+        accessibilityPermission,
+        screenRecordingPermission
       );
       this.trackers.push(userInputTracker);
     } else if (
