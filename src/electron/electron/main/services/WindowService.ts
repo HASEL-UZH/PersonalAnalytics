@@ -146,7 +146,7 @@ export class WindowService {
     });
   }
 
-  private closeOnboardingWindow() {
+  public closeOnboardingWindow() {
     if (this.onboardingWindow) {
       this.onboardingWindow?.close();
       this.onboardingWindow = null;
@@ -174,7 +174,9 @@ export class WindowService {
     });
 
     if (process.env.VITE_DEV_SERVER_URL) {
-      await this.onboardingWindow.loadURL(process.env.VITE_DEV_SERVER_URL + '#onboarding');
+      await this.onboardingWindow.loadURL(
+        process.env.VITE_DEV_SERVER_URL + `#onboarding?isMacOS=${process.platform === 'darwin'}`
+      );
     } else {
       await this.onboardingWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
         hash: 'onboarding'

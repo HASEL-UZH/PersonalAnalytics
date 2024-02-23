@@ -1,5 +1,5 @@
 import { ExperienceSamplingService } from '../main/services/ExperienceSamplingService';
-import { app, ipcMain, IpcMainInvokeEvent } from 'electron';
+import { app, ipcMain, IpcMainInvokeEvent, systemPreferences } from 'electron';
 import { WindowService } from '../main/services/WindowService';
 import { getLogger } from '../shared/Logger';
 import { TypedIpcMain } from '../../src/utils/TypedIpcMain';
@@ -31,7 +31,11 @@ export class IpcHandler {
     this.actions = {
       createExperienceSample: this.createExperienceSample,
       closeExperienceSamplingWindow: this.closeExperienceSamplingWindow,
-      getStudyInfo: this.getStudyInfo
+      closeOnboardingWindow: this.closeOnboardingWindow,
+      getStudyInfo: this.getStudyInfo,
+      startAllTrackers: this.startAllTrackers,
+      triggerPermissionCheckAccessibility: this.triggerPermissionCheckAccessibility,
+      triggerPermissionCheckScreenRecording: this.triggerPermissionCheckScreenRecording
     };
   }
 
@@ -52,12 +56,16 @@ export class IpcHandler {
   private async createExperienceSample(
     promptedAt: number,
     question: string,
+    responseOptions: string,
+    scale: number,
     response: number,
     skipped: boolean = false
   ) {
     await this.experienceSamplingService.createExperienceSample(
       promptedAt,
       question,
+      responseOptions,
+      scale,
       response,
       skipped
     );
@@ -65,6 +73,10 @@ export class IpcHandler {
 
   private closeExperienceSamplingWindow(): void {
     this.windowService.closeExperienceSamplingWindow();
+  }
+
+  private closeOnboardingWindow(): void {
+    this.windowService.closeOnboardingWindow();
   }
 
   private async getStudyInfo(): Promise<StudyInfoDto> {
@@ -80,5 +92,22 @@ export class IpcHandler {
       appVersion: app.getVersion(),
       currentlyActiveTrackers: this.trackerService.getRunningTrackerNames()
     };
+  }
+
+  private triggerPermissionCheckAccessibility(prompt: boolean): boolean {
+    return systemPreferences.isTrustedAccessibilityClient(prompt);
+  }
+
+  private triggerPermissionCheckScreenRecording(): boolean {
+    const status = systemPreferences.getMediaAccessStatus('screen');
+    return status === 'granted';
+  }
+
+  private async startAllTrackers(): Promise<void> {
+    try {
+      await this.trackerService.startAllTrackers();
+    } catch (e) {
+      LOG.error('Error starting trackers', e);
+    }
   }
 }

@@ -16,7 +16,8 @@ const router: Router = createRouter({
     {
       path: '/onboarding',
       name: 'Onboarding',
-      component: () => import('../views/OnboardingView.vue')
+      component: () => import('../views/OnboardingView.vue'),
+      props: (route) => ({ query: route.query.isMacOS })
     }
   ]
 });

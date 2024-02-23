@@ -4,6 +4,8 @@ type Commands = {
   createExperienceSample: (
     promptedAt: number,
     question: string,
+    responseOptions: string,
+    scale: number,
     response?: number,
     skipped?: boolean
   ) => Promise<void>;
@@ -11,5 +13,7 @@ type Commands = {
   closeOnboardingWindow: () => void;
   getStudyInfo: () => Promise<StudyInfoDto>;
   startAllTrackers: () => void;
+  triggerPermissionCheckAccessibility: (prompt: boolean) => boolean;
+  triggerPermissionCheckScreenRecording: () => boolean;
 };
 export default Commands;
