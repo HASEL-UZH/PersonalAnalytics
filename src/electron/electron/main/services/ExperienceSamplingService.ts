@@ -7,6 +7,8 @@ export class ExperienceSamplingService {
   public async createExperienceSample(
     promptedAt: number,
     question: string,
+    responseOptions: string,
+    scale: number,
     response: number,
     skipped: boolean
   ): Promise<void> {
@@ -15,6 +17,8 @@ export class ExperienceSamplingService {
     );
     await ExperienceSamplingResponseEntity.save({
       question,
+      responseOptions,
+      scale,
       response,
       promptedAt,
       skipped

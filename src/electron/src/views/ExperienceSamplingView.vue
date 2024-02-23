@@ -20,7 +20,14 @@ async function createExperienceSample(value: number) {
   sampleLoadingValue.value = value;
   try {
     await Promise.all([
-      typedIpcRenderer.invoke('createExperienceSample', promptedAt.getTime(), question, value),
+      typedIpcRenderer.invoke(
+        'createExperienceSample',
+        promptedAt.getTime(),
+        question,
+        questionLabels.join(', '),
+        esConfig.scale,
+        value
+      ),
       new Promise((resolve) => setTimeout(resolve, 150))
     ]);
     await typedIpcRenderer.invoke('closeExperienceSamplingWindow');
@@ -37,6 +44,8 @@ async function skipExperienceSample() {
         'createExperienceSample',
         promptedAt.getTime(),
         question,
+        questionLabels.join(', '),
+        esConfig.scale,
         undefined,
         true
       ),
