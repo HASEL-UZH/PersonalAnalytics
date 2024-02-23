@@ -51,6 +51,10 @@ if (!app.requestSingleInstanceLock()) {
   process.exit(0);
 }
 
+if (process.platform === 'darwin') {
+  app.dock.hide();
+}
+
 // Optional, initialize the logger for any renderer process
 log.initialize();
 const LOG = getLogger('Main');
