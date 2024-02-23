@@ -43,3 +43,10 @@ defineProps({
     </table>
   </article>
 </template>
+<style lang="less">
+@import '../styles/index';
+.subject-badge {
+  @apply badge badge-neutral text-white;
+  background-color: @primary-color;
+}
+</style>

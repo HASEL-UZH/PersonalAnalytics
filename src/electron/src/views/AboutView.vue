@@ -81,13 +81,4 @@ onMounted(async () => {
 .primary-blue {
   color: @primary-color;
 }
-.subject-badge {
-  @apply badge badge-neutral text-white;
-  background-color: @primary-color;
-}
-h1,
-h2,
-h3 {
-  @apply !font-medium;
-}
 </style>
