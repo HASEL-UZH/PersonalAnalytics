@@ -179,7 +179,7 @@ export class WindowService {
       );
     } else {
       await this.onboardingWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
-        hash: 'onboarding'
+        hash: `onboarding?isMacOS=${process.platform === 'darwin'}`
       });
     }
 
