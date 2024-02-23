@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import typedIpcRenderer from '../utils/typedIpcRenderer';
 import { onMounted, ref } from 'vue';
-import { StudyInfoDto } from '../../shared/dto/StudyInfoDto';
+import StudyInfoDto from '../../shared/dto/StudyInfoDto';
 import StudyInfo from '../components/StudyInfo.vue';
 
 const studyInfo = ref<StudyInfoDto>();

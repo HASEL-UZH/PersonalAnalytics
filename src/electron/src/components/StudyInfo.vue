@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { PropType } from 'vue';
-import { StudyInfoDto } from '../../shared/dto/StudyInfoDto';
+import StudyInfoDto from '../../shared/dto/StudyInfoDto';
 
 defineProps({
   studyInfo: {

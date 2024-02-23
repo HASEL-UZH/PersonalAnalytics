@@ -1,4 +1,4 @@
-export interface StudyInfoDto {
+export default interface StudyInfoDto {
   subjectId: string;
   studyName: string;
   shortDescription: string;

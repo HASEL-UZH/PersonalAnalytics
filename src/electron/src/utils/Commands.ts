@@ -1,4 +1,4 @@
-import { StudyInfoDto } from '../../shared/dto/StudyInfoDto';
+import StudyInfoDto from '../../shared/dto/StudyInfoDto';
 
 type Commands = {
   createExperienceSample: (
@@ -8,6 +8,8 @@ type Commands = {
     skipped?: boolean
   ) => Promise<void>;
   closeExperienceSamplingWindow: () => void;
+  closeOnboardingWindow: () => void;
   getStudyInfo: () => Promise<StudyInfoDto>;
+  startAllTrackers: () => void;
 };
 export default Commands;

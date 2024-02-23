@@ -15,7 +15,7 @@ export class SchedulingService {
   public init() {
     LOG.silly('Initializing SchedulingService');
     this.experienceSamplingJob = schedule.scheduleJob(`0 * * * *`, (fireDate: Date): void => {
-      LOG.info(`Planning Job was supposed to fire at ${fireDate}, fired at ${new Date()}`);
+      LOG.info(`Experience Sampling Job was supposed to fire at ${fireDate}, fired at ${new Date()}`);
       this.handleExperienceSamplingJob();
     });
 
