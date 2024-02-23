@@ -85,7 +85,7 @@ export class WindowService {
       this.experienceSamplingWindow?.setOpacity(opacity);
       opacity += 0.1;
     }, 10);
-    this.experienceSamplingWindow.show();
+    this.experienceSamplingWindow.showInactive();
 
     this.experienceSamplingWindow.on('close', () => {
       this.experienceSamplingWindow = null;
