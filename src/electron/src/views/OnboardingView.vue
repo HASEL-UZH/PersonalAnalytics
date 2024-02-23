@@ -132,7 +132,6 @@ function startAllTrackers() {
               leave your device.
             </p>
             <div class="flex flex-col">
-              {{ $route.query.test }}
               <div class="my-5 flex flex-col">
                 <div>
                   To correctly run PersonalAnalytics, we collect data on your window switches and
