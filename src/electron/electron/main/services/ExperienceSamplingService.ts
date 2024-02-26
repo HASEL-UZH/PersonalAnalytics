@@ -5,7 +5,7 @@ const LOG = getLogger('ExperienceSamplingService');
 
 export class ExperienceSamplingService {
   public async createExperienceSample(
-    promptedAt: number,
+    promptedAt: Date,
     question: string,
     responseOptions: string,
     scale: number,

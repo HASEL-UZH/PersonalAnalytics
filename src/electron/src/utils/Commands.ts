@@ -2,7 +2,7 @@ import StudyInfoDto from '../../shared/dto/StudyInfoDto';
 
 type Commands = {
   createExperienceSample: (
-    promptedAt: number,
+    promptedAt: Date,
     question: string,
     responseOptions: string,
     scale: number,

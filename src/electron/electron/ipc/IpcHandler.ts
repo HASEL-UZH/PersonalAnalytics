@@ -55,7 +55,7 @@ export class IpcHandler {
   }
 
   private async createExperienceSample(
-    promptedAt: number,
+    promptedAt: Date,
     question: string,
     responseOptions: string,
     scale: number,

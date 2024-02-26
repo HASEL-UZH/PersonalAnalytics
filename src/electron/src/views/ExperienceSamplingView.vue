@@ -22,7 +22,7 @@ async function createExperienceSample(value: number) {
     await Promise.all([
       typedIpcRenderer.invoke(
         'createExperienceSample',
-        promptedAt.getTime(),
+        promptedAt,
         question,
         questionLabels.join(', '),
         esConfig.scale,
@@ -42,7 +42,7 @@ async function skipExperienceSample() {
     await Promise.all([
       typedIpcRenderer.invoke(
         'createExperienceSample',
-        promptedAt.getTime(),
+        promptedAt,
         question,
         questionLabels.join(', '),
         esConfig.scale,
