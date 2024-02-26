@@ -28,6 +28,9 @@ export class Settings extends BaseEntity {
   })
   subjectId: string;
 
+  @Column({ type: 'boolean', nullable: false, default: false })
+  onboardingShown: boolean;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
