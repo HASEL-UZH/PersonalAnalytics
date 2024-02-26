@@ -31,6 +31,9 @@ export class Settings extends BaseEntity {
   @Column({ type: 'boolean', nullable: false, default: false })
   onboardingShown: boolean;
 
+  @Column({ type: 'boolean', nullable: false, default: false })
+  studyAndTrackersStartedShown: boolean;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

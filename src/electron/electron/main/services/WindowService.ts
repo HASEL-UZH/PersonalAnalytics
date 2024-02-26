@@ -154,7 +154,7 @@ export class WindowService {
     }
   }
 
-  public async createOnboardingWindow() {
+  public async createOnboardingWindow(goToStep?: string) {
     this.closeOnboardingWindow();
 
     const __filename = fileURLToPath(import.meta.url);
@@ -176,11 +176,12 @@ export class WindowService {
 
     if (process.env.VITE_DEV_SERVER_URL) {
       await this.onboardingWindow.loadURL(
-        process.env.VITE_DEV_SERVER_URL + `#onboarding?isMacOS=${process.platform === 'darwin'}`
+        process.env.VITE_DEV_SERVER_URL +
+          `#onboarding?isMacOS=${is.macOS}&goToStep=${goToStep ?? 'welcome'}`
       );
     } else {
       await this.onboardingWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
-        hash: `onboarding?isMacOS=${process.platform === 'darwin'}`
+        hash: `onboarding?isMacOS=${is.macOS}&goToStep=${goToStep ?? 'welcome'}`
       });
     }
 

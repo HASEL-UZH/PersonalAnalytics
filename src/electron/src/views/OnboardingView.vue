@@ -19,11 +19,17 @@ const isScreenRecordingPermissionLoading = ref(false);
 
 const route = useRoute();
 const isMacOS: string | null | LocationQueryValue[] = route.query.isMacOS;
+const goToStep: string | null | LocationQueryValue[] = route.query.goToStep;
 
 const availableSteps = ['welcome'];
 
 if (isMacOS === 'true') {
   availableSteps.push('data-collection');
+}
+
+if (goToStep === 'study-trackers-started') {
+  availableSteps.push('study-trackers-started');
+  currentStep.value = availableSteps.indexOf('study-trackers-started');
 }
 
 const maxSteps = computed(() => {
@@ -216,6 +222,24 @@ function startAllTrackers() {
               Please note: You might have to
               <span class="font-bold text-slate-200">manually restart</span> the application after
               granting access.
+            </p>
+          </div>
+        </div>
+        <div v-else-if="currentNamedStep === 'study-trackers-started'" key="2" class="absolute">
+          <h1 class="mb-8 text-4xl font-medium text-neutral-300">Data Collection</h1>
+          <div class="text-md">
+            <p v-if="isMacOS">
+              PersonalAnalytics now has the necessary permissions to collect data and is collecting
+              data in the background. You can manually open the application or view the collected
+              data at any time by right-clicking the icon in the menu bar.
+            </p>
+            <p v-else>
+              PersonalAnalytics is now collecting data. You can manually open the application or
+              view the collected data at any time by right-clicking the icon in the menu bar.
+            </p>
+            <p>
+              The following trackers are currently running:
+              {{ studyInfo.currentlyActiveTrackers.join(', ') }}
             </p>
           </div>
         </div>
