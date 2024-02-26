@@ -92,16 +92,21 @@ app.whenReady().then(async () => {
 
     const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
 
-    if (settings.onboardingShown === false || !hasAccessibilityAndScreenRecordingPermission()) {
+    if (
+      settings.onboardingShown === false ||
+      !macOSHasAccessibilityAndScreenRecordingPermission()
+    ) {
       LOG.debug(
-        `Onboarding shown: ${settings.onboardingShown}, hasAccessibilityAndScreenRecordingPermission: ${hasAccessibilityAndScreenRecordingPermission()}, creating onboarding window...`
+        `Onboarding shown: ${settings.onboardingShown}, hasAccessibilityAndScreenRecordingPermission: ${macOSHasAccessibilityAndScreenRecordingPermission()}, creating onboarding window...`
       );
       await windowService.createOnboardingWindow();
       settings.onboardingShown = true;
       await settings.save();
-    } else {
+    }
+
+    if (!is.macOS || macOSHasAccessibilityAndScreenRecordingPermission()) {
       LOG.debug(
-        `Onboarding shown: ${settings.onboardingShown}, hasAccessibilityAndScreenRecordingPermission: ${hasAccessibilityAndScreenRecordingPermission()}, starting all trackers...`
+        `Onboarding shown: ${settings.onboardingShown}, hasAccessibilityAndScreenRecordingPermission: ${macOSHasAccessibilityAndScreenRecordingPermission()}, starting all trackers...`
       );
       await trackers.startAllTrackers();
       LOG.info(`Trackers started: ${trackers.getRunningTrackerNames().join(', ')}`);
@@ -156,7 +161,7 @@ app.on('window-all-closed', () => {
   //   }
 });
 
-function hasAccessibilityAndScreenRecordingPermission(): boolean {
+function macOSHasAccessibilityAndScreenRecordingPermission(): boolean {
   if (!is.macOS) {
     return true;
   }
