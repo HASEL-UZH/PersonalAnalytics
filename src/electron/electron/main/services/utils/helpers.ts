@@ -2,10 +2,12 @@ import electron from 'electron';
 
 export declare interface Is {
   dev: boolean;
+  macOS: boolean;
 }
 
 export const is: Is = {
-  dev: !electron.app.isPackaged
+  dev: !electron.app.isPackaged,
+  macOS: process.platform === 'darwin'
 };
 
 export function generateAlphaNumericString(length: number = 0): string {

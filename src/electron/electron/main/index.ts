@@ -17,6 +17,8 @@ import { IpcHandler } from '../ipc/IpcHandler';
 import { ExperienceSamplingService } from './services/ExperienceSamplingService';
 import studyConfig from '../../shared/study.config';
 import { SchedulingService } from './services/SchedulingService';
+import { is } from './services/utils/helpers';
+import { Settings } from './entities/Settings';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -51,7 +53,7 @@ if (!app.requestSingleInstanceLock()) {
   process.exit(0);
 }
 
-if (process.platform === 'darwin') {
+if (is.macOS) {
   app.dock.hide();
 }
 
@@ -65,10 +67,6 @@ app.whenReady().then(async () => {
   app.setLoginItemSettings({
     openAtLogin: true
   });
-
-  LOG.info(
-    `hasAccessibilityAndScreenRecordingPermission = ${hasAccessibilityAndScreenRecordingPermission()}, systemPreferences.isTrustedAccessibilityClient(false) = ${systemPreferences.isTrustedAccessibilityClient(false)}, systemPreferences.getMediaAccessStatus('screen') = ${systemPreferences.getMediaAccessStatus('screen')}`
-  );
 
   try {
     await databaseService.init();
@@ -92,11 +90,19 @@ app.whenReady().then(async () => {
       );
     }
 
-    if (process.platform === 'darwin' && hasAccessibilityAndScreenRecordingPermission() === false) {
-      LOG.info('Screen recording permission not granted, opening onboarding window...');
+    const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
+
+    if (settings.onboardingShown === false || !hasAccessibilityAndScreenRecordingPermission()) {
+      LOG.debug(
+        `Onboarding shown: ${settings.onboardingShown}, hasAccessibilityAndScreenRecordingPermission: ${hasAccessibilityAndScreenRecordingPermission()}, creating onboarding window...`
+      );
       await windowService.createOnboardingWindow();
+      settings.onboardingShown = true;
+      await settings.save();
     } else {
-      LOG.info('Screen recording permission granted, starting all trackers...');
+      LOG.debug(
+        `Onboarding shown: ${settings.onboardingShown}, hasAccessibilityAndScreenRecordingPermission: ${hasAccessibilityAndScreenRecordingPermission()}, starting all trackers...`
+      );
       await trackers.startAllTrackers();
       LOG.info(`Trackers started: ${trackers.getRunningTrackerNames().join(', ')}`);
 
@@ -151,6 +157,10 @@ app.on('window-all-closed', () => {
 });
 
 function hasAccessibilityAndScreenRecordingPermission(): boolean {
+  if (!is.macOS) {
+    return true;
+  }
+
   return (
     systemPreferences.isTrustedAccessibilityClient(false) &&
     systemPreferences.getMediaAccessStatus('screen') === 'granted'
