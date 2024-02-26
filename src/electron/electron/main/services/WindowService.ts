@@ -214,7 +214,7 @@ export class WindowService {
     if (this.tray) {
       return;
     }
-    const appIcon = path.join(process.env.VITE_PUBLIC, 'icon-tray.png');
+    const appIcon = path.join(process.env.VITE_PUBLIC, 'IconTemplate.png');
     const trayImage = nativeImage.createFromPath(appIcon);
     this.tray = new Tray(trayImage);
     this.updateTray();
