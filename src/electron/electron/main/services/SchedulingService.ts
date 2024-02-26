@@ -11,11 +11,14 @@ export class SchedulingService {
 
   constructor(windowService: WindowService) {
     this.windowService = windowService;
+    LOG.debug('SchedulingService constructor called');
   }
   public init() {
     LOG.silly('Initializing SchedulingService');
     this.experienceSamplingJob = schedule.scheduleJob(`0 * * * *`, (fireDate: Date): void => {
-      LOG.info(`Experience Sampling Job was supposed to fire at ${fireDate}, fired at ${new Date()}`);
+      LOG.info(
+        `Experience Sampling Job was supposed to fire at ${fireDate}, fired at ${new Date()}`
+      );
       this.handleExperienceSamplingJob();
     });
 

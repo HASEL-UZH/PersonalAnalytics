@@ -19,6 +19,7 @@ export class WindowService {
 
   constructor(appUpdaterService: AppUpdaterService) {
     this.appUpdaterService = appUpdaterService;
+    LOG.debug('WindowService constructor called');
 
     this.appUpdaterService.on(
       'update-tray',

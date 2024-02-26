@@ -11,6 +11,7 @@ export class TrackerService {
 
   constructor(trackerConfig: TrackerConfig) {
     this.config = trackerConfig;
+    LOG.debug(`TrackerService.constructor: config=${JSON.stringify(this.config)}`);
   }
 
   public async registerTrackerCallback(

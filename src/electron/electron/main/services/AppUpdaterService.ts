@@ -18,6 +18,8 @@ export default class AppUpdaterService extends EventEmitter {
     autoUpdater.logger = LOG;
     autoUpdater.autoDownload = false;
 
+    LOG.debug('AppUpdaterService constructor called');
+
     autoUpdater.on('checking-for-update', () => {
       LOG.info('Checking for update...');
     });

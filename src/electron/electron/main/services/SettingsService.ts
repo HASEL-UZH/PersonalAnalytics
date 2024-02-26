@@ -8,6 +8,7 @@ const LOG = getLogger('SettingsService');
 export class SettingsService {
   public async init(): Promise<void> {
     const isSettingsAlreadyCreated: boolean = await this.isSettingsAlreadyCreated();
+    LOG.debug(`SettingsService.init: isSettingsAlreadyCreated=${isSettingsAlreadyCreated}`);
 
     if (!isSettingsAlreadyCreated) {
       LOG.info(`Creating default settings`);

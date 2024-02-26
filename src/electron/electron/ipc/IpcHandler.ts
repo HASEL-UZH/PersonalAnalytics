@@ -37,6 +37,7 @@ export class IpcHandler {
       triggerPermissionCheckAccessibility: this.triggerPermissionCheckAccessibility,
       triggerPermissionCheckScreenRecording: this.triggerPermissionCheckScreenRecording
     };
+    LOG.debug('IpcHandler constructor called');
   }
 
   public init(): void {
