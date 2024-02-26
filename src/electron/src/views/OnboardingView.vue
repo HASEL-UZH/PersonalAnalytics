@@ -4,7 +4,7 @@ import { computed, onMounted, ref } from 'vue';
 import StudyInfoDto from '../../shared/dto/StudyInfoDto';
 import typedIpcRenderer from '../utils/typedIpcRenderer';
 import StudyInfo from '../components/StudyInfo.vue';
-import { useRoute } from 'vue-router';
+import { LocationQueryValue, useRoute } from 'vue-router';
 
 const currentStep = ref(0);
 const transitionName = ref('slide-lef-right');
@@ -18,12 +18,14 @@ const isAccessibilityPermissionLoading = ref(false);
 const isScreenRecordingPermissionLoading = ref(false);
 
 const route = useRoute();
-const isMacOS = route.query.isMacOS;
+const isMacOS: string | null | LocationQueryValue[] = route.query.isMacOS;
 
 const availableSteps = ['welcome'];
-if (isMacOS) {
+
+if (isMacOS === 'true') {
   availableSteps.push('data-collection');
 }
+
 const maxSteps = computed(() => {
   return availableSteps.length;
 });
@@ -106,7 +108,6 @@ function startAllTrackers() {
       <span class="loading loading-spinner loading-lg" />
     </div>
     <div v-else class="relative flex h-full flex-col justify-between text-neutral-400">
-      darwin: {{ isMacOS }}
       <transition-group :name="transitionName">
         <div v-if="currentNamedStep === 'welcome'" key="0" class="flex w-full flex-col">
           <div class="flex flex-row">
