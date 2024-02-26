@@ -26,7 +26,7 @@ export class DatabaseService {
       type: 'better-sqlite3',
       database: dbPath,
       synchronize: true,
-      logging: true,
+      logging: false,
       entities: [ExperienceSamplingResponseEntity, Settings, UserInputEntity, WindowActivityEntity]
     };
 
