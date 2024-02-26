@@ -106,6 +106,7 @@ function startAllTrackers() {
       <span class="loading loading-spinner loading-lg" />
     </div>
     <div v-else class="relative flex h-full flex-col justify-between text-neutral-400">
+      darwin: {{ isMacOS }}
       <transition-group :name="transitionName">
         <div v-if="currentNamedStep === 'welcome'" key="0" class="flex w-full flex-col">
           <div class="flex flex-row">
@@ -173,7 +174,7 @@ function startAllTrackers() {
               <div class="my-5 flex flex-col">
                 <div>
                   To correctly run PersonalAnalytics, we collect data on your window switches and
-                  titles. To continue, click Open Accessibility Settings and enable Accessibility
+                  titles. To continue, click Open Screen Settings and enable Screen Recording
                   permission for PersonalAnalytics.
                 </div>
                 <div class="flex items-center justify-center pt-8">
@@ -205,7 +206,7 @@ function startAllTrackers() {
                       <circle cx="12" cy="12" r="11" stroke="currentColor" stroke-width="2" />
                     </svg>
 
-                    <span class="ml-2 text-green-500">Accessibility permission granted</span>
+                    <span class="ml-2 text-green-500">Screen Recording permission granted</span>
                   </div>
                 </div>
               </div>
