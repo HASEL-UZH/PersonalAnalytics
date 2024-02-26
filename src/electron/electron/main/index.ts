@@ -16,7 +16,6 @@ import { WindowService } from './services/WindowService';
 import { IpcHandler } from '../ipc/IpcHandler';
 import { ExperienceSamplingService } from './services/ExperienceSamplingService';
 import studyConfig from '../../shared/study.config';
-import { SchedulingService } from './services/SchedulingService';
 import { is } from './services/utils/helpers';
 import { Settings } from './entities/Settings';
 
@@ -34,9 +33,8 @@ const settingsService: SettingsService = new SettingsService();
 const appUpdaterService: AppUpdaterService = new AppUpdaterService();
 const windowService: WindowService = new WindowService(appUpdaterService);
 const experienceSamplingService: ExperienceSamplingService = new ExperienceSamplingService();
-const trackers: TrackerService = new TrackerService(studyConfig.trackers);
+const trackers: TrackerService = new TrackerService(studyConfig.trackers, windowService);
 const ipcHandler: IpcHandler = new IpcHandler(windowService, trackers, experienceSamplingService);
-const schedulingService: SchedulingService = new SchedulingService(windowService);
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) {
@@ -73,7 +71,6 @@ app.whenReady().then(async () => {
     await settingsService.init();
     await windowService.init();
     ipcHandler.init();
-    schedulingService.init();
     await appUpdaterService.checkForUpdates({ silent: true });
     appUpdaterService.startCheckForUpdatesInterval();
 
@@ -88,6 +85,9 @@ app.whenReady().then(async () => {
         TrackerType.UserInputTracker,
         UserInputTrackerService.handleUserInputEvent
       );
+    }
+    if (studyConfig.trackers.experienceSamplingTracker.enabled) {
+      await trackers.registerTrackerCallback(TrackerType.ExperienceSamplingTracker);
     }
 
     const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
@@ -165,11 +165,7 @@ app.on('before-quit', async (event): Promise<void> => {
 });
 
 // Don't quit when all windows are closed
-app.on('window-all-closed', () => {
-  //   if (process.platform !== 'darwin') {
-  //     app.quit();
-  //   }
-});
+app.on('window-all-closed', () => {});
 
 function macOSHasAccessibilityAndScreenRecordingPermission(): boolean {
   if (!is.macOS) {

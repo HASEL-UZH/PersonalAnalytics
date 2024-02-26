@@ -2,21 +2,25 @@ import { Tracker } from './Tracker';
 import { TrackerConfig } from '../../../types/StudyConfig';
 import { TrackerType } from '../../../enums/TrackerType.enum';
 import { getLogger } from '../../../shared/Logger';
+import { ExperienceSamplingTracker } from './ExperienceSamplingTracker';
+import { WindowService } from '../WindowService';
 
 const LOG = getLogger('TrackerService');
 
 export class TrackerService {
   private trackers: Tracker[] = [];
   private readonly config: TrackerConfig;
+  private readonly windowService: WindowService;
 
-  constructor(trackerConfig: TrackerConfig) {
+  constructor(trackerConfig: TrackerConfig, windowService: WindowService) {
     this.config = trackerConfig;
+    this.windowService = windowService;
     LOG.debug(`TrackerService.constructor: config=${JSON.stringify(this.config)}`);
   }
 
   public async registerTrackerCallback(
     trackerType: TrackerType,
-    callback: (data: unknown) => void
+    callback?: (data: unknown) => void
   ): Promise<void> {
     if (this.isTrackerAlreadyRegistered(trackerType)) {
       throw new Error(`Tracker ${trackerType} already registered!`);
@@ -49,6 +53,16 @@ export class TrackerService {
         this.config.userInputTracker.intervalInMs
       );
       this.trackers.push(userInputTracker);
+    } else if (
+      this.config.experienceSamplingTracker.enabled &&
+      trackerType === TrackerType.ExperienceSamplingTracker
+    ) {
+      const experienceSamplingTracker: ExperienceSamplingTracker = new ExperienceSamplingTracker(
+        this.windowService,
+        this.config.experienceSamplingTracker.intervalInMs,
+        this.config.experienceSamplingTracker.samplingRandomization
+      );
+      this.trackers.push(experienceSamplingTracker);
     } else {
       throw new Error(`Tracker ${trackerType} not enabled or unsupported!`);
     }

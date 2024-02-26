@@ -3,7 +3,7 @@ import typedIpcRenderer from '../utils/typedIpcRenderer';
 import studyConfig from '../../shared/study.config';
 import { ref } from 'vue';
 
-const esConfig = studyConfig.trackers.experienceSampling;
+const esConfig = studyConfig.trackers.experienceSamplingTracker;
 const studyQuestions = esConfig.questions;
 
 const randomQuestionNr = Math.floor(Math.random() * studyQuestions.length);
