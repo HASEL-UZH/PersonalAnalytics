@@ -146,7 +146,7 @@ app.whenReady().then(async () => {
     LOG.error('Error during app initialization', error);
     dialog.showErrorBox(
       'Error during app initialization',
-      `PersonalAnalytics couldn't be started. Please try again or contact us at ${studyConfig.contactEmail} for help. Error: ${error}`
+      `PersonalAnalytics couldn't be started. Please try again or contact us at ${studyConfig.contactEmail} for help. ${error}`
     );
   }
 });
