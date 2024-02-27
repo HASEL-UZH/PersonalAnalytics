@@ -6,6 +6,8 @@ export interface UserInputTrackerConfiguration {
 export interface WindowActivityTrackerConfiguration {
   enabled: boolean;
   intervalInMs: number;
+  trackUrls: boolean;
+  trackWindowTitles: boolean;
 }
 
 export interface ExperienceSamplingTrackerConfiguration {

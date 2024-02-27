@@ -4,6 +4,7 @@ import { TrackerType } from '../../../enums/TrackerType.enum';
 import { getLogger } from '../../../shared/Logger';
 import { ExperienceSamplingTracker } from './ExperienceSamplingTracker';
 import { WindowService } from '../WindowService';
+import studyConfig from '../../../../shared/study.config';
 
 const LOG = getLogger('TrackerService');
 
@@ -32,9 +33,10 @@ export class TrackerService {
       trackerType === TrackerType.WindowsActivityTracker
     ) {
       // Used for getting URLs
-      const accessibilityPermission = false;
+      const accessibilityPermission: boolean = studyConfig.trackers.windowActivityTracker.trackUrls;
       // Used for getting window titles
-      const screenRecordingPermission = true;
+      const screenRecordingPermission: boolean =
+        studyConfig.trackers.windowActivityTracker.trackWindowTitles;
       const WAT = await import('windows-activity-tracker');
       const userInputTracker = new WAT.WindowsActivityTracker(
         callback,

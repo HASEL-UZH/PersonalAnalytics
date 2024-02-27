@@ -12,7 +12,9 @@ const studyConfig: StudyConfiguration = {
   trackers: {
     windowActivityTracker: {
       enabled: true,
-      intervalInMs: 1000
+      intervalInMs: 1000,
+      trackUrls: false,
+      trackWindowTitles: true
     },
     userInputTracker: {
       enabled: true,
