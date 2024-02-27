@@ -5,6 +5,15 @@ import StudyInfoDto from '../../shared/dto/StudyInfoDto';
 import typedIpcRenderer from '../utils/typedIpcRenderer';
 import StudyInfo from '../components/StudyInfo.vue';
 import { LocationQueryValue, useRoute } from 'vue-router';
+import studyConfig from '../../shared/study.config';
+
+const windowActivityTrackerEnabled = studyConfig.trackers.windowActivityTracker.enabled;
+const requiresAccessibilityPermission =
+  studyConfig.trackers.userInputTracker.enabled ||
+  (windowActivityTrackerEnabled && studyConfig.trackers.windowActivityTracker.trackUrls);
+const requiresScreenRecordingPermission =
+  windowActivityTrackerEnabled && studyConfig.trackers.windowActivityTracker.trackWindowTitles;
+const requiresAnyPermission = requiresAccessibilityPermission || requiresScreenRecordingPermission;
 
 const currentStep = ref(0);
 const transitionName = ref('slide-lef-right');
@@ -23,7 +32,7 @@ const goToStep: string | null | LocationQueryValue[] = route.query.goToStep;
 
 const availableSteps = ['welcome'];
 
-if (isMacOS === 'true') {
+if (isMacOS === 'true' && requiresAnyPermission) {
   availableSteps.push('data-collection');
 }
 
@@ -42,10 +51,15 @@ const currentNamedStep = computed(() => {
 
 onMounted(async () => {
   studyInfo.value = await typedIpcRenderer.invoke('getStudyInfo');
-  if (isMacOS) {
+
+  if (isMacOS && requiresAnyPermission) {
     permissionCheckInterval.value = setInterval(async () => {
-      hasAccessibilityPermission.value = await triggerPermissionCheckAccessibility(false);
-      hasScreenRecordingPermission.value = await triggerPermissionCheckScreenRecording();
+      if (requiresAccessibilityPermission) {
+        hasAccessibilityPermission.value = await triggerPermissionCheckAccessibility(false);
+      }
+      if (requiresScreenRecordingPermission) {
+        hasScreenRecordingPermission.value = await triggerPermissionCheckScreenRecording();
+      }
       if (isAccessibilityPermissionLoading.value && hasAccessibilityPermission.value) {
         isAccessibilityPermissionLoading.value = false;
       }
@@ -140,7 +154,7 @@ function startAllTrackers() {
               leave your device.
             </p>
             <div class="flex flex-col">
-              <div class="my-5 flex flex-col">
+              <div v-if="requiresAccessibilityPermission" class="my-5 flex flex-col">
                 <div>
                   To correctly run PersonalAnalytics, we collect data on your window switches and
                   titles. To continue, click Open Accessibility Settings and enable Accessibility
@@ -178,7 +192,7 @@ function startAllTrackers() {
                   </div>
                 </div>
               </div>
-              <div class="my-5 flex flex-col">
+              <div v-if="requiresScreenRecordingPermission" class="my-5 flex flex-col">
                 <div>
                   To correctly run PersonalAnalytics, we collect data on your window switches and
                   titles. To continue, click Open Screen Settings and enable Screen Recording
@@ -188,7 +202,7 @@ function startAllTrackers() {
                   <button
                     v-if="!hasScreenRecordingPermission"
                     class="btn btn-active w-64"
-                    :disabled="!hasAccessibilityPermission"
+                    :disabled="requiresAccessibilityPermission && !hasAccessibilityPermission"
                     @click="requestScreenRecordingPermission()"
                   >
                     <span v-if="isScreenRecordingPermissionLoading">
@@ -218,20 +232,19 @@ function startAllTrackers() {
                 </div>
               </div>
             </div>
-            <p class="mt-6">
-              Please note: You might have to
-              <span class="font-bold text-slate-200">manually restart</span> the application after
-              granting access.
+            <p v-if="requiresScreenRecordingPermission" class="mt-6">
+              Please note: You will be asked to close and restart the application after granting
+              access. If the application does not restart automatically, please do so manually.
             </p>
           </div>
         </div>
         <div v-else-if="currentNamedStep === 'study-trackers-started'" key="2" class="absolute">
           <h1 class="mb-8 text-4xl font-medium text-neutral-300">Data Collection</h1>
           <div class="text-md">
-            <p v-if="isMacOS">
+            <p v-if="requiresAnyPermission">
               PersonalAnalytics now has the necessary permissions to collect data and is collecting
               data in the background. You can manually open the application or view the collected
-              data at any time by right-clicking the icon in the menu bar.
+              data at any time by clicking the icon in the menu bar.
             </p>
             <p v-else>
               PersonalAnalytics is now collecting data. You can manually open the application or

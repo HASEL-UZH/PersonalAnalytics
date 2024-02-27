@@ -99,12 +99,10 @@ app.whenReady().then(async () => {
       LOG.debug(
         `Onboarding shown: ${settings.onboardingShown}, hasAccessibilityAndScreenRecordingPermission: ${macOSHasAccessibilityAndScreenRecordingPermission()}, creating onboarding window...`
       );
-      await windowService.createOnboardingWindow(!is.macOS ? 'study-trackers-started' : undefined);
+      await windowService.createOnboardingWindow();
       settings.onboardingShown = true;
       await settings.save();
-    }
-
-    if (
+    } else if (
       is.macOS &&
       settings.onboardingShown === true &&
       settings.studyAndTrackersStartedShown === false
