@@ -17,7 +17,7 @@ const studyConfig: StudyConfiguration = {
       trackWindowTitles: true
     },
     userInputTracker: {
-      enabled: true,
+      enabled: false,
       intervalInMs: 60000
     },
     experienceSamplingTracker: {
