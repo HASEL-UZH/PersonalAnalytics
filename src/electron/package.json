@@ -1,6 +1,6 @@
 {
   "name": "personal-analytics",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "main": "dist-electron/main/index.js",
   "type": "module",
   "author": {
