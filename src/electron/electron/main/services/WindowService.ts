@@ -215,7 +215,8 @@ export class WindowService {
     if (this.tray) {
       return;
     }
-    const appIcon = path.join(process.env.VITE_PUBLIC, 'IconTemplate.png');
+    const iconToUse = is.macOS ? 'IconTemplate.png' : 'IconColored@2x.png';
+    const appIcon = path.join(process.env.VITE_PUBLIC, iconToUse);
     const trayImage = nativeImage.createFromPath(appIcon);
     trayImage.setTemplateImage(true);
     this.tray = new Tray(trayImage);
