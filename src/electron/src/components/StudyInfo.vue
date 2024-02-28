@@ -10,13 +10,13 @@ defineProps({
 });
 </script>
 <template>
-  <article class="prose-lg prose mt-4">
+  <article class="prose prose-lg mt-4">
     <h2>Study Info</h2>
     <p>{{ studyInfo.shortDescription }}</p>
     <table class="table-auto">
       <tbody>
         <tr>
-          <td>Your Subject Id:</td>
+          <td class="w-40">Your Subject Id:</td>
           <td>
             <span class="subject-badge">{{ studyInfo.subjectId }}</span>
           </td>
