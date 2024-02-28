@@ -162,7 +162,7 @@ export class WindowService {
     const preload = join(__dirname, '../preload/index.mjs');
     this.onboardingWindow = new BrowserWindow({
       width: 800,
-      height: 750,
+      height: 850,
       show: false,
       minimizable: false,
       maximizable: false,
