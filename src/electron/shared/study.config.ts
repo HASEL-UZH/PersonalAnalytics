@@ -1,12 +1,12 @@
 import { StudyConfiguration } from './StudyConfiguration';
 
 const studyConfig: StudyConfiguration = {
-  name: 'Personal Analytics Study',
-  shortDescription: 'A study to understand how people...',
-  infoUrl: 'https://hasel.dev',
-  privacyPolicyUrl: 'https://hasel.dev/privacy',
+  name: 'PersonalAnalytics Study',
+  shortDescription: 'PersonalAnalytics is a self-monitoring software developed by the Human Aspects of Software Engineering Lab of the University of Zurich to non-intrusively collect computer interaction data and store it locally on your computer. Every now and then, a self-reflection question asks you about time well spent and perceived productivity. In the future, it will add a retrospection that will visualize and correlate the automatically collected and manually reported data to help you learn more about how you spend your time and your productivity. This software is open source, can be adapted and re-used for your own scientific studies.',
+  infoUrl: 'https://github.com/HASEL-UZH/PersonalAnalytics',
+  privacyPolicyUrl: 'https://github.com/HASEL-UZH/PersonalAnalytics/blob/dev-am/documentation/PRIVACY.md',
   uploadUrl: 'https://hasel.dev/upload',
-  contactName: 'Hasel Dev',
+  contactName: 'Dr. André Meyer',
   contactEmail: 'study@hasel.dev',
   subjectIdLength: 6,
   trackers: {
