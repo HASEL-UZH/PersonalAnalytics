@@ -36,8 +36,11 @@ if (isMacOS === 'true' && requiresAnyPermission) {
   availableSteps.push('data-collection');
 }
 
-if (goToStep === 'study-trackers-started') {
+if (isMacOS === 'false') {
   availableSteps.push('study-trackers-started');
+}
+
+if (goToStep === 'study-trackers-started') {
   currentStep.value = availableSteps.indexOf('study-trackers-started');
 }
 
