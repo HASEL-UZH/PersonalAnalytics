@@ -16,7 +16,7 @@ onMounted(async () => {
       <span class="loading loading-spinner loading-lg" />
     </div>
     <div v-else class="ml-6 mt-4">
-      <article class="prose-lg prose mt-4">
+      <article class="prose prose-lg mt-4">
         <h1 class="relative">
           <span class="primary-blue">{{ studyInfo.studyName }}</span>
           <span class="badge badge-neutral absolute top-0">v{{ studyInfo.appVersion }}</span>
@@ -25,7 +25,7 @@ onMounted(async () => {
 
       <StudyInfo :study-info="studyInfo" />
 
-      <article class="prose-lg prose mt-4">
+      <article class="prose prose-lg mt-4">
         <h2 class="mt-0">Monitoring Tool Info</h2>
         <p>
           PersonalAnalytics is a software, developed by the Human Aspects of Software Engineering
@@ -37,7 +37,7 @@ onMounted(async () => {
         <table class="table-auto">
           <tbody>
             <tr>
-              <td>Active Trackers:</td>
+              <td class="w-40">Active Trackers:</td>
               <td>{{ studyInfo.currentlyActiveTrackers.join(', ') }}</td>
             </tr>
             <tr>
