@@ -18,7 +18,6 @@ export class ExperienceSamplingTracker implements Tracker {
     this.windowService = windowService;
     this.intervalInMs = intervalInMs;
     this.samplingRandomization = samplingRandomization;
-    LOG.debug('SchedulingService constructor called');
   }
   public start(): void {
     try {

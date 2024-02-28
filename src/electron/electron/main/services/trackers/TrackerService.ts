@@ -1,3 +1,4 @@
+import * as schedule from 'node-schedule';
 import { Tracker } from './Tracker';
 import { TrackerConfig } from '../../../types/StudyConfig';
 import { TrackerType } from '../../../enums/TrackerType.enum';
@@ -5,6 +6,8 @@ import { getLogger } from '../../../shared/Logger';
 import { ExperienceSamplingTracker } from './ExperienceSamplingTracker';
 import { WindowService } from '../WindowService';
 import studyConfig from '../../../../shared/study.config';
+import { UserInputEntity } from '../../entities/UserInputEntity';
+import { MoreThanOrEqual } from 'typeorm';
 
 const LOG = getLogger('TrackerService');
 
@@ -12,6 +15,7 @@ export class TrackerService {
   private trackers: Tracker[] = [];
   private readonly config: TrackerConfig;
   private readonly windowService: WindowService;
+  private checkIfUITIsWorkingJob: schedule.Job;
 
   constructor(trackerConfig: TrackerConfig, windowService: WindowService) {
     this.config = trackerConfig;
@@ -70,16 +74,53 @@ export class TrackerService {
     }
   }
 
+  private setCheckIfUITIsWorkingJob(): void {
+    if (!this.config.userInputTracker.enabled) {
+      return;
+    }
+    if (this.checkIfUITIsWorkingJob) {
+      this.checkIfUITIsWorkingJob.cancel();
+      this.checkIfUITIsWorkingJob = null;
+    }
+    const uitIntervalInMs = this.config.userInputTracker.intervalInMs;
+    const bufferInMs = 5000;
+    const nextInvocationIn = new Date(Date.now() + uitIntervalInMs + bufferInMs);
+
+    this.checkIfUITIsWorkingJob = schedule.scheduleJob(nextInvocationIn, async () => {
+      const recentUserInputExists: boolean = await this.userInputDataExistsFromMsAgo(
+        uitIntervalInMs + bufferInMs
+      );
+      if (!recentUserInputExists) {
+        LOG.warn(
+          `No user input data found from the last ${uitIntervalInMs + bufferInMs}ms. Was supposed to find one created at or after ${new Date(Date.now() - (uitIntervalInMs + bufferInMs))}`
+        );
+      }
+      this.setCheckIfUITIsWorkingJob();
+    });
+  }
+
+  private async userInputDataExistsFromMsAgo(msAgo: number): Promise<boolean> {
+    const userInputEntity = await UserInputEntity.findOneBy({
+      createdAt: MoreThanOrEqual(new Date(Date.now() - msAgo))
+    });
+    return userInputEntity !== null;
+  }
+
   public async startAllTrackers() {
     await Promise.all(
       this.trackers.filter((t: Tracker) => !t.isRunning).map((t: Tracker) => t.start())
     );
+    this.setCheckIfUITIsWorkingJob();
   }
 
   public async stopAllTrackers() {
     await Promise.all(
       this.trackers.filter((t: Tracker) => t.isRunning).map((t: Tracker) => t.stop())
     );
+    if (this.config.userInputTracker.enabled) {
+      this.checkIfUITIsWorkingJob?.cancel();
+      this.checkIfUITIsWorkingJob = null;
+    }
   }
 
   public getRunningTrackerNames() {
