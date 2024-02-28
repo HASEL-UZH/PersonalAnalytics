@@ -34,13 +34,14 @@ const availableSteps = ['welcome'];
 
 if (isMacOS === 'true' && requiresAnyPermission) {
   availableSteps.push('data-collection');
-}
-
-if (isMacOS === 'false') {
+} else if (isMacOS === 'false') {
   availableSteps.push('study-trackers-started');
 }
 
 if (goToStep === 'study-trackers-started') {
+  if (!availableSteps.includes('study-trackers-started')) {
+    availableSteps.push('study-trackers-started');
+  }
   currentStep.value = availableSteps.indexOf('study-trackers-started');
 }
 
@@ -160,7 +161,7 @@ function startAllTrackers() {
               <div v-if="requiresAccessibilityPermission" class="my-5 flex flex-col">
                 <div>
                   To correctly run PersonalAnalytics, we collect data on your window switches and
-                  titles. To continue, click Open System Settings and enable Accessibility
+                  titles. To continue, click Grant Accessibility Access and enable Accessibility
                   permission for PersonalAnalytics.
                 </div>
                 <div class="flex items-center justify-center pt-8">
@@ -172,7 +173,7 @@ function startAllTrackers() {
                     <span v-if="isAccessibilityPermissionLoading">
                       <span class="loading loading-spinner loading-xs" />
                     </span>
-                    <span v-else>Open Accessibility Settings</span>
+                    <span v-else>Grant Accessibility Access</span>
                   </button>
                   <div v-else class="flex flex-row">
                     <svg
@@ -198,7 +199,7 @@ function startAllTrackers() {
               <div v-if="requiresScreenRecordingPermission" class="my-5 flex flex-col">
                 <div>
                   To correctly run PersonalAnalytics, we collect data on your window switches and
-                  titles. To continue, click Open System Settings and enable Screen Recording
+                  titles. To continue, click Grant Screen Access and enable Screen Recording
                   permission for PersonalAnalytics.
                 </div>
                 <div class="flex items-center justify-center pt-8">
@@ -211,7 +212,7 @@ function startAllTrackers() {
                     <span v-if="isScreenRecordingPermissionLoading">
                       <span class="loading loading-spinner loading-xs" />
                     </span>
-                    <span v-else>Open Screen Settings</span>
+                    <span v-else>Grant Screen Access</span>
                   </button>
                   <div v-else class="flex flex-row">
                     <svg
