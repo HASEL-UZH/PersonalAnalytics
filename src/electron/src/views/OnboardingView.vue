@@ -160,7 +160,7 @@ function startAllTrackers() {
               <div v-if="requiresAccessibilityPermission" class="my-5 flex flex-col">
                 <div>
                   To correctly run PersonalAnalytics, we collect data on your window switches and
-                  titles. To continue, click Open Accessibility Settings and enable Accessibility
+                  titles. To continue, click Open System Settings and enable Accessibility
                   permission for PersonalAnalytics.
                 </div>
                 <div class="flex items-center justify-center pt-8">
@@ -198,7 +198,7 @@ function startAllTrackers() {
               <div v-if="requiresScreenRecordingPermission" class="my-5 flex flex-col">
                 <div>
                   To correctly run PersonalAnalytics, we collect data on your window switches and
-                  titles. To continue, click Open Screen Settings and enable Screen Recording
+                  titles. To continue, click Open System Settings and enable Screen Recording
                   permission for PersonalAnalytics.
                 </div>
                 <div class="flex items-center justify-center pt-8">
