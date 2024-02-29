@@ -4,3 +4,60 @@
 
 // PersonalAnalytics blue accent color
 @primary-color: #007acc;
+
+.slide-left-right-enter-active,
+.slide-right-left-enter-active,
+.slide-left-right-leave-active,
+.slide-right-left-leave-active {
+  transition: all 0.25s ease-in-out;
+}
+
+.slide-left-right-leave-to {
+  scale: 0.8;
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+.slide-left-right-enter-from {
+  opacity: 0;
+  scale: 0.8;
+  transform: translateX(100%);
+}
+
+.slide-left-right-enter-to,
+.slide-left-right-leave-from {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.slide-right-left-leave-to {
+  scale: 0.8;
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.slide-right-left-enter-from {
+  scale: 0.8;
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+.slide-right-left-enter-to,
+.slide-right-left-leave-from {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  position: absolute;
+  transition: all 1s ease-in-out;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+}
