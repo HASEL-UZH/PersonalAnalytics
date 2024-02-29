@@ -19,7 +19,7 @@ import { ref, defineEmits } from 'vue';
 
 const emits = defineEmits(['change']);
 
-const selectedOption = ref<string>('');
+const selectedOption = ref<string>('share-all');
 
 const emitChange = () => {
   emits('change', selectedOption.value);
@@ -38,7 +38,6 @@ const emitChange = () => {
       >
         <thead class="border-b">
           <tr>
-            <th>ID</th>
             <th>Window Title</th>
             <th>URL</th>
             <th>Activity</th>
@@ -48,11 +47,11 @@ const emitChange = () => {
             <th>Created At</th>
             <th>Updated At</th>
             <th>Deleted At</th>
+            <th>ID</th>
           </tr>
         </thead>
         <tbody class="">
           <tr v-for="windowActivity in data" :key="windowActivity.id">
-            <td>{{ windowActivity.id }}</td>
             <td>{{ windowActivity.windowTitle }}</td>
             <td>{{ windowActivity.url }}</td>
             <td>{{ windowActivity.activity }}</td>
@@ -62,6 +61,7 @@ const emitChange = () => {
             <td>{{ windowActivity.createdAt }}</td>
             <td>{{ windowActivity.updatedAt }}</td>
             <td>{{ windowActivity.deletedAt }}</td>
+            <td>{{ windowActivity.id }}</td>
           </tr>
         </tbody>
       </table>
@@ -79,7 +79,6 @@ const emitChange = () => {
               type="radio"
               value="share-all"
               class="radio checked:bg-blue-500"
-              checked
               @change="emitChange"
             />
           </label>
@@ -112,6 +111,3 @@ const emitChange = () => {
     </div>
   </div>
 </template>
-<style lang="less">
-@import '../styles/index';
-</style>
