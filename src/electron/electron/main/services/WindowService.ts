@@ -233,6 +233,11 @@ export class WindowService {
       });
     }
 
+    this.dataExportWindow.webContents.setWindowOpenHandler((details) => {
+      shell.openExternal(details.url);
+      return { action: 'deny' };
+    });
+
     this.dataExportWindow.show();
 
     this.dataExportWindow.on('close', () => {

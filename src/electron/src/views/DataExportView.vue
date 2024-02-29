@@ -14,8 +14,14 @@ const transitionName = ref('slide-lef-right');
 const isLoading = ref(true);
 
 const studyInfo = ref<StudyInfoDto>();
-const mostRecentWindowActivities = ref<WindowActivityEntity[]>();
+
 const mostRecentUserInputs = ref<UserInputEntity[]>();
+const mostRecentWindowActivities = ref<WindowActivityEntity[]>();
+const mostRecentWindowActivitiesObfuscated = ref<WindowActivityEntity[]>();
+const obfuscateWindowActivities = ref(false);
+
+const exportWindowActivitySelectedOption = ref('share-all');
+const exportUserInputSelectedOption = ref('share-all');
 
 const availableSteps = ['export-1', 'export-2', 'export-3'];
 
@@ -29,16 +35,34 @@ const currentNamedStep = computed(() => {
 
 onMounted(async () => {
   studyInfo.value = await typedIpcRenderer.invoke('getStudyInfo');
-  mostRecentWindowActivities.value = await typedIpcRenderer.invoke(
-    'getMostRecentWindowActivities',
-    5
-  );
-  mostRecentUserInputs.value = await typedIpcRenderer.invoke(
-    'getMostRecentUserInputs',
-    5
-  );
+  if (studyConfig.trackers.windowActivityTracker.enabled) {
+    mostRecentWindowActivities.value = await typedIpcRenderer.invoke(
+      'getMostRecentWindowActivities',
+      5
+    );
+  }
+  if (studyConfig.trackers.userInputTracker.enabled) {
+    mostRecentUserInputs.value = await typedIpcRenderer.invoke('getMostRecentUserInputs', 5);
+  }
   isLoading.value = false;
 });
+
+async function handleWindowActivityExportConfigChanged(newSelectedOption: string) {
+  if (mostRecentWindowActivities.value && newSelectedOption === 'obfuscate') {
+    mostRecentWindowActivitiesObfuscated.value = await typedIpcRenderer.invoke(
+      'obfuscateWindowActivitiesById',
+      mostRecentWindowActivities.value.map((d) => d.id)
+    );
+    obfuscateWindowActivities.value = true;
+  } else if (newSelectedOption === 'share-all') {
+    obfuscateWindowActivities.value = false;
+  }
+  exportWindowActivitySelectedOption.value = newSelectedOption;
+}
+
+function handleUserInputExportConfigChanged(newSelectedOption: string) {
+  exportUserInputSelectedOption.value = newSelectedOption;
+}
 
 async function handleNextStep() {
   if (currentStep.value === maxSteps.value - 1) {
@@ -55,6 +79,10 @@ function handleBackStep() {
   transitionName.value = 'slide-right-left';
   currentStep.value--;
 }
+
+function openExportFolder() {
+  typedIpcRenderer.invoke('openExportFolder');
+}
 </script>
 
 <template>
@@ -65,7 +93,7 @@ function handleBackStep() {
     <div v-else class="relative flex h-full flex-col justify-between text-neutral-400">
       <transition-group :name="transitionName">
         <div v-if="currentNamedStep === 'export-1'" key="0" class="flex w-full flex-col">
-          <article class="prose prose-lg">
+          <article class="prose prose-lg max-w-none">
             <p>
               Thank you for participating in the {{ studyInfo.studyName }}-study! So far, all data
               that has been collected and stored
@@ -122,15 +150,39 @@ function handleBackStep() {
           <DataExportWindowActivityTracker
             v-if="studyConfig.trackers.windowActivityTracker.enabled"
             :study-info="studyInfo"
-            :data="mostRecentWindowActivities"
-            @change="console.log"
+            :data="
+              obfuscateWindowActivities
+                ? mostRecentWindowActivitiesObfuscated
+                : mostRecentWindowActivities
+            "
+            :should-obfuscate="obfuscateWindowActivities"
+            :default-value="exportWindowActivitySelectedOption"
+            @change="handleWindowActivityExportConfigChanged"
           />
           <DataExportUserInputTracker
             v-if="studyConfig.trackers.windowActivityTracker.enabled"
             :study-info="studyInfo"
             :data="mostRecentUserInputs"
-            @change="console.log"
+            :default-value="exportUserInputSelectedOption"
+            @change="handleUserInputExportConfigChanged"
           />
+        </div>
+        <div v-if="currentNamedStep === 'export-3'" key="2" class="flex w-full flex-col">
+          <article class="prose prose-lg max-w-none">
+            <p>
+              Thank you for reviewing and exporting your data for the study {{studyConfig.name}}-study.</p>
+            <p>A single password-protected and encrypted <b class='dark:text-white'>file was created</b> based on your preferences on the previous page. To share this file with the researchers, please take the following steps:
+            </p>
+            <ol>
+              <li><a href="#" @click="openExportFolder">Click here</a> to open the folder containing your data-file (data-export.sqlite).</li>
+              <li><a :href="studyConfig.uploadUrl" target='_blank'>Click here</a> to open the upload page.</li>
+              <li>Upload the file named (data-export.sqlite) using the upload page.</li>
+            </ol>
+            <p>Please contact {{studyConfig.contactName}} ({{ studyConfig.contactEmail}}) in case you have any questions. Thank you!</p>
+            <p>
+              If you want to review the complete data file before sharing it with the researchers, please refer to this guide. The password required for opening the exported file is: PASSWORD TODO.
+            </p>
+          </article>
         </div>
       </transition-group>
 

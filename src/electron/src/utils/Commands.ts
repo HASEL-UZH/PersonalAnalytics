@@ -16,6 +16,8 @@ type Commands = {
   getStudyInfo: () => Promise<StudyInfoDto>;
   getMostRecentUserInputs(itemCount: number): Promise<UserInputEntity[]>;
   getMostRecentWindowActivities(itemCount: number): Promise<WindowActivityEntity[]>;
+  obfuscateWindowActivitiesById(ids: string[]): Promise<WindowActivityEntity[]>;
+  openExportFolder: () => Promise<void>;
   startAllTrackers: () => void;
   triggerPermissionCheckAccessibility: (prompt: boolean) => boolean;
   triggerPermissionCheckScreenRecording: () => boolean;

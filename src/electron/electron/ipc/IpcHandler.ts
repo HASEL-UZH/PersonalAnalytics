@@ -1,5 +1,5 @@
 import { ExperienceSamplingService } from '../main/services/ExperienceSamplingService';
-import { app, ipcMain, IpcMainInvokeEvent, systemPreferences } from 'electron';
+import { app, ipcMain, IpcMainInvokeEvent, shell, systemPreferences } from 'electron';
 import { WindowService } from '../main/services/WindowService';
 import { getLogger } from '../shared/Logger';
 import { TypedIpcMain } from '../../src/utils/TypedIpcMain';
@@ -43,6 +43,8 @@ export class IpcHandler {
       getStudyInfo: this.getStudyInfo,
       getMostRecentWindowActivities: this.getMostRecentWindowActivities,
       getMostRecentUserInputs: this.getMostRecentUserInputs,
+      obfuscateWindowActivitiesById: this.obfuscateWindowActivitiesById,
+      openExportFolder: this.openExportFolder,
       startAllTrackers: this.startAllTrackers,
       triggerPermissionCheckAccessibility: this.triggerPermissionCheckAccessibility,
       triggerPermissionCheckScreenRecording: this.triggerPermissionCheckScreenRecording
@@ -109,8 +111,16 @@ export class IpcHandler {
     return await this.windowActivityService.getMostRecentWindowActivities(itemCount);
   }
 
+  private async obfuscateWindowActivitiesById(ids: string[]): Promise<WindowActivityEntity[]> {
+    return await this.windowActivityService.obfuscateWindowActivitiesById(ids);
+  }
+
   private async getMostRecentUserInputs(itemCount: number): Promise<UserInputEntity[]> {
     return await this.userInputService.getMostRecentUserInputs(itemCount);
+  }
+
+  private async openExportFolder(): Promise<void> {
+    await shell.openPath(`${app.getPath('desktop')}`);
   }
 
   private triggerPermissionCheckAccessibility(prompt: boolean): boolean {

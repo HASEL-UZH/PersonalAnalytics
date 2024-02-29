@@ -1,27 +1,30 @@
 <script setup lang="ts">
 import { PropType } from 'vue';
-import StudyInfoDto from '../../shared/dto/StudyInfoDto';
 import { WindowActivityEntity } from '../../electron/main/entities/WindowActivityEntity';
 
-defineProps({
-  studyInfo: {
-    type: Object as PropType<StudyInfoDto>,
-    default: null,
-    required: false
-  },
+const props = defineProps({
   data: {
     type: Object as PropType<WindowActivityEntity[]>,
     default: null,
     required: false
+  },
+  shouldObfuscate: {
+    type: Boolean,
+    default: false,
+    required: false
+  },
+  defaultValue: {
+    type: String,
+    required: true
   }
 });
 import { ref, defineEmits } from 'vue';
 
 const emits = defineEmits(['change']);
 
-const selectedOption = ref<string>('share-all');
+const selectedOption = ref<string>(props.defaultValue);
 
-const emitChange = () => {
+const emitChange = async () => {
   emits('change', selectedOption.value);
 };
 </script>
@@ -29,7 +32,7 @@ const emitChange = () => {
   <div class="my-5 border border-slate-400 p-2">
     <div class="prose">
       <h2>Decide how your Window Activity data is shared</h2>
-      <p>Here is a sample of your unmodified data:</p>
+      <p>Here is a sample of your {{ shouldObfuscate ? 'modified' : 'unmodified' }} data:</p>
     </div>
     <div class="max-h-48 overflow-auto">
       <table

@@ -2,7 +2,7 @@
 import { PropType } from 'vue';
 import StudyInfoDto from '../../shared/dto/StudyInfoDto';
 
-defineProps({
+const props = defineProps({
   studyInfo: {
     type: Object as PropType<StudyInfoDto>,
     default: null,
@@ -12,6 +12,10 @@ defineProps({
     type: Object as PropType<UserInputEntity[]>,
     default: null,
     required: false
+  },
+  defaultValue: {
+    type: String,
+    required: true
   }
 });
 import { ref, defineEmits } from 'vue';
@@ -19,7 +23,7 @@ import { UserInputEntity } from '../../electron/main/entities/UserInputEntity';
 
 const emits = defineEmits(['change']);
 
-const selectedOption = ref<string>('share-all');
+const selectedOption = ref<string>(props.defaultValue);
 
 const emitChange = () => {
   emits('change', selectedOption.value);
