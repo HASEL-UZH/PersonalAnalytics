@@ -2,6 +2,7 @@ import { getLogger } from '../../shared/Logger';
 import { dialog, net } from 'electron';
 import { EventEmitter } from 'events';
 import updater from 'electron-updater';
+import studyConfig from '../../../shared/study.config';
 
 const { autoUpdater } = updater;
 
@@ -54,7 +55,7 @@ export default class AppUpdaterService extends EventEmitter {
         this.failedUpdateAttempts = 0;
         dialog.showErrorBox(
           'Error during the update',
-          `PersonalAnalytics couldn't be updated. Please try again or contact me at sebastian.richner@uzh.ch`
+          `PersonalAnalytics couldn't be updated. Please try again or contact us at ${studyConfig.contactEmail}`
         );
       }
     });
