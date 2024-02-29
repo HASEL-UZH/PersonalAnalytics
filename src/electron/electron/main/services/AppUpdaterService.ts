@@ -98,7 +98,7 @@ export default class AppUpdaterService extends EventEmitter {
     }
     this.checkForUpdatesInterval = setInterval(
       () => this.checkForUpdates({ silent: true }),
-      30 * 60 * 1000
+      120 * 60 * 1000
     );
   }
 
