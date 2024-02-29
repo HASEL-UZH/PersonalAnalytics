@@ -16,6 +16,7 @@ export class WindowService {
   private experienceSamplingWindow: BrowserWindow;
   private aboutWindow: BrowserWindow;
   private onboardingWindow: BrowserWindow;
+  private dataExportWindow: BrowserWindow;
 
   constructor(appUpdaterService: AppUpdaterService) {
     this.appUpdaterService = appUpdaterService;
@@ -197,6 +198,48 @@ export class WindowService {
     });
   }
 
+  public closeDataExportWindow() {
+    if (this.dataExportWindow) {
+      this.dataExportWindow?.close();
+      this.dataExportWindow = null;
+    }
+  }
+
+  public async createDataExportWindow() {
+    this.closeDataExportWindow();
+
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    const preload = join(__dirname, '../preload/index.mjs');
+    this.dataExportWindow = new BrowserWindow({
+      width: 900,
+      height: 850,
+      show: false,
+      minimizable: false,
+      maximizable: false,
+      minHeight: 850,
+      fullscreenable: false,
+      title: 'PersonalAnalytics: Data Export',
+      webPreferences: {
+        preload
+      }
+    });
+
+    if (process.env.VITE_DEV_SERVER_URL) {
+      await this.dataExportWindow.loadURL(process.env.VITE_DEV_SERVER_URL + `#data-export`);
+    } else {
+      await this.dataExportWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
+        hash: `data-export?isMacOS`
+      });
+    }
+
+    this.dataExportWindow.show();
+
+    this.dataExportWindow.on('close', () => {
+      this.dataExportWindow = null;
+    });
+  }
+
   public updateTray(
     updaterLabel: string = 'Check for updates',
     updaterMenuEnabled: boolean = false
@@ -276,6 +319,13 @@ export class WindowService {
         click: (): void => {
           LOG.info(`Opening collected data at ${app.getPath('userData')}`);
           shell.showItemInFolder(path.join(app.getPath('userData'), 'database.sqlite'));
+        }
+      },
+      {
+        label: 'Export Data',
+        click: (): void => {
+          LOG.info(`Opening data export`);
+          this.createDataExportWindow();
         }
       },
       { type: 'separator' },

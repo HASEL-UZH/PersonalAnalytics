@@ -13,4 +13,11 @@ export class WindowActivityTrackerService {
       ts: window.ts
     });
   }
+
+  public async getMostRecentWindowActivities(itemCount: number): Promise<WindowActivityEntity[]> {
+    return WindowActivityEntity.find({
+      order: { ts: 'DESC' },
+      take: itemCount
+    });
+  }
 }

@@ -18,6 +18,11 @@ const router: Router = createRouter({
       name: 'Onboarding',
       component: () => import('../views/OnboardingView.vue'),
       props: (route) => ({ query: route.query.isMacOS })
+    },
+    {
+      path: '/data-export',
+      name: 'DataExport',
+      component: () => import('../views/DataExportView.vue')
     }
   ]
 });

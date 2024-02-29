@@ -9,6 +9,8 @@ import StudyInfoDto from '../../shared/dto/StudyInfoDto';
 import { Settings } from '../main/entities/Settings';
 import studyConfig from '../../shared/study.config';
 import { TrackerService } from '../main/services/trackers/TrackerService';
+import { WindowActivityTrackerService } from '../main/services/trackers/WindowActivityTrackerService';
+import { WindowActivityEntity } from '../main/entities/WindowActivityEntity';
 
 const LOG = getLogger('IpcHandler');
 
@@ -18,6 +20,7 @@ export class IpcHandler {
   private readonly trackerService: TrackerService;
 
   private readonly experienceSamplingService: ExperienceSamplingService;
+  private readonly windowActivityService: WindowActivityTrackerService;
   private typedIpcMain: TypedIpcMain<Events, Commands> = ipcMain as TypedIpcMain<Events, Commands>;
 
   constructor(
@@ -28,11 +31,13 @@ export class IpcHandler {
     this.windowService = windowService;
     this.trackerService = trackerService;
     this.experienceSamplingService = experienceSamplingService;
+    this.windowActivityService = new WindowActivityTrackerService();
     this.actions = {
       createExperienceSample: this.createExperienceSample,
       closeExperienceSamplingWindow: this.closeExperienceSamplingWindow,
       closeOnboardingWindow: this.closeOnboardingWindow,
       getStudyInfo: this.getStudyInfo,
+      getMostRecentWindowActivities: this.getMostRecentWindowActivities,
       startAllTrackers: this.startAllTrackers,
       triggerPermissionCheckAccessibility: this.triggerPermissionCheckAccessibility,
       triggerPermissionCheckScreenRecording: this.triggerPermissionCheckScreenRecording
@@ -93,6 +98,10 @@ export class IpcHandler {
       appVersion: app.getVersion(),
       currentlyActiveTrackers: this.trackerService.getRunningTrackerNames()
     };
+  }
+
+  private async getMostRecentWindowActivities(itemCount: number): Promise<WindowActivityEntity[]> {
+    return await this.windowActivityService.getMostRecentWindowActivities(itemCount);
   }
 
   private triggerPermissionCheckAccessibility(prompt: boolean): boolean {
