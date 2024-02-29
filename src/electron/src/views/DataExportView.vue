@@ -6,13 +6,16 @@ import typedIpcRenderer from '../utils/typedIpcRenderer';
 import studyConfig from '../../shared/study.config';
 import DataExportWindowActivityTracker from '../components/DataExportWindowActivityTracker.vue';
 import { WindowActivityEntity } from '../../electron/main/entities/WindowActivityEntity';
+import { UserInputEntity } from '../../electron/main/entities/UserInputEntity';
+import DataExportUserInputTracker from '../components/DataExportUserInputTracker.vue';
 
 const currentStep = ref(0);
 const transitionName = ref('slide-lef-right');
-const isLoading = ref(false);
+const isLoading = ref(true);
 
 const studyInfo = ref<StudyInfoDto>();
 const mostRecentWindowActivities = ref<WindowActivityEntity[]>();
+const mostRecentUserInputs = ref<UserInputEntity[]>();
 
 const availableSteps = ['export-1', 'export-2', 'export-3'];
 
@@ -30,6 +33,11 @@ onMounted(async () => {
     'getMostRecentWindowActivities',
     5
   );
+  mostRecentUserInputs.value = await typedIpcRenderer.invoke(
+    'getMostRecentUserInputs',
+    5
+  );
+  isLoading.value = false;
 });
 
 async function handleNextStep() {
@@ -115,6 +123,12 @@ function handleBackStep() {
             v-if="studyConfig.trackers.windowActivityTracker.enabled"
             :study-info="studyInfo"
             :data="mostRecentWindowActivities"
+            @change="console.log"
+          />
+          <DataExportUserInputTracker
+            v-if="studyConfig.trackers.windowActivityTracker.enabled"
+            :study-info="studyInfo"
+            :data="mostRecentUserInputs"
             @change="console.log"
           />
         </div>

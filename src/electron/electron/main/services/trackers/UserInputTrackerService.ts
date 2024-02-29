@@ -12,4 +12,11 @@ export class UserInputTrackerService {
       tsEnd: userInputAggregate.tsEnd
     });
   }
+
+  public async getMostRecentUserInputs(itemCount: number): Promise<UserInputEntity[]> {
+    return UserInputEntity.find({
+      order: { tsEnd: 'DESC' },
+      take: itemCount
+    });
+  }
 }
