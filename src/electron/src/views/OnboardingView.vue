@@ -272,6 +272,10 @@ function startAllTrackers() {
               The following trackers are currently running:
               {{ studyInfo.currentlyActiveTrackers.join(', ') }}
             </p>
+
+            <p>
+             Contact {{ studyInfo.contactName }} ({{ studyInfo.contactEmail }}) in case of questions.
+            </p>
           </div>
         </div>
       </transition-group>
