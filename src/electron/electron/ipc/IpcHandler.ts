@@ -16,6 +16,7 @@ import { DataExportService } from '../main/services/DataExportService';
 import UserInputDto from '../../shared/dto/UserInputDto';
 import WindowActivityDto from '../../shared/dto/WindowActivityDto';
 import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
+import path from 'path';
 
 const LOG = getLogger('IpcHandler');
 
@@ -145,7 +146,8 @@ export class IpcHandler {
   }
 
   private async openExportFolder(): Promise<void> {
-    await shell.openPath(`${app.getPath('appData')}/${app.name}/exports`);
+    const exportPath = path.join(app.getPath('userData'), 'exports');
+    await shell.openPath(exportPath);
   }
 
   private triggerPermissionCheckAccessibility(prompt: boolean): boolean {
