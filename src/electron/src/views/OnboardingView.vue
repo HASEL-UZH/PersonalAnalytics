@@ -254,7 +254,7 @@ function startAllTrackers() {
         </div>
         <div v-else-if="currentNamedStep === 'study-trackers-started'" key="2" class="absolute">
           <h1 class="mb-8 text-4xl font-medium text-neutral-300">PersonalAnalytics is running</h1>
-          <div class="text-md">
+          <article class="prose prose-lg max-w-none">
             <p v-if="requiresAnyPermission">
               Thank you for setting up PersonalAnalytics and participating in
               {{ studyInfo.studyName }}. The app is now running in the background and you can access
@@ -276,7 +276,7 @@ function startAllTrackers() {
             <p>
              Contact {{ studyInfo.contactName }} ({{ studyInfo.contactEmail }}) in case of questions.
             </p>
-          </div>
+          </article>
         </div>
       </transition-group>
 
