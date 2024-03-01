@@ -25,6 +25,7 @@
     "@electron/notarize": "^2.3.0",
     "@rushstack/eslint-patch": "^1.7.2",
     "@tailwindcss/typography": "^0.5.10",
+    "@types/better-sqlite3": "^7.6.9",
     "@types/node-schedule": "^2.1.6",
     "@typescript-eslint/eslint-plugin": "^6.20.0",
     "@typescript-eslint/parser": "^6.20.0",
