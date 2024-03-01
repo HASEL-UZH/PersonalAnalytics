@@ -34,6 +34,9 @@ export class Settings extends BaseEntity {
   @Column({ type: 'boolean', nullable: false, default: false })
   studyAndTrackersStartedShown: boolean;
 
+  @Column('datetime', { nullable: true })
+  nextExperienceSamplingInvocation: Date;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
