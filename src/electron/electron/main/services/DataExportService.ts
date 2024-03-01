@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import Database from 'better-sqlite3';
 import { WindowActivityEntity } from '../entities/WindowActivityEntity';
 import { WindowActivityTrackerService } from './trackers/WindowActivityTrackerService';
+import { Settings } from '../entities/Settings';
 
 const LOG = getLogger('DataExportService');
 
@@ -25,8 +26,20 @@ export class DataExportService {
       dbPath = path.join(userDataPath, dbName);
     }
 
-    const userDataPath = app.getPath('desktop');
-    const exportDbPath = path.join(userDataPath, 'data-export.sqlite');
+    const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
+
+    const userDataPath = app.getPath('userData');
+    const exportFolderPath = path.join(userDataPath, 'exports');
+    if (!fs.existsSync(exportFolderPath)) {
+      fs.mkdirSync(exportFolderPath);
+    }
+    const now = new Date();
+    const nowStr = now.toISOString().replace(/:/g, '-').replace('T', '_').slice(0, 16);
+    const exportDbPath = path.join(
+      userDataPath,
+      'exports',
+      `PA_${settings.subjectId}_${nowStr}.sqlite`
+    );
     fs.copyFileSync(dbPath, exportDbPath);
     LOG.info(`Database copied to ${exportDbPath}`);
     const db = new Database(exportDbPath);
