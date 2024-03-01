@@ -8,6 +8,7 @@ import DataExportWindowActivityTracker from '../components/DataExportWindowActiv
 import { WindowActivityEntity } from '../../electron/main/entities/WindowActivityEntity';
 import { UserInputEntity } from '../../electron/main/entities/UserInputEntity';
 import DataExportUserInputTracker from '../components/DataExportUserInputTracker.vue';
+import { DataExportType } from '../../shared/DataExportType.enum';
 
 const currentStep = ref(0);
 const transitionName = ref('slide-lef-right');
@@ -20,10 +21,13 @@ const mostRecentWindowActivities = ref<WindowActivityEntity[]>();
 const mostRecentWindowActivitiesObfuscated = ref<WindowActivityEntity[]>();
 const obfuscateWindowActivities = ref(false);
 
-const exportWindowActivitySelectedOption = ref('share-all');
-const exportUserInputSelectedOption = ref('share-all');
+const exportWindowActivitySelectedOption = ref<DataExportType>(DataExportType.All);
+const exportUserInputSelectedOption = ref<DataExportType>(DataExportType.All);
 
-const availableSteps = ['export-1', 'export-2', 'export-3'];
+const isExporting = ref(false);
+const hasExportError = ref(false);
+
+const availableSteps = ['export-1', 'export-2', 'create-export'];
 
 const maxSteps = computed(() => {
   return availableSteps.length;
@@ -47,20 +51,20 @@ onMounted(async () => {
   isLoading.value = false;
 });
 
-async function handleWindowActivityExportConfigChanged(newSelectedOption: string) {
-  if (mostRecentWindowActivities.value && newSelectedOption === 'obfuscate') {
+async function handleWindowActivityExportConfigChanged(newSelectedOption: DataExportType) {
+  if (mostRecentWindowActivities.value && newSelectedOption === DataExportType.Obfuscate) {
     mostRecentWindowActivitiesObfuscated.value = await typedIpcRenderer.invoke(
       'obfuscateWindowActivitiesById',
       mostRecentWindowActivities.value.map((d) => d.id)
     );
     obfuscateWindowActivities.value = true;
-  } else if (newSelectedOption === 'share-all') {
+  } else if (newSelectedOption === DataExportType.All) {
     obfuscateWindowActivities.value = false;
   }
   exportWindowActivitySelectedOption.value = newSelectedOption;
 }
 
-function handleUserInputExportConfigChanged(newSelectedOption: string) {
+function handleUserInputExportConfigChanged(newSelectedOption: DataExportType) {
   exportUserInputSelectedOption.value = newSelectedOption;
 }
 
@@ -70,6 +74,21 @@ async function handleNextStep() {
   }
   transitionName.value = 'slide-left-right';
   currentStep.value++;
+  if (currentNamedStep.value === 'create-export') {
+    isExporting.value = true;
+    try {
+      await typedIpcRenderer.invoke(
+        'startDataExport',
+        exportWindowActivitySelectedOption.value,
+        exportUserInputSelectedOption.value
+      );
+      hasExportError.value = false;
+    } catch (e) {
+      console.error(e);
+      hasExportError.value = true;
+    }
+    isExporting.value = false;
+  }
 }
 
 function handleBackStep() {
@@ -87,7 +106,10 @@ function openExportFolder() {
 
 <template>
   <div class="h-screen p-5">
-    <div v-if="!studyInfo" class="flex h-full w-full items-center justify-center overflow-y-scroll">
+    <div
+      v-if="!studyInfo || isExporting"
+      class="flex h-full w-full items-center justify-center overflow-y-scroll"
+    >
       <span class="loading loading-spinner loading-lg" />
     </div>
     <div v-else class="relative flex h-full flex-col justify-between text-neutral-400">
@@ -167,20 +189,37 @@ function openExportFolder() {
             @change="handleUserInputExportConfigChanged"
           />
         </div>
-        <div v-if="currentNamedStep === 'export-3'" key="2" class="flex w-full flex-col">
+        <div v-if="currentNamedStep === 'create-export'" key="2" class="flex w-full flex-col">
           <article class="prose prose-lg max-w-none">
             <p>
-              Thank you for reviewing and exporting your data for the study {{studyConfig.name}}-study.</p>
-            <p>A single password-protected and encrypted <b class='dark:text-white'>file was created</b> based on your preferences on the previous page. To share this file with the researchers, please take the following steps:
+              Thank you for reviewing and exporting your data for the study
+              {{ studyConfig.name }}-study.
+            </p>
+            <p>
+              A single password-protected and encrypted
+              <b class="dark:text-white">file was created</b> based on your preferences on the
+              previous page. To share this file with the researchers, please take the following
+              steps:
             </p>
             <ol>
-              <li><a href="#" @click="openExportFolder">Click here</a> to open the folder containing your data-file (data-export.sqlite).</li>
-              <li><a :href="studyConfig.uploadUrl" target='_blank'>Click here</a> to open the upload page.</li>
+              <li>
+                <a href="#" @click="openExportFolder">Click here</a> to open the folder containing
+                your data-file (data-export.sqlite).
+              </li>
+              <li>
+                <a :href="studyConfig.uploadUrl" target="_blank">Click here</a> to open the upload
+                page.
+              </li>
               <li>Upload the file named (data-export.sqlite) using the upload page.</li>
             </ol>
-            <p>Please contact {{studyConfig.contactName}} ({{ studyConfig.contactEmail}}) in case you have any questions. Thank you!</p>
             <p>
-              If you want to review the complete data file before sharing it with the researchers, please refer to this guide. The password required for opening the exported file is: PASSWORD TODO.
+              Please contact {{ studyConfig.contactName }} ({{ studyConfig.contactEmail }}) in case
+              you have any questions. Thank you!
+            </p>
+            <p>
+              If you want to review the complete data file before sharing it with the researchers,
+              please refer to this guide. The password required for opening the exported file is:
+              PASSWORD TODO.
             </p>
           </article>
         </div>

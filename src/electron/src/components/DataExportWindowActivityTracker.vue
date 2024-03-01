@@ -19,6 +19,7 @@ const props = defineProps({
   }
 });
 import { ref, defineEmits } from 'vue';
+import { DataExportType } from '../../shared/DataExportType.enum';
 
 const emits = defineEmits(['change']);
 
@@ -37,7 +38,7 @@ const emitChange = async () => {
     <div class="max-h-48 overflow-auto">
       <table
         class="table table-zebra table-pin-rows w-full overflow-auto text-xs"
-        style="width: 2800px"
+        style="width: 1500px"
       >
         <thead class="border-b">
           <tr>
@@ -47,10 +48,6 @@ const emitChange = async () => {
             <th>Process Name</th>
             <th>Process ID</th>
             <th>Timestamp</th>
-            <th>Created At</th>
-            <th>Updated At</th>
-            <th>Deleted At</th>
-            <th>ID</th>
           </tr>
         </thead>
         <tbody class="">
@@ -61,10 +58,6 @@ const emitChange = async () => {
             <td>{{ windowActivity.processName }}</td>
             <td>{{ windowActivity.processId }}</td>
             <td>{{ windowActivity.ts }}</td>
-            <td>{{ windowActivity.createdAt }}</td>
-            <td>{{ windowActivity.updatedAt }}</td>
-            <td>{{ windowActivity.deletedAt }}</td>
-            <td>{{ windowActivity.id }}</td>
           </tr>
         </tbody>
       </table>
@@ -80,7 +73,7 @@ const emitChange = async () => {
             <input
               v-model="selectedOption"
               type="radio"
-              value="share-all"
+              :value="DataExportType.All"
               class="radio checked:bg-blue-500"
               @change="emitChange"
             />
@@ -92,7 +85,7 @@ const emitChange = async () => {
             <input
               v-model="selectedOption"
               type="radio"
-              value="obfuscate"
+              :value="DataExportType.Obfuscate"
               class="radio checked:bg-blue-500"
               @change="emitChange"
             />
@@ -104,7 +97,7 @@ const emitChange = async () => {
             <input
               v-model="selectedOption"
               type="radio"
-              value="dont-share"
+              :value="DataExportType.None"
               class="radio checked:bg-blue-500"
               @change="emitChange"
             />

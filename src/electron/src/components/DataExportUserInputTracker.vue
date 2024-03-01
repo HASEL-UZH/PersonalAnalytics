@@ -20,6 +20,7 @@ const props = defineProps({
 });
 import { ref, defineEmits } from 'vue';
 import { UserInputEntity } from '../../electron/main/entities/UserInputEntity';
+import { DataExportType } from '../../shared/DataExportType.enum';
 
 const emits = defineEmits(['change']);
 
@@ -81,7 +82,7 @@ const emitChange = () => {
             <input
               v-model="selectedOption"
               type="radio"
-              value="share-all"
+              :value="DataExportType.All"
               class="radio checked:bg-blue-500"
               @change="emitChange"
             />
@@ -93,7 +94,7 @@ const emitChange = () => {
             <input
               v-model="selectedOption"
               type="radio"
-              value="dont-share"
+              :value="DataExportType.None"
               class="radio checked:bg-blue-500"
               @change="emitChange"
             />
