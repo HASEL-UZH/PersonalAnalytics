@@ -15,6 +15,7 @@ import { DataExportType } from '../../shared/DataExportType.enum';
 import { DataExportService } from '../main/services/DataExportService';
 import UserInputDto from '../../shared/dto/UserInputDto';
 import WindowActivityDto from '../../shared/dto/WindowActivityDto';
+import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
 
 const LOG = getLogger('IpcHandler');
 
@@ -44,7 +45,9 @@ export class IpcHandler {
       createExperienceSample: this.createExperienceSample,
       closeExperienceSamplingWindow: this.closeExperienceSamplingWindow,
       closeOnboardingWindow: this.closeOnboardingWindow,
+      closeDataExportWindow: this.closeDataExportWindow,
       getStudyInfo: this.getStudyInfo,
+      getMostRecentExperienceSamplingDtos: this.getMostRecentExperienceSamplingDtos,
       getMostRecentWindowActivityDtos: this.getMostRecentWindowActivityDtos,
       getMostRecentUserInputDtos: this.getMostRecentUserInputDtos,
       obfuscateWindowActivityDtosById: this.obfuscateWindowActivityDtosById,
@@ -97,6 +100,10 @@ export class IpcHandler {
     this.windowService.closeOnboardingWindow();
   }
 
+  private closeDataExportWindow(): void {
+    this.windowService.closeDataExportWindow();
+  }
+
   private async getStudyInfo(): Promise<StudyInfoDto> {
     const settings: Settings = await Settings.findOne({ where: { onlyOneEntityShouldExist: 1 } });
     return {
@@ -110,6 +117,12 @@ export class IpcHandler {
       appVersion: app.getVersion(),
       currentlyActiveTrackers: this.trackerService.getRunningTrackerNames()
     };
+  }
+
+  private async getMostRecentExperienceSamplingDtos(
+    itemCount: number
+  ): Promise<ExperienceSamplingDto[]> {
+    return await this.experienceSamplingService.getMostRecentExperienceSamplingDtos(itemCount);
   }
 
   private async getMostRecentWindowActivityDtos(itemCount: number): Promise<WindowActivityDto[]> {
@@ -132,7 +145,7 @@ export class IpcHandler {
   }
 
   private async openExportFolder(): Promise<void> {
-    await shell.openPath(`${app.getPath('desktop')}`);
+    await shell.openPath(`${app.getPath('appData')}/${app.name}/exports`);
   }
 
   private triggerPermissionCheckAccessibility(prompt: boolean): boolean {

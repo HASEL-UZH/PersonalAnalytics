@@ -9,6 +9,8 @@ import DataExportUserInputTracker from '../components/DataExportUserInputTracker
 import { DataExportType } from '../../shared/DataExportType.enum';
 import WindowActivityDto from '../../shared/dto/WindowActivityDto';
 import UserInputDto from '../../shared/dto/UserInputDto';
+import DataExportExperienceSamplingTracker from '../components/DataExportExperienceSamplingTracker.vue';
+import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
 
 const currentStep = ref(0);
 const transitionName = ref('slide-lef-right');
@@ -16,11 +18,13 @@ const isLoading = ref(true);
 
 const studyInfo = ref<StudyInfoDto>();
 
+const mostRecentExperienceSamples = ref<ExperienceSamplingDto[]>();
 const mostRecentUserInputs = ref<UserInputDto[]>();
 const mostRecentWindowActivities = ref<WindowActivityDto[]>();
 const mostRecentWindowActivitiesObfuscated = ref<WindowActivityDto[]>();
 const obfuscateWindowActivities = ref(false);
 
+const exportExperienceSamplesSelectedOption = ref<DataExportType>(DataExportType.None);
 const exportWindowActivitySelectedOption = ref<DataExportType>(DataExportType.None);
 const exportUserInputSelectedOption = ref<DataExportType>(DataExportType.None);
 
@@ -39,6 +43,13 @@ const currentNamedStep = computed(() => {
 
 onMounted(async () => {
   studyInfo.value = await typedIpcRenderer.invoke('getStudyInfo');
+  if (studyConfig.trackers.experienceSamplingTracker.enabled) {
+    exportExperienceSamplesSelectedOption.value = DataExportType.All;
+    mostRecentExperienceSamples.value = await typedIpcRenderer.invoke(
+      'getMostRecentExperienceSamplingDtos',
+      5
+    );
+  }
   if (studyConfig.trackers.windowActivityTracker.enabled) {
     exportWindowActivitySelectedOption.value = DataExportType.All;
     mostRecentWindowActivities.value = await typedIpcRenderer.invoke(
@@ -66,14 +77,24 @@ async function handleWindowActivityExportConfigChanged(newSelectedOption: DataEx
   exportWindowActivitySelectedOption.value = newSelectedOption;
 }
 
+function handleExpereinceSamplingConfigChanged(newSelectedOption: DataExportType) {
+  exportExperienceSamplesSelectedOption.value = newSelectedOption;
+}
+
 function handleUserInputExportConfigChanged(newSelectedOption: DataExportType) {
   exportUserInputSelectedOption.value = newSelectedOption;
 }
 
+function closeDataExportWindow() {
+  typedIpcRenderer.invoke('closeDataExportWindow');
+}
+
 async function handleNextStep() {
   if (currentStep.value === maxSteps.value - 1) {
+    closeDataExportWindow();
     return;
   }
+
   transitionName.value = 'slide-left-right';
   currentStep.value++;
   if (currentNamedStep.value === 'create-export') {
@@ -190,6 +211,13 @@ function openExportFolder(event: Event) {
             :data="mostRecentUserInputs"
             :default-value="exportUserInputSelectedOption"
             @change="handleUserInputExportConfigChanged"
+          />
+          <DataExportExperienceSamplingTracker
+            v-if="studyConfig.trackers.windowActivityTracker.enabled"
+            :study-info="studyInfo"
+            :data="mostRecentExperienceSamples"
+            :default-value="exportExperienceSamplesSelectedOption"
+            @change="handleExpereinceSamplingConfigChanged"
           />
         </div>
         <div v-if="currentNamedStep === 'create-export'" key="2" class="flex w-full flex-col">
