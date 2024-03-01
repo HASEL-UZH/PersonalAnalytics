@@ -250,7 +250,8 @@ function openExportFolder(event: Event) {
             <p>
               If you want to review the complete data file before sharing it with the researchers,
               please refer to this guide. The password required for opening the exported file is:
-              PASSWORD TODO.
+              <span class="password-badge">PersonalAnalytics_{{ studyInfo.subjectId }}</span
+              >.
             </p>
           </article>
         </div>
@@ -280,4 +281,10 @@ function openExportFolder(event: Event) {
     </div>
   </div>
 </template>
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+@import '../styles/index';
+.password-badge {
+  @apply badge badge-neutral text-white;
+  background-color: @primary-color;
+}
+</style>
