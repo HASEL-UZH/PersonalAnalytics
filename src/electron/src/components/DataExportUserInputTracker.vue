@@ -34,9 +34,9 @@ const emitChange = () => {
   <div class="my-5 border border-slate-400 p-2">
     <div class="prose">
       <h2>Decide how your User Input data is shared</h2>
-      <p>Here is a sample of your unmodified data:</p>
+      <p v-if="selectedOption != DataExportType.None">Here is a sample of your unmodified data:</p>
     </div>
-    <div class="max-h-48 overflow-auto">
+    <div v-if="selectedOption != DataExportType.None" class="max-h-48 overflow-auto">
       <table
         class="table table-zebra table-pin-rows w-full overflow-auto text-xs"
         style="width: 2800px"

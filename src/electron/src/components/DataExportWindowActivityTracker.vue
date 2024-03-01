@@ -33,9 +33,11 @@ const emitChange = async () => {
   <div class="my-5 border border-slate-400 p-2">
     <div class="prose">
       <h2>Decide how your Window Activity data is shared</h2>
-      <p>Here is a sample of your {{ shouldObfuscate ? 'modified' : 'unmodified' }} data:</p>
+      <p v-if="selectedOption != DataExportType.None">
+        Here is a sample of your {{ shouldObfuscate ? 'modified' : 'unmodified' }} data:
+      </p>
     </div>
-    <div class="max-h-48 overflow-auto">
+    <div v-if="selectedOption != DataExportType.None" class="max-h-48 overflow-auto">
       <table
         class="table table-zebra table-pin-rows w-full overflow-auto text-xs"
         style="width: 1500px"
