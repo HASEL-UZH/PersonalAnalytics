@@ -2,6 +2,7 @@ import ActiveWindow from 'windows-activity-tracker/dist/types/ActiveWindow';
 import { WindowActivityEntity } from '../../entities/WindowActivityEntity';
 import { In } from 'typeorm';
 import { getLogger } from '../../../shared/Logger';
+import WindowActivityDto from '../../../../shared/dto/WindowActivityDto';
 
 const LOG = getLogger('WindowActivityTrackerService');
 
@@ -20,14 +21,29 @@ export class WindowActivityTrackerService {
     });
   }
 
-  public async getMostRecentWindowActivities(itemCount: number): Promise<WindowActivityEntity[]> {
-    return WindowActivityEntity.find({
+  public async getMostRecentWindowActivityDtos(itemCount: number): Promise<WindowActivityDto[]> {
+    const items = await WindowActivityEntity.find({
       order: { createdAt: 'DESC' },
       take: itemCount
     });
+    return items.map((item: WindowActivityEntity) => {
+      return {
+        windowTitle: item.windowTitle,
+        processName: item.processName,
+        processPath: item.processPath,
+        processId: item.processId,
+        url: item.url,
+        activity: item.activity,
+        ts: item.ts,
+        id: item.id,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+        deletedAt: item.deletedAt
+      };
+    });
   }
 
-  public async obfuscateWindowActivitiesById(ids: string[]): Promise<WindowActivityEntity[]> {
+  public async obfuscateWindowActivityDtosById(ids: string[]): Promise<WindowActivityDto[]> {
     return (
       await WindowActivityEntity.find({
         where: {
@@ -36,10 +52,19 @@ export class WindowActivityTrackerService {
         order: { createdAt: 'DESC' }
       })
     ).map((activity) => {
-      activity.windowTitle = this.randomizeWindowTitle(activity.windowTitle);
-      activity.url = this.randomizeUrl(activity.url);
-      console.log(this.randomStringMap);
-      return activity;
+      return {
+        windowTitle: this.randomizeWindowTitle(activity.windowTitle),
+        processName: activity.processName,
+        processPath: activity.processPath,
+        processId: activity.processId,
+        url: this.randomizeUrl(activity.url),
+        activity: activity.activity,
+        ts: activity.ts,
+        id: activity.id,
+        createdAt: activity.createdAt,
+        updatedAt: activity.updatedAt,
+        deletedAt: activity.deletedAt
+      };
     });
   }
 

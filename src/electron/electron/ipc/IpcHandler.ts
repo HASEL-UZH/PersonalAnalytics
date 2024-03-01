@@ -10,11 +10,11 @@ import { Settings } from '../main/entities/Settings';
 import studyConfig from '../../shared/study.config';
 import { TrackerService } from '../main/services/trackers/TrackerService';
 import { WindowActivityTrackerService } from '../main/services/trackers/WindowActivityTrackerService';
-import { WindowActivityEntity } from '../main/entities/WindowActivityEntity';
-import { UserInputEntity } from '../main/entities/UserInputEntity';
 import { UserInputTrackerService } from '../main/services/trackers/UserInputTrackerService';
 import { DataExportType } from '../../shared/DataExportType.enum';
 import { DataExportService } from '../main/services/DataExportService';
+import UserInputDto from '../../shared/dto/UserInputDto';
+import WindowActivityDto from '../../shared/dto/WindowActivityDto';
 
 const LOG = getLogger('IpcHandler');
 
@@ -45,9 +45,9 @@ export class IpcHandler {
       closeExperienceSamplingWindow: this.closeExperienceSamplingWindow,
       closeOnboardingWindow: this.closeOnboardingWindow,
       getStudyInfo: this.getStudyInfo,
-      getMostRecentWindowActivities: this.getMostRecentWindowActivities,
-      getMostRecentUserInputs: this.getMostRecentUserInputs,
-      obfuscateWindowActivitiesById: this.obfuscateWindowActivitiesById,
+      getMostRecentWindowActivityDtos: this.getMostRecentWindowActivityDtos,
+      getMostRecentUserInputDtos: this.getMostRecentUserInputDtos,
+      obfuscateWindowActivityDtosById: this.obfuscateWindowActivityDtosById,
       startDataExport: this.startDataExport,
       openExportFolder: this.openExportFolder,
       startAllTrackers: this.startAllTrackers,
@@ -112,16 +112,16 @@ export class IpcHandler {
     };
   }
 
-  private async getMostRecentWindowActivities(itemCount: number): Promise<WindowActivityEntity[]> {
-    return await this.windowActivityService.getMostRecentWindowActivities(itemCount);
+  private async getMostRecentWindowActivityDtos(itemCount: number): Promise<WindowActivityDto[]> {
+    return await this.windowActivityService.getMostRecentWindowActivityDtos(itemCount);
   }
 
-  private async obfuscateWindowActivitiesById(ids: string[]): Promise<WindowActivityEntity[]> {
-    return await this.windowActivityService.obfuscateWindowActivitiesById(ids);
+  private async obfuscateWindowActivityDtosById(ids: string[]): Promise<WindowActivityDto[]> {
+    return await this.windowActivityService.obfuscateWindowActivityDtosById(ids);
   }
 
-  private async getMostRecentUserInputs(itemCount: number): Promise<UserInputEntity[]> {
-    return await this.userInputService.getMostRecentUserInputs(itemCount);
+  private async getMostRecentUserInputDtos(itemCount: number): Promise<UserInputDto[]> {
+    return await this.userInputService.getMostRecentUserInputDtos(itemCount);
   }
 
   private async startDataExport(

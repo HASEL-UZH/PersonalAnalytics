@@ -1,7 +1,7 @@
 import StudyInfoDto from '../../shared/dto/StudyInfoDto';
-import { WindowActivityEntity } from '../../electron/main/entities/WindowActivityEntity';
-import { UserInputEntity } from '../../electron/main/entities/UserInputEntity';
 import { DataExportType } from '../../shared/DataExportType.enum';
+import UserInputDto from '../../shared/dto/UserInputDto';
+import WindowActivityDto from '../../shared/dto/WindowActivityDto';
 
 type Commands = {
   createExperienceSample: (
@@ -15,9 +15,9 @@ type Commands = {
   closeExperienceSamplingWindow: () => void;
   closeOnboardingWindow: () => void;
   getStudyInfo: () => Promise<StudyInfoDto>;
-  getMostRecentUserInputs(itemCount: number): Promise<UserInputEntity[]>;
-  getMostRecentWindowActivities(itemCount: number): Promise<WindowActivityEntity[]>;
-  obfuscateWindowActivitiesById(ids: string[]): Promise<WindowActivityEntity[]>;
+  getMostRecentUserInputDtos(itemCount: number): Promise<UserInputDto[]>;
+  getMostRecentWindowActivityDtos(itemCount: number): Promise<WindowActivityDto[]>;
+  obfuscateWindowActivityDtosById(ids: string[]): Promise<WindowActivityDto[]>;
   startDataExport: (
     windowActivityExportType: DataExportType,
     userInputExportType: DataExportType

@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { PropType } from 'vue';
+import { ref, defineEmits, PropType } from 'vue';
 import StudyInfoDto from '../../shared/dto/StudyInfoDto';
+import { DataExportType } from '../../shared/DataExportType.enum';
+import UserInputDto from '../../shared/dto/UserInputDto';
 
 const props = defineProps({
   studyInfo: {
@@ -9,7 +11,7 @@ const props = defineProps({
     required: false
   },
   data: {
-    type: Object as PropType<UserInputEntity[]>,
+    type: Object as PropType<UserInputDto[]>,
     default: null,
     required: false
   },
@@ -18,9 +20,6 @@ const props = defineProps({
     required: true
   }
 });
-import { ref, defineEmits } from 'vue';
-import { UserInputEntity } from '../../electron/main/entities/UserInputEntity';
-import { DataExportType } from '../../shared/DataExportType.enum';
 
 const emits = defineEmits(['change']);
 

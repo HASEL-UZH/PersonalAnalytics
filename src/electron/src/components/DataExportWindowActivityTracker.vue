@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { PropType } from 'vue';
-import { WindowActivityEntity } from '../../electron/main/entities/WindowActivityEntity';
+import { ref, defineEmits, PropType } from 'vue';
+import { DataExportType } from '../../shared/DataExportType.enum';
+import WindowActivityDto from '../../shared/dto/WindowActivityDto';
 
 const props = defineProps({
   data: {
-    type: Object as PropType<WindowActivityEntity[]>,
+    type: Object as PropType<WindowActivityDto[]>,
     default: null,
     required: false
   },
@@ -18,8 +19,6 @@ const props = defineProps({
     required: true
   }
 });
-import { ref, defineEmits } from 'vue';
-import { DataExportType } from '../../shared/DataExportType.enum';
 
 const emits = defineEmits(['change']);
 

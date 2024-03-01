@@ -5,10 +5,10 @@ import StudyInfoDto from '../../shared/dto/StudyInfoDto';
 import typedIpcRenderer from '../utils/typedIpcRenderer';
 import studyConfig from '../../shared/study.config';
 import DataExportWindowActivityTracker from '../components/DataExportWindowActivityTracker.vue';
-import { WindowActivityEntity } from '../../electron/main/entities/WindowActivityEntity';
-import { UserInputEntity } from '../../electron/main/entities/UserInputEntity';
 import DataExportUserInputTracker from '../components/DataExportUserInputTracker.vue';
 import { DataExportType } from '../../shared/DataExportType.enum';
+import WindowActivityDto from '../../shared/dto/WindowActivityDto';
+import UserInputDto from '../../shared/dto/UserInputDto';
 
 const currentStep = ref(0);
 const transitionName = ref('slide-lef-right');
@@ -16,9 +16,9 @@ const isLoading = ref(true);
 
 const studyInfo = ref<StudyInfoDto>();
 
-const mostRecentUserInputs = ref<UserInputEntity[]>();
-const mostRecentWindowActivities = ref<WindowActivityEntity[]>();
-const mostRecentWindowActivitiesObfuscated = ref<WindowActivityEntity[]>();
+const mostRecentUserInputs = ref<UserInputDto[]>();
+const mostRecentWindowActivities = ref<WindowActivityDto[]>();
+const mostRecentWindowActivitiesObfuscated = ref<WindowActivityDto[]>();
 const obfuscateWindowActivities = ref(false);
 
 const exportWindowActivitySelectedOption = ref<DataExportType>(DataExportType.None);
@@ -42,13 +42,13 @@ onMounted(async () => {
   if (studyConfig.trackers.windowActivityTracker.enabled) {
     exportWindowActivitySelectedOption.value = DataExportType.All;
     mostRecentWindowActivities.value = await typedIpcRenderer.invoke(
-      'getMostRecentWindowActivities',
+      'getMostRecentWindowActivityDtos',
       5
     );
   }
   if (studyConfig.trackers.userInputTracker.enabled) {
     exportUserInputSelectedOption.value = DataExportType.All;
-    mostRecentUserInputs.value = await typedIpcRenderer.invoke('getMostRecentUserInputs', 5);
+    mostRecentUserInputs.value = await typedIpcRenderer.invoke('getMostRecentUserInputDtos', 5);
   }
   isLoading.value = false;
 });
@@ -56,7 +56,7 @@ onMounted(async () => {
 async function handleWindowActivityExportConfigChanged(newSelectedOption: DataExportType) {
   if (mostRecentWindowActivities.value && newSelectedOption === DataExportType.Obfuscate) {
     mostRecentWindowActivitiesObfuscated.value = await typedIpcRenderer.invoke(
-      'obfuscateWindowActivitiesById',
+      'obfuscateWindowActivityDtosById',
       mostRecentWindowActivities.value.map((d) => d.id)
     );
     obfuscateWindowActivities.value = true;
@@ -101,8 +101,9 @@ function handleBackStep() {
   currentStep.value--;
 }
 
-function openExportFolder() {
+function openExportFolder(event: Event) {
   typedIpcRenderer.invoke('openExportFolder');
+  event.preventDefault();
 }
 </script>
 
