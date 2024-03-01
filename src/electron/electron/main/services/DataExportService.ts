@@ -4,7 +4,7 @@ import path from 'path';
 import { app } from 'electron';
 import { is } from './utils/helpers';
 import fs from 'node:fs';
-import Database from 'better-sqlite3';
+import Database from 'better-sqlite3-multiple-ciphers';
 import { WindowActivityEntity } from '../entities/WindowActivityEntity';
 import { WindowActivityTrackerService } from './trackers/WindowActivityTrackerService';
 import { Settings } from '../entities/Settings';
@@ -45,6 +45,7 @@ export class DataExportService {
     const db = new Database(exportDbPath);
     // https://github.com/WiseLibs/better-sqlite3/blob/master/docs/performance.md
     db.pragma('journal_mode = WAL');
+    db.pragma(`rekey='PersonalAnalytics_${settings.subjectId}'`);
 
     if (windowActivityExportType === DataExportType.Obfuscate) {
       const items: { windowTitle: string; url: string; id: string }[] =
