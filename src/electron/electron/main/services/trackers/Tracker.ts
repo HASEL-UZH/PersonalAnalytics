@@ -4,5 +4,7 @@ export interface Tracker {
 
   start(): void;
 
+  resume?(): void;
+
   stop(): void;
 }

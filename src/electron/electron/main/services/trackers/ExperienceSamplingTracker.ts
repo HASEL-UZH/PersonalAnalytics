@@ -2,11 +2,13 @@ import * as schedule from 'node-schedule';
 import { WindowService } from '../WindowService';
 import { Tracker } from './Tracker';
 import { getLogger } from '../../../shared/Logger';
+import { Settings } from '../../entities/Settings';
 
 const LOG = getLogger('ExperienceSamplingTracker');
 
 export class ExperienceSamplingTracker implements Tracker {
-  private experienceSamplingJob: schedule.Job;
+  private checkIfExperienceSamplingIsDueJob: schedule.Job;
+  private forcedExperienceSamplingJob: schedule.Job;
   private readonly windowService: WindowService;
   private readonly intervalInMs: number;
   private readonly samplingRandomization: number;
@@ -19,17 +21,10 @@ export class ExperienceSamplingTracker implements Tracker {
     this.intervalInMs = intervalInMs;
     this.samplingRandomization = samplingRandomization;
   }
-  public start(): void {
+  public async start(): Promise<void> {
     try {
-      this.experienceSamplingJob = schedule.scheduleJob(
-        this.getRandomizedRecurrence(),
-        (fireDate: Date): void => {
-          LOG.info(
-            `Experience Sampling Job was supposed to fire at ${fireDate}, fired at ${new Date()}`
-          );
-          this.handleExperienceSamplingJob();
-        }
-      );
+      await this.scheduleNextJob();
+      await this.startExperienceSamplingJob();
       this.isRunning = true;
     } catch (error) {
       LOG.error(`Error starting experience sampling job: ${error}`);
@@ -37,29 +32,67 @@ export class ExperienceSamplingTracker implements Tracker {
     }
   }
 
+  public async resume(): Promise<void> {
+    LOG.info('Resuming ExperienceSamplingTracker');
+    const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
+    // if the next invocation is in the past, we schedule the job in 30 + randomization minutes no matter what
+    if (settings.nextExperienceSamplingInvocation <= new Date()) {
+      LOG.info(
+        'Next invocation is in the past, scheduling job to fire in 30 minutes + randomization'
+      );
+      const subtractOrAdd: 1 | -1 = Math.random() < 0.5 ? -1 : 1;
+      const randomization =
+        this.intervalInMs * this.samplingRandomization * Math.random() * subtractOrAdd;
+      const nextInvocation = new Date(Date.now() + 30 * 60 * 1000 + randomization);
+
+      this.forcedExperienceSamplingJob = schedule.scheduleJob(nextInvocation, async () => {
+        await this.handleExperienceSamplingJob(nextInvocation);
+      });
+      LOG.info(`Resume, scheduled to fire at ${nextInvocation}`);
+    } else {
+      await this.startExperienceSamplingJob();
+    }
+    await this.startExperienceSamplingJob();
+  }
+
+  private async startExperienceSamplingJob(): Promise<void> {
+    this.checkIfExperienceSamplingIsDueJob = schedule.scheduleJob('* * * * *', async () => {
+      const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
+      if (settings.nextExperienceSamplingInvocation <= new Date()) {
+        LOG.info('Experience sampling is due, starting job');
+        await this.handleExperienceSamplingJob(new Date());
+      }
+    });
+  }
+
   public stop(): void {
-    this.experienceSamplingJob.cancel();
+    this.checkIfExperienceSamplingIsDueJob.cancel();
     this.isRunning = false;
   }
 
-  private async handleExperienceSamplingJob(): Promise<void> {
+  private async handleExperienceSamplingJob(fireDate: Date): Promise<void> {
+    LOG.info(`Experience Sampling Job was supposed to fire at ${fireDate}, fired at ${new Date()}`);
     await this.windowService.createExperienceSamplingWindow();
-    this.scheduleNextJob();
+    await this.scheduleNextJob();
   }
 
-  private scheduleNextJob(): void {
-    this.experienceSamplingJob.reschedule(this.getRandomizedRecurrence());
+  private async scheduleNextJob(): Promise<void> {
+    const nextInvocation: Date = this.getRandomNextInvocationDate();
+    const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
+    settings.nextExperienceSamplingInvocation = nextInvocation;
+    await settings.save();
   }
 
-  private getRandomizedRecurrence(): string {
+  private getRandomNextInvocationDate(): Date {
     const subtractOrAdd: 1 | -1 = Math.random() < 0.5 ? -1 : 1;
-    const randomization: number = this.intervalInMs * this.samplingRandomization * subtractOrAdd;
+    const randomization =
+      this.intervalInMs * this.samplingRandomization * Math.random() * subtractOrAdd;
     LOG.debug(
       `intervalInMs: ${this.intervalInMs}, samplingRandomization: ${this.samplingRandomization}, subtractOrAdd: ${subtractOrAdd}`
     );
-    LOG.debug(`Randomization in minutes: ${randomization / 1000 / 60}`);
+    LOG.debug(`Randomization: ${randomization} (${randomization / 1000 / 60} minutes)`);
     const nextInvocation = new Date(Date.now() + this.intervalInMs + randomization);
     LOG.debug(`Next invocation: ${nextInvocation}`);
-    return `${nextInvocation.getMinutes()} ${nextInvocation.getHours()} * * *`;
+    return nextInvocation;
   }
 }

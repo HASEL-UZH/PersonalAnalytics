@@ -113,6 +113,14 @@ export class TrackerService {
     this.setCheckIfUITIsWorkingJob();
   }
 
+  public async resumeAllTrackers(): Promise<void> {
+    await Promise.all(
+      this.trackers
+        .filter((t: Tracker) => !t.isRunning)
+        .map((t: Tracker): void => (t.resume ? t.resume() : t.start()))
+    );
+  }
+
   public async stopAllTrackers() {
     await Promise.all(
       this.trackers.filter((t: Tracker) => t.isRunning).map((t: Tracker) => t.stop())

@@ -125,7 +125,7 @@ app.whenReady().then(async () => {
       });
       powerMonitor.on('resume', async (): Promise<void> => {
         LOG.debug('The system is resuming');
-        await trackers.startAllTrackers();
+        await trackers.resumeAllTrackers();
       });
       powerMonitor.on('shutdown', async (): Promise<void> => {
         LOG.debug('The system is going to shutdown');
@@ -137,7 +137,7 @@ app.whenReady().then(async () => {
       });
       powerMonitor.on('unlock-screen', async (): Promise<void> => {
         LOG.debug('The system is going to unlock-screen');
-        await trackers.startAllTrackers();
+        await trackers.resumeAllTrackers();
       });
     }
   } catch (error) {
