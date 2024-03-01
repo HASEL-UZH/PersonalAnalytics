@@ -33,9 +33,6 @@ export class DataExportService {
     // https://github.com/WiseLibs/better-sqlite3/blob/master/docs/performance.md
     db.pragma('journal_mode = WAL');
 
-    const dropSettings = db.prepare('DROP TABLE IF EXISTS settings');
-    dropSettings.run();
-
     if (windowActivityExportType === DataExportType.Obfuscate) {
       const items: { windowTitle: string; url: string; id: string }[] =
         await WindowActivityEntity.getRepository()
