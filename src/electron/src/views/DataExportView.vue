@@ -21,8 +21,8 @@ const mostRecentWindowActivities = ref<WindowActivityEntity[]>();
 const mostRecentWindowActivitiesObfuscated = ref<WindowActivityEntity[]>();
 const obfuscateWindowActivities = ref(false);
 
-const exportWindowActivitySelectedOption = ref<DataExportType>(DataExportType.All);
-const exportUserInputSelectedOption = ref<DataExportType>(DataExportType.All);
+const exportWindowActivitySelectedOption = ref<DataExportType>(DataExportType.None);
+const exportUserInputSelectedOption = ref<DataExportType>(DataExportType.None);
 
 const isExporting = ref(false);
 const hasExportError = ref(false);
@@ -40,12 +40,14 @@ const currentNamedStep = computed(() => {
 onMounted(async () => {
   studyInfo.value = await typedIpcRenderer.invoke('getStudyInfo');
   if (studyConfig.trackers.windowActivityTracker.enabled) {
+    exportWindowActivitySelectedOption.value = DataExportType.All;
     mostRecentWindowActivities.value = await typedIpcRenderer.invoke(
       'getMostRecentWindowActivities',
       5
     );
   }
   if (studyConfig.trackers.userInputTracker.enabled) {
+    exportUserInputSelectedOption.value = DataExportType.All;
     mostRecentUserInputs.value = await typedIpcRenderer.invoke('getMostRecentUserInputs', 5);
   }
   isLoading.value = false;

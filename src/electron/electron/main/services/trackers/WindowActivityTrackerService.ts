@@ -6,7 +6,7 @@ import { getLogger } from '../../../shared/Logger';
 const LOG = getLogger('WindowActivityTrackerService');
 
 export class WindowActivityTrackerService {
-  private randomStringMap = new Map<string, string>();
+  private randomStringMap: Map<string, string> = new Map<string, string>();
 
   public static async handleWindowChange(window: ActiveWindow): Promise<void> {
     await WindowActivityEntity.save({
@@ -43,7 +43,7 @@ export class WindowActivityTrackerService {
     });
   }
 
-  private randomizeUrl(url: string): string {
+  public randomizeUrl(url: string): string {
     if (!url || url.length === 0) {
       return '';
     }
@@ -63,7 +63,7 @@ export class WindowActivityTrackerService {
     return out;
   }
 
-  private randomizeWindowTitle(title: string): string {
+  public randomizeWindowTitle(title: string): string {
     return this.randomizeOrKeepEmpty(title);
   }
 

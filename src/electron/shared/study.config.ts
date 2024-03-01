@@ -20,7 +20,7 @@ const studyConfig: StudyConfiguration = {
     },
     userInputTracker: {
       enabled: true,
-      intervalInMs: 60000
+      intervalInMs: 10000
     },
     experienceSamplingTracker: {
       enabled: true,

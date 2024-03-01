@@ -13,6 +13,8 @@ import { WindowActivityTrackerService } from '../main/services/trackers/WindowAc
 import { WindowActivityEntity } from '../main/entities/WindowActivityEntity';
 import { UserInputEntity } from '../main/entities/UserInputEntity';
 import { UserInputTrackerService } from '../main/services/trackers/UserInputTrackerService';
+import { DataExportType } from '../../shared/DataExportType.enum';
+import { DataExportService } from '../main/services/DataExportService';
 
 const LOG = getLogger('IpcHandler');
 
@@ -24,6 +26,7 @@ export class IpcHandler {
   private readonly experienceSamplingService: ExperienceSamplingService;
   private readonly windowActivityService: WindowActivityTrackerService;
   private readonly userInputService: UserInputTrackerService;
+  private readonly dataExportService: DataExportService;
   private typedIpcMain: TypedIpcMain<Events, Commands> = ipcMain as TypedIpcMain<Events, Commands>;
 
   constructor(
@@ -36,6 +39,7 @@ export class IpcHandler {
     this.experienceSamplingService = experienceSamplingService;
     this.windowActivityService = new WindowActivityTrackerService();
     this.userInputService = new UserInputTrackerService();
+    this.dataExportService = new DataExportService();
     this.actions = {
       createExperienceSample: this.createExperienceSample,
       closeExperienceSamplingWindow: this.closeExperienceSamplingWindow,
@@ -44,6 +48,7 @@ export class IpcHandler {
       getMostRecentWindowActivities: this.getMostRecentWindowActivities,
       getMostRecentUserInputs: this.getMostRecentUserInputs,
       obfuscateWindowActivitiesById: this.obfuscateWindowActivitiesById,
+      startDataExport: this.startDataExport,
       openExportFolder: this.openExportFolder,
       startAllTrackers: this.startAllTrackers,
       triggerPermissionCheckAccessibility: this.triggerPermissionCheckAccessibility,
@@ -117,6 +122,13 @@ export class IpcHandler {
 
   private async getMostRecentUserInputs(itemCount: number): Promise<UserInputEntity[]> {
     return await this.userInputService.getMostRecentUserInputs(itemCount);
+  }
+
+  private async startDataExport(
+    windowActivityExportType: DataExportType,
+    userInputExportType: DataExportType
+  ): Promise<void> {
+    await this.dataExportService.startDataExport(windowActivityExportType, userInputExportType);
   }
 
   private async openExportFolder(): Promise<void> {

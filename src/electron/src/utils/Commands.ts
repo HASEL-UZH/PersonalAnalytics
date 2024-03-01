@@ -1,6 +1,7 @@
 import StudyInfoDto from '../../shared/dto/StudyInfoDto';
 import { WindowActivityEntity } from '../../electron/main/entities/WindowActivityEntity';
 import { UserInputEntity } from '../../electron/main/entities/UserInputEntity';
+import { DataExportType } from '../../shared/DataExportType.enum';
 
 type Commands = {
   createExperienceSample: (
@@ -17,6 +18,10 @@ type Commands = {
   getMostRecentUserInputs(itemCount: number): Promise<UserInputEntity[]>;
   getMostRecentWindowActivities(itemCount: number): Promise<WindowActivityEntity[]>;
   obfuscateWindowActivitiesById(ids: string[]): Promise<WindowActivityEntity[]>;
+  startDataExport: (
+    windowActivityExportType: DataExportType,
+    userInputExportType: DataExportType
+  ) => Promise<void>;
   openExportFolder: () => Promise<void>;
   startAllTrackers: () => void;
   triggerPermissionCheckAccessibility: (prompt: boolean) => boolean;
