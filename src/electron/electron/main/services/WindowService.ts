@@ -7,6 +7,7 @@ import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions;
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import studyConfig from '../../../shared/study.config';
+import { Settings } from '../entities/Settings';
 
 const LOG = getLogger('WindowService');
 
@@ -288,7 +289,15 @@ export class WindowService {
       },
       {
         label: 'Open Onboarding',
-        click: () => this.createOnboardingWindow()
+        click: async () => {
+          const shouldShowStudyTrackersStarted = !!(await Settings.findOneBy({
+            studyAndTrackersStartedShown: false,
+            onboardingShown: true
+          }));
+          await this.createOnboardingWindow(
+            shouldShowStudyTrackersStarted ? 'study-trackers-started' : undefined
+          );
+        }
       },
       {
         label: 'About',
