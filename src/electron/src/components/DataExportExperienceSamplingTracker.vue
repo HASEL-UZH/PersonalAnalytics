@@ -19,7 +19,6 @@ defineProps({
     <div class="max-h-48 overflow-auto">
       <table
         class="table table-zebra table-pin-rows w-full overflow-auto text-xs"
-        style="width: 1500px"
       >
         <thead class="border-b">
           <tr>
@@ -38,7 +37,7 @@ defineProps({
             <td>{{ d.scale }}</td>
             <td>{{ d.responseOptions }}</td>
             <td>{{ d.skipped }}</td>
-            <td>{{ d.promptedAt }}</td>
+            <td>{{ d.promptedAt.toLocaleString() }}</td>
           </tr>
         </tbody>
       </table>

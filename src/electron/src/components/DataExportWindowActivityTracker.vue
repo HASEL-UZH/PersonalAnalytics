@@ -39,7 +39,6 @@ const emitChange = async () => {
     <div v-if="selectedOption != DataExportType.None" class="max-h-48 overflow-auto">
       <table
         class="table table-zebra table-pin-rows w-full overflow-auto text-xs"
-        style="width: 1500px"
       >
         <thead class="border-b">
           <tr>
@@ -53,12 +52,16 @@ const emitChange = async () => {
         </thead>
         <tbody class="">
           <tr v-for="windowActivity in data" :key="windowActivity.id">
-            <td>{{ windowActivity.windowTitle }}</td>
-            <td>{{ windowActivity.url }}</td>
+            <td>
+              <div class="max-w-56 truncate">{{ windowActivity.windowTitle }}</div>
+            </td>
+            <td>
+              <div class="max-w-56 truncate">{{ windowActivity.url }}</div>
+            </td>
             <td>{{ windowActivity.activity }}</td>
             <td>{{ windowActivity.processName }}</td>
             <td>{{ windowActivity.processId }}</td>
-            <td>{{ windowActivity.ts }}</td>
+            <td>{{ windowActivity.ts.toLocaleString() }}</td>
           </tr>
         </tbody>
       </table>

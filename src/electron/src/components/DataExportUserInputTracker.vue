@@ -38,7 +38,6 @@ const emitChange = () => {
     <div v-if="selectedOption != DataExportType.None" class="max-h-48 overflow-auto">
       <table
         class="table table-zebra table-pin-rows w-full overflow-auto text-xs"
-        style="width: 2800px"
       >
         <thead class="border-b">
           <tr>
@@ -48,10 +47,6 @@ const emitChange = () => {
             <th>Scroll Delta</th>
             <th>Start Timestamp</th>
             <th>End Timestamp</th>
-            <th>Created At</th>
-            <th>Updated At</th>
-            <th>Deleted At</th>
-            <th>ID</th>
           </tr>
         </thead>
         <tbody class="">
@@ -60,12 +55,8 @@ const emitChange = () => {
             <td>{{ windowActivity.clickTotal }}</td>
             <td>{{ windowActivity.movedDistance }}</td>
             <td>{{ windowActivity.scrollDelta }}</td>
-            <td>{{ windowActivity.tsStart }}</td>
-            <td>{{ windowActivity.tsEnd }}</td>
-            <td>{{ windowActivity.createdAt }}</td>
-            <td>{{ windowActivity.updatedAt }}</td>
-            <td>{{ windowActivity.deletedAt }}</td>
-            <td>{{ windowActivity.id }}</td>
+            <td>{{ windowActivity.tsStart.toLocaleString() }}</td>
+            <td>{{ windowActivity.tsEnd.toLocaleString() }}</td>
           </tr>
         </tbody>
       </table>
