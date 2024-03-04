@@ -47,19 +47,19 @@ onMounted(async () => {
     exportExperienceSamplesSelectedOption.value = DataExportType.All;
     mostRecentExperienceSamples.value = await typedIpcRenderer.invoke(
       'getMostRecentExperienceSamplingDtos',
-      5
+      20
     );
   }
   if (studyConfig.trackers.windowActivityTracker.enabled) {
     exportWindowActivitySelectedOption.value = DataExportType.All;
     mostRecentWindowActivities.value = await typedIpcRenderer.invoke(
       'getMostRecentWindowActivityDtos',
-      5
+      20
     );
   }
   if (studyConfig.trackers.userInputTracker.enabled) {
     exportUserInputSelectedOption.value = DataExportType.All;
-    mostRecentUserInputs.value = await typedIpcRenderer.invoke('getMostRecentUserInputDtos', 5);
+    mostRecentUserInputs.value = await typedIpcRenderer.invoke('getMostRecentUserInputDtos', 20);
   }
   isLoading.value = false;
 });
