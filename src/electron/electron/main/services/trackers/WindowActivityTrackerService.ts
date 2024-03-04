@@ -10,6 +10,10 @@ export class WindowActivityTrackerService {
   private randomStringMap: Map<string, string> = new Map<string, string>();
 
   public static async handleWindowChange(window: ActiveWindow): Promise<void> {
+    // We only store activities with either a title, or url, or both
+    if (!window.windowTitle && !window.url) {
+      return;
+    }
     await WindowActivityEntity.save({
       windowTitle: window.windowTitle,
       processName: window.process,
