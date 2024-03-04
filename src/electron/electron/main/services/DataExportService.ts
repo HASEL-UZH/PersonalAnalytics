@@ -17,7 +17,7 @@ export class DataExportService {
   public async startDataExport(
     windowActivityExportType: DataExportType,
     userInputExportType: DataExportType
-  ): Promise<void> {
+  ): Promise<string> {
     LOG.info('startDataExport called');
     const dbName = 'database.sqlite';
     let dbPath = dbName;
@@ -82,5 +82,7 @@ export class DataExportService {
     }
 
     db.close();
+
+    return exportDbPath;
   }
 }

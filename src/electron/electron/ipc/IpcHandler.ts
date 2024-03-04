@@ -16,7 +16,6 @@ import { DataExportService } from '../main/services/DataExportService';
 import UserInputDto from '../../shared/dto/UserInputDto';
 import WindowActivityDto from '../../shared/dto/WindowActivityDto';
 import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
-import path from 'path';
 
 const LOG = getLogger('IpcHandler');
 
@@ -53,7 +52,7 @@ export class IpcHandler {
       getMostRecentUserInputDtos: this.getMostRecentUserInputDtos,
       obfuscateWindowActivityDtosById: this.obfuscateWindowActivityDtosById,
       startDataExport: this.startDataExport,
-      openExportFolder: this.openExportFolder,
+      revealItemInFolder: this.revealItemInFolder,
       startAllTrackers: this.startAllTrackers,
       triggerPermissionCheckAccessibility: this.triggerPermissionCheckAccessibility,
       triggerPermissionCheckScreenRecording: this.triggerPermissionCheckScreenRecording
@@ -141,13 +140,12 @@ export class IpcHandler {
   private async startDataExport(
     windowActivityExportType: DataExportType,
     userInputExportType: DataExportType
-  ): Promise<void> {
-    await this.dataExportService.startDataExport(windowActivityExportType, userInputExportType);
+  ): Promise<string> {
+    return this.dataExportService.startDataExport(windowActivityExportType, userInputExportType);
   }
 
-  private async openExportFolder(): Promise<void> {
-    const exportPath = path.join(app.getPath('userData'), 'exports');
-    await shell.openPath(exportPath);
+  private async revealItemInFolder(path: string): Promise<void> {
+    shell.showItemInFolder(path);
   }
 
   private triggerPermissionCheckAccessibility(prompt: boolean): boolean {

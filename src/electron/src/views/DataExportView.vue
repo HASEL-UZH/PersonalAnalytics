@@ -31,6 +31,7 @@ const exportUserInputSelectedOption = ref<DataExportType>(DataExportType.None);
 const isExporting = ref(false);
 const hasExportError = ref(false);
 
+const pathToExportedFile = ref('');
 const fileName = ref('');
 
 const availableSteps = ['export-1', 'export-2', 'create-export'];
@@ -102,7 +103,7 @@ async function handleNextStep() {
   if (currentNamedStep.value === 'create-export') {
     isExporting.value = true;
     try {
-      await typedIpcRenderer.invoke(
+      pathToExportedFile.value = await typedIpcRenderer.invoke(
         'startDataExport',
         exportWindowActivitySelectedOption.value,
         exportUserInputSelectedOption.value
@@ -128,8 +129,8 @@ function handleBackStep() {
   currentStep.value--;
 }
 
-function openExportFolder(event: Event) {
-  typedIpcRenderer.invoke('openExportFolder');
+function revealItemInFolder(event: Event) {
+  typedIpcRenderer.invoke('revealItemInFolder', pathToExportedFile.value);
   event.preventDefault();
 }
 </script>
@@ -243,7 +244,7 @@ function openExportFolder(event: Event) {
               </p>
               <ol>
                 <li>
-                  <a href="#" @click="openExportFolder">Click here</a> to open the folder containing
+                  <a href="#" @click="revealItemInFolder">Click here</a> to open the folder containing
                   your data-file (<span class="badge badge-neutral text-white">{{ fileName }}</span
                   >).
                 </li>

@@ -24,8 +24,8 @@ type Commands = {
   startDataExport: (
     windowActivityExportType: DataExportType,
     userInputExportType: DataExportType
-  ) => Promise<void>;
-  openExportFolder: () => Promise<void>;
+  ) => Promise<string>;
+  revealItemInFolder: (path: string) => Promise<void>;
   startAllTrackers: () => void;
   triggerPermissionCheckAccessibility: (prompt: boolean) => boolean;
   triggerPermissionCheckScreenRecording: () => boolean;
