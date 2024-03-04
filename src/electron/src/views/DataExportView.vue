@@ -15,6 +15,7 @@ import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
 const currentStep = ref(0);
 const transitionName = ref('slide-lef-right');
 const isLoading = ref(true);
+const studyDescriptionExpanded = ref(false);
 
 const studyInfo = ref<StudyInfoDto>();
 
@@ -190,8 +191,11 @@ function revealItemInFolder(event: Event) {
                     <td class="w-40 align-top">Study Description:</td>
                     <td>
                       <div class="collapse bg-base-200">
-                        <input type="checkbox" />
-                        <div class="collapse-title text-sm">Study Description</div>
+                        <input v-model="studyDescriptionExpanded" type="checkbox" />
+                        <div class="collapse-title text-sm">
+                          Click to {{ studyDescriptionExpanded ? 'expand' : 'collapse' }} Study
+                          Description
+                        </div>
                         <div class="collapse-content">
                           {{ studyInfo.shortDescription }}
                         </div>
