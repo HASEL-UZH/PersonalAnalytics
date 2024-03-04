@@ -31,6 +31,8 @@ const exportUserInputSelectedOption = ref<DataExportType>(DataExportType.None);
 const isExporting = ref(false);
 const hasExportError = ref(false);
 
+const fileName = ref('');
+
 const availableSteps = ['export-1', 'export-2', 'create-export'];
 
 const maxSteps = computed(() => {
@@ -77,7 +79,7 @@ async function handleWindowActivityExportConfigChanged(newSelectedOption: DataEx
   exportWindowActivitySelectedOption.value = newSelectedOption;
 }
 
-function handleExpereinceSamplingConfigChanged(newSelectedOption: DataExportType) {
+function handleExperienceSamplingConfigChanged(newSelectedOption: DataExportType) {
   exportExperienceSamplesSelectedOption.value = newSelectedOption;
 }
 
@@ -106,6 +108,10 @@ async function handleNextStep() {
         exportUserInputSelectedOption.value
       );
       hasExportError.value = false;
+      const now = new Date();
+      const nowStr = now.toISOString().replace(/:/g, '-').replace('T', '_').slice(0, 16);
+      // Also update the DataExportService if you change the file name here
+      fileName.value = `PA_${studyInfo.value?.subjectId}_${nowStr}.sqlite`;
     } catch (e) {
       console.error(e);
       hasExportError.value = true;
@@ -220,7 +226,7 @@ function openExportFolder(event: Event) {
               :study-info="studyInfo"
               :data="mostRecentExperienceSamples"
               :default-value="exportExperienceSamplesSelectedOption"
-              @change="handleExpereinceSamplingConfigChanged"
+              @change="handleExperienceSamplingConfigChanged"
             />
           </div>
           <div v-if="currentNamedStep === 'create-export'" key="2" class="flex w-full flex-col">
@@ -238,7 +244,8 @@ function openExportFolder(event: Event) {
               <ol>
                 <li>
                   <a href="#" @click="openExportFolder">Click here</a> to open the folder containing
-                  your data-file (data-export.sqlite).
+                  your data-file (<span class="badge badge-neutral text-white">{{ fileName }}</span
+                  >).
                 </li>
                 <li>
                   <a :href="studyConfig.uploadUrl" target="_blank">Click here</a> to open the upload

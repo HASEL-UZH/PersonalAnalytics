@@ -35,6 +35,7 @@ export class DataExportService {
     }
     const now = new Date();
     const nowStr = now.toISOString().replace(/:/g, '-').replace('T', '_').slice(0, 16);
+    // Also update the DataExportView if you change the file name here
     const exportDbPath = path.join(
       userDataPath,
       'exports',
