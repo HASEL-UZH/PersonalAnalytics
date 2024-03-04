@@ -140,6 +140,7 @@ function openExportFolder(event: Event) {
       <div class="mb-5 flex-grow overflow-y-auto">
         <transition-group :name="transitionName">
           <div v-if="currentNamedStep === 'export-1'" key="0" class="flex w-full flex-col">
+            <h1 class="mb-8 text-4xl font-medium text-neutral-300">Data Export</h1>
             <article class="prose prose-lg max-w-none">
               <p>
                 Thank you for participating in the {{ studyInfo.studyName }}-study! So far, all data
@@ -161,13 +162,6 @@ function openExportFolder(event: Event) {
               <table class="table-auto text-sm">
                 <tbody>
                   <tr>
-                    <td class="w-40">Study Description:</td>
-                    <td>
-                      {{ studyInfo.shortDescription }}
-                    </td>
-                  </tr>
-
-                  <tr>
                     <td>Contact:</td>
                     <td>{{ studyInfo.contactName }} ({{ studyInfo.contactEmail }})</td>
                   </tr>
@@ -183,6 +177,18 @@ function openExportFolder(event: Event) {
                       <a :href="studyInfo.privacyPolicyUrl" target="_blank">{{
                         studyInfo.privacyPolicyUrl
                       }}</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="w-40 align-top">Study Description:</td>
+                    <td>
+                      <div class="collapse bg-base-200">
+                        <input type="checkbox" />
+                        <div class="collapse-title text-sm">Study Description</div>
+                        <div class="collapse-content">
+                          {{ studyInfo.shortDescription }}
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 </tbody>
