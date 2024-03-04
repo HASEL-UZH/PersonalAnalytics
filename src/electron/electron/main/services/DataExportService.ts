@@ -56,21 +56,42 @@ export class DataExportService {
       db.pragma(`rekey='PersonalAnalytics_${settings.subjectId}'`);
 
       if (windowActivityExportType === DataExportType.Obfuscate || obfuscationTerms?.length > 0) {
-        const items: { windowTitle: string; url: string; id: string }[] =
-          await WindowActivityEntity.getRepository()
-            .createQueryBuilder('window_activity')
-            .select('id, windowTitle, url')
-            .getRawMany();
+        const items: {
+          windowTitle: string;
+          processName: string;
+          processPath: string;
+          processId: string;
+          activity: string;
+          url: string;
+          id: string;
+        }[] = await WindowActivityEntity.getRepository()
+          .createQueryBuilder('window_activity')
+          .select('id, windowTitle, url, processName, processPath, processId, activity')
+          .getRawMany();
         for (const item of items) {
           if (windowActivityExportType === DataExportType.Obfuscate) {
-            const randomizeWindowTitle = this.windowActivityTrackerService.randomizeWindowTitle(
+            const randomizeWindowTitle = this.windowActivityTrackerService.randomizeString(
               item.windowTitle
             );
             const randomizeUrl = this.windowActivityTrackerService.randomizeUrl(item.url);
-            const obfuscateWindowActivities = db.prepare(
-              'UPDATE window_activity SET windowTitle = ?, url = ? WHERE id = ?'
+            const randomizeProcessName = this.windowActivityTrackerService.randomizeString(
+              item.processName
             );
-            obfuscateWindowActivities.run(randomizeWindowTitle, randomizeUrl, item.id);
+            const randomizeProcessPath = this.windowActivityTrackerService.randomizeString(
+              item.processPath
+            );
+            const randomizeProcessId = undefined;
+            const obfuscateWindowActivities = db.prepare(
+              'UPDATE window_activity SET windowTitle = ?, url = ?, processName = ?, processPath = ?, processId = ?, activity = ? WHERE id = ?'
+            );
+            obfuscateWindowActivities.run(
+              randomizeWindowTitle,
+              randomizeUrl,
+              randomizeProcessName,
+              randomizeProcessPath,
+              randomizeProcessId,
+              item.id
+            );
           } else if (obfuscationTerms.length > 0) {
             const lowerCaseObfuscationTerms: string[] = obfuscationTerms.map((term: string) =>
               term.toLowerCase()
@@ -78,12 +99,30 @@ export class DataExportService {
             lowerCaseObfuscationTerms.forEach((term: string) => {
               if (
                 item.windowTitle?.toLowerCase().includes(term) ||
-                item.url?.toLowerCase().includes(term)
+                item.url?.toLowerCase().includes(term) ||
+                item.processName?.toLowerCase().includes(term) ||
+                item.processPath?.toLowerCase().includes(term) ||
+                item.activity?.toLowerCase().includes(term)
               ) {
                 const obfuscateWindowActivities = db.prepare(
-                  'UPDATE window_activity SET windowTitle = ?, url = ? WHERE id = ?'
+                  'UPDATE window_activity SET windowTitle = ?, url = ?, processName = ?, processPath = ?, processId = ?, activity = ? WHERE id = ?'
                 );
-                obfuscateWindowActivities.run('[anonymized]', '[anonymized]', item.id);
+                const windowTitle = item.windowTitle ? '[anonymized]' : undefined;
+                const url = item.url ? '[anonymized]' : undefined;
+                const processName = item.processName ? '[anonymized]' : undefined;
+                const processPath = item.processPath ? '[anonymized]' : undefined;
+                const processId = undefined;
+                const activity = item.activity ? '[anonymized]' : undefined;
+
+                obfuscateWindowActivities.run(
+                  windowTitle,
+                  url,
+                  processName,
+                  processPath,
+                  processId,
+                  activity,
+                  item.id
+                );
               }
             });
           }

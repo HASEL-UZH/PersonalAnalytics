@@ -101,19 +101,30 @@ async function handleObfuscateSampleData() {
     obfuscationTermsInput?.value?.length > 0 &&
     mostRecentWindowActivities.value
   ) {
-    mostRecentWindowActivities.value = mostRecentWindowActivities.value?.map((activity) => {
-      let windowTitle = activity.windowTitle;
-      let url = activity.url;
+    mostRecentWindowActivities.value = mostRecentWindowActivities.value?.map((item) => {
+      let windowTitle = item.windowTitle;
+      let url = item.url;
+      let processName = item.processName;
+      let processPath = item.processPath;
+      let processId = item.processId;
+      let activity = item.activity;
       obfuscationTermsInput.value?.forEach((term) => {
         if (
           windowTitle?.toLowerCase().includes(term.toLowerCase()) ||
-          url?.toLowerCase().includes(term.toLowerCase())
+          url?.toLowerCase().includes(term.toLowerCase()) ||
+          processName?.toLowerCase().includes(term.toLowerCase()) ||
+          processPath?.toLowerCase().includes(term.toLowerCase()) ||
+          activity?.toLowerCase().includes(term.toLowerCase())
         ) {
-          windowTitle = '[anonymized]';
-          url = '[anonymized]';
+          windowTitle = windowTitle ? '[anonymized]' : windowTitle;
+          url = url ? '[anonymized]' : url;
+          processName = processName ? '[anonymized]' : processName;
+          processPath = processPath ? '[anonymized]' : processPath;
+          processId = processId ? null : processId;
+          activity = activity ? '[anonymized]' : activity;
         }
       });
-      return { ...activity, windowTitle, url };
+      return { ...item, windowTitle, url, activity, processPath, processName, processId };
     });
   } else {
     mostRecentWindowActivities.value = await typedIpcRenderer.invoke(

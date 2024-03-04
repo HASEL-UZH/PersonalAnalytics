@@ -57,12 +57,12 @@ export class WindowActivityTrackerService {
       })
     ).map((activity) => {
       return {
-        windowTitle: this.randomizeWindowTitle(activity.windowTitle),
-        processName: activity.processName,
-        processPath: activity.processPath,
-        processId: activity.processId,
+        windowTitle: this.randomizeString(activity.windowTitle),
+        processName: this.randomizeString(activity.processName),
+        processPath: this.randomizeString(activity.processPath),
+        processId: undefined,
         url: this.randomizeUrl(activity.url),
-        activity: activity.activity,
+        activity: this.randomizeString(activity.activity),
         ts: activity.ts,
         id: activity.id,
         createdAt: activity.createdAt,
@@ -92,7 +92,7 @@ export class WindowActivityTrackerService {
     return out;
   }
 
-  public randomizeWindowTitle(title: string): string {
+  public randomizeString(title: string): string {
     return this.randomizeOrKeepEmpty(title);
   }
 
