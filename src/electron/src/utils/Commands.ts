@@ -23,7 +23,8 @@ type Commands = {
   obfuscateWindowActivityDtosById(ids: string[]): Promise<WindowActivityDto[]>;
   startDataExport: (
     windowActivityExportType: DataExportType,
-    userInputExportType: DataExportType
+    userInputExportType: DataExportType,
+    obfuscationTerms: string[]
   ) => Promise<string>;
   revealItemInFolder: (path: string) => Promise<void>;
   startAllTrackers: () => void;

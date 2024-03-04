@@ -139,9 +139,14 @@ export class IpcHandler {
 
   private async startDataExport(
     windowActivityExportType: DataExportType,
-    userInputExportType: DataExportType
+    userInputExportType: DataExportType,
+    obfuscationTerms: string[]
   ): Promise<string> {
-    return this.dataExportService.startDataExport(windowActivityExportType, userInputExportType);
+    return this.dataExportService.startDataExport(
+      windowActivityExportType,
+      userInputExportType,
+      obfuscationTerms
+    );
   }
 
   private async revealItemInFolder(path: string): Promise<void> {

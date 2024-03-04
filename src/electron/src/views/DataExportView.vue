@@ -29,6 +29,8 @@ const exportExperienceSamplesSelectedOption = ref<DataExportType>(DataExportType
 const exportWindowActivitySelectedOption = ref<DataExportType>(DataExportType.None);
 const exportUserInputSelectedOption = ref<DataExportType>(DataExportType.None);
 
+const obfuscationTermsInput = ref<string[]>();
+
 const isExporting = ref(false);
 const hasExportError = ref(false);
 
@@ -77,8 +79,48 @@ async function handleWindowActivityExportConfigChanged(newSelectedOption: DataEx
     obfuscateWindowActivities.value = true;
   } else if (newSelectedOption === DataExportType.All) {
     obfuscateWindowActivities.value = false;
+    mostRecentWindowActivities.value = await typedIpcRenderer.invoke(
+      'getMostRecentWindowActivityDtos',
+      20
+    );
   }
   exportWindowActivitySelectedOption.value = newSelectedOption;
+}
+
+async function handleObfuscationTermsChanged(newObfuscationTerms: string) {
+  if (!newObfuscationTerms) {
+    obfuscationTermsInput.value = [];
+  } else {
+    obfuscationTermsInput.value = newObfuscationTerms.split(',').map((s: string) => s.trim());
+  }
+}
+
+async function handleObfuscateSampleData() {
+  if (
+    obfuscationTermsInput.value &&
+    obfuscationTermsInput?.value?.length > 0 &&
+    mostRecentWindowActivities.value
+  ) {
+    mostRecentWindowActivities.value = mostRecentWindowActivities.value?.map((activity) => {
+      let windowTitle = activity.windowTitle;
+      let url = activity.url;
+      obfuscationTermsInput.value?.forEach((term) => {
+        if (
+          windowTitle?.toLowerCase().includes(term.toLowerCase()) ||
+          url?.toLowerCase().includes(term.toLowerCase())
+        ) {
+          windowTitle = '[anonymized]';
+          url = '[anonymized]';
+        }
+      });
+      return { ...activity, windowTitle, url };
+    });
+  } else {
+    mostRecentWindowActivities.value = await typedIpcRenderer.invoke(
+      'getMostRecentWindowActivityDtos',
+      20
+    );
+  }
 }
 
 function handleExperienceSamplingConfigChanged(newSelectedOption: DataExportType) {
@@ -104,10 +146,12 @@ async function handleNextStep() {
   if (currentNamedStep.value === 'create-export') {
     isExporting.value = true;
     try {
+      const obfuscationTerms = Array.from(obfuscationTermsInput.value || []);
       pathToExportedFile.value = await typedIpcRenderer.invoke(
         'startDataExport',
         exportWindowActivitySelectedOption.value,
-        exportUserInputSelectedOption.value
+        exportUserInputSelectedOption.value,
+        Array.from(obfuscationTerms)
       );
       hasExportError.value = false;
       const now = new Date();
@@ -206,34 +250,6 @@ function revealItemInFolder(event: Event) {
               </table>
             </article>
           </div>
-          <div v-if="currentNamedStep === 'export-2'" key="1" class="-mt-5">
-            <DataExportWindowActivityTracker
-              v-if="studyConfig.trackers.windowActivityTracker.enabled"
-              :study-info="studyInfo"
-              :data="
-                obfuscateWindowActivities
-                  ? mostRecentWindowActivitiesObfuscated
-                  : mostRecentWindowActivities
-              "
-              :should-obfuscate="obfuscateWindowActivities"
-              :default-value="exportWindowActivitySelectedOption"
-              @change="handleWindowActivityExportConfigChanged"
-            />
-            <DataExportUserInputTracker
-              v-if="studyConfig.trackers.windowActivityTracker.enabled"
-              :study-info="studyInfo"
-              :data="mostRecentUserInputs"
-              :default-value="exportUserInputSelectedOption"
-              @change="handleUserInputExportConfigChanged"
-            />
-            <DataExportExperienceSamplingTracker
-              v-if="studyConfig.trackers.windowActivityTracker.enabled"
-              :study-info="studyInfo"
-              :data="mostRecentExperienceSamples"
-              :default-value="exportExperienceSamplesSelectedOption"
-              @change="handleExperienceSamplingConfigChanged"
-            />
-          </div>
           <div v-if="currentNamedStep === 'create-export'" key="2" class="flex w-full flex-col">
             <h1 class="mb-8 text-4xl font-medium text-neutral-300">Your Export is Ready</h1>
             <article class="prose prose-lg max-w-none">
@@ -259,7 +275,11 @@ function revealItemInFolder(event: Event) {
                   <a :href="studyConfig.uploadUrl" target="_blank">Click here</a> to open the upload
                   page.
                 </li>
-                <li>Upload the file named (data-export.sqlite) using the upload page.</li>
+                <li>
+                  Upload the file named
+                  <span class="badge badge-neutral font-bold text-white">{{ fileName }}</span> using
+                  the upload page.
+                </li>
               </ol>
               <p>
                 Please contact {{ studyConfig.contactName }} ({{ studyConfig.contactEmail }}) in
@@ -273,6 +293,36 @@ function revealItemInFolder(event: Event) {
                 >.
               </p>
             </article>
+          </div>
+          <div v-if="currentNamedStep === 'export-2'" key="1" class="-mt-5">
+            <DataExportWindowActivityTracker
+              v-if="studyConfig.trackers.windowActivityTracker.enabled"
+              :study-info="studyInfo"
+              :data="
+                obfuscateWindowActivities
+                  ? mostRecentWindowActivitiesObfuscated
+                  : mostRecentWindowActivities
+              "
+              :should-obfuscate="obfuscateWindowActivities"
+              :default-value="exportWindowActivitySelectedOption"
+              @option-changed="handleWindowActivityExportConfigChanged"
+              @obfuscation-terms-changed="handleObfuscationTermsChanged"
+              @obfuscate-sample-data="handleObfuscateSampleData"
+            />
+            <DataExportUserInputTracker
+              v-if="studyConfig.trackers.windowActivityTracker.enabled"
+              :study-info="studyInfo"
+              :data="mostRecentUserInputs"
+              :default-value="exportUserInputSelectedOption"
+              @change="handleUserInputExportConfigChanged"
+            />
+            <DataExportExperienceSamplingTracker
+              v-if="studyConfig.trackers.windowActivityTracker.enabled"
+              :study-info="studyInfo"
+              :data="mostRecentExperienceSamples"
+              :default-value="exportExperienceSamplesSelectedOption"
+              @change="handleExperienceSamplingConfigChanged"
+            />
           </div>
         </transition-group>
       </div>
