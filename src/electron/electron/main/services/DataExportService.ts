@@ -43,8 +43,13 @@ export class DataExportService {
     fs.copyFileSync(dbPath, exportDbPath);
     LOG.info(`Database copied to ${exportDbPath}`);
     const db = new Database(exportDbPath);
-    // https://github.com/WiseLibs/better-sqlite3/blob/master/docs/performance.md
+    // see https://github.com/WiseLibs/better-sqlite3/blob/master/docs/performance.md
     db.pragma('journal_mode = WAL');
+
+    // see https://github.com/m4heshd/better-sqlite3-multiple-ciphers/issues/5#issuecomment-1008330548
+    db.pragma(`cipher='sqlcipher'`);
+    db.pragma(`legacy=4`);
+
     db.pragma(`rekey='PersonalAnalytics_${settings.subjectId}'`);
 
     if (windowActivityExportType === DataExportType.Obfuscate) {
