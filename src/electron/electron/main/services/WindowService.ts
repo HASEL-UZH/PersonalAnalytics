@@ -335,13 +335,17 @@ export class WindowService {
           shell.showItemInFolder(path.join(app.getPath('userData'), 'database.sqlite'));
         }
       },
-      {
-        label: 'Export Data',
-        click: (): void => {
-          LOG.info(`Opening data export`);
-          this.createDataExportWindow();
-        }
-      },
+      ...(studyConfig.dataExportEnabled
+        ? [
+            {
+              label: 'Export Data',
+              click: (): void => {
+                LOG.info(`Opening data export`);
+                this.createDataExportWindow();
+              }
+            }
+          ]
+        : []),
       { type: 'separator' },
       {
         label: 'Quit',

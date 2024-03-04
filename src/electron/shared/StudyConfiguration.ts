@@ -39,5 +39,6 @@ export interface StudyConfiguration {
   contactName: string;
   contactEmail: string;
   subjectIdLength: number;
+  dataExportEnabled: boolean;
   trackers: TrackerConfiguration;
 }
