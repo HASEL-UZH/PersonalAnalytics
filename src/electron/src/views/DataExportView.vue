@@ -237,7 +237,7 @@ function revealItemInFolder(event: Event) {
                       <div class="collapse bg-base-200">
                         <input v-model="studyDescriptionExpanded" type="checkbox" />
                         <div class="collapse-title text-sm">
-                          Click to {{ studyDescriptionExpanded ? 'expand' : 'collapse' }} Study
+                          Click to {{ studyDescriptionExpanded ? 'collapse' : 'expand' }} Study
                           Description
                         </div>
                         <div class="collapse-content">
