@@ -137,128 +137,124 @@ function openExportFolder(event: Event) {
       <span class="loading loading-spinner loading-lg" />
     </div>
     <div v-else class="relative flex h-full flex-col justify-between text-neutral-400">
-      <transition-group :name="transitionName">
-        <div v-if="currentNamedStep === 'export-1'" key="0" class="flex w-full flex-col">
-          <article class="prose prose-lg max-w-none">
-            <p>
-              Thank you for participating in the {{ studyInfo.studyName }}-study! So far, all data
-              that has been collected and stored
-              <b class="dark:text-white">only locally on your machine</b>. In this step, the
-              researchers would like to ask you to share this data for analysis and publication in
-              scientific journals.
-            </p>
-            <p>
-              Please click "Next" once you are ready to
-              <b class="dark:text-white">first review, and later share your data</b>. The export
-              that will be created with your permission in the next step will be encrypted and
-              password-protected.
-            </p>
-            <p>
-              Below, you find additional information on the study and how the researchers ensure
-              your data privacy and security.
-            </p>
-            <table class="table-auto text-sm">
-              <tbody>
-                <tr>
-                  <td class="w-40">Study Description:</td>
-                  <td>
-                    {{ studyInfo.shortDescription }}
-                  </td>
-                </tr>
+      <div class="mb-5 flex-grow overflow-y-auto">
+        <transition-group :name="transitionName">
+          <div v-if="currentNamedStep === 'export-1'" key="0" class="flex w-full flex-col">
+            <article class="prose prose-lg max-w-none">
+              <p>
+                Thank you for participating in the {{ studyInfo.studyName }}-study! So far, all data
+                that has been collected and stored
+                <b class="dark:text-white">only locally on your machine</b>. In this step, the
+                researchers would like to ask you to share this data for analysis and publication in
+                scientific journals.
+              </p>
+              <p>
+                Please click "Next" once you are ready to
+                <b class="dark:text-white">first review, and later share your data</b>. The export
+                that will be created with your permission in the next step will be encrypted and
+                password-protected.
+              </p>
+              <p>
+                Below, you find additional information on the study and how the researchers ensure
+                your data privacy and security.
+              </p>
+              <table class="table-auto text-sm">
+                <tbody>
+                  <tr>
+                    <td class="w-40">Study Description:</td>
+                    <td>
+                      {{ studyInfo.shortDescription }}
+                    </td>
+                  </tr>
 
-                <tr>
-                  <td>Contact:</td>
-                  <td>{{ studyInfo.contactName }} ({{ studyInfo.contactEmail }})</td>
-                </tr>
-                <tr>
-                  <td>Study Website:</td>
-                  <td>
-                    <a :href="studyInfo.infoUrl" target="_blank">{{ studyInfo.infoUrl }}</a>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Privacy Policy:</td>
-                  <td>
-                    <a :href="studyInfo.privacyPolicyUrl" target="_blank">{{
-                      studyInfo.privacyPolicyUrl
-                    }}</a>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </article>
-        </div>
-        <div
-          v-if="currentNamedStep === 'export-2'"
-          key="1"
-          class="absolute h-5/6 w-full overflow-y-scroll"
-        >
-          <DataExportWindowActivityTracker
-            v-if="studyConfig.trackers.windowActivityTracker.enabled"
-            :study-info="studyInfo"
-            :data="
-              obfuscateWindowActivities
-                ? mostRecentWindowActivitiesObfuscated
-                : mostRecentWindowActivities
-            "
-            :should-obfuscate="obfuscateWindowActivities"
-            :default-value="exportWindowActivitySelectedOption"
-            @change="handleWindowActivityExportConfigChanged"
-          />
-          <DataExportUserInputTracker
-            v-if="studyConfig.trackers.windowActivityTracker.enabled"
-            :study-info="studyInfo"
-            :data="mostRecentUserInputs"
-            :default-value="exportUserInputSelectedOption"
-            @change="handleUserInputExportConfigChanged"
-          />
-          <DataExportExperienceSamplingTracker
-            v-if="studyConfig.trackers.windowActivityTracker.enabled"
-            :study-info="studyInfo"
-            :data="mostRecentExperienceSamples"
-            :default-value="exportExperienceSamplesSelectedOption"
-            @change="handleExpereinceSamplingConfigChanged"
-          />
-        </div>
-        <div v-if="currentNamedStep === 'create-export'" key="2" class="flex w-full flex-col">
-          <article class="prose prose-lg max-w-none">
-            <p>
-              Thank you for reviewing and exporting your data for the study
-              {{ studyConfig.name }}-study.
-            </p>
-            <p>
-              A single password-protected and encrypted
-              <b class="dark:text-white">file was created</b> based on your preferences on the
-              previous page. To share this file with the researchers, please take the following
-              steps:
-            </p>
-            <ol>
-              <li>
-                <a href="#" @click="openExportFolder">Click here</a> to open the folder containing
-                your data-file (data-export.sqlite).
-              </li>
-              <li>
-                <a :href="studyConfig.uploadUrl" target="_blank">Click here</a> to open the upload
-                page.
-              </li>
-              <li>Upload the file named (data-export.sqlite) using the upload page.</li>
-            </ol>
-            <p>
-              Please contact {{ studyConfig.contactName }} ({{ studyConfig.contactEmail }}) in case
-              you have any questions. Thank you!
-            </p>
-            <p>
-              If you want to review the complete data file before sharing it with the researchers,
-              please refer to this guide. The password required for opening the exported file is:
-              <span class="badge badge-neutral text-white"
-                >PersonalAnalytics_{{ studyInfo.subjectId }}</span
-              >.
-            </p>
-          </article>
-        </div>
-      </transition-group>
-
-      <div class="flex-grow" />
+                  <tr>
+                    <td>Contact:</td>
+                    <td>{{ studyInfo.contactName }} ({{ studyInfo.contactEmail }})</td>
+                  </tr>
+                  <tr>
+                    <td>Study Website:</td>
+                    <td>
+                      <a :href="studyInfo.infoUrl" target="_blank">{{ studyInfo.infoUrl }}</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Privacy Policy:</td>
+                    <td>
+                      <a :href="studyInfo.privacyPolicyUrl" target="_blank">{{
+                        studyInfo.privacyPolicyUrl
+                      }}</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </article>
+          </div>
+          <div v-if="currentNamedStep === 'export-2'" key="1" class="-mt-5">
+            <DataExportWindowActivityTracker
+              v-if="studyConfig.trackers.windowActivityTracker.enabled"
+              :study-info="studyInfo"
+              :data="
+                obfuscateWindowActivities
+                  ? mostRecentWindowActivitiesObfuscated
+                  : mostRecentWindowActivities
+              "
+              :should-obfuscate="obfuscateWindowActivities"
+              :default-value="exportWindowActivitySelectedOption"
+              @change="handleWindowActivityExportConfigChanged"
+            />
+            <DataExportUserInputTracker
+              v-if="studyConfig.trackers.windowActivityTracker.enabled"
+              :study-info="studyInfo"
+              :data="mostRecentUserInputs"
+              :default-value="exportUserInputSelectedOption"
+              @change="handleUserInputExportConfigChanged"
+            />
+            <DataExportExperienceSamplingTracker
+              v-if="studyConfig.trackers.windowActivityTracker.enabled"
+              :study-info="studyInfo"
+              :data="mostRecentExperienceSamples"
+              :default-value="exportExperienceSamplesSelectedOption"
+              @change="handleExpereinceSamplingConfigChanged"
+            />
+          </div>
+          <div v-if="currentNamedStep === 'create-export'" key="2" class="flex w-full flex-col">
+            <article class="prose prose-lg max-w-none">
+              <p>
+                Thank you for reviewing and exporting your data for the study
+                {{ studyConfig.name }}-study.
+              </p>
+              <p>
+                A single password-protected and encrypted
+                <b class="dark:text-white">file was created</b> based on your preferences on the
+                previous page. To share this file with the researchers, please take the following
+                steps:
+              </p>
+              <ol>
+                <li>
+                  <a href="#" @click="openExportFolder">Click here</a> to open the folder containing
+                  your data-file (data-export.sqlite).
+                </li>
+                <li>
+                  <a :href="studyConfig.uploadUrl" target="_blank">Click here</a> to open the upload
+                  page.
+                </li>
+                <li>Upload the file named (data-export.sqlite) using the upload page.</li>
+              </ol>
+              <p>
+                Please contact {{ studyConfig.contactName }} ({{ studyConfig.contactEmail }}) in
+                case you have any questions. Thank you!
+              </p>
+              <p>
+                If you want to review the complete data file before sharing it with the researchers,
+                please refer to this guide. The password required for opening the exported file is:
+                <span class="badge badge-neutral text-white"
+                  >PersonalAnalytics_{{ studyInfo.subjectId }}</span
+                >.
+              </p>
+            </article>
+          </div>
+        </transition-group>
+      </div>
       <div id="footer" class="z-10 mt-auto flex items-center justify-between">
         <button
           class="btn btn-outline"

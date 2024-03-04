@@ -274,7 +274,8 @@ function startAllTrackers() {
             </p>
 
             <p>
-             Contact {{ studyInfo.contactName }} ({{ studyInfo.contactEmail }}) in case of questions.
+              Contact {{ studyInfo.contactName }} ({{ studyInfo.contactEmail }}) in case of
+              questions.
             </p>
           </article>
         </div>
