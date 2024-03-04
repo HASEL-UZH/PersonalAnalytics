@@ -235,6 +235,7 @@ function revealItemInFolder(event: Event) {
             />
           </div>
           <div v-if="currentNamedStep === 'create-export'" key="2" class="flex w-full flex-col">
+            <h1 class="mb-8 text-4xl font-medium text-neutral-300">Your Export is Ready</h1>
             <article class="prose prose-lg max-w-none">
               <p>
                 Thank you for reviewing and exporting your data for the study
