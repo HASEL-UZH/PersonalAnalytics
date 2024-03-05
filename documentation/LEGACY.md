@@ -1,4 +1,4 @@
-# PersonalAnalytics LEgacy
+# PersonalAnalytics Legacy
 
 The original version of PersonalAnalytics for Windows (created by André Meyer) and for macOS (created by Roy Rutishauser and Chris Satterfield), and supported by several other contributors, has been deprecated and is no longer maintained.  In case of interest, you can access the code of the [Windows app](https://github.com/HASEL-UZH/PersonalAnalytics/tree/dev-ammac) and [macOS app](https://github.com/HASEL-UZH/PersonalAnalytics/tree/mac) on an old, stale branch. 
 
