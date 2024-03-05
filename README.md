@@ -19,8 +19,8 @@ This project was created by and for researchers who want to ask study participan
 Learn more about how to use [PersonalAnalytics for your research project](https://github.com/HASE-UZH/PersonalAnalytics/blob/dev-am/documentation/RESEARCH.md).
 
 ## 📖 Further Information
-- [Installation & Usage for End Users](https://github.com/HASE-UZH/PersonalAnalytics/blob/dev-am/documentation/INSTALLATION.md))
-- [Customization & Usage for Researchers](https://github.com/HASE-UZH/PersonalAnalytics/blob/dev-am/documentation/RESEARCH.md))
+- [Installation & Usage for End Users](https://github.com/HASE-UZH/PersonalAnalytics/blob/dev-am/documentation/INSTALLATION.md)
+- [Customization & Usage for Researchers](https://github.com/HASE-UZH/PersonalAnalytics/blob/dev-am/documentation/RESEARCH.md)
 - [Data Collection & Privacy Policy](https://github.com/HASE-UZH/PersonalAnalytics/blob/dev-am/documentation/PRIVACY.md)
 - [Contributions](https://github.com/HASE-UZH/PersonalAnalytics/blob/dev-am/documentation/CONTRIBUTIONS.md)
 - [Information on the old PersonalAnalytics](https://github.com/HASE-UZH/PersonalAnalytics/blob/dev-am/documentation/LEGACY.md)
