@@ -1,79 +1,47 @@
-# PersonalAnalytics - Building the Fitbit for Knowledge Workers
-Personal Analytics project was originally initiated by [Dr. André N. Meyer](https://www.andre-meyer.ch) and [Prof. Dr. Thomas Fritz](http://www.ifi.uzh.ch/en/seal/people/fritz.html) from the SEAL Lab at the University of Zurich (UZH). Their goal is to build a self-monitoring tool that knowledge workers (e.g. developers, designers, administrators) install on their computer and that allows them to get insights into their work, work habits, and productivity, and identify positive behavior changes and opportunities for self-improvement. The basis are a number of computer interaction trackers (e.g. application usage, websites, emails/meetings, user input) and biometric trackers (e.g. Fitbit, Polar, Garmin, Tobii Eye-Tracker) that non-intrusively collect data, store them locally on the users machine (to avoid privacy issues!) and then visualize them in a daily/weekly summary, the retrospection. 
+# PersonalAnalytics - Privacy-protecting, open-source Self-Monitoring Software
+<!--# PersonalAnalytics - Building the Fitbit for Knowledge Workers-->
 
-Anyone is welcome to contribute to PersonalAnalytics by extending it with new trackers or improving existing ones. Feel free to use PersonalAnalytics to get insights into your own work habits, or use it for research studies. In case you re-use PersonalAnalytics, make sure to cite our work (specifically this Github repository and our CSCW'2018 paper below).
+PersonalAnalytics is a self-monitoring software developed by the [Human Aspects of Software Engineering Lab](https://hasel.dev) of [the University of Zurich](https://www.uzh.ch) to non-intrusively collect computer interaction data and user's self-reports, store it locally on the user's machine, and allow users to voluntarily share a user-defined and potentially obfuscated subset of the data with researchers for scientific purposes.
+
+The monitoring component captures computer interaction data including user input and app & website usage data. Every now and then, a self-reflection question asks the user a question, e.g. about the current stress level or perceived productivity. Since all data is stored locally only (and _not_ automatically uploaded to a server to avoid privacy concerns), a data export component helps the user to decide which data to share and allows it to be obfuscated, before securely sharing it with researchers. In the future, it will add a [retrospection]([url](https://www.andre-meyer.ch/CSCW18)) that will visualize and correlate the automatically collected and manually reported data to help users learn more about how they spend their time, their work habits and how it impacts productivity and time well spent. This software is open source, can be adapted and re-used for researchers' own scientific studies.
+
+Anyone is welcome to contribute to PersonalAnalytics by extending it with new trackers or improving existing ones. Feel free to use PersonalAnalytics to get insights into your own work habits, or use it for research studies. In case you re-use PersonalAnalytics, ensure to provide proper [attribution as described here](./documentation/RESEARCH.md).
 
 
-## 🚀 Maintenance Status
-As you might have noticed, the project is not maintained super actively anymore due to changing priorities of the involved people. However, the most important [data trackers](https://github.com/HASEL-UZH/PersonalAnalytics/blob/dev-am/documentation/ARCHITECTURE.md#data-trackers) were ported to run on both `Windows` and `macOS` using `Typescript` and some OS-native code. They are OSS, actively used and maintained here:
-- [WindowsActivityTracker](https://github.com/HASEL-UZH/PA.WindowsActivityTracker/tree/main/typescript) that allows to log the timestamp, app name and window title of the currently active window, in addition to an automated catgorization into the `Activity` (method described in this [publication](https://andre-meyer.ch/TSE20).
-- [UserInputTracker](https://github.com/HASEL-UZH/PA.UserInputTracker/tree/main/typescript) that allows to log moue movement, clicks, scrolls and keystrokes with timestamps (not actual keys, only the type (any, navigate, delete) for privacy reasons)
+## 🧑‍💻 Installation & Usage as a User
+Anyone may install PersonalAnalytics on their Windows or macOS device to non-intrusively collect computer interaction data, and analyze their activity, time spent and work habits for themselves. In the future, once we'll re-introduce the Retrospection (i.e. visualizations of the collected and self-reported data), it will be much easier to gain insights again.
 
-## Tool Releases
-- [Windows (Installer)](https://www.andre-meyer.ch/DATA/PA/RELEASE/index.html) (note that Windows SmartScreen might ask you to unblock the install) 
-- [Windows (Release)](https://github.com/HASEL-UZH/PersonalAnalytics/releases/tag/v0.9.6.3)
-- [MacOS (Preview Release)](https://github.com/HASEL-UZH/PersonalAnalytics/releases/tag/macOS-v0.0.2.0)
+To install and use PersonalAnalytics, [consider this guide](./documentation/INSTALLATION.md).
 
-## Further Information
-- [Privacy information](https://github.com/HASE-UZH/PersonalAnalytics/blob/dev-am/documentation/PRIVACY.md)
-- [Architecture information](https://github.com/HASE-UZH/PersonalAnalytics/blob/dev-am/documentation/ARCHITECTURE.md)
+## 👩‍🔬 Customization & Usage as a Researcher
+This project was created by and for researchers who want to ask study participants to run PersonalAnalytics on their device to non-intrusively collect **computer interaction data** in a privacy-protected way. As often times, having access to only automatically collected data is often not sufficient, PersonalAnalytics also offers an **experience sampling component**, which allows researchers to ask users to reflect and self-report on one or several questions (e.g. Have I been productive? Am I stressed right now?) at customizable times and using Likert-scales. As all collected data is only stored locally on participants' computers, there is an **export component**, guiding the participant through sharing and potentially obfuscating the captured data, before sharing it with the researchers through their data transfer service of choice. Most settings are configurable in the [study-config]([url](https://github.com/HASEL-UZH/PersonalAnalytics/blob/feature/electron/src/electron/shared/study.config.ts)), everything else can be customized in code.
+
+Learn more about how to use [PersonalAnalytics for your research project](./documentation/RESEARCH.md).
+
+## 📖 Further Information
+- [Installation & Usage for End Users](./documentation/INSTALLATION.md)
+- [Customization & Usage for Researchers](./documentation/RESEARCH.md)
+- [Data Collection & Privacy Policy](./documentation/PRIVACY.md)
+- [Contributions](./documentation/RESEARCH.md#contributions-guide)
+- [Information on the old PersonalAnalytics](./documentation/LEGACY.md)
 - Questions? contact [Dr. André Meyer](mailto:ameyer@ifi.uzh.ch)
 
 
-![Retrospection Screenshot](./documentation/images/retrospection_screenshot.png?raw=true)
+## 🕒 Maintenance Status
+The original version of PersonalAnalytics for Windows (created by André Meyer) and for macOS (created by Roy Rutishauser and Chris Satterfield), and supported by several other contributors, have been deprecated and are no longer maintained. In case of interest, you can learn more about [PersonalAnalytics-legacy here](./documentation/LEGACY.md).
 
-# Updates & Branches
-- September 2014: Initiated by [André Meyer](https://www.andre-meyer.ch) and regularly updated since then.
-- November, 2015: OpenSourced the project (license: MIT).
-- February, 2016: Improved the retrospection and added the Office 365 tracker during an internship at Microsoft Research between November, 2015 and February, 2016
-- April, 2016: Merged the branch (from Microsoft Research) with the original version, following the open sourcing of the code.
-- May, 2016: Started working on a communication dashboard (including more insights into interactions with others) with ABB Research (on a separate branch). This work has never been finished.
-- June, 2016: Started working on integrating the Muse tracker with [Monica Rüegg](https://github.com/montrin) (master student at the University of Zurich, Switzerland) on the 'muse' branch. The branch has not stable enough to merge with master.
-- December, 2016: Started working on integrating several other biometric sensors (Polar, Garmin, Fitbit) (on the 'biometrics' branch). The PolarTracker and GarminTracker are available and stable on the master branch. GarminTracker is still in development.
-- February, 2017: Integrated the (privately developed) [FlowLight](https://www.andre-meyer.ch/flowlight) to avoid interruptions at inopportune moments. It has since then been removed from the repository, as it was licensed to [Embrava](https://embrava.com/pages/flow).
-- March, 2017: Started working on task type detection (on the 'taskdetection' branch), still in development.
-- September, 2018: [Chris Satterfield](https://github.com/csatterfield) (master student at University of British Columbia, Canada) started integrating his port from Windows to MacOS. [mac-branch](https://github.com/HASE-UZH/PersonalAnalytics/tree/mac)
-- September 2018: [Jan Pilzer](https://github.com/hirse) and [Raphael](https://github.com/raphaelro) started integrating their work on Tobii Eytracking. Work in progress.
-- January 2019: [Louie Quaranta](https://github.com/louieQ) added an emotion state experience sampling pop-up to PersonalAnalytics for Mac (merged to [mac-branch](https://github.com/sealuzh/PersonalAnalytics/tree/mac)).
-- October 2019: [Roy Rutishauser](https://github.com/royru) started unifying PersonalAnalytics for Mac and make it more similar to the Windows version
-- May 2020: [Jan Pilzer](https://github.com/hirse) created a [large pull-request](https://github.com/sealuzh/PersonalAnalytics/pull/258) to include WindowDimmer into the official PersonalAnalytics release. [Publication](https://andre-meyer.ch/CHI20)
-- October 2020: [Philip Hofmann](https://github.com/Phhofm) created a [large pull-request](https://github.com/HASE-UZH/PersonalAnalytics/pull/265) to include FocusSession into the official PersonalAnalytics release
+In 2024, we've revived the project in creating a multi-platform app using TypeScript and Electron. It is using the TypeScript-versions of our original, most used data trackers, the [WindowsActivityTracker](https://github.com/HASEL-UZH/PA.WindowsActivityTracker/tree/main/typescript) and the [UserInputTracker](https://github.com/HASEL-UZH/PA.UserInputTracker/tree/main/typescript). In addition, it includes an experience sampling component that can ask users to provide self-reports on one or several questions at customizable times. At the moment, the new PersonalAnalytics does NOT yet feature a retrospection, but it's the plan to recreate it in the future.
 
-# Main Contributors and People Involved
-- [Dr. André Meyer](https://www.andre-meyer.ch) (University of Zurich, main contributor to Windows version)
+
+# 🙂 Main Contributors and People Involved
+This work is carried by the following main contributors: 
+- [Dr. André Meyer](https://www.andre-meyer.ch) (University of Zurich, main contributor to the project)
 - [Prof. Dr. Thomas Fritz](http://www.ifi.uzh.ch/en/seal/people/fritz.html) (University of Zurich)
 - [Chris Satterfield](https://github.com/csatterfield) (contributor to MacOS version)
-- [Roy Rutishauser](https://github.com/royru) (contributor to MacOS version)
-- [Jan Pilzer](https://github.com/hirse) (contributor to Windows version)
-- [Dr. Manuela Züger](http://www.ifi.uzh.ch/en/seal/people/zueger.html) (prev. University of Zurich)
-- [Dr. Sebastian Müller](http://www.ifi.uzh.ch/en/seal/people/mueller.html) (prev. University of Zurich)
+- [Roy Rutishauser](https://github.com/royru) (contributor to MacOS-legacy version)
+- [Jan Pilzer](https://github.com/hirse) (contributor to Windows-legacy version)
+- [Sebastian Richner](https://github.com/SRichner) (contributor to new version)
+- Dr. Manuela Züger (prev. University of Zurich, contributor to Windows-legacy version)
+- Dr. Sebastian Müller (prev. University of Zurich, contributor to Windows-legacy version)
 - [Dr. Tom Zimmermann](https://www.microsoft.com/en-us/research/people/tzimmer/) (Microsoft Research)
 - [Prof. Dr. Gail C. Murphy](https://blogs.ubc.ca/gailcmurphy/) (University of British Columbia)
-
-# Research
-This tool was developed for and used by the following research:
-- [CHI'20](https://andre-meyer.ch/CHI20) Supporting Software Developers’ Focused Work on Window-Based Desktops. Jan Pilzer, Raphael Rosenast. André Meyer. Elaine Huang. Thomas Fritz.
-- [TSE'20](https://andre-meyer.ch/TSE20) Detecting Developers’ Task Switches and Types. André Meyer, Chris Satterfield, Manuela Züger, Katja Kevic, Gail Murphy, Thomas Zimmermann, and Thomas Fritz.
-- [CSCW’18](https://www.andre-meyer.ch/CSCW18) Design Recommendations for Self-Monitoring in the Workplace: Studies in Software Development. André Meyer, Gail Murphy, Thomas Zimmermann, Thomas Fritz. (hint: in this paper, the tool described as WorkAnalytics refers to the PersonalAnalytics in this repository)
-- [CHI’18](http://www.zora.uzh.ch/id/eprint/151128/1/pn4597-zugerA.pdf) Sensing Interruptibility in the Office: A Field Study on the Use of Biometric and Computer Interaction Sensors. Manuela Züger, Sebastian Müller, André Meyer, Thomas Fritz. 
-- [TSE’17](https://www.andre-meyer.ch/TSE17) The Work Life of Developers: Activities, Switches and Perceived Productivity. André Meyer, Gail Murphy, Thomas Zimmermann, Laura Barton, Thomas Fritz. 
-- [CHI’17](https://www.andre-meyer.ch/CHI17) Reducing Interruptions at Work: A Large-Scale Field Study of FlowLight. Manuela Züger, Christopher Corley, André Meyer, Boyang Li, Thomas Fritz, David Shepherd, Vinay Augustine, Patrick Francis, Nicholas Kraft and Will Snipes.
-
-# Credits
-We want to thank the following developers for providing us with the fantastic libraries:
-- MouseKeyHook https://github.com/gmamaladze/globalmousekeyhook MIT License
-- Hardcodet.NotifyIcon https://bitbucket.org/hardcodet/notifyicon-wpf Code Project Open License
-- Jquery https://jquery.org/license/ MIT License
-- Masonry https://github.com/desandro/masonry MIT License
-- SQLite www.sqlite.org/copyright.html Open Domain 
-- D3 Visualization https://github.com/mbostock/d3 BSD License
-- C3.js https://github.com/masayuki0812/c3 MIT License 
-- HTML FilterTable https://github.com/koalyptus/TableFilter MIT License
-- Newtonsoft Json http://www.newtonsoft.com/json MIT License
-- OpenNLP https://github.com/AlexPoint/OpenNlp MIT License 
-- CocoaPods https://cocoapods.org/ MIT License
-- EonilFSEvents https://github.com/eonil/FSEvents MIT License
-- Sparkle https://sparkle-project.org/ MIT License
-- create-dmg https://github.com/sindresorhus/create-dmg MIT License
-- GRDB.swift https://github.com/groue/GRDB.swift MIT License
-- Swifter https://github.com/httpswift/swifter MIT License
