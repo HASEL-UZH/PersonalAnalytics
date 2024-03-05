@@ -22,7 +22,7 @@ Learn more about how to use [PersonalAnalytics for your research project](./docu
 - [Installation & Usage for End Users](./documentation/INSTALLATION.md)
 - [Customization & Usage for Researchers](./documentation/RESEARCH.md)
 - [Data Collection & Privacy Policy](./documentation/PRIVACY.md)
-- [Contributions](./documentation/CONTRIBUTIONS.md)
+- [Contributions](./documentation/RESEARCH.md#contributions-guide)
 - [Information on the old PersonalAnalytics](./documentation/LEGACY.md)
 - Questions? contact [Dr. André Meyer](mailto:ameyer@ifi.uzh.ch)
 
