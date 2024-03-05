@@ -7,7 +7,8 @@ Learn more about the original project in [this CSCW’18 publication](https://ww
 In 2024, we've revived the project in creating a multi-platform app using TypeScript and Electron. It is using the TypeScript-versions of our original, most used data trackers, the WindowsActivityTracker and the UserInputTracker. In addition, it includes an experience sampling component that can ask users to provide self-reports on one or several questions at customizable times. At the moment, the new PersonalAnalytics does NOT yet feature a retrospection, but it's the plan to recreate it in the future.
 
 This is how the retrospection of PersonalAnalytics for Windows looked like:
-[Retrospection Screenshot](./images/retrospection_screenshot.png?raw=true)
+![Retrospection Screenshot](./images/retrospection_screenshot.png?raw=true)
+
 
 # Contributions
 - September 2014: Initiated by [André Meyer](https://www.andre-meyer.ch) and regularly updated since then.
