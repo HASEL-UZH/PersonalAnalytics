@@ -239,6 +239,18 @@ export class WindowService {
       return { action: 'deny' };
     });
 
+    const template = [
+      {
+        label: 'Edit',
+        submenu: [
+          { label: 'Copy', accelerator: 'CmdOrCtrl+C', selector: 'copy:' },
+          { label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:' }
+        ]
+      }
+    ];
+
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+
     this.dataExportWindow.show();
 
     this.dataExportWindow.on('close', () => {
