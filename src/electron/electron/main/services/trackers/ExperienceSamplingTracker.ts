@@ -34,6 +34,7 @@ export class ExperienceSamplingTracker implements Tracker {
 
   public async resume(): Promise<void> {
     LOG.info('Resuming ExperienceSamplingTracker');
+    this.isRunning = true;
     const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
     // if the next invocation is in the past, we schedule the job in 30 + randomization minutes no matter what
     if (settings.nextExperienceSamplingInvocation <= new Date()) {
