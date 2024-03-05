@@ -61,12 +61,11 @@ export class DataExportService {
           processName: string;
           processPath: string;
           processId: string;
-          activity: string;
           url: string;
           id: string;
         }[] = await WindowActivityEntity.getRepository()
           .createQueryBuilder('window_activity')
-          .select('id, windowTitle, url, processName, processPath, processId, activity')
+          .select('id, windowTitle, url, processName, processPath, processId')
           .getRawMany();
         for (const item of items) {
           if (windowActivityExportType === DataExportType.Obfuscate) {
@@ -81,11 +80,8 @@ export class DataExportService {
               item.processPath
             );
             const randomizeProcessId = undefined;
-            const randomizeActivity = this.windowActivityTrackerService.randomizeString(
-              item.activity
-            );
             const obfuscateWindowActivities = db.prepare(
-              'UPDATE window_activity SET windowTitle = ?, url = ?, processName = ?, processPath = ?, processId = ?, activity = ? WHERE id = ?'
+              'UPDATE window_activity SET windowTitle = ?, url = ?, processName = ?, processPath = ?, processId = ? WHERE id = ?'
             );
             obfuscateWindowActivities.run(
               randomizeWindowTitle,
@@ -93,7 +89,6 @@ export class DataExportService {
               randomizeProcessName,
               randomizeProcessPath,
               randomizeProcessId,
-              randomizeActivity,
               item.id
             );
           } else if (
@@ -108,18 +103,16 @@ export class DataExportService {
                 item.windowTitle?.toLowerCase().includes(term) ||
                 item.url?.toLowerCase().includes(term) ||
                 item.processName?.toLowerCase().includes(term) ||
-                item.processPath?.toLowerCase().includes(term) ||
-                item.activity?.toLowerCase().includes(term)
+                item.processPath?.toLowerCase().includes(term)
               ) {
                 const obfuscateWindowActivities = db.prepare(
-                  'UPDATE window_activity SET windowTitle = ?, url = ?, processName = ?, processPath = ?, processId = ?, activity = ? WHERE id = ?'
+                  'UPDATE window_activity SET windowTitle = ?, url = ?, processName = ?, processPath = ?, processId = ? WHERE id = ?'
                 );
                 const windowTitle = item.windowTitle ? '[anonymized]' : undefined;
                 const url = item.url ? '[anonymized]' : undefined;
                 const processName = item.processName ? '[anonymized]' : undefined;
                 const processPath = item.processPath ? '[anonymized]' : undefined;
                 const processId = undefined;
-                const activity = item.activity ? '[anonymized]' : undefined;
 
                 obfuscateWindowActivities.run(
                   windowTitle,
@@ -127,7 +120,6 @@ export class DataExportService {
                   processName,
                   processPath,
                   processId,
-                  activity,
                   item.id
                 );
               }

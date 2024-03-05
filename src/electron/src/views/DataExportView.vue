@@ -113,24 +113,21 @@ async function handleObfuscateSampleData() {
       let processName = item.processName;
       let processPath = item.processPath;
       let processId = item.processId;
-      let activity = item.activity;
       obfuscationTermsInput.value?.forEach((term) => {
         if (
           windowTitle?.toLowerCase().includes(term.toLowerCase()) ||
           url?.toLowerCase().includes(term.toLowerCase()) ||
           processName?.toLowerCase().includes(term.toLowerCase()) ||
-          processPath?.toLowerCase().includes(term.toLowerCase()) ||
-          activity?.toLowerCase().includes(term.toLowerCase())
+          processPath?.toLowerCase().includes(term.toLowerCase())
         ) {
           windowTitle = windowTitle ? '[anonymized]' : windowTitle;
           url = url ? '[anonymized]' : url;
           processName = processName ? '[anonymized]' : processName;
           processPath = processPath ? '[anonymized]' : processPath;
           processId = processId ? null : processId;
-          activity = activity ? '[anonymized]' : activity;
         }
       });
-      return { ...item, windowTitle, url, activity, processPath, processName, processId };
+      return { ...item, windowTitle, url, processPath, processName, processId };
     });
   } else {
     mostRecentWindowActivities.value = await typedIpcRenderer.invoke(
