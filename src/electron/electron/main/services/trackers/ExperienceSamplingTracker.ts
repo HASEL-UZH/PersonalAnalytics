@@ -53,7 +53,6 @@ export class ExperienceSamplingTracker implements Tracker {
     } else {
       await this.startExperienceSamplingJob();
     }
-    await this.startExperienceSamplingJob();
   }
 
   private async startExperienceSamplingJob(): Promise<void> {
