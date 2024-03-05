@@ -78,8 +78,8 @@ const emitObfuscateSampleData = async () => {
       </table>
     </div>
 
-    <div class="mt-8 flex">
-      <div class="mr-12">
+    <div class="mt-8 flex flex-col">
+      <div class="flex w-2/3 flex-col">
         <div class="prose">
           <h2>How do you want to share your data?</h2>
         </div>
@@ -123,13 +123,27 @@ const emitObfuscateSampleData = async () => {
             />
           </label>
         </div>
+        <div class="form-control">
+          <label class="label cursor-pointer">
+            <span class="label-text"
+              >Only obfuscate data with the following (comma-separated) list of terms</span
+            >
+            <input
+              v-model="selectedOption"
+              type="radio"
+              :value="DataExportType.ObfuscateWithTerms"
+              class="radio checked:bg-blue-500"
+              @change="emitOptionChanged"
+            />
+          </label>
+        </div>
       </div>
-      <div>
+      <div v-if="selectedOption === DataExportType.ObfuscateWithTerms">
         <div class="prose">
           <h3>Obfuscate content by terms</h3>
         </div>
         <div class="flex flex-col">
-          <label class="form-control w-full max-w-xs">
+          <label class="form-control w-full">
             <div class="label">
               <span class="label-text">You can enter multiple terms separated by commas</span>
             </div>
@@ -137,7 +151,7 @@ const emitObfuscateSampleData = async () => {
               v-model="obfuscationTermsInput"
               type="text"
               placeholder="Enter, terms, here, ..."
-              class="input input-bordered w-full max-w-xs text-sm"
+              class="input input-bordered w-full text-sm"
               @input="emitObfuscationTermsChanged"
               @keyup.enter="emitObfuscateSampleData"
             />

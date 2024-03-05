@@ -48,7 +48,7 @@ const currentNamedStep = computed(() => {
 });
 
 onMounted(async () => {
-  studyInfo.value = await typedIpcRenderer.invoke('getStudyInfo');
+  studyInfo.value = (await typedIpcRenderer.invoke('getStudyInfo')) as StudyInfoDto;
   if (studyConfig.trackers.experienceSamplingTracker.enabled) {
     exportExperienceSamplesSelectedOption.value = DataExportType.All;
     mostRecentExperienceSamples.value = await typedIpcRenderer.invoke(
@@ -71,13 +71,19 @@ onMounted(async () => {
 });
 
 async function handleWindowActivityExportConfigChanged(newSelectedOption: DataExportType) {
+  if (newSelectedOption !== DataExportType.ObfuscateWithTerms) {
+    obfuscationTermsInput.value = [];
+  }
   if (mostRecentWindowActivities.value && newSelectedOption === DataExportType.Obfuscate) {
     mostRecentWindowActivitiesObfuscated.value = await typedIpcRenderer.invoke(
       'obfuscateWindowActivityDtosById',
       mostRecentWindowActivities.value.map((d) => d.id)
     );
     obfuscateWindowActivities.value = true;
-  } else if (newSelectedOption === DataExportType.All) {
+  } else if (
+    newSelectedOption === DataExportType.All ||
+    newSelectedOption === DataExportType.ObfuscateWithTerms
+  ) {
     obfuscateWindowActivities.value = false;
     mostRecentWindowActivities.value = await typedIpcRenderer.invoke(
       'getMostRecentWindowActivityDtos',
@@ -162,7 +168,7 @@ async function handleNextStep() {
         'startDataExport',
         exportWindowActivitySelectedOption.value,
         exportUserInputSelectedOption.value,
-        Array.from(obfuscationTerms)
+        obfuscationTerms
       );
       hasExportError.value = false;
       const now = new Date();

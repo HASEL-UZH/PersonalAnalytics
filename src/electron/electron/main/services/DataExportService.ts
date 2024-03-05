@@ -55,7 +55,7 @@ export class DataExportService {
 
       db.pragma(`rekey='PersonalAnalytics_${settings.subjectId}'`);
 
-      if (windowActivityExportType === DataExportType.Obfuscate || obfuscationTerms?.length > 0) {
+      if (windowActivityExportType === DataExportType.Obfuscate) {
         const items: {
           windowTitle: string;
           processName: string;
@@ -81,6 +81,9 @@ export class DataExportService {
               item.processPath
             );
             const randomizeProcessId = undefined;
+            const randomizeActivity = this.windowActivityTrackerService.randomizeString(
+              item.activity
+            );
             const obfuscateWindowActivities = db.prepare(
               'UPDATE window_activity SET windowTitle = ?, url = ?, processName = ?, processPath = ?, processId = ?, activity = ? WHERE id = ?'
             );
@@ -90,9 +93,13 @@ export class DataExportService {
               randomizeProcessName,
               randomizeProcessPath,
               randomizeProcessId,
+              randomizeActivity,
               item.id
             );
-          } else if (obfuscationTerms.length > 0) {
+          } else if (
+            windowActivityExportType === DataExportType.ObfuscateWithTerms &&
+            obfuscationTerms.length > 0
+          ) {
             const lowerCaseObfuscationTerms: string[] = obfuscationTerms.map((term: string) =>
               term.toLowerCase()
             );
