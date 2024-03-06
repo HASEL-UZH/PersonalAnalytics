@@ -44,8 +44,7 @@ const emitObfuscateSampleData = async () => {
     </div>
     <div class="mt-4 flex w-1/2 flex-col">
       <div class="form-control">
-        <label class="label cursor-pointer">
-          <span class="label-text">Share data as-is</span>
+        <label class="label flex cursor-pointer items-center justify-start">
           <input
             v-model="selectedOption"
             type="radio"
@@ -53,11 +52,11 @@ const emitObfuscateSampleData = async () => {
             class="radio checked:bg-blue-500"
             @change="emitOptionChanged"
           />
+          <span class="label-text ml-2">Share data as-is</span>
         </label>
       </div>
       <div class="form-control">
-        <label class="label cursor-pointer">
-          <span class="label-text">Obfuscate potentially sensitive data</span>
+        <label class="label flex cursor-pointer items-center justify-start">
           <input
             v-model="selectedOption"
             type="radio"
@@ -65,13 +64,11 @@ const emitObfuscateSampleData = async () => {
             class="radio checked:bg-blue-500"
             @change="emitOptionChanged"
           />
+          <span class="label-text ml-2">Obfuscate potentially sensitive data</span>
         </label>
       </div>
       <div class="form-control">
-        <label class="label cursor-pointer">
-          <span class="label-text"
-            >Only obfuscate data with the following (comma-separated) list of terms</span
-          >
+        <label class="label flex cursor-pointer items-center justify-start">
           <input
             v-model="selectedOption"
             type="radio"
@@ -79,6 +76,9 @@ const emitObfuscateSampleData = async () => {
             class="radio checked:bg-blue-500"
             @change="emitOptionChanged"
           />
+          <span class="label-text ml-2"
+            >Only obfuscate data with the following (comma-separated) list of terms</span
+          >
         </label>
       </div>
       <div v-if="selectedOption === DataExportType.ObfuscateWithTerms">
@@ -97,8 +97,7 @@ const emitObfuscateSampleData = async () => {
         </div>
       </div>
       <div class="form-control">
-        <label class="label cursor-pointer">
-          <span class="label-text">Do not share this data</span>
+        <label class="label flex cursor-pointer items-center justify-start">
           <input
             v-model="selectedOption"
             type="radio"
@@ -106,6 +105,7 @@ const emitObfuscateSampleData = async () => {
             class="radio checked:bg-blue-500"
             @change="emitOptionChanged"
           />
+          <span class="label-text ml-2">Do not share this data</span>
         </label>
       </div>
     </div>

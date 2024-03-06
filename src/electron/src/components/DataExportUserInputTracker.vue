@@ -36,8 +36,7 @@ const emitChange = () => {
     </div>
     <div class="mt-4 flex w-1/3 flex-col">
       <div class="form-control">
-        <label class="label cursor-pointer">
-          <span class="label-text">Share data as-is</span>
+        <label class="label flex cursor-pointer items-center justify-start">
           <input
             v-model="selectedOption"
             type="radio"
@@ -45,11 +44,11 @@ const emitChange = () => {
             class="radio checked:bg-blue-500"
             @change="emitChange"
           />
+          <span class="label-text ml-2">Share data as-is</span>
         </label>
       </div>
       <div class="form-control">
-        <label class="label cursor-pointer">
-          <span class="label-text">Do not share this data</span>
+        <label class="label flex cursor-pointer items-center justify-start">
           <input
             v-model="selectedOption"
             type="radio"
@@ -57,6 +56,7 @@ const emitChange = () => {
             class="radio checked:bg-blue-500"
             @change="emitChange"
           />
+          <span class="label-text ml-2">Do not share this data</span>
         </label>
       </div>
     </div>
