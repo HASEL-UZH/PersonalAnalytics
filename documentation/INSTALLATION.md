@@ -11,7 +11,9 @@ Anyone may install PersonalAnalytics on their Windows or macOS device to non-int
 7. Follow the Onboarding wizard that explains the study, collected data and how to use PersonalAnalytics
 8. Access PersonalAnalytics anytime through the context-menu in the taskbar icon
 
-[![How to install PersonalAnalytics on Windows](https://img.youtube.com/vi/70bempaQYFk/0.jpg)](https://www.youtube.com/watch?v=70bempaQYFk)
+The following video shows the steps in action:
+
+[![How to install PersonalAnalytics on Windows](https://markdown-videos-api.jorgenkh.no/youtube/70bempaQYFk)](https://youtu.be/70bempaQYFk)
 
 
 ## How to install PersonalAnalytics on macOS
