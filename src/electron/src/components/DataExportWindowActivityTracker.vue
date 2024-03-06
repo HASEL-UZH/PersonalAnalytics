@@ -82,7 +82,7 @@ const emitObfuscateSampleData = async () => {
         </label>
       </div>
       <div v-if="selectedOption === DataExportType.ObfuscateWithTerms">
-        <div class="my-4 flex justify-center">
+        <div class="mb-2 mt-1 flex justify-center">
           <label class="form-control w-full">
             <input
               v-model="obfuscationTermsInput"
