@@ -218,6 +218,7 @@ export class WindowService {
       show: false,
       minimizable: false,
       maximizable: false,
+      minWidth: 1200,
       minHeight: 850,
       fullscreenable: false,
       title: 'PersonalAnalytics: Data Export',
