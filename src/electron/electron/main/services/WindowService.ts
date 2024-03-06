@@ -251,10 +251,17 @@ export class WindowService {
 
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 
+    if (is.macOS) {
+      await app.dock.show();
+    }
+
     this.dataExportWindow.show();
 
     this.dataExportWindow.on('close', () => {
       this.dataExportWindow = null;
+      if (is.macOS) {
+        app.dock.hide();
+      }
     });
   }
 
