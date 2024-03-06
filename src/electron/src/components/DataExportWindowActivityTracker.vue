@@ -42,8 +42,7 @@ const emitObfuscateSampleData = async () => {
     <div class="prose">
       <h2>How do you want to share your Window Activity data?</h2>
     </div>
-
-    <div class="mt-4 flex w-1/3 flex-col">
+    <div class="mt-4 flex w-1/2 flex-col">
       <div class="form-control">
         <label class="label cursor-pointer">
           <span class="label-text">Share data as-is</span>
@@ -83,7 +82,7 @@ const emitObfuscateSampleData = async () => {
         </label>
       </div>
       <div v-if="selectedOption === DataExportType.ObfuscateWithTerms">
-        <div class="flex flex-col">
+        <div class="my-4 flex justify-center">
           <label class="form-control w-full">
             <input
               v-model="obfuscationTermsInput"
@@ -94,9 +93,7 @@ const emitObfuscateSampleData = async () => {
               @keyup.enter="emitObfuscateSampleData"
             />
           </label>
-          <button class="btn btn-neutral ml-auto mt-2" @click="emitObfuscateSampleData">
-            Obfuscate sample data
-          </button>
+          <button class="btn btn-neutral ml-2" @click="emitObfuscateSampleData">Obfuscate</button>
         </div>
       </div>
       <div class="form-control">
