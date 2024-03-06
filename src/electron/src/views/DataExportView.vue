@@ -71,9 +71,6 @@ onMounted(async () => {
 });
 
 async function handleWindowActivityExportConfigChanged(newSelectedOption: DataExportType) {
-  if (newSelectedOption !== DataExportType.ObfuscateWithTerms) {
-    obfuscationTermsInput.value = [];
-  }
   if (mostRecentWindowActivities.value && newSelectedOption === DataExportType.Obfuscate) {
     mostRecentWindowActivitiesObfuscated.value = await typedIpcRenderer.invoke(
       'obfuscateWindowActivityDtosById',
@@ -160,7 +157,14 @@ async function handleNextStep() {
   if (currentNamedStep.value === 'create-export') {
     isExporting.value = true;
     try {
-      const obfuscationTerms = Array.from(obfuscationTermsInput.value || []);
+      let obfuscationTerms: string[] = [];
+      if (
+        exportWindowActivitySelectedOption.value === DataExportType.ObfuscateWithTerms &&
+        obfuscationTermsInput.value &&
+        obfuscationTermsInput.value.length > 0
+      ) {
+        obfuscationTerms = Array.from(obfuscationTermsInput.value);
+      }
       pathToExportedFile.value = await typedIpcRenderer.invoke(
         'startDataExport',
         exportWindowActivitySelectedOption.value,
