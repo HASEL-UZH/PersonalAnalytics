@@ -213,7 +213,7 @@ export class WindowService {
     const __dirname = dirname(__filename);
     const preload = join(__dirname, '../preload/index.mjs');
     this.dataExportWindow = new BrowserWindow({
-      width: 900,
+      width: 1200,
       height: 850,
       show: false,
       minimizable: false,
@@ -239,17 +239,18 @@ export class WindowService {
       return { action: 'deny' };
     });
 
-    const template = [
-      {
-        label: 'Edit',
-        submenu: [
-          { label: 'Copy', accelerator: 'CmdOrCtrl+C', selector: 'copy:' },
-          { label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:' }
-        ]
-      }
-    ];
-
-    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+    if (!is.dev) {
+      const template = [
+        {
+          label: 'Edit',
+          submenu: [
+            { label: 'Copy', accelerator: 'CmdOrCtrl+C', selector: 'copy:' },
+            { label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:' }
+          ]
+        }
+      ];
+      Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+    }
 
     if (is.macOS) {
       await app.dock.show();
