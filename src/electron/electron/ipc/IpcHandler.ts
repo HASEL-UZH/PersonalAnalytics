@@ -16,6 +16,7 @@ import { DataExportService } from '../main/services/DataExportService';
 import UserInputDto from '../../shared/dto/UserInputDto';
 import WindowActivityDto from '../../shared/dto/WindowActivityDto';
 import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
+import { is } from '../main/services/utils/helpers';
 
 const LOG = getLogger('IpcHandler');
 
@@ -154,10 +155,16 @@ export class IpcHandler {
   }
 
   private triggerPermissionCheckAccessibility(prompt: boolean): boolean {
+    if (is.windows) {
+      return true;
+    }
     return systemPreferences.isTrustedAccessibilityClient(prompt);
   }
 
   private triggerPermissionCheckScreenRecording(): boolean {
+    if (is.windows) {
+      return true;
+    }
     const status = systemPreferences.getMediaAccessStatus('screen');
     return status === 'granted';
   }

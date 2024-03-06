@@ -3,11 +3,13 @@ import electron from 'electron';
 export declare interface Is {
   dev: boolean;
   macOS: boolean;
+  windows: boolean;
 }
 
 export const is: Is = {
   dev: !electron.app.isPackaged,
-  macOS: process.platform === 'darwin'
+  macOS: process.platform === 'darwin',
+  windows: process.platform === 'win32'
 };
 
 export function generateAlphaNumericString(length: number = 0): string {
