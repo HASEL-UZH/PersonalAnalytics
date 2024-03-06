@@ -33,7 +33,7 @@ The original version of PersonalAnalytics for Windows (created by André Meyer) 
 In 2024, we've revived the project in creating a multi-platform app using TypeScript and Electron. It is using the TypeScript-versions of our original, most used data trackers, the [WindowsActivityTracker](https://github.com/HASEL-UZH/PA.WindowsActivityTracker/tree/main/typescript) and the [UserInputTracker](https://github.com/HASEL-UZH/PA.UserInputTracker/tree/main/typescript). In addition, it includes an experience sampling component that can ask users to provide self-reports on one or several questions at customizable times. At the moment, the new PersonalAnalytics does NOT yet feature a retrospection, but it's the plan to recreate it in the future.
 
 
-# 🙂 Main Contributors and People Involved
+## 🙂 Main Contributors and People Involved
 This work is carried by the following main contributors: 
 - [Dr. André Meyer](https://www.andre-meyer.ch) (University of Zurich, main contributor to the project)
 - [Prof. Dr. Thomas Fritz](http://www.ifi.uzh.ch/en/seal/people/fritz.html) (University of Zurich)
