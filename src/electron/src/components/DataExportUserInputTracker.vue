@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineEmits, PropType } from 'vue';
+import { ref, PropType } from 'vue';
 import StudyInfoDto from '../../shared/dto/StudyInfoDto';
 import { DataExportType } from '../../shared/DataExportType.enum';
 import UserInputDto from '../../shared/dto/UserInputDto';
