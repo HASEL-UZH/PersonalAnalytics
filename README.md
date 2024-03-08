@@ -11,7 +11,7 @@ Anyone is welcome to contribute to PersonalAnalytics by extending it with new tr
 ## 🧑‍💻 Installation & Usage as a User
 Anyone may install PersonalAnalytics on their Windows or macOS device to non-intrusively collect computer interaction data, and analyze their activity, time spent and work habits for themselves. In the future, once we'll re-introduce the Retrospection (i.e. visualizations of the collected and self-reported data), it will be much easier to gain insights again.
 
-To install and use PersonalAnalytics, [consider this guide](./documentation/INSTALLATION.md).
+Learn more about how to [install and use PersonalAnalytics](./documentation/INSTALLATION.md).
 
 ## 👩‍🔬 Customization & Usage as a Researcher
 This project was created by and for researchers who want to ask study participants to run PersonalAnalytics on their device to non-intrusively collect **computer interaction data** in a privacy-protected way. As often times, having access to only automatically collected data is often not sufficient, PersonalAnalytics also offers an **experience sampling component**, which allows researchers to ask users to reflect and self-report on one or several questions (e.g. Have I been productive? Am I stressed right now?) at customizable times and using Likert-scales. As all collected data is only stored locally on participants' computers, there is an **export component**, guiding the participant through sharing and potentially obfuscating the captured data, before sharing it with the researchers through their data transfer service of choice. Most settings are configurable in the [study-config]([url](https://github.com/HASEL-UZH/PersonalAnalytics/blob/feature/electron/src/electron/shared/study.config.ts)), everything else can be customized in code.
@@ -21,6 +21,7 @@ Learn more about how to use [PersonalAnalytics for your research project](./docu
 ## 📖 Further Information
 - [Installation & Usage for End Users](./documentation/INSTALLATION.md)
 - [Customization & Usage for Researchers](./documentation/RESEARCH.md)
+- [Reporting an issue or bug](https://github.com/HASEL-UZH/PersonalAnalytics/issues)
 - [Data Collection & Privacy Policy](./documentation/PRIVACY.md)
 - [Contributions](./documentation/RESEARCH.md#contributions-guide)
 - [Information on the old PersonalAnalytics](./documentation/LEGACY.md)
@@ -33,18 +34,24 @@ The original version of PersonalAnalytics for Windows (created by André Meyer) 
 In 2024, we've revived the project in creating a multi-platform app using TypeScript and Electron. It is using the TypeScript-versions of our original, most used data trackers, the [WindowsActivityTracker](https://github.com/HASEL-UZH/PA.WindowsActivityTracker/tree/main/typescript) and the [UserInputTracker](https://github.com/HASEL-UZH/PA.UserInputTracker/tree/main/typescript). In addition, it includes an experience sampling component that can ask users to provide self-reports on one or several questions at customizable times. At the moment, the new PersonalAnalytics does NOT yet feature a retrospection, but it's the plan to recreate it in the future.
 
 
-# 🙂 Main Contributors and People Involved
+## 🙂 Main Contributors and People Involved
 This work is carried by the following main contributors: 
 - [Dr. André Meyer](https://www.andre-meyer.ch) (University of Zurich, main contributor to the project)
 - [Prof. Dr. Thomas Fritz](http://www.ifi.uzh.ch/en/seal/people/fritz.html) (University of Zurich)
-- [Chris Satterfield](https://github.com/csatterfield) (contributor to MacOS version)
-- [Roy Rutishauser](https://github.com/royru) (contributor to MacOS-legacy version)
-- [Jan Pilzer](https://github.com/hirse) (contributor to Windows-legacy version)
 - [Sebastian Richner](https://github.com/SRichner) (contributor to new version)
+- [Roy Rutishauser](https://github.com/royru) (contributor to MacOS-legacy version)
+- [Chris Satterfield](https://github.com/csatterfield) (contributor to MacOS-legacy version)
+- [Jan Pilzer](https://github.com/hirse) (contributor to Windows-legacy version)
+- [Alexander Lill](https://github.com/alexanderlill) (tester)
+- [Isabelle Cuber](https://github.com/isicu) (tester)
 - Dr. Manuela Züger (prev. University of Zurich, contributor to Windows-legacy version)
 - Dr. Sebastian Müller (prev. University of Zurich, contributor to Windows-legacy version)
 - [Dr. Tom Zimmermann](https://www.microsoft.com/en-us/research/people/tzimmer/) (Microsoft Research)
 - [Prof. Dr. Gail C. Murphy](https://blogs.ubc.ca/gailcmurphy/) (University of British Columbia)
+
+## 📨 Contact
+- You may contact André Meyer (ameyer@ifi.uzh.ch) in case of questions on the project.
+- Do not attempt contact in case of questions on a specific study in which you are participating. If you encounter technical issues, create an [issue](https://github.com/HASEL-UZH/PersonalAnalytics/issues), so that the community may offer help.
 
 
 # Dependencies
