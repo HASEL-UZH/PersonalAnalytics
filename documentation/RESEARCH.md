@@ -6,8 +6,6 @@ This project was created by and for researchers who want to ask study participan
 # Customizing PersonalAnalytics
 To customize PersonalAnalytics for your research study, please consider the following steps:
 
-<!-- tbd: Sebastian: update -->
-
 1. Fork the project to work in your own repository.
 2. Update the `study.config.ts`-[file](../src/electron/shared/study.config.ts) with your custom study-related settings. Hereby, you can add your custom study name, study title, privacy policy, export upload url as well as contact data. In addition, you can customize which computer interaction tracker isrunning, and if you want to prompt the user to self-report on one or several questions in the experience sampling component.
 3. (optional) If you require further customizations, you can create them in the code (see [Contributions Guide](#contributions-guide)).  
@@ -42,25 +40,60 @@ To customize PersonalAnalytics for your research study, please consider the foll
 | `intervalInMs`      | The interval in milliseconds at which the UserInputTracker collects and stores the aggregated data.                                                  |                 | `10000`       |
 
 #### ExperienceSamplingTracker
-| Parameter               | Description                                                                                                                                                                                                                                                                                                                                    | Change Required | Default Value             |
-|-------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|---------------------------|
-| `enabled`               | Whether the ExperienceSamplingTracker should be enabled. If enabled, the ExperienceSamplingTracker will prompt the participant to self-report on one or several questions at customizable times (see configuration below).                                                                                                                     |                 | `true`                    |
-| `intervalInMs`          | The interval in milliseconds at which the ExperienceSamplingTracker should prompt the participant to self-report.                                                                                                                                                                                                                              |                 | `1000*60*60*3`  (3 hours) |
-| `samplingRandomization` | Wether the ExperienceSamplingTracker should include a randomization for the time at which the participant is prompted to self-report. A value between 0 and 1. If enabled (value bigger than 0), the ExperienceSamplingTracker will randomly calculate a value that is between `intervalInMs` plus/minus `intervalInMs * samplingRanomization` |                 | `0.1`                     |
-| `scale`                 | The questions scale. This applies to all questions.                                                                                                                                                                                                                                                                                            |                 | `7`                       |
-| `questions`             | An array of questions that the participant should self-report on. Each question has a `text` and a `scale` property. The `text` property is the question that the participant should answer. The `scale` property is the scale that the participant should use to answer the question.                                                         | ✅               |                           |
-| `responseOptions`       | An array of arrays with labels for the Likert-scale question. This can be either two labels that will be displayed on the left and right (e.g., `['strongly disagree', 'strongly agree']`) or three labels (e.g., `['strongly disagree', 'neutral', 'strongly agree']`).                                                                       | ✅               |                           |
+| Parameter               | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Change Required | Default Value             |
+|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|---------------------------|
+| `enabled`               | Whether the ExperienceSamplingTracker should be enabled. If enabled, the ExperienceSamplingTracker will prompt the participant to self-report on one or several questions at customizable times (see configuration below).                                                                                                                                                                                                                                                                             |                 | `true`                    |
+| `intervalInMs`          | The interval in milliseconds at which the ExperienceSamplingTracker should prompt the participant to self-report.                                                                                                                                                                                                                                                                                                                                                                                      |                 | `1000*60*60*3`  (3 hours) |
+| `samplingRandomization` | Whether the ExperienceSamplingTracker should include a randomization for the time at which the participant is prompted to self-report. A value between 0 and 1. If enabled (value bigger than 0), the ExperienceSamplingTracker will randomly calculate a value that is between `intervalInMs` plus/minus `intervalInMs * samplingRanomization`. If the `intervalInMs` is set to `1000 * 60 * 60 * 3` (3 hours) and the `samplingRanomization` to `0.1`, the prompt may be shown in 162 - 198 minutes. |                 | `0.1`                     |
+| `scale`                 | The questions scale. This applies to all questions.                                                                                                                                                                                                                                                                                                                                                                                                                                                    |                 | `7`                       |
+| `questions`             | An array of questions that the participant should self-report on. You can define one or multiple questions within the array (e.g., `['I am more productive in my current work session compared to the last one.']`). If the array consists of multiple questions, the question will be randomly selected.                                                                                                                                                                                              | ✅               |                           |
+| `responseOptions`       | An array of arrays with labels for the Likert-scale question. This can be either two labels that will be displayed on the left and right (e.g., `['strongly disagree', 'strongly agree']`) or three labels (e.g., `['strongly disagree', 'neutral', 'strongly agree']`).                                                                                                                                                                                                                               | ✅               |                           |
 
 
-
-// show a checkmark or a cross
 
 # Contributions Guide
 Anyone is welcome to contribute to PersonalAnalytics by extending it with new trackers or improving existing ones.
 
-This quick guide helps you to set-up your development environment:
-<!-- tbd: Sebastian -->
+1. Fork the project to work in your own repository.
+2. Create a new branch for your changes.
+3. Make your changes and commit them to your branch.
+4. Push your branch to your fork.
+5. Create a pull request from your branch to the `main` branch of the main repository.
+6. Wait for the maintainers to review your pull request.
+7. If your pull request is approved, it will be merged into the main repository.
+8. If your pull request is not approved, you can make further changes and push them to your branch. The pull request will be updated automatically.
 
+## Install the dependencies
+After cloning this repository using your favorite git client, you need to install the dependencies.
+Make sure you use node version >=20. You can install the dependencies by running the following command in the root directory of the project:
+```bash
+cd src/electron
+npm install
+```
+This will install all the dependencies required to build and run PersonalAnalytics. This will also call the `postinstall` script, which will make sure that the native dependencies are built for your platform.
+
+## Starting the application for development
+To start the application for development, you can run the following command in `src/electron`:
+```bash
+npm run dev
+```
+
+## Building the application
+To build the application, you can run the following command in `src/electron`:
+```bash
+npm run build
+```
+This will build the application for your platform and architecture. The built application will be located in the `release` directory.
+
+
+You can also run the following command to build the application for Windows:
+```bash
+npm run build:win
+```
+or for macOS (only on macOS):
+```bash
+npm run build:mac
+```
 
 # Research that used PersonalAnalytics
 PersonalAnalytics-legacy was used in the following peer-reviewed research projects (and other non-peer reviewed projects too, such as master and bachelor theses):
