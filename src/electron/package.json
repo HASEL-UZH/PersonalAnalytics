@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build && electron-builder --publish always",
+    "build:mac": "vue-tsc --noEmit && vite build && electron-builder --mac",
     "build:win": "vue-tsc --noEmit && vite build && electron-builder --win",
     "postinstall": "electron-builder install-app-deps",
     "preview": "vite preview",
