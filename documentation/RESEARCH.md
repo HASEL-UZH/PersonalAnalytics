@@ -3,15 +3,15 @@
 This project was created by and for researchers who want to ask study participants to run PersonalAnalytics on their device to non-intrusively collect computer interaction data in a privacy-protected way. As often times, having access to only automatically collected data is often not sufficient, PersonalAnalytics also offers an experience sampling component, which allows researchers to ask users to reflect and self-report on one or several questions (e.g. Have I been productive? Am I stressed right now?) at customizable times and using Likert-scales. As all collected data is only stored locally on participants' computers, there is an export component, guiding the participant through sharing and potentially obfuscating the captured data, before sharing it with the researchers through their data transfer service of choice. Most settings are configurable in the study-config, everything else can be customized in code.
 
 
-# Customizing PersonalAnalytics
+## Customizing PersonalAnalytics
 To customize PersonalAnalytics for your research study, please consider the following steps:
 
 1. Fork the project to work in your own repository.
 2. Update the [study configuration-file](../src/electron/shared/study.config.ts) (`study.config.ts`) with your custom study-related settings (see details below). Hereby, you can add your custom study name, study title, privacy policy, export upload url as well as contact data. In addition, you can customize which computer interaction tracker isrunning, and if you want to prompt the user to self-report on one or several questions in the experience sampling component.
 3. (optional) If you require further customizations, you can create them in the code (see [Contributions Guide](#contributions-guide)).  
-4. Use Github Actions (see [build.yml](https://github.com/HASEL-UZH/PersonalAnalytics/blob/feature/electron/.github/workflows/build.yml)) to build and deploy PersonalAnalytics and allow your participants to use it. Using the method, PersonalAnalytics can automatically update your participants' installations with new releases
+4. Use GitHub Actions (see [build.yml](https://github.com/HASEL-UZH/PersonalAnalytics/blob/feature/electron/.github/workflows/build.yml)) to build and deploy PersonalAnalytics and allow your participants to use it. Using the method, PersonalAnalytics can automatically update your participants' installations with new releases
 
-## General Configuration of PersonalAnalytics (edit in `study.config.ts`)
+### General Configuration of PersonalAnalytics (edit in `study.config.ts`)
 | Parameter           | Description                                                                                                                                                                                                                                                            | Change Required | Default Value |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|---------------|
 | `name`              | The name of the study. It is shown in various places of PersonalAnalytics, such as the the about page, the experience sampling and when exporting the study data.                                                                              | ✅               |               |
@@ -50,8 +50,7 @@ To customize PersonalAnalytics for your research study, please consider the foll
 | `responseOptions`       | An array of arrays with labels for the Likert-scale question. This can be either two labels that will be displayed on the left and right (e.g., `['strongly disagree', 'strongly agree']`) or three labels (e.g., `['strongly disagree', 'neutral', 'strongly agree']`).  The same order as defined for the `questions` applies.                                                                                                                                                                                                                              | ✅               |                           |
 
 
-
-# Contributions Guide
+## Contributions Guide
 Anyone is welcome to contribute to PersonalAnalytics by extending it with new trackers or improving existing ones.
 
 1. Fork the project to work in your own repository.
@@ -95,7 +94,16 @@ or for macOS (only on macOS):
 npm run build:mac
 ```
 
-# Research that used PersonalAnalytics
+## Referencing PersonalAnalytics
+When leveraging PersonalAnalytics for your work or research, please cite it appropriately, by refering to the main publication as well as this repository.
+
+Citing the paper:
+`Meyer, A. N., Murphy, G. C., Zimmermann, T., & Fritz, T. (2017). Design recommendations for self-monitoring in the workplace: Studies in software development. Proceedings of the ACM on Human-Computer Interaction, 1(CSCW), 1-24. https://doi.org/10.1145/3134714`
+
+Citing the repository:
+`https://github.com/HASEL-UZH/PersonalAnalytics`
+
+## Research that used PersonalAnalytics
 PersonalAnalytics-legacy was used in the following peer-reviewed research projects (and other non-peer reviewed projects too, such as master and bachelor theses):
 - [CHI'20](https://andre-meyer.ch/CHI20) Supporting Software Developers’ Focused Work on Window-Based Desktops. Jan Pilzer, Raphael Rosenast. André Meyer. Elaine Huang. Thomas Fritz.
 - [TSE'20](https://andre-meyer.ch/TSE20) Detecting Developers’ Task Switches and Types. André Meyer, Chris Satterfield, Manuela Züger, Katja Kevic, Gail Murphy, Thomas Zimmermann, and Thomas Fritz.
@@ -103,3 +111,6 @@ PersonalAnalytics-legacy was used in the following peer-reviewed research projec
 - [CHI’18](http://www.zora.uzh.ch/id/eprint/151128/1/pn4597-zugerA.pdf) Sensing Interruptibility in the Office: A Field Study on the Use of Biometric and Computer Interaction Sensors. Manuela Züger, Sebastian Müller, André Meyer, Thomas Fritz. 
 - [TSE’17](https://www.andre-meyer.ch/TSE17) The Work Life of Developers: Activities, Switches and Perceived Productivity. André Meyer, Gail Murphy, Thomas Zimmermann, Laura Barton, Thomas Fritz. 
 - [CHI’17](https://www.andre-meyer.ch/CHI17) Reducing Interruptions at Work: A Large-Scale Field Study of FlowLight. Manuela Züger, Christopher Corley, André Meyer, Boyang Li, Thomas Fritz, David Shepherd, Vinay Augustine, Patrick Francis, Nicholas Kraft and Will Snipes.
+
+## Questions & Support
+Please contact André Meyer (ameyer@ifi.uzh.ch) in case of questions.
