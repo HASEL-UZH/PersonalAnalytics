@@ -62,7 +62,7 @@ Anyone is welcome to contribute to PersonalAnalytics by extending it with new tr
 7. If your pull request is approved, it will be merged into the main repository.
 8. If your pull request is not approved, you can make further changes and push them to your branch. The pull request will be updated automatically.
 
-## Install the dependencies
+### Install the dependencies
 After cloning this repository using your favorite git client, you need to install the dependencies.
 Make sure you use node version >=20. You can install the dependencies by running the following command in the root directory of the project:
 ```bash
@@ -71,13 +71,13 @@ npm install
 ```
 This will install all the dependencies required to build and run PersonalAnalytics. This will also call the `postinstall` script, which will make sure that the native dependencies are built for your platform.
 
-## Starting the application for development
+### Starting the application for development
 To start the application for development, you can run the following command in `src/electron`:
 ```bash
 npm run dev
 ```
 
-## Building the application
+### Building the application
 To build the application, you can run the following command in `src/electron`:
 ```bash
 npm run build
@@ -93,6 +93,9 @@ or for macOS (only on macOS):
 ```bash
 npm run build:mac
 ```
+
+### Testing PersonalAnalytics
+PersonalAnalytics was tested on `Windows 11` and `macOS 14`. It might work on older versions as well.
 
 ## Referencing PersonalAnalytics
 When leveraging PersonalAnalytics for your work or research, please cite it appropriately, by refering to the main publication as well as this repository.
