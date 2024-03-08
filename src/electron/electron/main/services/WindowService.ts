@@ -240,7 +240,7 @@ export class WindowService {
       return { action: 'deny' };
     });
 
-    if (!is.dev) {
+    if (is.macOS && !is.dev) {
       const template = [
         {
           label: 'Edit',
