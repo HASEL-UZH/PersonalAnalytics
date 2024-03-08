@@ -45,3 +45,8 @@ This work is carried by the following main contributors:
 - Dr. Sebastian Müller (prev. University of Zurich, contributor to Windows-legacy version)
 - [Dr. Tom Zimmermann](https://www.microsoft.com/en-us/research/people/tzimmer/) (Microsoft Research)
 - [Prof. Dr. Gail C. Murphy](https://blogs.ubc.ca/gailcmurphy/) (University of British Columbia)
+
+
+# Dependencies
+This project uses [PA.WindowsActivityTracker](https://github.com/HASEL-UZH/PA.WindowsActivityTracker) and [PA.UserInputTracker](https://github.com/HASEL-UZH/PA.UserInputTracker/) as its main data trackers.
+Please refer to [package.json](./src/electron/package.json) for a full list of dependencies.
