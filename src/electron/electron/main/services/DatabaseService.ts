@@ -7,6 +7,7 @@ import { WindowActivityEntity } from '../entities/WindowActivityEntity';
 import { ExperienceSamplingResponseEntity } from '../entities/ExperienceSamplingResponseEntity';
 import { UserInputEntity } from '../entities/UserInputEntity';
 import { Settings } from '../entities/Settings';
+import { UsageDataEntity } from '../entities/UsageDataEntity';
 
 const LOG = getLogger('DatabaseService');
 
@@ -27,7 +28,13 @@ export class DatabaseService {
       database: dbPath,
       synchronize: true,
       logging: false,
-      entities: [ExperienceSamplingResponseEntity, Settings, UserInputEntity, WindowActivityEntity]
+      entities: [
+        ExperienceSamplingResponseEntity,
+        Settings,
+        UsageDataEntity,
+        UserInputEntity,
+        WindowActivityEntity
+      ]
     };
 
     this.dataSource = new DataSource(this.options);
