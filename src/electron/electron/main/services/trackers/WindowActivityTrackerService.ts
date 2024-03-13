@@ -58,11 +58,11 @@ export class WindowActivityTrackerService {
     ).map((activity) => {
       return {
         windowTitle: this.randomizeString(activity.windowTitle),
-        processName: this.randomizeString(activity.processName),
-        processPath: this.randomizeString(activity.processPath),
-        processId: undefined,
         url: this.randomizeUrl(activity.url),
-        activity: this.randomizeString(activity.activity),
+        processName: activity.processName,
+        processPath: activity.processPath,
+        processId: activity.processId,
+        activity: activity.activity,
         ts: activity.ts,
         id: activity.id,
         createdAt: activity.createdAt,
