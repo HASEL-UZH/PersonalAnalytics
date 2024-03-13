@@ -49,11 +49,12 @@ This work is carried by the following main contributors:
 - [Dr. Tom Zimmermann](https://www.microsoft.com/en-us/research/people/tzimmer/) (Microsoft Research)
 - [Prof. Dr. Gail C. Murphy](https://blogs.ubc.ca/gailcmurphy/) (University of British Columbia)
 
+
 ## 📨 Contact
 - You may contact André Meyer (ameyer@ifi.uzh.ch) in case of questions on the project.
 - Do not attempt contact in case of questions on a specific study in which you are participating. If you encounter technical issues, create an [issue](https://github.com/HASEL-UZH/PersonalAnalytics/issues), so that the community may offer help.
 
 
-# Dependencies
+## ↪️ Dependencies
 This project uses [PA.WindowsActivityTracker](https://github.com/HASEL-UZH/PA.WindowsActivityTracker) and [PA.UserInputTracker](https://github.com/HASEL-UZH/PA.UserInputTracker/) as its main data trackers.
-Please refer to [package.json](./src/electron/package.json) for a full list of dependencies.
+For the full list of dependencies, consider [package.json](./src/electron/package.json).
