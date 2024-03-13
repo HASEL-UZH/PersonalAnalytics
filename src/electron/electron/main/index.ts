@@ -74,7 +74,21 @@ app.whenReady().then(async () => {
     await settingsService.init();
     await windowService.init();
     ipcHandler.init();
-    usageDataService.createNewUsageDataEvent(UsageDataEventType.AppStart);
+
+    const currentTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const currentLocale = app.getLocale();
+    const currentDateUTC = new Date();
+    const appVersion = app.getVersion();
+    const startupData = {
+      appVersion,
+      currentTimeZone,
+      currentLocale,
+      currentDateUTC
+    }
+    LOG.info(
+      `App started (Version: ${appVersion}). Timezone: ${currentTimeZone}, Locale: ${currentLocale}, UTC: ${currentDateUTC}`
+    );
+    usageDataService.createNewUsageDataEvent(UsageDataEventType.AppStart, JSON.stringify(startupData));
 
     await appUpdaterService.checkForUpdates({ silent: true });
     appUpdaterService.startCheckForUpdatesInterval();
