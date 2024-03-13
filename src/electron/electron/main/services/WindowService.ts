@@ -8,6 +8,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import studyConfig from '../../../shared/study.config';
 import { Settings } from '../entities/Settings';
+import { UsageDataService } from './UsageDataService';
+import { UsageDataEventType } from '../../enums/UsageDataEventType.enum';
 
 const LOG = getLogger('WindowService');
 
@@ -38,8 +40,16 @@ export class WindowService {
     this.createTray();
   }
 
-  public async createExperienceSamplingWindow() {
-    this.closeExperienceSamplingWindow();
+  public async createExperienceSamplingWindow(isManuallyTriggered: boolean = false) {
+    if (this.experienceSamplingWindow) {
+      this.experienceSamplingWindow.close();
+      this.experienceSamplingWindow = null;
+    }
+
+    const usageDataEvent = isManuallyTriggered
+      ? UsageDataEventType.ExperienceSamplingManuallyOpened
+      : UsageDataEventType.ExperienceSamplingAutomaticallyOpened;
+    UsageDataService.createNewUsageDataEvent(usageDataEvent);
 
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
@@ -95,7 +105,12 @@ export class WindowService {
     });
   }
 
-  public closeExperienceSamplingWindow() {
+  public closeExperienceSamplingWindow(skippedExperienceSampling: boolean) {
+    const usageDataEvent = skippedExperienceSampling
+      ? UsageDataEventType.ExperienceSamplingSkipped
+      : UsageDataEventType.ExperienceSamplingAnswered;
+    UsageDataService.createNewUsageDataEvent(usageDataEvent);
+
     if (this.experienceSamplingWindow) {
       this.experienceSamplingWindow.close();
       this.experienceSamplingWindow = null;
@@ -306,7 +321,7 @@ export class WindowService {
     const windowMenu: MenuItemConstructorOptions[] = [
       {
         label: 'Open Experience Sampling',
-        click: () => this.createExperienceSamplingWindow()
+        click: () => this.createExperienceSamplingWindow(true)
       },
       {
         label: 'Open Onboarding',
