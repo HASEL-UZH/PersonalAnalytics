@@ -5,7 +5,7 @@ import { UsageDataEntity } from '../entities/UsageDataEntity';
 const LOG = getLogger('UsageDataService');
 
 export class UsageDataService {
-  public async createNewUsageDataEvent(
+  public static async createNewUsageDataEvent(
     type: UsageDataEventType,
     additionalInformation?: string
   ): Promise<void> {

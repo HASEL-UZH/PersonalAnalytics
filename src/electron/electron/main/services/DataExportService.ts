@@ -8,6 +8,8 @@ import Database from 'better-sqlite3-multiple-ciphers';
 import { WindowActivityEntity } from '../entities/WindowActivityEntity';
 import { WindowActivityTrackerService } from './trackers/WindowActivityTrackerService';
 import { Settings } from '../entities/Settings';
+import { UsageDataService } from './UsageDataService';
+import { UsageDataEventType } from '../../enums/UsageDataEventType.enum';
 
 const LOG = getLogger('DataExportService');
 
@@ -20,6 +22,14 @@ export class DataExportService {
     obfuscationTerms: string[]
   ): Promise<string> {
     LOG.info('startDataExport called');
+    await UsageDataService.createNewUsageDataEvent(
+      UsageDataEventType.StartExport,
+      JSON.stringify({
+        windowActivityExportType,
+        userInputExportType,
+        obfuscationTermLength: obfuscationTerms?.length
+      })
+    );
     try {
       const dbName = 'database.sqlite';
       let dbPath = dbName;
@@ -113,6 +123,8 @@ export class DataExportService {
       }
 
       db.close();
+
+      await UsageDataService.createNewUsageDataEvent(UsageDataEventType.FinishExport);
 
       return exportDbPath;
     } catch (error) {

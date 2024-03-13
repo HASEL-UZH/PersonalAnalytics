@@ -37,7 +37,6 @@ const windowService: WindowService = new WindowService(appUpdaterService);
 const experienceSamplingService: ExperienceSamplingService = new ExperienceSamplingService();
 const trackers: TrackerService = new TrackerService(studyConfig.trackers, windowService);
 const ipcHandler: IpcHandler = new IpcHandler(windowService, trackers, experienceSamplingService);
-const usageDataService: UsageDataService = new UsageDataService();
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) {
@@ -84,11 +83,14 @@ app.whenReady().then(async () => {
       currentTimeZone,
       currentLocale,
       currentDateUTC
-    }
+    };
     LOG.info(
       `App started (Version: ${appVersion}). Timezone: ${currentTimeZone}, Locale: ${currentLocale}, UTC: ${currentDateUTC}`
     );
-    usageDataService.createNewUsageDataEvent(UsageDataEventType.AppStart, JSON.stringify(startupData));
+    UsageDataService.createNewUsageDataEvent(
+      UsageDataEventType.AppStart,
+      JSON.stringify(startupData)
+    );
 
     await appUpdaterService.checkForUpdates({ silent: true });
     appUpdaterService.startCheckForUpdatesInterval();
@@ -142,35 +144,35 @@ app.whenReady().then(async () => {
         LOG.debug('The system is going to sleep');
         await Promise.all([
           trackers.stopAllTrackers(),
-          usageDataService.createNewUsageDataEvent(UsageDataEventType.SystemSuspend)
+          UsageDataService.createNewUsageDataEvent(UsageDataEventType.SystemSuspend)
         ]);
       });
       powerMonitor.on('resume', async (): Promise<void> => {
         LOG.debug('The system is resuming');
         await Promise.all([
           trackers.resumeAllTrackers(),
-          usageDataService.createNewUsageDataEvent(UsageDataEventType.SystemResume)
+          UsageDataService.createNewUsageDataEvent(UsageDataEventType.SystemResume)
         ]);
       });
       powerMonitor.on('shutdown', async (): Promise<void> => {
         LOG.debug('The system is going to shutdown');
         await Promise.all([
           trackers.stopAllTrackers(),
-          usageDataService.createNewUsageDataEvent(UsageDataEventType.SystemShutdown)
+          UsageDataService.createNewUsageDataEvent(UsageDataEventType.SystemShutdown)
         ]);
       });
       powerMonitor.on('lock-screen', async (): Promise<void> => {
         LOG.debug('The system is going to lock-screen');
         await Promise.all([
           trackers.stopAllTrackers(),
-          usageDataService.createNewUsageDataEvent(UsageDataEventType.SystemLockScreen)
+          UsageDataService.createNewUsageDataEvent(UsageDataEventType.SystemLockScreen)
         ]);
       });
       powerMonitor.on('unlock-screen', async (): Promise<void> => {
         LOG.debug('The system is going to unlock-screen');
         await Promise.all([
           trackers.resumeAllTrackers(),
-          usageDataService.createNewUsageDataEvent(UsageDataEventType.SystemUnlockScreen)
+          UsageDataService.createNewUsageDataEvent(UsageDataEventType.SystemUnlockScreen)
         ]);
       });
     }
@@ -191,7 +193,7 @@ app.on('before-quit', async (event): Promise<void> => {
     LOG.info(`Stopping all (${trackers.getRunningTrackerNames().join(', ')}) trackers...`);
     await Promise.all([
       trackers.stopAllTrackers(),
-      usageDataService.createNewUsageDataEvent(UsageDataEventType.AppQuit)
+      UsageDataService.createNewUsageDataEvent(UsageDataEventType.AppQuit)
     ]);
     LOG.info(`All trackers stopped. Running: ${trackers.getRunningTrackerNames().length}`);
     isAppQuitting = true;
