@@ -11,6 +11,31 @@ To customize PersonalAnalytics for your research study, please consider the foll
 3. (optional) If you require further customizations, you can create them in the code (see [Contributions Guide](#contributions-guide)).  
 4. Use GitHub Actions (see [build.yml](https://github.com/HASEL-UZH/PersonalAnalytics/blob/feature/electron/.github/workflows/build.yml)) to build and deploy PersonalAnalytics and allow your participants to use it. Using the method, PersonalAnalytics can automatically update your participants' installations with new releases
 
+When creating new releases, update the package.json file with the new version number and commit and push it.
+
+### Required GitHub Secrets
+To use GitHub Actions to build and create PersonalAnalytics releases, you need to set the following secrets in your repository:
+- `GH_TOKEN` (a GitHub token with the `repo` scope)
+- `APPLE_ID` (your Apple ID)
+- `APPLE_APP_SPECIFIC_PASSWORD` (an app-specific password for your Apple ID)
+- `APPLE_TEAM_ID` (your Apple Team ID)
+- `CSC_LINK`
+- `CSC_KEY_PASSWORD`
+
+### Required Changes in `electron-builder.json5`
+These changes are required to automatically publish the built artifacts to GitHub releases. You need to replace the `owner` and `repo` with your GitHub username and repository name.
+You can find more information on electron-builder here: https://www.electron.build/ and for the `electron-builder.json5` file here: https://www.electron.build/configuration/configuration
+
+```json5
+{
+  publish: {
+    provider: "github",
+    owner: "YOUR_GITHUB_USER_OR_ORGANIZATION",
+    repo: "YOUR_REPOSITORY_NAME",
+  }
+}
+```
+
 ### General Configuration of PersonalAnalytics (edit in `study.config.ts`)
 | Parameter           | Description                                                                                                                                                                                                                                                            | Change Required | Default Value |
 |---------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|---------------|
