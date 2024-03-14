@@ -1,8 +1,8 @@
 name: Build
 on:
-  push:
-    branches:
-      - feature/electron
+  create:
+    tags:
+      - v*
 
 env:
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
