@@ -8,6 +8,8 @@ import Database from 'better-sqlite3-multiple-ciphers';
 import { WindowActivityEntity } from '../entities/WindowActivityEntity';
 import { WindowActivityTrackerService } from './trackers/WindowActivityTrackerService';
 import { Settings } from '../entities/Settings';
+import { UsageDataService } from './UsageDataService';
+import { UsageDataEventType } from '../../enums/UsageDataEventType.enum';
 
 const LOG = getLogger('DataExportService');
 
@@ -20,6 +22,14 @@ export class DataExportService {
     obfuscationTerms: string[]
   ): Promise<string> {
     LOG.info('startDataExport called');
+    await UsageDataService.createNewUsageDataEvent(
+      UsageDataEventType.StartExport,
+      JSON.stringify({
+        windowActivityExportType,
+        userInputExportType,
+        obfuscationTermLength: obfuscationTerms?.length
+      })
+    );
     try {
       const dbName = 'database.sqlite';
       let dbPath = dbName;
@@ -55,17 +65,17 @@ export class DataExportService {
 
       db.pragma(`rekey='PersonalAnalytics_${settings.subjectId}'`);
 
-      if (windowActivityExportType === DataExportType.Obfuscate) {
+      if (
+        windowActivityExportType === DataExportType.Obfuscate ||
+        DataExportType.ObfuscateWithTerms
+      ) {
         const items: {
           windowTitle: string;
-          processName: string;
-          processPath: string;
-          processId: string;
           url: string;
           id: string;
         }[] = await WindowActivityEntity.getRepository()
           .createQueryBuilder('window_activity')
-          .select('id, windowTitle, url, processName, processPath, processId')
+          .select('id, windowTitle, url')
           .getRawMany();
         for (const item of items) {
           if (windowActivityExportType === DataExportType.Obfuscate) {
@@ -73,24 +83,10 @@ export class DataExportService {
               item.windowTitle
             );
             const randomizeUrl = this.windowActivityTrackerService.randomizeUrl(item.url);
-            const randomizeProcessName = this.windowActivityTrackerService.randomizeString(
-              item.processName
-            );
-            const randomizeProcessPath = this.windowActivityTrackerService.randomizeString(
-              item.processPath
-            );
-            const randomizeProcessId = undefined;
             const obfuscateWindowActivities = db.prepare(
-              'UPDATE window_activity SET windowTitle = ?, url = ?, processName = ?, processPath = ?, processId = ? WHERE id = ?'
+              'UPDATE window_activity SET windowTitle = ?, url = ? WHERE id = ?'
             );
-            obfuscateWindowActivities.run(
-              randomizeWindowTitle,
-              randomizeUrl,
-              randomizeProcessName,
-              randomizeProcessPath,
-              randomizeProcessId,
-              item.id
-            );
+            obfuscateWindowActivities.run(randomizeWindowTitle, randomizeUrl, item.id);
           } else if (
             windowActivityExportType === DataExportType.ObfuscateWithTerms &&
             obfuscationTerms.length > 0
@@ -101,27 +97,15 @@ export class DataExportService {
             lowerCaseObfuscationTerms.forEach((term: string) => {
               if (
                 item.windowTitle?.toLowerCase().includes(term) ||
-                item.url?.toLowerCase().includes(term) ||
-                item.processName?.toLowerCase().includes(term) ||
-                item.processPath?.toLowerCase().includes(term)
+                item.url?.toLowerCase().includes(term)
               ) {
                 const obfuscateWindowActivities = db.prepare(
-                  'UPDATE window_activity SET windowTitle = ?, url = ?, processName = ?, processPath = ?, processId = ? WHERE id = ?'
+                  'UPDATE window_activity SET windowTitle = ?, url = ? WHERE id = ?'
                 );
                 const windowTitle = item.windowTitle ? '[anonymized]' : undefined;
                 const url = item.url ? '[anonymized]' : undefined;
-                const processName = item.processName ? '[anonymized]' : undefined;
-                const processPath = item.processPath ? '[anonymized]' : undefined;
-                const processId = undefined;
 
-                obfuscateWindowActivities.run(
-                  windowTitle,
-                  url,
-                  processName,
-                  processPath,
-                  processId,
-                  item.id
-                );
+                obfuscateWindowActivities.run(windowTitle, url, item.id);
               }
             });
           }
@@ -139,6 +123,8 @@ export class DataExportService {
       }
 
       db.close();
+
+      await UsageDataService.createNewUsageDataEvent(UsageDataEventType.FinishExport);
 
       return exportDbPath;
     } catch (error) {

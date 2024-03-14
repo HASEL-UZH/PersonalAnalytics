@@ -2,13 +2,13 @@
 Anyone may install PersonalAnalytics on their Windows or macOS device to non-intrusively collect computer interaction data, and analyze their activity, time spent and work habits for themselves. In the future, once we'll re-introduce the Retrospection (i.e. visualizations of the collected and self-reported data), it will be much easier to gain insights again.
 
 ## How to install PersonalAnalytics on Windows
-1. Visit https://hasel.dev/pa
+1. Visit https://hasel.dev/pa (or use the link provided to you by the researchers)
 2. Select the Windows version (exe-file)
 3. Wait for the download to complete
 4. Allow the install-file (exe) to be downloaded in case your browser blocks it
 5. Double click the downloaded file and follow the installer
-6. Select "Run PersonalAnalytics"
-7. Follow the Onboarding wizard that explains the study, collected data and how to use PersonalAnalytics
+6. Select "Run PersonalAnalytics" before closing the installer
+7. Follow the Onboarding-wizard that explains the study, collected data and how to use PersonalAnalytics
 8. Access PersonalAnalytics anytime through the context-menu in the taskbar icon
 
 The following video shows the steps in action:
@@ -17,8 +17,20 @@ The following video shows the steps in action:
 
 
 ## How to install PersonalAnalytics on macOS
+1. Visit https://hasel.dev/pa (or use the link provided to you by the researchers)
+2. Select the macOS version (dmg-file)
+3. Wait for the download to complete
+4. Open the downloaded instller and drag the PersonalAnalytics-app to your Applications folder
+5. (optional) Click "Open" in case a warning is shown that the app was downloaded from the internet
+6. After the installation completes, follow the Onboarding-wizard, which explains the study, collected data and how to use PersonalAnalytics
+7. On the second page, grant PersonalAnalytics the permissions it requires to function corectly
+8. Note that you might need to manually quit and restart PersonalAnalytics after giving permission
+9. Access PersonalAnalytics anytime through the context-menu in the menubar icon
 
-<!-- tbd: Sebastian -->
+The following video shows the steps in action:
+
+[![How to install PersonalAnalytics on macOS](https://markdown-videos-api.jorgenkh.no/youtube/ovfRzp3Ksgk)](https://youtu.be/ovfRzp3Ksgk)
+
 
 ## Using PersonalAnalytics
 For the majority of the time, PersonalAnalytics is running nonintrusively in the background.

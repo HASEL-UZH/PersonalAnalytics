@@ -30,7 +30,7 @@ async function createExperienceSample(value: number) {
       ),
       new Promise((resolve) => setTimeout(resolve, 150))
     ]);
-    await typedIpcRenderer.invoke('closeExperienceSamplingWindow');
+    await typedIpcRenderer.invoke('closeExperienceSamplingWindow', false);
   } catch (error) {
     console.error('Error creating team', error);
   }
@@ -51,7 +51,7 @@ async function skipExperienceSample() {
       ),
       new Promise((resolve) => setTimeout(resolve, 150))
     ]);
-    await typedIpcRenderer.invoke('closeExperienceSamplingWindow');
+    await typedIpcRenderer.invoke('closeExperienceSamplingWindow', true);
   } catch (error) {
     console.error('Error creating team', error);
   }

@@ -93,8 +93,8 @@ export class IpcHandler {
     );
   }
 
-  private closeExperienceSamplingWindow(): void {
-    this.windowService.closeExperienceSamplingWindow();
+  private closeExperienceSamplingWindow(skippedExperienceSampling: boolean): void {
+    this.windowService.closeExperienceSamplingWindow(skippedExperienceSampling);
   }
 
   private closeOnboardingWindow(): void {

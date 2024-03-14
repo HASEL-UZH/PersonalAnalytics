@@ -18,6 +18,8 @@ import { ExperienceSamplingService } from './services/ExperienceSamplingService'
 import studyConfig from '../../shared/study.config';
 import { is } from './services/utils/helpers';
 import { Settings } from './entities/Settings';
+import { UsageDataService } from './services/UsageDataService';
+import { UsageDataEventType } from '../enums/UsageDataEventType.enum';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -71,6 +73,25 @@ app.whenReady().then(async () => {
     await settingsService.init();
     await windowService.init();
     ipcHandler.init();
+
+    const currentTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const currentLocale = app.getLocale();
+    const currentDateUTC = new Date();
+    const appVersion = app.getVersion();
+    const startupData = {
+      appVersion,
+      currentTimeZone,
+      currentLocale,
+      currentDateUTC
+    };
+    LOG.info(
+      `App started (Version: ${appVersion}). Timezone: ${currentTimeZone}, Locale: ${currentLocale}, UTC: ${currentDateUTC}`
+    );
+    UsageDataService.createNewUsageDataEvent(
+      UsageDataEventType.AppStart,
+      JSON.stringify(startupData)
+    );
+
     await appUpdaterService.checkForUpdates({ silent: true });
     appUpdaterService.startCheckForUpdatesInterval();
 
@@ -121,23 +142,38 @@ app.whenReady().then(async () => {
 
       powerMonitor.on('suspend', async (): Promise<void> => {
         LOG.debug('The system is going to sleep');
-        await trackers.stopAllTrackers();
+        await Promise.all([
+          trackers.stopAllTrackers(),
+          UsageDataService.createNewUsageDataEvent(UsageDataEventType.SystemSuspend)
+        ]);
       });
       powerMonitor.on('resume', async (): Promise<void> => {
         LOG.debug('The system is resuming');
-        await trackers.resumeAllTrackers();
+        await Promise.all([
+          trackers.resumeAllTrackers(),
+          UsageDataService.createNewUsageDataEvent(UsageDataEventType.SystemResume)
+        ]);
       });
       powerMonitor.on('shutdown', async (): Promise<void> => {
         LOG.debug('The system is going to shutdown');
-        await trackers.stopAllTrackers();
+        await Promise.all([
+          trackers.stopAllTrackers(),
+          UsageDataService.createNewUsageDataEvent(UsageDataEventType.SystemShutdown)
+        ]);
       });
       powerMonitor.on('lock-screen', async (): Promise<void> => {
         LOG.debug('The system is going to lock-screen');
-        await trackers.stopAllTrackers();
+        await Promise.all([
+          trackers.stopAllTrackers(),
+          UsageDataService.createNewUsageDataEvent(UsageDataEventType.SystemLockScreen)
+        ]);
       });
       powerMonitor.on('unlock-screen', async (): Promise<void> => {
         LOG.debug('The system is going to unlock-screen');
-        await trackers.resumeAllTrackers();
+        await Promise.all([
+          trackers.resumeAllTrackers(),
+          UsageDataService.createNewUsageDataEvent(UsageDataEventType.SystemUnlockScreen)
+        ]);
       });
     }
   } catch (error) {
@@ -155,7 +191,10 @@ app.on('before-quit', async (event): Promise<void> => {
   if (!isAppQuitting) {
     event.preventDefault();
     LOG.info(`Stopping all (${trackers.getRunningTrackerNames().join(', ')}) trackers...`);
-    await trackers.stopAllTrackers();
+    await Promise.all([
+      trackers.stopAllTrackers(),
+      UsageDataService.createNewUsageDataEvent(UsageDataEventType.AppQuit)
+    ]);
     LOG.info(`All trackers stopped. Running: ${trackers.getRunningTrackerNames().length}`);
     isAppQuitting = true;
     app.exit();

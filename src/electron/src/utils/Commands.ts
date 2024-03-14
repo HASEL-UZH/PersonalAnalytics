@@ -13,7 +13,7 @@ type Commands = {
     response?: number,
     skipped?: boolean
   ) => Promise<void>;
-  closeExperienceSamplingWindow: () => void;
+  closeExperienceSamplingWindow: (skippedExperienceSampling: boolean) => void;
   closeOnboardingWindow: () => void;
   closeDataExportWindow: () => void;
   getStudyInfo: () => Promise<StudyInfoDto>;

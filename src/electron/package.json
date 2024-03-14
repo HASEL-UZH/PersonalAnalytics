@@ -1,6 +1,6 @@
 {
   "name": "personal-analytics",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "main": "dist-electron/main/index.js",
   "type": "module",
   "author": {
@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build && electron-builder --publish always",
+    "build:mac": "vue-tsc --noEmit && vite build && electron-builder --mac",
     "build:win": "vue-tsc --noEmit && vite build && electron-builder --win",
     "postinstall": "electron-builder install-app-deps",
     "preview": "vite preview",
