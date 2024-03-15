@@ -1,37 +1,27 @@
-/**
- * @see https://www.electron.build/configuration/configuration
- */
-{
-  $schema: 'https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json',
+module.exports = {
   productName: 'PersonalAnalytics',
   appId: 'ch.ifi.hasel.personal-analytics',
   asar: true,
-  asarUnpack: [
-    'node_modules/better_sqlite3/**',
-    'node_modules/sqlite3/**'
-  ],
+  asarUnpack: ['node_modules/better_sqlite3/**', 'node_modules/sqlite3/**'],
   directories: {
     output: 'release/${version}'
   },
-  files: [
-    'dist',
-    'dist-electron'
-  ],
+  files: ['dist', 'dist-electron'],
   publish: {
-    provider: "github",
-    owner: "HASEL-UZH",
-    repo: "PersonalAnalytics"
+    provider: 'github',
+    owner: 'HASEL-UZH',
+    repo: 'PersonalAnalytics'
   },
-  afterSign: 'build/notarize.cjs',
   mac: {
     artifactName: '${productName}-Mac-${version}-Installer.${ext}',
-    asarUnpack: [
-      'node_modules/**/*.node'
-    ],
+    asarUnpack: ['node_modules/**/*.node'],
     entitlements: 'build/entitlements.mac.plist',
     entitlementsInherit: 'build/entitlements.mac.plist',
     hardenedRuntime: true,
     gatekeeperAssess: false,
+    notarize: {
+      teamId: `${process.env.APPLE_TEAM_ID}`
+    },
     extendInfo: [
       {
         key: 'NSAppleEventsUsageDescription',
@@ -48,7 +38,7 @@
     ]
   },
   dmg: {
-    "writeUpdateInfo": false
+    writeUpdateInfo: false
   },
   win: {
     artifactName: '${productName}-Windows-${version}-Setup.${ext}'
@@ -61,4 +51,4 @@
   linux: {
     artifactName: '${productName}-Linux-${version}.${ext}'
   }
-}
+};
