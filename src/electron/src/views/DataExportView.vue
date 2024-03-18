@@ -11,6 +11,9 @@ import WindowActivityDto from '../../shared/dto/WindowActivityDto';
 import UserInputDto from '../../shared/dto/UserInputDto';
 import DataExportExperienceSamplingTracker from '../components/DataExportExperienceSamplingTracker.vue';
 import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
+import getRendererLogger from '../utils/Logger';
+
+const LOG = getRendererLogger('DataExportView');
 
 const currentStep = ref(0);
 const transitionName = ref('slide-lef-right');
@@ -169,7 +172,7 @@ async function handleNextStep() {
       // Also update the DataExportService if you change the file name here
       fileName.value = `PA_${studyInfo.value?.subjectId}_${nowStr}.sqlite`;
     } catch (e) {
-      console.error(e);
+      LOG.error(e);
       hasExportError.value = true;
     }
     isExporting.value = false;

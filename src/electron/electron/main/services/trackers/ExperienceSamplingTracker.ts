@@ -1,10 +1,11 @@
 import * as schedule from 'node-schedule';
 import { WindowService } from '../WindowService';
 import { Tracker } from './Tracker';
-import { getLogger } from '../../../shared/Logger';
+import getMainLogger from '../../../config/Logger';
 import { Settings } from '../../entities/Settings';
+import { powerMonitor } from 'electron';
 
-const LOG = getLogger('ExperienceSamplingTracker');
+const LOG = getMainLogger('ExperienceSamplingTracker');
 
 export class ExperienceSamplingTracker implements Tracker {
   private checkIfExperienceSamplingIsDueJob: schedule.Job;
@@ -41,15 +42,7 @@ export class ExperienceSamplingTracker implements Tracker {
       LOG.info(
         'Next invocation is in the past, scheduling job to fire in 30 minutes + randomization'
       );
-      const subtractOrAdd: 1 | -1 = Math.random() < 0.5 ? -1 : 1;
-      const randomization =
-        this.intervalInMs * this.samplingRandomization * Math.random() * subtractOrAdd;
-      const nextInvocation = new Date(Date.now() + 30 * 60 * 1000 + randomization);
-
-      this.forcedExperienceSamplingJob = schedule.scheduleJob(nextInvocation, async () => {
-        await this.handleExperienceSamplingJob(nextInvocation);
-      });
-      LOG.info(`Resume, scheduled to fire at ${nextInvocation}`);
+      await this.scheduleNextForcedExperienceSamplingJob();
     } else {
       await this.startExperienceSamplingJob();
     }
@@ -81,6 +74,39 @@ export class ExperienceSamplingTracker implements Tracker {
     const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
     settings.nextExperienceSamplingInvocation = nextInvocation;
     await settings.save();
+  }
+
+  private async scheduleNextForcedExperienceSamplingJob(): Promise<void> {
+    const subtractOrAdd: 1 | -1 = Math.random() < 0.5 ? -1 : 1;
+    const scheduleAfterResumeInMs = 30 * 60 * 1000;
+    const randomization =
+      scheduleAfterResumeInMs * this.samplingRandomization * Math.random() * subtractOrAdd;
+    const nextInvocation = new Date(Date.now() + scheduleAfterResumeInMs + randomization);
+
+    this.forcedExperienceSamplingJob = schedule.scheduleJob(nextInvocation, async () => {
+      const systemIdleState: 'active' | 'idle' | 'locked' | 'unknown' =
+        powerMonitor.getSystemIdleState(10 * 60);
+      LOG.debug(
+        `scheduleNextForcedExperienceSamplingJob(): System idle state: ${systemIdleState}, assuming idle after 10 minutes of inactivity`
+      );
+
+      const systemIdleTimeInSeconds: number = powerMonitor.getSystemIdleTime();
+      LOG.debug(
+        `scheduleNextForcedExperienceSamplingJob(): System idle time: ${systemIdleTimeInSeconds}`
+      );
+      if (systemIdleState !== 'active') {
+        LOG.info(
+          `scheduleNextForcedExperienceSamplingJob(): System idle time is greater than 30 minutes, not starting experience sampling job`
+        );
+        await this.scheduleNextForcedExperienceSamplingJob();
+        return;
+      }
+      await this.handleExperienceSamplingJob(nextInvocation);
+    });
+    LOG.info(`scheduleNextForcedExperienceSamplingJob(): scheduled to fire at ${nextInvocation}`);
+
+    await this.scheduleNextJob();
+    await this.startExperienceSamplingJob();
   }
 
   private getRandomNextInvocationDate(): Date {

@@ -1,9 +1,9 @@
 import { Settings } from '../entities/Settings';
 import { generateAlphaNumericString } from './utils/helpers';
 import studyConfig from '../../../shared/study.config';
-import { getLogger } from '../../shared/Logger';
+import getMainLogger from '../../config/Logger';
 
-const LOG = getLogger('SettingsService');
+const LOG = getMainLogger('SettingsService');
 
 export class SettingsService {
   public async init(): Promise<void> {

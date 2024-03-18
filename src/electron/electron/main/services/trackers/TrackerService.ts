@@ -2,14 +2,14 @@ import * as schedule from 'node-schedule';
 import { Tracker } from './Tracker';
 import { TrackerConfig } from '../../../types/StudyConfig';
 import { TrackerType } from '../../../enums/TrackerType.enum';
-import { getLogger } from '../../../shared/Logger';
+import getMainLogger from '../../../config/Logger';
 import { ExperienceSamplingTracker } from './ExperienceSamplingTracker';
 import { WindowService } from '../WindowService';
 import studyConfig from '../../../../shared/study.config';
 import { UserInputEntity } from '../../entities/UserInputEntity';
 import { MoreThanOrEqual } from 'typeorm';
 
-const LOG = getLogger('TrackerService');
+const LOG = getMainLogger('TrackerService');
 
 export class TrackerService {
   private trackers: Tracker[] = [];

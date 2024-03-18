@@ -1,5 +1,5 @@
 import { DataExportType } from '../../../shared/DataExportType.enum';
-import { getLogger } from '../../shared/Logger';
+import getMainLogger from '../../config/Logger';
 import path from 'path';
 import { app } from 'electron';
 import { is } from './utils/helpers';
@@ -11,7 +11,7 @@ import { Settings } from '../entities/Settings';
 import { UsageDataService } from './UsageDataService';
 import { UsageDataEventType } from '../../enums/UsageDataEventType.enum';
 
-const LOG = getLogger('DataExportService');
+const LOG = getMainLogger('DataExportService');
 
 export class DataExportService {
   private readonly windowActivityTrackerService: WindowActivityTrackerService =

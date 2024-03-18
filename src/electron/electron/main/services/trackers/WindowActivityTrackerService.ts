@@ -1,10 +1,10 @@
 import ActiveWindow from 'windows-activity-tracker/dist/types/ActiveWindow';
 import { WindowActivityEntity } from '../../entities/WindowActivityEntity';
 import { In } from 'typeorm';
-import { getLogger } from '../../../shared/Logger';
+import getMainLogger from '../../../config/Logger';
 import WindowActivityDto from '../../../../shared/dto/WindowActivityDto';
 
-const LOG = getLogger('WindowActivityTrackerService');
+const LOG = getMainLogger('WindowActivityTrackerService');
 
 export class WindowActivityTrackerService {
   private randomStringMap: Map<string, string> = new Map<string, string>();

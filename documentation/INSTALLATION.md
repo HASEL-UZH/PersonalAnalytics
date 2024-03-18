@@ -31,6 +31,8 @@ The following video shows the steps in action:
 
 [![How to install PersonalAnalytics on macOS](https://markdown-videos-api.jorgenkh.no/youtube/ovfRzp3Ksgk)](https://youtu.be/ovfRzp3Ksgk)
 
+> If you want to completely remove or reinstall PersonalAnalytics on macOS, please visit the [Troubleshooting](TROUBLESHOOTING.md#macos-reinstalling-personalanalytics-from-scratch) page.
+
 
 ## Using PersonalAnalytics
 For the majority of the time, PersonalAnalytics is running nonintrusively in the background.
@@ -51,6 +53,7 @@ In the taskbar (on Windows) or the menubar (on macOS), you can access all the ne
 The researchers might ask you to share the collected data with them for data analysis as part of their research project. To that purpose, click "Export Data" in the taskbar (on Windows) or menubar (on macOS) and follow the wizard. Note the infrmation on [data collection and privacy](PRIVACY.md). 
 
 <img width="641" alt="image" src="https://github.com/HASEL-UZH/PersonalAnalytics/assets/5212692/11c37ff9-a85b-4c45-adbf-2028cfe46a39">
+
 
 ### Questions
 In case of questions, contact the researchers who asked you to install PersonalAnalytics. You find their email in the study description or by clicking "Get Help" in the context menu.

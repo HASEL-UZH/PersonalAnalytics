@@ -1,8 +1,8 @@
 import { ExperienceSamplingResponseEntity } from '../entities/ExperienceSamplingResponseEntity';
-import { getLogger } from '../../shared/Logger';
+import getMainLogger from '../../config/Logger';
 import ExperienceSamplingDto from '../../../shared/dto/ExperienceSamplingDto';
 
-const LOG = getLogger('ExperienceSamplingService');
+const LOG = getMainLogger('ExperienceSamplingService');
 
 export class ExperienceSamplingService {
   public async createExperienceSample(

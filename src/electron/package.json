@@ -1,6 +1,6 @@
 {
   "name": "personal-analytics",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "main": "dist-electron/main/index.js",
   "type": "module",
   "author": {
@@ -36,7 +36,7 @@
     "autoprefixer": "^10.4.17",
     "daisyui": "^4.6.1",
     "electron": "^28.2.2",
-    "electron-builder": "^24.9.1",
+    "electron-builder": "^24.13.3",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",

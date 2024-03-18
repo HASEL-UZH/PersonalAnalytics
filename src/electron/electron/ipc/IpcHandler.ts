@@ -1,7 +1,7 @@
 import { ExperienceSamplingService } from '../main/services/ExperienceSamplingService';
 import { app, ipcMain, IpcMainInvokeEvent, shell, systemPreferences } from 'electron';
 import { WindowService } from '../main/services/WindowService';
-import { getLogger } from '../shared/Logger';
+import { getMainLogger } from '../config/Logger';
 import { TypedIpcMain } from '../../src/utils/TypedIpcMain';
 import Commands from '../../src/utils/Commands';
 import Events from '../../src/utils/Events';
@@ -18,7 +18,7 @@ import WindowActivityDto from '../../shared/dto/WindowActivityDto';
 import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
 import { is } from '../main/services/utils/helpers';
 
-const LOG = getLogger('IpcHandler');
+const LOG = getMainLogger('IpcHandler');
 
 export class IpcHandler {
   private readonly actions: any;
