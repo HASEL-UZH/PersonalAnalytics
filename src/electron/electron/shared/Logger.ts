@@ -3,9 +3,9 @@ import { LogFunctions } from 'electron-log';
 import { LOG_FILE_NAME, LOG_LEVEL } from '../config/logger.config';
 
 const getLogger = (loggerName: string, background = true): LogFunctions => {
-  const currentDate: string = new Date().toISOString().split('T')[0];
   const processName: string = background ? LOG_FILE_NAME.BACKGROUND : LOG_FILE_NAME.RENDERER;
-  logger.transports.file.fileName = `${currentDate}-${processName}.log`;
+  logger.transports.file.fileName = `${processName}.log`;
+  logger.transports.file.maxSize = 15 * 1024 * 1024;
   logger.transports.file.level = LOG_LEVEL.FILE;
   logger.transports.console.level = LOG_LEVEL.CONSOLE;
   return logger.scope(loggerName);
