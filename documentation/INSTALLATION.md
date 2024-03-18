@@ -52,5 +52,45 @@ The researchers might ask you to share the collected data with them for data ana
 
 <img width="641" alt="image" src="https://github.com/HASEL-UZH/PersonalAnalytics/assets/5212692/11c37ff9-a85b-4c45-adbf-2028cfe46a39">
 
+### macOS: Reinstalling PersonalAnalytics from Scratch
+
+1. Quit PA and check it is not running with
+```
+ps aux | grep -i personal
+```
+There should only be one result, which is the search command itself
+
+2. Remove permissions for PA in System Preferences:
+```
+open "x-apple.systempreferences:com.apple.preference.security”
+```
+
+Check for entries in “Accessibility” and “Screen & System Audio Recording”, and delete these entries using the “-“ symbol at the bottom of the list.
+
+> Note: Checking for these permissions needs to be done *BEFORE* deleting the PA app, as permissions for deleted apps are kept, but not shown in this list if the app is deleted.
+
+3. Delete PA and its settings
+
+- Copy the database if you want to keep it
+```
+open ~/Library/Application\ Support/personal-analytics
+```
+- Delete PA
+```
+rm -rf /Applications/PersonalAnalytics.app
+```
+- Delete Settings
+```
+rm -rf ~/Library/Application\ Support/personal-analytics
+```
+
+4. Make sure PA and settings are deleted
+```
+ls -lah /Applications | grep -i personal
+ls -lah ~/Library/Application\ Support | grep -i personal
+```
+
+5. Done - you can freshly install PersonalAnalytics now!
+
 ### Questions
 In case of questions, contact the researchers who asked you to install PersonalAnalytics. You find their email in the study description or by clicking "Get Help" in the context menu.
