@@ -1,5 +1,5 @@
 import { app, BrowserWindow, Menu, nativeImage, screen, shell, Tray } from 'electron';
-import { getLogger } from '../../shared/Logger';
+import getMainLogger from '../../config/Logger';
 import AppUpdaterService from './AppUpdaterService';
 import { is } from './utils/helpers';
 import path from 'path';
@@ -7,11 +7,12 @@ import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions;
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import studyConfig from '../../../shared/study.config';
+
 import { Settings } from '../entities/Settings';
 import { UsageDataService } from './UsageDataService';
 import { UsageDataEventType } from '../../enums/UsageDataEventType.enum';
 
-const LOG = getLogger('WindowService');
+const LOG = getMainLogger('WindowService');
 
 export class WindowService {
   private readonly appUpdaterService: AppUpdaterService;

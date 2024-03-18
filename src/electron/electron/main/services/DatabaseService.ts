@@ -2,14 +2,14 @@ import { DataSource, DataSourceOptions } from 'typeorm';
 import { app } from 'electron';
 import path from 'path';
 import { is } from './utils/helpers';
-import { getLogger } from '../../shared/Logger';
+import getMainLogger from '../../config/Logger';
 import { WindowActivityEntity } from '../entities/WindowActivityEntity';
 import { ExperienceSamplingResponseEntity } from '../entities/ExperienceSamplingResponseEntity';
 import { UserInputEntity } from '../entities/UserInputEntity';
 import { Settings } from '../entities/Settings';
 import { UsageDataEntity } from '../entities/UsageDataEntity';
 
-const LOG = getLogger('DatabaseService');
+const LOG = getMainLogger('DatabaseService');
 
 export class DatabaseService {
   public dataSource: DataSource;

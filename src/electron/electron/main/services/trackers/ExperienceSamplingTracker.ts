@@ -1,11 +1,11 @@
 import * as schedule from 'node-schedule';
 import { WindowService } from '../WindowService';
 import { Tracker } from './Tracker';
-import { getLogger } from '../../../shared/Logger';
+import getMainLogger from '../../../config/Logger';
 import { Settings } from '../../entities/Settings';
 import { powerMonitor } from 'electron';
 
-const LOG = getLogger('ExperienceSamplingTracker');
+const LOG = getMainLogger('ExperienceSamplingTracker');
 
 export class ExperienceSamplingTracker implements Tracker {
   private checkIfExperienceSamplingIsDueJob: schedule.Job;

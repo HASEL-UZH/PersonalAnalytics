@@ -1,4 +1,4 @@
-import { getLogger } from '../../shared/Logger';
+import getMainLogger from '../../config/Logger';
 import { dialog, net } from 'electron';
 import { EventEmitter } from 'events';
 import updater from 'electron-updater';
@@ -6,7 +6,7 @@ import studyConfig from '../../../shared/study.config';
 
 const { autoUpdater } = updater;
 
-const LOG = getLogger('AutoUpdater');
+const LOG = getMainLogger('AutoUpdater');
 
 export default class AppUpdaterService extends EventEmitter {
   private checkForUpdatesInterval: NodeJS.Timeout | undefined;

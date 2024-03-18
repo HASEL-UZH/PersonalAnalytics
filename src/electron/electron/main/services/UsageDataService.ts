@@ -1,8 +1,8 @@
-import { getLogger } from '../../shared/Logger';
+import getMainLogger from '../../config/Logger';
 import { UsageDataEventType } from '../../enums/UsageDataEventType.enum';
 import { UsageDataEntity } from '../entities/UsageDataEntity';
 
-const LOG = getLogger('UsageDataService');
+const LOG = getMainLogger('UsageDataService');
 
 export class UsageDataService {
   public static async createNewUsageDataEvent(

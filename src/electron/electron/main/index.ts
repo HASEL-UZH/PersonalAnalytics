@@ -4,7 +4,7 @@ import { release } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import log from 'electron-log/main';
-import { getLogger } from '../shared/Logger';
+import { getMainLogger } from '../config/Logger';
 import { DatabaseService } from './services/DatabaseService';
 import { SettingsService } from './services/SettingsService';
 import { TrackerType } from '../enums/TrackerType.enum';
@@ -59,7 +59,7 @@ if (is.macOS) {
 
 // Optional, initialize the logger for any renderer process
 log.initialize();
-const LOG = getLogger('Main');
+const LOG = getMainLogger('Main');
 
 app.whenReady().then(async () => {
   app.setAppUserModelId('ch.ifi.hasel.personal-analytics');
