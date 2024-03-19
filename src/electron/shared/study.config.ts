@@ -34,8 +34,8 @@ const studyConfig: StudyConfiguration = {
         ['not at all productive', 'moderately productive', 'very productive'],
         ['not well', 'moderately well', 'very well']
       ],
-      // 3 hours
-      intervalInMs: 1000 * 60 * 60 * 3,
+      // TODO: Change back to 3 hours
+      intervalInMs: 1000 * 60 * 60 * 1,
       // 10% randomization, so the interval will be between 2.7 and 3.3 hours
       samplingRandomization: 0.1
     }

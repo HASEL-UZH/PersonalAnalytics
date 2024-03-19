@@ -59,7 +59,8 @@ export class ExperienceSamplingTracker implements Tracker {
   }
 
   public stop(): void {
-    this.checkIfExperienceSamplingIsDueJob.cancel();
+    this.checkIfExperienceSamplingIsDueJob?.cancel();
+    this.forcedExperienceSamplingJob?.cancel();
     this.isRunning = false;
   }
 
