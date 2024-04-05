@@ -184,6 +184,7 @@ app.whenReady().then(async () => {
       'Error during app initialization',
       `PersonalAnalytics couldn't be started. Please try again or contact us at ${studyConfig.contactEmail} for help. ${error}`
     );
+    app.exit();
   }
 });
 

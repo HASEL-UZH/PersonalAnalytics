@@ -18,7 +18,6 @@ export default class AppUpdaterService extends EventEmitter {
     super();
     autoUpdater.logger = LOG;
     autoUpdater.autoDownload = false;
-
     LOG.debug('AppUpdaterService constructor called');
 
     autoUpdater.on('checking-for-update', () => {
@@ -103,27 +102,31 @@ export default class AppUpdaterService extends EventEmitter {
   }
 
   public async checkForUpdates({ silent }: { silent: boolean }): Promise<void> {
-    if (net.isOnline()) {
-      this.isSilentCheckForUpdates = silent;
-      this.changeUpdaterMenu({ label: 'Checking for updates...', enabled: false });
-      if (this.updateDownloaded) {
-        const dialogResponse = await dialog.showMessageBox({
-          title: 'PersonalAnalytics Update Available',
-          message: 'New updates are available and ready to be installed.',
-          defaultId: 0,
-          cancelId: 1,
-          buttons: ['Install and restart', 'Close']
-        });
-        if (dialogResponse.response === 0) {
-          setImmediate(() => autoUpdater.quitAndInstall());
+    try {
+      if (net.isOnline()) {
+        this.isSilentCheckForUpdates = silent;
+        this.changeUpdaterMenu({ label: 'Checking for updates...', enabled: false });
+        if (this.updateDownloaded) {
+          const dialogResponse = await dialog.showMessageBox({
+            title: 'PersonalAnalytics Update Available',
+            message: 'New updates are available and ready to be installed.',
+            defaultId: 0,
+            cancelId: 1,
+            buttons: ['Install and restart', 'Close']
+          });
+          if (dialogResponse.response === 0) {
+            setImmediate(() => autoUpdater.quitAndInstall());
+          } else {
+            this.changeUpdaterMenu({ label: 'Updates available', enabled: true });
+          }
         } else {
-          this.changeUpdaterMenu({ label: 'Updates available', enabled: true });
+          await autoUpdater.checkForUpdates();
         }
       } else {
-        await autoUpdater.checkForUpdates();
+        LOG.info('No internet connection, skipping check for updates.');
       }
-    } else {
-      LOG.info('No internet connection, skipping check for updates.');
+    } catch (e) {
+      LOG.error(e);
     }
   }
 
