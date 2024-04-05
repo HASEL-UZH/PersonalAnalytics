@@ -64,9 +64,11 @@ const LOG = getMainLogger('Main');
 app.whenReady().then(async () => {
   app.setAppUserModelId('ch.ifi.hasel.personal-analytics');
 
-  app.setLoginItemSettings({
-    openAtLogin: true
-  });
+  if (!is.dev) {
+    app.setLoginItemSettings({
+      openAtLogin: true
+    });
+  }
 
   try {
     await databaseService.init();
