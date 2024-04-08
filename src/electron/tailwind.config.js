@@ -5,5 +5,6 @@ module.exports = {
   plugins: [require('@tailwindcss/typography'), require('daisyui')],
   theme: {
     extend: {}
-  }
+  },
+  safelist: ['bg-neutral-700']
 };

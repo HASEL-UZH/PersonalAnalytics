@@ -131,7 +131,7 @@ function startAllTrackers() {
     <div v-if="!studyInfo" class="flex h-full w-full items-center justify-center">
       <span class="loading loading-spinner loading-lg" />
     </div>
-    <div v-else class="relative flex h-full flex-col justify-between text-neutral-400">
+    <div v-else class="relative flex h-full flex-col justify-between dark:text-neutral-400">
       <transition-group :name="transitionName">
         <div v-if="currentNamedStep === 'welcome'" key="0" class="flex w-full flex-col">
           <div class="flex flex-row">
@@ -141,20 +141,25 @@ function startAllTrackers() {
               alt="PersonalAnalytics Logo"
               width="80"
             />
-            <h1 id="title" class="ml-5 self-center text-3xl font-normal text-neutral-300">
+            <h1
+              id="title"
+              class="ml-5 self-center text-3xl font-normal text-neutral-800 dark:text-neutral-300"
+            >
               Welcome to {{ studyInfo.studyName }}
             </h1>
           </div>
           <StudyInfo :study-info="studyInfo" />
         </div>
         <div v-else-if="currentNamedStep === 'data-collection'" key="1" class="absolute">
-          <h1 class="mb-8 text-4xl font-medium text-neutral-300">Grant Permissions</h1>
+          <h1 class="mb-8 text-4xl font-medium text-neutral-800 dark:text-neutral-300">
+            Grant Permissions
+          </h1>
           <div class="text-md">
             <p>
               This study uses PersonalAnalytics to store computer interaction data, including app
               names, window titles, user input from mouse and keyboard. The data is
-              <span class="font-bold text-slate-200">only stored locally</span> and will
-              <span class="font-bold text-slate-200"
+              <span class="font-bold dark:text-slate-200">only stored locally</span> and will
+              <span class="font-bold dark:text-slate-200"
                 ><span class="italic">not</span> be shared
               </span>
               with the researchers without your explicit permission.
@@ -253,7 +258,9 @@ function startAllTrackers() {
           </div>
         </div>
         <div v-else-if="currentNamedStep === 'study-trackers-started'" key="2" class="absolute">
-          <h1 class="mb-8 text-4xl font-medium text-neutral-300">PersonalAnalytics is running</h1>
+          <h1 class="mb-8 text-4xl font-medium text-neutral-800 dark:text-neutral-300">
+            PersonalAnalytics is running
+          </h1>
           <article class="prose prose-lg max-w-none">
             <p v-if="requiresAnyPermission">
               Thank you for setting up PersonalAnalytics and participating in

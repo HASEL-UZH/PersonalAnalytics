@@ -201,11 +201,13 @@ function revealItemInFolder(event: Event) {
     >
       <span class="loading loading-spinner loading-lg" />
     </div>
-    <div v-else class="relative flex h-full flex-col justify-between text-neutral-400">
+    <div v-else class="relative flex h-full flex-col justify-between dark:text-neutral-400">
       <div class="mb-5 flex-grow overflow-y-auto">
         <transition-group :name="transitionName">
           <div v-if="currentNamedStep === 'export-1'" key="0" class="flex w-full flex-col">
-            <h1 class="mb-8 text-4xl font-medium text-neutral-300">Data Export</h1>
+            <h1 class="mb-8 text-4xl font-medium text-neutral-800 dark:text-neutral-300">
+              Data Export
+            </h1>
             <article class="prose prose-lg max-w-none">
               <p>
                 Thank you for participating in the {{ studyInfo.studyName }}-study! So far, all data
@@ -264,7 +266,9 @@ function revealItemInFolder(event: Event) {
             </article>
           </div>
           <div v-if="currentNamedStep === 'create-export'" key="2" class="flex w-full flex-col">
-            <h1 class="mb-8 text-4xl font-medium text-neutral-300">Your Export is Ready</h1>
+            <h1 class="mb-8 text-4xl font-medium text-neutral-800 dark:text-neutral-300">
+              Your Export is Ready
+            </h1>
             <article class="prose prose-lg max-w-none">
               <p>
                 Thank you for reviewing and exporting your data for the study

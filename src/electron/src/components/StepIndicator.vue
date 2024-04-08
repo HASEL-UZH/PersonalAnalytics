@@ -14,9 +14,9 @@ defineProps({
   <div class="flex flex-row justify-between">
     <template v-for="i in [...Array(totalSteps).keys()]" :key="i">
       <div
-        class="ml-1 h-3 w-3 rounded-full bg-neutral-700 transition-all duration-300"
+        class="ml-1 h-3 w-3 rounded-full bg-neutral-300 transition-all duration-300 dark:bg-neutral-700"
         :class="{
-          'bg-white': i === currentStep
+          'bg-neutral-700 dark:bg-white': i === currentStep
         }"
       />
     </template>
