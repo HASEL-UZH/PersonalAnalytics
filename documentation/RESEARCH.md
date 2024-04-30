@@ -19,8 +19,8 @@ To use GitHub Actions to build and create PersonalAnalytics releases, you need t
 - `APPLE_ID` (your Apple ID)
 - `APPLE_APP_SPECIFIC_PASSWORD` (an app-specific password for your Apple ID)
 - `APPLE_TEAM_ID` (your Apple Team ID)
-- `CSC_LINK`
-- `CSC_KEY_PASSWORD`
+- `CSC_LINK` (link to Apple Developer Certificate in \*.p12 format)
+- `CSC_KEY_PASSWORD` (password for the Apple Developer Certificate)
 
 ### Required Changes in `electron-builder.json5`
 These changes are required to automatically publish the built artifacts to GitHub releases. You need to replace the `owner` and `repo` with your GitHub username and repository name.

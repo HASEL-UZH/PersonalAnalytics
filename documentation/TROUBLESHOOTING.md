@@ -1,6 +1,6 @@
 # Troubleshooting PersonalAnalytics
 
-### macOS: Reinstalling PersonalAnalytics from Scratch
+## macOS: Reinstalling PersonalAnalytics from Scratch
 > If you are experiencing issues with PersonalAnalytics on macOS and want to reinstall the app, please follow the steps below:
 
 1. Quit PA and check that it is not running with:

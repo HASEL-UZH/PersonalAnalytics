@@ -68,6 +68,8 @@ app.whenReady().then(async () => {
     app.setLoginItemSettings({
       openAtLogin: true
     });
+  } else {
+    LOG.info('Skip setting openAtLogin because app is running in development mode');
   }
 
   try {

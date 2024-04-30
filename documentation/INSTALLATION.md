@@ -23,7 +23,7 @@ The following video shows the steps in action:
 4. Open the downloaded instller and drag the PersonalAnalytics-app to your Applications folder
 5. (optional) Click "Open" in case a warning is shown that the app was downloaded from the internet
 6. After the installation completes, follow the Onboarding-wizard, which explains the study, collected data and how to use PersonalAnalytics
-7. On the second page, grant PersonalAnalytics the permissions it requires to function corectly
+7. On the second page, grant PersonalAnalytics the permissions it requires to function correctly
 8. Note that you might need to manually quit and restart PersonalAnalytics after giving permission
 9. Access PersonalAnalytics anytime through the context-menu in the menubar icon
 
