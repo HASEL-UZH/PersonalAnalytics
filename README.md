@@ -25,7 +25,7 @@ Learn more about how to use [PersonalAnalytics for your research project](./docu
 - [Data Collection & Privacy Policy](./documentation/PRIVACY.md)
 - [Contributions](./documentation/RESEARCH.md#contributions-guide)
 - [Information on the old PersonalAnalytics](./documentation/LEGACY.md)
-- Questions? contact [Dr. André Meyer](mailto:ameyer@ifi.uzh.ch)
+- Questions? Contact [Dr. André Meyer](mailto:ameyer@ifi.uzh.ch)
 
 
 ## 🕒 Maintenance Status
