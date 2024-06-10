@@ -7,11 +7,6 @@ module.exports = {
     output: 'release/${version}'
   },
   files: ['dist', 'dist-electron'],
-  publish: {
-    provider: 'github',
-    owner: 'HASEL-UZH',
-    repo: 'PersonalAnalytics'
-  },
   mac: {
     artifactName: '${productName}-Mac-${version}-Installer.${ext}',
     asarUnpack: ['node_modules/**/*.node'],
