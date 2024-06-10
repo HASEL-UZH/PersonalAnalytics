@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - isicu-sleep
 
 env:
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
