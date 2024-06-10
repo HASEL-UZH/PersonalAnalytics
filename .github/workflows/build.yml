@@ -2,7 +2,7 @@ name: Build
 on:
   push:
     branches:
-      - main
+      - isicu-sleep
 
 env:
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -40,3 +40,9 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            release/**
