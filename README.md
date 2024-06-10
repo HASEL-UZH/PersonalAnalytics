@@ -31,7 +31,8 @@ Learn more about how to use [PersonalAnalytics for your research project](./docu
 ## 🕒 Maintenance Status
 The original version of PersonalAnalytics for Windows (created by André Meyer) and for macOS (created by Roy Rutishauser and Chris Satterfield), and supported by several other contributors, have been deprecated and are no longer maintained. In case of interest, you can learn more about [PersonalAnalytics-legacy here](./documentation/LEGACY.md).
 
-In 2024, we've revived the project in creating a multi-platform app using TypeScript and Electron. It is using the TypeScript-versions of our original, most used data trackers, the [WindowsActivityTracker](https://github.com/HASEL-UZH/PA.WindowsActivityTracker/tree/main/typescript) and the [UserInputTracker](https://github.com/HASEL-UZH/PA.UserInputTracker/tree/main/typescript). In addition, it includes an experience sampling component that can ask users to provide self-reports on one or several questions at customizable times. At the moment, the new PersonalAnalytics does NOT yet feature a retrospection, but it's the plan to recreate it in the future.
+In 2024, we've revived the project in creating a multi-platform app using TypeScript and Electron. It is using the TypeScript-versions of our original, most used data trackers, the [WindowsActivityTracker](https://github.com/HASEL-UZH/PA.WindowsActivityTracker/tree/main/typescript) and the [UserInputTracker](https://github.com/HASEL-UZH/PA.UserInputTracker/tree/main/typescript). In addition, it includes an experience sampling component that can ask users to provide self-reports on one or several questions at customizable times. 
+At the moment, the new PersonalAnalytics does NOT yet feature a retrospection, but it's the plan to recreate it in the future.
 
 
 ## 🙂 Main Contributors and People Involved
