@@ -31,6 +31,7 @@ The following video shows the steps in action:
 
 [![How to install PersonalAnalytics on macOS](https://markdown-videos-api.jorgenkh.no/youtube/ovfRzp3Ksgk)](https://youtu.be/ovfRzp3Ksgk)
 
+> [!TIP]  
 > If you want to completely remove or reinstall PersonalAnalytics on macOS, please visit the [Troubleshooting](TROUBLESHOOTING.md#macos-reinstalling-personalanalytics-from-scratch) page.
 
 
