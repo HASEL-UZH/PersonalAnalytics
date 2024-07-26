@@ -59,7 +59,7 @@
     "better-sqlite3": "^9.4.0",
     "better-sqlite3-multiple-ciphers": "^9.4.0",
     "electron-log": "^5.1.1",
-    "electron-updater": "^6.1.7",
+    "electron-updater": "^6.3.0",
     "node-schedule": "^2.1.1",
     "typeorm": "^0.3.20",
     "user-input-tracker": "file:PA.UserInputTracker/typescript",
