@@ -12,7 +12,9 @@ defineProps({
 <template>
   <article class="prose prose-lg mt-4">
     <h2>Study Info</h2>
-    <p>{{ studyInfo.shortDescription }}</p>
+    <div class="-mr-6 max-h-64 overflow-y-auto pr-4">
+      <p class="my-0">{{ studyInfo.shortDescription }}</p>
+    </div>
     <table class="table-auto">
       <tbody>
         <tr>
