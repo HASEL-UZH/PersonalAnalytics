@@ -26,11 +26,11 @@ onMounted(async () => {
       <StudyInfo :study-info="studyInfo" />
 
       <article class="prose prose-lg mt-4">
-        <h2 class="mt-0">Monitoring Tool Info</h2>
+        <h2 class="mt-0">PersonalAnalytics Tool Info</h2>
         <p>
           PersonalAnalytics is a software, developed by the Human Aspects of Software Engineering
           Lab of the University of Zurich to non-intrusively collect computer interaction data,
-          store them locally o the user's machine, and allow users to voluntarily share a
+          store them locally to the user's machine, and allow users to voluntarily share a
           user-defined and potentially anonymized subset of the data with researchers for scientific
           purposes.
         </p>
@@ -64,6 +64,14 @@ onMounted(async () => {
             </tr>
           </tbody>
         </table>
+        <p>
+          Various versions of PersonalAnalytics were thoroughly tested through more than a dozens field 
+          studies involving hundreds of users. Even though the software runs reliably on most systems, we cannot exclude occasional 
+          software issues. The use of this software is at the sole risk of the user. The creators of the software disclaim any 
+          liability for damages or consequences, including but not limited to damages or losses arising from the use, 
+          modification, or misuse of the software. The software is provided under an open-source license to researchers 
+          and users <i>as-is</i> and can be inspected under the link provided above.
+        </p>
         <div class="float-end flex pb-7">
           <a href="https://www.uzh.ch" target="_blank" class="mr-5">
             <img src="../assets/logo_uzh.svg" class="m-0 w-32 object-contain" alt="UZH Logo" />
