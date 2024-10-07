@@ -255,9 +255,7 @@ function revealItemInFolder(event: Event) {
                           Click to {{ studyDescriptionExpanded ? 'collapse' : 'expand' }} Study
                           Description
                         </div>
-                        <div class="collapse-content">
-                          {{ studyInfo.shortDescription }}
-                        </div>
+                        <div class="collapse-content" v-html="studyInfo.shortDescription" />
                       </div>
                     </td>
                   </tr>

@@ -13,7 +13,7 @@ defineProps({
   <article class="prose prose-lg mt-4">
     <h2>Study Info</h2>
     <div class="-mr-6 max-h-64 overflow-y-auto pr-4">
-      <p class="my-0">{{ studyInfo.shortDescription }}</p>
+      <div class="my-0" v-html="studyInfo.shortDescription" />
     </div>
     <table class="table-auto">
       <tbody>

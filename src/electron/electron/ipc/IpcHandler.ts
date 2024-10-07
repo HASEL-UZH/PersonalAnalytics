@@ -17,6 +17,8 @@ import UserInputDto from '../../shared/dto/UserInputDto';
 import WindowActivityDto from '../../shared/dto/WindowActivityDto';
 import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
 import { is } from '../main/services/utils/helpers';
+import { JSDOM } from 'jsdom';
+import DOMPurify from 'dompurify';
 
 const LOG = getMainLogger('IpcHandler');
 
@@ -107,10 +109,19 @@ export class IpcHandler {
 
   private async getStudyInfo(): Promise<StudyInfoDto> {
     const settings: Settings = await Settings.findOne({ where: { onlyOneEntityShouldExist: 1 } });
+
+    const window = new JSDOM('').window;
+    const purify = DOMPurify(window);
+
+    const cleanDescription = purify.sanitize(studyConfig.shortDescription, {
+      ALLOWED_TAGS: ['a', 'b', 'br', 'i', 'li', 'p', 'strong', 'u', 'ul'],
+      ADD_ATTR: ['target']
+    });
+
     return {
       studyName: settings.studyName,
       subjectId: settings.subjectId,
-      shortDescription: studyConfig.shortDescription,
+      shortDescription: cleanDescription,
       infoUrl: studyConfig.infoUrl,
       privacyPolicyUrl: studyConfig.privacyPolicyUrl,
       contactName: studyConfig.contactName,
