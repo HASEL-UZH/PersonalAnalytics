@@ -40,5 +40,6 @@ export interface StudyConfiguration {
   contactEmail: string;
   subjectIdLength: number;
   dataExportEnabled: boolean;
+  dataExportEncrypted: boolean;
   trackers: TrackerConfiguration;
 }
