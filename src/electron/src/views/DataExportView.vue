@@ -220,8 +220,9 @@ function revealItemInFolder(event: Event) {
               <p>
                 Please click "Next" once you are ready to
                 <b class="dark:text-white">first review, and later share your data</b>. The export
-                that will be created with your permission in the next step will be encrypted and
-                password-protected.
+                that will be created with your permission in the next step will be
+                <span v-if="studyConfig.dataExportEncrypted">encrypted and password-protected</span
+                >.
               </p>
               <p>
                 Below, you find additional information on the study and how the researchers ensure
@@ -274,7 +275,10 @@ function revealItemInFolder(event: Event) {
                 {{ studyConfig.name }}-study.
               </p>
               <p>
-                A single password-protected and encrypted
+                A single
+                <span v-if="studyConfig.dataExportEncrypted"
+                  >password-protected and encrypted
+                </span>
                 <b class="dark:text-white">file was created</b> based on your preferences on the
                 previous page. To share this file with the researchers, please take the following
                 steps:
