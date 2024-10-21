@@ -164,7 +164,8 @@ async function handleNextStep() {
         'startDataExport',
         exportWindowActivitySelectedOption.value,
         exportUserInputSelectedOption.value,
-        obfuscationTerms
+        obfuscationTerms,
+        studyConfig.dataExportEncrypted
       );
       hasExportError.value = false;
       const now = new Date();
