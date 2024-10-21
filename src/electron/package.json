@@ -69,5 +69,8 @@
     "user-input-tracker": "file:PA.UserInputTracker/typescript",
     "vue-router": "^4.2.5",
     "windows-activity-tracker": "file:PA.WindowsActivityTracker/typescript"
+  },
+  "optionalDependencies": {
+    "node-mac-permissions": "^2.4.0"
   }
 }
