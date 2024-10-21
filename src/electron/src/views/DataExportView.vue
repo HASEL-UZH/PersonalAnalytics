@@ -94,10 +94,13 @@ async function handleWindowActivityExportConfigChanged(newSelectedOption: DataEx
 }
 
 async function handleObfuscationTermsChanged(newObfuscationTerms: string) {
-  if (!newObfuscationTerms) {
+  if (!newObfuscationTerms || newObfuscationTerms.trim().length === 0) {
     obfuscationTermsInput.value = [];
   } else {
-    obfuscationTermsInput.value = newObfuscationTerms.split(',').map((s: string) => s.trim());
+    obfuscationTermsInput.value = newObfuscationTerms
+      .split(',')
+      .map((s: string) => s.trim())
+      .filter((s: string) => s.length > 0);
   }
 }
 
