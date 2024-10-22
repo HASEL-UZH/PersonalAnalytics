@@ -219,9 +219,10 @@ function revealItemInFolder(event: Event) {
               </p>
               <p>
                 Please click "Next" once you are ready to
-                <b class="dark:text-white">first review, and later share your data</b>. The export
-                that will be created with your permission in the next step will be
-                <span v-if="studyConfig.dataExportEncrypted">encrypted and password-protected</span
+                <b class="dark:text-white">first review, and later share your data</b>.
+                <span v-if="studyConfig.dataExportEncrypted">
+                  The export that will be created with your permission in the next step will be
+                  encrypted and password-protected </span
                 >.
               </p>
               <p>
