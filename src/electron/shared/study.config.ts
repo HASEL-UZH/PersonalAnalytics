@@ -12,6 +12,7 @@ const studyConfig: StudyConfiguration = {
   contactEmail: 'study@hasel.dev',
   subjectIdLength: 6,
   dataExportEnabled: true,
+  dataExportEncrypted: false,
   trackers: {
     windowActivityTracker: {
       enabled: true,

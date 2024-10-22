@@ -152,12 +152,14 @@ export class IpcHandler {
   private async startDataExport(
     windowActivityExportType: DataExportType,
     userInputExportType: DataExportType,
-    obfuscationTerms: string[]
+    obfuscationTerms: string[],
+    encryptData: boolean
   ): Promise<string> {
     return this.dataExportService.startDataExport(
       windowActivityExportType,
       userInputExportType,
-      obfuscationTerms
+      obfuscationTerms,
+      encryptData
     );
   }
 
