@@ -276,13 +276,12 @@ function revealItemInFolder(event: Event) {
                 {{ studyConfig.name }}-study.
               </p>
               <p>
-                A single
+                Your data was exported and we created a
                 <span v-if="studyConfig.dataExportEncrypted"
                   >password-protected and encrypted
                 </span>
-                <b class="dark:text-white">file was created</b> based on your preferences on the
-                previous page. To share this file with the researchers, please take the following
-                steps:
+                file based on your preferences on the previous page. To share this file with the
+                researchers, please take the following steps:
               </p>
               <ol>
                 <li>
