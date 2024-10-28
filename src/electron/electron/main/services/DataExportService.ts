@@ -19,7 +19,8 @@ export class DataExportService {
   public async startDataExport(
     windowActivityExportType: DataExportType,
     userInputExportType: DataExportType,
-    obfuscationTerms: string[]
+    obfuscationTerms: string[],
+    encryptData: boolean
   ): Promise<string> {
     LOG.info('startDataExport called');
     await UsageDataService.createNewUsageDataEvent(
@@ -59,11 +60,13 @@ export class DataExportService {
       // see https://github.com/WiseLibs/better-sqlite3/blob/master/docs/performance.md
       db.pragma('journal_mode = WAL');
 
-      // see https://github.com/m4heshd/better-sqlite3-multiple-ciphers/issues/5#issuecomment-1008330548
-      db.pragma(`cipher='sqlcipher'`);
-      db.pragma(`legacy=4`);
+      if (encryptData) {
+        // see https://github.com/m4heshd/better-sqlite3-multiple-ciphers/issues/5#issuecomment-1008330548
+        db.pragma(`cipher='sqlcipher'`);
+        db.pragma(`legacy=4`);
 
-      db.pragma(`rekey='PersonalAnalytics_${settings.subjectId}'`);
+        db.pragma(`rekey='PersonalAnalytics_${settings.subjectId}'`);
+      }
 
       if (
         windowActivityExportType === DataExportType.Obfuscate ||
