@@ -13,7 +13,7 @@ module.exports = {
     repo: 'PersonalAnalytics'
   },
   mac: {
-    artifactName: '${productName}-Mac-${version}-Installer.${ext}',
+    artifactName: '${productName}-${version}-${env.MAC_ARCH_TYPE}.${ext}',
     asarUnpack: ['node_modules/**/*.node'],
     entitlements: 'build/entitlements.mac.plist',
     entitlementsInherit: 'build/entitlements.mac.plist',
@@ -41,14 +41,11 @@ module.exports = {
     writeUpdateInfo: false
   },
   win: {
-    artifactName: '${productName}-Windows-${version}-Setup.${ext}'
+    artifactName: '${productName}-${version}-Windows.${ext}'
   },
   nsis: {
     oneClick: true,
     deleteAppDataOnUninstall: false,
     differentialPackage: false
-  },
-  linux: {
-    artifactName: '${productName}-Linux-${version}.${ext}'
   }
 };
