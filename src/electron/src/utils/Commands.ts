@@ -24,7 +24,8 @@ type Commands = {
   startDataExport: (
     windowActivityExportType: DataExportType,
     userInputExportType: DataExportType,
-    obfuscationTerms: string[]
+    obfuscationTerms: string[],
+    encryptData: boolean
   ) => Promise<string>;
   revealItemInFolder: (path: string) => Promise<void>;
   startAllTrackers: () => void;
