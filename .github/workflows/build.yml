@@ -6,7 +6,7 @@ on:
 
 env:
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
-  NODE_VERSION: 18
+  NODE_VERSION: 20
 
 jobs:
   build:
