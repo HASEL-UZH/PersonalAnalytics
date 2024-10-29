@@ -33,6 +33,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build
+        shell: bash
         run: |
           if [ "${{ matrix.os }}" == "macos-latest" ]; then
             if [ "${{ matrix.mac_arch }}" == "arm64" ]; then
