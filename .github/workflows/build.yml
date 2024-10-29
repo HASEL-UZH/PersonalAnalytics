@@ -16,8 +16,6 @@ jobs:
         working-directory: src/electron
     strategy:
       matrix:
-        os: [windows-latest, macos-latest]
-        mac_arch: [arm64, x64]
         include:
           - os: windows-latest
           - os: macos-latest
@@ -44,6 +42,7 @@ jobs:
             fi
           else
             npm run build
+          fi
         env:
           MAC_ARCH_TYPE: ${{ matrix.mac_arch == 'arm64' && 'AppleSilicon' || 'Intel' }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
