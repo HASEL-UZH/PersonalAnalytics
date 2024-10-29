@@ -85,7 +85,7 @@ const emitObfuscateSampleData = async () => {
         <div class="mb-2 mt-1 flex justify-center">
           <label class="form-control w-full">
             <input
-              v-model="obfuscationTermsInput"
+              v-model.trim="obfuscationTermsInput"
               type="text"
               placeholder="Enter, terms, here, ..."
               class="input input-bordered w-full text-sm"

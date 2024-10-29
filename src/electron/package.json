@@ -10,7 +10,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build && electron-builder --config electron-builder.config.cjs",
-    "build:mac": "vue-tsc --noEmit && vite build && electron-builder --mac --config electron-builder.config.cjs",
+    "build:mac": "npm run build:mac:arm64 && npm run build:mac:x64",
+    "build:mac:arm64": "export MAC_ARCH_TYPE=AppleSilicon && vue-tsc --noEmit && vite build && electron-builder --mac --arm64 --config electron-builder.config.cjs",
+    "build:mac:x64": "export MAC_ARCH_TYPE=Intel && vue-tsc --noEmit && vite build && electron-builder --mac --x64 --config electron-builder.config.cjs",
     "build:win": "vue-tsc --noEmit && vite build && electron-builder --win --config electron-builder.config.cjs",
     "postinstall": "electron-builder install-app-deps",
     "preview": "vite preview",
@@ -27,6 +29,8 @@
     "@rushstack/eslint-patch": "^1.7.2",
     "@tailwindcss/typography": "^0.5.10",
     "@types/better-sqlite3": "^7.6.9",
+    "@types/dompurify": "^3.0.5",
+    "@types/jsdom": "^21.1.7",
     "@types/node-schedule": "^2.1.6",
     "@typescript-eslint/eslint-plugin": "^6.20.0",
     "@typescript-eslint/parser": "^6.20.0",
@@ -53,13 +57,15 @@
     "vite-plugin-electron-renderer": "^0.14.5",
     "vue": "^3.4.15",
     "vue-eslint-parser": "^9.4.2",
-    "vue-tsc": "^1.8.27"
+    "vue-tsc": "^2.1.6"
   },
   "dependencies": {
     "better-sqlite3": "^9.4.0",
     "better-sqlite3-multiple-ciphers": "^9.4.0",
+    "dompurify": "^3.1.7",
     "electron-log": "^5.1.1",
     "electron-updater": "^6.1.7",
+    "jsdom": "^25.0.1",
     "node-schedule": "^2.1.1",
     "typeorm": "^0.3.20",
     "user-input-tracker": "file:PA.UserInputTracker/typescript",

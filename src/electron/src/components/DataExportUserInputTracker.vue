@@ -61,7 +61,7 @@ const emitChange = () => {
       </div>
     </div>
     <div class="prose mt-5">
-      <p>Here is a sample of your data:</p>
+      <p>Here is a sample of your anonymized User Input data:</p>
     </div>
     <div
       class="relative mt-5"

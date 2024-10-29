@@ -94,10 +94,13 @@ async function handleWindowActivityExportConfigChanged(newSelectedOption: DataEx
 }
 
 async function handleObfuscationTermsChanged(newObfuscationTerms: string) {
-  if (!newObfuscationTerms) {
+  if (!newObfuscationTerms || newObfuscationTerms.trim().length === 0) {
     obfuscationTermsInput.value = [];
   } else {
-    obfuscationTermsInput.value = newObfuscationTerms.split(',').map((s: string) => s.trim());
+    obfuscationTermsInput.value = newObfuscationTerms
+      .split(',')
+      .map((s: string) => s.trim())
+      .filter((s: string) => s.length > 0);
   }
 }
 
@@ -164,7 +167,8 @@ async function handleNextStep() {
         'startDataExport',
         exportWindowActivitySelectedOption.value,
         exportUserInputSelectedOption.value,
-        obfuscationTerms
+        obfuscationTerms,
+        studyConfig.dataExportEncrypted
       );
       hasExportError.value = false;
       const now = new Date();
@@ -218,9 +222,11 @@ function revealItemInFolder(event: Event) {
               </p>
               <p>
                 Please click "Next" once you are ready to
-                <b class="dark:text-white">first review, and later share your data</b>. The export
-                that will be created with your permission in the next step will be encrypted and
-                password-protected.
+                <b class="dark:text-white">first review, and later share your data</b>.
+                <span v-if="studyConfig.dataExportEncrypted">
+                  The export that will be created with your permission in the next step will be
+                  encrypted and password-protected </span
+                >.
               </p>
               <p>
                 Below, you find additional information on the study and how the researchers ensure
@@ -255,9 +261,7 @@ function revealItemInFolder(event: Event) {
                           Click to {{ studyDescriptionExpanded ? 'collapse' : 'expand' }} Study
                           Description
                         </div>
-                        <div class="collapse-content">
-                          {{ studyInfo.shortDescription }}
-                        </div>
+                        <div class="collapse-content" v-html="studyInfo.shortDescription" />
                       </div>
                     </td>
                   </tr>
@@ -275,10 +279,12 @@ function revealItemInFolder(event: Event) {
                 {{ studyConfig.name }}-study.
               </p>
               <p>
-                A single password-protected and encrypted
-                <b class="dark:text-white">file was created</b> based on your preferences on the
-                previous page. To share this file with the researchers, please take the following
-                steps:
+                Your data was exported and we created a
+                <span v-if="studyConfig.dataExportEncrypted"
+                  >password-protected and encrypted
+                </span>
+                file based on your preferences on the previous page. To share this file with the
+                researchers, please take the following steps:
               </p>
               <ol>
                 <li>
