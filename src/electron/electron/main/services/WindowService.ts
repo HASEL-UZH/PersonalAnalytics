@@ -319,6 +319,7 @@ export class WindowService {
       },
       { type: 'separator' }
     ];
+
     const windowMenu: MenuItemConstructorOptions[] = [
       {
         label: 'Open Experience Sampling',
@@ -342,6 +343,20 @@ export class WindowService {
       },
       { type: 'separator' }
     ];
+
+    if (studyConfig.trackers.taskTracker.enabled) {
+      let item = {
+        label: 'Open Task Planning',
+        click: async () => {
+          const { createPlanningViewWindow } = await import('@external/main/services/WindowService');
+          createPlanningViewWindow(true)
+        }
+      }
+
+      // add at the 2nd position
+      windowMenu.splice(1, 0, item);
+    }
+
     const otherMenu: MenuItemConstructorOptions[] = [
       {
         label: 'Get Help',

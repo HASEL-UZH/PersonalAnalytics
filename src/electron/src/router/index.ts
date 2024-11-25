@@ -14,6 +14,16 @@ const router: Router = createRouter({
       component: () => import('../views/ExperienceSamplingView.vue')
     },
     {
+      path: '/planning',
+      name: 'Planning',
+      component: () => import('@externalVue/renderer/views/PlanningView.vue')
+    },
+    {
+      path: '/taskbar-view',
+      name: 'Taskbar View',
+      component: () => import('@externalVue/renderer/views/TaskBarView.vue')
+    },
+    {
       path: '/onboarding',
       name: 'Onboarding',
       component: () => import('../views/OnboardingView.vue'),

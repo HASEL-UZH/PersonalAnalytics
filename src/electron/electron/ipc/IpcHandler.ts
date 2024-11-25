@@ -23,7 +23,7 @@ import DOMPurify from 'dompurify';
 const LOG = getMainLogger('IpcHandler');
 
 export class IpcHandler {
-  private readonly actions: any;
+  private actions: any;
   private readonly windowService: WindowService;
   private readonly trackerService: TrackerService;
 
@@ -36,7 +36,7 @@ export class IpcHandler {
   constructor(
     windowService: WindowService,
     trackerService: TrackerService,
-    experienceSamplingService: ExperienceSamplingService
+    experienceSamplingService: ExperienceSamplingService,
   ) {
     this.windowService = windowService;
     this.trackerService = trackerService;
@@ -44,6 +44,9 @@ export class IpcHandler {
     this.windowActivityService = new WindowActivityTrackerService();
     this.userInputService = new UserInputTrackerService();
     this.dataExportService = new DataExportService();
+  }
+
+  public async init(): Promise<void> {
     this.actions = {
       createExperienceSample: this.createExperienceSample,
       closeExperienceSamplingWindow: this.closeExperienceSamplingWindow,
@@ -60,10 +63,17 @@ export class IpcHandler {
       triggerPermissionCheckAccessibility: this.triggerPermissionCheckAccessibility,
       triggerPermissionCheckScreenRecording: this.triggerPermissionCheckScreenRecording
     };
-    LOG.debug('IpcHandler constructor called');
-  }
 
-  public init(): void {
+    if (studyConfig.trackers.taskTracker.enabled) {
+      const { SchedulingService } = await import('@external/main/services/SchedulingService'); 
+      const { actions } = await import('@external/main/ipc/IpcHandler'); 
+      const schedulingService = new SchedulingService();
+      schedulingService.init(7, 30); // 7:30 am OTODO: make this configurable
+      Object.keys(actions).forEach((action: string) => {
+        this.actions[action] = actions[action];
+      });
+    } 
+
     Object.keys(this.actions).forEach((action: string): void => {
       LOG.info(`ipcMain.handle setup: ${action}`);
       ipcMain.handle(action, async (_event: IpcMainInvokeEvent, ...args): Promise<any> => {

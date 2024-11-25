@@ -76,7 +76,7 @@ app.whenReady().then(async () => {
     await databaseService.init();
     await settingsService.init();
     await windowService.init();
-    ipcHandler.init();
+    await ipcHandler.init();
 
     const currentTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const currentLocale = app.getLocale();
