@@ -276,7 +276,7 @@ function revealItemInFolder(event: Event) {
             <article class="prose prose-lg max-w-none">
               <p>
                 Thank you for reviewing and exporting your data for the study
-                {{ studyConfig.name }}-study.
+                {{ studyConfig.name }}.
               </p>
               <p>
                 Your data was exported and we created a
