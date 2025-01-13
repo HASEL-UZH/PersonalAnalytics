@@ -88,6 +88,17 @@ Anyone is welcome to contribute to PersonalAnalytics by extending it with new tr
 8. If your pull request is not approved, you can make further changes and push them to your branch. The pull request will be updated automatically.
 
 ### Install the dependencies
+Start with cloning the repository:
+```bash
+git clone https://github.com/HASEL-UZH/PersonalAnalytics
+```
+
+As the repository includes submodules, run:
+```bash
+git submodule init
+git submodule update
+```
+
 After cloning this repository using your favorite git client, you need to install the dependencies.
 Make sure you use node version >=20. You can install the dependencies by running the following command in the root directory of the project:
 ```bash
