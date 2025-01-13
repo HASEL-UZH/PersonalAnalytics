@@ -11,8 +11,10 @@ const question = esConfig.questions[randomQuestionNr];
 const questionLabels = esConfig.responseOptions[randomQuestionNr];
 const scale = Array.from({ length: esConfig.scale }, (_, i) => i + 1);
 
+// set the time to the current time and language to the browser language, but in the local timezone with 24 hour format and no seconds
 const promptedAt = new Date(Date.now());
-const promptedAtString = promptedAt.toLocaleTimeString().substring(0, 5);
+const language = navigator.language || navigator.languages[0];
+const promptedAtString = promptedAt.toLocaleTimeString(language, { hour: '2-digit', minute: '2-digit', hour12: false }).substring(0, 5);
 
 const sampleLoadingValue = ref<number | null>();
 
