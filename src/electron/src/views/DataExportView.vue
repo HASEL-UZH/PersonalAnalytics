@@ -225,8 +225,8 @@ function revealItemInFolder(event: Event) {
                 <b class="dark:text-white">first review, and later share your data</b>.
                 <span v-if="studyConfig.dataExportEncrypted">
                   The export that will be created with your permission in the next step will be
-                  encrypted and password-protected </span
-                >.
+                  encrypted and password-protected. </span
+                >
               </p>
               <p>
                 Below, you find additional information on the study and how the researchers ensure
@@ -276,7 +276,7 @@ function revealItemInFolder(event: Event) {
             <article class="prose prose-lg max-w-none">
               <p>
                 Thank you for reviewing and exporting your data for the study
-                {{ studyConfig.name }}-study.
+                {{ studyConfig.name }}.
               </p>
               <p>
                 Your data was exported and we created a
@@ -308,7 +308,7 @@ function revealItemInFolder(event: Event) {
                 Please contact {{ studyConfig.contactName }} ({{ studyConfig.contactEmail }}) in
                 case you have any questions. Thank you!
               </p>
-              <p>
+              <p v-if="studyConfig.dataExportEncrypted">
                 If you want to review the complete data file before sharing it with the researchers,
                 please refer to this guide. The <b class="dark:text-white">password</b> required for
                 opening the exported file is:

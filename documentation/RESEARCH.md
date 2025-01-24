@@ -76,7 +76,7 @@ You can find more information on electron-builder here: https://www.electron.bui
 
 
 ## Contributions Guide
-Anyone is welcome to contribute to PersonalAnalytics by extending it with new trackers or improving existing ones.
+Anyone is welcome to contribute to PersonalAnalytics, for example by fixing bugs, extending it with new trackers or improving existing ones.
 
 1. Fork the project to work in your own repository.
 2. Create a new branch for your changes.
@@ -87,7 +87,20 @@ Anyone is welcome to contribute to PersonalAnalytics by extending it with new tr
 7. If your pull request is approved, it will be merged into the main repository.
 8. If your pull request is not approved, you can make further changes and push them to your branch. The pull request will be updated automatically.
 
+If you have any questions, please contact Dr. André Meyer (ameyer@ifi.uzh.ch).
+
 ### Install the dependencies
+Start with cloning the repository:
+```bash
+git clone https://github.com/HASEL-UZH/PersonalAnalytics
+```
+
+As the repository includes submodules, run:
+```bash
+git submodule init
+git submodule update
+```
+
 After cloning this repository using your favorite git client, you need to install the dependencies.
 Make sure you use node version >=20. You can install the dependencies by running the following command in the root directory of the project:
 ```bash
@@ -96,13 +109,13 @@ npm install
 ```
 This will install all the dependencies required to build and run PersonalAnalytics. This will also call the `postinstall` script, which will make sure that the native dependencies are built for your platform.
 
-### Starting the application for development
+### Starting PersonalAnalytics for development/debugging
 To start the application for development, you can run the following command in `src/electron`:
 ```bash
 npm run dev
 ```
 
-### Building the application
+### Building PersonalAnalytics
 To build the application, you can run the following command in `src/electron`:
 ```bash
 npm run build
@@ -119,6 +132,21 @@ or for macOS (only on macOS):
 npm run build:mac
 ```
 
+### Releasing PersonalAnalytics
+Note that we're using Electron Builder and Github Actions (see [docu]([url](https://www.electron.build/publish.html#recommended-github-releases-workflow))).
+
+- Increase the version number in `src/electron/package.json`
+- Create a _draft_ release in the repository under /releases (details)
+  - title: version number (format: `m.m.m`, e.g. 0.0.23)
+  - tag: prefix version number with with `v` (format: `vm.m.m`, e.g. v0.0.23)
+  - summarize release notes
+  - save as draft (!)
+- Push the commit to main (via PR)
+- Github action is automatically triggered, wait for successful completion
+- Manually download and test the release, and if all is good, publish it!
+- Releases are found under https://github.com/HASEL-UZH/PersonalAnalytics/releases
+
+
 ### Testing PersonalAnalytics
 PersonalAnalytics was tested on `Windows 11` and `macOS 14`. It might work on older versions as well.
 
@@ -133,6 +161,7 @@ Citing the repository:
 
 ## Research that used PersonalAnalytics
 PersonalAnalytics-legacy was used in the following peer-reviewed research projects (and other non-peer reviewed projects too, such as master and bachelor theses):
+- [CSCW'25](https://hasel.dev/wp-content/uploads/2024/12/2025_FlowTeams_CSCW25_PrePrint.pdf]) Better Balancing Focused Work and Collaboration in Hybrid Teams by Cultivating the Sharing of Work Schedules. André Meyer. Thomas Fritz.
 - [CHI'20](https://andre-meyer.ch/CHI20) Supporting Software Developers’ Focused Work on Window-Based Desktops. Jan Pilzer, Raphael Rosenast. André Meyer. Elaine Huang. Thomas Fritz.
 - [TSE'20](https://andre-meyer.ch/TSE20) Detecting Developers’ Task Switches and Types. André Meyer, Chris Satterfield, Manuela Züger, Katja Kevic, Gail Murphy, Thomas Zimmermann, and Thomas Fritz.
 - [CSCW’18](https://www.andre-meyer.ch/CSCW18) Design Recommendations for Self-Monitoring in the Workplace: Studies in Software Development. André Meyer, Gail Murphy, Thomas Zimmermann, Thomas Fritz. (hint: in this paper, the tool described as WorkAnalytics refers to the PersonalAnalytics in this repository)
