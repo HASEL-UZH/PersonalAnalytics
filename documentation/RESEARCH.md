@@ -168,14 +168,14 @@ secrets and variables were defined for the GitHub action:
 
 Note that using special characters (e.g. `é`) in the publisher name can lead to issues with the code signing process.
 
-The above secrets and variables are used in the action files (e.g., [build.yml](https://github.com/HASEL-UZH/PersonalAnalytics/blob/dev/.github/workflows/buildyml)) and
-provided to the electron-builder ([electron-builder.config.cjs](../src/electron/electron-builder.config.js)) via environment variables.
+The above secrets and variables are used in the action files (e.g., [build.yml](https://github.com/HASEL-UZH/PersonalAnalytics/blob/dev/.github/workflows/build.yml)) and
+provided to the electron-builder ([electron-builder.config.cjs](../src/electron/electron-builder.config.cjs)) via environment variables.
 
 #### Code Signing for macOS
 
 For macOS, the electron-builder's code signing is
-disabled ([electron-builder.config.cjs](../src/electron/electron-builder.config.js)) and we are using the `afterSign` hook to
-call the [notarize.cjs](../src/electron/scripts/notarize.js) script to sign the application using the `@electron/notarize`
+disabled ([electron-builder.config.cjs](../src/electron/electron-builder.config.cjs)) and we are using the `afterSign` hook to
+call the [notarize.cjs](../src/electron/scripts/notarize.cjs) script to sign the application using the `@electron/notarize`
 package. The following environment variables are required for the code signing process:
 
 ### Secrets
