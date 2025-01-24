@@ -43,10 +43,10 @@ module.exports = {
   win: {
     target: ["nsis"],
     azureSignOptions: {
-      publisherName: process.env.AZURE_PUBLISHER_NAME,
-      endpoint: process.env.AZURE_ENDPOINT,
-      codeSigningAccountName: process.env.AZURE_CODE_SIGNING_NAME,
-      certificateProfileName: process.env.AZURE_CERT_PROFILE_NAME,
+      publisherName: `${process.env.AZURE_PUBLISHER_NAME}`,
+      endpoint: `${process.env.AZURE_ENDPOINT}`,
+      codeSigningAccountName: `${process.env.AZURE_CODE_SIGNING_NAME}`,
+      certificateProfileName: `${process.env.AZURE_CERT_PROFILE_NAME}`,
     },
   },
   nsis: {
