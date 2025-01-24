@@ -12,6 +12,7 @@ module.exports = {
     owner: 'HASEL-UZH',
     repo: 'PersonalAnalytics'
   },
+  afterSign: "scripts/notarize.js",
   mac: {
     artifactName: '${productName}-${version}-${env.MAC_ARCH_TYPE}.${ext}',
     asarUnpack: ['node_modules/**/*.node'],
@@ -19,9 +20,7 @@ module.exports = {
     entitlementsInherit: 'build/entitlements.mac.plist',
     hardenedRuntime: true,
     gatekeeperAssess: false,
-    notarize: {
-      teamId: `${process.env.APPLE_TEAM_ID}`
-    },
+    notarize: false,
     extendInfo: [
       {
         key: 'NSAppleEventsUsageDescription',
