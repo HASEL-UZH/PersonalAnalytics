@@ -9,6 +9,7 @@ import { UserInputEntity } from '../entities/UserInputEntity';
 import { Settings } from '../entities/Settings';
 import { UsageDataEntity } from '../entities/UsageDataEntity';
 import config from '../../../shared/study.config';
+import { WorkDayEntity } from '../entities/WorkDayEntity'
 
 const LOG = getMainLogger('DatabaseService');
 
@@ -33,6 +34,7 @@ export class DatabaseService {
       UsageDataEntity,
       UserInputEntity,
       WindowActivityEntity,
+      WorkDayEntity
     ]
 
     if (config.trackers.taskTracker.enabled) {

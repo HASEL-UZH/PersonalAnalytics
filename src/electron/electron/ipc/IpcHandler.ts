@@ -65,10 +65,7 @@ export class IpcHandler {
     };
 
     if (studyConfig.trackers.taskTracker.enabled) {
-      const { SchedulingService } = await import('@external/main/services/SchedulingService'); 
       const { actions } = await import('@external/main/ipc/IpcHandler'); 
-      const schedulingService = new SchedulingService();
-      schedulingService.init(7, 30); // 7:30 am OTODO: make this configurable
       Object.keys(actions).forEach((action: string) => {
         this.actions[action] = actions[action];
       });

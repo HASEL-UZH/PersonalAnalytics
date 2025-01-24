@@ -20,6 +20,7 @@ import { is } from './services/utils/helpers';
 import { Settings } from './entities/Settings';
 import { UsageDataService } from './services/UsageDataService';
 import { UsageDataEventType } from '../enums/UsageDataEventType.enum';
+import { WorkScheduleService } from './services/WorkScheduleService'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -32,6 +33,7 @@ process.env.VITE_PUBLIC = process.env.VITE_DEV_SERVER_URL
 
 const databaseService: DatabaseService = new DatabaseService();
 const settingsService: SettingsService = new SettingsService();
+const workScheduleService: WorkScheduleService = new WorkScheduleService();
 const appUpdaterService: AppUpdaterService = new AppUpdaterService();
 const windowService: WindowService = new WindowService(appUpdaterService);
 const experienceSamplingService: ExperienceSamplingService = new ExperienceSamplingService();
@@ -74,6 +76,7 @@ app.whenReady().then(async () => {
 
   try {
     await databaseService.init();
+    await workScheduleService.init();
     await settingsService.init();
     await windowService.init();
     await ipcHandler.init();
