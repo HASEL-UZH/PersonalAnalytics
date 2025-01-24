@@ -76,7 +76,7 @@ You can find more information on electron-builder here: https://www.electron.bui
 
 
 ## Contributions Guide
-Anyone is welcome to contribute to PersonalAnalytics by extending it with new trackers or improving existing ones.
+Anyone is welcome to contribute to PersonalAnalytics, for example by fixing bugs, extending it with new trackers or improving existing ones.
 
 1. Fork the project to work in your own repository.
 2. Create a new branch for your changes.
@@ -86,6 +86,8 @@ Anyone is welcome to contribute to PersonalAnalytics by extending it with new tr
 6. Wait for the maintainers to review your pull request.
 7. If your pull request is approved, it will be merged into the main repository.
 8. If your pull request is not approved, you can make further changes and push them to your branch. The pull request will be updated automatically.
+
+If you have any questions, please contact Dr. André Meyer (ameyer@ifi.uzh.ch).
 
 ### Install the dependencies
 Start with cloning the repository:
@@ -107,13 +109,13 @@ npm install
 ```
 This will install all the dependencies required to build and run PersonalAnalytics. This will also call the `postinstall` script, which will make sure that the native dependencies are built for your platform.
 
-### Starting the application for development
+### Starting PersonalAnalytics for development/debugging
 To start the application for development, you can run the following command in `src/electron`:
 ```bash
 npm run dev
 ```
 
-### Building the application
+### Building PersonalAnalytics
 To build the application, you can run the following command in `src/electron`:
 ```bash
 npm run build
@@ -129,6 +131,21 @@ or for macOS (only on macOS):
 ```bash
 npm run build:mac
 ```
+
+### Releasing PersonalAnalytics
+Note that we're using Electron Builder and Github Actions (see [docu]([url](https://www.electron.build/publish.html#recommended-github-releases-workflow))).
+
+- Increase the version number in `src/electron/package.json`
+- Create a _draft_ release in the repository under /releases (details)
+  - title: version number (format: `m.m.m`, e.g. 0.0.23)
+  - tag: prefix version number with with `v` (format: `vm.m.m`, e.g. v0.0.23)
+  - summarize release notes
+  - save as draft (!)
+- Push the commit to main (via PR)
+- Github action is automatically triggered, wait for successful completion
+- Manually download and test the release, and if all is good, publish it!
+- Releases are found under https://github.com/HASEL-UZH/PersonalAnalytics/releases
+
 
 ### Testing PersonalAnalytics
 PersonalAnalytics was tested on `Windows 11` and `macOS 14`. It might work on older versions as well.
