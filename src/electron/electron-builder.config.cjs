@@ -12,7 +12,7 @@ module.exports = {
     owner: 'HASEL-UZH',
     repo: 'PersonalAnalytics'
   },
-  afterSign: "scripts/notarize.js",
+  afterSign: "scripts/notarize.cjs",
   mac: {
     artifactName: '${productName}-${version}-${env.MAC_ARCH_TYPE}.${ext}',
     asarUnpack: ['node_modules/**/*.node'],
