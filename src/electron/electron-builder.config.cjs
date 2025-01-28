@@ -14,6 +14,10 @@ module.exports = {
   },
   afterSign: "scripts/notarize.cjs",
   mac: {
+    target: {
+      target: "default",
+      arch: ["x64", "arm64"],
+    },
     artifactName: '${productName}-${version}-${env.MAC_ARCH_TYPE}.${ext}',
     asarUnpack: ['node_modules/**/*.node'],
     entitlements: 'build/entitlements.mac.plist',
