@@ -1,24 +1,9 @@
 import { WorkDayEntity } from '../entities/WorkDayEntity';
 import studyConfig from '../../../shared/study.config';
 import getMainLogger from '../../config/Logger';
+import {WorkHoursDto}  from '../../../shared/dto/WorkHoursDto';
 
 const LOG = getMainLogger('WorkScheduleService');
-
-interface Day {
-  startTime: string;
-  endTime: string;
-  isWorking: boolean;
-}
-
-interface WorkSchedule {
-  monday: Day, 
-  tuesday: Day,
-  wednesday: Day,
-  thursday: Day,
-  friday: Day,
-  saturday: Day,
-  sunday: Day
-}
 
 const defaultWorkSchedule = {
   monday: { startTime: "08:00", endTime: "17:00", isWorking: true },
@@ -44,7 +29,7 @@ export class WorkScheduleService {
     }
   }
   
-  public async setWorkSchedule(schedule: WorkSchedule): Promise<void> {
+  public async setWorkSchedule(schedule: WorkHoursDto): Promise<void> {
     // clear existing work schedule
     await WorkDayEntity.delete({});
 
@@ -62,7 +47,19 @@ export class WorkScheduleService {
     } 
   }
 
-  public async getWorkSchedule(): Promise<WorkSchedule> {
+  public async currentlyWithinWorkHours(): Promise<boolean> {
+    const schedule =await this.getWorkSchedule()
+    const now = new Date();
+    const day = weekDays[(now.getDay() -1) % 7];
+    const workday = schedule[day];
+    const start = new Date();
+    start.setHours(parseInt(workday.startTime.split(":")[0]), parseInt(workday.startTime.split(":")[1]), 0);
+    const end = new Date();
+    end.setHours(parseInt(workday.endTime.split(":")[0]), parseInt(workday.endTime.split(":")[1]), 0);
+    return now >= start && now <= end;  
+  }
+
+  public async getWorkSchedule(): Promise<WorkHoursDto> {
     let workdays = await WorkDayEntity.find();
 
     if (workdays.length === 0) {
@@ -76,7 +73,7 @@ export class WorkScheduleService {
       return defaultWorkSchedule;
     }
 
-    let schedule: WorkSchedule = {} as WorkSchedule;
+    let schedule: WorkHoursDto = {} as WorkHoursDto;
 
     for (let day of weekDays) {
       const workday = workdays.find(d => d.day === day);

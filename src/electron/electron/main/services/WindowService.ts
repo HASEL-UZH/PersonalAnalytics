@@ -8,7 +8,6 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import studyConfig from '../../../shared/study.config';
 
-import { Settings } from '../entities/Settings';
 import { UsageDataService } from './UsageDataService';
 import { UsageDataEventType } from '../../enums/UsageDataEventType.enum';
 
@@ -18,9 +17,9 @@ export class WindowService {
   private readonly appUpdaterService: AppUpdaterService;
   private tray: Tray;
   private experienceSamplingWindow: BrowserWindow;
-  private aboutWindow: BrowserWindow;
   private onboardingWindow: BrowserWindow;
   private dataExportWindow: BrowserWindow;
+  private settingsWindow: BrowserWindow;
 
   constructor(appUpdaterService: AppUpdaterService) {
     this.appUpdaterService = appUpdaterService;
@@ -118,52 +117,52 @@ export class WindowService {
     }
   }
 
-  private closeAboutWindow() {
-    if (this.aboutWindow) {
-      this.aboutWindow?.close();
-      this.aboutWindow = null;
+  public async closeSettingsWindow() {
+    if (this.settingsWindow) {
+      this.settingsWindow?.close();
+      this.settingsWindow = null;
     }
   }
 
-  public async createAboutWindow() {
-    this.closeAboutWindow();
+  public async createSettingsWindow() {
+    this.closeSettingsWindow();
 
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
     const preload = join(__dirname, '../preload/index.mjs');
-    this.aboutWindow = new BrowserWindow({
-      width: 800,
-      height: 750,
+    this.settingsWindow = new BrowserWindow({
+      width: 1000,
+      height: 850,
       show: false,
       minimizable: false,
       maximizable: false,
       fullscreenable: false,
       resizable: false,
-      title: 'PersonalAnalytics: About',
+      title: 'PersonalAnalytics: Settings',
       webPreferences: {
         preload
       }
     });
 
     if (process.env.VITE_DEV_SERVER_URL) {
-      await this.aboutWindow.loadURL(process.env.VITE_DEV_SERVER_URL + '#about');
+      await this.settingsWindow.loadURL(process.env.VITE_DEV_SERVER_URL + `#settings?isMacOS=${is.macOS}`);
     } else {
-      await this.aboutWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
-        hash: 'about'
+      await this.settingsWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
+        hash: `settings?isMacOS=${is.macOS}`
       });
     }
 
-    this.aboutWindow.webContents.setWindowOpenHandler((details) => {
+    this.settingsWindow.webContents.setWindowOpenHandler((details) => {
       shell.openExternal(details.url);
       return { action: 'deny' };
     });
 
-    this.aboutWindow.show();
+    this.settingsWindow.show();
 
-    this.aboutWindow.on('close', () => {
-      this.aboutWindow = null;
+    this.settingsWindow.on('close', () => {
+      this.settingsWindow = null;
     });
-  }
+  }  
 
   public closeOnboardingWindow() {
     if (this.onboardingWindow) {
@@ -326,20 +325,8 @@ export class WindowService {
         click: () => this.createExperienceSamplingWindow(true)
       },
       {
-        label: 'Open Onboarding',
-        click: async () => {
-          const shouldShowStudyTrackersStarted = !!(await Settings.findOneBy({
-            studyAndTrackersStartedShown: false,
-            onboardingShown: true
-          }));
-          await this.createOnboardingWindow(
-            shouldShowStudyTrackersStarted ? 'study-trackers-started' : undefined
-          );
-        }
-      },
-      {
-        label: 'About',
-        click: () => this.createAboutWindow()
+        label: 'Open Settings',
+        click: () => this.createSettingsWindow()
       },
       { type: 'separator' }
     ];
@@ -373,20 +360,6 @@ export class WindowService {
         }
       },
       { type: 'separator' },
-      {
-        label: 'Open Logs',
-        click: (): void => {
-          LOG.info(`Opening logs at ${app.getPath('logs')}`);
-          shell.openPath(`${app.getPath('logs')}`);
-        }
-      },
-      {
-        label: 'Open Collected Data',
-        click: (): void => {
-          LOG.info(`Opening collected data at ${app.getPath('userData')}`);
-          shell.showItemInFolder(path.join(app.getPath('userData'), 'database.sqlite'));
-        }
-      },
       ...(studyConfig.dataExportEnabled
         ? [
             {

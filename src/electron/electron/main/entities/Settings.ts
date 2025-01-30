@@ -28,6 +28,9 @@ export class Settings extends BaseEntity {
   })
   subjectId: string;
 
+  @Column({ type: 'boolean', nullable: false, default: true })
+  enabledWorkHours: boolean;
+
   @Column({ type: 'boolean', nullable: false, default: false })
   onboardingShown: boolean;
 

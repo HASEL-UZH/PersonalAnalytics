@@ -16,6 +16,7 @@ export interface TaskTrackerConfiguration {
 
 export interface ExperienceSamplingTrackerConfiguration {
   enabled: boolean;
+  enabledWorkHours: boolean;
   scale: number;
   questions: string[];
   responseOptions: string[][];

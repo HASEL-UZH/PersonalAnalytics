@@ -37,8 +37,8 @@ const workScheduleService: WorkScheduleService = new WorkScheduleService();
 const appUpdaterService: AppUpdaterService = new AppUpdaterService();
 const windowService: WindowService = new WindowService(appUpdaterService);
 const experienceSamplingService: ExperienceSamplingService = new ExperienceSamplingService();
-const trackers: TrackerService = new TrackerService(studyConfig.trackers, windowService);
-const ipcHandler: IpcHandler = new IpcHandler(windowService, trackers, experienceSamplingService);
+const trackers: TrackerService = new TrackerService(studyConfig.trackers, windowService, workScheduleService);
+const ipcHandler: IpcHandler = new IpcHandler(windowService, trackers, experienceSamplingService, workScheduleService);
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) {
@@ -51,6 +51,7 @@ if (process.platform === 'win32') {
 }
 
 if (!app.requestSingleInstanceLock()) {
+  console.log('Another instance of the app is already running');
   app.quit();
   process.exit(0);
 }

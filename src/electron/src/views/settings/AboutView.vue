@@ -1,10 +1,18 @@
 <script lang="ts" setup>
-import typedIpcRenderer from '../utils/typedIpcRenderer';
+import typedIpcRenderer from '../../utils/typedIpcRenderer';
 import { onMounted, ref } from 'vue';
-import StudyInfoDto from '../../shared/dto/StudyInfoDto';
-import StudyInfo from '../components/StudyInfo.vue';
+import StudyInfoDto from '../../../shared/dto/StudyInfoDto';
+import StudyInfo from '../../components/StudyInfo.vue';
 
 const studyInfo = ref<StudyInfoDto>();
+
+const openLogs = () => {
+  typedIpcRenderer.invoke('openLogs');
+};
+
+const openCollectedData = () => {
+  typedIpcRenderer.invoke('openCollectedData');
+};
 
 onMounted(async () => {
   studyInfo.value = await typedIpcRenderer.invoke('getStudyInfo');
@@ -23,9 +31,18 @@ onMounted(async () => {
         </h1>
       </article>
 
+      <div class="z-10 mt-10 mb-10 flex items-center">
+        <button class="btn btn-outline btn-sm mr-5" type="button" @click="openLogs">
+          Open Logs
+        </button>
+        <button class="btn btn-outline btn-sm" type="button" @click="openCollectedData">
+          Open Collected Data
+        </button>
+      </div>
+
       <StudyInfo :study-info="studyInfo" />
 
-      <article class="prose prose-lg mt-4">
+      <article class="prose prose-lg mt-4"> 
         <h2 class="mt-0">PersonalAnalytics Tool Info</h2>
         <p>
           PersonalAnalytics is a software, developed by the Human Aspects of Software Engineering
@@ -74,10 +91,10 @@ onMounted(async () => {
         </p>
         <div class="float-end flex pb-7">
           <a href="https://www.uzh.ch" target="_blank" class="mr-5">
-            <img src="../assets/logo_uzh.svg" class="m-0 w-32 object-contain" alt="UZH Logo" />
+            <img src="../../assets/logo_uzh.svg" class="m-0 w-32 object-contain" alt="UZH Logo" />
           </a>
           <a href="https://hasel.dev" target="_blank">
-            <img src="../assets/logo_hasel.svg" class="m-0 w-32 object-contain" alt="HASEL Logo" />
+            <img src="../../assets/logo_hasel.svg" class="m-0 w-32 object-contain" alt="HASEL Logo" />
           </a>
         </div>
       </article>
@@ -85,7 +102,7 @@ onMounted(async () => {
   </div>
 </template>
 <style lang="less">
-@import '../styles/index';
+@import '../../styles/index';
 .primary-blue {
   color: @primary-color;
 }
