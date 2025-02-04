@@ -198,7 +198,9 @@ app.whenReady().then(async () => {
       studyAndTrackersStartedShown: false,
       onboardingShown: true
     }));
-    await windowService.createOnboardingWindow('study-trackers-started');
+    await windowService.createOnboardingWindow(
+      shouldShowStudyTrackersStarted ? 'study-trackers-started' : undefined
+    );
   }
 });
 
