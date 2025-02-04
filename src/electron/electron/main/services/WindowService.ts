@@ -23,9 +23,9 @@ export class WindowService {
   private dataExportWindow: BrowserWindow;
 
   constructor(appUpdaterService: AppUpdaterService) {
-    this.appUpdaterService = appUpdaterService;
     LOG.debug('WindowService constructor called');
-
+    
+    this.appUpdaterService = appUpdaterService;
     this.appUpdaterService.on(
       'update-tray',
       ({ label, enabled }: { label: string; enabled: boolean }) => {
