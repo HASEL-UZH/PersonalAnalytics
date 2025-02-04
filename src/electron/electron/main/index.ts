@@ -119,6 +119,10 @@ app.whenReady().then(async () => {
       await trackers.registerTrackerCallback(TrackerType.ExperienceSamplingTracker);
     }
 
+    if (studyConfig.displayDaysParticipated) {
+      await trackers.registerTrackerCallback(TrackerType.DaysParticipatedTracker);
+    }
+
     const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
 
     if (

@@ -37,6 +37,9 @@ export class Settings extends BaseEntity {
   @Column({ type: 'boolean', nullable: false, default: false })
   studyAndTrackersStartedShown: boolean;
 
+  @Column({ type: 'int', nullable: false, default: 0 })
+  daysParticipated: number;
+
   @Column('datetime', { nullable: true })
   nextExperienceSamplingInvocation: Date;
 

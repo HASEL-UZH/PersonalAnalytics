@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, nativeImage, screen, shell, Tray } from 'electron';
+import { app, BrowserWindow, clipboard, Menu, nativeImage, screen, shell, Tray } from 'electron';
 import getMainLogger from '../../config/Logger';
 import AppUpdaterService from './AppUpdaterService';
 import { is } from './utils/helpers';
@@ -10,6 +10,7 @@ import studyConfig from '../../../shared/study.config';
 
 import { UsageDataService } from './UsageDataService';
 import { UsageDataEventType } from '../../enums/UsageDataEventType.enum';
+import { Settings } from '../entities/Settings'
 
 const LOG = getMainLogger('WindowService');
 
@@ -37,7 +38,7 @@ export class WindowService {
   }
 
   public async init(): Promise<void> {
-    this.createTray();
+    await this.createTray();
   }
 
   public async createExperienceSamplingWindow(isManuallyTriggered: boolean = false) {
@@ -282,12 +283,12 @@ export class WindowService {
     });
   }
 
-  public updateTray(
+  public async updateTray(
     updaterLabel: string = 'Check for updates',
     updaterMenuEnabled: boolean = false
-  ): void {
+  ): Promise<void> {
     LOG.debug('Updating tray');
-    const menuTemplate: MenuItemConstructorOptions[] = this.getTrayMenuTemplate();
+    const menuTemplate: MenuItemConstructorOptions[] = await this.getTrayMenuTemplate();
     menuTemplate[1].label = updaterLabel;
     menuTemplate[1].enabled = updaterMenuEnabled;
 
@@ -295,7 +296,7 @@ export class WindowService {
     this.tray.setToolTip(studyConfig.name);
   }
 
-  private createTray(): void {
+  private async createTray(): Promise<void> {
     LOG.debug('Creating tray');
     if (this.tray) {
       return;
@@ -305,21 +306,40 @@ export class WindowService {
     const trayImage = nativeImage.createFromPath(appIcon);
     trayImage.setTemplateImage(true);
     this.tray = new Tray(trayImage);
-    this.updateTray();
+    await this.updateTray();
   }
 
-  private getTrayMenuTemplate(): MenuItemConstructorOptions[] {
-    const versionAndUpdate: MenuItemConstructorOptions[] = [
+  private async getTrayMenuTemplate(): Promise<MenuItemConstructorOptions[]> {
+    const settings: Settings = await Settings.findOne({ where: { onlyOneEntityShouldExist: 1 } });
+    
+    const versionUpdateAndStudyInfo: MenuItemConstructorOptions[] = [
       { label: `Version ${app.getVersion()}`, enabled: false },
       {
         label: 'Check for updates',
         enabled: false,
         click: () => this.appUpdaterService.checkForUpdates({ silent: false })
       },
-      { type: 'separator' }
+      { type: 'separator' },
+      { 
+        label: 'Copy Subject Id',
+        click: () => clipboard.writeText(settings.subjectId)  
+      },
+      {
+        label: `Subject ID: ${settings.subjectId}`,
+        enabled: false, 
+      }
     ];
 
+    if (studyConfig.displayDaysParticipated) {
+      let item = {
+        label: `Days participated: ${settings.daysParticipated}`,
+        enabled: false,
+      }
+      versionUpdateAndStudyInfo.push(item);
+    }
+
     const windowMenu: MenuItemConstructorOptions[] = [
+      { type: 'separator' },
       {
         label: 'Open Experience Sampling',
         click: () => this.createExperienceSamplingWindow(true)
@@ -379,6 +399,6 @@ export class WindowService {
         }
       }
     ];
-    return [...versionAndUpdate, ...windowMenu, ...otherMenu];
+    return [...versionUpdateAndStudyInfo, ...windowMenu, ...otherMenu];
   }
 }

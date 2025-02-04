@@ -9,6 +9,7 @@ import studyConfig from '../../../../shared/study.config';
 import { UserInputEntity } from '../../entities/UserInputEntity';
 import { MoreThanOrEqual } from 'typeorm';
 import { WorkScheduleService } from '../WorkScheduleService'
+import { DaysParticipatedTracker } from './DaysParticipatedTracker'
 
 const LOG = getMainLogger('TrackerService');
 
@@ -73,6 +74,9 @@ export class TrackerService {
         this.config.experienceSamplingTracker.samplingRandomization
       );
       this.trackers.push(experienceSamplingTracker);
+    } else if (trackerType === TrackerType.DaysParticipatedTracker) {
+      const daysParticipatedTracker = new DaysParticipatedTracker();
+      this.trackers.push(daysParticipatedTracker);
     } else {
       throw new Error(`Tracker ${trackerType} not enabled or unsupported!`);
     }
