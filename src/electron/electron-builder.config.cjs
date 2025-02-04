@@ -12,16 +12,19 @@ module.exports = {
     owner: 'HASEL-UZH',
     repo: 'PersonalAnalytics'
   },
+  afterSign: "scripts/notarize.cjs",
   mac: {
-    artifactName: '${productName}-${version}-${env.MAC_ARCH_TYPE}.${ext}',
+    target: {
+      target: "default",
+      arch: ["x64", "arm64"],
+    },
+    artifactName: '${productName}-${version}-${arch}.${ext}',
     asarUnpack: ['node_modules/**/*.node'],
     entitlements: 'build/entitlements.mac.plist',
     entitlementsInherit: 'build/entitlements.mac.plist',
     hardenedRuntime: true,
     gatekeeperAssess: false,
-    notarize: {
-      teamId: `${process.env.APPLE_TEAM_ID}`
-    },
+    notarize: false,
     extendInfo: [
       {
         key: 'NSAppleEventsUsageDescription',
@@ -41,11 +44,19 @@ module.exports = {
     writeUpdateInfo: false
   },
   win: {
-    artifactName: '${productName}-${version}-Windows.${ext}'
+    target: ["nsis"],
+    verifyUpdateCodeSignature: false,
+    azureSignOptions: {
+      publisherName: `${process.env.AZURE_PUBLISHER_NAME}`,
+      endpoint: `${process.env.AZURE_ENDPOINT}`,
+      codeSigningAccountName: `${process.env.AZURE_CODE_SIGNING_NAME}`,
+      certificateProfileName: `${process.env.AZURE_CERT_PROFILE_NAME}`,
+    },
   },
   nsis: {
     oneClick: true,
     deleteAppDataOnUninstall: false,
-    differentialPackage: false
+    differentialPackage: false,
+    artifactName: '${productName}-${version}-Windows.${ext}',
   }
 };
