@@ -7,7 +7,7 @@ This project was created by and for researchers who want to ask study participan
 To customize PersonalAnalytics for your research study, please consider the following steps:
 
 1. Fork the project to work in your own repository.
-2. Update the [study configuration-file](../src/electron/shared/study.config.ts) (`study.config.ts`) with your custom study-related settings (see details below). Hereby, you can add your custom study name, study title, privacy policy, export upload url as well as contact data. In addition, you can customize which computer interaction tracker isrunning, and if you want to prompt the user to self-report on one or several questions in the experience sampling component.
+2. Update the [study configuration-file](../src/electron/shared/study.config.ts) (`study.config.ts`) with your custom study-related settings (see details below). Hereby, you can add your custom study name, study title, privacy policy, export upload url as well as contact data. In addition, you can customize which computer interaction tracker is running, and if you want to prompt the user to self-report on one or several questions in the experience sampling component.
 3. (optional) If you require further customizations, you can create them in the code (see [Contributions Guide](#contributions-guide)).  
 4. Use GitHub Actions (see [build.yml](https://github.com/HASEL-UZH/PersonalAnalytics/blob/feature/electron/.github/workflows/build.yml)) to build and deploy PersonalAnalytics and allow your participants to use it. Using the method, PersonalAnalytics can automatically update your participants' installations with new releases
 
@@ -47,6 +47,7 @@ You can find more information on electron-builder here: https://www.electron.bui
 | `contactEmail`      | An email address that participants can use to contact the researchers. It is shown during the onboarding process, in the about page, when exporting the study data, in case of errors and in the application's menu when requesting help or reporting an issue. | ✅               |               |
 | `subjectIdLength`   | The length of the subject ID that is automatically generated for each participant when PersonalAnalytics is installed (e.g. `8JE7DA`).                                                                                                                                                  |                 | `6`           |
 | `dataExportEnabled` | Whether the participant should be able to export their data. If enabled, participants can export their study data through the context menu.                                                                                                                      |                 | `true`        |
+| `displayDaysParticipated` | Determines whether the number of days with sufficient user data is calculated and shown. If enabled, participants see `Days participated: X` in their tray. A study day is "sufficient" if it includes (a) at least one experience sampling response (if enabled) and (b) at least 60 user input entries (indicating 60+ minutes of activity), as defined [here](../src/electron/electron/main/services/trackers/DaysParticipatedTracker.ts). |                 | `true`        |
 
 ### Tracker Configuration (edit `trackers` in `study.config.ts`)
 #### WindowsActivityTracker

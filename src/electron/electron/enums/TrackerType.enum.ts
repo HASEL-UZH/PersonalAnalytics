@@ -1,5 +1,6 @@
 export enum TrackerType {
   ExperienceSamplingTracker = 'ExperienceSamplingTracker',
   UserInputTracker = 'UserInputTracker',
-  WindowsActivityTracker = 'WindowsActivityTracker'
+  WindowsActivityTracker = 'WindowsActivityTracker',
+  DaysParticipatedTracker = 'DaysParticipatedTracker'
 }

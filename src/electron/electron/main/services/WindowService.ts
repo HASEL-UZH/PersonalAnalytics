@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, nativeImage, screen, shell, Tray } from 'electron';
+import { app, BrowserWindow, clipboard, dialog, Menu, nativeImage, screen, shell, Tray } from 'electron';
 import getMainLogger from '../../config/Logger';
 import AppUpdaterService from './AppUpdaterService';
 import { is } from './utils/helpers';
@@ -8,9 +8,9 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import studyConfig from '../../../shared/study.config';
 
-import { Settings } from '../entities/Settings';
 import { UsageDataService } from './UsageDataService';
 import { UsageDataEventType } from '../../enums/UsageDataEventType.enum';
+import { Settings } from '../entities/Settings'
 
 const LOG = getMainLogger('WindowService');
 
@@ -18,9 +18,12 @@ export class WindowService {
   private readonly appUpdaterService: AppUpdaterService;
   private tray: Tray;
   private experienceSamplingWindow: BrowserWindow;
-  private aboutWindow: BrowserWindow;
   private onboardingWindow: BrowserWindow;
   private dataExportWindow: BrowserWindow;
+  private settingsWindow: BrowserWindow;
+  
+  private hasOpenedDataExportUrl: boolean = false;
+  private hasRevealedDataEportFolder: boolean = false;
 
   constructor(appUpdaterService: AppUpdaterService) {
     LOG.debug('WindowService constructor called');
@@ -38,7 +41,7 @@ export class WindowService {
   }
 
   public async init(): Promise<void> {
-    this.createTray();
+    await this.createTray();
   }
 
   public async createExperienceSamplingWindow(isManuallyTriggered: boolean = false) {
@@ -118,52 +121,52 @@ export class WindowService {
     }
   }
 
-  private closeAboutWindow() {
-    if (this.aboutWindow) {
-      this.aboutWindow?.close();
-      this.aboutWindow = null;
+  public async closeSettingsWindow() {
+    if (this.settingsWindow) {
+      this.settingsWindow?.close();
+      this.settingsWindow = null;
     }
   }
 
-  public async createAboutWindow() {
-    this.closeAboutWindow();
+  public async createSettingsWindow() {
+    this.closeSettingsWindow();
 
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = dirname(__filename);
     const preload = join(__dirname, '../preload/index.mjs');
-    this.aboutWindow = new BrowserWindow({
-      width: 800,
-      height: 750,
+    this.settingsWindow = new BrowserWindow({
+      width: 1000,
+      height: 850,
       show: false,
       minimizable: false,
       maximizable: false,
       fullscreenable: false,
       resizable: false,
-      title: 'PersonalAnalytics: About',
+      title: 'PersonalAnalytics: Settings',
       webPreferences: {
         preload
       }
     });
 
     if (process.env.VITE_DEV_SERVER_URL) {
-      await this.aboutWindow.loadURL(process.env.VITE_DEV_SERVER_URL + '#about');
+      await this.settingsWindow.loadURL(process.env.VITE_DEV_SERVER_URL + `#settings?isMacOS=${is.macOS}`);
     } else {
-      await this.aboutWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
-        hash: 'about'
+      await this.settingsWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
+        hash: `settings?isMacOS=${is.macOS}`
       });
     }
 
-    this.aboutWindow.webContents.setWindowOpenHandler((details) => {
+    this.settingsWindow.webContents.setWindowOpenHandler((details) => {
       shell.openExternal(details.url);
       return { action: 'deny' };
     });
 
-    this.aboutWindow.show();
+    this.settingsWindow.show();
 
-    this.aboutWindow.on('close', () => {
-      this.aboutWindow = null;
+    this.settingsWindow.on('close', () => {
+      this.settingsWindow = null;
     });
-  }
+  }  
 
   public closeOnboardingWindow() {
     if (this.onboardingWindow) {
@@ -275,20 +278,55 @@ export class WindowService {
 
     this.dataExportWindow.show();
 
-    this.dataExportWindow.on('close', () => {
+    this.dataExportWindow.on('close', async (event) => {
+      console.log("close event")
+      const seemsToHaveCompletedExport = this.hasOpenedDataExportUrl && this.hasRevealedDataEportFolder;
+      if (!seemsToHaveCompletedExport) {   
+        const result = await dialog.showMessageBox({
+          type: 'warning',
+          buttons: ['Cancel', 'Close Anyway'],
+          defaultId: 0,
+          cancelId: 0,
+          title: 'Complete Data Export',
+          message: 'It seems that you have not completed the data export process.',
+          detail: 'Please make sure you completed all the steps in this window, including manually uploading the exported data file. Do you want to close the window anyway?'
+        });
+        
+        
+        if (result.response === 0) {
+          // User chose 'Cancel', so we prevent the window from closing
+          event.preventDefault();
+          return 
+        } 
+      } 
+
       this.dataExportWindow = null;
       if (is.macOS) {
         app.dock.hide();
       }
+
+      // reset flags for next time
+      this.hasOpenedDataExportUrl = false;
+      this.hasRevealedDataEportFolder = false;
     });
   }
 
-  public updateTray(
+  public showItemInFolder(path: string): void{
+    this.hasRevealedDataEportFolder = true;
+    shell.showItemInFolder(path);
+  }
+  
+  public async openExternal(): Promise<void> {
+    this.hasOpenedDataExportUrl = true;
+    shell.openExternal(studyConfig.uploadUrl);
+  }
+
+  public async updateTray(
     updaterLabel: string = 'Check for updates',
     updaterMenuEnabled: boolean = false
-  ): void {
+  ): Promise<void> {
     LOG.debug('Updating tray');
-    const menuTemplate: MenuItemConstructorOptions[] = this.getTrayMenuTemplate();
+    const menuTemplate: MenuItemConstructorOptions[] = await this.getTrayMenuTemplate();
     menuTemplate[1].label = updaterLabel;
     menuTemplate[1].enabled = updaterMenuEnabled;
 
@@ -297,7 +335,7 @@ export class WindowService {
     this.tray.setToolTip(`Personal Analytics is running ...\nYou are participating in: ${studyConfig.name}`);
   }
 
-  private createTray(): void {
+  private async createTray(): Promise<void> {
     LOG.debug('Creating tray');
     if (this.tray) {
       return;
@@ -307,39 +345,65 @@ export class WindowService {
     const trayImage = nativeImage.createFromPath(appIcon);
     trayImage.setTemplateImage(true);
     this.tray = new Tray(trayImage);
-    this.updateTray();
+    await this.updateTray();
   }
 
-  private getTrayMenuTemplate(): MenuItemConstructorOptions[] {
-    const versionAndUpdate: MenuItemConstructorOptions[] = [
+  private async getTrayMenuTemplate(): Promise<MenuItemConstructorOptions[]> {
+    const settings: Settings = await Settings.findOne({ where: { onlyOneEntityShouldExist: 1 } });
+    
+    const versionUpdateAndStudyInfo: MenuItemConstructorOptions[] = [
       { label: `Version ${app.getVersion()}`, enabled: false },
       {
         label: 'Check for updates',
         enabled: false,
         click: () => this.appUpdaterService.checkForUpdates({ silent: false })
       },
-      { type: 'separator' }
-    ];
-    const windowMenu: MenuItemConstructorOptions[] = [
+      { type: 'separator' },
+      { 
+        label: 'Copy Subject Id',
+        click: () => clipboard.writeText(settings.subjectId)  
+      },
       {
-        label: 'Open Onboarding',
-        visible: is.dev,
-        click: async () => {
-          const shouldShowStudyTrackersStarted = !!(await Settings.findOneBy({
-            studyAndTrackersStartedShown: false,
-            onboardingShown: true
-          }));
-          await this.createOnboardingWindow(
-            shouldShowStudyTrackersStarted ? 'study-trackers-started' : undefined
-          );
-        }
+        label: `Subject ID: ${settings.subjectId}`,
+        enabled: false, 
       }
     ];
-    const otherMenu: MenuItemConstructorOptions[] = [
+
+    if (studyConfig.displayDaysParticipated) {
+      let item = {
+        label: `Days participated: ${settings.daysParticipated}`,
+        enabled: false,
+      }
+      versionUpdateAndStudyInfo.push(item);
+    }
+
+    const windowMenu: MenuItemConstructorOptions[] = [
+      { type: 'separator' },
       {
-        label: 'About',
-        click: () => this.createAboutWindow()
+        label: 'Open Experience Sampling',
+        click: () => this.createExperienceSamplingWindow(true)
       },
+      {
+        label: 'Open Settings',
+        click: () => this.createSettingsWindow()
+      },
+      { type: 'separator' }
+    ];
+
+    if (studyConfig.trackers.taskTracker.enabled) {
+      let item = {
+        label: 'Open Task Planning',
+        click: async () => {
+          const { createPlanningViewWindow } = await import('@external/main/services/WindowService');
+          createPlanningViewWindow(true)
+        }
+      }
+
+      // add at the 2nd position
+      windowMenu.splice(1, 0, item);
+    }
+
+    const otherMenu: MenuItemConstructorOptions[] = [
       {
         label: 'Get Help',
         click: (): void => {
@@ -355,33 +419,17 @@ export class WindowService {
         }
       },
       { type: 'separator' },
-      {
-        label: 'Open Logs', // todo: move to settings
-        click: (): void => {
-          LOG.info(`Opening logs at ${app.getPath('logs')}`);
-          shell.openPath(`${app.getPath('logs')}`);
-        }
-      },
-      {
-        label: 'Open Collected Data', // todo: move to settings
-        click: (): void => {
-          LOG.info(`Opening collected data at ${app.getPath('userData')}`);
-          shell.showItemInFolder(path.join(app.getPath('userData'), 'database.sqlite'));
-        }
-      },
-      { type: 'separator' },
-      {
-        label: 'Open Experience Sampling',
-        click: () => this.createExperienceSamplingWindow(true)
-      },
-      {
-        label: 'Export Study Data',
-        enabled: studyConfig.dataExportEnabled,
-        click: (): void => {
-          LOG.info(`Opening data export`);
-          this.createDataExportWindow();
-        }
-      },
+      ...(studyConfig.dataExportEnabled
+        ? [
+            {
+              label: 'Export Study Data',
+              click: (): void => {
+                LOG.info(`Opening data export`);
+                this.createDataExportWindow();
+              }
+            }
+          ]
+        : []),
       { type: 'separator' },
       {
         label: 'Quit',
@@ -390,6 +438,6 @@ export class WindowService {
         }
       }
     ];
-    return [...versionAndUpdate, ...windowMenu, ...otherMenu];
+    return [...versionUpdateAndStudyInfo, ...windowMenu, ...otherMenu];
   }
 }
