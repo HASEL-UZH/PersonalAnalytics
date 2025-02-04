@@ -71,6 +71,7 @@ export class IpcHandler {
       obfuscateWindowActivityDtosById: this.obfuscateWindowActivityDtosById,
       startDataExport: this.startDataExport,
       revealItemInFolder: this.revealItemInFolder,
+      openUploadUrl: this.openUploadUrl,
       startAllTrackers: this.startAllTrackers,
       triggerPermissionCheckAccessibility: this.triggerPermissionCheckAccessibility,
       triggerPermissionCheckScreenRecording: this.triggerPermissionCheckScreenRecording
@@ -212,7 +213,11 @@ export class IpcHandler {
   }
 
   private async revealItemInFolder(path: string): Promise<void> {
-    shell.showItemInFolder(path);
+    this.windowService.showItemInFolder(path);
+  }
+  
+  private async openUploadUrl(): Promise<void> {
+    this.windowService.openExternal();
   }
 
   private triggerPermissionCheckAccessibility(prompt: boolean): boolean {

@@ -191,6 +191,11 @@ function handleBackStep() {
   currentStep.value--;
 }
 
+function openUploadUrl(event: Event) {
+  typedIpcRenderer.invoke('openUploadUrl');
+  event.preventDefault();
+}
+
 function revealItemInFolder(event: Event) {
   typedIpcRenderer.invoke('revealItemInFolder', pathToExportedFile.value);
   event.preventDefault();
@@ -295,7 +300,7 @@ function revealItemInFolder(event: Event) {
                   >).
                 </li>
                 <li>
-                  <a :href="studyConfig.uploadUrl" target="_blank">Click here</a> to open the upload
+                  <a href="#" @click="openUploadUrl">Click here</a> to open the upload
                   page.
                 </li>
                 <li>

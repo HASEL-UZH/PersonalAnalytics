@@ -35,6 +35,7 @@ type Commands = {
     encryptData: boolean
   ) => Promise<string>;
   revealItemInFolder: (path: string) => Promise<void>;
+  openUploadUrl: () => void;
   startAllTrackers: () => void;
   triggerPermissionCheckAccessibility: (prompt: boolean) => boolean;
   triggerPermissionCheckScreenRecording: () => boolean;

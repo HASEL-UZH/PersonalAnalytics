@@ -1,4 +1,4 @@
-import { app, BrowserWindow, clipboard, Menu, nativeImage, screen, shell, Tray } from 'electron';
+import { app, BrowserWindow, clipboard, dialog, Menu, nativeImage, screen, shell, Tray } from 'electron';
 import getMainLogger from '../../config/Logger';
 import AppUpdaterService from './AppUpdaterService';
 import { is } from './utils/helpers';
@@ -21,6 +21,9 @@ export class WindowService {
   private onboardingWindow: BrowserWindow;
   private dataExportWindow: BrowserWindow;
   private settingsWindow: BrowserWindow;
+  
+  private hasOpenedDataExportUrl: boolean = false;
+  private hasRevealedDataEportFolder: boolean = false;
 
   constructor(appUpdaterService: AppUpdaterService) {
     this.appUpdaterService = appUpdaterService;
@@ -275,12 +278,47 @@ export class WindowService {
 
     this.dataExportWindow.show();
 
-    this.dataExportWindow.on('close', () => {
+    this.dataExportWindow.on('close', async (event) => {
+      console.log("close event")
+      const seemsToHaveCompletedExport = this.hasOpenedDataExportUrl && this.hasRevealedDataEportFolder;
+      if (!seemsToHaveCompletedExport) {   
+        const result = await dialog.showMessageBox({
+          type: 'warning',
+          buttons: ['Cancel', 'Close Anyway'],
+          defaultId: 0,
+          cancelId: 0,
+          title: 'Complete Data Export',
+          message: 'It seems that you have not completed the data export process.',
+          detail: 'Please make sure you completed all the steps in this window, including manually uploading the exported data file. Do you want to close the window anyway?'
+        });
+        
+        
+        if (result.response === 0) {
+          // User chose 'Cancel', so we prevent the window from closing
+          event.preventDefault();
+          return 
+        } 
+      } 
+
       this.dataExportWindow = null;
       if (is.macOS) {
         app.dock.hide();
       }
+
+      // reset flags for next time
+      this.hasOpenedDataExportUrl = false;
+      this.hasRevealedDataEportFolder = false;
     });
+  }
+
+  public showItemInFolder(path: string): void{
+    this.hasRevealedDataEportFolder = true;
+    shell.showItemInFolder(path);
+  }
+  
+  public async openExternal(): Promise<void> {
+    this.hasOpenedDataExportUrl = true;
+    shell.openExternal(studyConfig.uploadUrl);
   }
 
   public async updateTray(
