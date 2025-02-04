@@ -322,11 +322,8 @@ export class WindowService {
     ];
     const windowMenu: MenuItemConstructorOptions[] = [
       {
-        label: 'Open Experience Sampling',
-        click: () => this.createExperienceSamplingWindow(true)
-      },
-      {
-        label: 'Open Onboarding', // todo: only show for debug
+        label: 'Open Onboarding',
+        visible: is.dev,
         click: async () => {
           const shouldShowStudyTrackersStarted = !!(await Settings.findOneBy({
             studyAndTrackersStartedShown: false,
@@ -336,8 +333,7 @@ export class WindowService {
             shouldShowStudyTrackersStarted ? 'study-trackers-started' : undefined
           );
         }
-      },
-      { type: 'separator' }
+      }
     ];
     const otherMenu: MenuItemConstructorOptions[] = [
       {
@@ -373,17 +369,19 @@ export class WindowService {
           shell.showItemInFolder(path.join(app.getPath('userData'), 'database.sqlite'));
         }
       },
-      ...(studyConfig.dataExportEnabled
-        ? [
-            {
-              label: 'Export Study Data',
-              click: (): void => {
-                LOG.info(`Opening data export`);
-                this.createDataExportWindow();
-              }
-            }
-          ]
-        : []),
+      { type: 'separator' },
+      {
+        label: 'Open Experience Sampling',
+        click: () => this.createExperienceSamplingWindow(true)
+      },
+      {
+        label: 'Export Study Data',
+        enabled: studyConfig.dataExportEnabled,
+        click: (): void => {
+          LOG.info(`Opening data export`);
+          this.createDataExportWindow();
+        }
+      },
       { type: 'separator' },
       {
         label: 'Quit',
