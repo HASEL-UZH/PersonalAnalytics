@@ -23,9 +23,9 @@ export class WindowService {
   private dataExportWindow: BrowserWindow;
 
   constructor(appUpdaterService: AppUpdaterService) {
-    this.appUpdaterService = appUpdaterService;
     LOG.debug('WindowService constructor called');
-
+    
+    this.appUpdaterService = appUpdaterService;
     this.appUpdaterService.on(
       'update-tray',
       ({ label, enabled }: { label: string; enabled: boolean }) => {
@@ -293,7 +293,8 @@ export class WindowService {
     menuTemplate[1].enabled = updaterMenuEnabled;
 
     this.tray.setContextMenu(Menu.buildFromTemplate(menuTemplate));
-    this.tray.setToolTip(studyConfig.name);
+    this.tray.on("click", () => { this.tray.popUpContextMenu(); });
+    this.tray.setToolTip(`Personal Analytics is running ...\nYou are participating in: ${studyConfig.name}`);
   }
 
   private createTray(): void {
@@ -321,11 +322,8 @@ export class WindowService {
     ];
     const windowMenu: MenuItemConstructorOptions[] = [
       {
-        label: 'Open Experience Sampling',
-        click: () => this.createExperienceSamplingWindow(true)
-      },
-      {
         label: 'Open Onboarding',
+        visible: is.dev,
         click: async () => {
           const shouldShowStudyTrackersStarted = !!(await Settings.findOneBy({
             studyAndTrackersStartedShown: false,
@@ -335,14 +333,13 @@ export class WindowService {
             shouldShowStudyTrackersStarted ? 'study-trackers-started' : undefined
           );
         }
-      },
+      }
+    ];
+    const otherMenu: MenuItemConstructorOptions[] = [
       {
         label: 'About',
         click: () => this.createAboutWindow()
       },
-      { type: 'separator' }
-    ];
-    const otherMenu: MenuItemConstructorOptions[] = [
       {
         label: 'Get Help',
         click: (): void => {
@@ -359,30 +356,32 @@ export class WindowService {
       },
       { type: 'separator' },
       {
-        label: 'Open Logs',
+        label: 'Open Logs', // todo: move to settings
         click: (): void => {
           LOG.info(`Opening logs at ${app.getPath('logs')}`);
           shell.openPath(`${app.getPath('logs')}`);
         }
       },
       {
-        label: 'Open Collected Data',
+        label: 'Open Collected Data', // todo: move to settings
         click: (): void => {
           LOG.info(`Opening collected data at ${app.getPath('userData')}`);
           shell.showItemInFolder(path.join(app.getPath('userData'), 'database.sqlite'));
         }
       },
-      ...(studyConfig.dataExportEnabled
-        ? [
-            {
-              label: 'Export Data',
-              click: (): void => {
-                LOG.info(`Opening data export`);
-                this.createDataExportWindow();
-              }
-            }
-          ]
-        : []),
+      { type: 'separator' },
+      {
+        label: 'Open Experience Sampling',
+        click: () => this.createExperienceSamplingWindow(true)
+      },
+      {
+        label: 'Export Study Data',
+        enabled: studyConfig.dataExportEnabled,
+        click: (): void => {
+          LOG.info(`Opening data export`);
+          this.createDataExportWindow();
+        }
+      },
       { type: 'separator' },
       {
         label: 'Quit',

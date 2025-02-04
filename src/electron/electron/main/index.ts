@@ -66,7 +66,8 @@ app.whenReady().then(async () => {
 
   if (!is.dev) {
     app.setLoginItemSettings({
-      openAtLogin: true
+      openAtLogin: true,
+      args: ['--hidden'] // Using this flag to detect auto-launch
     });
   } else {
     LOG.info('Skip setting openAtLogin because app is running in development mode');
@@ -187,6 +188,19 @@ app.whenReady().then(async () => {
       `PersonalAnalytics couldn't be started. Please try again or contact us at ${studyConfig.contactEmail} for help. ${error}`
     );
     app.exit();
+  }
+
+  // show PA is running when it was manually started
+  const isAutoLaunch = app.getLoginItemSettings().wasOpenedAtLogin || process.argv.includes('--hidden');
+  if (!is.dev && !isAutoLaunch) {
+    LOG.info(`Manually opened app, showing onboarding window...`);
+    const shouldShowStudyTrackersStarted = !!(await Settings.findOneBy({
+      studyAndTrackersStartedShown: false,
+      onboardingShown: true
+    }));
+    await windowService.createOnboardingWindow(
+      shouldShowStudyTrackersStarted ? 'study-trackers-started' : undefined
+    );
   }
 });
 
