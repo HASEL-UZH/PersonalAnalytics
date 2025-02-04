@@ -15,12 +15,10 @@ When creating new releases, update the package.json file with the new version nu
 
 ### Required GitHub Secrets
 To use GitHub Actions to build and create PersonalAnalytics releases, you need to set the following secrets in your repository:
-- `GH_TOKEN` (a GitHub token with the `repo` scope)
-- `APPLE_ID` (your Apple ID)
-- `APPLE_APP_SPECIFIC_PASSWORD` (an app-specific password for your Apple ID)
-- `APPLE_TEAM_ID` (your Apple Team ID)
-- `CSC_LINK` (link to Apple Developer Certificate in \*.p12 format)
-- `CSC_KEY_PASSWORD` (password for the Apple Developer Certificate)
+- `GH_TOKEN`: a GitHub token with the `repo` scope
+- Windows Code Signing secrets ([see below](
+https://github.com/HASEL-UZH/PersonalAnalytics/edit/dev/documentation/RESEARCH.md#windows-secrets-add-to-github-secrets))
+- macOS Code Signing secrets ([see below](https://github.com/HASEL-UZH/PersonalAnalytics/edit/dev/documentation/RESEARCH.md#macos-secrets-add-to-github-secrets))
 
 ### Required Changes in `electron-builder.config.cjs`
 These changes are required to automatically publish the built artifacts to GitHub releases. You need to replace the `owner` and `repo` with your GitHub username and repository name.
@@ -146,7 +144,7 @@ Note that we're using Electron Builder and Github Actions (see [docu]([url](http
 - Manually download and test the release, and if all is good, publish it!
 - Releases are found under https://github.com/HASEL-UZH/PersonalAnalytics/releases
 
-#### Code Signing for Windows
+### Code Signing for Windows
 
 For Windows, we are using Azure Trusted Signing (beta) for code signing using Andre's personal account.
 Please refer to the [electron-builder documentation](https://www.electron.build/code-signing.html#using-with-azure-trusted-signing-beta)
@@ -154,7 +152,7 @@ and [Azure's documentation](https://learn.microsoft.com/en-us/azure/trusted-sign
 for more information. Following [this guide](https://melatonin.dev/blog/code-signing-on-windows-with-azure-trusted-signing/), the following
 secrets and variables were defined for the GitHub action:
 
-#### Secrets & Variables
+#### Windows Secrets (add to Github Secrets)
 
 | Name                      | Description                                                                                                                              |
 |---------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
@@ -171,21 +169,21 @@ Note that using special characters (e.g. `é`) in the publisher name can lead to
 The above secrets and variables are used in the action files (e.g., [build.yml](https://github.com/HASEL-UZH/PersonalAnalytics/blob/dev/.github/workflows/build.yml)) and
 provided to the electron-builder ([electron-builder.config.cjs](../src/electron/electron-builder.config.cjs)) via environment variables.
 
-#### Code Signing for macOS
+### Code Signing for macOS
 
 For macOS, the electron-builder's code signing is
 disabled ([electron-builder.config.cjs](../src/electron/electron-builder.config.cjs)) and we are using the `afterSign` hook to
 call the [notarize.cjs](../src/electron/scripts/notarize.cjs) script to sign the application using the `@electron/notarize`
 package. The following environment variables are required for the code signing process:
 
-### Secrets
+#### macOS Secrets (add to Github Secrets)
 
 | Name                          | Description                                                                                         |
 |-------------------------------|-----------------------------------------------------------------------------------------------------|
 | `APPLE_ID`                    | The Apple ID used for notarization.                                                                 |
 | `APPLE_ID_PASS`               | The password for the Apple ID.                                                                      |
 | `APPLE_TEAM_ID`               | The Apple Team ID (https://developer.apple.com/help/account/manage-your-team/locate-your-team-id/). |
-| `APPLE_APP_SPECIFIC_PASSWORD` | App-Specific Password (https://appleid.apple.com/account/manage).                                   |
+| `APPLE_APP_SPECIFIC_PASSWORD` | App-Specific Password linked to your Apple ID (https://appleid.apple.com/account/manage).           |
 | `CSC_LINK`                    | base64-encoded data of the Apple Developer Account certificate.                                     |
 | `CSC_KEY_PASSWORD`            | Password of the Apple Developer Account certificate used to decrypt the certificate.                |
 
