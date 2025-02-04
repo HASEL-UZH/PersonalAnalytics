@@ -46,6 +46,7 @@ module.exports = {
   win: {
     target: ["nsis"],
     verifyUpdateCodeSignature: true,
+    publisherName: `${process.env.AZURE_PUBLISHER_NAME}`,
     azureSignOptions: {
       publisherName: `${process.env.AZURE_PUBLISHER_NAME}`,
       endpoint: `${process.env.AZURE_ENDPOINT}`,
