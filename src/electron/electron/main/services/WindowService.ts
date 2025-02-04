@@ -293,7 +293,8 @@ export class WindowService {
     menuTemplate[1].enabled = updaterMenuEnabled;
 
     this.tray.setContextMenu(Menu.buildFromTemplate(menuTemplate));
-    this.tray.setToolTip(studyConfig.name);
+    this.tray.on("click", () => { this.tray.popUpContextMenu(); });
+    this.tray.setToolTip(`Personal Analytics is running ...\nYou are participating in: ${studyConfig.name}`);
   }
 
   private createTray(): void {
@@ -325,7 +326,7 @@ export class WindowService {
         click: () => this.createExperienceSamplingWindow(true)
       },
       {
-        label: 'Open Onboarding',
+        label: 'Open Onboarding', // todo: only show for debug
         click: async () => {
           const shouldShowStudyTrackersStarted = !!(await Settings.findOneBy({
             studyAndTrackersStartedShown: false,
@@ -336,13 +337,13 @@ export class WindowService {
           );
         }
       },
+      { type: 'separator' }
+    ];
+    const otherMenu: MenuItemConstructorOptions[] = [
       {
         label: 'About',
         click: () => this.createAboutWindow()
       },
-      { type: 'separator' }
-    ];
-    const otherMenu: MenuItemConstructorOptions[] = [
       {
         label: 'Get Help',
         click: (): void => {
@@ -359,14 +360,14 @@ export class WindowService {
       },
       { type: 'separator' },
       {
-        label: 'Open Logs',
+        label: 'Open Logs', // todo: move to settings
         click: (): void => {
           LOG.info(`Opening logs at ${app.getPath('logs')}`);
           shell.openPath(`${app.getPath('logs')}`);
         }
       },
       {
-        label: 'Open Collected Data',
+        label: 'Open Collected Data', // todo: move to settings
         click: (): void => {
           LOG.info(`Opening collected data at ${app.getPath('userData')}`);
           shell.showItemInFolder(path.join(app.getPath('userData'), 'database.sqlite'));
@@ -375,7 +376,7 @@ export class WindowService {
       ...(studyConfig.dataExportEnabled
         ? [
             {
-              label: 'Export Data',
+              label: 'Export Study Data',
               click: (): void => {
                 LOG.info(`Opening data export`);
                 this.createDataExportWindow();
