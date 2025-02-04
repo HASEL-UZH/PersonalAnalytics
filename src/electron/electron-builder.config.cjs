@@ -19,7 +19,6 @@ module.exports = {
       arch: ["x64", "arm64"],
     },
     artifactName: '${productName}-${version}-${arch}.${ext}',
-//    artifactName: '${productName}-${version}-${env.MAC_ARCH_TYPE}.${ext}',
     asarUnpack: ['node_modules/**/*.node'],
     entitlements: 'build/entitlements.mac.plist',
     entitlementsInherit: 'build/entitlements.mac.plist',
@@ -46,7 +45,7 @@ module.exports = {
   },
   win: {
     target: ["nsis"],
-    verifyUpdateCodeSignature: false,
+    verifyUpdateCodeSignature: true,
     azureSignOptions: {
       publisherName: `${process.env.AZURE_PUBLISHER_NAME}`,
       endpoint: `${process.env.AZURE_ENDPOINT}`,
