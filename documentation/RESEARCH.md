@@ -15,6 +15,7 @@ When creating new releases, update the package.json file with the new version nu
 
 ### Required GitHub Secrets
 To use GitHub Actions to build and create PersonalAnalytics releases, you need to set the following secrets in your repository:
+
 - `GH_TOKEN`: a GitHub token with the `repo` scope
 - Windows Code Signing secrets ([see below](
 https://github.com/HASEL-UZH/PersonalAnalytics/edit/dev/documentation/RESEARCH.md#windows-secrets-add-to-github-secrets))
@@ -152,6 +153,7 @@ and [Azure's documentation](https://learn.microsoft.com/en-us/azure/trusted-sign
 for more information. Following [this guide](https://melatonin.dev/blog/code-signing-on-windows-with-azure-trusted-signing/), the following
 secrets and variables were defined for the GitHub action:
 
+
 #### Windows Secrets (add to Github Secrets)
 
 | Name                      | Description                                                                                                                              |
@@ -169,12 +171,14 @@ Note that using special characters (e.g. `é`) in the publisher name can lead to
 The above secrets and variables are used in the action files (e.g., [build.yml](https://github.com/HASEL-UZH/PersonalAnalytics/blob/dev/.github/workflows/build.yml)) and
 provided to the electron-builder ([electron-builder.config.cjs](../src/electron/electron-builder.config.cjs)) via environment variables.
 
+
 ### Code Signing for macOS
 
 For macOS, the electron-builder's code signing is
 disabled ([electron-builder.config.cjs](../src/electron/electron-builder.config.cjs)) and we are using the `afterSign` hook to
 call the [notarize.cjs](../src/electron/scripts/notarize.cjs) script to sign the application using the `@electron/notarize`
 package. The following environment variables are required for the code signing process:
+
 
 #### macOS Secrets (add to Github Secrets)
 
