@@ -37,7 +37,7 @@ export class DatabaseService {
       WorkDayEntity
     ]
 
-    if (config.trackers.taskTracker.enabled) {
+    if (config.trackers.taskTracker?.enabled) {
       const { PersonalTaskEntity } = await import('@external/main/entities/PersonalTaskEntity');
       const { TaskActivityEntity } = await import('@external/main/entities/TaskActivityEntity');
       entities.push(PersonalTaskEntity);

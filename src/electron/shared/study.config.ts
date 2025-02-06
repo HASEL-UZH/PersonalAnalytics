@@ -15,9 +15,6 @@ const studyConfig: StudyConfiguration = {
   dataExportEncrypted: false,
   displayDaysParticipated: true,
   trackers: {
-    taskTracker: {
-      enabled: false
-    },
     windowActivityTracker: {
       enabled: true,
       intervalInMs: 1000,

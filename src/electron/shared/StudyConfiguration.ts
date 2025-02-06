@@ -33,7 +33,7 @@ export interface TrackerConfiguration {
   windowActivityTracker: WindowActivityTrackerConfiguration;
   userInputTracker: UserInputTrackerConfiguration;
   experienceSamplingTracker: ExperienceSamplingTrackerConfiguration;
-  taskTracker: TaskTrackerConfiguration;
+  taskTracker?: TaskTrackerConfiguration;
 }
 
 export interface StudyConfiguration {

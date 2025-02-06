@@ -22,7 +22,7 @@ export class WorkScheduleService {
   private schedulingService: any;
 
   async init() {
-    if (studyConfig.trackers.taskTracker.enabled) {
+    if (studyConfig.trackers.taskTracker?.enabled) {
       const { SchedulingService } = await import('@external/main/services/SchedulingService'); 
       const schedule = await this.getWorkSchedule()
       this.schedulingService = new SchedulingService(schedule);
@@ -42,7 +42,7 @@ export class WorkScheduleService {
       }).save();      
     }
 
-    if (studyConfig.trackers.taskTracker.enabled) {
+    if (studyConfig.trackers.taskTracker?.enabled) {
       this.schedulingService.updateWorkSchedule(schedule);
     } 
   }
