@@ -47,7 +47,7 @@ export class DaysParticipatedTracker implements Tracker {
     }
 
     const daysUsage = new Set(resUI.map((res) => res.day))
-    LOG.info(`Days Usage: ${daysUsage}`)
+    LOG.info(`Days Usage: ${Array.from(daysUsage)}`)
 
     if (!studyConfig.trackers.experienceSamplingTracker.enabled) {
       LOG.info('experience sampling tracker is disabled, counting "days participated" based on user input only.')
@@ -66,7 +66,7 @@ export class DaysParticipatedTracker implements Tracker {
     }
 
     const daysSamplingResponses = new Set(resES.map((res) => res.day))
-    LOG.info(`Days Sampling: ${daysSamplingResponses}`)
+    LOG.info(`Days Sampling: ${Array.from(daysSamplingResponses)}`)
 
     let count = 0
     daysUsage.forEach((day) => {
