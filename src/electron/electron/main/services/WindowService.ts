@@ -279,12 +279,13 @@ export class WindowService {
     this.dataExportWindow.show()
 
     this.dataExportWindow.on('close', async (event) => {
-      console.log("close event")
+      event.preventDefault() // prevents the window from closing 
+
       const seemsToHaveCompletedExport = this.hasOpenedDataExportUrl && this.hasRevealedDataEportFolder
       if (!seemsToHaveCompletedExport) {
         const result = await dialog.showMessageBox({
           type: 'warning',
-          buttons: ['Cancel', 'Close Anyway'],
+          buttons: ['Continue with data export', 'Close Anyway'],
           defaultId: 0,
           cancelId: 0,
           title: 'Complete Data Export',
@@ -292,13 +293,15 @@ export class WindowService {
           detail: 'Please make sure you completed all the steps in this window, including manually uploading the exported data file. Do you want to close the window anyway?'
         })
 
-
         if (result.response === 0) {
+          LOG.info('User chose to continue with data export, return...')
           // User chose 'Cancel', so we prevent the window from closing
-          event.preventDefault()
           return
         }
       }
+
+      LOG.info('User chose to close data export window, closing...')
+      this.dataExportWindow.destroy()
 
       this.dataExportWindow = null
       if (is.macOS) {
