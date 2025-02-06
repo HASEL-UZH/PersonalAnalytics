@@ -30,7 +30,7 @@ export class DaysParticipatedTracker implements Tracker {
   private async updateDaysParticipated() {
     const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 })
     // as a simple default measure, we suggest to count as a study day if (a) at least one 
-    // experience sampling response was given (TODO: if enabled) and (b) there are at 
+    // experience sampling response was given (if enabled) and (b) there are at 
     // least 60 user input entries (indicating 60+ minutes of activity)
 
     // get distinct days where count of rows larger than 60
@@ -49,6 +49,12 @@ export class DaysParticipatedTracker implements Tracker {
     const daysUsage = new Set(resUI.map((res) => res.day))
     LOG.info(`Days Usage: ${daysUsage}`)
 
+    if (!studyConfig.trackers.experienceSamplingTracker.enabled) {
+      LOG.info('experience sampling tracker is disabled, counting "days participated" based on user input only.')
+      await this.saveDaysParticipated(daysUsage.size)
+      return
+    }
+
     const resES = await ExperienceSamplingResponseEntity.createQueryBuilder('experienceSampling')
       .select('DISTINCT DATE(experienceSampling.promptedAt)', 'day')
       .getRawMany()
@@ -64,7 +70,7 @@ export class DaysParticipatedTracker implements Tracker {
 
     let count = 0
     daysUsage.forEach((day) => {
-      if (daysSamplingResponses.has(day)) {count++}
+      if (daysSamplingResponses.has(day)) { count++ }
     })
 
     LOG.info(`Days Participated: ${count}`)
