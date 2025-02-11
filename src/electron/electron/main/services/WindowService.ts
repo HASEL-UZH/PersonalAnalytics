@@ -381,7 +381,7 @@ export class WindowService {
       },
       {
         label: 'Open Task Planning',
-        visible: studyConfig.trackers.taskTracker?.enabled,
+        visible: !!studyConfig.trackers.taskTracker?.enabled,
         click: async () => {
           const { createPlanningViewWindow } = await import('@external/main/services/WindowService')
           createPlanningViewWindow(true)
