@@ -220,13 +220,23 @@ export class WindowService {
 
   public closeDataExportWindow() {
     if (this.dataExportWindow) {
-      this.dataExportWindow?.close()
+      this.dataExportWindow.close()
+    }
+  }
+
+  private destroyDataExportWindow() {
+    if (this.dataExportWindow) {
+      this.dataExportWindow.destroy()
       this.dataExportWindow = null
+    }
+
+    if (is.macOS) {
+      app.dock.hide()
     }
   }
 
   public async createDataExportWindow() {
-    this.closeDataExportWindow()
+    this.destroyDataExportWindow()
 
     const __filename = fileURLToPath(import.meta.url)
     const __dirname = dirname(__filename)
@@ -295,18 +305,12 @@ export class WindowService {
 
         if (result.response === 0) {
           LOG.info('User chose to continue with data export, return...')
-          // User chose 'Cancel', so we prevent the window from closing
           return
         }
       }
 
       LOG.info('User chose to close data export window, closing...')
-      this.dataExportWindow.destroy()
-
-      this.dataExportWindow = null
-      if (is.macOS) {
-        app.dock.hide()
-      }
+      this.destroyDataExportWindow()
 
       // reset flags for next time
       this.hasOpenedDataExportUrl = false
