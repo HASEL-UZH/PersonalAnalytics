@@ -1,65 +1,68 @@
-import { app, BrowserWindow, Menu, nativeImage, screen, shell, Tray } from 'electron';
-import getMainLogger from '../../config/Logger';
-import AppUpdaterService from './AppUpdaterService';
-import { is } from './utils/helpers';
-import path from 'path';
-import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions;
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import studyConfig from '../../../shared/study.config';
+import { app, BrowserWindow, clipboard, dialog, Menu, nativeImage, screen, shell, Tray } from 'electron'
+import getMainLogger from '../../config/Logger'
+import AppUpdaterService from './AppUpdaterService'
+import { is } from './utils/helpers'
+import path from 'path'
+import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import studyConfig from '../../../shared/study.config'
 
-import { Settings } from '../entities/Settings';
-import { UsageDataService } from './UsageDataService';
-import { UsageDataEventType } from '../../enums/UsageDataEventType.enum';
+import { UsageDataService } from './UsageDataService'
+import { UsageDataEventType } from '../../enums/UsageDataEventType.enum'
+import { Settings } from '../entities/Settings'
 
-const LOG = getMainLogger('WindowService');
+const LOG = getMainLogger('WindowService')
 
 export class WindowService {
-  private readonly appUpdaterService: AppUpdaterService;
-  private tray: Tray;
-  private experienceSamplingWindow: BrowserWindow;
-  private aboutWindow: BrowserWindow;
-  private onboardingWindow: BrowserWindow;
-  private dataExportWindow: BrowserWindow;
+  private readonly appUpdaterService: AppUpdaterService
+  private tray: Tray
+  private experienceSamplingWindow: BrowserWindow
+  private onboardingWindow: BrowserWindow
+  private dataExportWindow: BrowserWindow
+  private settingsWindow: BrowserWindow
+
+  private hasOpenedDataExportUrl: boolean = false;
+  private hasRevealedDataEportFolder: boolean = false;
 
   constructor(appUpdaterService: AppUpdaterService) {
-    LOG.debug('WindowService constructor called');
-    
-    this.appUpdaterService = appUpdaterService;
+    LOG.debug('WindowService constructor called')
+
+    this.appUpdaterService = appUpdaterService
     this.appUpdaterService.on(
       'update-tray',
       ({ label, enabled }: { label: string; enabled: boolean }) => {
-        this.updateTray(label, enabled);
+        this.updateTray(label, enabled)
       }
-    );
+    )
     if (!is.dev) {
-      Menu.setApplicationMenu(null);
+      Menu.setApplicationMenu(null)
     }
   }
 
   public async init(): Promise<void> {
-    this.createTray();
+    await this.createTray()
   }
 
   public async createExperienceSamplingWindow(isManuallyTriggered: boolean = false) {
     if (this.experienceSamplingWindow) {
-      this.experienceSamplingWindow.close();
-      this.experienceSamplingWindow = null;
+      this.experienceSamplingWindow.close()
+      this.experienceSamplingWindow = null
     }
 
     const usageDataEvent = isManuallyTriggered
       ? UsageDataEventType.ExperienceSamplingManuallyOpened
-      : UsageDataEventType.ExperienceSamplingAutomaticallyOpened;
-    UsageDataService.createNewUsageDataEvent(usageDataEvent);
+      : UsageDataEventType.ExperienceSamplingAutomaticallyOpened
+    UsageDataService.createNewUsageDataEvent(usageDataEvent)
 
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-    const preload = join(__dirname, '../preload/index.mjs');
+    const __filename = fileURLToPath(import.meta.url)
+    const __dirname = dirname(__filename)
+    const preload = join(__dirname, '../preload/index.mjs')
 
-    const { width } = screen.getPrimaryDisplay().workAreaSize;
-    const windowPadding = 20;
-    const windowWidth = 500;
-    const windowHeight = 170;
+    const { width } = screen.getPrimaryDisplay().workAreaSize
+    const windowPadding = 20
+    const windowWidth = 500
+    const windowHeight = 170
 
     this.experienceSamplingWindow = new BrowserWindow({
       width: windowWidth,
@@ -80,104 +83,104 @@ export class WindowService {
       webPreferences: {
         preload
       }
-    });
+    })
 
     if (process.env.VITE_DEV_SERVER_URL) {
       await this.experienceSamplingWindow.loadURL(
         process.env.VITE_DEV_SERVER_URL + '#experience-sampling'
-      );
+      )
     } else {
       await this.experienceSamplingWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
         hash: 'experience-sampling'
-      });
+      })
     }
 
-    this.experienceSamplingWindow.setVisibleOnAllWorkspaces(true);
-    let opacity = 0;
+    this.experienceSamplingWindow.setVisibleOnAllWorkspaces(true)
+    let opacity = 0
     const interval = setInterval(() => {
-      if (opacity >= 1) clearInterval(interval);
-      this.experienceSamplingWindow?.setOpacity(opacity);
-      opacity += 0.1;
-    }, 10);
-    this.experienceSamplingWindow.showInactive();
+      if (opacity >= 1) clearInterval(interval)
+      this.experienceSamplingWindow?.setOpacity(opacity)
+      opacity += 0.1
+    }, 10)
+    this.experienceSamplingWindow.showInactive()
 
     this.experienceSamplingWindow.on('close', () => {
-      this.experienceSamplingWindow = null;
-    });
+      this.experienceSamplingWindow = null
+    })
   }
 
   public closeExperienceSamplingWindow(skippedExperienceSampling: boolean) {
     const usageDataEvent = skippedExperienceSampling
       ? UsageDataEventType.ExperienceSamplingSkipped
-      : UsageDataEventType.ExperienceSamplingAnswered;
-    UsageDataService.createNewUsageDataEvent(usageDataEvent);
+      : UsageDataEventType.ExperienceSamplingAnswered
+    UsageDataService.createNewUsageDataEvent(usageDataEvent)
 
     if (this.experienceSamplingWindow) {
-      this.experienceSamplingWindow.close();
-      this.experienceSamplingWindow = null;
+      this.experienceSamplingWindow.close()
+      this.experienceSamplingWindow = null
     }
   }
 
-  private closeAboutWindow() {
-    if (this.aboutWindow) {
-      this.aboutWindow?.close();
-      this.aboutWindow = null;
+  public async closeSettingsWindow() {
+    if (this.settingsWindow) {
+      this.settingsWindow?.close()
+      this.settingsWindow = null
     }
   }
 
-  public async createAboutWindow() {
-    this.closeAboutWindow();
+  public async createSettingsWindow() {
+    this.closeSettingsWindow()
 
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-    const preload = join(__dirname, '../preload/index.mjs');
-    this.aboutWindow = new BrowserWindow({
-      width: 800,
-      height: 750,
+    const __filename = fileURLToPath(import.meta.url)
+    const __dirname = dirname(__filename)
+    const preload = join(__dirname, '../preload/index.mjs')
+    this.settingsWindow = new BrowserWindow({
+      width: 1000,
+      height: 850,
       show: false,
       minimizable: false,
       maximizable: false,
       fullscreenable: false,
       resizable: false,
-      title: 'PersonalAnalytics: About',
+      title: 'PersonalAnalytics: Settings',
       webPreferences: {
         preload
       }
-    });
+    })
 
     if (process.env.VITE_DEV_SERVER_URL) {
-      await this.aboutWindow.loadURL(process.env.VITE_DEV_SERVER_URL + '#about');
+      await this.settingsWindow.loadURL(process.env.VITE_DEV_SERVER_URL + `#settings?isMacOS=${is.macOS}`)
     } else {
-      await this.aboutWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
-        hash: 'about'
-      });
+      await this.settingsWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
+        hash: `settings?isMacOS=${is.macOS}`
+      })
     }
 
-    this.aboutWindow.webContents.setWindowOpenHandler((details) => {
-      shell.openExternal(details.url);
-      return { action: 'deny' };
-    });
+    this.settingsWindow.webContents.setWindowOpenHandler((details) => {
+      shell.openExternal(details.url)
+      return { action: 'deny' }
+    })
 
-    this.aboutWindow.show();
+    this.settingsWindow.show()
 
-    this.aboutWindow.on('close', () => {
-      this.aboutWindow = null;
-    });
+    this.settingsWindow.on('close', () => {
+      this.settingsWindow = null
+    })
   }
 
   public closeOnboardingWindow() {
     if (this.onboardingWindow) {
-      this.onboardingWindow?.close();
-      this.onboardingWindow = null;
+      this.onboardingWindow?.close()
+      this.onboardingWindow = null
     }
   }
 
   public async createOnboardingWindow(goToStep?: string) {
-    this.closeOnboardingWindow();
+    this.closeOnboardingWindow()
 
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-    const preload = join(__dirname, '../preload/index.mjs');
+    const __filename = fileURLToPath(import.meta.url)
+    const __dirname = dirname(__filename)
+    const preload = join(__dirname, '../preload/index.mjs')
     this.onboardingWindow = new BrowserWindow({
       width: 800,
       height: 850,
@@ -190,44 +193,54 @@ export class WindowService {
       webPreferences: {
         preload
       }
-    });
+    })
 
     if (process.env.VITE_DEV_SERVER_URL) {
       await this.onboardingWindow.loadURL(
         process.env.VITE_DEV_SERVER_URL +
-          `#onboarding?isMacOS=${is.macOS}&goToStep=${goToStep ?? 'welcome'}`
-      );
+        `#onboarding?isMacOS=${is.macOS}&goToStep=${goToStep ?? 'welcome'}`
+      )
     } else {
       await this.onboardingWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
         hash: `onboarding?isMacOS=${is.macOS}&goToStep=${goToStep ?? 'welcome'}`
-      });
+      })
     }
 
     this.onboardingWindow.webContents.setWindowOpenHandler((details) => {
-      shell.openExternal(details.url);
-      return { action: 'deny' };
-    });
+      shell.openExternal(details.url)
+      return { action: 'deny' }
+    })
 
-    this.onboardingWindow.show();
+    this.onboardingWindow.show()
 
     this.onboardingWindow.on('close', () => {
-      this.onboardingWindow = null;
-    });
+      this.onboardingWindow = null
+    })
   }
 
   public closeDataExportWindow() {
     if (this.dataExportWindow) {
-      this.dataExportWindow?.close();
-      this.dataExportWindow = null;
+      this.dataExportWindow.close()
+    }
+  }
+
+  private destroyDataExportWindow() {
+    if (this.dataExportWindow) {
+      this.dataExportWindow.destroy()
+      this.dataExportWindow = null
+    }
+
+    if (is.macOS) {
+      app.dock.hide()
     }
   }
 
   public async createDataExportWindow() {
-    this.closeDataExportWindow();
+    this.destroyDataExportWindow()
 
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = dirname(__filename);
-    const preload = join(__dirname, '../preload/index.mjs');
+    const __filename = fileURLToPath(import.meta.url)
+    const __dirname = dirname(__filename)
+    const preload = join(__dirname, '../preload/index.mjs')
     this.dataExportWindow = new BrowserWindow({
       width: 1200,
       height: 850,
@@ -241,20 +254,20 @@ export class WindowService {
       webPreferences: {
         preload
       }
-    });
+    })
 
     if (process.env.VITE_DEV_SERVER_URL) {
-      await this.dataExportWindow.loadURL(process.env.VITE_DEV_SERVER_URL + `#data-export`);
+      await this.dataExportWindow.loadURL(process.env.VITE_DEV_SERVER_URL + `#data-export`)
     } else {
       await this.dataExportWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
         hash: `data-export?isMacOS`
-      });
+      })
     }
 
     this.dataExportWindow.webContents.setWindowOpenHandler((details) => {
-      shell.openExternal(details.url);
-      return { action: 'deny' };
-    });
+      shell.openExternal(details.url)
+      return { action: 'deny' }
+    })
 
     if (is.macOS && !is.dev) {
       const template = [
@@ -265,109 +278,105 @@ export class WindowService {
             { label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:' }
           ]
         }
-      ];
-      Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+      ]
+      Menu.setApplicationMenu(Menu.buildFromTemplate(template))
     }
 
     if (is.macOS) {
-      await app.dock.show();
+      await app.dock.show()
     }
 
-    this.dataExportWindow.show();
+    this.dataExportWindow.show()
 
-    this.dataExportWindow.on('close', () => {
-      this.dataExportWindow = null;
-      if (is.macOS) {
-        app.dock.hide();
+    this.dataExportWindow.on('close', async (event) => {
+      event.preventDefault() // prevents the window from closing 
+
+      const seemsToHaveCompletedExport = this.hasOpenedDataExportUrl && this.hasRevealedDataEportFolder
+      if (!seemsToHaveCompletedExport) {
+        const result = await dialog.showMessageBox({
+          type: 'warning',
+          buttons: ['Continue with data export', 'Close Anyway'],
+          defaultId: 0,
+          cancelId: 0,
+          title: 'Complete Data Export',
+          message: 'It seems that you have not completed the data export process.',
+          detail: 'Please make sure you completed all the steps in this window, including manually uploading the exported data file. Do you want to close the window anyway?'
+        })
+
+        if (result.response === 0) {
+          LOG.info('User chose to continue with data export, return...')
+          return
+        }
       }
-    });
+
+      LOG.info('User chose to close data export window, closing...')
+      this.destroyDataExportWindow()
+
+      // reset flags for next time
+      this.hasOpenedDataExportUrl = false
+      this.hasRevealedDataEportFolder = false
+    })
   }
 
-  public updateTray(
+  public showItemInFolder(path: string): void {
+    this.hasRevealedDataEportFolder = true
+    shell.showItemInFolder(path)
+  }
+
+  public async openExternal(): Promise<void> {
+    this.hasOpenedDataExportUrl = true
+    shell.openExternal(studyConfig.uploadUrl)
+  }
+
+  public async updateTray(
     updaterLabel: string = 'Check for updates',
     updaterMenuEnabled: boolean = false
-  ): void {
-    LOG.debug('Updating tray');
-    const menuTemplate: MenuItemConstructorOptions[] = this.getTrayMenuTemplate();
-    menuTemplate[1].label = updaterLabel;
-    menuTemplate[1].enabled = updaterMenuEnabled;
+  ): Promise<void> {
+    LOG.debug('Updating tray')
+    const menuTemplate: MenuItemConstructorOptions[] = await this.getTrayMenuTemplate()
+    menuTemplate[1].label = updaterLabel
+    menuTemplate[1].enabled = updaterMenuEnabled
 
-    this.tray.setContextMenu(Menu.buildFromTemplate(menuTemplate));
-    this.tray.on("click", () => { this.tray.popUpContextMenu(); });
-    this.tray.setToolTip(`Personal Analytics is running ...\nYou are participating in: ${studyConfig.name}`);
+    this.tray.setContextMenu(Menu.buildFromTemplate(menuTemplate))
+    this.tray.on("click", () => { this.tray.popUpContextMenu() })
+    this.tray.setToolTip(`Personal Analytics is running ...\nYou are participating in: ${studyConfig.name}`)
   }
 
-  private createTray(): void {
-    LOG.debug('Creating tray');
+  private async createTray(): Promise<void> {
+    LOG.debug('Creating tray')
     if (this.tray) {
-      return;
+      return
     }
-    const iconToUse = is.macOS ? 'IconTemplate.png' : 'IconColored@2x.png';
-    const appIcon = path.join(process.env.VITE_PUBLIC, iconToUse);
-    const trayImage = nativeImage.createFromPath(appIcon);
-    trayImage.setTemplateImage(true);
-    this.tray = new Tray(trayImage);
-    this.updateTray();
+    const iconToUse = is.macOS ? 'IconTemplate.png' : 'IconColored@2x.png'
+    const appIcon = path.join(process.env.VITE_PUBLIC, iconToUse)
+    const trayImage = nativeImage.createFromPath(appIcon)
+    trayImage.setTemplateImage(true)
+    this.tray = new Tray(trayImage)
+    await this.updateTray()
   }
 
-  private getTrayMenuTemplate(): MenuItemConstructorOptions[] {
-    const versionAndUpdate: MenuItemConstructorOptions[] = [
+  private async getTrayMenuTemplate(): Promise<MenuItemConstructorOptions[]> {
+    const settings: Settings = await Settings.findOne({ where: { onlyOneEntityShouldExist: 1 } })
+    const trayMenuItems: MenuItemConstructorOptions[] = [
       { label: `Version ${app.getVersion()}`, enabled: false },
       {
         label: 'Check for updates',
         enabled: false,
         click: () => this.appUpdaterService.checkForUpdates({ silent: false })
       },
-      { type: 'separator' }
-    ];
-    const windowMenu: MenuItemConstructorOptions[] = [
-      {
-        label: 'Open Onboarding',
-        visible: is.dev,
-        click: async () => {
-          const shouldShowStudyTrackersStarted = !!(await Settings.findOneBy({
-            studyAndTrackersStartedShown: false,
-            onboardingShown: true
-          }));
-          await this.createOnboardingWindow(
-            shouldShowStudyTrackersStarted ? 'study-trackers-started' : undefined
-          );
-        }
-      }
-    ];
-    const otherMenu: MenuItemConstructorOptions[] = [
-      {
-        label: 'About',
-        click: () => this.createAboutWindow()
-      },
-      {
-        label: 'Get Help',
-        click: (): void => {
-          const mailToAddress = studyConfig.contactEmail;
-          shell.openExternal(`mailto:${mailToAddress}`);
-        }
-      },
-      {
-        label: 'Report a Problem',
-        click: (): void => {
-          const mailToAddress = studyConfig.contactEmail;
-          shell.openExternal(`mailto:${mailToAddress}`);
-        }
-      },
       { type: 'separator' },
       {
-        label: 'Open Logs', // todo: move to settings
-        click: (): void => {
-          LOG.info(`Opening logs at ${app.getPath('logs')}`);
-          shell.openPath(`${app.getPath('logs')}`);
-        }
+        label: `Subject ID: ${settings.subjectId}`,
+        enabled: false,
       },
       {
-        label: 'Open Collected Data', // todo: move to settings
-        click: (): void => {
-          LOG.info(`Opening collected data at ${app.getPath('userData')}`);
-          shell.showItemInFolder(path.join(app.getPath('userData'), 'database.sqlite'));
-        }
+        label: 'Copy Subject Id',
+        click: () => clipboard.writeText(settings.subjectId)
+      },
+      {
+        label: `Days participated: ${settings.daysParticipated}`,
+        enabled: false,
+        visible: studyConfig.displayDaysParticipated
       },
       { type: 'separator' },
       {
@@ -375,21 +384,58 @@ export class WindowService {
         click: () => this.createExperienceSamplingWindow(true)
       },
       {
-        label: 'Export Study Data',
-        enabled: studyConfig.dataExportEnabled,
-        click: (): void => {
-          LOG.info(`Opening data export`);
-          this.createDataExportWindow();
+        label: 'Open Task Planning',
+        visible: !!studyConfig.trackers.taskTracker?.enabled,
+        click: async () => {
+          const { createPlanningViewWindow } = await import('@external/main/services/WindowService')
+          createPlanningViewWindow(true)
         }
       },
+      {
+        label: 'Open Settings',
+        click: () => this.createSettingsWindow()
+      },
+      {
+        label: 'Open Onboarding',
+        click: () => this.createOnboardingWindow(),
+        visible: is.dev
+      },
+      { type: 'separator' },
+      {
+        label: 'Get Help',
+        click: (): void => {
+          const mailToAddress = studyConfig.contactEmail
+          shell.openExternal(`mailto:${mailToAddress}`)
+        }
+      },
+      {
+        label: 'Report a Problem',
+        click: (): void => {
+          const mailToAddress = studyConfig.contactEmail
+          shell.openExternal(`mailto:${mailToAddress}`)
+        }
+      },
+      { type: 'separator' },
+      ...(studyConfig.dataExportEnabled
+        ? [
+          {
+            label: 'Export Study Data',
+            click: (): void => {
+              LOG.info(`Opening data export`)
+              this.createDataExportWindow()
+            }
+          }
+        ]
+        : []),
       { type: 'separator' },
       {
         label: 'Quit',
         click: () => {
-          app.quit();
+          app.quit()
         }
       }
-    ];
-    return [...versionAndUpdate, ...windowMenu, ...otherMenu];
+    ]
+
+    return trayMenuItems
   }
 }

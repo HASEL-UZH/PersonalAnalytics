@@ -4,6 +4,8 @@ import { Tracker } from './Tracker';
 import getMainLogger from '../../../config/Logger';
 import { Settings } from '../../entities/Settings';
 import { powerMonitor } from 'electron';
+import { WorkScheduleService } from '../WorkScheduleService'
+import studyConfig from '../../../../shared/study.config'
 
 const LOG = getMainLogger('ExperienceSamplingTracker');
 
@@ -11,14 +13,16 @@ export class ExperienceSamplingTracker implements Tracker {
   private checkIfExperienceSamplingIsDueJob: schedule.Job;
   private forcedExperienceSamplingJob: schedule.Job;
   private readonly windowService: WindowService;
+  private readonly workScheduleService: WorkScheduleService;
   private readonly intervalInMs: number;
   private readonly samplingRandomization: number;
 
   public readonly name: string = 'ExperienceSamplingTracker';
   public isRunning: boolean = false;
 
-  constructor(windowService: WindowService, intervalInMs: number, samplingRandomization: number) {
+  constructor(windowService: WindowService, workScheduleService: WorkScheduleService, intervalInMs: number, samplingRandomization: number) {
     this.windowService = windowService;
+    this.workScheduleService = workScheduleService;
     this.intervalInMs = intervalInMs;
     this.samplingRandomization = samplingRandomization;
   }
@@ -51,6 +55,15 @@ export class ExperienceSamplingTracker implements Tracker {
   private async startExperienceSamplingJob(): Promise<void> {
     this.checkIfExperienceSamplingIsDueJob = schedule.scheduleJob('* * * * *', async () => {
       const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
+      
+      const userConsiderWorkHours = settings.enabledWorkHours;
+      const inWorkHours = this.workScheduleService.currentlyWithinWorkHours();
+      const considerWorkHours = studyConfig.trackers.experienceSamplingTracker.enabledWorkHours;
+      if (userConsiderWorkHours && considerWorkHours && !inWorkHours) {
+        LOG.info('Currently outside of work hours, not starting experience sampling job');
+        return;
+      }
+
       if (settings.nextExperienceSamplingInvocation <= new Date()) {
         LOG.info('Experience sampling is due, starting job');
         await this.handleExperienceSamplingJob(new Date());

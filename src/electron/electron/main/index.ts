@@ -20,6 +20,7 @@ import { is } from './services/utils/helpers';
 import { Settings } from './entities/Settings';
 import { UsageDataService } from './services/UsageDataService';
 import { UsageDataEventType } from '../enums/UsageDataEventType.enum';
+import { WorkScheduleService } from './services/WorkScheduleService'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -32,11 +33,12 @@ process.env.VITE_PUBLIC = process.env.VITE_DEV_SERVER_URL
 
 const databaseService: DatabaseService = new DatabaseService();
 const settingsService: SettingsService = new SettingsService();
+const workScheduleService: WorkScheduleService = new WorkScheduleService();
 const appUpdaterService: AppUpdaterService = new AppUpdaterService();
 const windowService: WindowService = new WindowService(appUpdaterService);
 const experienceSamplingService: ExperienceSamplingService = new ExperienceSamplingService();
-const trackers: TrackerService = new TrackerService(studyConfig.trackers, windowService);
-const ipcHandler: IpcHandler = new IpcHandler(windowService, trackers, experienceSamplingService);
+const trackers: TrackerService = new TrackerService(studyConfig.trackers, windowService, workScheduleService);
+const ipcHandler: IpcHandler = new IpcHandler(windowService, trackers, experienceSamplingService, workScheduleService);
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) {
@@ -49,6 +51,7 @@ if (process.platform === 'win32') {
 }
 
 if (!app.requestSingleInstanceLock()) {
+  console.log('Another instance of the app is already running');
   app.quit();
   process.exit(0);
 }
@@ -75,9 +78,10 @@ app.whenReady().then(async () => {
 
   try {
     await databaseService.init();
+    await workScheduleService.init();
     await settingsService.init();
     await windowService.init();
-    ipcHandler.init();
+    await ipcHandler.init();
 
     const currentTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const currentLocale = app.getLocale();
@@ -114,6 +118,10 @@ app.whenReady().then(async () => {
     }
     if (studyConfig.trackers.experienceSamplingTracker.enabled) {
       await trackers.registerTrackerCallback(TrackerType.ExperienceSamplingTracker);
+    }
+
+    if (studyConfig.displayDaysParticipated) {
+      await trackers.registerTrackerCallback(TrackerType.DaysParticipatedTracker);
     }
 
     const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });

@@ -10,8 +10,13 @@ export interface WindowActivityTrackerConfiguration {
   trackWindowTitles: boolean;
 }
 
+export interface TaskTrackerConfiguration {
+  enabled: boolean;
+}
+
 export interface ExperienceSamplingTrackerConfiguration {
   enabled: boolean;
+  enabledWorkHours: boolean;
   scale: number;
   questions: string[];
   responseOptions: string[][];
@@ -28,6 +33,7 @@ export interface TrackerConfiguration {
   windowActivityTracker: WindowActivityTrackerConfiguration;
   userInputTracker: UserInputTrackerConfiguration;
   experienceSamplingTracker: ExperienceSamplingTrackerConfiguration;
+  taskTracker?: TaskTrackerConfiguration;
 }
 
 export interface StudyConfiguration {
@@ -42,4 +48,5 @@ export interface StudyConfiguration {
   dataExportEnabled: boolean;
   dataExportEncrypted: boolean;
   trackers: TrackerConfiguration;
+  displayDaysParticipated: boolean;
 }

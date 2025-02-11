@@ -13,6 +13,7 @@ const studyConfig: StudyConfiguration = {
   subjectIdLength: 6,
   dataExportEnabled: true,
   dataExportEncrypted: false,
+  displayDaysParticipated: true,
   trackers: {
     windowActivityTracker: {
       enabled: true,
@@ -26,6 +27,7 @@ const studyConfig: StudyConfiguration = {
     },
     experienceSamplingTracker: {
       enabled: true,
+      enabledWorkHours: true,
       scale: 7,
       questions: [
         'Compared to your normal level of productivity, how productive do you consider the previous session?',
