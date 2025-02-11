@@ -18,8 +18,8 @@ To use GitHub Actions to build and create PersonalAnalytics releases, you need t
 
 - `GH_TOKEN`: a GitHub token with the `repo` scope
 - Windows Code Signing secrets ([see below](
-https://github.com/HASEL-UZH/PersonalAnalytics/edit/dev/documentation/RESEARCH.md#windows-secrets-add-to-github-secrets))
-- macOS Code Signing secrets ([see below](https://github.com/HASEL-UZH/PersonalAnalytics/edit/dev/documentation/RESEARCH.md#macos-secrets-add-to-github-secrets))
+https://github.com/HASEL-UZH/PersonalAnalytics/blob/dev/documentation/RESEARCH.md#windows-secrets-add-to-github-secrets))
+- macOS Code Signing secrets ([see below](https://github.com/HASEL-UZH/PersonalAnalytics/blob/dev/documentation/RESEARCH.md#code-signing-for-macos))
 
 ### Required Changes in `electron-builder.config.cjs`
 These changes are required to automatically publish the built artifacts to GitHub releases. You need to replace the `owner` and `repo` with your GitHub username and repository name.
