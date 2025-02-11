@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import studyConfig from '../../shared/study.config';
+import studyConfig from '../../shared/study.config'
 
 const considerWorkHours = studyConfig.trackers.experienceSamplingTracker.enabledWorkHours;
 
@@ -32,6 +32,7 @@ const considerWorkHours = studyConfig.trackers.experienceSamplingTracker.enabled
 .sidenav {
   width: 200px;
   padding: 20px;
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .sidenav ul {
@@ -46,10 +47,15 @@ const considerWorkHours = studyConfig.trackers.experienceSamplingTracker.enabled
 .sidenav a {
   text-decoration: none;
   cursor: pointer;
+  border-radius: 12px;
+  padding: 7px 20px;
+  width: 100%;
+  display: block;
 }
 
+.sidenav a:hover,
 .sidenav a.router-link-active {
-  font-weight: bold;
+  background-color: #007acc84;
 }
 
 .content {

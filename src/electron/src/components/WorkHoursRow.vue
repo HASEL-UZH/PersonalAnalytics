@@ -70,7 +70,7 @@ const onSelectEndChange = async () => {
 </script>
 
 <template>
-  <div class="z-10 mt-10 mb-10 flex items-center">
+  <div class="z-10 mt-10 mb-10 flex items-center fix-height">
     <div class="outer-switch-container">
       <Switch :modelValue="isEnabled" :label="capitalizeFirstLetter(props.day)" :on-change="onChangeWorkdayIsEnabled" />
     </div>
@@ -100,7 +100,7 @@ const onSelectEndChange = async () => {
     </div>
 
     <div v-else class="not-working">
-      <span>Not working</span>
+      <span>Not active on this device</span>
     </div>
   </div>
 </template>
@@ -109,6 +109,10 @@ const onSelectEndChange = async () => {
 <style scoped>
 .time-selectors select {
   margin-right: 1rem;
+}
+
+.fix-height {
+  height: 18px;
 }
 
 .not-working {

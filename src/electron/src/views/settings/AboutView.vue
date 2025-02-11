@@ -23,7 +23,7 @@ onMounted(async () => {
     <div v-if="!studyInfo" class="flex h-full w-full items-center justify-center">
       <span class="loading loading-spinner loading-lg" />
     </div>
-    <div v-else class="ml-6 mt-4">
+    <div v-else class="mt-4">
       <article class="prose prose-lg mt-4">
         <h1 class="relative">
           <span class="primary-blue">{{ studyInfo.studyName }}</span>

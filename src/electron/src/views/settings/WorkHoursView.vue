@@ -62,7 +62,10 @@ const onChangeWorkHoursIsEnabled = async (e: Event) => {
         <span class="primary-blue">Active Times</span>
       </h1>
       <span>
-        Define your active times for each day of the week.
+        Define your active times for each day of the week, such as the time you usually work or study.
+      </span>
+      <span v-if="isEnabled">
+        Outside these times, no experience sampling pop-up is shown.
       </span>
     </article>
 
