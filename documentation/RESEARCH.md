@@ -16,7 +16,7 @@ When creating new releases, update the package.json file with the new version nu
 ### Required GitHub Secrets
 To use GitHub Actions to build and create PersonalAnalytics releases, you need to set the following secrets in your repository:
 
-- `GH_TOKEN`: a GitHub token with the `repo` scope (see [Access Tokens]([url](https://github.com/settings/tokens)))
+- `GH_TOKEN`: a GitHub token with the `repo` scope (see [Access Tokens](https://github.com/settings/tokens))
 - Windows Code Signing secrets ([see below](
 https://github.com/HASEL-UZH/PersonalAnalytics/blob/dev/documentation/RESEARCH.md#windows-secrets-add-to-github-secrets))
 - macOS Code Signing secrets ([see below](https://github.com/HASEL-UZH/PersonalAnalytics/blob/dev/documentation/RESEARCH.md#code-signing-for-macos))
