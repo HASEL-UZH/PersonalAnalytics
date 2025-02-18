@@ -8,6 +8,8 @@ import { WindowService } from '../WindowService';
 import studyConfig from '../../../../shared/study.config';
 import { UserInputEntity } from '../../entities/UserInputEntity';
 import { MoreThanOrEqual } from 'typeorm';
+import { WorkScheduleService } from '../WorkScheduleService'
+import { DaysParticipatedTracker } from './DaysParticipatedTracker'
 
 const LOG = getMainLogger('TrackerService');
 
@@ -15,11 +17,13 @@ export class TrackerService {
   private trackers: Tracker[] = [];
   private readonly config: TrackerConfig;
   private readonly windowService: WindowService;
+  private readonly workScheduleService: WorkScheduleService;
   private checkIfUITIsWorkingJob: schedule.Job;
 
-  constructor(trackerConfig: TrackerConfig, windowService: WindowService) {
+  constructor(trackerConfig: TrackerConfig, windowService: WindowService, workScheduleService: WorkScheduleService) {
     this.config = trackerConfig;
     this.windowService = windowService;
+    this.workScheduleService = workScheduleService;
     LOG.debug(`TrackerService.constructor: config=${JSON.stringify(this.config)}`);
   }
 
@@ -65,10 +69,14 @@ export class TrackerService {
     ) {
       const experienceSamplingTracker: ExperienceSamplingTracker = new ExperienceSamplingTracker(
         this.windowService,
+        this.workScheduleService,
         this.config.experienceSamplingTracker.intervalInMs,
         this.config.experienceSamplingTracker.samplingRandomization
       );
       this.trackers.push(experienceSamplingTracker);
+    } else if (trackerType === TrackerType.DaysParticipatedTracker) {
+      const daysParticipatedTracker = new DaysParticipatedTracker();
+      this.trackers.push(daysParticipatedTracker);
     } else {
       throw new Error(`Tracker ${trackerType} not enabled or unsupported!`);
     }
