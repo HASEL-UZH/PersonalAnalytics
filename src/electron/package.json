@@ -63,7 +63,7 @@
   "dependencies": {
     "better-sqlite3": "^9.4.0",
     "better-sqlite3-multiple-ciphers": "^9.4.0",
-    "dompurify": "^3.1.7",
+    "dompurify": "^3.2.4",
     "electron-log": "^5.1.1",
     "electron-updater": "^6.3.0",
     "jsdom": "^25.0.1",
