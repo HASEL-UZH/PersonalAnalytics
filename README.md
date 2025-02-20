@@ -1,5 +1,4 @@
 # PersonalAnalytics - Privacy-protecting, open-source Self-Monitoring Software
-<!--# PersonalAnalytics - Building the Fitbit for Knowledge Workers-->
 
 PersonalAnalytics is a self-monitoring software developed by the [Human Aspects of Software Engineering Lab](https://hasel.dev) of [the University of Zurich](https://www.uzh.ch) to non-intrusively collect computer interaction data and user's self-reports, store it locally on the user's machine, and allow users to voluntarily share a user-defined and potentially obfuscated subset of the data with researchers for scientific purposes.
 
@@ -14,6 +13,8 @@ Anyone may install PersonalAnalytics on their Windows or macOS device to non-int
 Learn more about how to [install and use PersonalAnalytics](./documentation/INSTALLATION.md).
 
 ## 👩‍🔬 Customization & Usage as a Researcher
+[![Build and Publish PersonalAnalytics](https://github.com/HASEL-UZH/PersonalAnalytics/actions/workflows/build.yml/badge.svg)](https://github.com/HASEL-UZH/PersonalAnalytics/actions/workflows/build.yml)
+
 This project was created by and for researchers who want to ask study participants to run PersonalAnalytics on their device to non-intrusively collect **computer interaction data** in a privacy-protected way. As often times, having access to only automatically collected data is often not sufficient, PersonalAnalytics also offers an **experience sampling component**, which allows researchers to ask users to reflect and self-report on one or several questions (e.g. Have I been productive? Am I stressed right now?) at customizable times and using Likert-scales. As all collected data is only stored locally on participants' computers, there is an **export component**, guiding the participant through sharing and potentially obfuscating the captured data, before sharing it with the researchers through their data transfer service of choice. Most settings are configurable in the [study-config]([url](https://github.com/HASEL-UZH/PersonalAnalytics/blob/feature/electron/src/electron/shared/study.config.ts)), everything else can be customized in code.
 
 Learn more about how to use [PersonalAnalytics for your research project](./documentation/RESEARCH.md).
