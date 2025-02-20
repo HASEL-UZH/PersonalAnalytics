@@ -1,6 +1,16 @@
 # PersonalAnalytics - Privacy-protecting, open-source Self-Monitoring Software
 <!--# PersonalAnalytics - Building the Fitbit for Knowledge Workers-->
 
+---
+
+## 🚨🚨🚨 THIS FORK TRACKS CONNECTORS TO AIRBAR
+1. Do not edit this fork unless you work at the intersection of Airbar and PersonalAnalytics, use the [upstream repository](https://github.com/HASEL-UZH/PersonalAnalytics) instead.
+2. Maintainers of this fork should sync changes of the upstream repository regularly.
+3. Any deviations from the upstream repository are marked with: `***AIRBAR` in the code.
+4. Exceptions to this rule are added npm packages `@rollup/plugin-alias` and `fs-extra`, as well as changes to `tsconfig.node.json` (the parts regarding `external/dyn`).
+
+---
+
 PersonalAnalytics is a self-monitoring software developed by the [Human Aspects of Software Engineering Lab](https://hasel.dev) of [the University of Zurich](https://www.uzh.ch) to non-intrusively collect computer interaction data and user's self-reports, store it locally on the user's machine, and allow users to voluntarily share a user-defined and potentially obfuscated subset of the data with researchers for scientific purposes.
 
 The monitoring component captures computer interaction data including user input and app & website usage data. Every now and then, a self-reflection question asks the user a question, e.g. about the current stress level or perceived productivity. Since all data is stored locally only (and _not_ automatically uploaded to a server to avoid privacy concerns), a data export component helps the user to decide which data to share and allows it to be obfuscated, before securely sharing it with researchers. In the future, it will add a [retrospection]([url](https://www.andre-meyer.ch/CSCW18)) that will visualize and correlate the automatically collected and manually reported data to help users learn more about how they spend their time, their work habits and how it impacts productivity and time well spent. This software is open source, can be adapted and re-used for researchers' own scientific studies.

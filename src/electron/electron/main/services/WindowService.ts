@@ -383,6 +383,16 @@ export class WindowService {
         label: 'Open Experience Sampling',
         click: () => this.createExperienceSamplingWindow(true)
       },
+      // ***AIRBAR - START
+      {
+        label: 'Open Task Planning',
+        visible: !!studyConfig.trackers.taskTracker?.enabled,
+        click: async () => {
+          const { createPlanningViewWindow } = await import('@external/main/services/WindowService')
+          createPlanningViewWindow(true)
+        }
+      },
+      // ***AIRBAR - END
       {
         label: 'Open Settings',
         click: () => this.createSettingsWindow()

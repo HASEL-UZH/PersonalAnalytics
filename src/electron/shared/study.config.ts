@@ -1,4 +1,4 @@
-import { StudyConfiguration } from './StudyConfiguration';
+import { StudyConfiguration } from './StudyConfiguration'
 
 const studyConfig: StudyConfiguration = {
   name: 'PersonalAnalytics Study',
@@ -15,6 +15,11 @@ const studyConfig: StudyConfiguration = {
   dataExportEncrypted: false,
   displayDaysParticipated: true,
   trackers: {
+    // ***AIRBAR - START
+    taskTracker: {
+      enabled: true
+    },
+    // ***AIRBAR - END
     windowActivityTracker: {
       enabled: true,
       intervalInMs: 1000,
@@ -43,5 +48,5 @@ const studyConfig: StudyConfiguration = {
       samplingRandomization: 0.1
     }
   }
-};
-export default studyConfig;
+}
+export default studyConfig

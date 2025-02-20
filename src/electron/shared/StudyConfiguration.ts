@@ -10,9 +10,11 @@ export interface WindowActivityTrackerConfiguration {
   trackWindowTitles: boolean;
 }
 
+// ***AIRBAR - START
 export interface TaskTrackerConfiguration {
   enabled: boolean;
 }
+// ***AIRBAR - END
 
 export interface ExperienceSamplingTrackerConfiguration {
   enabled: boolean;
@@ -33,7 +35,7 @@ export interface TrackerConfiguration {
   windowActivityTracker: WindowActivityTrackerConfiguration;
   userInputTracker: UserInputTrackerConfiguration;
   experienceSamplingTracker: ExperienceSamplingTrackerConfiguration;
-  taskTracker?: TaskTrackerConfiguration;
+  taskTracker: TaskTrackerConfiguration; // ***AIRBAR 
 }
 
 export interface StudyConfiguration {

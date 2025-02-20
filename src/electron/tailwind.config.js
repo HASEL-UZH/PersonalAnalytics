@@ -2,7 +2,7 @@
 import colors from 'tailwindcss/colors';
 
 module.exports = {
-  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
+  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}', './external/dyn/**/*.{vue,js,ts,jsx,tsx}'], // ***AIRBAR - added "./external/dyn/..." part
   plugins: [require('@tailwindcss/typography'), require('daisyui')],
   theme: {
     extend: {

@@ -8,6 +8,7 @@ import { ExperienceSamplingResponseEntity } from '../entities/ExperienceSampling
 import { UserInputEntity } from '../entities/UserInputEntity';
 import { Settings } from '../entities/Settings';
 import { UsageDataEntity } from '../entities/UsageDataEntity';
+import config from '../../../shared/study.config'; // ***AIRBAR
 import { WorkDayEntity } from '../entities/WorkDayEntity'
 
 const LOG = getMainLogger('DatabaseService');
@@ -35,6 +36,15 @@ export class DatabaseService {
       WindowActivityEntity,
       WorkDayEntity
     ]
+
+    // ***AIRBAR - START
+    if (config.trackers.taskTracker?.enabled) {
+      const { PersonalTaskEntity } = await import('@external/main/entities/PersonalTaskEntity');
+      const { TaskActivityEntity } = await import('@external/main/entities/TaskActivityEntity');
+      entities.push(PersonalTaskEntity);
+      entities.push(TaskActivityEntity);
+    } 
+    // ***AIRBAR - END
     
     let options: DataSourceOptions = {
       type: 'better-sqlite3',

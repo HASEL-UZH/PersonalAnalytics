@@ -8,6 +8,18 @@ const router: Router = createRouter({
       name: 'ExperienceSampling',
       component: () => import('../views/ExperienceSamplingView.vue')
     },
+    // ***AIRBAR - START
+    {
+      path: '/planning',
+      name: 'Planning',
+      component: () => import('@externalVue/renderer/views/PlanningView.vue')
+    },
+    {
+      path: '/taskbar-view',
+      name: 'Taskbar View',
+      component: () => import('@externalVue/renderer/views/TaskBarView.vue')
+    },
+    // ***AIRBAR - END
     {
       path: '/onboarding',
       name: 'Onboarding',

@@ -6,7 +6,10 @@
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@external/*": ["external/dyn/*"]
+    }
   },
-  "include": ["vite.config.ts", "package.json", "electron"]
+  "include": ["vite.config.ts", "package.json", "electron", "external/dyn/**/*"]
 }

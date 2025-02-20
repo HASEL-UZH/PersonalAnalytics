@@ -1,5 +1,34 @@
 import { ipcRenderer, contextBridge } from 'electron';
 
+// ***AIRBAR - START
+const api: Api = {
+  onLoadTaskbarTasks: (callback) => {
+    ipcRenderer.on('loadTaskbarTasks', callback);
+  },
+  onRemindToTrackTime: (callback) =>
+    ipcRenderer.on('remindToTrackTime', (_event, reason) => callback(reason)),
+  onTaskWidgetWindowFocused: (callback) => ipcRenderer.on('taskWidgetWindowFocused', callback),
+  isMacOS: (): boolean => process.platform === 'darwin'
+};
+
+interface Api {
+  onLoadTaskbarTasks: (cb) => void;
+  onRemindToTrackTime: (cb) => void;
+  onTaskWidgetWindowFocused: (cb) => void;
+  isMacOS: () => boolean;
+}
+
+declare global {
+  interface Window {
+    ipcRenderer: Record<string, any>;
+    api: Api;
+  }
+}
+
+contextBridge.exposeInMainWorld('api', withPrototype(api));
+window.api = api;
+// ***AIRBAR - END
+
 contextBridge.exposeInMainWorld('ipcRenderer', withPrototype(ipcRenderer));
 window.ipcRenderer = ipcRenderer;
 
