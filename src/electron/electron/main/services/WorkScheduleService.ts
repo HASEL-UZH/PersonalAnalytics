@@ -21,13 +21,7 @@ export class WorkScheduleService {
 
   private schedulingService: any;
 
-  async init() {
-    if (studyConfig.trackers.taskTracker?.enabled) {
-      const { SchedulingService } = await import('@external/main/services/SchedulingService'); 
-      const schedule = await this.getWorkSchedule()
-      this.schedulingService = new SchedulingService(schedule);
-    }
-  }
+  async init() { }
   
   public async setWorkSchedule(schedule: WorkHoursDto): Promise<void> {
     // clear existing work schedule

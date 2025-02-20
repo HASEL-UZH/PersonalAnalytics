@@ -384,14 +384,6 @@ export class WindowService {
         click: () => this.createExperienceSamplingWindow(true)
       },
       {
-        label: 'Open Task Planning',
-        visible: !!studyConfig.trackers.taskTracker?.enabled,
-        click: async () => {
-          const { createPlanningViewWindow } = await import('@external/main/services/WindowService')
-          createPlanningViewWindow(true)
-        }
-      },
-      {
         label: 'Open Settings',
         click: () => this.createSettingsWindow()
       },

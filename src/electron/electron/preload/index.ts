@@ -1,37 +1,7 @@
-// OTODO: how to deal with this??? - 2024-11-25
-// import { ElectronAPI } from '@electron-toolkit/preload';
 import { ipcRenderer, contextBridge } from 'electron';
-
-// Custom APIs for renderer
-const api: Api = {
-  onLoadTaskbarTasks: (callback) => {
-    ipcRenderer.on('loadTaskbarTasks', callback);
-  },
-  onRemindToTrackTime: (callback) =>
-    ipcRenderer.on('remindToTrackTime', (_event, reason) => callback(reason)),
-  onTaskWidgetWindowFocused: (callback) => ipcRenderer.on('taskWidgetWindowFocused', callback),
-  isMacOS: (): boolean => process.platform === 'darwin'
-};
-
-interface Api {
-  onLoadTaskbarTasks: (cb) => void;
-  onRemindToTrackTime: (cb) => void;
-  onTaskWidgetWindowFocused: (cb) => void;
-  isMacOS: () => boolean;
-}
-
-declare global {
-  interface Window {
-    ipcRenderer: Record<string, any>;
-    api: Api;
-  }
-}
 
 contextBridge.exposeInMainWorld('ipcRenderer', withPrototype(ipcRenderer));
 window.ipcRenderer = ipcRenderer;
-
-contextBridge.exposeInMainWorld('api', withPrototype(api));
-window.api = api;
 
 // `exposeInMainWorld` can't detect attributes and methods of `prototype`, manually patching it.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
