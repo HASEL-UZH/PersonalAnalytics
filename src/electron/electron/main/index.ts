@@ -203,7 +203,7 @@ app.whenReady().then(async () => {
   if (!is.dev && !isAutoLaunch) {
     LOG.info(`Manually opened app, showing onboarding window...`);
     const shouldShowStudyTrackersStarted = !!(await Settings.findOneBy({
-      studyAndTrackersStartedShown: false,
+      studyAndTrackersStartedShown: true,
       onboardingShown: true
     }));
     await windowService.createOnboardingWindow(
