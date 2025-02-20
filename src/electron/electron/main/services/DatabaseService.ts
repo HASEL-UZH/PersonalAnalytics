@@ -8,39 +8,44 @@ import { ExperienceSamplingResponseEntity } from '../entities/ExperienceSampling
 import { UserInputEntity } from '../entities/UserInputEntity';
 import { Settings } from '../entities/Settings';
 import { UsageDataEntity } from '../entities/UsageDataEntity';
+import { WorkDayEntity } from '../entities/WorkDayEntity'
 
 const LOG = getMainLogger('DatabaseService');
 
 export class DatabaseService {
   public dataSource: DataSource;
-  private readonly options: DataSourceOptions;
+  private readonly dbPath: string;
 
   constructor() {
     const dbName = 'database.sqlite';
-    let dbPath = dbName;
+    this.dbPath = dbName;
     if (!(is.dev && process.env['VITE_DEV_SERVER_URL'])) {
       const userDataPath = app.getPath('userData');
-      dbPath = path.join(userDataPath, dbName);
+      this.dbPath = path.join(userDataPath, dbName);
     }
-    LOG.info('Using database path:', dbPath);
-    this.options = {
+    LOG.info('Using database path:', this.dbPath);
+  }
+  
+  public async init(): Promise<void> {
+    let entities: any = [
+      ExperienceSamplingResponseEntity,
+      Settings,
+      UsageDataEntity,
+      UserInputEntity,
+      WindowActivityEntity,
+      WorkDayEntity
+    ]
+    
+    let options: DataSourceOptions = {
       type: 'better-sqlite3',
-      database: dbPath,
+      database: this.dbPath,
       synchronize: true,
       logging: false,
-      entities: [
-        ExperienceSamplingResponseEntity,
-        Settings,
-        UsageDataEntity,
-        UserInputEntity,
-        WindowActivityEntity
-      ]
+      entities: entities,
     };
+    
+    this.dataSource = new DataSource(options);
 
-    this.dataSource = new DataSource(this.options);
-  }
-
-  public async init(): Promise<void> {
     try {
       await this.dataSource.initialize();
       LOG.info('Database connection established');

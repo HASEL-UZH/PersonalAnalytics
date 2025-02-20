@@ -19,11 +19,14 @@ import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
 import { is } from '../main/services/utils/helpers';
 import { JSDOM } from 'jsdom';
 import DOMPurify from 'dompurify';
+import { WorkScheduleService } from 'electron/main/services/WorkScheduleService'
+import { WorkHoursDto } from 'shared/dto/WorkHoursDto'
+import path from 'path';
 
 const LOG = getMainLogger('IpcHandler');
 
 export class IpcHandler {
-  private readonly actions: any;
+  private actions: any;
   private readonly windowService: WindowService;
   private readonly trackerService: TrackerService;
 
@@ -31,12 +34,14 @@ export class IpcHandler {
   private readonly windowActivityService: WindowActivityTrackerService;
   private readonly userInputService: UserInputTrackerService;
   private readonly dataExportService: DataExportService;
+  private readonly workScheduleService: WorkScheduleService;
   private typedIpcMain: TypedIpcMain<Events, Commands> = ipcMain as TypedIpcMain<Events, Commands>;
 
   constructor(
     windowService: WindowService,
     trackerService: TrackerService,
-    experienceSamplingService: ExperienceSamplingService
+    experienceSamplingService: ExperienceSamplingService,
+    workScheduleService: WorkScheduleService
   ) {
     this.windowService = windowService;
     this.trackerService = trackerService;
@@ -44,7 +49,17 @@ export class IpcHandler {
     this.windowActivityService = new WindowActivityTrackerService();
     this.userInputService = new UserInputTrackerService();
     this.dataExportService = new DataExportService();
+    this.workScheduleService = workScheduleService;
+  }
+
+  public async init(): Promise<void> {
     this.actions = {
+      openLogs: this.openLogs,
+      openCollectedData: this.openCollected,
+      getWorkHours: this.getWorkHours,
+      setWorkHours: this.setWorkHours,
+      setWorkHoursEnabled: this.setWorkHoursEnabled,
+      getWorkHoursEnabled: this.getWorkHoursEnabled,
       createExperienceSample: this.createExperienceSample,
       closeExperienceSamplingWindow: this.closeExperienceSamplingWindow,
       closeOnboardingWindow: this.closeOnboardingWindow,
@@ -56,14 +71,12 @@ export class IpcHandler {
       obfuscateWindowActivityDtosById: this.obfuscateWindowActivityDtosById,
       startDataExport: this.startDataExport,
       revealItemInFolder: this.revealItemInFolder,
+      openUploadUrl: this.openUploadUrl,
       startAllTrackers: this.startAllTrackers,
       triggerPermissionCheckAccessibility: this.triggerPermissionCheckAccessibility,
       triggerPermissionCheckScreenRecording: this.triggerPermissionCheckScreenRecording
     };
-    LOG.debug('IpcHandler constructor called');
-  }
 
-  public init(): void {
     Object.keys(this.actions).forEach((action: string): void => {
       LOG.info(`ipcMain.handle setup: ${action}`);
       ipcMain.handle(action, async (_event: IpcMainInvokeEvent, ...args): Promise<any> => {
@@ -95,6 +108,16 @@ export class IpcHandler {
     );
   }
 
+  private openLogs() {
+    LOG.info(`Opening logs at ${app.getPath('logs')}`);
+    shell.openPath(`${app.getPath('logs')}`);
+  }
+
+  private openCollected() {
+    LOG.info(`Opening collected data at ${app.getPath('userData')}`);
+    shell.showItemInFolder(path.join(app.getPath('userData'), 'database.sqlite'));
+  }
+
   private closeExperienceSamplingWindow(skippedExperienceSampling: boolean): void {
     this.windowService.closeExperienceSamplingWindow(skippedExperienceSampling);
   }
@@ -105,6 +128,25 @@ export class IpcHandler {
 
   private closeDataExportWindow(): void {
     this.windowService.closeDataExportWindow();
+  }
+  
+  private async getWorkHours(): Promise<WorkHoursDto> {
+    return this.workScheduleService.getWorkSchedule();
+  }
+
+  private async setWorkHours(schedule: WorkHoursDto): Promise<void> {
+    await this.workScheduleService.setWorkSchedule(schedule);
+  }
+
+  private async setWorkHoursEnabled(enabled: boolean): Promise<void> {
+    const settings: Settings = await Settings.findOne({ where: { onlyOneEntityShouldExist: 1 } });
+    settings.enabledWorkHours = enabled;
+    await settings.save();
+  }
+
+  private async getWorkHoursEnabled(): Promise<boolean> {
+    const settings: Settings = await Settings.findOne({ where: { onlyOneEntityShouldExist: 1 } });
+    return settings.enabledWorkHours;
   }
 
   private async getStudyInfo(): Promise<StudyInfoDto> {
@@ -164,7 +206,11 @@ export class IpcHandler {
   }
 
   private async revealItemInFolder(path: string): Promise<void> {
-    shell.showItemInFolder(path);
+    this.windowService.showItemInFolder(path);
+  }
+  
+  private async openUploadUrl(): Promise<void> {
+    this.windowService.openExternal();
   }
 
   private triggerPermissionCheckAccessibility(prompt: boolean): boolean {
