@@ -1,19 +1,19 @@
-import fs from 'node:fs'
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import electron from 'vite-plugin-electron/simple'
-import pkg from './package.json'
+import fs from 'node:fs';
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import electron from 'vite-plugin-electron/simple';
+import pkg from './package.json';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {
-  fs.rmSync('dist-electron', { recursive: true, force: true })
-
-  const isServe = command === 'serve'
-  const isBuild = command === 'build'
-  const sourcemap = isServe || !!process.env.VSCODE_DEBUG
+  fs.rmSync('dist-electron', { recursive: true, force: true });
+      
+  const isServe = command === 'serve';
+  const isBuild = command === 'build';
+  const sourcemap = isServe || !!process.env.VSCODE_DEBUG;
 
   return {
-    plugins: [
+    plugins: [   
       vue(),
       electron({
         main: {
@@ -52,5 +52,5 @@ export default defineConfig(({ command }) => {
       })
     ],
     clearScreen: false
-  }
-})
+  };
+});
