@@ -18,5 +18,3 @@ release
 *.njsproj
 *.sln
 *.sw?
-
-external/dyn

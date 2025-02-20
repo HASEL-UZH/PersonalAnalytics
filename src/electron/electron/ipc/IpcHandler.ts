@@ -77,13 +77,6 @@ export class IpcHandler {
       triggerPermissionCheckScreenRecording: this.triggerPermissionCheckScreenRecording
     };
 
-    if (studyConfig.trackers.taskTracker?.enabled) {
-      const { actions } = await import('@external/main/ipc/IpcHandler'); 
-      Object.keys(actions).forEach((action: string) => {
-        this.actions[action] = actions[action];
-      });
-    } 
-
     Object.keys(this.actions).forEach((action: string): void => {
       LOG.info(`ipcMain.handle setup: ${action}`);
       ipcMain.handle(action, async (_event: IpcMainInvokeEvent, ...args): Promise<any> => {
