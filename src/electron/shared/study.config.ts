@@ -10,7 +10,7 @@ const studyConfig: StudyConfiguration = {
   contactName: 'Dr. André Meyer',
   contactEmail: 'study@hasel.dev',
   subjectIdLength: 6,
-  dataExportEnabled: false,
+  dataExportEnabled: true,
   dataExportEncrypted: false,
   displayDaysParticipated: true,
   trackers: {
