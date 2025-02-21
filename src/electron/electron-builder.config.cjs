@@ -9,8 +9,8 @@ module.exports = {
   files: ['dist', 'dist-electron'],
   publish: {
     provider: 'github',
-    owner: 'SWELL-PA-DEV',
-    repo: 'PersonalAnalytics-SWELL'
+    owner: 'HASEL-UZH',
+    repo: 'PersonalAnalytics'
   },
   afterSign: "scripts/notarize.cjs",
   mac: {
