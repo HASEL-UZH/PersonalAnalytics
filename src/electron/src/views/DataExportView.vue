@@ -219,21 +219,21 @@ function revealItemInFolder(event: Event) {
             </h1>
             <article class="prose prose-lg max-w-none">
               <p>
-                Thank you for participating in the {{ studyInfo.studyName }}-study! So far, all data
+                Thank you for participating in the {{ studyConfig.name }}-study! So far, all data
                 that has been collected and stored
                 <b class="dark:text-white">only locally on your machine</b>. In this step, the
                 researchers would like to ask you to share this data for analysis and publication in
                 scientific journals.
               </p>
               <p>
-                Please click "Next" once you are ready to
-                <b class="dark:text-white">first review, and later share your data</b>.
+                Please click <b class="dark:text-white">"Next"</b> once you are ready to
+                <b class="dark:text-white">first review and later share your data</b>.
                 <span v-if="studyConfig.dataExportEncrypted">
                   The export that will be created with your permission in the next step will be
                   encrypted and password-protected. </span
                 >
               </p>
-              <p>
+              <p class="mb-4">
                 Below, you find additional information on the study and how the researchers ensure
                 your data privacy and security.
               </p>
@@ -241,7 +241,7 @@ function revealItemInFolder(event: Event) {
                 <tbody>
                   <tr>
                     <td>Contact:</td>
-                    <td>{{ studyInfo.contactName }} ({{ studyInfo.contactEmail }})</td>
+                    <td>{{ studyInfo.contactName }} (<a :href="'mailto:' + studyInfo.contactEmail" target="_blank">{{ studyInfo.contactEmail }}</a>)</td>
                   </tr>
                   <tr>
                     <td>Study Website:</td>
@@ -260,14 +260,15 @@ function revealItemInFolder(event: Event) {
                   <tr>
                     <td class="w-40 align-top">Study Description:</td>
                     <td>
-                      <div class="collapse bg-base-200">
+                      <!-- <div class="collapse bg-base-200">
                         <input v-model="studyDescriptionExpanded" type="checkbox" />
                         <div class="collapse-title text-sm">
                           Click to {{ studyDescriptionExpanded ? 'collapse' : 'expand' }} Study
                           Description
                         </div>
                         <div class="collapse-content" v-html="studyInfo.shortDescription" />
-                      </div>
+                      </div> -->
+                      <div v-html="studyInfo.shortDescription"></div>
                     </td>
                   </tr>
                 </tbody>

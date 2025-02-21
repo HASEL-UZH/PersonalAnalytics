@@ -143,7 +143,7 @@ function startAllTrackers() {
             />
             <h1
               id="title"
-              class="ml-5 self-center text-3xl font-normal text-neutral-800 dark:text-neutral-300"
+              class="ml-5 self-center text-3xl font-medium text-neutral-800 dark:text-neutral-300"
             >
               Welcome to {{ studyInfo.studyName }}
             </h1>
@@ -151,7 +151,7 @@ function startAllTrackers() {
           <StudyInfo :study-info="studyInfo" />
         </div>
         <div v-else-if="currentNamedStep === 'data-collection'" key="1" class="absolute">
-          <h1 class="mb-8 text-4xl font-medium text-neutral-800 dark:text-neutral-300">
+          <h1 class="mb-8 text-3xl font-medium text-neutral-800 dark:text-neutral-300">
             Grant Permissions
           </h1>
           <div class="text-md">
@@ -258,7 +258,7 @@ function startAllTrackers() {
           </div>
         </div>
         <div v-else-if="currentNamedStep === 'study-trackers-started'" key="2" class="absolute">
-          <h1 class="mb-8 text-4xl font-medium text-neutral-800 dark:text-neutral-300">
+          <h1 class="mb-8 text-3xl font-medium text-neutral-800 dark:text-neutral-300">
             PersonalAnalytics is running
           </h1>
           <article class="prose prose-lg max-w-none">
@@ -281,8 +281,7 @@ function startAllTrackers() {
             </p>
 
             <p>
-              Contact {{ studyInfo.contactName }} ({{ studyInfo.contactEmail }}) in case of
-              questions.
+              Contact {{ studyInfo.contactName }} (<a :href="'mailto:' + studyInfo.contactEmail" target="_blank">{{ studyInfo.contactEmail }}</a>) in case of questions.
             </p>
           </article>
         </div>

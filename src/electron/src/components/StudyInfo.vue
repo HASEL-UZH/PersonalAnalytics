@@ -13,7 +13,7 @@ defineProps({
   <article class="prose prose-lg mt-4">
     <h2>Study Info</h2>
     <div class="-mr-6 max-h-64 overflow-y-auto pr-4">
-      <div class="my-0" v-html="studyInfo.shortDescription" />
+      <div class="my-0 text-base" v-html="studyInfo.shortDescription" />
     </div>
     <table class="table-auto">
       <tbody>
@@ -25,7 +25,7 @@ defineProps({
         </tr>
         <tr>
           <td>Contact:</td>
-          <td>{{ studyInfo.contactName }} ({{ studyInfo.contactEmail }})</td>
+          <td>{{ studyInfo.contactName }} (<a :href="'mailto:' + studyInfo.contactEmail" target="_blank">{{ studyInfo.contactEmail }}</a>)</td>
         </tr>
         <tr>
           <td>Study Website:</td>

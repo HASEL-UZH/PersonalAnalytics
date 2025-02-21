@@ -189,7 +189,7 @@ export class WindowService {
       maximizable: false,
       fullscreenable: false,
       resizable: false,
-      title: 'PersonalAnalytics: About',
+      title: 'PersonalAnalytics: Onboarding',
       webPreferences: {
         preload
       }
@@ -339,7 +339,7 @@ export class WindowService {
 
     this.tray.setContextMenu(Menu.buildFromTemplate(menuTemplate))
     this.tray.on("click", () => { this.tray.popUpContextMenu() })
-    this.tray.setToolTip(`Personal Analytics is running ...\nYou are participating in: ${studyConfig.name}`)
+    this.tray.setToolTip(`Personal Analytics is running...\n\nYou are participating in: ${studyConfig.name}`)
   }
 
   private async createTray(): Promise<void> {
@@ -392,6 +392,14 @@ export class WindowService {
         click: () => this.createOnboardingWindow(),
         visible: is.dev
       },
+      {
+        label: 'Open Study Data Export',
+        click: (): void => {
+          LOG.info(`Opening data export`)
+          this.createDataExportWindow()
+        },
+        visible: studyConfig.dataExportEnabled
+      },
       { type: 'separator' },
       {
         label: 'Get Help',
@@ -407,18 +415,6 @@ export class WindowService {
           shell.openExternal(`mailto:${mailToAddress}`)
         }
       },
-      { type: 'separator' },
-      ...(studyConfig.dataExportEnabled
-        ? [
-          {
-            label: 'Export Study Data',
-            click: (): void => {
-              LOG.info(`Opening data export`)
-              this.createDataExportWindow()
-            }
-          }
-        ]
-        : []),
       { type: 'separator' },
       {
         label: 'Quit',
