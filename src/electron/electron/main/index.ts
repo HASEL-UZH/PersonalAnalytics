@@ -125,7 +125,9 @@ app.whenReady().then(async () => {
     }
 
     const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
+    const isAutoLaunch = app.getLoginItemSettings().wasOpenedAtLogin || process.argv.includes('--hidden');
 
+    // show onboarding window (if never shown or macOS permissions are missing)
     if (
       settings.onboardingShown === false ||
       !macOSHasAccessibilityAndScreenRecordingPermission()
@@ -136,10 +138,13 @@ app.whenReady().then(async () => {
       await windowService.createOnboardingWindow();
       settings.onboardingShown = true;
       await settings.save();
+    
+    // show PA running page when it was not shown before (on macOS) OR if it was manually started
     } else if (
-      is.macOS &&
+      (is.macOS &&
       settings.onboardingShown === true &&
-      settings.studyAndTrackersStartedShown === false
+      settings.studyAndTrackersStartedShown === false) ||
+      (! isAutoLaunch)
     ) {
       await windowService.createOnboardingWindow('study-trackers-started');
       settings.studyAndTrackersStartedShown = true;
@@ -198,18 +203,6 @@ app.whenReady().then(async () => {
     app.exit();
   }
 
-  // show PA is running when it was manually started
-  const isAutoLaunch = app.getLoginItemSettings().wasOpenedAtLogin || process.argv.includes('--hidden');
-  if (!is.dev && !isAutoLaunch) {
-    LOG.info(`Manually opened app, showing onboarding window...`);
-    const shouldShowStudyTrackersStarted = !!(await Settings.findOneBy({
-      studyAndTrackersStartedShown: false,
-      onboardingShown: true
-    }));
-    await windowService.createOnboardingWindow(
-      shouldShowStudyTrackersStarted ? 'study-trackers-started' : undefined
-    );
-  }
 });
 
 let isAppQuitting = false;
