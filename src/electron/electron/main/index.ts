@@ -144,7 +144,7 @@ app.whenReady().then(async () => {
       (is.macOS &&
       settings.onboardingShown === true &&
       settings.studyAndTrackersStartedShown === false) ||
-      isAutoLaunch
+      (! isAutoLaunch)
     ) {
       await windowService.createOnboardingWindow('study-trackers-started');
       settings.studyAndTrackersStartedShown = true;
