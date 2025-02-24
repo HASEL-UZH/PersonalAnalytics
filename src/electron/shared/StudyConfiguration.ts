@@ -10,10 +10,6 @@ export interface WindowActivityTrackerConfiguration {
   trackWindowTitles: boolean;
 }
 
-export interface TaskTrackerConfiguration {
-  enabled: boolean;
-}
-
 export interface ExperienceSamplingTrackerConfiguration {
   enabled: boolean;
   enabledWorkHours: boolean;
@@ -33,7 +29,6 @@ export interface TrackerConfiguration {
   windowActivityTracker: WindowActivityTrackerConfiguration;
   userInputTracker: UserInputTrackerConfiguration;
   experienceSamplingTracker: ExperienceSamplingTrackerConfiguration;
-  taskTracker?: TaskTrackerConfiguration;
 }
 
 export interface StudyConfiguration {
