@@ -70,8 +70,8 @@ export class ExperienceSamplingTracker implements Tracker {
 
   private async handleExperienceSamplingJob(fireDate: Date): Promise<void> {
     LOG.info(`Experience Sampling Job was supposed to fire at ${fireDate}, fired at ${new Date()}`);
-    // check if we can savely fire the experience sampling job
-    // or have to consider work hours based on user settings and time
+    // check if we can safely fire the experience sampling job
+    // or have to consider work hours based on user settings and time/weekday
     const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });  
     const userConsiderWorkHours = settings.enabledWorkHours;
     const inWorkHours = this.workScheduleService.currentlyWithinWorkHours();
@@ -82,7 +82,7 @@ export class ExperienceSamplingTracker implements Tracker {
       // within work hours; start experience sampling
       await this.windowService.createExperienceSamplingWindow();
     }
-    // keep schedule for next experience sampling job
+    // keep schedule for next experience sampling job no matter what..
     await this.scheduleNextJob();
   }
 
