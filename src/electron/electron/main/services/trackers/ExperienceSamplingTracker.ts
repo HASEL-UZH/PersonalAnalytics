@@ -55,15 +55,6 @@ export class ExperienceSamplingTracker implements Tracker {
   private async startExperienceSamplingJob(): Promise<void> {
     this.checkIfExperienceSamplingIsDueJob = schedule.scheduleJob('* * * * *', async () => {
       const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
-      
-      const userConsiderWorkHours = settings.enabledWorkHours;
-      const inWorkHours = this.workScheduleService.currentlyWithinWorkHours();
-      const considerWorkHours = studyConfig.trackers.experienceSamplingTracker.enabledWorkHours;
-      if (userConsiderWorkHours && considerWorkHours && !inWorkHours) {
-        LOG.info('Currently outside of work hours, not starting experience sampling job');
-        return;
-      }
-
       if (settings.nextExperienceSamplingInvocation <= new Date()) {
         LOG.info('Experience sampling is due, starting job');
         await this.handleExperienceSamplingJob(new Date());
@@ -79,7 +70,19 @@ export class ExperienceSamplingTracker implements Tracker {
 
   private async handleExperienceSamplingJob(fireDate: Date): Promise<void> {
     LOG.info(`Experience Sampling Job was supposed to fire at ${fireDate}, fired at ${new Date()}`);
-    await this.windowService.createExperienceSamplingWindow();
+    // check if we can safely fire the experience sampling job
+    // or have to consider work hours based on user settings and time/weekday
+    const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });  
+    const userConsiderWorkHours = settings.enabledWorkHours;
+    const inWorkHours = this.workScheduleService.currentlyWithinWorkHours();
+    const considerWorkHours = studyConfig.trackers.experienceSamplingTracker.enabledWorkHours;
+    if (userConsiderWorkHours && considerWorkHours && !inWorkHours) {
+        LOG.info('Currently outside of work hours, abort firing');
+    } {
+      // within work hours; start experience sampling
+      await this.windowService.createExperienceSamplingWindow();
+    }
+    // keep schedule for next experience sampling job no matter what..
     await this.scheduleNextJob();
   }
 
