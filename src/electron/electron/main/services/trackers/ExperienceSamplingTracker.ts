@@ -78,7 +78,7 @@ export class ExperienceSamplingTracker implements Tracker {
     const considerWorkHours = studyConfig.trackers.experienceSamplingTracker.enabledWorkHours;
     if (userConsiderWorkHours && considerWorkHours && !inWorkHours) {
         LOG.info('Currently outside of work hours, abort firing');
-    } {
+    } else {
       // within work hours; start experience sampling
       await this.windowService.createExperienceSamplingWindow();
     }

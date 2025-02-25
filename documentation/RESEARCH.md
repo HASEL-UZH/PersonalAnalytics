@@ -83,12 +83,17 @@ Anyone is welcome to contribute to PersonalAnalytics, for example by fixing bugs
 2. Create a new branch for your changes.
 3. Make your changes and commit them to your branch.
 4. Push your branch to your fork.
-5. Create a pull request from your branch to the `main` branch of the main repository.
-6. Wait for the maintainers to review your pull request.
-7. If your pull request is approved, it will be merged into the main repository.
-8. If your pull request is not approved, you can make further changes and push them to your branch. The pull request will be updated automatically.
+5. Merge changes from upstream `dev` into your branch
+6. Create a pull request (PR) from your branch to the `dev` branch of the upstream repository and resolve potential conflicts.
+7. Wait for the maintainers to review your PR.
+8. If your PR is approved, it will be merged into the main repository.
+9. If your PR is not approved, you can make further changes and push them to your branch. The PR will be updated automatically.
 
 If you have any questions, please contact Dr. André Meyer (ameyer@ifi.uzh.ch).
+
+**For Maintainers Only**
+- To approve a PR that introduces a new feature, use the `Squash and merge` option. This consolidates the multiple commits from the feature branch into a single, clean commit on the `dev` branch. After merging, if the feature branch is on the main repository, delete it to avoid any future confusion or disruption to the commit history.
+- When the new feature is ready for deployment, create a PR from `dev` to `main` and perform a regular `merge commit`.
 
 ### Install the dependencies
 Start with cloning the repository:
