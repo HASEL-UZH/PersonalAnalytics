@@ -42,15 +42,15 @@ export class WorkScheduleService {
   }
 
   public async currentlyWithinWorkHours(): Promise<boolean> {
-    const schedule =await this.getWorkSchedule()
+    const schedule = await this.getWorkSchedule()
     const now = new Date();
-    const day = weekDays[(now.getDay() -1) % 7];
+    const day = weekDays[(now.getDay() - 1) % 7];
     const workday = schedule[day];
     const start = new Date();
     start.setHours(parseInt(workday.startTime.split(":")[0]), parseInt(workday.startTime.split(":")[1]), 0);
     const end = new Date();
     end.setHours(parseInt(workday.endTime.split(":")[0]), parseInt(workday.endTime.split(":")[1]), 0);
-    return now >= start && now <= end;  
+    return now >= start && now <= end && workday.isWorking;
   }
 
   public async getWorkSchedule(): Promise<WorkHoursDto> {

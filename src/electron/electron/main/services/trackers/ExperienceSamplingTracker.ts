@@ -74,7 +74,7 @@ export class ExperienceSamplingTracker implements Tracker {
     // or have to consider work hours based on user settings and time/weekday
     const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });  
     const userConsiderWorkHours = settings.enabledWorkHours;
-    const inWorkHours = this.workScheduleService.currentlyWithinWorkHours();
+    const inWorkHours = await this.workScheduleService.currentlyWithinWorkHours();
     const considerWorkHours = studyConfig.trackers.experienceSamplingTracker.enabledWorkHours;
     if (userConsiderWorkHours && considerWorkHours && !inWorkHours) {
         LOG.info('Currently outside of work hours, abort firing');
