@@ -8,7 +8,8 @@ module.exports = {
   },
   files: [
     'dist',
-    'dist-electron'
+    'dist-electron',
+    '!node_modules/uiohook-napi/build/**'
   ],
   publish: {
     provider: 'github',
