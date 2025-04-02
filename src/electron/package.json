@@ -1,7 +1,7 @@
 {
   "name": "personal-analytics",
   "description": "PersonalAnalytics is a privacy-protecting, open-source self-monitoring software",
-  "version": "0.0.45",
+  "version": "0.0.47",
   "main": "dist-electron/main/index.js",
   "type": "module",
   "author": {
@@ -41,7 +41,7 @@
     "autoprefixer": "^10.4.17",
     "daisyui": "^4.6.1",
     "electron": "^28.2.2",
-    "electron-builder": "^26.0.0-alpha.6",
+    "electron-builder": "^26.0.12",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
