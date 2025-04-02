@@ -9,9 +9,7 @@ module.exports = {
   files: [
     'dist',
     'dist-electron',
-    "!build",        // Exclude build folder
-    "!**/build",     // just in case it's nested
-    "!**/build/**",  // exclude all contents too
+    '!node_modules/uiohook-napi/build/**'
   ],
   publish: {
     provider: 'github',
