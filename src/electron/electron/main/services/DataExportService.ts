@@ -10,6 +10,8 @@ import { WindowActivityTrackerService } from './trackers/WindowActivityTrackerSe
 import { Settings } from '../entities/Settings';
 import { UsageDataService } from './UsageDataService';
 import { UsageDataEventType } from '../../enums/UsageDataEventType.enum';
+import { DataExportFormat } from '../../../shared/DataExportFormat.enum';
+import archiver from 'archiver';
 
 const LOG = getMainLogger('DataExportService');
 
@@ -20,119 +22,195 @@ export class DataExportService {
     windowActivityExportType: DataExportType,
     userInputExportType: DataExportType,
     obfuscationTerms: string[],
-    encryptData: boolean
+    encryptData: boolean,
+    exportFormat: DataExportFormat,
   ): Promise<string> {
-    LOG.info('startDataExport called');
+    LOG.info(`startDataExport called with ${exportFormat}`);
     await UsageDataService.createNewUsageDataEvent(
       UsageDataEventType.StartExport,
       JSON.stringify({
+        exportFormat,
         windowActivityExportType,
         userInputExportType,
         obfuscationTermLength: obfuscationTerms?.length
       })
     );
+
     try {
-      const dbName = 'database.sqlite';
-      let dbPath = dbName;
-      if (!(is.dev && process.env['VITE_DEV_SERVER_URL'])) {
-        const userDataPath = app.getPath('userData');
-        dbPath = path.join(userDataPath, dbName);
+      let exportPath: string;
+
+      if (exportFormat === DataExportFormat.ExportAsSqlite) {
+        exportPath = await this.exportToSqlite(
+          windowActivityExportType,
+          userInputExportType,
+          obfuscationTerms,
+          encryptData
+        );
+      } else if (exportFormat === DataExportFormat.ExportAsZip) {
+        exportPath = await this.exportAsZip(
+          windowActivityExportType,
+          userInputExportType,
+          obfuscationTerms,
+          encryptData
+        );
+      } else {
+        throw new Error(`Unsupported export format: ${exportFormat}`);
       }
 
-      const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
+      await UsageDataService.createNewUsageDataEvent(UsageDataEventType.FinishExport, JSON.stringify({exportFormat}));
 
-      const userDataPath = app.getPath('userData');
-      const exportFolderPath = path.join(userDataPath, 'exports');
-      if (!fs.existsSync(exportFolderPath)) {
-        fs.mkdirSync(exportFolderPath);
-      }
-      const now = new Date();
-      const nowStr = now.toISOString().replace(/:/g, '-').replace('T', '_').slice(0, 16);
-      // Also update the DataExportView if you change the file name here
-      const exportDbPath = path.join(
-        userDataPath,
-        'exports',
-        `PA_${settings.subjectId}_${nowStr}.sqlite`
-      );
-      fs.copyFileSync(dbPath, exportDbPath);
-      LOG.info(`Database copied to ${exportDbPath}`);
-      const db = new Database(exportDbPath);
-      // see https://github.com/WiseLibs/better-sqlite3/blob/master/docs/performance.md
-      db.pragma('journal_mode = WAL');
+      return exportPath;
 
-      if (encryptData) {
-        // see https://github.com/m4heshd/better-sqlite3-multiple-ciphers/issues/5#issuecomment-1008330548
-        db.pragma(`cipher='sqlcipher'`);
-        db.pragma(`legacy=4`);
-
-        db.pragma(`rekey='PersonalAnalytics_${settings.subjectId}'`);
-      }
-
-      if (
-        windowActivityExportType === DataExportType.Obfuscate ||
-        DataExportType.ObfuscateWithTerms
-      ) {
-        const items: {
-          windowTitle: string;
-          url: string;
-          id: string;
-        }[] = await WindowActivityEntity.getRepository()
-          .createQueryBuilder('window_activity')
-          .select('id, windowTitle, url')
-          .getRawMany();
-        for (const item of items) {
-          if (windowActivityExportType === DataExportType.Obfuscate) {
-            const randomizeWindowTitle = this.windowActivityTrackerService.randomizeString(
-              item.windowTitle
-            );
-            const randomizeUrl = this.windowActivityTrackerService.randomizeUrl(item.url);
-            const obfuscateWindowActivities = db.prepare(
-              'UPDATE window_activity SET windowTitle = ?, url = ? WHERE id = ?'
-            );
-            obfuscateWindowActivities.run(randomizeWindowTitle, randomizeUrl, item.id);
-          } else if (
-            windowActivityExportType === DataExportType.ObfuscateWithTerms &&
-            obfuscationTerms.length > 0
-          ) {
-            const lowerCaseObfuscationTerms: string[] = obfuscationTerms.map((term: string) =>
-              term.toLowerCase()
-            );
-            lowerCaseObfuscationTerms.forEach((term: string) => {
-              if (
-                item.windowTitle?.toLowerCase().includes(term) ||
-                item.url?.toLowerCase().includes(term)
-              ) {
-                const obfuscateWindowActivities = db.prepare(
-                  'UPDATE window_activity SET windowTitle = ?, url = ? WHERE id = ?'
-                );
-                const windowTitle = item.windowTitle ? '[anonymized]' : undefined;
-                const url = item.url ? '[anonymized]' : undefined;
-
-                obfuscateWindowActivities.run(windowTitle, url, item.id);
-              }
-            });
-          }
-        }
-      } else if (windowActivityExportType === DataExportType.None) {
-        // remove all window activities
-        const removeWindowActivities = db.prepare('DROP TABLE IF EXISTS window_activity');
-        removeWindowActivities.run();
-      }
-
-      if (userInputExportType === DataExportType.None) {
-        // remove all user input
-        const removeUserInput = db.prepare('DROP TABLE IF EXISTS user_input');
-        removeUserInput.run();
-      }
-
-      db.close();
-
-      await UsageDataService.createNewUsageDataEvent(UsageDataEventType.FinishExport);
-
-      return exportDbPath;
     } catch (error) {
-      LOG.error('Error exporting the data', error);
+      LOG.error(`Error exporting the data as ${exportFormat}`, error);
       throw error;
     }
+  }
+
+  private async exportToSqlite(
+    windowActivityExportType: DataExportType,
+    userInputExportType: DataExportType,
+    obfuscationTerms: string[],
+    encryptData: boolean,
+  ): Promise<string> {
+
+    const dbName = 'database.sqlite';
+    let dbPath = dbName;
+    if (!(is.dev && process.env['VITE_DEV_SERVER_URL'])) {
+      const userDataPath = app.getPath('userData');
+      dbPath = path.join(userDataPath, dbName);
+    }
+
+    const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
+
+    const userDataPath = app.getPath('userData');
+    const exportFolderPath = path.join(userDataPath, 'exports');
+    if (!fs.existsSync(exportFolderPath)) {
+      fs.mkdirSync(exportFolderPath);
+    }
+    const now = new Date();
+    const nowStr = now.toISOString().replace(/:/g, '-').replace('T', '_').slice(0, 16);
+    // Also update the DataExportView if you change the file name here
+    const exportDbPath = path.join(
+      userDataPath,
+      'exports',
+      `PA_${settings.subjectId}_${nowStr}.sqlite`
+    );
+    fs.copyFileSync(dbPath, exportDbPath);
+    LOG.info(`Database copied to ${exportDbPath}`);
+    const db = new Database(exportDbPath);
+    // see https://github.com/WiseLibs/better-sqlite3/blob/master/docs/performance.md
+    db.pragma('journal_mode = WAL');
+
+    if (encryptData) {
+      // see https://github.com/m4heshd/better-sqlite3-multiple-ciphers/issues/5#issuecomment-1008330548
+      db.pragma(`cipher='sqlcipher'`);
+      db.pragma(`legacy=4`);
+
+      db.pragma(`rekey='PersonalAnalytics_${settings.subjectId}'`);
+    }
+
+    if (
+      windowActivityExportType === DataExportType.Obfuscate ||
+      DataExportType.ObfuscateWithTerms
+    ) {
+      const items: {
+        windowTitle: string;
+        url: string;
+        id: string;
+      }[] = await WindowActivityEntity.getRepository()
+        .createQueryBuilder('window_activity')
+        .select('id, windowTitle, url')
+        .getRawMany();
+      for (const item of items) {
+        if (windowActivityExportType === DataExportType.Obfuscate) {
+          const randomizeWindowTitle = this.windowActivityTrackerService.randomizeString(
+            item.windowTitle
+          );
+          const randomizeUrl = this.windowActivityTrackerService.randomizeUrl(item.url);
+          const obfuscateWindowActivities = db.prepare(
+            'UPDATE window_activity SET windowTitle = ?, url = ? WHERE id = ?'
+          );
+          obfuscateWindowActivities.run(randomizeWindowTitle, randomizeUrl, item.id);
+        } else if (
+          windowActivityExportType === DataExportType.ObfuscateWithTerms &&
+          obfuscationTerms.length > 0
+        ) {
+          const lowerCaseObfuscationTerms: string[] = obfuscationTerms.map((term: string) =>
+            term.toLowerCase()
+          );
+          lowerCaseObfuscationTerms.forEach((term: string) => {
+            if (
+              item.windowTitle?.toLowerCase().includes(term) ||
+              item.url?.toLowerCase().includes(term)
+            ) {
+              const obfuscateWindowActivities = db.prepare(
+                'UPDATE window_activity SET windowTitle = ?, url = ? WHERE id = ?'
+              );
+              const windowTitle = item.windowTitle ? '[anonymized]' : undefined;
+              const url = item.url ? '[anonymized]' : undefined;
+
+              obfuscateWindowActivities.run(windowTitle, url, item.id);
+            }
+          });
+        }
+      }
+    } else if (windowActivityExportType === DataExportType.None) {
+      // remove all window activities
+      const removeWindowActivities = db.prepare('DROP TABLE IF EXISTS window_activity');
+      removeWindowActivities.run();
+    }
+
+    if (userInputExportType === DataExportType.None) {
+      // remove all user input
+      const removeUserInput = db.prepare('DROP TABLE IF EXISTS user_input');
+      removeUserInput.run();
+    }
+
+    db.close();
+
+    return exportDbPath;
+  }
+
+  private async exportAsZip(
+    windowActivityExportType: DataExportType,
+    userInputExportType: DataExportType,
+    obfuscationTerms: string[],
+    encryptData: boolean,
+  ): Promise<string> {
+    const sqlitePath = await this.exportToSqlite(
+      windowActivityExportType,
+      userInputExportType,
+      obfuscationTerms,
+      encryptData
+    );
+
+    const zipPath = sqlitePath.replace(/\.sqlite$/, '.zip');
+    const zipOutput = fs.createWriteStream(zipPath);
+    const archive = archiver('zip', { zlib: { level: 0 } }); // level 0 is no compression
+
+    return new Promise<string>((resolve, reject) => {
+      zipOutput.on('close', () => {
+        LOG.info(`Exported and zipped to ${zipPath} (${archive.pointer()} total bytes)`);
+  
+        // Delete the original .sqlite file after zipping
+        fs.unlink(sqlitePath, (err) => {
+          if (err) {
+            LOG.warn(`Failed to delete temporary sqlite file: ${sqlitePath}`, err);
+          } else {
+            LOG.info(`Deleted temporary sqlite file: ${sqlitePath}`);
+          }
+          resolve(zipPath);
+        });
+      });
+  
+      archive.on('error', (err) => {
+        reject(err);
+      });
+  
+      archive.pipe(zipOutput);
+      archive.file(sqlitePath, { name: path.basename(sqlitePath) });
+      archive.finalize();
+    });
   }
 }

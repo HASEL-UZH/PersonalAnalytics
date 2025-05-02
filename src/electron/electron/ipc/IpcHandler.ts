@@ -5,13 +5,14 @@ import { getMainLogger } from '../config/Logger';
 import { TypedIpcMain } from '../../src/utils/TypedIpcMain';
 import Commands from '../../src/utils/Commands';
 import Events from '../../src/utils/Events';
+import { dataExportType } from '../../shared/DataExportType.enum';
+import { dataExportFormat } from '../../shared/DataExportFormat.enum';
 import StudyInfoDto from '../../shared/dto/StudyInfoDto';
 import { Settings } from '../main/entities/Settings';
 import studyConfig from '../../shared/study.config';
 import { TrackerService } from '../main/services/trackers/TrackerService';
 import { WindowActivityTrackerService } from '../main/services/trackers/WindowActivityTrackerService';
 import { UserInputTrackerService } from '../main/services/trackers/UserInputTrackerService';
-import { DataExportType } from '../../shared/DataExportType.enum';
 import { DataExportService } from '../main/services/DataExportService';
 import UserInputDto from '../../shared/dto/UserInputDto';
 import WindowActivityDto from '../../shared/dto/WindowActivityDto';
@@ -195,13 +196,15 @@ export class IpcHandler {
     windowActivityExportType: DataExportType,
     userInputExportType: DataExportType,
     obfuscationTerms: string[],
-    encryptData: boolean
+    encryptData: boolean,
+    exportFormat: dataExportFormat,
   ): Promise<string> {
     return this.dataExportService.startDataExport(
       windowActivityExportType,
       userInputExportType,
       obfuscationTerms,
-      encryptData
+      encryptData,
+      exportFormat
     );
   }
 

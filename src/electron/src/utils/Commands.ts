@@ -1,5 +1,6 @@
 import StudyInfoDto from '../../shared/dto/StudyInfoDto';
 import { DataExportType } from '../../shared/DataExportType.enum';
+import { DataExportFormat } from '../../shared/DataExportFormat.enum';
 import UserInputDto from '../../shared/dto/UserInputDto';
 import WindowActivityDto from '../../shared/dto/WindowActivityDto';
 import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
@@ -32,7 +33,8 @@ type Commands = {
     windowActivityExportType: DataExportType,
     userInputExportType: DataExportType,
     obfuscationTerms: string[],
-    encryptData: boolean
+    encryptData: boolean,
+    exportFormat: DataExportFormat,
   ) => Promise<string>;
   revealItemInFolder: (path: string) => Promise<void>;
   openUploadUrl: () => void;

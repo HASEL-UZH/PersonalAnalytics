@@ -1,4 +1,5 @@
 import { StudyConfiguration } from './StudyConfiguration';
+import { DataExportFormat } from './DataExportFormat.enum';
 
 const studyConfig: StudyConfiguration = {
   name: 'PersonalAnalytics Study',
@@ -11,6 +12,7 @@ const studyConfig: StudyConfiguration = {
   contactEmail: 'study@hasel.dev',
   subjectIdLength: 6,
   dataExportEnabled: true,
+  dataExportFormat: DataExportFormat.ExportAsZip, // ExportAsSqlite,
   dataExportEncrypted: false,
   displayDaysParticipated: true,
   trackers: {
