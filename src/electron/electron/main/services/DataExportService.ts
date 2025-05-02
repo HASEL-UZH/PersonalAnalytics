@@ -46,8 +46,22 @@ export class DataExportService {
           obfuscationTerms,
           encryptData
         );
-      } else if (exportFormat === DataExportFormat.ExportAsZip) {
-        exportPath = await this.exportAsZip(
+      } else if (exportFormat === DataExportFormat.ExportAsZippedSqlite) {
+        exportPath = await this.exportAsZippedSqlite(
+          windowActivityExportType,
+          userInputExportType,
+          obfuscationTerms,
+          encryptData
+        );
+      } else if (exportFormat === DataExportFormat.ExportAsZippedJson) {
+        exportPath = await this.exportAsZippedJson(
+          windowActivityExportType,
+          userInputExportType,
+          obfuscationTerms,
+          encryptData
+        );
+      } else if (exportFormat === DataExportFormat.ExportToDDL) {
+        exportPath = await this.exportToDDL(
           windowActivityExportType,
           userInputExportType,
           obfuscationTerms,
@@ -172,7 +186,7 @@ export class DataExportService {
     return exportDbPath;
   }
 
-  private async exportAsZip(
+  private async exportAsZippedSqlite(
     windowActivityExportType: DataExportType,
     userInputExportType: DataExportType,
     obfuscationTerms: string[],
@@ -212,5 +226,95 @@ export class DataExportService {
       archive.file(sqlitePath, { name: path.basename(sqlitePath) });
       archive.finalize();
     });
+  }
+
+  private async exportAsZippedJson(
+    windowActivityExportType: DataExportType,
+    userInputExportType: DataExportType,
+    obfuscationTerms: string[],
+    encryptData: boolean,
+  ): Promise<string> {
+    const sqlitePath = await this.exportToSqlite(
+      windowActivityExportType,
+      userInputExportType,
+      obfuscationTerms,
+      encryptData
+    );
+
+    const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
+    const userDataPath = app.getPath('userData');
+    const exportFolderPath = path.join(userDataPath, 'exports');
+    const tempJsonFiles: string[] = [];
+    
+    // create database and read all tables
+    const db = new Database(sqlitePath);
+    const tables = db.prepare(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';"
+    ).all().map((row: any) => row.name);
+
+    // create json file for each table
+    for (const table of tables) {
+      const rows = db.prepare(`SELECT * FROM ${table}`).all();
+      const jsonPath = path.join(exportFolderPath, `PA_${settings.subjectId}_${table}.json`);
+      fs.writeFileSync(jsonPath, JSON.stringify(rows, null, 2));
+      tempJsonFiles.push(jsonPath);
+    }
+    db.close();
+
+    // create zip file with all json files
+    const zipPath = sqlitePath.replace(/\.sqlite$/, '.zip');
+    const zipOutput = fs.createWriteStream(zipPath);
+    const archive = archiver('zip', { zlib: { level: 0 } });
+
+    return new Promise<string>((resolve, reject) => {
+      zipOutput.on('close', () => {
+        LOG.info(`Exported and zipped to ${zipPath} (${archive.pointer()} total bytes)`);
+
+        // Cleanup: delete the temporary .json and .sqlite files
+        for (const file of tempJsonFiles) {
+          fs.unlink(file, (err) => {
+            if (err) LOG.warn(`Failed to delete temp file: ${file}`, err);
+          });
+        }
+        fs.unlink(sqlitePath, (err) => {
+          if (err) {
+            LOG.warn(`Failed to delete temporary sqlite file: ${sqlitePath}`, err);
+          } else {
+            LOG.info(`Deleted temporary sqlite file: ${sqlitePath}`);
+          }
+        });
+
+        resolve(zipPath);
+      });
+
+      archive.on('error', (err) => {
+        reject(err);
+      });
+
+      archive.pipe(zipOutput);
+      for (const file of tempJsonFiles) {
+        archive.file(file, { name: path.basename(file) });
+      }
+      archive.finalize();
+    });
+  }
+
+  private async exportToDDL(
+    windowActivityExportType: DataExportType,
+    userInputExportType: DataExportType,
+    obfuscationTerms: string[],
+    encryptData: boolean,
+  ): Promise<string> {
+    const sqlitePath = await this.exportToSqlite(
+      windowActivityExportType,
+      userInputExportType,
+      obfuscationTerms,
+      encryptData
+    );
+
+    // TODO: upload to DDL
+
+    return "tbd";
+
   }
 }
