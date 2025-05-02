@@ -1,7 +1,7 @@
 export enum DataExportFormat {
     ExportAsSqlite = 'ExportAsSqlite',
-    ExportAsZippedSqlite = 'ExportAsZip',
-    ExportAsZippedJson = 'ExportAsJsonZip',
+    ExportAsZippedSqlite = 'ExportAsZippedSqlite',
+    ExportAsZippedJson = 'ExportAsZippedJson',
     ExportToDDL = 'ExportToDDL',
   }
   

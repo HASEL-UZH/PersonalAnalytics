@@ -35,7 +35,7 @@ type Commands = {
     obfuscationTerms: string[],
     encryptData: boolean,
     exportFormat: DataExportFormat,
-  ) => Promise<string>;
+  ) => Promise<{ fullPath: string; fileName: string }>;
   revealItemInFolder: (path: string) => Promise<void>;
   openUploadUrl: () => void;
   startAllTrackers: () => void;

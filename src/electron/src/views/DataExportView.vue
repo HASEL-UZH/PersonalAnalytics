@@ -163,7 +163,8 @@ async function handleNextStep() {
       ) {
         obfuscationTerms = Array.from(obfuscationTermsInput.value);
       }
-      pathToExportedFile.value = await typedIpcRenderer.invoke(
+      // run export with the selected options
+      const exportResult = await typedIpcRenderer.invoke(
         'startDataExport',
         exportWindowActivitySelectedOption.value,
         exportUserInputSelectedOption.value,
@@ -171,11 +172,11 @@ async function handleNextStep() {
         studyConfig.dataExportEncrypted,
         studyConfig.dataExportFormat
       );
+
+      pathToExportedFile.value = exportResult.fullPath;
       hasExportError.value = false;
-      const now = new Date();
-      const nowStr = now.toISOString().replace(/:/g, '-').replace('T', '_').slice(0, 16);
       // Also update the DataExportService if you change the file name here
-      fileName.value = `PA_${studyInfo.value?.subjectId}_${nowStr}.sqlite`;
+      fileName.value = exportResult.fileName;
     } catch (e) {
       LOG.error(e);
       hasExportError.value = true;

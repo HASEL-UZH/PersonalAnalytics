@@ -24,7 +24,7 @@ export class DataExportService {
     obfuscationTerms: string[],
     encryptData: boolean,
     exportFormat: DataExportFormat,
-  ): Promise<string> {
+  ): Promise<{ fullPath: string; fileName: string }> {
     LOG.info(`startDataExport called with ${exportFormat}`);
     await UsageDataService.createNewUsageDataEvent(
       UsageDataEventType.StartExport,
@@ -73,7 +73,10 @@ export class DataExportService {
 
       await UsageDataService.createNewUsageDataEvent(UsageDataEventType.FinishExport, JSON.stringify({exportFormat}));
 
-      return exportPath;
+      return {
+        fullPath: exportPath, 
+        fileName: path.basename(exportPath) 
+      };
 
     } catch (error) {
       LOG.error(`Error exporting the data as ${exportFormat}`, error);
@@ -103,13 +106,8 @@ export class DataExportService {
       fs.mkdirSync(exportFolderPath);
     }
     const now = new Date();
-    const nowStr = now.toISOString().replace(/:/g, '-').replace('T', '_').slice(0, 16);
-    // Also update the DataExportView if you change the file name here
-    const exportDbPath = path.join(
-      userDataPath,
-      'exports',
-      `PA_${settings.subjectId}_${nowStr}.sqlite`
-    );
+    const nowStr = now.toISOString().replace(/:/g, '-').replace('T', '_').slice(0, 16); // TODO: make proper format
+    const exportDbPath = path.join(userDataPath, 'exports', `PA_${settings.subjectId}_${nowStr}.sqlite`);
     fs.copyFileSync(dbPath, exportDbPath);
     LOG.info(`Database copied to ${exportDbPath}`);
     const db = new Database(exportDbPath);

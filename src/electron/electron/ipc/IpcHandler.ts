@@ -198,7 +198,7 @@ export class IpcHandler {
     obfuscationTerms: string[],
     encryptData: boolean,
     exportFormat: dataExportFormat,
-  ): Promise<string> {
+  ): Promise<{ fullPath: string; fileName: string }> {
     return this.dataExportService.startDataExport(
       windowActivityExportType,
       userInputExportType,
