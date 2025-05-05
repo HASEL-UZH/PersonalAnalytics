@@ -12,6 +12,8 @@ import { UsageDataService } from './UsageDataService';
 import { UsageDataEventType } from '../../enums/UsageDataEventType.enum';
 import { DataExportFormat } from '../../../shared/DataExportFormat.enum';
 import archiver from 'archiver';
+import axios from 'axios';
+import FormData from 'form-data';
 
 const LOG = getMainLogger('DataExportService');
 
@@ -106,7 +108,7 @@ export class DataExportService {
       fs.mkdirSync(exportFolderPath);
     }
     const now = new Date();
-    const nowStr = now.toISOString().replace(/:/g, '-').replace('T', '_').slice(0, 16); // TODO: make proper format
+    const nowStr = now.toISOString().replace(/:/g, '-').replace('T', '_').slice(0, 16);
     const exportDbPath = path.join(userDataPath, 'exports', `PA_${settings.subjectId}_${nowStr}.sqlite`);
     fs.copyFileSync(dbPath, exportDbPath);
     LOG.info(`Database copied to ${exportDbPath}`);
@@ -199,7 +201,7 @@ export class DataExportService {
 
     const zipPath = sqlitePath.replace(/\.sqlite$/, '.zip');
     const zipOutput = fs.createWriteStream(zipPath);
-    const archive = archiver('zip', { zlib: { level: 0 } }); // level 0 is no compression
+    const archive = archiver('zip', { zlib: { level: 6 } }); // level 0 is no compression, level 9 is max compression
 
     return new Promise<string>((resolve, reject) => {
       zipOutput.on('close', () => {
@@ -303,16 +305,40 @@ export class DataExportService {
     obfuscationTerms: string[],
     encryptData: boolean,
   ): Promise<string> {
-    const sqlitePath = await this.exportToSqlite(
+    const zipPath = await this.exportAsZippedJson(
       windowActivityExportType,
       userInputExportType,
       obfuscationTerms,
       encryptData
     );
 
-    // TODO: upload to DDL
+    
+    const projectUrlId = ''; // todo: move to GH Secrets  
+    const projectToken = ''; // todo: move to GH Secrets (expires after maximum of 90d)
+    const url = ``;
 
-    return "tbd";
+    const form = new FormData();
+    form.append('file', fs.createReadStream(zipPath));
+
+    try {
+      const response = await axios.post(url, form, {
+        headers: {
+          ...form.getHeaders(),
+          Authorization: `Token ${projectToken}`,
+        },
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
+      });
+
+      LOG.info(`Uploaded to DDL: status ${response.status}, response: ${response.data}`);
+
+      // TODO: delete the zip file after upload
+
+      return zipPath;
+    } catch (error) {
+      LOG.error(`Failed to upload to DDL`, error);
+      throw error;
+    }
 
   }
 }
