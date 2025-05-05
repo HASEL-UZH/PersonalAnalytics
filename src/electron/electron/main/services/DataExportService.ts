@@ -181,6 +181,9 @@ export class DataExportService {
       removeUserInput.run();
     }
 
+    // run VACUUm to reduce the database size after data is dropped
+    db.prepare('VACUUM').run();
+
     db.close();
 
     return exportDbPath;
