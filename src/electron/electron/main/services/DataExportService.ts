@@ -276,15 +276,11 @@ export class DataExportService {
         // Cleanup: delete the temporary .json and .sqlite files
         for (const file of tempJsonFiles) {
           fs.unlink(file, (err) => {
-            if (err) LOG.warn(`Failed to delete temp file: ${file}`, err);
+            if (err) LOG.warn(`Failed to delete the temporary json file: ${file}`, err);
           });
         }
         fs.unlink(sqlitePath, (err) => {
-          if (err) {
-            LOG.warn(`Failed to delete temporary sqlite file: ${sqlitePath}`, err);
-          } else {
-            LOG.info(`Deleted temporary sqlite file: ${sqlitePath}`);
-          }
+          if (err) LOG.warn(`Failed to delete temporary sqlite file: ${sqlitePath}`, err);
         });
 
         resolve(zipPath);
@@ -315,10 +311,11 @@ export class DataExportService {
       encryptData
     );
 
+    // TODO: internet check
     
     const projectUrlId = ''; // todo: move to GH Secrets  
     const projectToken = ''; // todo: move to GH Secrets (expires after maximum of 90d)
-    const url = ``;
+    const url = `https://ziikmzdatad02.uzh.ch/api/zip/${projectUrlId}`;
 
     const form = new FormData();
     form.append('file', fs.createReadStream(zipPath));
@@ -333,12 +330,18 @@ export class DataExportService {
         maxBodyLength: Infinity,
       });
 
-      LOG.info(`Uploaded to DDL: status ${response.status}, response: ${response.data}`);
+      LOG.info(`Uploaded to DDL: status ${response.status}, response: ${response.data}`); // TODO: check response data?
 
-      // TODO: delete the zip file after upload
+      // option to delete the zip file after upload (but we're keeping it for now)
+      // fs.unlink(zipPath, (err) => {
+      //   if (err) LOG.warn(`Failed to delete temporary zipped json file: ${zipPath}`, err);
+      // });
 
       return zipPath;
     } catch (error) {
+
+      // TODO: handle error (maybe separate message for outdated access token?)
+
       LOG.error(`Failed to upload to DDL`, error);
       throw error;
     }
