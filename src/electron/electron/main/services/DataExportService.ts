@@ -1,4 +1,5 @@
 import { DataExportType } from '../../../shared/DataExportType.enum';
+import { net } from 'electron';
 import getMainLogger from '../../config/Logger';
 import path from 'path';
 import { app } from 'electron';
@@ -304,47 +305,47 @@ export class DataExportService {
     obfuscationTerms: string[],
     encryptData: boolean,
   ): Promise<string> {
-    const zipPath = await this.exportAsZippedJson(
-      windowActivityExportType,
-      userInputExportType,
-      obfuscationTerms,
-      encryptData
-    );
 
-    // TODO: internet check
-    
-    const projectUrlId = ''; // todo: move to GH Secrets  
-    const projectToken = ''; // todo: move to GH Secrets (expires after maximum of 90d)
-    const url = `https://ziikmzdatad02.uzh.ch/api/zip/${projectUrlId}`;
-
-    const form = new FormData();
-    form.append('file', fs.createReadStream(zipPath));
-
-    try {
-      const response = await axios.post(url, form, {
-        headers: {
-          ...form.getHeaders(),
-          Authorization: `Token ${projectToken}`,
-        },
-        maxContentLength: Infinity,
-        maxBodyLength: Infinity,
-      });
-
-      LOG.info(`Uploaded to DDL: status ${response.status}, response: ${response.data}`); // TODO: check response data?
-
-      // option to delete the zip file after upload (but we're keeping it for now)
-      // fs.unlink(zipPath, (err) => {
-      //   if (err) LOG.warn(`Failed to delete temporary zipped json file: ${zipPath}`, err);
-      // });
-
-      return zipPath;
-    } catch (error) {
-
-      // TODO: handle error (maybe separate message for outdated access token?)
-
-      LOG.error(`Failed to upload to DDL`, error);
-      throw error;
+    if (net.isOnline()) {
+      const zipPath = await this.exportAsZippedJson(
+        windowActivityExportType,
+        userInputExportType,
+        obfuscationTerms,
+        encryptData
+      );
+  
+      const projectId = process.env.DDL_PROJECT_ID || 'add for debugging'; // set in Github Secrets
+      const projectToken = process.env.DDL_PROJECT_TOKEN || 'add for debugging'; // set in Github Secrets (expires after maximum of 90d)
+      const url = `https://datadonation.uzh.ch/api/zip/${projectId}`;
+  
+      const form = new FormData();
+      form.append('file', fs.createReadStream(zipPath));
+  
+      try {
+        const response = await axios.post(url, form, {
+          headers: {
+            ...form.getHeaders(),
+            Authorization: `Token ${projectToken}`,
+          },
+          maxContentLength: Infinity,
+          maxBodyLength: Infinity,
+        });
+  
+        LOG.info(`Uploaded to DDL: status ${response.status}, response: ${response.data}`); // TODO: check response data?
+  
+        // option to delete the zip file after upload (but we're keeping it for now)
+        // fs.unlink(zipPath, (err) => {
+        //   if (err) LOG.warn(`Failed to delete temporary zipped json file: ${zipPath}`, err);
+        // });
+  
+        return zipPath;
+      } catch (error) {
+        LOG.error(`Failed to upload to DDL`, error);
+        throw error;
+      }
+    } else {
+      LOG.info("No internet connection, skipping upload to DDL.");
+      throw new Error("No internet connection, skipping upload to DDL."); 
     }
-
   }
 }

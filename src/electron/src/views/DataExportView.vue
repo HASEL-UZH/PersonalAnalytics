@@ -183,6 +183,11 @@ async function handleNextStep() {
     } catch (e) {
       LOG.error(e);
       hasExportError.value = true;
+
+      // TODO: how to best show an error message to the user?
+      // dialog.showErrorBox('Export failed', 'Export failed. Please try again or contact the study team for help.');
+
+      handleBackStep();
     }
     isExporting.value = false;
   }
