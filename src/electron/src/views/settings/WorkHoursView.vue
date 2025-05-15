@@ -6,6 +6,7 @@ import WorkHoursRow from '../../components/WorkHoursRow.vue'
 import typedIpcRenderer from '../../utils/typedIpcRenderer'
 import {WorkHoursDayDto, WorkHoursDto} from '../../../shared/dto/WorkHoursDto'
 import Switch from '../../components/Switch.vue'
+import { Settings } from '../../../electron/main/entities/Settings'
 
 // const route = useRoute()
 // const isMacOS: string | null | LocationQueryValue[] = route.query.isMacOS
@@ -27,7 +28,8 @@ onMounted(async () => {
     const workHours = await typedIpcRenderer.invoke('getWorkHours') as WorkHoursDto
     workHoursRef.value = { ...workHours }
 
-    isEnabled.value = await typedIpcRenderer.invoke('getWorkHoursEnabled') as boolean
+    const settings = await typedIpcRenderer.invoke('getSettings') as Settings;
+    isEnabled.value = settings.enabledWorkHours;
   } catch (error) {
     console.error('Error getting work hours:', error)
   }
@@ -47,7 +49,7 @@ const onChangeWorkHoursIsEnabled = async (e: Event) => {
   const isChecked = (e.target as HTMLInputElement).checked;
   isEnabled.value = isChecked;
   try {
-    await typedIpcRenderer.invoke('setWorkHoursEnabled', isChecked)
+    await typedIpcRenderer.invoke('setSettingsProp', 'enabledWorkHours', isChecked)
   } catch (error) {
     console.error('Error setting work hours enabled:', error)
   }
