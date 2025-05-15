@@ -58,8 +58,8 @@ export class IpcHandler {
       openCollectedData: this.openCollected,
       getWorkHours: this.getWorkHours,
       setWorkHours: this.setWorkHours,
-      setWorkHoursEnabled: this.setWorkHoursEnabled,
-      getWorkHoursEnabled: this.getWorkHoursEnabled,
+      setSettingsProp: this.setSettingsProp,
+      getSettings: this.getSettings,
       createExperienceSample: this.createExperienceSample,
       closeExperienceSamplingWindow: this.closeExperienceSamplingWindow,
       closeOnboardingWindow: this.closeOnboardingWindow,
@@ -138,15 +138,18 @@ export class IpcHandler {
     await this.workScheduleService.setWorkSchedule(schedule);
   }
 
-  private async setWorkHoursEnabled(enabled: boolean): Promise<void> {
+  private async setSettingsProp(prop: string, value: any): Promise<void> {
     const settings: Settings = await Settings.findOne({ where: { onlyOneEntityShouldExist: 1 } });
-    settings.enabledWorkHours = enabled;
+    settings[prop] = value;
     await settings.save();
   }
 
-  private async getWorkHoursEnabled(): Promise<boolean> {
+  private async getSettings(): Promise<Settings> {
     const settings: Settings = await Settings.findOne({ where: { onlyOneEntityShouldExist: 1 } });
-    return settings.enabledWorkHours;
+    if (!settings) {
+      throw new Error('Settings not found');
+    }
+    return settings;
   }
 
   private async getStudyInfo(): Promise<StudyInfoDto> {
