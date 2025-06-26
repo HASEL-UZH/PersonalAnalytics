@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-import colors from 'tailwindcss/colors';
+import colors from 'tailwindcss/colors'
 
 module.exports = {
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
@@ -11,6 +11,9 @@ module.exports = {
       }
     }
   },
+  daisyui: {
+    themes: ['dark']
+  },
   // needed for the dynamic classes
   safelist: [
     {
@@ -19,4 +22,4 @@ module.exports = {
       variants: ['active', 'focus']
     }
   ]
-};
+}
