@@ -11,6 +11,9 @@ module.exports = {
       }
     }
   },
+  daisyui: {
+    themes: ['dark']
+  },
   // needed for the dynamic classes
   safelist: [
     {
