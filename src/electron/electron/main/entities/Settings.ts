@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 
 @Entity({ name: 'settings' })
-@Check('onlyOneEntityShouldExist = 1')
+// @Check('onlyOneEntityShouldExist = 1')
 export class Settings extends BaseEntity {
   // This is a hack to ensure that only one entity of this type exists
   // Trying to save a new entity will fail with a unique constraint violation
