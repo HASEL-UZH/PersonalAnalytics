@@ -1,7 +1,7 @@
 {
   "name": "personal-analytics",
   "description": "PersonalAnalytics is a privacy-protecting, open-source self-monitoring software",
-  "version": "0.0.47",
+  "version": "0.0.48",
   "main": "dist-electron/main/index.js",
   "type": "module",
   "author": {
@@ -53,7 +53,7 @@
     "tailwindcss": "^3.4.1",
     "tree-kill": "^1.2.2",
     "typescript": "^5.3.3",
-    "vite": "^5.4.14",
+    "vite": "^5.4.19",
     "vite-plugin-electron": "^0.28.0",
     "vite-plugin-electron-renderer": "^0.14.5",
     "vue": "^3.4.15",

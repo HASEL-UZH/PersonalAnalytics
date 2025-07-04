@@ -4,6 +4,7 @@ import UserInputDto from '../../shared/dto/UserInputDto';
 import WindowActivityDto from '../../shared/dto/WindowActivityDto';
 import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
 import { WorkHoursDto } from '../../shared/dto/WorkHoursDto'
+import { Settings } from 'electron/main'
 
 type Commands = {
   createExperienceSample: (
@@ -20,7 +21,8 @@ type Commands = {
   getStudyInfo: () => Promise<StudyInfoDto>;
   getWorkHours: () => Promise<WorkHoursDto>;
   setWorkHours: (schedule: WorkHoursDto) => Promise<void>;
-  setWorkHoursEnabled: (enabled: boolean) => Promise<void>;
+  setSettingsProp: (prop: string, value: any) => Promise<void>;
+  getSettings: () => Promise<Settings>;
   getWorkHoursEnabled: () => Promise<boolean>;
   openLogs: () => void;
   openCollectedData: () => void;
