@@ -8,4 +8,5 @@ export default interface StudyInfoDto {
   contactEmail: string;
   appVersion: string;
   currentlyActiveTrackers: string[];
+  enabledWorkHours: boolean;
 }
