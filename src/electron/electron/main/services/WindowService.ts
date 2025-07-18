@@ -11,7 +11,6 @@ import { DataExportFormat } from '../../../shared/DataExportFormat.enum'
 import { UsageDataService } from './UsageDataService'
 import { UsageDataEventType } from '../../enums/UsageDataEventType.enum'
 import { Settings } from '../entities/Settings'
-import { s } from 'vite/dist/node/types.d-aGj9QkWt'
 
 const LOG = getMainLogger('WindowService')
 

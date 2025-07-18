@@ -218,7 +218,9 @@ export class IpcHandler {
   }
 
   private async showDataExportError(): Promise<void> {
-    dialog.showErrorBox('Export failed', 'Please try again or contact the study team for help.');
+    dialog.showErrorBox(
+      'Study Data Export failed', 
+      `Please try again or contact the study team (${studyConfig.contactName}, ${studyConfig.contactEmail}) for help.`);
   }
 
   private triggerPermissionCheckAccessibility(prompt: boolean): boolean {
