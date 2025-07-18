@@ -6,10 +6,7 @@ import WorkHoursRow from '../../components/WorkHoursRow.vue'
 import typedIpcRenderer from '../../utils/typedIpcRenderer'
 import {WorkHoursDayDto, WorkHoursDto} from '../../../shared/dto/WorkHoursDto'
 import Switch from '../../components/Switch.vue'
-import { Settings } from '../../../electron/main/entities/Settings'
-
-// const route = useRoute()
-// const isMacOS: string | null | LocationQueryValue[] = route.query.isMacOS
+import StudyInfoDto from '../../../shared/dto/StudyInfoDto';
 
 let workHoursRef = ref<WorkHoursDto>({
   monday: { startTime: '', endTime: '', isWorking: false },
@@ -27,8 +24,7 @@ onMounted(async () => {
   try {
     const workHours = await typedIpcRenderer.invoke('getWorkHours') as WorkHoursDto
     workHoursRef.value = { ...workHours }
-
-    const settings = await typedIpcRenderer.invoke('getSettings') as Settings;
+    const settings = await typedIpcRenderer.invoke('getSettings') as StudyInfoDto;
     isEnabled.value = settings.enabledWorkHours;
   } catch (error) {
     console.error('Error getting work hours:', error)
