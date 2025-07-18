@@ -1,12 +1,12 @@
 import { ExperienceSamplingService } from '../main/services/ExperienceSamplingService';
-import { app, ipcMain, IpcMainInvokeEvent, shell, systemPreferences } from 'electron';
+import { app, dialog, ipcMain, IpcMainInvokeEvent, shell, systemPreferences } from 'electron';
 import { WindowService } from '../main/services/WindowService';
 import { getMainLogger } from '../config/Logger';
 import { TypedIpcMain } from '../../src/utils/TypedIpcMain';
 import Commands from '../../src/utils/Commands';
 import Events from '../../src/utils/Events';
-import { dataExportType } from '../../shared/DataExportType.enum';
-import { dataExportFormat } from '../../shared/DataExportFormat.enum';
+import { DataExportType } from '../../shared/DataExportType.enum';
+import { DataExportFormat } from '../../shared/DataExportFormat.enum';
 import StudyInfoDto from '../../shared/dto/StudyInfoDto';
 import { Settings } from '../main/entities/Settings';
 import studyConfig from '../../shared/study.config';
@@ -73,6 +73,7 @@ export class IpcHandler {
       startDataExport: this.startDataExport,
       revealItemInFolder: this.revealItemInFolder,
       openUploadUrl: this.openUploadUrl,
+      showDataExportError: this.showDataExportError,
       startAllTrackers: this.startAllTrackers,
       triggerPermissionCheckAccessibility: this.triggerPermissionCheckAccessibility,
       triggerPermissionCheckScreenRecording: this.triggerPermissionCheckScreenRecording
@@ -197,7 +198,7 @@ export class IpcHandler {
     userInputExportType: DataExportType,
     obfuscationTerms: string[],
     encryptData: boolean,
-    exportFormat: dataExportFormat,
+    exportFormat: DataExportFormat,
   ): Promise<{ fullPath: string; fileName: string }> {
     return this.dataExportService.startDataExport(
       windowActivityExportType,
@@ -214,6 +215,10 @@ export class IpcHandler {
   
   private async openUploadUrl(): Promise<void> {
     this.windowService.openExternal();
+  }
+
+  private async showDataExportError(): Promise<void> {
+    dialog.showErrorBox('Export failed', 'Please try again or contact the study team for help.');
   }
 
   private triggerPermissionCheckAccessibility(prompt: boolean): boolean {

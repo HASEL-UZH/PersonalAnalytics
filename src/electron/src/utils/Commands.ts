@@ -38,6 +38,7 @@ type Commands = {
   ) => Promise<{ fullPath: string; fileName: string }>;
   revealItemInFolder: (path: string) => Promise<void>;
   openUploadUrl: () => void;
+  showDataExportError: () => void;
   startAllTrackers: () => void;
   triggerPermissionCheckAccessibility: (prompt: boolean) => boolean;
   triggerPermissionCheckScreenRecording: () => boolean;
