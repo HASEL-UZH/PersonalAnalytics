@@ -330,8 +330,11 @@ export class DataExportService {
           maxContentLength: Infinity,
           maxBodyLength: Infinity,
         });
-  
-        LOG.info(`Uploaded to DDL: status ${response.status}, response: ${response.data}`); // TODO: check response data?
+        
+        if (response.status !== 201) {
+          throw new Error(`Failed to upload to DDL: ${response.statusText}`);
+        }
+        LOG.info(`Uploaded to DDL: status ${response.status}, response: ${response.data}`);
   
         // option to delete the zip file after upload (but we're keeping it for now)
         // fs.unlink(zipPath, (err) => {
