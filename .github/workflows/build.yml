@@ -58,5 +58,7 @@ jobs:
           AZURE_CERT_PROFILE_NAME: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          DDL_PROJECT_ID: ${{ secrets.DDL_PROJECT_ID }}
-          DDL_PROJECT_TOKEN: ${{ secrets.DDL_PROJECT_TOKEN }}
+      - name: Create .env file with secrets
+        run: |
+          echo "DDL_PROJECT_ID=${{ secrets.DDL_PROJECT_ID }}" >> .env
+          echo "DDL_PROJECT_TOKEN=${{ secrets.DDL_PROJECT_TOKEN }}" >> .env
