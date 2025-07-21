@@ -7,7 +7,7 @@ import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import studyConfig from '../../../shared/study.config'
-
+import { DataExportFormat } from '../../../shared/DataExportFormat.enum'
 import { UsageDataService } from './UsageDataService'
 import { UsageDataEventType } from '../../enums/UsageDataEventType.enum'
 import { Settings } from '../entities/Settings'
@@ -292,7 +292,7 @@ export class WindowService {
       event.preventDefault() // prevents the window from closing 
 
       const seemsToHaveCompletedExport = this.hasOpenedDataExportUrl && this.hasRevealedDataEportFolder
-      if (!seemsToHaveCompletedExport) {
+      if (!seemsToHaveCompletedExport && studyConfig.dataExportFormat != DataExportFormat.ExportToDDL) {
         const result = await dialog.showMessageBox({
           type: 'warning',
           buttons: ['Continue with data export', 'Close Anyway'],

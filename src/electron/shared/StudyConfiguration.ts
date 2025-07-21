@@ -1,3 +1,5 @@
+import { DataExportFormat } from './DataExportFormat.enum';
+
 export interface UserInputTrackerConfiguration {
   enabled: boolean;
   intervalInMs: number;
@@ -42,6 +44,7 @@ export interface StudyConfiguration {
   subjectIdLength: number;
   dataExportEnabled: boolean;
   dataExportEncrypted: boolean;
+  dataExportFormat: DataExportFormat;
   trackers: TrackerConfiguration;
   displayDaysParticipated: boolean;
 }
