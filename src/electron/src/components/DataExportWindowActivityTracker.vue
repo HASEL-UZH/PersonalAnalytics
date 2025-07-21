@@ -39,7 +39,7 @@ const emitObfuscateSampleData = async () => {
 </script>
 <template>
   <div class="my-5 border border-slate-400 p-2">
-    <div class="prose">
+    <div class="prose max-w-none">
       <h2>How do you want to share your Window Activity data?</h2>
     </div>
     <div class="mt-4 flex w-1/2 flex-col">

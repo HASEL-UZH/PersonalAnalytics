@@ -1,17 +1,18 @@
 import { ExperienceSamplingService } from '../main/services/ExperienceSamplingService';
-import { app, ipcMain, IpcMainInvokeEvent, shell, systemPreferences } from 'electron';
+import { app, dialog, ipcMain, IpcMainInvokeEvent, shell, systemPreferences } from 'electron';
 import { WindowService } from '../main/services/WindowService';
 import { getMainLogger } from '../config/Logger';
 import { TypedIpcMain } from '../../src/utils/TypedIpcMain';
 import Commands from '../../src/utils/Commands';
 import Events from '../../src/utils/Events';
+import { DataExportType } from '../../shared/DataExportType.enum';
+import { DataExportFormat } from '../../shared/DataExportFormat.enum';
 import StudyInfoDto from '../../shared/dto/StudyInfoDto';
 import { Settings } from '../main/entities/Settings';
 import studyConfig from '../../shared/study.config';
 import { TrackerService } from '../main/services/trackers/TrackerService';
 import { WindowActivityTrackerService } from '../main/services/trackers/WindowActivityTrackerService';
 import { UserInputTrackerService } from '../main/services/trackers/UserInputTrackerService';
-import { DataExportType } from '../../shared/DataExportType.enum';
 import { DataExportService } from '../main/services/DataExportService';
 import UserInputDto from '../../shared/dto/UserInputDto';
 import WindowActivityDto from '../../shared/dto/WindowActivityDto';
@@ -72,6 +73,7 @@ export class IpcHandler {
       startDataExport: this.startDataExport,
       revealItemInFolder: this.revealItemInFolder,
       openUploadUrl: this.openUploadUrl,
+      showDataExportError: this.showDataExportError,
       startAllTrackers: this.startAllTrackers,
       triggerPermissionCheckAccessibility: this.triggerPermissionCheckAccessibility,
       triggerPermissionCheckScreenRecording: this.triggerPermissionCheckScreenRecording
@@ -198,13 +200,15 @@ export class IpcHandler {
     windowActivityExportType: DataExportType,
     userInputExportType: DataExportType,
     obfuscationTerms: string[],
-    encryptData: boolean
-  ): Promise<string> {
+    encryptData: boolean,
+    exportFormat: DataExportFormat,
+  ): Promise<{ fullPath: string; fileName: string }> {
     return this.dataExportService.startDataExport(
       windowActivityExportType,
       userInputExportType,
       obfuscationTerms,
-      encryptData
+      encryptData,
+      exportFormat
     );
   }
 
@@ -214,6 +218,12 @@ export class IpcHandler {
   
   private async openUploadUrl(): Promise<void> {
     this.windowService.openExternal();
+  }
+
+  private async showDataExportError(): Promise<void> {
+    dialog.showErrorBox(
+      'Study Data Export failed', 
+      `Please try again or contact the study team (${studyConfig.contactName}, ${studyConfig.contactEmail}) for help.`);
   }
 
   private triggerPermissionCheckAccessibility(prompt: boolean): boolean {

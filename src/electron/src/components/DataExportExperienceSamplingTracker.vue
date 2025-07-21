@@ -12,9 +12,12 @@ defineProps({
 </script>
 <template>
   <div class="my-5 border border-slate-400 p-2">
-    <div class="prose">
+    <div class="prose max-w-none">
       <h2>Your Self Reported data</h2>
-      <p>Here is a sample of your unmodified data:</p>
+      <p>
+        Your responses to the experience sampling questions will also be shared with the
+        researchers. They do <b>not</b> contain any sensitive data.</p>
+        <p>Here is a sample of your unmodified data:</p>
     </div>
     <div class="max-h-48 overflow-auto">
       <table
@@ -41,16 +44,6 @@ defineProps({
           </tr>
         </tbody>
       </table>
-    </div>
-    <div class="mt-4 flex">
-      <div class="mr-4">
-        <div class="prose prose-lg max-w-none">
-          <p>
-            Your responses to the experience sampling questions will also be shared with the
-            researchers. They do <b>not</b> contain any sensitive data.
-          </p>
-        </div>
-      </div>
     </div>
   </div>
 </template>
