@@ -20,7 +20,8 @@ import { is } from './services/utils/helpers';
 import { Settings } from './entities/Settings';
 import { UsageDataService } from './services/UsageDataService';
 import { UsageDataEventType } from '../enums/UsageDataEventType.enum';
-import { WorkScheduleService } from './services/WorkScheduleService'
+import { WorkScheduleService } from './services/WorkScheduleService';
+import dotenv from 'dotenv';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -63,6 +64,11 @@ if (is.macOS) {
 // Optional, initialize the logger for any renderer process
 log.initialize();
 const LOG = getMainLogger('Main');
+
+// Load environment variables from .env file
+dotenv.config();
+console.log('DDL_PROJECT_ID:', process.env.DDL_PROJECT_ID); // todo: temp: Confirm it's loaded
+
 
 app.whenReady().then(async () => {
   app.setAppUserModelId('ch.ifi.hasel.personal-analytics');
