@@ -2,24 +2,24 @@ import { StudyConfiguration } from './StudyConfiguration';
 import { DataExportFormat } from './DataExportFormat.enum';
 
 const studyConfig: StudyConfiguration = {
-  name: 'PersonalAnalytics Study',
+  name: 'D2CARE | Computer Analytics for Reflection and Engagement',
   shortDescription:
-    'PersonalAnalytics is a self-monitoring software developed by the Human Aspects of Software Engineering Lab of the University of Zurich to non-intrusively collect computer interaction data and store it locally on your computer. Every now and then, a self-reflection question asks you about time well spent and perceived productivity. In the future, it will add a retrospection that will visualize and correlate the automatically collected and manually reported data to help you learn more about how you spend your time and your productivity. This software is open source, can be adapted and re-used for your own scientific studies.',
-  infoUrl: 'https://github.com/HASEL-UZH/PersonalAnalytics',
-  privacyPolicyUrl: 'https://github.com/HASEL-UZH/PersonalAnalytics/blob/dev/documentation/PRIVACY.md',
-  uploadUrl: 'https://hasel.dev/upload',
-  contactName: 'Dr. André Meyer',
-  contactEmail: 'study@hasel.dev',
-  subjectIdLength: 6,
+    '<p><strong>Welcome to D²CARE.</strong></p><p>Developed at the University of Zurich, our privacy-first software helps you reflect on your digital workday by self-monitoring app usage (start/end times, app names), aggregated input activity (keyboard/mouse patterns, not what you type), and brief mood check-ins via experience sampling - all stored securely and only on your device. Research shows that reflecting on these patterns can already lead to greater awareness and meaningful improvements in digital habits.</p><p>We may occasionally reach out to invite you to anonymously donate your usage data and take part in short surveys as part of our non-commercial research on digital behavior and wellbeing. Participation is always voluntary and typically includes a small token of appreciation. All data donated to us is handled with strict confidentiality and care. </p><p>If you have questions, feedback, or ideas for how D²CARE could support other non-commercial research, we’d love to hear from you.</p><p><strong>D²CARE - Self-Monitor with CARE.</strong></p>',
+  infoUrl: 'https://www.mydata-lab.uzh.ch/d2care.html',
+  privacyPolicyUrl: 'https://www.mydata-lab.uzh.ch/d2care/privacy.html',
+  uploadUrl: '',
+  contactName: 'Dr. Malte Doehne and Dr. André Meyer',
+  contactEmail: 'd2care@d2usp.ch',
+  subjectIdLength: 7,
   dataExportEnabled: true,
-  dataExportFormat: DataExportFormat.ExportToDDL, // default should be ExportAsZippedSqlite,
+  dataExportFormat: DataExportFormat.ExportToDDL,
   dataExportEncrypted: false,
   displayDaysParticipated: true,
   trackers: {
     windowActivityTracker: {
       enabled: true,
       intervalInMs: 1000,
-      trackUrls: false,
+      trackUrls: true,
       trackWindowTitles: true
     },
     userInputTracker: {
@@ -38,8 +38,8 @@ const studyConfig: StudyConfiguration = {
         ['not at all productive', 'moderately productive', 'very productive'],
         ['not well', 'moderately well', 'very well']
       ],
-      intervalInMs: 1000 * 60 * 60 * 1,
-      samplingRandomization: 0.2 // 20% randomization, so the interval will be between 48 and 72 minutes
+      intervalInMs: 1000 * 60 * 60 * 5, // 5 hours
+      samplingRandomization: 0.1
     }
   }
 };
