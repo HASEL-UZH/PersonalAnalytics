@@ -1,0 +1,30 @@
+/* added to split out tailwind utilities into a plain CSS file **/
+
+/* used in StudyInfo.vue */
+.subject-badge {
+  @apply badge badge-neutral text-white;
+}
+
+/* used in ExperienceSamplingView.vue  */ 
+.experience-sampling-notification {
+  @apply h-full bg-white select-none overflow-hidden;
+}
+
+.experience-sampling-notification .notification-top-bar {
+  @apply pointer-events-auto flex w-full flex-shrink-0 justify-between bg-gray-200 px-2 py-1 text-xs text-gray-500;
+  line-height: 1.35rem;
+  -webkit-app-region: drag;
+}
+
+.experience-sampling-notification .prompt {
+  @apply font-bold;
+}
+
+.experience-sampling-notification .sample-answer {
+  @apply mx-1 flex h-8 w-8 cursor-pointer items-center rounded-md border border-gray-200 bg-gray-100 text-center align-middle text-gray-500 transition-all hover:bg-gray-700 hover:text-white;
+}
+
+/* used in DataExportView.vue */
+.password-badge {
+  @apply badge badge-neutral font-bold text-white;
+}

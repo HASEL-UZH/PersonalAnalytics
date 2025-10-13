@@ -103,5 +103,5 @@ const emitChange = () => {
   </div>
 </template>
 <style lang="less">
-@import '../styles/index';
+@import '@/styles/index.less';
 </style>
