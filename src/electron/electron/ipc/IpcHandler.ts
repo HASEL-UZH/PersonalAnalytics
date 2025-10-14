@@ -86,7 +86,8 @@ export class IpcHandler {
           return await this.actions[action].apply(this, args);
         } catch (error) {
           LOG.error(error);
-          return error;
+          // return error;
+          throw error;
         }
       });
     });
@@ -220,10 +221,10 @@ export class IpcHandler {
     this.windowService.openExternal();
   }
 
-  private async showDataExportError(): Promise<void> {
-    dialog.showErrorBox(
-      'Study Data Export failed', 
-      `Please try again or contact the study team (${studyConfig.contactName}, ${studyConfig.contactEmail}) for help.`);
+  private async showDataExportError(errorMessage?: string): Promise<void> {
+    const message = `Please try again. If the export keeps failing, contact the study team (${studyConfig.contactName}, ${studyConfig.contactEmail}) and send them a screenshot of this error.` 
+                      + (errorMessage ? `\n\nError message: ${errorMessage}` : '');
+    dialog.showErrorBox('Study Data Export failed', message);
   }
 
   private triggerPermissionCheckAccessibility(prompt: boolean): boolean {
