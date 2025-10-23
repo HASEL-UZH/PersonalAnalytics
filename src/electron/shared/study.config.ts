@@ -39,8 +39,16 @@ const studyConfig: StudyConfiguration = {
         ['not well', 'moderately well', 'very well']
       ],
       intervalInMs: 1000 * 60 * 60 * 1,
-      samplingRandomization: 0.2 // 20% randomization, so the interval will be between 48 and 72 minutes
+      samplingRandomization: 0.2, // 20% randomization, so the interval will be between 48 and 72 minutes
+
+      // NEW (ticket #444):
+      // Researcher-defined switches (defaults per ticket: true)
+      allowUserToDisable: true,            // "Allows participants to disable the self-reports"
+      allowUserToChangeInterval: true,     // "Allows participants to change the interval for the periodic self-reports."
+      // Options list (defaults per ticket: [] empty). Example values shown commented out.
+      userDefinedInterval_h: []            // e.g., [0.5, 1, 2, 3]
     }
   }
 };
+
 export default studyConfig;
