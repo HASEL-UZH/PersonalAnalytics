@@ -34,6 +34,11 @@ const router: Router = createRouter({
           path: '/work-hours',
           name: 'Active Times',
           component: () => import('../views/settings/WorkHoursView.vue')
+        },
+        {
+          path: '/self-reporting',
+          name: 'Self-Reporting',
+          component: () => import('../views/settings/SelfReportingView.vue')
         }
       ]
     },

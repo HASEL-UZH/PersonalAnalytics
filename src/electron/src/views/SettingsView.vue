@@ -1,11 +1,13 @@
 <script setup lang="ts">
-
 import studyConfig from '../../shared/study.config'
 
 const considerWorkHours = studyConfig.trackers.experienceSamplingTracker.enabledWorkHours;
 
+const es = studyConfig.trackers.experienceSamplingTracker;
+const showSelfReporting =
+  es.enabled === true &&
+  ((es.allowUserToChangeInterval ?? true) || (es.allowUserToDisable ?? true));
 </script>
-
 
 <template>
   <div class="settings-container">
@@ -13,6 +15,7 @@ const considerWorkHours = studyConfig.trackers.experienceSamplingTracker.enabled
       <ul>
         <li><router-link to="about">About</router-link></li>
         <li v-if="considerWorkHours"><router-link to="work-hours">Active Times</router-link></li>
+        <li v-if="showSelfReporting"><router-link to="self-reporting">Self-Reporting</router-link></li>
         <!-- <li><router-link to="config">App Configuration</router-link></li> -->
       </ul>
     </nav>

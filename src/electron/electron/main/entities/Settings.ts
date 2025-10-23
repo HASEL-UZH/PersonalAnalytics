@@ -48,4 +48,10 @@ export class Settings extends BaseEntity {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  @Column({ type: 'integer', default: 0 })
+  userDisabledExperienceSampling!: number;
+
+  @Column({ type: 'float', nullable: true })
+  userDefinedExperienceSamplingInterval_h!: number | null;
 }
