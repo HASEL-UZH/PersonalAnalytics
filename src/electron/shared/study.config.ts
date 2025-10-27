@@ -40,9 +40,9 @@ const studyConfig: StudyConfiguration = {
       ],
       intervalInMs: 1000 * 60 * 60 * 1,
       samplingRandomization: 0.2, // 20% randomization, so the interval will be between 48 and 72 minutes
-      allowUserToDisable: false,
-      allowUserToChangeInterval: false,
-      userDefinedInterval_h: []
+      allowUserToDisable: true,
+      allowUserToChangeInterval: true,
+      userDefinedInterval_h: [0.5, 1, 2]
     }
   }
 };

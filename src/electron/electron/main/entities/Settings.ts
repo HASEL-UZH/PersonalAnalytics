@@ -50,8 +50,8 @@ export class Settings extends BaseEntity {
   updatedAt: Date;
 
   @Column({ type: 'integer', default: 0 })
-  userDisabledExperienceSampling!: number;
+  userDisabledExperienceSampling: number;
 
   @Column({ type: 'float', nullable: true })
-  userDefinedExperienceSamplingInterval_h!: number | null;
+  userDefinedExperienceSamplingInterval_h: number | null;
 }

@@ -52,52 +52,54 @@ onMounted(load)
 <template>
   <div>
     <article class="prose prose-lg mt-4 mb-5">
-      <h1>
+      <h1 class="mt-0">
         <span class="primary-blue">Self-Reporting</span>
       </h1>
-      <span>
+      <p class="text-base">
         PersonalAnalytics allows you to periodically reflect on and self-report.
-      </span>
+      </p>
     </article>
 
-    <div v-if="allowUserToDisable" class="mb-6">
-      <Switch
-        :modelValue="!disabled"
-        :label="'Enable/disable periodic self-reports'"
-        :on-change="onChangeSelfReportingEnabled"
-      />
-    </div>
-
-    <!-- Interval: styled like other settings form controls (daisyUI) -->
-    <div
-      v-if="allowUserToChangeInterval && intervalOptions.length > 0"
-      class="self-reporting-container"
-    >
-      <div class="form-control w-[70%] max-w-xl">
-        <label class="label pb-0">
-          <span class="label-text">
-            How frequently would you like to reflect and self-report (during active times)?
-          </span>
-        </label>
-        <select
-          class="select select-bordered mt-2"
-          :value="selectedInterval ?? ''"
-          @change="onSelectInterval(($event.target as HTMLSelectElement).value)"
-        >
-          <option value="">Use study default</option>
-          <option v-for="h in intervalOptions" :key="h" :value="h">
-            {{ formatHours(h) }}
-          </option>
-        </select>
+    <article class="prose prose-lg mt-4">
+      <div v-if="allowUserToDisable" class="mb-6">
+        <Switch
+          :modelValue="!disabled"
+          :label="'Enable/disable periodic self-reports'"
+          :on-change="onChangeSelfReportingEnabled"
+        />
       </div>
-    </div>
 
-    <div class="self-reporting-container">
-      <div class="font-medium mb-2">Self-Reflection Questions:</div>
-      <ul class="list-disc ml-6">
-        <li v-for="q in questions" :key="q">{{ q }}</li>
-      </ul>
-    </div>
+      <div
+        v-if="allowUserToChangeInterval && intervalOptions.length > 0"
+        class="self-reporting-container"
+      >
+        <div class="form-control w-[70%] max-w-xl">
+          <label class="label pb-0">
+            <span class="label-text text-base">
+              How frequently would you like to reflect and self-report (during active times)?
+            </span>
+          </label>
+          <select
+            class="select select-bordered mt-2"
+            :value="selectedInterval ?? ''"
+            @change="onSelectInterval(($event.target as HTMLSelectElement).value)"
+          >
+            <option v-for="h in intervalOptions" :key="h" :value="h">
+              {{ formatHours(h) }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </article>
+
+    <article class="prose prose-lg mt-4">
+      <div class="self-reporting-container">
+        <div class="font-medium mb-2">Self-Reflection Questions:</div>
+        <ul class="list-disc ml-6">
+          <li v-for="q in questions" :key="q">{{ q }}</li>
+        </ul>
+      </div>
+    </article>
   </div>
 </template>
 
