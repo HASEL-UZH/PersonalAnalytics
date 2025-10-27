@@ -11,8 +11,16 @@ const question = esConfig.questions[randomQuestionNr];
 const questionLabels = esConfig.responseOptions[randomQuestionNr];
 const scale = Array.from({ length: esConfig.scale }, (_, i) => i + 1);
 
-const promptedAt = new Date(Date.now());
-const promptedAtString = promptedAt.toLocaleTimeString().substring(0, 5);
+const locale = navigator.language;
+const uses12Hour = new Intl.DateTimeFormat(locale, { hour: 'numeric' })
+  .resolvedOptions().hour12;
+
+const promptedAt = new Date();
+const promptedAtString = new Intl.DateTimeFormat(locale, {
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: uses12Hour
+}).format(promptedAt);
 
 const sampleLoadingValue = ref<number | null>();
 
