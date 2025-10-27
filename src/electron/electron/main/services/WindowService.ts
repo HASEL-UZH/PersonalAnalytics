@@ -380,7 +380,7 @@ export class WindowService {
       },
       { type: 'separator' },
       {
-        label: 'Open Experience Sampling',
+        label: 'Add Self-Reflection',
         click: () => this.createExperienceSamplingWindow(true)
       },
       {
