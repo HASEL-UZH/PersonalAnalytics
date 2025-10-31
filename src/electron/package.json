@@ -71,7 +71,7 @@
     "form-data": "^4.0.4",
     "jsdom": "^25.0.1",
     "node-schedule": "^2.1.1",
-    "typeorm": "^0.3.20",
+    "typeorm": "^0.3.26",
     "user-input-tracker": "file:PA.UserInputTracker/typescript",
     "vue-router": "^4.2.5",
     "windows-activity-tracker": "file:PA.WindowsActivityTracker/typescript"
