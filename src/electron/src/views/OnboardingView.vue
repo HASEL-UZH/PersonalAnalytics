@@ -6,6 +6,9 @@ import typedIpcRenderer from '../utils/typedIpcRenderer';
 import StudyInfo from '../components/StudyInfo.vue';
 import { LocationQueryValue, useRoute } from 'vue-router';
 import studyConfig from '../../shared/study.config';
+import Switch from '../components/Switch.vue';
+import WorkHoursRow from '../components/WorkHoursRow.vue';
+import type { WorkHoursDto, WorkHoursDayDto } from '../../shared/dto/WorkHoursDto';
 
 const windowActivityTrackerEnabled = studyConfig.trackers.windowActivityTracker.enabled;
 const requiresAccessibilityPermission =
@@ -30,11 +33,22 @@ const route = useRoute();
 const isMacOS: string | null | LocationQueryValue[] = route.query.isMacOS;
 const goToStep: string | null | LocationQueryValue[] = route.query.goToStep;
 
+const shouldShowActiveTimesStep = computed(() => {
+  const es = studyConfig.trackers.experienceSamplingTracker;
+  return studyConfig.showActiveTimesInOnboarding === true && es?.enabledWorkHours === true;
+});
+
 const availableSteps = ['welcome'];
 
 if (isMacOS === 'true' && requiresAnyPermission) {
   availableSteps.push('data-collection');
-} else if (isMacOS === 'false') {
+}
+
+if (shouldShowActiveTimesStep.value) {
+  availableSteps.push('active-times');
+}
+
+if (isMacOS === 'false') {
   availableSteps.push('study-trackers-started');
 }
 
@@ -52,6 +66,18 @@ const maxSteps = computed(() => {
 const currentNamedStep = computed(() => {
   return availableSteps[currentStep.value];
 });
+
+const workHoursRef = ref<WorkHoursDto>({
+  monday: { startTime: '', endTime: '', isWorking: false },
+  tuesday: { startTime: '', endTime: '', isWorking: false },
+  wednesday: { startTime: '', endTime: '', isWorking: false },
+  thursday: { startTime: '', endTime: '', isWorking: false },
+  friday: { startTime: '', endTime: '', isWorking: false },
+  saturday: { startTime: '', endTime: '', isWorking: false },
+  sunday: { startTime: '', endTime: '', isWorking: false },
+});
+
+const activeTimesEnabled = ref(true);
 
 onMounted(async () => {
   studyInfo.value = await typedIpcRenderer.invoke('getStudyInfo');
@@ -71,6 +97,17 @@ onMounted(async () => {
         isScreenRecordingPermissionLoading.value = false;
       }
     }, 1000);
+  }
+
+  if (shouldShowActiveTimesStep.value) {
+    try {
+      const workHours = await typedIpcRenderer.invoke('getWorkHours') as WorkHoursDto;
+      workHoursRef.value = { ...workHours };
+      const settings: any = await typedIpcRenderer.invoke('getSettings');
+      activeTimesEnabled.value = settings.enabledWorkHours ?? true;
+    } catch (error) {
+      console.error('Onboarding Active Times: failed to load', error);
+    }
   }
 });
 
@@ -124,6 +161,18 @@ function triggerPermissionCheckScreenRecording(): Promise<boolean> {
 function startAllTrackers() {
   typedIpcRenderer.invoke('startAllTrackers');
 }
+
+const updateWorkHours = async (day: keyof WorkHoursDto, updated: WorkHoursDayDto) => {
+  workHoursRef.value[day] = updated;
+  const serializable = JSON.parse(JSON.stringify(workHoursRef.value));
+  await typedIpcRenderer.invoke('setWorkHours', serializable);
+};
+
+const onChangeActiveTimesEnabled = async (e: Event) => {
+  const isChecked = (e.target as HTMLInputElement).checked;
+  activeTimesEnabled.value = isChecked;
+  await typedIpcRenderer.invoke('setSettingsProp', 'enabledWorkHours', isChecked);
+};
 </script>
 
 <template>
@@ -257,6 +306,29 @@ function startAllTrackers() {
             </p>
           </div>
         </div>
+        <div v-else-if="currentNamedStep === 'active-times'" key="active-times" class="absolute">
+          <h1 class="mb-8 text-3xl font-medium text-neutral-800 dark:text-neutral-300">Active Times</h1>
+          <article class="prose prose-lg max-w-none">
+            <p>
+              Define your active times for each day of the week, such as the time you usually work or study.
+              Outside these times, no experience sampling pop-up is shown.
+            </p>
+          </article>
+
+          <div class="mt-6 mb-4">
+            <Switch
+              :modelValue="activeTimesEnabled"
+              :label="'Enable/disable active work hours'"
+              :on-change="onChangeActiveTimesEnabled"
+            />
+          </div>
+
+          <div v-if="activeTimesEnabled" class="onboarding-work-hours-container">
+            <div v-for="(workHoursDay, day) in workHoursRef" :key="day">
+              <WorkHoursRow :day="day" :pre-set-work-hours="workHoursDay!" :set-work-hours="updateWorkHours" />
+            </div>
+          </div>
+        </div>
         <div v-else-if="currentNamedStep === 'study-trackers-started'" key="2" class="absolute">
           <h1 class="mb-8 text-3xl font-medium text-neutral-800 dark:text-neutral-300">
             PersonalAnalytics is running
@@ -314,5 +386,11 @@ function startAllTrackers() {
 <style lang="less" scoped>
 .onboarding-view {
   padding: 25px;
+}
+.onboarding-work-hours-container {
+  width: 70%;
+  border-top: 1px solid rgb(59 130 246 / 0.5);
+  margin-top: 24px;
+  padding-top: 16px;
 }
 </style>
