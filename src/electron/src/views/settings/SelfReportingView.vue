@@ -16,14 +16,30 @@ const intervalOptions = computed<number[]>(
 )
 const questions = es.questions
 
+const defaultIntervalHours = es.intervalInMs / (1000 * 60 * 60)
+
 function formatHours(h: number): string {
   return h < 1 ? `${Math.round(h * 60)} minutes` : `${h} hours`
 }
 
+function pickClosestOption(target: number, options: number[], eps = 1e-6): number | null {
+  if (!options.length) return null
+  const exact = options.find(o => Math.abs(o - target) < eps)
+  if (exact !== undefined) return exact
+  return options.reduce((a, b) => (Math.abs(b - target) < Math.abs(a - target) ? b : a))
+}
+
+const selectedDropdownValue = computed<number | ''>(() => {
+  if (selectedInterval.value !== null) return selectedInterval.value
+  const closest = pickClosestOption(defaultIntervalHours, intervalOptions.value)
+  return (closest ?? '') as number | ''
+})
+
 async function load() {
   const settings: any = await typedIpcRenderer.invoke('getSettings')
   disabled.value = (settings.userDisabledExperienceSampling ?? 0) === 1
-  selectedInterval.value = settings.userDefinedExperienceSamplingInterval_h ?? null
+  selectedInterval.value =
+    settings.userDefinedExperienceSamplingInterval_h ?? null
 }
 
 const onChangeSelfReportingEnabled = async (e: Event) => {
@@ -81,7 +97,7 @@ onMounted(load)
           </label>
           <select
             class="select select-bordered mt-2"
-            :value="selectedInterval ?? ''"
+            :value="selectedDropdownValue"
             @change="onSelectInterval(($event.target as HTMLSelectElement).value)"
           >
             <option v-for="h in intervalOptions" :key="h" :value="h">
