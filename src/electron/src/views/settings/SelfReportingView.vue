@@ -19,7 +19,7 @@ const questions = es.questions
 const defaultIntervalHours = es.intervalInMs / (1000 * 60 * 60)
 
 function formatHours(h: number): string {
-  return h < 1 ? `${Math.round(h * 60)} minutes` : `${h} hours`
+  return h < 1 ? `${Math.round(h * 60)} minutes` : `${h} hour(s)`
 }
 
 function pickClosestOption(target: number, options: number[], eps = 1e-6): number | null {
