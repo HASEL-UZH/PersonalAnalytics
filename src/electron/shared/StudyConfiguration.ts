@@ -47,4 +47,5 @@ export interface StudyConfiguration {
   dataExportFormat: DataExportFormat;
   trackers: TrackerConfiguration;
   displayDaysParticipated: boolean;
+  showActiveTimesInOnboarding?: boolean;
 }

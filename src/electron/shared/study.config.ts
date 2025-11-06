@@ -15,6 +15,7 @@ const studyConfig: StudyConfiguration = {
   dataExportFormat: DataExportFormat.ExportToDDL, // default should be ExportAsZippedSqlite,
   dataExportEncrypted: false,
   displayDaysParticipated: true,
+  showActiveTimesInOnboarding: true,
   trackers: {
     windowActivityTracker: {
       enabled: true,
