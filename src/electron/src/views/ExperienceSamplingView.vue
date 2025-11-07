@@ -13,32 +13,15 @@ const scale = Array.from({ length: esConfig.scale }, (_, i) => i + 1);
 
 const language =
   (typeof navigator !== 'undefined' &&
-    ((navigator as any).language || (((navigator as any).languages || [])[0]))) ||
+    (navigator.language || (navigator.languages && navigator.languages[0]))) ||
   'en';
-
-const likely12hLocales = /(^en(-US)?$)|(^en-(AU|NZ|CA|PH|SG|HK|IN)$)|(^es-(US|MX|PH)$)|(^zh-(HK|MO)$)/i;
-
-function detectTwelveHourClock(locale: string): boolean {
-  const sample = new Date(2020, 0, 1, 13, 0);
-  const parts = new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: 'numeric' })
-    .formatToParts(sample);
-  const hasDayPeriod = parts.some(p => p.type === 'dayPeriod');
-  if (hasDayPeriod) return true;
-
-  const raw = new Intl.DateTimeFormat(locale, { timeStyle: 'short' }).format(sample);
-  if (/[ap]\.?m\.?/i.test(raw) || /am|pm|a\.m\.|p\.m\./i.test(raw)) return true;
-
-  return likely12hLocales.test(locale);
-}
-
-const is12h = detectTwelveHourClock(language);
 
 const promptedAt = new Date();
 const promptedAtString = new Intl.DateTimeFormat(language, {
-  hour: is12h ? 'numeric' : '2-digit',
+  hour: '2-digit',
   minute: '2-digit',
-  hour12: is12h,
-  hourCycle: is12h ? 'h12' : 'h23',
+  hour12: false,
+  hourCycle: 'h23',
 }).format(promptedAt);
 
 const sampleLoadingValue = ref<number | null>();
