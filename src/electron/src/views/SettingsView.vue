@@ -4,9 +4,7 @@ import studyConfig from '../../shared/study.config'
 const considerWorkHours = studyConfig.trackers.experienceSamplingTracker.enabledWorkHours;
 
 const es = studyConfig.trackers.experienceSamplingTracker;
-const showSelfReporting =
-  es.enabled === true &&
-  ((es.allowUserToChangeInterval ?? true) || (es.allowUserToDisable ?? true));
+const showSelfReporting = es.enabled === true;
 </script>
 
 <template>
@@ -20,8 +18,7 @@ const showSelfReporting =
       </ul>
     </nav>
     <div class="content">
-      <router-view>
-      </router-view>
+      <router-view />
     </div>
   </div>
 </template>
