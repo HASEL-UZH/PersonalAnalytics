@@ -25,6 +25,9 @@ export interface ExperienceSamplingTrackerConfiguration {
   // The experience sampling will be triggered between 54 and 66 minutes
   // After app startup or the last experience sampling
   samplingRandomization: number;
+  allowUserToDisable?: boolean;
+  allowUserToChangeInterval?: boolean;
+  userDefinedInterval_h?: number[];
 }
 
 export interface TrackerConfiguration {

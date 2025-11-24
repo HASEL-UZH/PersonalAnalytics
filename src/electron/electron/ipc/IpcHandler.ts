@@ -144,6 +144,12 @@ export class IpcHandler {
     const settings: Settings = await Settings.findOne({ where: { onlyOneEntityShouldExist: 1 } });
     settings[prop] = value;
     await settings.save();
+
+    try {
+      await this.windowService.updateTray();
+    } catch (e) {
+      LOG.warn('Failed to update tray after settings change', e);
+    }
   }
 
   private async getSettings(): Promise<Settings> {
