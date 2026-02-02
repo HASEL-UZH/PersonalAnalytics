@@ -13,7 +13,7 @@ const showSelfReporting = es.enabled === true;
       <ul>
         <li><router-link to="about">About</router-link></li>
         <li v-if="considerWorkHours"><router-link to="work-hours">Active Times</router-link></li>
-        <li v-if="showSelfReporting"><router-link to="self-reporting">Self-Reporting</router-link></li>
+        <li v-if="showSelfReporting"><router-link to="self-reporting">Self-Reflection</router-link></li>
         <!-- <li><router-link to="config">App Configuration</router-link></li> -->
       </ul>
     </nav>

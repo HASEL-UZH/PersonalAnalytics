@@ -69,10 +69,10 @@ onMounted(load)
   <div>
     <article class="prose prose-lg mt-4 mb-5">
       <h1 class="mt-0">
-        <span class="primary-blue">Self-Reporting</span>
+        <span class="primary-blue">Self-Reflection</span>
       </h1>
       <p class="text-base">
-        PersonalAnalytics allows you to periodically reflect on and self-report.
+        PersonalAnalytics allows you to periodically reflect.
       </p>
     </article>
 
@@ -80,7 +80,7 @@ onMounted(load)
       <div v-if="allowUserToDisable" class="mb-6">
         <Switch
           :modelValue="!disabled"
-          :label="'Enable/disable periodic self-reports'"
+          :label="'Enable/disable periodic self-reflection'"
           :on-change="onChangeSelfReportingEnabled"
         />
       </div>
@@ -92,7 +92,7 @@ onMounted(load)
         <div class="form-control w-[70%] max-w-xl">
           <label class="label pb-0">
             <span class="label-text text-base">
-              How frequently would you like to reflect and self-report (during active times)?
+              How frequently would you like to reflect (during active times)?
             </span>
           </label>
           <select
@@ -127,7 +127,7 @@ onMounted(load)
 }
 
 .self-reporting-container {
-  width: 70%;
+  width: 90%;
   border-top: 1px solid rgb(59 130 246 / 0.5);
   margin-top: 24px;
   padding-top: 16px;

@@ -70,7 +70,7 @@ async function skipExperienceSample() {
 <template>
   <div class="experience-sampling-notification flex flex-col">
     <div class="notification-top-bar">
-      <div>Self-Report: {{ studyConfig.name }}</div>
+      <div>Self-Reflection: {{ studyConfig.name }}</div>
       <div>{{ promptedAtString }}</div>
     </div>
     <div class="pointer-events-auto flex h-full flex-row">
