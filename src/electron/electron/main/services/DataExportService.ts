@@ -5,6 +5,7 @@ import path from 'path';
 import { app } from 'electron';
 import { is } from './utils/helpers';
 import fs from 'node:fs';
+import { File, Blob } from "node:buffer";
 import Database from 'better-sqlite3-multiple-ciphers';
 import { WindowActivityEntity } from '../entities/WindowActivityEntity';
 import { WindowActivityTrackerService } from './trackers/WindowActivityTrackerService';
@@ -13,8 +14,6 @@ import { UsageDataService } from './UsageDataService';
 import { UsageDataEventType } from '../../enums/UsageDataEventType.enum';
 import { DataExportFormat } from '../../../shared/DataExportFormat.enum';
 import archiver from 'archiver';
-import axios from 'axios';
-import FormData from 'form-data';
 
 const LOG = getMainLogger('DataExportService');
 
@@ -314,33 +313,40 @@ export class DataExportService {
         encryptData
       );
   
-      const projectId = process.env.DDL_PROJECT_ID || 'add for debugging'; // set in Github Secrets
-      const projectToken = process.env.DDL_PROJECT_TOKEN || 'add for debugging'; // set in Github Secrets (expires after maximum of 90d)
+      const projectId = process.env.DDL_PROJECT_ID || 'y0MsL6K9'; // hardcoded for testing (credentials will be discarded)
+      const projectToken = process.env.DDL_PROJECT_TOKEN || '70a91994a7b7fd69d28fb1b1f047c57ee46bf4e8'; // hardcoded for testing (credentials will be discarded) (note: token expires after maximum of 90d)
       const url = `https://datadonation.uzh.ch/api/zip/${projectId}`;
-  
-      const form = new FormData();
-      form.append('file', fs.createReadStream(zipPath));
-  
-      try {
-        const response = await axios.post(url, form, {
-          headers: {
-            ...form.getHeaders(),
-            Authorization: `Token ${projectToken}`,
-          },
-          maxContentLength: Infinity,
-          maxBodyLength: Infinity,
-        });
         
-        if (response.status !== 201) {
-          throw new Error(`Failed to upload to DDL: ${response.statusText}`);
+      try {
+        const buffer = await fs.promises.readFile(zipPath);
+        const blob = new Blob([buffer], { type: "application/zip" });
+        const form = new FormData();
+        form.append("file", blob, path.basename(zipPath));
+        
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { Authorization: `Token ${projectToken}`,},
+          body: form,
+        });
+
+        if (!response.ok) {
+          const body = await response.text();
+          const isHTML = /^\s*<!DOCTYPE html>/i.test(body);
+          const shortBody = isHTML ? "[HTML error page omitted]" : body.slice(0, 300);
+          throw new Error(
+            `Failed to upload to DDL: ${response.status} ${response.statusText} - ${shortBody}`
+          );
         }
-        LOG.info(`Uploaded to DDL: status ${response.status}, response: ${response.data}`);
-  
+
+        // only reaches here if response is 2xx
+        const body = await response.text();
+        LOG.info(`Uploaded to DDL: status ${response.status}, response: ${body}`);
+
         // option to delete the zip file after upload (but we're keeping it for now)
         // fs.unlink(zipPath, (err) => {
         //   if (err) LOG.warn(`Failed to delete temporary zipped json file: ${zipPath}`, err);
         // });
-  
+
         return zipPath;
       } catch (error) {
         LOG.error(`Failed to upload to DDL`, error);
