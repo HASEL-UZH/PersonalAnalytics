@@ -67,7 +67,6 @@ const LOG = getMainLogger('Main');
 
 // Load environment variables from .env file
 dotenv.config();
-console.log('DDL_PROJECT_ID:', process.env.DDL_PROJECT_ID); // todo: temp: Confirm it's loaded
 
 
 app.whenReady().then(async () => {

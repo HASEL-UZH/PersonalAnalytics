@@ -184,7 +184,7 @@ async function handleNextStep() {
       LOG.error(e);
       hasExportError.value = true;
       
-      showDataExportError();
+      showDataExportError(e.message);
       handleBackStep();
     }
     isExporting.value = false;
@@ -199,8 +199,8 @@ function handleBackStep() {
   currentStep.value--;
 }
 
-function showDataExportError() {
-  typedIpcRenderer.invoke('showDataExportError');
+function showDataExportError(errorMessage: string) {
+  typedIpcRenderer.invoke('showDataExportError', errorMessage);
 }
 
 function openUploadUrl(event: Event) {
