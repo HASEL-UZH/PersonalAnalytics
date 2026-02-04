@@ -51,7 +51,7 @@
     "postcss": "^8.5.6",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.5.11",
-    "tailwindcss": "^3.4.1",
+    "tailwindcss": "^3.4.19",
     "tree-kill": "^1.2.2",
     "typescript": "^5.3.3",
     "vite": "^5.4.21",
@@ -72,7 +72,7 @@
     "node-schedule": "^2.1.1",
     "typeorm": "^0.3.28",
     "user-input-tracker": "file:PA.UserInputTracker/typescript",
-    "vue-router": "^4.2.5",
+    "vue-router": "^4.6.4",
     "windows-activity-tracker": "file:PA.WindowsActivityTracker/typescript"
   }
 }
