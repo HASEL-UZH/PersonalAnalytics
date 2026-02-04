@@ -172,7 +172,8 @@ async function handleNextStep() {
         exportUserInputSelectedOption.value,
         obfuscationTerms,
         studyConfig.dataExportEncrypted,
-        studyConfig.dataExportFormat
+        studyConfig.dataExportFormat, 
+        studyConfig.dataExportDdlProjectName
       );
 
       pathToExportedFile.value = exportResult.fullPath;

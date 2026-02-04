@@ -181,7 +181,8 @@ export class IpcHandler {
       contactName: studyConfig.contactName,
       contactEmail: studyConfig.contactEmail,
       appVersion: app.getVersion(),
-      currentlyActiveTrackers: this.trackerService.getRunningTrackerNames()
+      currentlyActiveTrackers: this.trackerService.getRunningTrackerNames(),
+      enabledWorkHours: settings.enabledWorkHours
     };
   }
 
@@ -209,13 +210,15 @@ export class IpcHandler {
     obfuscationTerms: string[],
     encryptData: boolean,
     exportFormat: DataExportFormat,
+    exportDdlProjectName?: string
   ): Promise<{ fullPath: string; fileName: string }> {
     return this.dataExportService.startDataExport(
       windowActivityExportType,
       userInputExportType,
       obfuscationTerms,
       encryptData,
-      exportFormat
+      exportFormat,
+      exportDdlProjectName
     );
   }
 

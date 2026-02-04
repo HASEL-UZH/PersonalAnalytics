@@ -26,6 +26,7 @@ export class DataExportService {
     obfuscationTerms: string[],
     encryptData: boolean,
     exportFormat: DataExportFormat,
+    exportToDDLProjectName?: string
   ): Promise<{ fullPath: string; fileName: string }> {
     LOG.info(`startDataExport called with ${exportFormat}`);
     await UsageDataService.createNewUsageDataEvent(
@@ -67,7 +68,8 @@ export class DataExportService {
           windowActivityExportType,
           userInputExportType,
           obfuscationTerms,
-          encryptData
+          encryptData,
+          exportToDDLProjectName
         );
       } else {
         throw new Error(`Unsupported export format: ${exportFormat}`);
@@ -303,6 +305,7 @@ export class DataExportService {
     userInputExportType: DataExportType,
     obfuscationTerms: string[],
     encryptData: boolean,
+    dataExportDdlProjectName: string
   ): Promise<string> {
 
     if (net.isOnline()) {
@@ -312,35 +315,40 @@ export class DataExportService {
         obfuscationTerms,
         encryptData
       );
-  
-      const projectId = process.env.DDL_PROJECT_ID || 'y0MsL6K9'; // hardcoded for testing (credentials will be discarded)
-      const projectToken = process.env.DDL_PROJECT_TOKEN || '70a91994a7b7fd69d28fb1b1f047c57ee46bf4e8'; // hardcoded for testing (credentials will be discarded) (note: token expires after maximum of 90d)
-      const url = `https://datadonation.uzh.ch/api/zip/${projectId}`;
-        
+
+      // we are using our proxy to forward the data to DDL (to avoid exposing secrets in the client)
+      const proxyUrl = "https://pa-upload.hasel.dev/upload_to_ddl.php";
+      const clientKey = dataExportDdlProjectName
+
       try {
         const buffer = await fs.promises.readFile(zipPath);
         const blob = new Blob([buffer], { type: "application/zip" });
         const form = new FormData();
         form.append("file", blob, path.basename(zipPath));
         
-        const response = await fetch(url, {
+        const response = await fetch(proxyUrl, {
           method: "POST",
-          headers: { Authorization: `Token ${projectToken}`,},
+          headers: { "X-Client-Key": clientKey, },
           body: form,
         });
 
+        // Proxy response is standardized (and in json)
+        const data = await response.json();
+
+        // Error on Proxy Side
         if (!response.ok) {
-          const body = await response.text();
-          const isHTML = /^\s*<!DOCTYPE html>/i.test(body);
-          const shortBody = isHTML ? "[HTML error page omitted]" : body.slice(0, 300);
-          throw new Error(
-            `Failed to upload to DDL: ${response.status} ${response.statusText} - ${shortBody}`
-          );
+          LOG.error(`Upload via proxy failed: HTTP ${response.status} ${response.statusText}`, data);
+          throw new Error(data.message || data.error || "Upload via proxy failed");
         }
 
-        // only reaches here if response is 2xx
-        const body = await response.text();
-        LOG.info(`Uploaded to DDL: status ${response.status}, response: ${body}`);
+        // Error on DDL Side
+        if (data.ok === false) {
+          LOG.error(`DDL upload failed via proxy: ddl_status=${data.ddl_status ?? "n/a"}`, data);
+          throw new Error(data.message || "DDL upload failed");
+        }
+
+        // Successful upload
+        LOG.info(`Uploaded to DDL via proxy: proxy_status=${response.status}, ddl_status=${data?.ddl_status ?? "n/a"}`);
 
         // option to delete the zip file after upload (but we're keeping it for now)
         // fs.unlink(zipPath, (err) => {
@@ -349,7 +357,7 @@ export class DataExportService {
 
         return zipPath;
       } catch (error) {
-        LOG.error(`Failed to upload to DDL`, error);
+        LOG.error(`Failed to upload to DDL via proxy`, error);
         throw error;
       }
     } else {
