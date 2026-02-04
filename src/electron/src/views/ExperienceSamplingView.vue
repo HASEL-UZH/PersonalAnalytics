@@ -116,25 +116,11 @@ async function skipExperienceSample() {
   </div>
 </template>
 <style lang="less" scoped>
-@import '../styles/index';
+@import '@/styles/index.less';
+@import '../styles/tailwind-apply.css';
 .experience-sampling-notification {
-  @apply h-full bg-white;
-  user-select: none;
-  overflow: hidden;
-
-  .notification-top-bar {
-    @apply pointer-events-auto flex w-full flex-shrink-0 justify-between bg-gray-200 px-2 py-1 text-xs text-gray-500;
-    line-height: 1.35rem;
-    -webkit-app-region: drag;
-  }
-
   .prompt {
-    @apply font-bold;
     color: @primary-color;
-  }
-
-  .sample-answer {
-    @apply mx-1 flex h-8 w-8 cursor-pointer items-center rounded-md border border-gray-200 bg-gray-100 text-center align-middle text-gray-500  transition-all hover:bg-gray-700 hover:text-white;
   }
 }
 </style>

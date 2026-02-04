@@ -2,7 +2,7 @@
 <template>
   <router-view />
 </template>
-<style lang="less">
+<style>
 #app {
   @apply h-full overflow-hidden;
   -webkit-font-smoothing: antialiased;
