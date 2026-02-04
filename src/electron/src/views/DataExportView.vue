@@ -180,11 +180,12 @@ async function handleNextStep() {
       // Also update the DataExportService if you change the file name here
       fileName.value = exportResult.fileName;
 
-    } catch (e) {
+    } catch (e: unknown) {
       LOG.error(e);
       hasExportError.value = true;
+      const message = e instanceof Error ? e.message : typeof e === 'string' ? e : 'Unknown error during export';
       
-      showDataExportError(e.message);
+      showDataExportError(message);
       handleBackStep();
     }
     isExporting.value = false;
