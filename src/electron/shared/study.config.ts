@@ -12,7 +12,7 @@ const studyConfig: StudyConfiguration = {
   contactEmail: 'study@hasel.dev',
   subjectIdLength: 6,
   dataExportEnabled: true,
-  dataExportFormat: DataExportFormat.ExportToDDL, // default should be ExportAsZippedSqlite,
+  dataExportFormat: DataExportFormat.ExportAsZippedSqlite, // default should be ExportAsZippedSqlite,
   dataExportEncrypted: false,
   displayDaysParticipated: true,
   showActiveTimesInOnboarding: true,
