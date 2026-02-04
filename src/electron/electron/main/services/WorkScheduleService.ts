@@ -25,7 +25,7 @@ export class WorkScheduleService {
   
   public async setWorkSchedule(schedule: WorkHoursDto): Promise<void> {
     // clear existing work schedule
-    await WorkDayEntity.delete({});
+    await WorkDayEntity.clear();
 
     for (let day of weekDays) {    
       await WorkDayEntity.create({
