@@ -305,7 +305,7 @@ export class DataExportService {
     userInputExportType: DataExportType,
     obfuscationTerms: string[],
     encryptData: boolean,
-    dataExportDdlProjectName: string
+    dataExportDDLProjectName: string
   ): Promise<string> {
 
     if (net.isOnline()) {
@@ -318,7 +318,7 @@ export class DataExportService {
 
       // we are using our proxy to forward the data to DDL (to avoid exposing secrets in the client)
       const proxyUrl = "https://pa-upload.hasel.dev/upload_to_ddl.php";
-      const clientKey = dataExportDdlProjectName
+      const clientKey = dataExportDDLProjectName
 
       try {
         const buffer = await fs.promises.readFile(zipPath);
