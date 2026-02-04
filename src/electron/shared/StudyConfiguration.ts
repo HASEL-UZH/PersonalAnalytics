@@ -48,6 +48,7 @@ export interface StudyConfiguration {
   dataExportEnabled: boolean;
   dataExportEncrypted: boolean;
   dataExportFormat: DataExportFormat;
+  dataExportDdlProjectName?: string;
   trackers: TrackerConfiguration;
   displayDaysParticipated: boolean;
   showActiveTimesInOnboarding?: boolean;
