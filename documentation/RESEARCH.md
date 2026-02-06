@@ -213,6 +213,7 @@ Citing the repository:
 ## Research that used PersonalAnalytics
 PersonalAnalytics-legacy was used in the following peer-reviewed research projects (and other non-peer reviewed projects too, such as master and bachelor theses):
 - [CSCW'25](https://hasel.dev/wp-content/uploads/2024/12/2025_FlowTeams_CSCW25_PrePrint.pdf]) Better Balancing Focused Work and Collaboration in Hybrid Teams by Cultivating the Sharing of Work Schedules. André Meyer. Thomas Fritz.
+- [CHI'24](https://dl.acm.org/doi/pdf/10.1145/3613904.3643021) Examining the Use of VR as a Study Aid for University Students with ADHD. Isabelle Cuber. Juliana de Souza. Irene Jacobs. Caroline Lowman. David Shepherd. Thomas Fritz
 - [CHI'20](https://andre-meyer.ch/CHI20) Supporting Software Developers’ Focused Work on Window-Based Desktops. Jan Pilzer, Raphael Rosenast. André Meyer. Elaine Huang. Thomas Fritz.
 - [TSE'20](https://andre-meyer.ch/TSE20) Detecting Developers’ Task Switches and Types. André Meyer, Chris Satterfield, Manuela Züger, Katja Kevic, Gail Murphy, Thomas Zimmermann, and Thomas Fritz.
 - [CSCW’18](https://www.andre-meyer.ch/CSCW18) Design Recommendations for Self-Monitoring in the Workplace: Studies in Software Development. André Meyer, Gail Murphy, Thomas Zimmermann, Thomas Fritz. (hint: in this paper, the tool described as WorkAnalytics refers to the PersonalAnalytics in this repository)
