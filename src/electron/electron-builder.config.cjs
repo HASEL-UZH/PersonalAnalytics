@@ -55,7 +55,7 @@ module.exports = {
   },
   nsis: {
     oneClick: true,
-    deleteAppDataOnUninstall: false,
+    deleteAppDataOnUninstall: true,
     differentialPackage: false,
     artifactName: '${productName}-${version}-Windows.${ext}',
   }
