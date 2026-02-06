@@ -326,7 +326,7 @@ export class DataExportService {
         const { size } = await fs.promises.stat(zipPath);
         if (size > maxBytes) {
           const mib = (size / (1024 * 1024)).toFixed(1);
-          throw new Error(`Export is too large (${mib} MiB). The upload limit is 256 MiB.`);
+          throw new Error(`Export is too large (${mib} MB). The upload limit is 256 MB.`);
         }
 
         const buffer = await fs.promises.readFile(zipPath);
