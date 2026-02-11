@@ -38,8 +38,9 @@ export class ExperienceSamplingTracker implements Tracker {
     if (allowChange) {
       const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
       const h = settings?.userDefinedExperienceSamplingInterval_h;
-      if (h != null && Number.isFinite(h)) {
-        return Math.max(1, h) * 60 * 60 * 1000; // hours → ms
+      LOG.debug(`User defined experience sampling interval in hours: ${h}`);
+      if (h != null && h !== 0 && Number.isFinite(h)) {
+        return h * 60 * 60 * 1000; // hours → ms
       }
     }
     return this.intervalInMs;
