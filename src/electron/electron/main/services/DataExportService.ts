@@ -319,7 +319,7 @@ export class DataExportService {
       // we are using our proxy to forward the data to DDL (to avoid exposing secrets in the client)
       const proxyUrl = "https://pa-upload.hasel.dev/upload_to_ddl.php";
       const clientKey = dataExportDDLProjectName
-      const maxBytes = 256 * 1024 * 1024; // server accepts a maximum of 256 MB
+      const maxBytes = 199 * 1024 * 1024; // server accepts a maximum of 200 MB
 
       try {
         // Check size before reading into memory / uploading
