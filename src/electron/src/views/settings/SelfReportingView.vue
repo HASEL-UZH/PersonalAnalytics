@@ -76,7 +76,7 @@ onMounted(load)
       </p>
     </article>
 
-    <article class="prose prose-lg mt-4">
+    <article class="prose mt-4">
       <div v-if="allowUserToDisable" class="mb-6">
         <Switch
           :modelValue="!disabled"
