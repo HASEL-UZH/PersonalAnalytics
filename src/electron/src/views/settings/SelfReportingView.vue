@@ -86,7 +86,7 @@ onMounted(load)
       </div>
 
       <div
-        v-if="allowUserToChangeInterval && intervalOptions.length > 0"
+        v-if="allowUserToChangeInterval && intervalOptions.length > 0" && !disabled
         class="self-reporting-container"
       >
         <div class="form-control w-[70%] max-w-xl">
