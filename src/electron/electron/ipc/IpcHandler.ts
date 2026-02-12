@@ -86,7 +86,8 @@ export class IpcHandler {
           return await this.actions[action].apply(this, args);
         } catch (error) {
           LOG.error(error);
-          return error;
+          // return error;
+          throw error;
         }
       });
     });
@@ -144,6 +145,12 @@ export class IpcHandler {
     const settings: Settings = await Settings.findOne({ where: { onlyOneEntityShouldExist: 1 } });
     settings[prop] = value;
     await settings.save();
+
+    try {
+      await this.windowService.updateTray();
+    } catch (e) {
+      LOG.warn('Failed to update tray after settings change', e);
+    }
   }
 
   private async getSettings(): Promise<Settings> {
@@ -174,7 +181,8 @@ export class IpcHandler {
       contactName: studyConfig.contactName,
       contactEmail: studyConfig.contactEmail,
       appVersion: app.getVersion(),
-      currentlyActiveTrackers: this.trackerService.getRunningTrackerNames()
+      currentlyActiveTrackers: this.trackerService.getRunningTrackerNames(),
+      enabledWorkHours: settings.enabledWorkHours
     };
   }
 
@@ -202,13 +210,15 @@ export class IpcHandler {
     obfuscationTerms: string[],
     encryptData: boolean,
     exportFormat: DataExportFormat,
+    exportDDLProjectName?: string
   ): Promise<{ fullPath: string; fileName: string }> {
     return this.dataExportService.startDataExport(
       windowActivityExportType,
       userInputExportType,
       obfuscationTerms,
       encryptData,
-      exportFormat
+      exportFormat,
+      exportDDLProjectName
     );
   }
 
@@ -220,10 +230,10 @@ export class IpcHandler {
     this.windowService.openExternal();
   }
 
-  private async showDataExportError(): Promise<void> {
-    dialog.showErrorBox(
-      'Study Data Export failed', 
-      `Please try again or contact the study team (${studyConfig.contactName}, ${studyConfig.contactEmail}) for help.`);
+  private async showDataExportError(errorMessage?: string): Promise<void> {
+    const message = `Please try again. If the export keeps failing, contact the study team (${studyConfig.contactName}, ${studyConfig.contactEmail}) and send them a screenshot of this error.` 
+                      + (errorMessage ? `\n\nError message: ${errorMessage}` : '');
+    dialog.showErrorBox('Study Data Export failed', message);
   }
 
   private triggerPermissionCheckAccessibility(prompt: boolean): boolean {

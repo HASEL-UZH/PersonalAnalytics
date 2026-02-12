@@ -18,9 +18,9 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-          - os: macos-latest
+          - os: macos-15
             mac_arch: arm64
-          - os: macos-latest
+          - os: macos-15-intel
             mac_arch: x64
     steps:
       - uses: actions/checkout@v4
@@ -35,7 +35,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          if [ "${{ matrix.os }}" == "macos-latest" ]; then
+          if [ "${{ matrix.os }}" == "macos-*" ]; then
             if [ "${{ matrix.mac_arch }}" == "arm64" ]; then
               npm run build:mac:arm64
             else
@@ -58,7 +58,3 @@ jobs:
           AZURE_CERT_PROFILE_NAME: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-      - name: Create .env file with secrets
-        run: |
-          echo "DDL_PROJECT_ID=${{ secrets.DDL_PROJECT_ID }}" >> .env
-          echo "DDL_PROJECT_TOKEN=${{ secrets.DDL_PROJECT_TOKEN }}" >> .env

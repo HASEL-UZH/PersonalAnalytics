@@ -62,7 +62,7 @@ export class WindowService {
     const { width } = screen.getPrimaryDisplay().workAreaSize
     const windowPadding = 20
     const windowWidth = 500
-    const windowHeight = 170
+    const windowHeight = 185
 
     this.experienceSamplingWindow = new BrowserWindow({
       width: windowWidth,
@@ -79,7 +79,7 @@ export class WindowService {
       fullscreenable: false,
       resizable: false,
       acceptFirstMouse: true,
-      title: 'PersonalAnalytics: Self-Report',
+      title: 'PersonalAnalytics: Self-Reflection',
       webPreferences: {
         preload
       }
@@ -357,6 +357,13 @@ export class WindowService {
 
   private async getTrayMenuTemplate(): Promise<MenuItemConstructorOptions[]> {
     const settings: Settings = await Settings.findOne({ where: { onlyOneEntityShouldExist: 1 } })
+
+    const es = studyConfig.trackers.experienceSamplingTracker;
+    const allowDisable = es.allowUserToDisable ?? true;
+    const showSelfReportMenu =
+      es.enabled === true &&
+      (!allowDisable || (settings?.userDisabledExperienceSampling ?? 0) === 0);
+    
     const trayMenuItems: MenuItemConstructorOptions[] = [
       { label: `Version ${app.getVersion()}`, enabled: false },
       {
@@ -381,7 +388,8 @@ export class WindowService {
       { type: 'separator' },
       {
         label: 'Add Self-Reflection',
-        click: () => this.createExperienceSamplingWindow(true)
+        click: () => this.createExperienceSamplingWindow(true),
+        visible: showSelfReportMenu
       },
       {
         label: 'Open Settings',

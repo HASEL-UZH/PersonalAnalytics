@@ -11,8 +11,18 @@ const question = esConfig.questions[randomQuestionNr];
 const questionLabels = esConfig.responseOptions[randomQuestionNr];
 const scale = Array.from({ length: esConfig.scale }, (_, i) => i + 1);
 
-const promptedAt = new Date(Date.now());
-const promptedAtString = promptedAt.toLocaleTimeString().substring(0, 5);
+const language =
+  (typeof navigator !== 'undefined' &&
+    (navigator.language || (navigator.languages && navigator.languages[0]))) ||
+  'en';
+
+const promptedAt = new Date();
+const promptedAtString = new Intl.DateTimeFormat(language, {
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: false,
+  hourCycle: 'h23',
+}).format(promptedAt);
 
 const sampleLoadingValue = ref<number | null>();
 
@@ -58,12 +68,12 @@ async function skipExperienceSample() {
 }
 </script>
 <template>
-  <div class="experience-sampling-notification flex flex-col">
+  <div class="experience-sampling-notification flex min-h-screen flex-col">
     <div class="notification-top-bar">
-      <div>Self-Report: {{ studyConfig.name }}</div>
+      <div>Self-Reflection: {{ studyConfig.name }}</div>
       <div>{{ promptedAtString }}</div>
     </div>
-    <div class="pointer-events-auto flex h-full flex-row">
+    <div class="pointer-events-auto flex flex-1 flex-row">
       <div class="flex-1 p-4 pt-1">
         <div class="flex-1">
           <p class="prompt">{{ question }}</p>
@@ -91,7 +101,7 @@ async function skipExperienceSample() {
           </div>
         </div>
       </div>
-      <div class="flex cursor-pointer border-l border-gray-200">
+      <div class="flex cursor-pointer border-l border-gray-200 self-stretch">
         <div
           class="flex w-full items-center justify-center rounded-none border border-transparent px-4 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none"
           @click="skipExperienceSample()"
@@ -106,25 +116,11 @@ async function skipExperienceSample() {
   </div>
 </template>
 <style lang="less" scoped>
-@import '../styles/index';
+@import '@/styles/index.less';
+@import '../styles/tailwind-apply.css';
 .experience-sampling-notification {
-  @apply h-full bg-white;
-  user-select: none;
-  overflow: hidden;
-
-  .notification-top-bar {
-    @apply pointer-events-auto flex w-full flex-shrink-0 justify-between bg-gray-200 px-2 py-1 text-xs text-gray-500;
-    line-height: 1.35rem;
-    -webkit-app-region: drag;
-  }
-
   .prompt {
-    @apply font-bold;
     color: @primary-color;
-  }
-
-  .sample-answer {
-    @apply mx-1 flex h-8 w-8 cursor-pointer items-center rounded-md border border-gray-200 bg-gray-100 text-center align-middle text-gray-500  transition-all hover:bg-gray-700 hover:text-white;
   }
 }
 </style>

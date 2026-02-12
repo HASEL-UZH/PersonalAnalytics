@@ -172,7 +172,8 @@ async function handleNextStep() {
         exportUserInputSelectedOption.value,
         obfuscationTerms,
         studyConfig.dataExportEncrypted,
-        studyConfig.dataExportFormat
+        studyConfig.dataExportFormat, 
+        studyConfig.dataExportDDLProjectName
       );
 
       pathToExportedFile.value = exportResult.fullPath;
@@ -180,11 +181,12 @@ async function handleNextStep() {
       // Also update the DataExportService if you change the file name here
       fileName.value = exportResult.fileName;
 
-    } catch (e) {
+    } catch (e: unknown) {
       LOG.error(e);
       hasExportError.value = true;
+      const message = e instanceof Error ? e.message : typeof e === 'string' ? e : 'Unknown error during export';
       
-      showDataExportError();
+      showDataExportError(message);
       handleBackStep();
     }
     isExporting.value = false;
@@ -199,8 +201,8 @@ function handleBackStep() {
   currentStep.value--;
 }
 
-function showDataExportError() {
-  typedIpcRenderer.invoke('showDataExportError');
+function showDataExportError(errorMessage: string) {
+  typedIpcRenderer.invoke('showDataExportError', errorMessage);
 }
 
 function openUploadUrl(event: Event) {
@@ -221,6 +223,15 @@ function revealItemInFolder(event: Event) {
       class="flex h-full w-full items-center justify-center overflow-y-scroll"
     >
       <span class="loading loading-spinner loading-lg" />
+      <div v-if="isExporting" class="max-w-lg px-6 text-neutral-600 dark:text-neutral-400">
+        <p class="text-lg font-medium">
+          Exporting and uploading your data...
+        </p>
+        <p class="mt-2 text-sm">
+          This may take a few minutes depending on the export size and your internet connection.
+          Please keep this window open until the process is finished.
+        </p>
+      </div>
     </div>
     <div v-else class="relative flex h-full flex-col justify-between dark:text-neutral-400">
       <div class="mb-5 flex-grow overflow-y-auto">
@@ -406,8 +417,8 @@ function revealItemInFolder(event: Event) {
 </template>
 <style lang="less" scoped>
 @import '../styles/variables.less';
+@import '@/styles/tailwind-apply.css';
 .password-badge {
-  @apply badge badge-neutral font-bold text-white;
   background-color: @primary-color;
 }
 </style>
