@@ -54,15 +54,19 @@ export class TrackerService {
       );
       this.trackers.push(userInputTracker);
     } else if (
-      this.config.userInputTracker.enabled &&
-      trackerType === TrackerType.UserInputTracker
-    ) {
-      const UIT = await import('user-input-tracker');
-      const userInputTracker = new UIT.UserInputTracker(
-        callback,
-        this.config.userInputTracker.intervalInMs
-      );
-      this.trackers.push(userInputTracker);
+  this.config.userInputTracker.enabled &&
+  trackerType === TrackerType.UserInputTracker
+  ) {
+    const UIT = await import('user-input-tracker');
+
+    const { intervalInMs, collectKeyDetails } = this.config.userInputTracker;
+
+    const userInputTracker = new UIT.UserInputTracker(
+      callback,
+      intervalInMs,
+      { collectKeyDetails: !!collectKeyDetails } // NEW: pass through study.config.ts flag
+    );
+    this.trackers.push(userInputTracker);
     } else if (
       this.config.experienceSamplingTracker.enabled &&
       trackerType === TrackerType.ExperienceSamplingTracker

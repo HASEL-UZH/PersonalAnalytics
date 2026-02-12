@@ -3,6 +3,7 @@ import { DataExportFormat } from './DataExportFormat.enum';
 export interface UserInputTrackerConfiguration {
   enabled: boolean;
   intervalInMs: number;
+  collectKeyDetails?: boolean
 }
 
 export interface WindowActivityTrackerConfiguration {

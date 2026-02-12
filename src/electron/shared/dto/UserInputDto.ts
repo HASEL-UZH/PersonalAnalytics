@@ -9,4 +9,14 @@ export default interface UserInputDto {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
+
+  keysLetter: number;
+  keysNumber: number;
+  keysNavigate: number;
+  keysDelete: number;
+  keysModifier: number;
+  keysSpace: number;
+  keysTab: number;
+  keyEnter: number;
+  keysOther: number;
 }
