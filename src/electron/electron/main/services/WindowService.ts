@@ -62,7 +62,7 @@ export class WindowService {
     const { width } = screen.getPrimaryDisplay().workAreaSize
     const windowPadding = 20
     const windowWidth = 500
-    const windowHeight = 185
+    const windowHeight = 320
 
     this.experienceSamplingWindow = new BrowserWindow({
       width: windowWidth,
