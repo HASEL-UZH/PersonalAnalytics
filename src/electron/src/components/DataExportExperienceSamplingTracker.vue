@@ -9,6 +9,32 @@ defineProps({
     required: false
   }
 });
+
+function formatResponse(d: ExperienceSamplingDto): string {
+  if (!d.response) return '';
+  if (d.answerType === 'MultiChoice') {
+    try {
+      const parsed = JSON.parse(d.response) as string[];
+      return parsed.join(', ');
+    } catch {
+      return d.response;
+    }
+  }
+  return d.response;
+}
+
+function formatResponseOptions(d: ExperienceSamplingDto): string {
+  if (!d.responseOptions) return '';
+  try {
+    const parsed = JSON.parse(d.responseOptions) as string[] | { inputType: string; maxLength: number };
+    if (Array.isArray(parsed)) {
+      return parsed.join(', ');
+    }
+    return `${parsed.inputType}, maxLength=${parsed.maxLength}`;
+  } catch {
+    return d.responseOptions;
+  }
+}
 </script>
 <template>
   <div class="my-5 border border-slate-400 p-2">
@@ -26,6 +52,7 @@ defineProps({
         <thead class="border-b">
           <tr>
             <th>Question</th>
+            <th>Answer Type</th>
             <th>Response</th>
             <th>Scale</th>
             <th>Response Options</th>
@@ -36,9 +63,10 @@ defineProps({
         <tbody class="">
           <tr v-for="d in data" :key="d.id">
             <td>{{ d.question }}</td>
-            <td>{{ d.response }}</td>
+            <td>{{ d.answerType }}</td>
+            <td>{{ formatResponse(d) }}</td>
             <td>{{ d.scale }}</td>
-            <td>{{ d.responseOptions }}</td>
+            <td>{{ formatResponseOptions(d) }}</td>
             <td>{{ d.skipped }}</td>
             <td>{{ d.promptedAt.toLocaleString() }}</td>
           </tr>

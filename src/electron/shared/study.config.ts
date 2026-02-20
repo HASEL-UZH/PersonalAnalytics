@@ -31,14 +31,36 @@ const studyConfig: StudyConfiguration = {
     experienceSamplingTracker: {
       enabled: true,
       enabledWorkHours: true,
-      scale: 7,
       questions: [
-        'Compared to your normal level of productivity, how productive do you consider the previous session?',
-        'How well did you spend your time in the previous session?'
-      ],
-      responseOptions: [
-        ['not at all productive', 'moderately productive', 'very productive'],
-        ['not well', 'moderately well', 'very well']
+        {
+          question:
+            'Compared to your normal level of productivity, how productive do you consider the previous session?',
+          answerType: 'LikertScale',
+          scale: 7,
+          responseOptions: ['not at all productive', 'moderately productive', 'very productive']
+        },
+        {
+          question: 'How well did you spend your time in the previous session?',
+          answerType: 'LikertScale',
+          scale: 7,
+          responseOptions: ['not well', 'moderately well', 'very well']
+        },
+        {
+          question: 'What is one thing that affected your focus in the last session?',
+          answerType: 'TextResponse',
+          responseOptions: 'multiLine',
+          maxLength: 280
+        },
+        {
+          question: 'What best describes your current task type?',
+          answerType: 'SingleChoice',
+          responseOptions: ['Coding', 'Writing', 'Meeting', 'Planning', 'Communication', 'Other']
+        },
+        {
+          question: 'Which distractions were present in the last session?',
+          answerType: 'MultiChoice',
+          responseOptions: ['Notifications', 'Meetings', 'Context switching', 'Personal interruptions', 'None']
+        }
       ],
       intervalInMs: 1000 * 60 * 60 * 1, // default interval (must be listed in userDefinedInterval_h if set)
       samplingRandomization: 0.2, // 20% randomization, so the interval will be between 48 and 72 minutes

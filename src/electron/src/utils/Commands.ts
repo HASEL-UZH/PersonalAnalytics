@@ -6,14 +6,16 @@ import WindowActivityDto from '../../shared/dto/WindowActivityDto';
 import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
 import { WorkHoursDto } from '../../shared/dto/WorkHoursDto'
 import { Settings } from 'electron/main'
+import type { ExperienceSamplingAnswerType } from '../../shared/StudyConfiguration';
 
 type Commands = {
   createExperienceSample: (
     promptedAt: Date,
     question: string,
-    responseOptions: string,
-    scale: number,
-    response?: number,
+    answerType: ExperienceSamplingAnswerType,
+    responseOptions: string | null,
+    scale?: number | null,
+    response?: string,
     skipped?: boolean
   ) => Promise<void>;
   closeExperienceSamplingWindow: (skippedExperienceSampling: boolean) => void;

@@ -51,6 +51,7 @@ export class DatabaseService {
       LOG.info('Database connection established');
     } catch (error) {
       LOG.error('Database connection failed', error);
+      throw error;
     }
   }
 

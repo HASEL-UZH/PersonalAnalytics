@@ -1,5 +1,6 @@
 import { Column, Entity } from 'typeorm';
 import BaseTrackedEntity from './BaseTrackedEntity';
+import type { ExperienceSamplingAnswerType } from '../../../shared/StudyConfiguration';
 
 @Entity({ name: 'experience_sampling_responses' })
 export class ExperienceSamplingResponseEntity extends BaseTrackedEntity {
@@ -9,14 +10,17 @@ export class ExperienceSamplingResponseEntity extends BaseTrackedEntity {
   @Column('text')
   question: string;
 
+  @Column('text', { default: 'LikertScale' })
+  answerType: ExperienceSamplingAnswerType;
+
   @Column('text', { nullable: true })
   responseOptions: string | null;
 
-  @Column('int')
-  scale: number;
-
   @Column('int', { nullable: true })
-  response: number;
+  scale: number | null;
+
+  @Column('text', { nullable: true })
+  response: string | null;
 
   @Column('boolean', { default: false, nullable: false })
   skipped: boolean;

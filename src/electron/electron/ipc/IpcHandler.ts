@@ -23,6 +23,7 @@ import DOMPurify from 'dompurify';
 import { WorkScheduleService } from 'electron/main/services/WorkScheduleService'
 import { WorkHoursDto } from 'shared/dto/WorkHoursDto'
 import path from 'path';
+import type { ExperienceSamplingAnswerType } from '../../shared/StudyConfiguration';
 
 const LOG = getMainLogger('IpcHandler');
 
@@ -96,14 +97,16 @@ export class IpcHandler {
   private async createExperienceSample(
     promptedAt: Date,
     question: string,
-    responseOptions: string,
-    scale: number,
-    response: number,
+    answerType: ExperienceSamplingAnswerType,
+    responseOptions: string | null,
+    scale: number | null,
+    response?: string,
     skipped: boolean = false
   ) {
     await this.experienceSamplingService.createExperienceSample(
       promptedAt,
       question,
+      answerType,
       responseOptions,
       scale,
       response,
