@@ -27,7 +27,7 @@ export class DatabaseService {
   }
 
   public async init(): Promise<void> {
-    const entities: NonNullable<DataSourceOptions['entities']> = [
+    const ENTITIES: NonNullable<DataSourceOptions['entities']> = [
       ExperienceSamplingResponseEntity,
       Settings,
       UsageDataEntity,
@@ -41,7 +41,7 @@ export class DatabaseService {
       database: this.dbPath,
       synchronize: true,
       logging: false,
-      entities: entities
+      entities: ENTITIES
     };
 
     this.dataSource = new DataSource(options);
