@@ -11,7 +11,7 @@ const LOG = getMainLogger('DaysParticipatedTracker')
 export class DaysParticipatedTracker implements Tracker {
   private countParticipatedDaysJob: schedule.Job
 
-  public readonly name: string = 'DaysParticipatedTracker';
+  public readonly name: string = 'Days Participated in Study Counter';
   public isRunning: boolean = false;
 
   constructor() { }
