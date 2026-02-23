@@ -62,7 +62,7 @@ export class TrackerService {
       trackerType === TrackerType.UserInputTracker
     ) {
       const UIT = await import('user-input-tracker');
-      const { intervalInMs, collectKeyDetails = false } = this.config.userInputTracker;
+      const { intervalInMs, collectKeyDetails = false } = this.config.userInputTracker; // default to false for collectKeyDetails to avoid collecting potentially sensitive data if not explicitly enabled
       const userInputTracker = new UIT.UserInputTracker(callback, intervalInMs, collectKeyDetails);
       this.trackers.push(userInputTracker);
     } else if (
