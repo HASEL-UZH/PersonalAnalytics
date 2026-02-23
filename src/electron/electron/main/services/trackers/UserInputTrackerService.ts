@@ -4,25 +4,36 @@ import UserInputDto from '../../../../shared/dto/UserInputDto';
 
 export class UserInputTrackerService {
   public static async handleUserInputEvent(userInputAggregate: UserInputAggregate): Promise<void> {
-    const aggAny = userInputAggregate as any;
+    const normalizedAggregate = userInputAggregate as UserInputAggregate & {
+      keysTotal?: number;
+      keysLetter?: number;
+      keysNumber?: number;
+      keysNavigate?: number;
+      keysDelete?: number;
+      keysModifier?: number;
+      keysSpace?: number;
+      keysTab?: number;
+      keyEnter?: number;
+      keysOther?: number;
+    };
 
     await UserInputEntity.save({
-      keysTotal: userInputAggregate.keyTotal,
-      clickTotal: userInputAggregate.clickTotal,
-      movedDistance: userInputAggregate.movedDistance,
-      scrollDelta: userInputAggregate.scrollDelta,
+      clickTotal: normalizedAggregate.clickTotal ?? 0,
+      movedDistance: normalizedAggregate.movedDistance ?? 0,
+      scrollDelta: normalizedAggregate.scrollDelta ?? 0,
       tsStart: userInputAggregate.tsStart,
       tsEnd: userInputAggregate.tsEnd,
 
-      keysLetter: aggAny.keysLetter ?? 0,
-      keysNumber: aggAny.keysNumber ?? 0,
-      keysNavigate: aggAny.keysNavigate ?? 0,
-      keysDelete: aggAny.keysDelete ?? 0,
-      keysModifier: aggAny.keysModifier ?? 0,
-      keysSpace: aggAny.keysSpace ?? 0,
-      keysTab: aggAny.keysTab ?? 0,
-      keyEnter: aggAny.keyEnter ?? 0,
-      keysOther: aggAny.keysOther ?? 0,
+      keysTotal: normalizedAggregate.keysTotal ?? normalizedAggregate.keyTotal ?? 0,
+      keysLetter: normalizedAggregate.keysLetter ?? 0,
+      keysNumber: normalizedAggregate.keysNumber ?? 0,
+      keysNavigate: normalizedAggregate.keysNavigate ?? 0,
+      keysDelete: normalizedAggregate.keysDelete ?? 0,
+      keysModifier: normalizedAggregate.keysModifier ?? 0,
+      keysSpace: normalizedAggregate.keysSpace ?? 0,
+      keysTab: normalizedAggregate.keysTab ?? 0,
+      keyEnter: normalizedAggregate.keyEnter ?? 0,
+      keysOther: normalizedAggregate.keysOther ?? 0
     });
   }
 
@@ -33,10 +44,9 @@ export class UserInputTrackerService {
     });
 
     return entities.map((entity: UserInputEntity) => ({
-      keysTotal: entity.keysTotal,
-      clickTotal: entity.clickTotal,
-      movedDistance: entity.movedDistance,
-      scrollDelta: entity.scrollDelta,
+      clickTotal: entity.clickTotal ?? 0,
+      movedDistance: entity.movedDistance ?? 0,
+      scrollDelta: entity.scrollDelta ?? 0,
       tsStart: entity.tsStart,
       tsEnd: entity.tsEnd,
       id: entity.id,
@@ -44,6 +54,7 @@ export class UserInputTrackerService {
       updatedAt: entity.updatedAt,
       deletedAt: entity.deletedAt,
 
+      keysTotal: entity.keysTotal ?? 0,
       keysLetter: entity.keysLetter ?? 0,
       keysNumber: entity.keysNumber ?? 0,
       keysNavigate: entity.keysNavigate ?? 0,
@@ -52,7 +63,7 @@ export class UserInputTrackerService {
       keysSpace: entity.keysSpace ?? 0,
       keysTab: entity.keysTab ?? 0,
       keyEnter: entity.keyEnter ?? 0,
-      keysOther: entity.keysOther ?? 0,
+      keysOther: entity.keysOther ?? 0
     }));
   }
 }

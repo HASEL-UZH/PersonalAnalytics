@@ -1,6 +1,5 @@
 export default interface UserInputDto {
   id: string;
-  keysTotal: number;
   clickTotal: number;
   movedDistance: number;
   scrollDelta: number;
@@ -10,6 +9,7 @@ export default interface UserInputDto {
   updatedAt: Date;
   deletedAt: Date | null;
 
+  keysTotal: number;
   keysLetter: number;
   keysNumber: number;
   keysNavigate: number;
