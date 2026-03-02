@@ -18,6 +18,7 @@ type Commands = {
     response?: string,
     skipped?: boolean
   ) => Promise<void>;
+  resizeExperienceSamplingWindow: (height: number) => void;
   closeExperienceSamplingWindow: (skippedExperienceSampling: boolean) => void;
   closeOnboardingWindow: () => void;
   closeDataExportWindow: () => void;

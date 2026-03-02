@@ -26,11 +26,26 @@ function formatResponse(d: ExperienceSamplingDto): string {
 function formatResponseOptions(d: ExperienceSamplingDto): string {
   if (!d.responseOptions) return '';
   try {
-    const parsed = JSON.parse(d.responseOptions) as string[] | { inputType: string; maxLength: number };
+    const parsed = JSON.parse(d.responseOptions);
+    if (parsed && typeof parsed === 'object' && 'type' in parsed) {
+      if (parsed.type === 'LikertScale') {
+        return `${parsed.scale}-point: ${(parsed.labels as string[]).join(', ')}`;
+      }
+      if (parsed.type === 'TextResponse') {
+        return `${parsed.inputType}, max ${parsed.maxLength}`;
+      }
+      if (parsed.options) {
+        return (parsed.options as string[]).join(', ');
+      }
+    }
+    // backwards-compat: old rows stored as plain array or {inputType, maxLength}
     if (Array.isArray(parsed)) {
       return parsed.join(', ');
     }
-    return `${parsed.inputType}, maxLength=${parsed.maxLength}`;
+    if (parsed.inputType) {
+      return `${parsed.inputType}, max ${parsed.maxLength}`;
+    }
+    return d.responseOptions;
   } catch {
     return d.responseOptions;
   }
@@ -57,7 +72,7 @@ function formatResponseOptions(d: ExperienceSamplingDto): string {
             <th>Scale</th>
             <th>Response Options</th>
             <th>Skipped</th>
-            <th>Prompted At</th>
+            <th>Created At</th>
           </tr>
         </thead>
         <tbody class="">
@@ -68,7 +83,7 @@ function formatResponseOptions(d: ExperienceSamplingDto): string {
             <td>{{ d.scale }}</td>
             <td>{{ formatResponseOptions(d) }}</td>
             <td>{{ d.skipped }}</td>
-            <td>{{ d.promptedAt.toLocaleString() }}</td>
+            <td>{{ d.createdAt.toLocaleString() }}</td>
           </tr>
         </tbody>
       </table>

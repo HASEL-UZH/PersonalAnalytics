@@ -63,6 +63,7 @@ export class IpcHandler {
       setSettingsProp: this.setSettingsProp,
       getSettings: this.getSettings,
       createExperienceSample: this.createExperienceSample,
+      resizeExperienceSamplingWindow: this.resizeExperienceSamplingWindow,
       closeExperienceSamplingWindow: this.closeExperienceSamplingWindow,
       closeOnboardingWindow: this.closeOnboardingWindow,
       closeDataExportWindow: this.closeDataExportWindow,
@@ -122,6 +123,10 @@ export class IpcHandler {
   private openCollected() {
     LOG.info(`Opening collected data at ${app.getPath('userData')}`);
     shell.showItemInFolder(path.join(app.getPath('userData'), 'database.sqlite'));
+  }
+
+  private resizeExperienceSamplingWindow(height: number): void {
+    this.windowService.resizeExperienceSamplingWindow(height);
   }
 
   private closeExperienceSamplingWindow(skippedExperienceSampling: boolean): void {

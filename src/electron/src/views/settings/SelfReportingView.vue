@@ -18,13 +18,12 @@ const intervalOptions = computed<number[]>(
 const questions: ExperienceSamplingQuestion[] = es.questions
 
 function questionTypeLabel(question: ExperienceSamplingQuestion): string {
-  if (question.answerType === 'LikertScale') {
-    return `Likert (${question.scale}-point)`
+  switch (question.answerType) {
+    case 'LikertScale': return 'Likert Scale'
+    case 'TextResponse': return 'Text Response'
+    case 'SingleChoice': return 'Single Choice'
+    case 'MultiChoice': return 'Multi Choice'
   }
-  if (question.answerType === 'TextResponse') {
-    return `Text (${question.responseOptions}, max ${question.maxLength})`
-  }
-  return `${question.answerType} (${question.responseOptions.length} options)`
 }
 
 const defaultIntervalHours = es.intervalInMs / (1000 * 60 * 60)
@@ -97,7 +96,7 @@ onMounted(load)
       </div>
 
       <div
-        v-if="allowUserToChangeInterval && intervalOptions.length > 0" && !disabled
+        v-if="allowUserToChangeInterval && intervalOptions.length > 0 && !disabled"
         class="self-reporting-container"
       >
         <div class="form-control w-[70%] max-w-xl">

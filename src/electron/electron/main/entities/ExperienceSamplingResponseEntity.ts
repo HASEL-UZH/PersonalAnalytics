@@ -10,7 +10,7 @@ export class ExperienceSamplingResponseEntity extends BaseTrackedEntity {
   @Column('text')
   question: string;
 
-  @Column('text', { default: 'LikertScale' })
+  @Column('text')
   answerType: ExperienceSamplingAnswerType;
 
   @Column('text', { nullable: true })

@@ -42,7 +42,7 @@ export interface ExperienceSamplingQuestionBase {
 export interface LikertScaleQuestion extends ExperienceSamplingQuestionBase {
   answerType: 'LikertScale';
   scale: number;
-  responseOptions: [string, string] | [string, string, string];
+  responseOptions: string[];
 }
 
 export interface TextResponseQuestion extends ExperienceSamplingQuestionBase {

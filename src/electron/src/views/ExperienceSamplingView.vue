@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import typedIpcRenderer from '../utils/typedIpcRenderer';
 import studyConfig from '../../shared/study.config';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import type { ExperienceSamplingQuestion } from '../../shared/StudyConfiguration';
 
 const esConfig = studyConfig.trackers.experienceSamplingTracker;
@@ -39,6 +39,36 @@ const textResponse = ref('');
 const singleChoiceResponse = ref<string | null>(null);
 const multiChoiceResponse = ref<string[]>([]);
 
+const needsSubmitButton = selectedQuestion.answerType === 'TextResponse' || selectedQuestion.answerType === 'MultiChoice';
+
+function computeWindowHeight(): number {
+  const topBar = 28;
+  const questionPadding = 20;
+  const questionText = 40;
+
+  if (selectedQuestion.answerType === 'LikertScale') {
+    return topBar + questionPadding + questionText + 80;
+  }
+  if (selectedQuestion.answerType === 'TextResponse') {
+    if (selectedQuestion.responseOptions === 'singleLine') {
+      return topBar + questionPadding + questionText + 70;
+    }
+    return topBar + questionPadding + questionText + 210;
+  }
+  if (selectedQuestion.answerType === 'SingleChoice' || selectedQuestion.answerType === 'MultiChoice') {
+    const optionCount = selectedQuestion.responseOptions.length;
+    const optionHeight = 34;
+    const hintHeight = 20;
+    const submitHeight = selectedQuestion.answerType === 'MultiChoice' ? 40 : 0;
+    return topBar + questionPadding + questionText + hintHeight + Math.min(optionCount * optionHeight, 250) + submitHeight;
+  }
+  return 320;
+}
+
+onMounted(() => {
+  typedIpcRenderer.invoke('resizeExperienceSamplingWindow', computeWindowHeight());
+});
+
 const textMode = computed(() => {
   return selectedQuestion.answerType === 'TextResponse' ? selectedQuestion.responseOptions : 'singleLine';
 });
@@ -60,17 +90,25 @@ const isAnswerReady = computed(() => {
   return false;
 });
 
-function buildResponseOptionsSnapshot(): string | null {
+function buildResponseOptionsSnapshot(): string {
   if (selectedQuestion.answerType === 'LikertScale') {
-    return JSON.stringify(selectedQuestion.responseOptions);
+    return JSON.stringify({
+      type: 'LikertScale',
+      scale: selectedQuestion.scale,
+      labels: selectedQuestion.responseOptions
+    });
   }
   if (selectedQuestion.answerType === 'TextResponse') {
     return JSON.stringify({
+      type: 'TextResponse',
       inputType: selectedQuestion.responseOptions,
       maxLength: selectedQuestion.maxLength
     });
   }
-  return JSON.stringify(selectedQuestion.responseOptions);
+  return JSON.stringify({
+    type: selectedQuestion.answerType,
+    options: selectedQuestion.responseOptions
+  });
 }
 
 function buildResponseValue(answer?: number): string | undefined {
@@ -106,6 +144,7 @@ function selectSingleChoiceOption(option: string) {
     return;
   }
   singleChoiceResponse.value = option;
+  createExperienceSample();
 }
 
 function onSingleChoiceDropdownChange(value: string) {
@@ -113,6 +152,9 @@ function onSingleChoiceDropdownChange(value: string) {
     return;
   }
   singleChoiceResponse.value = value || null;
+  if (singleChoiceResponse.value) {
+    createExperienceSample();
+  }
 }
 
 function onMultiChoiceDropdownChange(event: Event) {
@@ -215,37 +257,33 @@ async function skipExperienceSample() {
 
           <div v-if="selectedQuestion.answerType === 'TextResponse'" class="mt-2 flex min-h-0 flex-1 flex-col">
             <div class="text-answer-content">
-              <input
-                v-if="textMode === 'singleLine'"
-                v-model="textResponse"
-                class="text-answer-input"
-                :maxlength="textMaxLength"
-                type="text"
-              />
-              <textarea
-                v-else
-                v-model="textResponse"
-                class="text-answer-textarea"
-                :maxlength="textMaxLength"
-              />
-              <div class="mt-1 text-right text-xs text-gray-500">
-                {{ textResponse.length }} / {{ textMaxLength }}
+              <div v-if="textMode === 'singleLine'" class="text-answer-wrapper">
+                <input
+                  v-model="textResponse"
+                  class="text-answer-input"
+                  :maxlength="textMaxLength"
+                  type="text"
+                />
+                <span class="char-counter">{{ textResponse.length }}/{{ textMaxLength }}</span>
+              </div>
+              <div v-else class="text-answer-wrapper text-answer-wrapper-multi">
+                <textarea
+                  v-model="textResponse"
+                  class="text-answer-textarea"
+                  :maxlength="textMaxLength"
+                />
+                <span class="char-counter">{{ textResponse.length }}/{{ textMaxLength }}</span>
               </div>
             </div>
-            <button
-              class="action-button mt-2 self-start flex-shrink-0"
-              :disabled="!isAnswerReady || isSubmitting"
-              @click="createExperienceSample()"
-            >
-              <span v-if="!(isSubmitting && submitMode === 'answer')">Submit</span>
-              <span v-else class="loading loading-spinner loading-xs" />
-            </button>
           </div>
 
           <div
             v-if="selectedQuestion.answerType === 'SingleChoice' || selectedQuestion.answerType === 'MultiChoice'"
-            class="mt-2 flex min-h-0 flex-1 flex-col"
+            class="mt-1 flex min-h-0 flex-1 flex-col"
           >
+            <div class="choice-hint">
+              {{ selectedQuestion.answerType === 'SingleChoice' ? 'Pick one' : 'Pick one or more' }}
+            </div>
             <div class="choice-answer-content">
               <div v-if="!useChoiceDropdown" class="choice-list">
                 <button
@@ -268,7 +306,7 @@ async function skipExperienceSample() {
                 </button>
               </div>
 
-              <div v-else class="pr-1">
+              <div v-else>
                 <select
                   v-if="selectedQuestion.answerType === 'SingleChoice'"
                   class="choice-select"
@@ -301,26 +339,27 @@ async function skipExperienceSample() {
                 </select>
               </div>
             </div>
-            <button
-              class="action-button mt-3 self-start flex-shrink-0"
-              :disabled="!isAnswerReady || isSubmitting"
-              @click="createExperienceSample()"
-            >
-              <span v-if="!(isSubmitting && submitMode === 'answer')">Submit</span>
-              <span v-else class="loading loading-spinner loading-xs" />
-            </button>
           </div>
         </div>
       </div>
       <div class="flex cursor-pointer border-l border-gray-200 self-stretch">
-        <div
-          class="flex w-full items-center justify-center rounded-none border border-transparent px-4 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:outline-none"
-          @click="!isSubmitting && skipExperienceSample()"
-        >
-          <span v-if="!(isSubmitting && submitMode === 'skip')" class="w-6"> Skip </span>
-          <span v-else class="w-6 font-medium">
-            <span class="loading loading-spinner loading-xs" />
-          </span>
+        <div class="flex w-full flex-col items-center justify-center">
+          <button
+            v-if="needsSubmitButton"
+            class="submit-side-button"
+            :disabled="!isAnswerReady || isSubmitting"
+            @click="createExperienceSample()"
+          >
+            <span v-if="!(isSubmitting && submitMode === 'answer')">Submit</span>
+            <span v-else class="loading loading-spinner loading-xs" />
+          </button>
+          <div
+            class="skip-button"
+            @click="!isSubmitting && skipExperienceSample()"
+          >
+            <span v-if="!(isSubmitting && submitMode === 'skip')">Skip</span>
+            <span v-else class="loading loading-spinner loading-xs" />
+          </div>
         </div>
       </div>
     </div>
@@ -332,6 +371,10 @@ async function skipExperienceSample() {
 .experience-sampling-notification {
   .prompt {
     color: @primary-color;
+  }
+
+  .text-answer-wrapper {
+    position: relative;
   }
 
   .text-answer-input,
@@ -347,6 +390,7 @@ async function skipExperienceSample() {
 
   .text-answer-input {
     height: 2.25rem;
+    padding-right: 4.5rem;
   }
 
   .text-answer-textarea {
@@ -355,12 +399,31 @@ async function skipExperienceSample() {
     max-height: 9rem;
     resize: none;
     overflow-y: auto;
+    padding-bottom: 1.5rem;
   }
 
   .text-answer-input:focus,
   .text-answer-textarea:focus {
     border-color: #93c5fd;
     box-shadow: 0 0 0 2px rgb(147 197 253 / 0.25);
+  }
+
+  .char-counter {
+    position: absolute;
+    font-size: 0.675rem;
+    color: #9ca3af;
+    pointer-events: none;
+  }
+
+  .text-answer-wrapper:not(.text-answer-wrapper-multi) .char-counter {
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .text-answer-wrapper-multi .char-counter {
+    right: 0.625rem;
+    bottom: 0.375rem;
   }
 
   .text-answer-content,
@@ -376,12 +439,19 @@ async function skipExperienceSample() {
 
   .choice-answer-content {
     overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .choice-hint {
+    font-size: 0.7rem;
+    color: #9ca3af;
+    margin-bottom: 0.35rem;
   }
 
   .choice-list {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 0.5rem;
+    gap: 0.35rem;
   }
 
   .choice-option {
@@ -390,7 +460,8 @@ async function skipExperienceSample() {
     background: #f3f4f6;
     color: #374151;
     text-align: left;
-    padding: 0.4rem 0.625rem;
+    padding: 0.3rem 0.625rem;
+    font-size: 0.8rem;
     transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
   }
 
@@ -412,6 +483,7 @@ async function skipExperienceSample() {
     background: #ffffff;
     color: #1f2937;
     padding: 0.45rem 0.625rem;
+    font-size: 0.8rem;
     outline: none;
   }
 
@@ -425,26 +497,44 @@ async function skipExperienceSample() {
     padding: 0.3rem;
   }
 
-  .action-button {
-    min-width: 5rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.375rem;
-    background: #f3f4f6;
-    color: #374151;
-    padding: 0.35rem 0.85rem;
-    font-size: 0.875rem;
+  .submit-side-button {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
     font-weight: 600;
+    color: #ffffff;
+    background: @primary-color;
+    border: none;
+    cursor: pointer;
+    transition: opacity 120ms ease;
+  }
+
+  .submit-side-button:hover:not(:disabled) {
+    opacity: 0.85;
+  }
+
+  .submit-side-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .skip-button {
+    flex: 1;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
     transition: background-color 120ms ease, color 120ms ease;
   }
 
-  .action-button:hover:not(:disabled) {
-    background: #374151;
-    color: #ffffff;
-  }
-
-  .action-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  .skip-button:hover {
+    background: #f3f4f6;
+    color: #111827;
   }
 }
 </style>

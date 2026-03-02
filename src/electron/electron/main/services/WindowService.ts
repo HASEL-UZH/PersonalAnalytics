@@ -62,7 +62,7 @@ export class WindowService {
     const { width } = screen.getPrimaryDisplay().workAreaSize
     const windowPadding = 20
     const windowWidth = 500
-    const windowHeight = 320
+    const windowHeight = 185
 
     this.experienceSamplingWindow = new BrowserWindow({
       width: windowWidth,
@@ -107,6 +107,15 @@ export class WindowService {
     this.experienceSamplingWindow.on('close', () => {
       this.experienceSamplingWindow = null
     })
+  }
+
+  public resizeExperienceSamplingWindow(height: number) {
+    if (this.experienceSamplingWindow) {
+      const minHeight = 185
+      const maxHeight = 500
+      const clamped = Math.max(minHeight, Math.min(maxHeight, height))
+      this.experienceSamplingWindow.setSize(500, clamped)
+    }
   }
 
   public closeExperienceSamplingWindow(skippedExperienceSampling: boolean) {
