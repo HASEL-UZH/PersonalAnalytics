@@ -24,7 +24,6 @@ export class UserInputTrackerService {
       tsStart: userInputAggregate.tsStart,
       tsEnd: userInputAggregate.tsEnd,
 
-      keysTotal: normalizedAggregate.keysTotal ?? normalizedAggregate.keyTotal ?? 0,
       keysLetter: normalizedAggregate.keysLetter ?? 0,
       keysNumber: normalizedAggregate.keysNumber ?? 0,
       keysNavigate: normalizedAggregate.keysNavigate ?? 0,
@@ -33,7 +32,8 @@ export class UserInputTrackerService {
       keysSpace: normalizedAggregate.keysSpace ?? 0,
       keysTab: normalizedAggregate.keysTab ?? 0,
       keyEnter: normalizedAggregate.keyEnter ?? 0,
-      keysOther: normalizedAggregate.keysOther ?? 0
+      keysOther: normalizedAggregate.keysOther ?? 0,
+      keysTotal: normalizedAggregate.keysTotal ?? normalizedAggregate.keyTotal ?? 0
     });
   }
 
@@ -54,7 +54,6 @@ export class UserInputTrackerService {
       updatedAt: entity.updatedAt,
       deletedAt: entity.deletedAt,
 
-      keysTotal: entity.keysTotal ?? 0,
       keysLetter: entity.keysLetter ?? 0,
       keysNumber: entity.keysNumber ?? 0,
       keysNavigate: entity.keysNavigate ?? 0,
@@ -63,7 +62,8 @@ export class UserInputTrackerService {
       keysSpace: entity.keysSpace ?? 0,
       keysTab: entity.keysTab ?? 0,
       keyEnter: entity.keyEnter ?? 0,
-      keysOther: entity.keysOther ?? 0
+      keysOther: entity.keysOther ?? 0,
+      keysTotal: entity.keysTotal ?? 0
     }));
   }
 }

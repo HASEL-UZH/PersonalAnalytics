@@ -9,7 +9,6 @@ export default interface UserInputDto {
   updatedAt: Date;
   deletedAt: Date | null;
 
-  keysTotal: number;
   keysLetter: number;
   keysNumber: number;
   keysNavigate: number;
@@ -19,4 +18,5 @@ export default interface UserInputDto {
   keysTab: number;
   keyEnter: number;
   keysOther: number;
+  keysTotal: number;
 }

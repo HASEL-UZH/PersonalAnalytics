@@ -19,9 +19,6 @@ export class UserInputEntity extends BaseTrackedEntity {
   tsEnd: Date;
 
   @Column({ type: 'integer', nullable: true, default: 0 })
-  keysTotal?: number;
-
-  @Column({ type: 'integer', nullable: true, default: 0 })
   keysLetter?: number;
 
   @Column({ type: 'integer', nullable: true, default: 0 })
@@ -47,4 +44,7 @@ export class UserInputEntity extends BaseTrackedEntity {
 
   @Column({ type: 'integer', nullable: true, default: 0 })
   keysOther?: number;
+
+  @Column({ type: 'integer', nullable: true, default: 0 })
+  keysTotal?: number;
 }
