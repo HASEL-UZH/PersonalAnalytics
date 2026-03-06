@@ -3,6 +3,8 @@ import { DataExportFormat } from './DataExportFormat.enum';
 export interface UserInputTrackerConfiguration {
   enabled: boolean;
   intervalInMs: number;
+  // Optional flag for detailed key category counts (defaults to false).
+  collectKeyDetails?: boolean;
 }
 
 export interface WindowActivityTrackerConfiguration {
