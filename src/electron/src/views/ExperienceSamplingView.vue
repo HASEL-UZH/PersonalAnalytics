@@ -57,10 +57,16 @@ function computeWindowHeight(): number {
   }
   if (selectedQuestion.answerType === 'SingleChoice' || selectedQuestion.answerType === 'MultiChoice') {
     const optionCount = selectedQuestion.responseOptions.length;
-    const optionHeight = 34;
     const hintHeight = 20;
+    if (optionCount >= 10) {
+      const dropdownHeight = selectedQuestion.answerType === 'MultiChoice' ? 200 : 45;
+      const submitHeight = selectedQuestion.answerType === 'MultiChoice' ? 40 : 0;
+      return topBar + questionPadding + questionText + hintHeight + dropdownHeight + submitHeight;
+    }
+    const optionHeight = 34;
+    const listPadding = 5;
     const submitHeight = selectedQuestion.answerType === 'MultiChoice' ? 40 : 0;
-    return topBar + questionPadding + questionText + hintHeight + Math.min(optionCount * optionHeight, 250) + submitHeight;
+    return topBar + questionPadding + questionText + hintHeight + optionCount * optionHeight + listPadding + submitHeight;
   }
   return 320;
 }
@@ -498,6 +504,10 @@ async function skipExperienceSample() {
   }
 
   .submit-side-button {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     padding: 0.5rem 0.75rem;
     font-size: 0.8rem;
