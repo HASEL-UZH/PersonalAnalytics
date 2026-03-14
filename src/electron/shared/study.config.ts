@@ -18,6 +18,7 @@ const studyConfig: StudyConfiguration = {
   dataExportEncrypted: false,
   displayDaysParticipated: true,
   showActiveTimesInOnboarding: true,
+  enableRetrospection: true,
   trackers: {
     windowActivityTracker: {
       enabled: true,

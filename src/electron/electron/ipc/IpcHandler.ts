@@ -22,6 +22,8 @@ import { JSDOM } from 'jsdom';
 import DOMPurify from 'dompurify';
 import { WorkScheduleService } from 'electron/main/services/WorkScheduleService'
 import { WorkHoursDto } from 'shared/dto/WorkHoursDto'
+import { getActivitySessions, getAppUsageSessions, getLongestTimeActiveInsight, ActivitySessions, TimeActive } from '../main/services/RetrospectionService'
+import { SchedulingService } from '../main/services/SchedulingService'
 import path from 'path';
 
 const LOG = getMainLogger('IpcHandler');
@@ -36,6 +38,7 @@ export class IpcHandler {
   private readonly userInputService: UserInputTrackerService;
   private readonly dataExportService: DataExportService;
   private readonly workScheduleService: WorkScheduleService;
+  private schedulingService: SchedulingService;
   private typedIpcMain: TypedIpcMain<Events, Commands> = ipcMain as TypedIpcMain<Events, Commands>;
 
   constructor(
@@ -51,6 +54,10 @@ export class IpcHandler {
     this.userInputService = new UserInputTrackerService();
     this.dataExportService = new DataExportService();
     this.workScheduleService = workScheduleService;
+  }
+
+  public setSchedulingService(schedulingService: SchedulingService): void {
+    this.schedulingService = schedulingService;
   }
 
   public async init(): Promise<void> {
@@ -76,7 +83,12 @@ export class IpcHandler {
       showDataExportError: this.showDataExportError,
       startAllTrackers: this.startAllTrackers,
       triggerPermissionCheckAccessibility: this.triggerPermissionCheckAccessibility,
-      triggerPermissionCheckScreenRecording: this.triggerPermissionCheckScreenRecording
+      triggerPermissionCheckScreenRecording: this.triggerPermissionCheckScreenRecording,
+      retrospectionGetActivities: this.retrospectionGetActivities,
+      retrospectionLoadLongestTimeActive: this.retrospectionLoadLongestTimeActive,
+      retrospectionGetTopThreeMostActiveApps: this.retrospectionGetTopThreeMostActiveApps,
+      openRetrospection: this.openRetrospection,
+      closeRetrospectionWindow: this.closeRetrospectionWindow
     };
 
     Object.keys(this.actions).forEach((action: string): void => {
@@ -139,6 +151,10 @@ export class IpcHandler {
 
   private async setWorkHours(schedule: WorkHoursDto): Promise<void> {
     await this.workScheduleService.setWorkSchedule(schedule);
+
+    if (this.schedulingService) {
+      this.schedulingService.updateRetrospectionJobs(schedule);
+    }
   }
 
   private async setSettingsProp(prop: string, value: any): Promise<void> {
@@ -257,5 +273,35 @@ export class IpcHandler {
     } catch (e) {
       LOG.error('Error starting trackers', e);
     }
+  }
+
+  private async retrospectionGetActivities(date: Date): Promise<ActivitySessions[]> {
+    return await getActivitySessions(new Date(date));
+  }
+
+  private async retrospectionLoadLongestTimeActive(date: Date): Promise<TimeActive | undefined> {
+    try {
+      return await getLongestTimeActiveInsight(new Date(date));
+    } catch (error) {
+      LOG.error('Error loading longest time active', error);
+    }
+  }
+
+  private async retrospectionGetTopThreeMostActiveApps(date: Date): Promise<ActivitySessions[] | undefined> {
+    try {
+      return (await getAppUsageSessions(new Date(date)))
+        .sort((a, b) => b.totalDurationMs - a.totalDurationMs)
+        .slice(0, 3);
+    } catch (error) {
+      LOG.error('Error loading top apps', error);
+    }
+  }
+
+  private async openRetrospection(): Promise<void> {
+    await this.windowService.createRetrospectionWindow();
+  }
+
+  private closeRetrospectionWindow(): void {
+    this.windowService.closeRetrospectionWindow();
   }
 }
