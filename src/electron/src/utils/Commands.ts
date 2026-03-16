@@ -42,6 +42,7 @@ type Commands = {
   revealItemInFolder: (path: string) => Promise<void>;
   openUploadUrl: () => void;
   showDataExportError: (errorMessage?: string) => void;
+  confirmDDLUpload: () => Promise<boolean>;
   startAllTrackers: () => void;
   triggerPermissionCheckAccessibility: (prompt: boolean) => boolean;
   triggerPermissionCheckScreenRecording: () => boolean;

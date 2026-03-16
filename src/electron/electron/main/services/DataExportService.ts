@@ -206,7 +206,7 @@ export class DataExportService {
 
     const zipPath = sqlitePath.replace(/\.sqlite$/, '.zip');
     const zipOutput = fs.createWriteStream(zipPath);
-    const archive = archiver('zip', { zlib: { level: 6 } }); // level 0 is no compression, level 9 is max compression
+    const archive = archiver('zip', { zlib: { level: 6 } }); // 6 is library default; level 0 is no compression, level 9 is max compression
 
     return new Promise<string>((resolve, reject) => {
       zipOutput.on('close', () => {
@@ -269,7 +269,7 @@ export class DataExportService {
     // create zip file with all json files
     const zipPath = sqlitePath.replace(/\.sqlite$/, '.zip');
     const zipOutput = fs.createWriteStream(zipPath);
-    const archive = archiver('zip', { zlib: { level: 0 } });
+    const archive = archiver('zip', { zlib: { level: 6 } }); // 6 is library default; level 0 is no compression, level 9 is max compression
 
     return new Promise<string>((resolve, reject) => {
       zipOutput.on('close', () => {
