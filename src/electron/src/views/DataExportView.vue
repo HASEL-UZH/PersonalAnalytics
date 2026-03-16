@@ -152,6 +152,11 @@ async function handleNextStep() {
     return;
   }
 
+  if (studyConfig.dataExportFormat === 'ExportToDDL' && currentNamedStep.value === 'export-2') {
+    const confirmed = await typedIpcRenderer.invoke('confirmDDLUpload');
+    if (!confirmed) return;
+  }
+
   transitionName.value = 'slide-left-right';
   currentStep.value++;
   if (currentNamedStep.value === 'create-export' || currentNamedStep.value === 'upload-to-ddl') {

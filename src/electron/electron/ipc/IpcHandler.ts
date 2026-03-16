@@ -74,6 +74,7 @@ export class IpcHandler {
       revealItemInFolder: this.revealItemInFolder,
       openUploadUrl: this.openUploadUrl,
       showDataExportError: this.showDataExportError,
+      confirmDDLUpload: this.confirmDDLUpload,
       startAllTrackers: this.startAllTrackers,
       triggerPermissionCheckAccessibility: this.triggerPermissionCheckAccessibility,
       triggerPermissionCheckScreenRecording: this.triggerPermissionCheckScreenRecording
@@ -228,6 +229,19 @@ export class IpcHandler {
   
   private async openUploadUrl(): Promise<void> {
     this.windowService.openExternal();
+  }
+
+  private async confirmDDLUpload(): Promise<boolean> {
+    const { response } = await dialog.showMessageBox({
+      type: 'question',
+      buttons: ['Yes', 'Cancel'],
+      defaultId: 0,
+      cancelId: 1,
+      title: 'Confirm Data Donation',
+      message: `Do you agree to donate and upload your data to the ${studyConfig.name} study?`,
+      detail: 'Your data will be uploaded via a secure, encrypted connection to a secure, encrypted store operated by the University of Zurich (Data Donation Lab). Your data will be processed in accordance with the study\'s consent form.'
+    });
+    return response === 0;
   }
 
   private async showDataExportError(errorMessage?: string): Promise<void> {
