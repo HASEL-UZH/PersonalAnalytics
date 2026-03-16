@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import typedIpcRenderer from '../utils/typedIpcRenderer';
 import studyConfig from '../../shared/study.config';
-import { computed, onMounted, ref } from 'vue';
+import { computed, nextTick, onMounted, ref } from 'vue';
 import type { ExperienceSamplingQuestion } from '../../shared/StudyConfiguration';
 
 const esConfig = studyConfig.trackers.experienceSamplingTracker;
@@ -41,38 +41,18 @@ const multiChoiceResponse = ref<string[]>([]);
 
 const needsSubmitButton = selectedQuestion.answerType === 'TextResponse' || selectedQuestion.answerType === 'MultiChoice';
 
-function computeWindowHeight(): number {
-  const topBar = 28;
-  const questionPadding = 20;
-  const questionText = 40;
+const rootEl = ref<HTMLElement | null>(null);
 
-  if (selectedQuestion.answerType === 'LikertScale') {
-    return topBar + questionPadding + questionText + 80;
+async function measureAndResize() {
+  await nextTick();
+  const el = rootEl.value;
+  if (el) {
+    typedIpcRenderer.invoke('resizeExperienceSamplingWindow', el.scrollHeight);
   }
-  if (selectedQuestion.answerType === 'TextResponse') {
-    if (selectedQuestion.responseOptions === 'singleLine') {
-      return topBar + questionPadding + questionText + 70;
-    }
-    return topBar + questionPadding + questionText + 210;
-  }
-  if (selectedQuestion.answerType === 'SingleChoice' || selectedQuestion.answerType === 'MultiChoice') {
-    const optionCount = selectedQuestion.responseOptions.length;
-    const hintHeight = 20;
-    if (optionCount >= 10) {
-      const dropdownHeight = selectedQuestion.answerType === 'MultiChoice' ? 200 : 45;
-      const submitHeight = selectedQuestion.answerType === 'MultiChoice' ? 40 : 0;
-      return topBar + questionPadding + questionText + hintHeight + dropdownHeight + submitHeight;
-    }
-    const optionHeight = 34;
-    const listPadding = 5;
-    const submitHeight = selectedQuestion.answerType === 'MultiChoice' ? 40 : 0;
-    return topBar + questionPadding + questionText + hintHeight + optionCount * optionHeight + listPadding + submitHeight;
-  }
-  return 320;
 }
 
 onMounted(() => {
-  typedIpcRenderer.invoke('resizeExperienceSamplingWindow', computeWindowHeight());
+  measureAndResize();
 });
 
 const textMode = computed(() => {
@@ -225,14 +205,14 @@ async function skipExperienceSample() {
 }
 </script>
 <template>
-  <div class="experience-sampling-notification flex min-h-screen flex-col">
+  <div ref="rootEl" class="experience-sampling-notification flex flex-col">
     <div class="notification-top-bar">
       <div>Self-Reflection: {{ studyConfig.name }}</div>
       <div>{{ promptedAtString }}</div>
     </div>
-    <div class="pointer-events-auto flex min-h-0 flex-1 flex-row">
-      <div class="flex min-h-0 flex-1 p-4 pt-1">
-        <div class="flex min-h-0 flex-1 flex-col">
+    <div class="pointer-events-auto flex flex-row">
+      <div class="flex flex-1 p-4 pt-1">
+        <div class="flex flex-1 flex-col">
           <p class="prompt">{{ selectedQuestion.question }}</p>
 
           <div v-if="selectedQuestion.answerType === 'LikertScale'" class="-mx-1 mt-2 flex flex-row justify-between">
@@ -261,7 +241,7 @@ async function skipExperienceSample() {
             </div>
           </div>
 
-          <div v-if="selectedQuestion.answerType === 'TextResponse'" class="mt-2 flex min-h-0 flex-1 flex-col">
+          <div v-if="selectedQuestion.answerType === 'TextResponse'" class="mt-2 flex flex-col">
             <div class="text-answer-content">
               <div v-if="textMode === 'singleLine'" class="text-answer-wrapper">
                 <input
@@ -285,7 +265,7 @@ async function skipExperienceSample() {
 
           <div
             v-if="selectedQuestion.answerType === 'SingleChoice' || selectedQuestion.answerType === 'MultiChoice'"
-            class="mt-1 flex min-h-0 flex-1 flex-col"
+            class="mt-1 flex flex-col"
           >
             <div class="choice-hint">
               {{ selectedQuestion.answerType === 'SingleChoice' ? 'Pick one' : 'Pick one or more' }}
@@ -434,18 +414,7 @@ async function skipExperienceSample() {
 
   .text-answer-content,
   .choice-answer-content {
-    min-height: 0;
-    flex: 1 1 auto;
     padding-right: 0.25rem;
-  }
-
-  .text-answer-content {
-    overflow: hidden;
-  }
-
-  .choice-answer-content {
-    overflow-y: auto;
-    overflow-x: hidden;
   }
 
   .choice-hint {
