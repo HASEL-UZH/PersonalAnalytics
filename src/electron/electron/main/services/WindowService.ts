@@ -443,16 +443,16 @@ export class WindowService {
         visible: studyConfig.enableRetrospection ?? true
       },
       {
-        label: 'Open Settings',
+        label: 'Settings',
         click: () => this.createSettingsWindow()
       },
       {
-        label: 'Open Onboarding',
+        label: 'Onboarding',
         click: () => this.createOnboardingWindow(),
         visible: is.dev
       },
       {
-        label: 'Open Study Data Export',
+        label: 'Study Data Export',
         click: (): void => {
           LOG.info(`Opening data export`)
           this.createDataExportWindow()
