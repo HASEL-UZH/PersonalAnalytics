@@ -46,9 +46,20 @@ const rootEl = ref<HTMLElement | null>(null);
 async function measureAndResize() {
   await nextTick();
   const el = rootEl.value;
-  if (el) {
-    typedIpcRenderer.invoke('resizeExperienceSamplingWindow', el.scrollHeight);
-  }
+  if (!el) return;
+
+  el.style.position = 'absolute';
+  el.style.width = '500px';
+  el.style.height = 'auto';
+
+  await nextTick();
+  const height = el.scrollHeight;
+
+  el.style.position = '';
+  el.style.width = '';
+  el.style.height = '';
+
+  typedIpcRenderer.invoke('resizeExperienceSamplingWindow', height);
 }
 
 onMounted(() => {
@@ -380,9 +391,9 @@ async function skipExperienceSample() {
   }
 
   .text-answer-textarea {
-    height: 9rem;
-    min-height: 9rem;
-    max-height: 9rem;
+    height: 14rem;
+    min-height: 14rem;
+    max-height: 14rem;
     resize: none;
     overflow-y: auto;
     padding-bottom: 1.5rem;

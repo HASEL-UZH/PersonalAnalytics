@@ -111,8 +111,8 @@ export class WindowService {
 
   public resizeExperienceSamplingWindow(height: number) {
     if (this.experienceSamplingWindow) {
-      const minHeight = 185
-      const maxHeight = 500
+      const minHeight = 120
+      const maxHeight = 600
       const clamped = Math.max(minHeight, Math.min(maxHeight, height))
       this.experienceSamplingWindow.setSize(500, clamped)
     }
