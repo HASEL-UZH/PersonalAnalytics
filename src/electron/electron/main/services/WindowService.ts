@@ -72,6 +72,7 @@ export class WindowService {
       show: false,
       opacity: 0,
       frame: false,
+      backgroundColor: '#ffffff',
       alwaysOnTop: true,
       visualEffectState: 'inactive',
       minimizable: false,
@@ -114,7 +115,7 @@ export class WindowService {
       const minHeight = 120
       const maxHeight = 600
       const clamped = Math.max(minHeight, Math.min(maxHeight, height))
-      this.experienceSamplingWindow.setSize(500, clamped)
+      this.experienceSamplingWindow.setContentSize(500, clamped)
     }
   }
 

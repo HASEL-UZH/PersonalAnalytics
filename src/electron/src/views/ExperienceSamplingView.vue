@@ -47,19 +47,7 @@ async function measureAndResize() {
   await nextTick();
   const el = rootEl.value;
   if (!el) return;
-
-  el.style.position = 'absolute';
-  el.style.width = '500px';
-  el.style.height = 'auto';
-
-  await nextTick();
-  const height = el.scrollHeight;
-
-  el.style.position = '';
-  el.style.width = '';
-  el.style.height = '';
-
-  typedIpcRenderer.invoke('resizeExperienceSamplingWindow', height);
+  typedIpcRenderer.invoke('resizeExperienceSamplingWindow', Math.ceil(el.scrollHeight) + 2);
 }
 
 onMounted(() => {
