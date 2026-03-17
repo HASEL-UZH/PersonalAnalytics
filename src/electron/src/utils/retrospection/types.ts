@@ -40,7 +40,6 @@ export enum Activity {
   Other = 'Other',
   OtherRdp = 'OtherRdp',
   Idle = 'Idle',
-  Gaming = 'Gaming',
   Unknown = 'Unknown'
 }
 

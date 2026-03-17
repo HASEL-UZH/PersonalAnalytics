@@ -28,7 +28,7 @@ const props = defineProps({
     type: String,
     required: true,
     validator: (value: string) => {
-      return ['WINDOW_ACTIVITY', 'TASK_SWITCHES'].includes(value)
+      return ['WINDOW_ACTIVITY'].includes(value)
     }
   },
   startDate: {
