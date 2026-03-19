@@ -66,8 +66,8 @@ onMounted(load)
 </script>
 
 <template>
-  <div>
-    <article class="prose prose-lg mt-4 mb-5">
+  <div class="dark:text-gray-300">
+    <article class="prose prose-lg mt-4 mb-5 dark:prose-invert">
       <h1 class="mt-0">
         <span class="primary-blue">Self-Reflection</span>
       </h1>
@@ -76,7 +76,7 @@ onMounted(load)
       </p>
     </article>
 
-    <article class="prose mt-4">
+    <article class="prose mt-4 dark:prose-invert">
       <div v-if="allowUserToDisable" class="mb-6">
         <Switch
           :modelValue="!disabled"
@@ -108,7 +108,7 @@ onMounted(load)
       </div>
     </article>
 
-    <article class="prose prose-lg mt-4">
+    <article class="prose prose-lg mt-4 dark:prose-invert">
       <div class="self-reporting-container">
         <div class="font-medium mb-2">Self-Reflection Questions:</div>
         <ul class="list-disc ml-6">

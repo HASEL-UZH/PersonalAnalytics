@@ -1,4 +1,4 @@
-import { app, BrowserWindow, clipboard, dialog, Menu, nativeImage, screen, shell, Tray } from 'electron'
+import { app, BrowserWindow, clipboard, dialog, Menu, nativeImage, nativeTheme, screen, shell, Tray } from 'electron'
 import getMainLogger from '../../config/Logger'
 import AppUpdaterService from './AppUpdaterService'
 import { is } from './utils/helpers'
@@ -72,6 +72,7 @@ export class WindowService {
       show: false,
       opacity: 0,
       frame: false,
+      backgroundColor: nativeTheme.shouldUseDarkColors ? '#1f2937' : '#ffffff',
       alwaysOnTop: true,
       visualEffectState: 'inactive',
       minimizable: false,
@@ -138,6 +139,7 @@ export class WindowService {
       width: 1000,
       height: 850,
       show: false,
+      backgroundColor: nativeTheme.shouldUseDarkColors ? '#1f2937' : '#ffffff',
       minimizable: false,
       maximizable: false,
       fullscreenable: false,

@@ -19,12 +19,12 @@ onMounted(async () => {
 });
 </script>
 <template>
-  <div class="h-full overflow-y-scroll">
+  <div class="h-full overflow-y-scroll dark:text-gray-300">
     <div v-if="!studyInfo" class="flex h-full w-full items-center justify-center">
       <span class="loading loading-spinner loading-lg" />
     </div>
     <div v-else class="mt-4">
-      <article class="prose prose-lg mt-4">
+      <article class="prose prose-lg mt-4 dark:prose-invert">
         <h1 class="relative">
           <span class="primary-blue">{{ studyInfo.studyName }}</span>
           <span class="badge badge-neutral absolute top-0">v{{ studyInfo.appVersion }}</span>
@@ -42,7 +42,7 @@ onMounted(async () => {
 
       <StudyInfo :study-info="studyInfo" />
 
-      <article class="prose prose-lg mt-4"> 
+      <article class="prose prose-lg mt-4 dark:prose-invert">
         <h2 class="mt-0">PersonalAnalytics Tool Info</h2>
         <p class="text-base">
           PersonalAnalytics is a software, developed by the Human Aspects of Software Engineering

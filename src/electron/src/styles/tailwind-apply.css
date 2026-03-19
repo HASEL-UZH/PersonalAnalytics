@@ -7,11 +7,11 @@
 
 /* used in ExperienceSamplingView.vue  */ 
 .experience-sampling-notification {
-  @apply h-full bg-white select-none overflow-hidden;
+  @apply h-full bg-white dark:bg-gray-800 select-none overflow-hidden;
 }
 
 .experience-sampling-notification .notification-top-bar {
-  @apply pointer-events-auto flex w-full flex-shrink-0 justify-between bg-gray-200 px-2 py-1 text-xs text-gray-500;
+  @apply pointer-events-auto flex w-full flex-shrink-0 justify-between bg-gray-200 dark:bg-gray-700 px-2 py-1 text-xs text-gray-500 dark:text-gray-400;
   line-height: 1.35rem;
   -webkit-app-region: drag;
 }
@@ -21,7 +21,7 @@
 }
 
 .experience-sampling-notification .sample-answer {
-  @apply mx-1 flex h-8 w-8 cursor-pointer items-center rounded-md border border-gray-200 bg-gray-100 text-center align-middle text-gray-500 transition-all hover:bg-gray-700 hover:text-white;
+  @apply mx-1 flex h-8 w-8 cursor-pointer items-center rounded-md border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-center align-middle text-gray-500 dark:text-gray-300 transition-all hover:bg-gray-700 hover:text-white dark:hover:bg-gray-500;
 }
 
 /* used in DataExportView.vue */

@@ -54,8 +54,8 @@ const onChangeWorkHoursIsEnabled = async (e: Event) => {
 </script>
 
 <template>
-  <div>
-    <article class="prose prose-lg mt-4 mb-5">
+  <div class="dark:text-gray-300">
+    <article class="prose prose-lg mt-4 mb-5 dark:prose-invert">
       <h1>
         <span class="primary-blue">Active Times</span>
       </h1>
