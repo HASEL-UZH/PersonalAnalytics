@@ -230,7 +230,7 @@ async function skipExperienceSample() {
             </div>
           </div>
 
-          <div v-if="selectedQuestion.answerType === 'LikertScale'" class="mt-1 flex flex-row text-sm text-gray-400">
+          <div v-if="selectedQuestion.answerType === 'LikertScale'" class="mt-1 flex flex-row text-sm text-gray-400 dark:text-gray-500">
             <div class="basis-1/3">{{ selectedQuestion.responseOptions[0] }}</div>
             <div class="basis-1/3 text-center">
               <span v-if="selectedQuestion.responseOptions.length === 3">{{ selectedQuestion.responseOptions[1] }}</span>
@@ -327,7 +327,7 @@ async function skipExperienceSample() {
           </div>
         </div>
       </div>
-      <div class="flex cursor-pointer border-l border-gray-200 self-stretch">
+      <div class="flex cursor-pointer border-l border-gray-200 dark:border-gray-600 self-stretch">
         <div class="flex w-full flex-col items-center justify-center">
           <button
             v-if="needsSubmitButton"
@@ -371,6 +371,15 @@ async function skipExperienceSample() {
     color: #1f2937;
     padding: 0.5rem 0.625rem;
     outline: none;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .text-answer-input,
+    .text-answer-textarea {
+      border-color: #4b5563;
+      background: #374151;
+      color: #e5e7eb;
+    }
   }
 
   .text-answer-input {
@@ -422,6 +431,12 @@ async function skipExperienceSample() {
     margin-bottom: 0.35rem;
   }
 
+  @media (prefers-color-scheme: dark) {
+    .choice-hint {
+      color: #6b7280;
+    }
+  }
+
   .choice-list {
     display: grid;
     grid-template-columns: 1fr;
@@ -450,6 +465,25 @@ async function skipExperienceSample() {
     color: #ffffff;
   }
 
+  @media (prefers-color-scheme: dark) {
+    .choice-option {
+      border-color: #4b5563;
+      background: #374151;
+      color: #d1d5db;
+    }
+
+    .choice-option:hover {
+      background: #4b5563;
+      color: #f3f4f6;
+    }
+
+    .choice-option-selected {
+      background: #60a5fa;
+      border-color: #60a5fa;
+      color: #ffffff;
+    }
+  }
+
   .choice-select {
     width: 100%;
     border: 1px solid #d1d5db;
@@ -464,6 +498,14 @@ async function skipExperienceSample() {
   .choice-select:focus {
     border-color: #93c5fd;
     box-shadow: 0 0 0 2px rgb(147 197 253 / 0.25);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .choice-select {
+      border-color: #4b5563;
+      background: #374151;
+      color: #e5e7eb;
+    }
   }
 
   .choice-select-multi {
@@ -513,6 +555,17 @@ async function skipExperienceSample() {
   .skip-button:hover {
     background: #f3f4f6;
     color: #111827;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .skip-button {
+      color: #9ca3af;
+    }
+
+    .skip-button:hover {
+      background: #374151;
+      color: #e5e7eb;
+    }
   }
 }
 </style>

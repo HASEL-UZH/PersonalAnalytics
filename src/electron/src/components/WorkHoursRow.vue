@@ -77,7 +77,7 @@ const onSelectEndChange = async () => {
 
     <div v-if="isEnabled" class="time-selectors">
       <span>From:</span>
-      <select class="ml-2 p-1" v-model="startTime" @change="onSelectStartChange">
+      <select class="ml-2 p-1 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600" v-model="startTime" @change="onSelectStartChange">
         <option
           v-for="time in startTimeOptions"
           :key="time"
@@ -88,7 +88,7 @@ const onSelectEndChange = async () => {
       </select>
 
       <span>To:</span>
-      <select class="ml-2 p-1" v-model="endTime" @change="onSelectEndChange"> 
+      <select class="ml-2 p-1 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600" v-model="endTime" @change="onSelectEndChange"> 
         <option
           v-for="time in endTimeOptions"
           :key="time"
@@ -118,6 +118,12 @@ const onSelectEndChange = async () => {
 .not-working {
   color: gray;
   font-style: italic;
+}
+
+@media (prefers-color-scheme: dark) {
+  .not-working {
+    color: #9ca3af;
+  }
 }
 
 .outer-switch-container {

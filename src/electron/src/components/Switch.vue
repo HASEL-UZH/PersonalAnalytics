@@ -55,6 +55,12 @@ const onChange = (event: Event) => {
   transition: 0.4s;
 }
 
+@media (prefers-color-scheme: dark) {
+  .slider {
+    background-color: #4b5563;
+  }
+}
+
 .slider:before {
   position: absolute;
   content: '';
