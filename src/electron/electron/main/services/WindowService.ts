@@ -72,7 +72,6 @@ export class WindowService {
       show: false,
       opacity: 0,
       frame: false,
-      backgroundColor: '#ffffff',
       alwaysOnTop: true,
       visualEffectState: 'inactive',
       minimizable: false,
