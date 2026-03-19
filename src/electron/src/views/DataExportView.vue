@@ -152,6 +152,11 @@ async function handleNextStep() {
     return;
   }
 
+  if (studyConfig.dataExportFormat === 'ExportToDDL' && currentNamedStep.value === 'export-2') {
+    const confirmed = await typedIpcRenderer.invoke('confirmDDLUpload');
+    if (!confirmed) return;
+  }
+
   transitionName.value = 'slide-left-right';
   currentStep.value++;
   if (currentNamedStep.value === 'create-export' || currentNamedStep.value === 'upload-to-ddl') {
@@ -225,10 +230,10 @@ function revealItemInFolder(event: Event) {
       <span class="loading loading-spinner loading-lg" />
       <div v-if="isExporting" class="max-w-lg px-6 text-neutral-600 dark:text-neutral-400">
         <p class="text-lg font-medium">
-          Exporting and uploading your data...
+          {{ studyConfig.dataExportFormat === 'ExportToDDL' ? 'Exporting and uploading your data...' : 'Exporting your data...' }}
         </p>
         <p class="mt-2 text-sm">
-          This may take a few minutes depending on the export size and your internet connection.
+          This may take a few minutes depending on the export size{{ studyConfig.dataExportFormat === 'ExportToDDL' ? ' and your internet connection' : '' }}.
           Please keep this window open until the process is finished.
         </p>
       </div>

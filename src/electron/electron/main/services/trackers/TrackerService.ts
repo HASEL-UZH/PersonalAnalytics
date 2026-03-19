@@ -8,8 +8,8 @@ import { WindowService } from '../WindowService';
 import studyConfig from '../../../../shared/study.config';
 import { UserInputEntity } from '../../entities/UserInputEntity';
 import { MoreThanOrEqual } from 'typeorm';
-import { WorkScheduleService } from '../WorkScheduleService'
-import { DaysParticipatedTracker } from './DaysParticipatedTracker'
+import { WorkScheduleService } from '../WorkScheduleService';
+import { DaysParticipatedTracker } from './DaysParticipatedTracker';
 
 const LOG = getMainLogger('TrackerService');
 
@@ -20,7 +20,11 @@ export class TrackerService {
   private readonly workScheduleService: WorkScheduleService;
   private checkIfUITIsWorkingJob: schedule.Job;
 
-  constructor(trackerConfig: TrackerConfig, windowService: WindowService, workScheduleService: WorkScheduleService) {
+  constructor(
+    trackerConfig: TrackerConfig,
+    windowService: WindowService,
+    workScheduleService: WorkScheduleService
+  ) {
     this.config = trackerConfig;
     this.windowService = windowService;
     this.workScheduleService = workScheduleService;
@@ -58,10 +62,8 @@ export class TrackerService {
       trackerType === TrackerType.UserInputTracker
     ) {
       const UIT = await import('user-input-tracker');
-      const userInputTracker = new UIT.UserInputTracker(
-        callback,
-        this.config.userInputTracker.intervalInMs
-      );
+      const { intervalInMs, collectKeyDetails = false } = this.config.userInputTracker; // default to false for collectKeyDetails to avoid collecting potentially sensitive data if not explicitly enabled
+      const userInputTracker = new UIT.UserInputTracker(callback, intervalInMs, collectKeyDetails);
       this.trackers.push(userInputTracker);
     } else if (
       this.config.experienceSamplingTracker.enabled &&

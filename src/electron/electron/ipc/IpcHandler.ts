@@ -23,6 +23,7 @@ import DOMPurify from 'dompurify';
 import { WorkScheduleService } from 'electron/main/services/WorkScheduleService'
 import { WorkHoursDto } from 'shared/dto/WorkHoursDto'
 import path from 'path';
+import type { ExperienceSamplingAnswerType } from '../../shared/StudyConfiguration';
 
 const LOG = getMainLogger('IpcHandler');
 
@@ -62,6 +63,7 @@ export class IpcHandler {
       setSettingsProp: this.setSettingsProp,
       getSettings: this.getSettings,
       createExperienceSample: this.createExperienceSample,
+      resizeExperienceSamplingWindow: this.resizeExperienceSamplingWindow,
       closeExperienceSamplingWindow: this.closeExperienceSamplingWindow,
       closeOnboardingWindow: this.closeOnboardingWindow,
       closeDataExportWindow: this.closeDataExportWindow,
@@ -74,6 +76,7 @@ export class IpcHandler {
       revealItemInFolder: this.revealItemInFolder,
       openUploadUrl: this.openUploadUrl,
       showDataExportError: this.showDataExportError,
+      confirmDDLUpload: this.confirmDDLUpload,
       startAllTrackers: this.startAllTrackers,
       triggerPermissionCheckAccessibility: this.triggerPermissionCheckAccessibility,
       triggerPermissionCheckScreenRecording: this.triggerPermissionCheckScreenRecording
@@ -96,14 +99,16 @@ export class IpcHandler {
   private async createExperienceSample(
     promptedAt: Date,
     question: string,
-    responseOptions: string,
-    scale: number,
-    response: number,
+    answerType: ExperienceSamplingAnswerType,
+    responseOptions: string | null,
+    scale: number | null,
+    response?: string,
     skipped: boolean = false
   ) {
     await this.experienceSamplingService.createExperienceSample(
       promptedAt,
       question,
+      answerType,
       responseOptions,
       scale,
       response,
@@ -119,6 +124,10 @@ export class IpcHandler {
   private openCollected() {
     LOG.info(`Opening collected data at ${app.getPath('userData')}`);
     shell.showItemInFolder(path.join(app.getPath('userData'), 'database.sqlite'));
+  }
+
+  private resizeExperienceSamplingWindow(height: number): void {
+    this.windowService.resizeExperienceSamplingWindow(height);
   }
 
   private closeExperienceSamplingWindow(skippedExperienceSampling: boolean): void {
@@ -228,6 +237,19 @@ export class IpcHandler {
   
   private async openUploadUrl(): Promise<void> {
     this.windowService.openExternal();
+  }
+
+  private async confirmDDLUpload(): Promise<boolean> {
+    const { response } = await dialog.showMessageBox({
+      type: 'question',
+      buttons: ['Yes', 'Cancel'],
+      defaultId: 0,
+      cancelId: 1,
+      title: 'Confirm Data Donation',
+      message: `Do you agree to donate and upload your data to the ${studyConfig.name} study?`,
+      detail: 'Your data will be uploaded via a secure, encrypted connection to a secure, encrypted store operated by the University of Zurich (Data Donation Lab). Your data will be processed in accordance with the study\'s consent form.'
+    });
+    return response === 0;
   }
 
   private async showDataExportError(errorMessage?: string): Promise<void> {

@@ -348,7 +348,7 @@ const onChangeActiveTimesEnabled = async (e: Event) => {
               overflow.
             </p>
             <p>
-              The following trackers are currently running:
+              The following monitors are currently running:
               {{ studyInfo.currentlyActiveTrackers.join(', ') }}
             </p>
 

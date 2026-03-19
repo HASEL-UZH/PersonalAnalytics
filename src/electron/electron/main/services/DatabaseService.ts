@@ -8,7 +8,7 @@ import { ExperienceSamplingResponseEntity } from '../entities/ExperienceSampling
 import { UserInputEntity } from '../entities/UserInputEntity';
 import { Settings } from '../entities/Settings';
 import { UsageDataEntity } from '../entities/UsageDataEntity';
-import { WorkDayEntity } from '../entities/WorkDayEntity'
+import { WorkDayEntity } from '../entities/WorkDayEntity';
 
 const LOG = getMainLogger('DatabaseService');
 
@@ -25,25 +25,25 @@ export class DatabaseService {
     }
     LOG.info('Using database path:', this.dbPath);
   }
-  
+
   public async init(): Promise<void> {
-    let entities: any = [
+    const ENTITIES: NonNullable<DataSourceOptions['entities']> = [
       ExperienceSamplingResponseEntity,
       Settings,
       UsageDataEntity,
       UserInputEntity,
       WindowActivityEntity,
       WorkDayEntity
-    ]
-    
-    let options: DataSourceOptions = {
+    ];
+
+    const options: DataSourceOptions = {
       type: 'better-sqlite3',
       database: this.dbPath,
       synchronize: true,
       logging: false,
-      entities: entities,
+      entities: ENTITIES
     };
-    
+
     this.dataSource = new DataSource(options);
 
     try {
@@ -51,6 +51,7 @@ export class DatabaseService {
       LOG.info('Database connection established');
     } catch (error) {
       LOG.error('Database connection failed', error);
+      throw error;
     }
   }
 
