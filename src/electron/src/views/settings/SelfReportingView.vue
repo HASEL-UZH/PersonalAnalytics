@@ -3,6 +3,7 @@ import { onMounted, ref, computed } from 'vue'
 import Switch from '../../components/Switch.vue'
 import studyConfig from '../../../shared/study.config'
 import typedIpcRenderer from '../../utils/typedIpcRenderer'
+import type { ExperienceSamplingQuestion } from '../../../shared/StudyConfiguration'
 
 const es = studyConfig.trackers.experienceSamplingTracker
 const allowUserToDisable = es.allowUserToDisable ?? true
@@ -14,7 +15,16 @@ const selectedInterval = ref<number | null>(null)
 const intervalOptions = computed<number[]>(
   () => (es.userDefinedInterval_h ?? []).filter((n: number) => Number.isFinite(n))
 )
-const questions = es.questions
+const questions: ExperienceSamplingQuestion[] = es.questions
+
+function questionTypeLabel(question: ExperienceSamplingQuestion): string {
+  switch (question.answerType) {
+    case 'LikertScale': return 'Likert Scale'
+    case 'TextResponse': return 'Text Response'
+    case 'SingleChoice': return 'Single Choice'
+    case 'MultiChoice': return 'Multi Choice'
+  }
+}
 
 const defaultIntervalHours = es.intervalInMs / (1000 * 60 * 60)
 
@@ -86,7 +96,7 @@ onMounted(load)
       </div>
 
       <div
-        v-if="allowUserToChangeInterval && intervalOptions.length > 0" && !disabled
+        v-if="allowUserToChangeInterval && intervalOptions.length > 0 && !disabled"
         class="self-reporting-container"
       >
         <div class="form-control w-[70%] max-w-xl">
@@ -112,7 +122,9 @@ onMounted(load)
       <div class="self-reporting-container">
         <div class="font-medium mb-2">Self-Reflection Questions:</div>
         <ul class="list-disc ml-6">
-          <li v-for="q in questions" :key="q">{{ q }}</li>
+          <li v-for="q in questions" :key="q.question">
+            {{ q.question }} ({{ questionTypeLabel(q) }})
+          </li>
         </ul>
       </div>
     </article>

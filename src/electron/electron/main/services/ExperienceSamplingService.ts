@@ -1,6 +1,7 @@
 import { ExperienceSamplingResponseEntity } from '../entities/ExperienceSamplingResponseEntity';
 import getMainLogger from '../../config/Logger';
 import ExperienceSamplingDto from '../../../shared/dto/ExperienceSamplingDto';
+import type { ExperienceSamplingAnswerType } from '../../../shared/StudyConfiguration';
 
 const LOG = getMainLogger('ExperienceSamplingService');
 
@@ -8,9 +9,10 @@ export class ExperienceSamplingService {
   public async createExperienceSample(
     promptedAt: Date,
     question: string,
-    responseOptions: string,
-    scale: number,
-    response: number,
+    answerType: ExperienceSamplingAnswerType,
+    responseOptions: string | null,
+    scale: number | null,
+    response?: string,
     skipped: boolean
   ): Promise<void> {
     LOG.debug(
@@ -18,6 +20,7 @@ export class ExperienceSamplingService {
     );
     await ExperienceSamplingResponseEntity.save({
       question,
+      answerType,
       responseOptions,
       scale,
       response,
@@ -36,6 +39,7 @@ export class ExperienceSamplingService {
     return experienceSamplingResponses.map((response) => ({
       id: response.id,
       question: response.question,
+      answerType: response.answerType,
       responseOptions: response.responseOptions,
       scale: response.scale,
       response: response.response,

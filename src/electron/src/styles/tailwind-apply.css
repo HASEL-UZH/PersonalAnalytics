@@ -7,7 +7,7 @@
 
 /* used in ExperienceSamplingView.vue  */ 
 .experience-sampling-notification {
-  @apply h-full bg-white select-none overflow-hidden;
+  @apply bg-white select-none;
 }
 
 .experience-sampling-notification .notification-top-bar {

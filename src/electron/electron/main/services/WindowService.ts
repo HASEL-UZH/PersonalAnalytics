@@ -109,6 +109,15 @@ export class WindowService {
     })
   }
 
+  public resizeExperienceSamplingWindow(height: number) {
+    if (this.experienceSamplingWindow) {
+      const minHeight = 120
+      const maxHeight = 600
+      const clamped = Math.max(minHeight, Math.min(maxHeight, height))
+      this.experienceSamplingWindow.setContentSize(500, clamped)
+    }
+  }
+
   public closeExperienceSamplingWindow(skippedExperienceSampling: boolean) {
     const usageDataEvent = skippedExperienceSampling
       ? UsageDataEventType.ExperienceSamplingSkipped
