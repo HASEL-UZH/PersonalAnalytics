@@ -13,8 +13,7 @@ const studyConfig: StudyConfiguration = {
   contactEmail: 'study@hasel.dev',
   subjectIdLength: 6,
   dataExportEnabled: true,
-  dataExportFormat: DataExportFormat.ExportToDDL, // default should be ExportAsZippedSqlite,
-  dataExportDDLProjectName: 'PA_Test3',
+  dataExportFormat: DataExportFormat.ExportAsZippedSqlite,
   dataExportEncrypted: false,
   displayDaysParticipated: true,
   showActiveTimesInOnboarding: true,
@@ -47,22 +46,22 @@ const studyConfig: StudyConfiguration = {
           scale: 5,
           responseOptions: ['not well', 'moderately well', 'very well']
         },
-        {
-          question: 'What is one aspect that affected your ability to focus the most in the last session?',
-          answerType: 'TextResponse',
-          responseOptions: 'singleLine',
-          maxLength: 100
-        },
+        // {
+        //   question: 'What is one aspect that affected your ability to focus the most in the last session?',
+        //   answerType: 'TextResponse',
+        //   responseOptions: 'singleLine',
+        //   maxLength: 100
+        // },
         {
           question: 'What best describes your current task type?',
           answerType: 'SingleChoice',
           responseOptions: ['Coding', 'Reading/Writing Documents', 'Meeting', 'Planning', 'Email & Chat Communication', 'Learning', 'Other']
         },
-        {
-          question: 'Which distractions did you experience in the last session?',
-          answerType: 'MultiChoice',
-          responseOptions: ['Notifications', 'Meetings', 'Context switching', 'Personal interruptions', 'None']
-        }
+        // {
+        //   question: 'Which distractions did you experience in the last session?',
+        //   answerType: 'MultiChoice',
+        //   responseOptions: ['Notifications', 'Meetings', 'Context switching', 'Personal interruptions', 'None']
+        // }
       ],
       intervalInMs: 1000 * 60 * 60 * 1, // default interval (must be listed in userDefinedInterval_h if set)
       samplingRandomization: 0.2, // 20% randomization, so the interval will be between 48 and 72 minutes
