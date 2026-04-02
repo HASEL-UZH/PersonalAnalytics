@@ -32,10 +32,10 @@ onMounted(async () => {
       </article>
 
       <div class="z-10 mt-10 mb-10 flex items-center">
-        <button class="btn btn-outline btn-sm mr-5" type="button" @click="openLogs">
+        <button class="btn btn-outline btn-sm mr-5 dark:border-gray-500 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white dark:hover:border-gray-500" type="button" @click="openLogs">
           Open Logs
         </button>
-        <button class="btn btn-outline btn-sm" type="button" @click="openCollectedData">
+        <button class="btn btn-outline btn-sm dark:border-gray-500 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white dark:hover:border-gray-500" type="button" @click="openCollectedData">
           Open Collected Data
         </button>
       </div>

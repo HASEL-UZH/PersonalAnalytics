@@ -101,12 +101,12 @@ onMounted(load)
       >
         <div class="form-control w-[70%] max-w-xl">
           <label class="label pb-0">
-            <span class="label-text text-base">
+            <span class="label-text text-base dark:text-gray-300">
               How frequently would you like to reflect (during active times)?
             </span>
           </label>
           <select
-            class="select select-bordered mt-2"
+            class="select select-bordered mt-2 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
             :value="selectedDropdownValue"
             @change="onSelectInterval(($event.target as HTMLSelectElement).value)"
           >
@@ -143,5 +143,11 @@ onMounted(load)
   border-top: 1px solid rgb(59 130 246 / 0.5);
   margin-top: 24px;
   padding-top: 16px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .self-reporting-container {
+    border-top-color: rgb(59 130 246 / 0.3);
+  }
 }
 </style>

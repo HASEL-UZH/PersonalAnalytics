@@ -89,4 +89,10 @@ const onChangeWorkHoursIsEnabled = async (e: Event) => {
   border-top: 1px solid rgb(59 130 246 / 0.5);
   margin-top: 40px;
 }
+
+@media (prefers-color-scheme: dark) {
+  .work-hours-container {
+    border-top-color: rgb(59 130 246 / 0.3);
+  }
+}
 </style>
