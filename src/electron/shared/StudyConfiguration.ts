@@ -82,4 +82,5 @@ export interface StudyConfiguration {
   trackers: TrackerConfiguration;
   displayDaysParticipated: boolean;
   showActiveTimesInOnboarding?: boolean;
+  enableRetrospection?: boolean;
 }

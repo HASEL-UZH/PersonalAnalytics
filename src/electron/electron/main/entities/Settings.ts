@@ -54,4 +54,7 @@ export class Settings extends BaseEntity {
 
   @Column({ type: 'float', nullable: true })
   userDefinedExperienceSamplingInterval_h: number | null;
+
+  @Column({ type: 'integer', default: 0 })
+  userDisabledRetrospection: number;
 }

@@ -21,6 +21,7 @@ import { Settings } from './entities/Settings';
 import { UsageDataService } from './services/UsageDataService';
 import { UsageDataEventType } from '../enums/UsageDataEventType.enum';
 import { WorkScheduleService } from './services/WorkScheduleService';
+import { SchedulingService } from './services/SchedulingService';
 import dotenv from 'dotenv';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -87,6 +88,12 @@ app.whenReady().then(async () => {
     await settingsService.init();
     await windowService.init();
     await ipcHandler.init();
+
+    if (studyConfig.enableRetrospection ?? true) {
+      const workSchedule = await workScheduleService.getWorkSchedule();
+      const schedulingService = new SchedulingService(windowService, workSchedule);
+      ipcHandler.setSchedulingService(schedulingService);
+    }
 
     const currentTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const currentLocale = app.getLocale();
