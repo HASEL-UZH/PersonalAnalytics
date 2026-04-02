@@ -67,7 +67,7 @@
     "d3": "^7.9.0",
     "better-sqlite3": "^9.4.0",
     "better-sqlite3-multiple-ciphers": "^9.4.0",
-    "dompurify": "^3.3.1",
+    "dompurify": "^3.3.2",
     "electron-log": "^5.1.1",
     "form-data": "^4.0.5",
     "jsdom": "^25.0.1",
