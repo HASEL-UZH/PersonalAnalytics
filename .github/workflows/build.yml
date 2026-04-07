@@ -35,7 +35,7 @@ jobs:
       - name: Build
         shell: bash
         run: |
-          if [ "${{ matrix.os }}" == "macos-*" ]; then
+          if [ -n "${{ matrix.mac_arch }}" ]; then
             if [ "${{ matrix.mac_arch }}" == "arm64" ]; then
               npm run build:mac:arm64
             else
@@ -45,6 +45,7 @@ jobs:
             npm run build
           fi
         env:
+          NODE_OPTIONS: --max-old-space-size=4096
           MAC_ARCH_TYPE: ${{ matrix.mac_arch == 'arm64' && 'AppleSilicon' || 'Intel' }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
