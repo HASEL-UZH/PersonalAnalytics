@@ -23,11 +23,11 @@ jobs:
           - os: macos-15-intel
             mac_arch: x64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: true
       - name: Setup Node
-        uses: actions/setup-node@master
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
