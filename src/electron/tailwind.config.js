@@ -12,7 +12,7 @@ module.exports = {
     }
   },
   daisyui: {
-    themes: ['dark']
+    themes: ['light', 'dark']
   },
   // needed for the dynamic classes
   safelist: [
