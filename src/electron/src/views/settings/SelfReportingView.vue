@@ -8,8 +8,10 @@ import type { ExperienceSamplingQuestion } from '../../../shared/StudyConfigurat
 const es = studyConfig.trackers.experienceSamplingTracker
 const allowUserToDisable = es.allowUserToDisable ?? true
 const allowUserToChangeInterval = es.allowUserToChangeInterval ?? true
+const enableRetrospection = studyConfig.enableRetrospection ?? true
 
 const disabled = ref(false)
+const retrospectionDisabled = ref(false)
 const selectedInterval = ref<number | null>(null)
 
 const intervalOptions = computed<number[]>(
@@ -48,6 +50,7 @@ const selectedDropdownValue = computed<number | ''>(() => {
 async function load() {
   const settings: any = await typedIpcRenderer.invoke('getSettings')
   disabled.value = (settings.userDisabledExperienceSampling ?? 0) === 1
+  retrospectionDisabled.value = (settings.userDisabledRetrospection ?? 0) === 1
   selectedInterval.value =
     settings.userDefinedExperienceSamplingInterval_h ?? null
 }
@@ -59,6 +62,16 @@ const onChangeSelfReportingEnabled = async (e: Event) => {
     'setSettingsProp',
     'userDisabledExperienceSampling',
     disabled.value ? 1 : 0
+  )
+}
+
+const onChangeRetrospectionEnabled = async (e: Event) => {
+  const isChecked = (e.target as HTMLInputElement).checked
+  retrospectionDisabled.value = !isChecked
+  await typedIpcRenderer.invoke(
+    'setSettingsProp',
+    'userDisabledRetrospection',
+    retrospectionDisabled.value ? 1 : 0
   )
 }
 
@@ -126,6 +139,26 @@ onMounted(load)
             {{ q.question }} ({{ questionTypeLabel(q) }})
           </li>
         </ul>
+      </div>
+    </article>
+
+    <!-- Retrospection Settings -->
+    <article v-if="enableRetrospection" class="prose prose-lg mt-8 mb-5">
+      <h1 class="mt-0">
+        <span class="primary-blue">Retrospection</span>
+      </h1>
+      <p class="text-base">
+        The retrospection provides a daily summary of your computer activity at the end of the workday.
+      </p>
+    </article>
+
+    <article v-if="enableRetrospection" class="prose mt-4">
+      <div class="mb-6">
+        <Switch
+          :modelValue="!retrospectionDisabled"
+          :label="'Automatically open retrospection at the end of the workday'"
+          :on-change="onChangeRetrospectionEnabled"
+        />
       </div>
     </article>
   </div>

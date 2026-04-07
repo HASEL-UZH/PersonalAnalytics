@@ -21,6 +21,7 @@ export class WindowService {
   private onboardingWindow: BrowserWindow
   private dataExportWindow: BrowserWindow
   private settingsWindow: BrowserWindow
+  private retrospectionWindow: BrowserWindow
 
   private hasOpenedDataExportUrl: boolean = false;
   private hasRevealedDataEportFolder: boolean = false;
@@ -233,6 +234,51 @@ export class WindowService {
     }
   }
 
+  public closeRetrospectionWindow() {
+    if (this.retrospectionWindow) {
+      this.retrospectionWindow.close()
+      this.retrospectionWindow = null
+    }
+  }
+
+  public async createRetrospectionWindow() {
+    this.closeRetrospectionWindow()
+
+    const __filename = fileURLToPath(import.meta.url)
+    const __dirname = dirname(__filename)
+    const preload = join(__dirname, '../preload/index.mjs')
+
+    this.retrospectionWindow = new BrowserWindow({
+      width: 850,
+      height: 800,
+      minWidth: 800,
+      minHeight: 750,
+      show: false,
+      minimizable: false,
+      maximizable: false,
+      fullscreenable: false,
+      resizable: true,
+      title: 'PersonalAnalytics: Retrospection',
+      webPreferences: {
+        preload
+      }
+    })
+
+    if (process.env.VITE_DEV_SERVER_URL) {
+      await this.retrospectionWindow.loadURL(process.env.VITE_DEV_SERVER_URL + '#retrospection')
+    } else {
+      await this.retrospectionWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
+        hash: 'retrospection'
+      })
+    }
+
+    this.retrospectionWindow.show()
+
+    this.retrospectionWindow.on('close', () => {
+      this.retrospectionWindow = null
+    })
+  }
+
   private destroyDataExportWindow() {
     if (this.dataExportWindow) {
       this.dataExportWindow.destroy()
@@ -401,16 +447,21 @@ export class WindowService {
         visible: showSelfReportMenu
       },
       {
-        label: 'Open Settings',
+        label: 'Retrospection',
+        click: () => this.createRetrospectionWindow(),
+        visible: studyConfig.enableRetrospection ?? true
+      },
+      {
+        label: 'Settings',
         click: () => this.createSettingsWindow()
       },
       {
-        label: 'Open Onboarding',
+        label: 'Onboarding',
         click: () => this.createOnboardingWindow(),
         visible: is.dev
       },
       {
-        label: 'Open Study Data Export',
+        label: 'Study Data Export',
         click: (): void => {
           LOG.info(`Opening data export`)
           this.createDataExportWindow()

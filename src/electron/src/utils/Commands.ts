@@ -49,5 +49,10 @@ type Commands = {
   startAllTrackers: () => void;
   triggerPermissionCheckAccessibility: (prompt: boolean) => boolean;
   triggerPermissionCheckScreenRecording: () => boolean;
+  retrospectionGetActivities: (date: Date) => Promise<any[]>;
+  retrospectionLoadLongestTimeActive: (date: Date) => Promise<any>;
+  retrospectionGetTopThreeMostActiveApps: (date: Date) => Promise<any[]>;
+  openRetrospection: () => Promise<void>;
+  closeRetrospectionWindow: () => void;
 };
 export default Commands;
