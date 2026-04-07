@@ -163,14 +163,15 @@ function buildChart() {
     .on('mouseout', function () {
       d3.select('#tooltip').style('opacity', '0')
     })
-    .on('mousemove', function (this: SVGRectElement, _event: any, d: ChartDataPoint) {
-      const durationInMinutes = msToReadableFormat(d.end.getTime() - d.start.getTime(), false, false)
+    .on('mousemove', function (this: SVGRectElement, _event: any, d: unknown) {
+      const dataPoint = d as ChartDataPoint
+      const durationInMinutes = msToReadableFormat(dataPoint.end.getTime() - dataPoint.start.getTime(), false, false)
 
       const barBoundingRect = this.getBoundingClientRect()
       const xPosition = barBoundingRect.x + barBoundingRect.width / 2
       const yPosition = barBoundingRect.y - barBoundingRect.height + 10
 
-      const tooltipContent = `<div class="text-${d.color}">${ACTIVITY_LABELS[getActivityGroupFromActivityName(d.activity)]}</div> ${timeFormat(d.start)} - ${timeFormat(d.end)} (${durationInMinutes})`
+      const tooltipContent = `<div class="text-${dataPoint.color}">${ACTIVITY_LABELS[getActivityGroupFromActivityName(dataPoint.activity)]}</div> ${timeFormat(dataPoint.start)} - ${timeFormat(dataPoint.end)} (${durationInMinutes})`
 
       d3.select('#tooltip')
         .style('left', xPosition + 'px')

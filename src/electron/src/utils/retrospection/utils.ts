@@ -38,7 +38,7 @@ const ACTIVITY_GROUPS: Record<string, Activity[]> = {
   WorkUnrelatedBrowsing: [Activity.WorkUnrelatedBrowsing],
   SocialMedia: [Activity.SocialMedia],
   FileManagement: [Activity.FileManagement],
-  Other: [Activity.Unknown, Activity.Other, Activity.OtherRdp, Activity.Gaming],
+  Other: [Activity.Unknown, Activity.Other, Activity.OtherRdp],
   Idle: [Activity.Idle]
 }
 
