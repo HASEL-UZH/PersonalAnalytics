@@ -17,7 +17,7 @@ export function generateAlphaNumericString(length: number = 0): string {
     throw new Error('Length must be greater than 0');
   }
 
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789'; // removed 0, O, I and l from options to avoid participant IDs that are ambiguous 
   let result = '';
   for (let i = 0; i < length; i++) {
     result += characters.charAt(Math.floor(Math.random() * characters.length));
