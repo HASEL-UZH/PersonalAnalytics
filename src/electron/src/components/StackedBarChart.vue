@@ -1,13 +1,13 @@
 <template>
   <div id="tooltip"
-      class="bg-neutral-800 text-neutral-300 p-2 rounded opacity-0 transition-opacity ease-in-out duration-300 shadow-lg shadow-neutral-800/80">
+      class="bg-white text-gray-700 border border-gray-200 dark:bg-neutral-800 dark:text-neutral-300 dark:border-transparent p-2 rounded opacity-0 transition-opacity ease-in-out duration-300 shadow-lg dark:shadow-neutral-800/80">
     <span id="content"></span>
   </div>
   <svg ref="chart" :width="svgWidth" :height="svgHeight"></svg>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import * as d3 from 'd3'
 import { Color } from '../utils/retrospection/types'
 import {
@@ -44,11 +44,20 @@ const props = defineProps({
 const svgWidth = 760
 const chart = ref<SVGElement | null>()
 const chartSelectedLegendItem = ref<string | null>()
+const darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+const isDark = ref(darkMediaQuery.matches)
+
+function onThemeChange(e: MediaQueryListEvent) {
+  isDark.value = e.matches
+  d3.select(chart.value!).selectAll('*').remove()
+  buildChart()
+}
 
 const chartStartDate = ref<number>()
 const chartEndDate = ref<number>()
 
 onMounted(() => {
+  darkMediaQuery.addEventListener('change', onThemeChange)
   const minStartTime = new Date(props.startDate).setHours(0, 0, 0, 0)
   const maxEndTime = new Date(props.endDate).setHours(23, 59, 59, 999)
   if (props.startDate > minStartTime) {
@@ -62,6 +71,10 @@ onMounted(() => {
     chartEndDate.value = maxEndTime
   }
   buildChart()
+})
+
+onUnmounted(() => {
+  darkMediaQuery.removeEventListener('change', onThemeChange)
 })
 
 const svgHeight = computed(() => {
@@ -130,7 +143,7 @@ function buildChart() {
     .attr('width', width)
     .attr('y', barYOffset)
     .attr('height', barHeight)
-    .attr('fill', (Color as any)['neutral-800'])
+    .attr('fill', isDark.value ? (Color as any)['neutral-800'] : '#e5e7eb')
     .style('opacity', 1)
     .attr('rx', 8)
 
@@ -187,11 +200,16 @@ function buildChart() {
     drawLegend(getLegendDataForWindowActivity(), true)
   }
 
+  const axisColor = isDark.value ? '#a3a3a3' : '#374151'
   svg
     .append('g')
     .attr('class', 'x axis')
     .attr('transform', `translate(0, ${barYOffset + barHeight})`)
     .call(d3.axisBottom(x).tickFormat(timeFormat as any))
+    .selectAll('text')
+    .style('fill', axisColor)
+
+  svg.selectAll('.x.axis path, .x.axis line').style('stroke', axisColor)
 }
 
 interface LegendDataPoint {

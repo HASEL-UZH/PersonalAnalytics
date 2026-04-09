@@ -167,11 +167,11 @@ function getDayLabel(date: Date): string {
       <div class="absolute top-6 right-6 z-10">
         <input type="date" :value="selectedDay.toISOString().substring(0, 10)" @change="handleDayChange"
           :max="new Date().toISOString().substring(0, 10)"
-          class="rounded px-2 py-1 bg-neutral-700 text-slate-200 border border-neutral-600" style="min-width: 140px;" />
+          class="rounded px-2 py-1 bg-white text-gray-800 border border-gray-300 dark:bg-neutral-700 dark:text-slate-200 dark:border-neutral-600" style="min-width: 140px;" />
       </div>
-      <div class="text-center">
+      <div class="text-center text-gray-800 dark:text-gray-200">
         <h1 class="mb-8 text-2xl font-bold">No data for this day.</h1>
-        <span>There is no data recorded for this date. Please select a different day.</span>
+        <span class="text-gray-600 dark:text-gray-400">There is no data recorded for this date. Please select a different day.</span>
       </div>
     </div>
   </template>
@@ -183,25 +183,25 @@ function getDayLabel(date: Date): string {
       <div class="absolute top-6 right-6 z-10">
         <input type="date" :value="selectedDay.toISOString().substring(0, 10)" @change="handleDayChange"
           :max="new Date().toISOString().substring(0, 10)"
-          class="rounded px-2 py-1 bg-neutral-700 text-slate-200 border border-neutral-600" style="min-width: 140px;" />
+          class="rounded px-2 py-1 bg-white text-gray-800 border border-gray-300 dark:bg-neutral-700 dark:text-slate-200 dark:border-neutral-600" style="min-width: 140px;" />
       </div>
 
       <div>
         <h1 class="mb-3 text-2xl font-bold primary-blue">{{ getDayLabel(selectedDay) }} - in Review</h1>
-        <div class="subline mb-8">Take a moment to reflect on your workday.</div>
+        <div class="subline mb-8 text-gray-600 dark:text-gray-400">Take a moment to reflect on your workday.</div>
 
         <!-- Timeline Visualization -->
-        <h1 class="mt-8 font-bold mb-2 text-xl">Activities over time</h1>
+        <h1 class="mt-8 font-bold mb-2 text-xl text-gray-900 dark:text-gray-100">Activities over time</h1>
         <StackedBarChart v-if="!isLoading && chartDataWindowActivities" :data="chartDataWindowActivities"
           :start-date="getNearestFullHourTime(earliestUserComputerActivity, 0)"
           :end-date="getNearestFullHourTime(latestUserComputerActivity, 1)" type="WINDOW_ACTIVITY" />
 
         <!-- Info Tiles -->
-        <h1 class="mt-8 font-bold mb-2 text-xl">Insights of your day</h1>
+        <h1 class="mt-8 font-bold mb-2 text-xl text-gray-900 dark:text-gray-100">Insights of your day</h1>
         <div class="tile-grid">
 
           <!-- Tile 1: Longest active period -->
-          <div v-if="longestTimeActive" class="text-slate-200 bg-neutral-800 rounded px-4 py-3">
+          <div v-if="longestTimeActive" class="text-gray-800 bg-gray-100 border border-gray-200 rounded px-4 py-3 dark:text-slate-200 dark:bg-neutral-800 dark:border-transparent">
             <h2 class="leading-4 primary-blue font-bold">Longest active period</h2>
             <p class="mt-2">
               Your longest active streak was <b>{{ renderTime(longestTimeActive!.duration * 60000) }}</b> (between {{
@@ -210,7 +210,7 @@ function getDayLabel(date: Date): string {
           </div>
 
           <!-- Tile 2: Active hours -->
-          <div v-if="topActivities" class="text-slate-200 bg-neutral-800 rounded px-4 py-3">
+          <div v-if="topActivities" class="text-gray-800 bg-gray-100 border border-gray-200 rounded px-4 py-3 dark:text-slate-200 dark:bg-neutral-800 dark:border-transparent">
             <h2 class="leading-4 primary-blue font-bold">Active hours on computer</h2>
             <p class="mt-2">
               You were active for <b>{{ renderTime(latestUserComputerActivity - earliestUserComputerActivity) }}</b> (between {{
@@ -219,7 +219,7 @@ function getDayLabel(date: Date): string {
           </div>
 
           <!-- Tile 3: Top apps -->
-          <div v-if="topApps" class="text-slate-200 bg-neutral-800 rounded px-4 py-3">
+          <div v-if="topApps" class="text-gray-800 bg-gray-100 border border-gray-200 rounded px-4 py-3 dark:text-slate-200 dark:bg-neutral-800 dark:border-transparent">
             <h2 class="leading-4 primary-blue font-bold">Top apps</h2>
             <ol class="mt-2 list-decimal pl-4">
               <li v-for="(appSession, index) in topApps" :key="index">
@@ -229,7 +229,7 @@ function getDayLabel(date: Date): string {
           </div>
 
           <!-- Tile 4: Top activities -->
-          <div v-if="topActivities" class="text-slate-200 bg-neutral-800 rounded px-4 py-3">
+          <div v-if="topActivities" class="text-gray-800 bg-gray-100 border border-gray-200 rounded px-4 py-3 dark:text-slate-200 dark:bg-neutral-800 dark:border-transparent">
             <h2 class="leading-4 primary-blue font-bold">Top activities pursued</h2>
             <ol class="mt-2 list-decimal pl-4">
               <li v-for="(activitySession, index) in topActivities" :key="index">
