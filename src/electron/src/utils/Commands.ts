@@ -16,7 +16,8 @@ type Commands = {
     responseOptions: string | null,
     scale?: number | null,
     response?: string,
-    skipped?: boolean
+    skipped?: boolean,
+    trigger?: 'manual' | 'auto'
   ) => Promise<void>;
   resizeExperienceSamplingWindow: (height: number) => void;
   closeExperienceSamplingWindow: (skippedExperienceSampling: boolean) => void;

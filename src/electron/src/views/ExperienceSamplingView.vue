@@ -25,6 +25,7 @@ const language =
     (navigator.language || (navigator.languages && navigator.languages[0]))) ||
   'en';
 
+const trigger: 'manual' | 'auto' = new URLSearchParams(window.location.search).get('trigger') === 'manual' ? 'manual' : 'auto';
 const promptedAt = new Date();
 const promptedAtString = new Intl.DateTimeFormat(language, {
   hour: '2-digit',
@@ -164,7 +165,9 @@ async function createExperienceSample(answer?: number) {
         selectedQuestion.answerType,
         buildResponseOptionsSnapshot(),
         selectedQuestion.answerType === 'LikertScale' ? selectedQuestion.scale : null,
-        buildResponseValue(answer)
+        buildResponseValue(answer),
+        false,
+        trigger
       ),
       new Promise((resolve) => setTimeout(resolve, 150))
     ]);
@@ -190,7 +193,8 @@ async function skipExperienceSample() {
         buildResponseOptionsSnapshot(),
         selectedQuestion.answerType === 'LikertScale' ? selectedQuestion.scale : null,
         undefined,
-        true
+        true,
+        trigger
       ),
       new Promise((resolve) => setTimeout(resolve, 150))
     ]);
