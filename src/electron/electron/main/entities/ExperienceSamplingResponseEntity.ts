@@ -25,6 +25,6 @@ export class ExperienceSamplingResponseEntity extends BaseTrackedEntity {
   @Column('boolean', { default: false, nullable: false })
   skipped: boolean;
 
-  @Column('text', { default: 'auto' })
+  @Column('text', { default: 'auto', nullable: false })
   trigger: 'manual' | 'auto';
 }
