@@ -69,6 +69,84 @@ const studyConfig: StudyConfiguration = {
       allowUserToDisable: true,
       allowUserToChangeInterval: true,
       userDefinedInterval_h: [0.5, 1, 2, 3, 4]
+    },
+    dailySurveyTracker: {
+      enabled: true,
+      requireAllAnswers: true,
+      surveys: [
+        {
+          samplingType: 'morning',
+          delayInMinutes: 5,
+          questions: [
+            {
+              question: 'How well did you sleep last night?',
+              answerType: 'LikertScale',
+              scale: 5,
+              responseOptions: ['very poorly', 'poorly', 'okay', 'well', 'very well']
+            },
+            {
+              question: 'How motivated are you to start today?',
+              answerType: 'LikertScale',
+              scale: 7,
+              responseOptions: ['not at all motivated', 'moderately motivated', 'very motivated']
+            },
+            {
+              question: 'What is your main goal for today?',
+              answerType: 'TextResponse',
+              responseOptions: 'singleLine',
+              maxLength: 150
+            },
+            {
+              question: 'Any concerns or blockers for today?',
+              answerType: 'TextResponse',
+              responseOptions: 'multiLine',
+              maxLength: 500
+            }
+          ]
+        },
+        {
+          samplingType: 'evening',
+          delayInMinutes: -30,
+          questions: [
+            {
+              question: 'Overall, how satisfied are you with your workday?',
+              answerType: 'LikertScale',
+              scale: 5,
+              responseOptions: ['very satisfied', 'satisfied', 'neutral', 'dissatisfied', 'very dissatisfied']
+            },
+            {
+              question: 'My co-workers frequently interrupted me when I was working focused.',
+              answerType: 'SingleChoice',
+              responseOptions: ['strongly disagree', 'disagree', 'neutral', 'agree', 'strongly agree']
+            },
+            {
+              question: 'How much did you interact with your co-workers today?',
+              answerType: 'SingleChoice',
+              responseOptions: ['not at all', 'rarely', 'sometimes', 'often', 'all the time']
+            },
+            {
+              question: 'When I had a question, my co-workers usually supported me in a timely manner.',
+              answerType: 'SingleChoice',
+              responseOptions: ['strongly disagree', 'disagree', 'neutral', 'agree', 'strongly agree', 'no interactions with co-workers']
+            },
+            {
+              question: 'To ask questions to my co-workers, I took advantage of interaction sessions if there were any planned.',
+              answerType: 'SingleChoice',
+              responseOptions: ['not at all', 'rarely', 'sometimes', 'often', 'all the time', 'no interaction session planned']
+            },
+            {
+              question: 'Where did you mostly work from?',
+              answerType: 'SingleChoice',
+              responseOptions: ['mostly at the office', 'mostly remotely', 'mostly at home']
+            },
+            {
+              question: 'Which distractions did you experience today?',
+              answerType: 'MultiChoice',
+              responseOptions: ['Notifications', 'Unplanned meetings', 'Co-worker interruptions', 'Context switching', 'Noisy environment', 'Personal matters', 'None']
+            }
+          ]
+        }
+      ]
     }
   }
 };
