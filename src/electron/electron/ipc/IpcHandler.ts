@@ -17,6 +17,8 @@ import { DataExportService } from '../main/services/DataExportService';
 import UserInputDto from '../../shared/dto/UserInputDto';
 import WindowActivityDto from '../../shared/dto/WindowActivityDto';
 import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
+import DailySurveyDto from '../../shared/dto/DailySurveyDto';
+import { DailySurveyService, DailySurveyResponseInput } from '../main/services/DailySurveyService';
 import { is } from '../main/services/utils/helpers';
 import { JSDOM } from 'jsdom';
 import DOMPurify from 'dompurify';
@@ -25,7 +27,10 @@ import { WorkHoursDto } from 'shared/dto/WorkHoursDto'
 import { getActivitySessions, getAppUsageSessions, getLongestTimeActiveInsight, ActivitySessions, TimeActive } from '../main/services/RetrospectionService'
 import { SchedulingService } from '../main/services/SchedulingService'
 import path from 'path';
-import type { ExperienceSamplingAnswerType } from '../../shared/StudyConfiguration';
+import type { DailySurveySamplingType, ExperienceSamplingAnswerType } from '../../shared/StudyConfiguration';
+import { DailySurveyTracker } from '../main/services/trackers/DailySurveyTracker';
+import { UsageDataService } from '../main/services/UsageDataService';
+import { UsageDataEventType } from '../enums/UsageDataEventType.enum';
 
 const LOG = getMainLogger('IpcHandler');
 
@@ -35,11 +40,13 @@ export class IpcHandler {
   private readonly trackerService: TrackerService;
 
   private readonly experienceSamplingService: ExperienceSamplingService;
+  private readonly dailySurveyService: DailySurveyService;
   private readonly windowActivityService: WindowActivityTrackerService;
   private readonly userInputService: UserInputTrackerService;
   private readonly dataExportService: DataExportService;
   private readonly workScheduleService: WorkScheduleService;
   private schedulingService: SchedulingService;
+  private dailySurveyTracker: DailySurveyTracker | null = null;
   private typedIpcMain: TypedIpcMain<Events, Commands> = ipcMain as TypedIpcMain<Events, Commands>;
 
   constructor(
@@ -51,10 +58,15 @@ export class IpcHandler {
     this.windowService = windowService;
     this.trackerService = trackerService;
     this.experienceSamplingService = experienceSamplingService;
+    this.dailySurveyService = new DailySurveyService();
     this.windowActivityService = new WindowActivityTrackerService();
     this.userInputService = new UserInputTrackerService();
     this.dataExportService = new DataExportService();
     this.workScheduleService = workScheduleService;
+  }
+
+  public setDailySurveyTracker(tracker: DailySurveyTracker): void {
+    this.dailySurveyTracker = tracker;
   }
 
   public setSchedulingService(schedulingService: SchedulingService): void {
@@ -91,7 +103,12 @@ export class IpcHandler {
       retrospectionLoadLongestTimeActive: this.retrospectionLoadLongestTimeActive,
       retrospectionGetTopThreeMostActiveApps: this.retrospectionGetTopThreeMostActiveApps,
       openRetrospection: this.openRetrospection,
-      closeRetrospectionWindow: this.closeRetrospectionWindow
+      closeRetrospectionWindow: this.closeRetrospectionWindow,
+      createDailySurveyResponses: this.createDailySurveyResponses,
+      resizeDailySurveyWindow: this.resizeDailySurveyWindow,
+      closeDailySurveyWindow: this.closeDailySurveyWindow,
+      postponeDailySurvey: this.postponeDailySurvey,
+      getMostRecentDailySurveyDtos: this.getMostRecentDailySurveyDtos
     };
 
     Object.keys(this.actions).forEach((action: string): void => {
@@ -325,5 +342,33 @@ export class IpcHandler {
 
   private closeRetrospectionWindow(): void {
     this.windowService.closeRetrospectionWindow();
+  }
+
+  private async createDailySurveyResponses(
+    promptedAt: Date,
+    samplingType: DailySurveySamplingType,
+    responses: DailySurveyResponseInput[]
+  ): Promise<void> {
+    await this.dailySurveyService.createDailySurveyResponses(promptedAt, samplingType, responses);
+  }
+
+  private resizeDailySurveyWindow(height: number): void {
+    this.windowService.resizeDailySurveyWindow(height);
+  }
+
+  private closeDailySurveyWindow(skipped: boolean): void {
+    this.windowService.closeDailySurveyWindow(skipped);
+  }
+
+  private async postponeDailySurvey(samplingType: DailySurveySamplingType, minutes: number): Promise<void> {
+    UsageDataService.createNewUsageDataEvent(UsageDataEventType.DailySurveyPostponed);
+    if (this.dailySurveyTracker) {
+      await this.dailySurveyTracker.postpone(samplingType, minutes);
+    }
+    this.windowService.closeDailySurveyWindow(false);
+  }
+
+  private async getMostRecentDailySurveyDtos(itemCount: number): Promise<DailySurveyDto[]> {
+    return await this.dailySurveyService.getMostRecentDailySurveyDtos(itemCount);
   }
 }
