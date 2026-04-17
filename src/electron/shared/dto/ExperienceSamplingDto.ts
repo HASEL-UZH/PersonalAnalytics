@@ -8,6 +8,7 @@ export default interface ExperienceSamplingDto {
   scale: number | null;
   response: string | null;
   skipped: boolean;
+  trigger: 'manual' | 'auto';
   promptedAt: Date;
   createdAt: Date;
   updatedAt: Date;

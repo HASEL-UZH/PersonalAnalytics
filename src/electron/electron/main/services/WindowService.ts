@@ -87,13 +87,15 @@ export class WindowService {
       }
     })
 
+    const trigger = isManuallyTriggered ? 'manual' : 'auto';
     if (process.env.VITE_DEV_SERVER_URL) {
       await this.experienceSamplingWindow.loadURL(
-        process.env.VITE_DEV_SERVER_URL + '#experience-sampling'
+        process.env.VITE_DEV_SERVER_URL + `?trigger=${trigger}#experience-sampling`
       )
     } else {
       await this.experienceSamplingWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
-        hash: 'experience-sampling'
+        hash: 'experience-sampling',
+        query: { trigger }
       })
     }
 

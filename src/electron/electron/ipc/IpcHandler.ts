@@ -115,7 +115,8 @@ export class IpcHandler {
     responseOptions: string | null,
     scale: number | null,
     response?: string,
-    skipped: boolean = false
+    skipped: boolean = false,
+    trigger: 'manual' | 'auto' = 'auto'
   ) {
     await this.experienceSamplingService.createExperienceSample(
       promptedAt,
@@ -124,7 +125,8 @@ export class IpcHandler {
       responseOptions,
       scale,
       response,
-      skipped
+      skipped,
+      trigger
     );
   }
 

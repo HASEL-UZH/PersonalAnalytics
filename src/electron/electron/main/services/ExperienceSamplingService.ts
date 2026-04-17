@@ -13,10 +13,11 @@ export class ExperienceSamplingService {
     responseOptions: string | null,
     scale: number | null,
     response?: string,
-    skipped: boolean
+    skipped: boolean,
+    trigger: 'manual' | 'auto' = 'auto'
   ): Promise<void> {
     LOG.debug(
-      `createExperienceSample: promptedAt=${promptedAt}, question=${question}, response=${response}, skipped=${skipped}`
+      `createExperienceSample: promptedAt=${promptedAt}, question=${question}, response=${response}, skipped=${skipped}, trigger=${trigger}`
     );
     await ExperienceSamplingResponseEntity.save({
       question,
@@ -25,7 +26,8 @@ export class ExperienceSamplingService {
       scale,
       response,
       promptedAt,
-      skipped
+      skipped,
+      trigger
     });
   }
 
@@ -45,6 +47,7 @@ export class ExperienceSamplingService {
       response: response.response,
       promptedAt: response.promptedAt,
       skipped: response.skipped,
+      trigger: response.trigger,
       createdAt: response.createdAt,
       updatedAt: response.updatedAt,
       deletedAt: response.deletedAt
