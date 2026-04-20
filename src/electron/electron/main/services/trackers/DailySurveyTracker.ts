@@ -16,7 +16,7 @@ export class DailySurveyTracker implements Tracker {
   private readonly workScheduleService: WorkScheduleService;
   private readonly surveys: DailySurveyConfig[];
 
-  public readonly name: string = 'DailySurveyTracker';
+  public readonly name: string = 'Daily Survey';
   public isRunning: boolean = false;
 
   constructor(
@@ -58,10 +58,7 @@ export class DailySurveyTracker implements Tracker {
       const now = new Date();
 
       for (const survey of this.surveys) {
-        const invocationField = survey.samplingType === 'morning'
-          ? 'nextDailySurveyMorningInvocation'
-          : 'nextDailySurveyEveningInvocation';
-
+        const invocationField = this.getInvocationField(survey.samplingType);
         const nextInvocation = settings[invocationField];
         if (nextInvocation && nextInvocation <= now) {
           LOG.info(`Daily survey (${survey.samplingType}) is due`);
@@ -74,12 +71,13 @@ export class DailySurveyTracker implements Tracker {
 
   private async scheduleAllSurveys(): Promise<void> {
     for (const survey of this.surveys) {
-      const invocationField = survey.samplingType === 'morning'
-        ? 'nextDailySurveyMorningInvocation'
-        : 'nextDailySurveyEveningInvocation';
-
+      const invocationField = this.getInvocationField(survey.samplingType);
       const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
-      if (!settings[invocationField] || settings[invocationField] <= new Date()) {
+      if (settings[invocationField] && settings[invocationField] <= new Date()) {
+        LOG.info(`Daily survey (${survey.samplingType}) was due at ${settings[invocationField]}, showing now`);
+        await this.windowService.createDailySurveyWindow(survey.samplingType, settings[invocationField]);
+        await this.scheduleNextForSurvey(survey);
+      } else if (!settings[invocationField]) {
         await this.scheduleNextForSurvey(survey);
       }
     }
@@ -89,11 +87,7 @@ export class DailySurveyTracker implements Tracker {
     const nextInvocation = await this.computeNextInvocation(survey);
     const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
 
-    if (survey.samplingType === 'morning') {
-      settings.nextDailySurveyMorningInvocation = nextInvocation;
-    } else {
-      settings.nextDailySurveyEveningInvocation = nextInvocation;
-    }
+    settings[this.getInvocationField(survey.samplingType)] = nextInvocation;
 
     await settings.save();
     LOG.info(`Next ${survey.samplingType} daily survey scheduled for ${nextInvocation}`);
@@ -125,21 +119,24 @@ export class DailySurveyTracker implements Tracker {
       }
     }
 
+    // fallback: if no working day was found in the next 7 days, schedule for tomorrow at 9am
     const fallback = new Date(now);
     fallback.setDate(fallback.getDate() + 1);
     fallback.setHours(9, 0, 0, 0);
     return fallback;
   }
 
+  private getInvocationField(samplingType: DailySurveySamplingType): 'nextDailySurveyMorningInvocation' | 'nextDailySurveyEveningInvocation' {
+    if (samplingType === 'morning') return 'nextDailySurveyMorningInvocation';
+    if (samplingType === 'evening') return 'nextDailySurveyEveningInvocation';
+    throw new Error(`Unknown samplingType: ${samplingType}`);
+  }
+
   public async postpone(samplingType: DailySurveySamplingType, minutes: number): Promise<void> {
     const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
     const newTime = new Date(Date.now() + minutes * 60 * 1000);
 
-    if (samplingType === 'morning') {
-      settings.nextDailySurveyMorningInvocation = newTime;
-    } else {
-      settings.nextDailySurveyEveningInvocation = newTime;
-    }
+    settings[this.getInvocationField(samplingType)] = newTime;
 
     await settings.save();
     LOG.info(`Daily survey (${samplingType}) postponed by ${minutes} minutes to ${newTime}`);

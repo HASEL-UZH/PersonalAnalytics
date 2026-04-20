@@ -147,7 +147,7 @@ export class WindowService {
 
     const { width, height } = screen.getPrimaryDisplay().workAreaSize
     const windowWidth = 750
-    const windowHeight = 700
+    const windowHeight = Math.min(Math.round(height * 0.85), 900)
 
     this.dailySurveyWindow = new BrowserWindow({
       width: windowWidth,
@@ -190,7 +190,8 @@ export class WindowService {
   public resizeDailySurveyWindow(height: number) {
     if (this.dailySurveyWindow) {
       const minHeight = 300
-      const maxHeight = 900
+      const { height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
+      const maxHeight = Math.min(Math.round(screenHeight * 0.85), 900)
       const clamped = Math.max(minHeight, Math.min(maxHeight, height))
       this.dailySurveyWindow.setContentSize(750, clamped)
     }
@@ -528,6 +529,7 @@ export class WindowService {
         ? studyConfig.trackers.dailySurveyTracker.surveys.map((survey) => ({
             label: `Daily Survey (${survey.samplingType === 'morning' ? 'Start-of-Workday' : 'End-of-Workday'})`,
             click: () => this.createDailySurveyWindow(survey.samplingType),
+            visible: is.dev,
           }))
         : []),
       {

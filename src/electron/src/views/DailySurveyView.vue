@@ -14,7 +14,7 @@ const surveyConfig = studyConfig.trackers.dailySurveyTracker?.surveys?.find(
   (s) => s.samplingType === samplingType
 );
 const questions: ExperienceSamplingQuestion[] = surveyConfig?.questions ?? [];
-const requireAllAnswers = studyConfig.trackers.dailySurveyTracker?.requireAllAnswers ?? true;
+const requireAllAnswers = studyConfig.trackers.dailySurveyTracker?.requireAllAnswers ?? false;
 
 const language =
   (typeof navigator !== 'undefined' &&
@@ -186,6 +186,7 @@ async function postpone(minutes: number) {
             :disabled="isSubmitting"
             @input="setResponse(index, 'TextResponse', ($event.target as HTMLTextAreaElement).value)"
           />
+          <span v-if="q.maxLength" class="char-count">{{ ((responses[index]?.value as string) ?? '').length }} / {{ q.maxLength }}</span>
         </div>
 
         <div v-if="q.answerType === 'SingleChoice'" class="choice-container">
@@ -202,6 +203,7 @@ async function postpone(minutes: number) {
         </div>
 
         <div v-if="q.answerType === 'MultiChoice'" class="choice-container">
+          <span class="multi-choice-hint">Multiple selections possible</span>
           <button
             v-for="option in q.responseOptions"
             :key="option"
@@ -458,6 +460,28 @@ async function postpone(minutes: number) {
       border-color: #4b5563;
       background: #374151;
       color: #e5e7eb;
+    }
+  }
+
+  .char-count {
+    align-self: flex-end;
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin-top: 0.25rem;
+
+    @media (prefers-color-scheme: dark) {
+      color: #6b7280;
+    }
+  }
+
+  .multi-choice-hint {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+    width: 100%;
+
+    @media (prefers-color-scheme: dark) {
+      color: #9ca3af;
     }
   }
 

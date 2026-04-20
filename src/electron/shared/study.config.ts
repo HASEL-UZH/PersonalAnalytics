@@ -72,7 +72,7 @@ const studyConfig: StudyConfiguration = {
     },
     dailySurveyTracker: {
       enabled: true,
-      requireAllAnswers: true,
+      requireAllAnswers: false,
       surveys: [
         {
           samplingType: 'morning',

@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { PropType } from 'vue';
+import { computed, PropType } from 'vue';
 import DailySurveyDto from '../../shared/dto/DailySurveyDto';
 
-defineProps({
+const props = defineProps({
   data: {
     type: Object as PropType<DailySurveyDto[]>,
     default: null,
     required: false
   }
 });
+
+const answeredData = computed(() => props.data?.filter((d) => !d.skipped) ?? []);
 
 function formatResponse(d: DailySurveyDto): string {
   if (!d.response) return '';
@@ -68,19 +70,17 @@ function formatResponseOptions(d: DailySurveyDto): string {
             <th>Response</th>
             <th>Scale</th>
             <th>Response Options</th>
-            <th>Skipped</th>
             <th>Created At</th>
           </tr>
         </thead>
         <tbody class="">
-          <tr v-for="d in data" :key="d.id">
+          <tr v-for="d in answeredData" :key="d.id">
             <td>{{ d.samplingType }}</td>
             <td>{{ d.question }}</td>
             <td>{{ d.answerType }}</td>
             <td>{{ formatResponse(d) }}</td>
             <td>{{ d.scale }}</td>
             <td>{{ formatResponseOptions(d) }}</td>
-            <td>{{ d.skipped }}</td>
             <td>{{ d.createdAt.toLocaleString() }}</td>
           </tr>
         </tbody>
