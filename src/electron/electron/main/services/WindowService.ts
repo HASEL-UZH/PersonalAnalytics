@@ -147,7 +147,8 @@ export class WindowService {
 
     const { width, height } = screen.getPrimaryDisplay().workAreaSize
     const windowWidth = 750
-    const windowHeight = Math.min(Math.round(height * 0.85), 900)
+    const maxHeight = Math.min(Math.round(height * 0.85), 900)
+    const windowHeight = Math.min(700, maxHeight)
 
     this.dailySurveyWindow = new BrowserWindow({
       width: windowWidth,

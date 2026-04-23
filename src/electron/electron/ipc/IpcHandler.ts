@@ -361,7 +361,10 @@ export class IpcHandler {
   }
 
   private async postponeDailySurvey(samplingType: DailySurveySamplingType, minutes: number): Promise<void> {
-    UsageDataService.createNewUsageDataEvent(UsageDataEventType.DailySurveyPostponed);
+    UsageDataService.createNewUsageDataEvent(
+      UsageDataEventType.DailySurveyPostponed,
+      JSON.stringify({ samplingType, postponedMinutes: minutes })
+    );
     if (this.dailySurveyTracker) {
       await this.dailySurveyTracker.postpone(samplingType, minutes);
     }

@@ -51,7 +51,11 @@ async function measureAndResize() {
   await nextTick();
   const el = rootEl.value;
   if (!el) return;
-  typedIpcRenderer.invoke('resizeDailySurveyWindow', Math.ceil(el.scrollHeight) + 2);
+  let totalHeight = 0;
+  for (const child of el.children) {
+    totalHeight += (child as HTMLElement).offsetHeight;
+  }
+  typedIpcRenderer.invoke('resizeDailySurveyWindow', Math.ceil(totalHeight) + 40);
 }
 
 onMounted(() => {

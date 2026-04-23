@@ -119,7 +119,9 @@ export class DailySurveyTracker implements Tracker {
       }
     }
 
-    // fallback: if no working day was found in the next 7 days, schedule for tomorrow at 9am
+    // fallback: if all 7 days have isWorking=false (e.g. active work hours disabled),
+    // schedule for tomorrow at 9am so the survey still fires on a default schedule
+    LOG.warn('No working day found in the next 7 days, using fallback schedule (tomorrow 9am)');
     const fallback = new Date(now);
     fallback.setDate(fallback.getDate() + 1);
     fallback.setHours(9, 0, 0, 0);
