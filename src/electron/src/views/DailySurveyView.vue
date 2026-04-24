@@ -14,7 +14,7 @@ const surveyConfig = studyConfig.trackers.dailySurveyTracker?.surveys?.find(
   (s) => s.samplingType === samplingType
 );
 const questions: ExperienceSamplingQuestion[] = surveyConfig?.questions ?? [];
-const requireAllAnswers = studyConfig.trackers.dailySurveyTracker?.requireAllAnswers ?? false;
+const requireAllAnswers = surveyConfig?.requireAllAnswers ?? false;
 
 const language =
   (typeof navigator !== 'undefined' &&
@@ -51,11 +51,10 @@ async function measureAndResize() {
   await nextTick();
   const el = rootEl.value;
   if (!el) return;
-  let totalHeight = 0;
-  for (const child of el.children) {
-    totalHeight += (child as HTMLElement).offsetHeight;
-  }
-  typedIpcRenderer.invoke('resizeDailySurveyWindow', Math.ceil(totalHeight) + 40);
+  el.style.height = 'auto';
+  const naturalHeight = el.scrollHeight;
+  el.style.height = '100vh';
+  typedIpcRenderer.invoke('resizeDailySurveyWindow', naturalHeight + 20);
 }
 
 onMounted(() => {
