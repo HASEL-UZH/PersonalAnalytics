@@ -18,6 +18,7 @@ export class WindowService {
   private readonly appUpdaterService: AppUpdaterService
   private tray: Tray
   private experienceSamplingWindow: BrowserWindow
+  private dailySurveyWindow: BrowserWindow
   private onboardingWindow: BrowserWindow
   private dataExportWindow: BrowserWindow
   private settingsWindow: BrowserWindow
@@ -131,6 +132,83 @@ export class WindowService {
     if (this.experienceSamplingWindow) {
       this.experienceSamplingWindow.close()
       this.experienceSamplingWindow = null
+    }
+  }
+
+  public async createDailySurveyWindow(samplingType: string, scheduledDate?: Date) {
+    if (this.dailySurveyWindow) {
+      this.dailySurveyWindow.close()
+      this.dailySurveyWindow = null
+    }
+
+    UsageDataService.createNewUsageDataEvent(UsageDataEventType.DailySurveyOpened)
+
+    const __filename = fileURLToPath(import.meta.url)
+    const __dirname = dirname(__filename)
+    const preload = join(__dirname, '../preload/index.mjs')
+
+    const { width, height } = screen.getPrimaryDisplay().workAreaSize
+    const windowWidth = 750
+    const maxHeight = Math.min(Math.round(height * 0.85), 900)
+    const windowHeight = Math.min(700, maxHeight)
+
+    this.dailySurveyWindow = new BrowserWindow({
+      width: windowWidth,
+      height: windowHeight,
+      x: Math.round((width - windowWidth) / 2),
+      y: Math.round((height - windowHeight) / 2),
+      show: false,
+      backgroundColor: nativeTheme.shouldUseDarkColors ? '#1f2937' : '#ffffff',
+      alwaysOnTop: true,
+      minimizable: true,
+      maximizable: false,
+      fullscreenable: false,
+      resizable: false,
+      acceptFirstMouse: true,
+      title: 'PersonalAnalytics: Daily Survey',
+      webPreferences: {
+        preload
+      }
+    })
+
+    const scheduledDateParam = scheduledDate ? `&scheduledDate=${scheduledDate.toISOString()}` : '';
+    if (process.env.VITE_DEV_SERVER_URL) {
+      await this.dailySurveyWindow.loadURL(
+        process.env.VITE_DEV_SERVER_URL + `?samplingType=${samplingType}${scheduledDateParam}#daily-survey`
+      )
+    } else {
+      await this.dailySurveyWindow.loadFile(path.join(process.env.DIST, 'index.html'), {
+        hash: 'daily-survey',
+        query: { samplingType, ...(scheduledDate ? { scheduledDate: scheduledDate.toISOString() } : {}) }
+      })
+    }
+
+    this.dailySurveyWindow.show()
+
+    this.dailySurveyWindow.on('close', () => {
+      this.dailySurveyWindow = null
+    })
+  }
+
+  public resizeDailySurveyWindow(height: number) {
+    if (this.dailySurveyWindow) {
+      const minHeight = 300
+      const { height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
+      const maxHeight = Math.min(Math.round(screenHeight * 0.85), 900)
+      const clamped = Math.max(minHeight, Math.min(maxHeight, height))
+      this.dailySurveyWindow.setContentSize(750, clamped)
+    }
+  }
+
+  public closeDailySurveyWindow(skipped: boolean) {
+    const usageDataEvent = skipped
+      ? UsageDataEventType.DailySurveySkipped
+      : UsageDataEventType.DailySurveyCompleted
+    UsageDataService.createNewUsageDataEvent(usageDataEvent)
+
+    if (this.dailySurveyWindow) {
+      this.dailySurveyWindow.close()
+      this.dailySurveyWindow = null
     }
   }
 
@@ -450,6 +528,13 @@ export class WindowService {
         click: () => this.createExperienceSamplingWindow(true),
         visible: showSelfReportMenu
       },
+      ...(studyConfig.trackers.dailySurveyTracker?.enabled
+        ? studyConfig.trackers.dailySurveyTracker.surveys.map((survey) => ({
+            label: `Daily Survey (${survey.samplingType === 'morning' ? 'Start-of-Workday' : 'End-of-Workday'})`,
+            click: () => this.createDailySurveyWindow(survey.samplingType),
+            visible: is.dev,
+          }))
+        : []),
       {
         label: 'Retrospection',
         click: () => this.createRetrospectionWindow(),

@@ -132,6 +132,14 @@ app.whenReady().then(async () => {
       await trackers.registerTrackerCallback(TrackerType.ExperienceSamplingTracker);
     }
 
+    if (studyConfig.trackers.dailySurveyTracker?.enabled) {
+      await trackers.registerTrackerCallback(TrackerType.DailySurveyTracker);
+      const dailySurveyTracker = trackers.getDailySurveyTracker();
+      if (dailySurveyTracker) {
+        ipcHandler.setDailySurveyTracker(dailySurveyTracker);
+      }
+    }
+
     if (studyConfig.displayDaysParticipated) {
       await trackers.registerTrackerCallback(TrackerType.DaysParticipatedTracker);
     }

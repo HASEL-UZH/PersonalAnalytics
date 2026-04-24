@@ -60,10 +60,25 @@ export interface ChoiceQuestion extends ExperienceSamplingQuestionBase {
 
 export type ExperienceSamplingQuestion = LikertScaleQuestion | TextResponseQuestion | ChoiceQuestion;
 
+export type DailySurveySamplingType = 'morning' | 'evening';
+
+export interface DailySurveyConfig {
+  samplingType: DailySurveySamplingType;
+  delayInMinutes: number;
+  requireAllAnswers?: boolean;
+  questions: ExperienceSamplingQuestion[];
+}
+
+export interface DailySurveyTrackerConfiguration {
+  enabled: boolean;
+  surveys: DailySurveyConfig[];
+}
+
 export interface TrackerConfiguration {
   windowActivityTracker: WindowActivityTrackerConfiguration;
   userInputTracker: UserInputTrackerConfiguration;
   experienceSamplingTracker: ExperienceSamplingTrackerConfiguration;
+  dailySurveyTracker?: DailySurveyTrackerConfiguration;
 }
 
 export interface StudyConfiguration {

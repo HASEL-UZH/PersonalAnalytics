@@ -10,6 +10,7 @@ import { UserInputEntity } from '../../entities/UserInputEntity';
 import { MoreThanOrEqual } from 'typeorm';
 import { WorkScheduleService } from '../WorkScheduleService';
 import { DaysParticipatedTracker } from './DaysParticipatedTracker';
+import { DailySurveyTracker } from './DailySurveyTracker';
 
 const LOG = getMainLogger('TrackerService');
 
@@ -79,6 +80,16 @@ export class TrackerService {
     } else if (trackerType === TrackerType.DaysParticipatedTracker) {
       const daysParticipatedTracker = new DaysParticipatedTracker();
       this.trackers.push(daysParticipatedTracker);
+    } else if (
+      this.config.dailySurveyTracker?.enabled &&
+      trackerType === TrackerType.DailySurveyTracker
+    ) {
+      const dailySurveyTracker = new DailySurveyTracker(
+        this.windowService,
+        this.workScheduleService,
+        this.config.dailySurveyTracker.surveys
+      );
+      this.trackers.push(dailySurveyTracker);
     } else {
       throw new Error(`Tracker ${trackerType} not enabled or unsupported!`);
     }
@@ -147,6 +158,10 @@ export class TrackerService {
 
   public isAnyTrackerRunning() {
     return this.trackers.some((t: Tracker) => t.isRunning);
+  }
+
+  public getDailySurveyTracker(): DailySurveyTracker | undefined {
+    return this.trackers.find((t) => t.name === 'DailySurveyTracker') as DailySurveyTracker | undefined;
   }
 
   private isTrackerAlreadyRegistered(trackerType: TrackerType) {

@@ -57,4 +57,10 @@ export class Settings extends BaseEntity {
 
   @Column({ type: 'integer', default: 0 })
   userDisabledRetrospection: number;
+
+  @Column('datetime', { nullable: true })
+  nextDailySurveyMorningInvocation: Date;
+
+  @Column('datetime', { nullable: true })
+  nextDailySurveyEveningInvocation: Date;
 }

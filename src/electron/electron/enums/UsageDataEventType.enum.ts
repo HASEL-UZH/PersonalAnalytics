@@ -11,5 +11,9 @@ export enum UsageDataEventType {
   ExperienceSamplingManuallyOpened = 'EXPERIENCE_SAMPLING_MANUALLY_OPENED',
   ExperienceSamplingAutomaticallyOpened = 'EXPERIENCE_SAMPLING_AUTOMATICALLY_OPENED',
   ExperienceSamplingAnswered = 'EXPERIENCE_SAMPLING_ANSWERED',
-  ExperienceSamplingSkipped = 'EXPERIENCE_SAMPLING_SKIPPED'
+  ExperienceSamplingSkipped = 'EXPERIENCE_SAMPLING_SKIPPED',
+  DailySurveyOpened = 'DAILY_SURVEY_OPENED',
+  DailySurveyCompleted = 'DAILY_SURVEY_COMPLETED',
+  DailySurveySkipped = 'DAILY_SURVEY_SKIPPED',
+  DailySurveyPostponed = 'DAILY_SURVEY_POSTPONED'
 }

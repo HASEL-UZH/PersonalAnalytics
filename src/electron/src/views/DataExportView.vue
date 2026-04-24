@@ -10,7 +10,9 @@ import { DataExportType } from '../../shared/DataExportType.enum';
 import WindowActivityDto from '../../shared/dto/WindowActivityDto';
 import UserInputDto from '../../shared/dto/UserInputDto';
 import DataExportExperienceSamplingTracker from '../components/DataExportExperienceSamplingTracker.vue';
+import DataExportDailySurveyTracker from '../components/DataExportDailySurveyTracker.vue';
 import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
+import DailySurveyDto from '../../shared/dto/DailySurveyDto';
 import getRendererLogger from '../utils/Logger';
 
 const LOG = getRendererLogger('DataExportView');
@@ -23,6 +25,7 @@ const studyDescriptionExpanded = ref(false);
 const studyInfo = ref<StudyInfoDto>();
 
 const mostRecentExperienceSamples = ref<ExperienceSamplingDto[]>();
+const mostRecentDailySurveys = ref<DailySurveyDto[]>();
 const mostRecentUserInputs = ref<UserInputDto[]>();
 const mostRecentWindowActivities = ref<WindowActivityDto[]>();
 const mostRecentWindowActivitiesObfuscated = ref<WindowActivityDto[]>();
@@ -58,6 +61,12 @@ onMounted(async () => {
     exportExperienceSamplesSelectedOption.value = DataExportType.All;
     mostRecentExperienceSamples.value = await typedIpcRenderer.invoke(
       'getMostRecentExperienceSamplingDtos',
+      20
+    );
+  }
+  if (studyConfig.trackers.dailySurveyTracker?.enabled) {
+    mostRecentDailySurveys.value = await typedIpcRenderer.invoke(
+      'getMostRecentDailySurveyDtos',
       20
     );
   }
@@ -392,6 +401,10 @@ function revealItemInFolder(event: Event) {
               :data="mostRecentExperienceSamples"
               :default-value="exportExperienceSamplesSelectedOption"
               @change="handleExperienceSamplingConfigChanged"
+            />
+            <DataExportDailySurveyTracker
+              v-if="studyConfig.trackers.dailySurveyTracker?.enabled"
+              :data="mostRecentDailySurveys"
             />
           </div>
         </transition-group>
