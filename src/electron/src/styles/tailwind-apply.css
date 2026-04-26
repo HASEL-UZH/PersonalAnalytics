@@ -21,7 +21,7 @@
 }
 
 .experience-sampling-notification .sample-answer {
-  @apply mx-1 flex h-8 w-8 cursor-pointer items-center rounded-md border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-center align-middle text-gray-500 dark:text-gray-300 transition-all hover:bg-gray-700 hover:text-white dark:hover:bg-gray-500;
+  @apply flex flex-1 cursor-pointer items-center justify-center rounded-md border border-gray-300 bg-gray-100 py-1 text-center text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-70 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600;
 }
 
 /* used in DataExportView.vue */
