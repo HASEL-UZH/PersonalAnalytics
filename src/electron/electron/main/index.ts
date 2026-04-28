@@ -137,15 +137,18 @@ app.whenReady().then(async () => {
     }
 
     const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
+    const onboardingShown = Boolean(settings.onboardingShown);
+    const studyAndTrackersStartedShown = Boolean(settings.studyAndTrackersStartedShown);
     const isAutoLaunch = app.getLoginItemSettings().wasOpenedAtLogin || process.argv.includes('--hidden');
+    const macOSHasRequiredPermissions = macOSHasRequiredTrackerPermissions();
 
     // show onboarding window (if never shown or macOS permissions are missing)
     if (
-      settings.onboardingShown === false ||
-      !macOSHasAccessibilityAndScreenRecordingPermission()
+      !onboardingShown ||
+      !macOSHasRequiredPermissions
     ) {
       LOG.debug(
-        `Onboarding shown: ${settings.onboardingShown}, hasAccessibilityAndScreenRecordingPermission: ${macOSHasAccessibilityAndScreenRecordingPermission()}, creating onboarding window...`
+        `Onboarding shown: ${settings.onboardingShown}, hasRequiredMacOSPermissions: ${macOSHasRequiredPermissions}, creating onboarding window...`
       );
       await windowService.createOnboardingWindow();
       settings.onboardingShown = true;
@@ -154,8 +157,8 @@ app.whenReady().then(async () => {
     // show PA running page when it was not shown before (on macOS) OR if it was manually started
     } else if (
       (is.macOS &&
-      settings.onboardingShown === true &&
-      settings.studyAndTrackersStartedShown === false) ||
+      onboardingShown &&
+      !studyAndTrackersStartedShown) ||
       (! isAutoLaunch)
     ) {
       await windowService.createOnboardingWindow('study-trackers-started');
@@ -163,9 +166,9 @@ app.whenReady().then(async () => {
       await settings.save();
     }
 
-    if (!is.macOS || macOSHasAccessibilityAndScreenRecordingPermission()) {
+    if (macOSHasRequiredPermissions) {
       LOG.debug(
-        `Onboarding shown: ${settings.onboardingShown}, hasAccessibilityAndScreenRecordingPermission: ${macOSHasAccessibilityAndScreenRecordingPermission()}, starting all trackers...`
+        `Onboarding shown: ${settings.onboardingShown}, hasRequiredMacOSPermissions: ${macOSHasRequiredPermissions}, starting all trackers...`
       );
       await trackers.startAllTrackers();
       LOG.info(`Trackers started: ${trackers.getRunningTrackerNames().join(', ')}`);
@@ -236,13 +239,23 @@ app.on('before-quit', async (event): Promise<void> => {
 // Don't quit when all windows are closed
 app.on('window-all-closed', () => {});
 
-function macOSHasAccessibilityAndScreenRecordingPermission(): boolean {
+function macOSHasRequiredTrackerPermissions(): boolean {
   if (!is.macOS) {
     return true;
   }
 
-  return (
-    systemPreferences.isTrustedAccessibilityClient(false) &&
-    systemPreferences.getMediaAccessStatus('screen') === 'granted'
-  );
+  const windowActivityTrackerEnabled = studyConfig.trackers.windowActivityTracker.enabled;
+  const requiresAccessibilityPermission =
+    studyConfig.trackers.userInputTracker.enabled ||
+    (windowActivityTrackerEnabled && studyConfig.trackers.windowActivityTracker.trackUrls);
+  const requiresScreenRecordingPermission =
+    windowActivityTrackerEnabled && studyConfig.trackers.windowActivityTracker.trackWindowTitles;
+
+  const hasAccessibilityPermission =
+    !requiresAccessibilityPermission || systemPreferences.isTrustedAccessibilityClient(false);
+  const hasScreenRecordingPermission =
+    !requiresScreenRecordingPermission ||
+    systemPreferences.getMediaAccessStatus('screen') === 'granted';
+
+  return hasAccessibilityPermission && hasScreenRecordingPermission;
 }

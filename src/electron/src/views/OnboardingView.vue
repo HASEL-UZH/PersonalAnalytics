@@ -4,7 +4,7 @@ import { computed, onMounted, ref } from 'vue';
 import StudyInfoDto from '../../shared/dto/StudyInfoDto';
 import typedIpcRenderer from '../utils/typedIpcRenderer';
 import StudyInfo from '../components/StudyInfo.vue';
-import { LocationQueryValue, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 import studyConfig from '../../shared/study.config';
 import Switch from '../components/Switch.vue';
 import WorkHoursRow from '../components/WorkHoursRow.vue';
@@ -30,8 +30,8 @@ const isAccessibilityPermissionLoading = ref(false);
 const isScreenRecordingPermissionLoading = ref(false);
 
 const route = useRoute();
-const isMacOS: string | null | LocationQueryValue[] = route.query.isMacOS;
-const goToStep: string | null | LocationQueryValue[] = route.query.goToStep;
+const isMacOS = route.query.isMacOS === 'true';
+const goToStep = typeof route.query.goToStep === 'string' ? route.query.goToStep : undefined;
 
 const shouldShowActiveTimesStep = computed(() => {
   const es = studyConfig.trackers.experienceSamplingTracker;
@@ -40,7 +40,7 @@ const shouldShowActiveTimesStep = computed(() => {
 
 const availableSteps = ['welcome'];
 
-if (isMacOS === 'true' && requiresAnyPermission) {
+if (isMacOS && requiresAnyPermission) {
   availableSteps.push('data-collection');
 }
 
@@ -48,7 +48,7 @@ if (shouldShowActiveTimesStep.value) {
   availableSteps.push('active-times');
 }
 
-if (isMacOS === 'false') {
+if (!isMacOS) {
   availableSteps.push('study-trackers-started');
 }
 
