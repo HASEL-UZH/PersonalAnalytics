@@ -69,6 +69,57 @@ const studyConfig: StudyConfiguration = {
       allowUserToDisable: true,
       allowUserToChangeInterval: true,
       userDefinedInterval_h: [0.5, 1, 2, 3, 4]
+    },
+    dailySurveyTracker: {
+      enabled: true,
+      requireAllAnswers: false,
+      surveys: [
+        {
+          samplingType: 'morning',
+          delayInMinutes: 5,
+          questions: [
+            {
+              question: 'How motivated are you to start today?',
+              answerType: 'LikertScale',
+              scale: 7,
+              responseOptions: ['not at all motivated', 'moderately motivated', 'very motivated']
+            },
+            {
+              question: 'What is your main goal for today?',
+              answerType: 'TextResponse',
+              responseOptions: 'singleLine',
+              maxLength: 150
+            }
+          ]
+        },
+        {
+          samplingType: 'evening',
+          delayInMinutes: -30,
+          questions: [
+            {
+              question: 'Overall, how satisfied are you with your workday?',
+              answerType: 'LikertScale',
+              scale: 5,
+              responseOptions: ['very satisfied', 'satisfied', 'neutral', 'dissatisfied', 'very dissatisfied']
+            },
+            {
+              question: 'How much did you interact with your co-workers today?',
+              answerType: 'SingleChoice',
+              responseOptions: ['not at all', 'rarely', 'sometimes', 'often', 'all the time']
+            },
+            {
+              question: 'Where did you mostly work from?',
+              answerType: 'SingleChoice',
+              responseOptions: ['mostly at the office', 'mostly remotely', 'mostly at home']
+            },
+            {
+              question: 'Which distractions did you experience today?',
+              answerType: 'MultiChoice',
+              responseOptions: ['Notifications', 'Unplanned meetings', 'Co-worker interruptions', 'Context switching', 'Noisy environment', 'Personal matters', 'None']
+            }
+          ]
+        }
+      ]
     }
   }
 };

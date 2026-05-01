@@ -9,6 +9,7 @@ import { UserInputEntity } from '../entities/UserInputEntity';
 import { Settings } from '../entities/Settings';
 import { UsageDataEntity } from '../entities/UsageDataEntity';
 import { WorkDayEntity } from '../entities/WorkDayEntity';
+import { DailySurveyResponseEntity } from '../entities/DailySurveyResponseEntity';
 
 const LOG = getMainLogger('DatabaseService');
 
@@ -28,6 +29,7 @@ export class DatabaseService {
 
   public async init(): Promise<void> {
     const ENTITIES: NonNullable<DataSourceOptions['entities']> = [
+      DailySurveyResponseEntity,
       ExperienceSamplingResponseEntity,
       Settings,
       UsageDataEntity,
