@@ -79,12 +79,6 @@ const studyConfig: StudyConfiguration = {
           delayInMinutes: 5,
           questions: [
             {
-              question: 'How well did you sleep last night?',
-              answerType: 'LikertScale',
-              scale: 5,
-              responseOptions: ['very poorly', 'poorly', 'okay', 'well', 'very well']
-            },
-            {
               question: 'How motivated are you to start today?',
               answerType: 'LikertScale',
               scale: 7,
@@ -95,12 +89,6 @@ const studyConfig: StudyConfiguration = {
               answerType: 'TextResponse',
               responseOptions: 'singleLine',
               maxLength: 150
-            },
-            {
-              question: 'Any concerns or blockers for today?',
-              answerType: 'TextResponse',
-              responseOptions: 'multiLine',
-              maxLength: 500
             }
           ]
         },
@@ -115,24 +103,9 @@ const studyConfig: StudyConfiguration = {
               responseOptions: ['very satisfied', 'satisfied', 'neutral', 'dissatisfied', 'very dissatisfied']
             },
             {
-              question: 'My co-workers frequently interrupted me when I was working focused.',
-              answerType: 'SingleChoice',
-              responseOptions: ['strongly disagree', 'disagree', 'neutral', 'agree', 'strongly agree']
-            },
-            {
               question: 'How much did you interact with your co-workers today?',
               answerType: 'SingleChoice',
               responseOptions: ['not at all', 'rarely', 'sometimes', 'often', 'all the time']
-            },
-            {
-              question: 'When I had a question, my co-workers usually supported me in a timely manner.',
-              answerType: 'SingleChoice',
-              responseOptions: ['strongly disagree', 'disagree', 'neutral', 'agree', 'strongly agree', 'no interactions with co-workers']
-            },
-            {
-              question: 'To ask questions to my co-workers, I took advantage of interaction sessions if there were any planned.',
-              answerType: 'SingleChoice',
-              responseOptions: ['not at all', 'rarely', 'sometimes', 'often', 'all the time', 'no interaction session planned']
             },
             {
               question: 'Where did you mostly work from?',
