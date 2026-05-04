@@ -1,18 +1,10 @@
 import { DailySurveyResponseEntity } from '../entities/DailySurveyResponseEntity';
 import getMainLogger from '../../config/Logger';
 import DailySurveyDto from '../../../shared/dto/DailySurveyDto';
-import type { DailySurveySamplingType, ExperienceSamplingAnswerType } from '../../../shared/StudyConfiguration';
+import type { DailySurveyResponseInput } from '../../../shared/dto/DailySurveyDto';
+import type { DailySurveySamplingType } from '../../../shared/StudyConfiguration';
 
 const LOG = getMainLogger('DailySurveyService');
-
-export interface DailySurveyResponseInput {
-  question: string;
-  answerType: ExperienceSamplingAnswerType;
-  responseOptions: string | null;
-  scale: number | null;
-  response: string | null;
-  skipped: boolean;
-}
 
 export class DailySurveyService {
   public async createDailySurveyResponses(
@@ -30,7 +22,6 @@ export class DailySurveyService {
       entity.question = r.question;
       entity.answerType = r.answerType;
       entity.responseOptions = r.responseOptions;
-      entity.scale = r.scale;
       entity.response = r.response;
       entity.skipped = r.skipped;
       return entity;
@@ -52,7 +43,6 @@ export class DailySurveyService {
       question: r.question,
       answerType: r.answerType,
       responseOptions: r.responseOptions,
-      scale: r.scale,
       response: r.response,
       skipped: r.skipped,
       createdAt: r.createdAt,

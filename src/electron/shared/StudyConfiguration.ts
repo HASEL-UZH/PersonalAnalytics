@@ -71,6 +71,7 @@ export interface DailySurveyConfig {
 
 export interface DailySurveyTrackerConfiguration {
   enabled: boolean;
+  requireAllAnswers?: boolean;
   surveys: DailySurveyConfig[];
 }
 

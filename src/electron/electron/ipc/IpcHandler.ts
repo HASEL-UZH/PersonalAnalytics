@@ -17,8 +17,8 @@ import { DataExportService } from '../main/services/DataExportService';
 import UserInputDto from '../../shared/dto/UserInputDto';
 import WindowActivityDto from '../../shared/dto/WindowActivityDto';
 import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
-import DailySurveyDto from '../../shared/dto/DailySurveyDto';
-import { DailySurveyService, DailySurveyResponseInput } from '../main/services/DailySurveyService';
+import DailySurveyDto, { DailySurveyResponseInput } from '../../shared/dto/DailySurveyDto';
+import { DailySurveyService } from '../main/services/DailySurveyService';
 import { is } from '../main/services/utils/helpers';
 import { JSDOM } from 'jsdom';
 import DOMPurify from 'dompurify';
@@ -368,7 +368,7 @@ export class IpcHandler {
     if (this.dailySurveyTracker) {
       await this.dailySurveyTracker.postpone(samplingType, minutes);
     }
-    this.windowService.closeDailySurveyWindow(false);
+    this.windowService.closeDailySurveyWindow(false, false);
   }
 
   private async getMostRecentDailySurveyDtos(itemCount: number): Promise<DailySurveyDto[]> {

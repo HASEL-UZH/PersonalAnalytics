@@ -4,11 +4,10 @@ import { DataExportFormat } from '../../shared/DataExportFormat.enum';
 import UserInputDto from '../../shared/dto/UserInputDto';
 import WindowActivityDto from '../../shared/dto/WindowActivityDto';
 import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
-import DailySurveyDto from '../../shared/dto/DailySurveyDto';
+import DailySurveyDto, { DailySurveyResponseInput } from '../../shared/dto/DailySurveyDto';
 import { WorkHoursDto } from '../../shared/dto/WorkHoursDto'
 import { Settings } from 'electron/main'
 import type { DailySurveySamplingType, ExperienceSamplingAnswerType } from '../../shared/StudyConfiguration';
-import type { DailySurveyResponseInput } from 'electron/main/services/DailySurveyService';
 
 type Commands = {
   createExperienceSample: (

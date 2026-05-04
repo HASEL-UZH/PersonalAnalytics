@@ -198,11 +198,13 @@ export class WindowService {
     }
   }
 
-  public closeDailySurveyWindow(skipped: boolean) {
-    const usageDataEvent = skipped
-      ? UsageDataEventType.DailySurveySkipped
-      : UsageDataEventType.DailySurveyCompleted
-    UsageDataService.createNewUsageDataEvent(usageDataEvent)
+  public closeDailySurveyWindow(skipped: boolean, recordUsageDataEvent: boolean = true) {
+    if (recordUsageDataEvent) {
+      const usageDataEvent = skipped
+        ? UsageDataEventType.DailySurveySkipped
+        : UsageDataEventType.DailySurveyCompleted
+      UsageDataService.createNewUsageDataEvent(usageDataEvent)
+    }
 
     if (this.dailySurveyWindow) {
       this.dailySurveyWindow.close()

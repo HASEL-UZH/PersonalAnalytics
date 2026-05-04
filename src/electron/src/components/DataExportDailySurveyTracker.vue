@@ -68,7 +68,6 @@ function formatResponseOptions(d: DailySurveyDto): string {
             <th>Question</th>
             <th>Answer Type</th>
             <th>Response</th>
-            <th>Scale</th>
             <th>Response Options</th>
             <th>Created At</th>
           </tr>
@@ -79,7 +78,6 @@ function formatResponseOptions(d: DailySurveyDto): string {
             <td>{{ d.question }}</td>
             <td>{{ d.answerType }}</td>
             <td>{{ formatResponse(d) }}</td>
-            <td>{{ d.scale }}</td>
             <td>{{ formatResponseOptions(d) }}</td>
             <td>{{ d.createdAt.toLocaleString() }}</td>
           </tr>

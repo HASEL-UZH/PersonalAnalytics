@@ -3,7 +3,7 @@ import typedIpcRenderer from '../utils/typedIpcRenderer';
 import studyConfig from '../../shared/study.config';
 import { computed, nextTick, onMounted, ref } from 'vue';
 import type { ExperienceSamplingQuestion } from '../../shared/StudyConfiguration';
-import type { DailySurveyResponseInput } from '../../electron/main/services/DailySurveyService';
+import type { DailySurveyResponseInput } from '../../shared/dto/DailySurveyDto';
 
 const params = new URLSearchParams(window.location.search);
 const samplingType = (params.get('samplingType') as 'morning' | 'evening') || 'evening';
@@ -14,7 +14,10 @@ const surveyConfig = studyConfig.trackers.dailySurveyTracker?.surveys?.find(
   (s) => s.samplingType === samplingType
 );
 const questions: ExperienceSamplingQuestion[] = surveyConfig?.questions ?? [];
-const requireAllAnswers = surveyConfig?.requireAllAnswers ?? false;
+const requireAllAnswers =
+  surveyConfig?.requireAllAnswers ??
+  studyConfig.trackers.dailySurveyTracker?.requireAllAnswers ??
+  false;
 
 const language =
   (typeof navigator !== 'undefined' &&
@@ -84,9 +87,8 @@ async function submitSurvey() {
         question: q.question,
         answerType: q.answerType,
         responseOptions: buildResponseOptionsSnapshot(q),
-        scale: q.answerType === 'LikertScale' ? q.scale : null,
         response: responseValue,
-        skipped: !r || r.value === null || r.value === '' || (Array.isArray(r.value) && r.value.length === 0)
+        skipped: false
       };
     });
 
@@ -106,7 +108,6 @@ async function skipSurvey() {
       question: q.question,
       answerType: q.answerType,
       responseOptions: buildResponseOptionsSnapshot(q),
-      scale: q.answerType === 'LikertScale' ? q.scale : null,
       response: null,
       skipped: true
     }));

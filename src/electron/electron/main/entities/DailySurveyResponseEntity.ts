@@ -19,9 +19,6 @@ export class DailySurveyResponseEntity extends BaseTrackedEntity {
   @Column('text', { nullable: true })
   responseOptions: string | null;
 
-  @Column('int', { nullable: true })
-  scale: number | null;
-
   @Column('text', { nullable: true })
   response: string | null;
 

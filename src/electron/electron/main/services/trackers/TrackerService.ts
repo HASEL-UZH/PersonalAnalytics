@@ -161,10 +161,13 @@ export class TrackerService {
   }
 
   public getDailySurveyTracker(): DailySurveyTracker | undefined {
-    return this.trackers.find((t) => t.name === 'DailySurveyTracker') as DailySurveyTracker | undefined;
+    return this.trackers.find((t) => t instanceof DailySurveyTracker) as DailySurveyTracker | undefined;
   }
 
   private isTrackerAlreadyRegistered(trackerType: TrackerType) {
+    if (trackerType === TrackerType.DailySurveyTracker) {
+      return this.getDailySurveyTracker() !== undefined;
+    }
     return this.trackers.some((t: Tracker) => t.name === trackerType);
   }
 }
