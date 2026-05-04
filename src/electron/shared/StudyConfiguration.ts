@@ -65,7 +65,6 @@ export type DailySurveySamplingType = 'morning' | 'evening';
 export interface DailySurveyConfig {
   samplingType: DailySurveySamplingType;
   delayInMinutes: number;
-  requireAllAnswers?: boolean;
   questions: ExperienceSamplingQuestion[];
 }
 

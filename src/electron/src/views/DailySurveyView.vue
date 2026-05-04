@@ -14,10 +14,7 @@ const surveyConfig = studyConfig.trackers.dailySurveyTracker?.surveys?.find(
   (s) => s.samplingType === samplingType
 );
 const questions: ExperienceSamplingQuestion[] = surveyConfig?.questions ?? [];
-const requireAllAnswers =
-  surveyConfig?.requireAllAnswers ??
-  studyConfig.trackers.dailySurveyTracker?.requireAllAnswers ??
-  false;
+const requireAllAnswers = studyConfig.trackers.dailySurveyTracker?.requireAllAnswers ?? false;
 
 const language =
   (typeof navigator !== 'undefined' &&
