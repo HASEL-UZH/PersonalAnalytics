@@ -16,7 +16,6 @@ export interface WindowActivityTrackerConfiguration {
 
 export interface ExperienceSamplingTrackerConfiguration {
   enabled: boolean;
-  enabledWorkHours: boolean;
   questions: ExperienceSamplingQuestion[];
   intervalInMs: number;
   // value between 0 and 1
@@ -75,6 +74,7 @@ export interface DailySurveyTrackerConfiguration {
 }
 
 export interface TrackerConfiguration {
+  enabledWorkHours: boolean;
   windowActivityTracker: WindowActivityTrackerConfiguration;
   userInputTracker: UserInputTrackerConfiguration;
   experienceSamplingTracker: ExperienceSamplingTrackerConfiguration;

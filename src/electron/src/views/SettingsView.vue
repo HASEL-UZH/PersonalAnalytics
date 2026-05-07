@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import studyConfig from '../../shared/study.config'
 
-const considerWorkHours = studyConfig.trackers.experienceSamplingTracker.enabledWorkHours;
+const considerWorkHours = studyConfig.trackers.enabledWorkHours;
 
 const es = studyConfig.trackers.experienceSamplingTracker;
 const showSelfReporting = es.enabled === true;

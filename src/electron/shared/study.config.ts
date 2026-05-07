@@ -19,6 +19,7 @@ const studyConfig: StudyConfiguration = {
   showActiveTimesInOnboarding: true,
   enableRetrospection: true,
   trackers: {
+    enabledWorkHours: true,
     windowActivityTracker: {
       enabled: true,
       intervalInMs: 1000,
@@ -32,7 +33,6 @@ const studyConfig: StudyConfiguration = {
     },
     experienceSamplingTracker: {
       enabled: true,
-      enabledWorkHours: true,
       questions: [
         {
           question:
