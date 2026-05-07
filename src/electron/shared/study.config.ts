@@ -72,11 +72,11 @@ const studyConfig: StudyConfiguration = {
     },
     dailySurveyTracker: {
       enabled: true,
-      requireAllAnswers: false,
       surveys: [
         {
           samplingType: 'morning',
           delayInMinutes: 5,
+          requireAllAnswers: false,
           questions: [
             {
               question: 'How motivated are you to start today?',
@@ -95,6 +95,7 @@ const studyConfig: StudyConfiguration = {
         {
           samplingType: 'evening',
           delayInMinutes: -30,
+          requireAllAnswers: false,
           questions: [
             {
               question: 'Overall, how satisfied are you with your workday?',
