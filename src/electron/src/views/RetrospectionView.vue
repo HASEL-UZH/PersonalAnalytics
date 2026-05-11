@@ -1,54 +1,76 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { Activity, ActivitySessions, ChartDataPoint, DataPointType, TimeActive } from '../utils/retrospection/types'
-import { ACTIVITY_LABELS, getTailwindClassFromActivity } from '../utils/retrospection/utils'
-import StackedBarChart from '../components/StackedBarChart.vue'
+import { computed, onMounted, ref } from 'vue';
+import {
+  Activity,
+  ActivitySessions,
+  ChartDataPoint,
+  Color,
+  DataPointType,
+  TimeActive
+} from '../utils/retrospection/types';
+import {
+  ACTIVITY_LABELS,
+  getActivityGroupFromActivityName,
+  getTailwindClassFromActivity
+} from '../utils/retrospection/utils';
+import StackedBarChart from '../components/StackedBarChart.vue';
 
-// @ts-ignore
-const typedIpcRenderer = window.ipcRenderer
-const isLoading = ref(false)
-const selectedDay = ref(new Date())
-const allWindowActivities = ref<ActivitySessions[]>([])
-const chartDataWindowActivities = ref<ChartDataPoint[]>()
-const longestTimeActive = ref<TimeActive | undefined>(undefined)
-const topApps = ref<ActivitySessions[] | undefined>(undefined)
-const topActivities = ref<ActivitySessions[]>([])
+const typedIpcRenderer = window.ipcRenderer;
+const isLoading = ref(false);
+const selectedDay = ref(new Date());
+const allWindowActivities = ref<ActivitySessions[]>([]);
+const chartDataWindowActivities = ref<ChartDataPoint[]>();
+const longestTimeActive = ref<TimeActive | undefined>(undefined);
+const topApps = ref<ActivitySessions[] | undefined>(undefined);
+const topActivities = ref<ActivitySessions[]>([]);
+const topWebsites = ref<ActivitySessions[]>([]);
+const topWindowTitles = ref<ActivitySessions[]>([]);
 
 const earliestUserComputerActivity = computed((): number => {
-  return chartDataWindowActivities.value?.reduce((acc, activity) => {
-    if (activity.start.getTime() < acc) {
-      return activity.start.getTime()
-    }
-    return acc
-  }, Number.MAX_SAFE_INTEGER) ?? Number.MAX_SAFE_INTEGER
-})
+  return (
+    chartDataWindowActivities.value?.reduce((acc, activity) => {
+      if (activity.start.getTime() < acc) {
+        return activity.start.getTime();
+      }
+      return acc;
+    }, Number.MAX_SAFE_INTEGER) ?? Number.MAX_SAFE_INTEGER
+  );
+});
 
 const latestUserComputerActivity = computed((): number => {
-  return chartDataWindowActivities.value?.reduce((acc, activity) => {
-    if (!activity.end) {
-      return Date.now()
-    }
-    if (activity.end.getTime() > acc) {
-      return activity.end.getTime()
-    }
-    return acc
-  }, 0) ?? 0
-})
+  return (
+    chartDataWindowActivities.value?.reduce((acc, activity) => {
+      if (!activity.end) {
+        return Date.now();
+      }
+      if (activity.end.getTime() > acc) {
+        return activity.end.getTime();
+      }
+      return acc;
+    }, 0) ?? 0
+  );
+});
+
+const topItemsAvailable = computed((): boolean => {
+  return topWebsites.value.length > 0 || topWindowTitles.value.length > 0;
+});
 
 onMounted(async () => {
-  await loadData()
-})
+  await loadData();
+});
 
 async function loadData() {
-  isLoading.value = true
-  await loadLongestTimeActive()
-  await loadMostActiveApps()
-  await loadWindowActivities()
-  isLoading.value = false
+  isLoading.value = true;
+  await loadLongestTimeActive();
+  await loadMostActiveApps();
+  await loadTopWebsites();
+  await loadTopWindowTitles();
+  await loadWindowActivities();
+  isLoading.value = false;
 }
 
 function windowActivitiesToChartData() {
-  let dataPoints: ChartDataPoint[] = []
+  const dataPoints: ChartDataPoint[] = [];
 
   allWindowActivities.value?.forEach((activitySession: ActivitySessions) => {
     activitySession.sessions.forEach((session: TimeActive) => {
@@ -58,103 +80,176 @@ function windowActivitiesToChartData() {
         start: session.from,
         end: session.to,
         color: getTailwindClassFromActivity(activitySession.type)
-      })
-    })
-  })
+      });
+    });
+  });
 
-  chartDataWindowActivities.value = dataPoints
+  chartDataWindowActivities.value = dataPoints;
 }
 
 async function loadWindowActivities() {
-  allWindowActivities.value = await typedIpcRenderer.invoke('retrospectionGetActivities', selectedDay.value) as ActivitySessions[]
-  windowActivitiesToChartData()
-  topActivities.value = allWindowActivities.value?.sort((a: ActivitySessions, b: ActivitySessions) => b.totalDurationMs - a.totalDurationMs).slice(0, 3) ?? []
+  allWindowActivities.value = (await typedIpcRenderer.invoke(
+    'retrospectionGetActivities',
+    selectedDay.value
+  )) as ActivitySessions[];
+  windowActivitiesToChartData();
+  topActivities.value =
+    allWindowActivities.value
+      ?.sort((a: ActivitySessions, b: ActivitySessions) => b.totalDurationMs - a.totalDurationMs)
+      .slice(0, 3) ?? [];
 }
 
 async function loadLongestTimeActive() {
   try {
-    longestTimeActive.value = await typedIpcRenderer.invoke('retrospectionLoadLongestTimeActive', selectedDay.value) as TimeActive
+    longestTimeActive.value = (await typedIpcRenderer.invoke(
+      'retrospectionLoadLongestTimeActive',
+      selectedDay.value
+    )) as TimeActive;
   } catch (error) {
-    console.error('Error loading longest time active', error)
+    console.error('Error loading longest time active', error);
   }
 }
 
 async function loadMostActiveApps() {
   try {
-    topApps.value = await typedIpcRenderer.invoke('retrospectionGetTopThreeMostActiveApps', selectedDay.value) as ActivitySessions[]
+    topApps.value = (await typedIpcRenderer.invoke(
+      'retrospectionGetTopThreeMostActiveApps',
+      selectedDay.value
+    )) as ActivitySessions[];
   } catch (error) {
-    console.error('Error loading most active apps', error)
+    console.error('Error loading most active apps', error);
+  }
+}
+
+async function loadTopWebsites() {
+  try {
+    topWebsites.value = (await typedIpcRenderer.invoke(
+      'retrospectionGetTopThreeWebsites',
+      selectedDay.value
+    )) as ActivitySessions[];
+  } catch (error) {
+    console.error('Error loading top websites', error);
+  }
+}
+
+async function loadTopWindowTitles() {
+  try {
+    topWindowTitles.value = (await typedIpcRenderer.invoke(
+      'retrospectionGetTopThreeWindowTitles',
+      selectedDay.value
+    )) as ActivitySessions[];
+  } catch (error) {
+    console.error('Error loading top window titles', error);
   }
 }
 
 function msToMinutes(ms: number): number {
-  return Math.round(ms / 60000)
+  return Math.round(ms / 60000);
 }
 
 function renderTime(ms: number): string {
-  let minutes = msToMinutes(ms)
+  let minutes = msToMinutes(ms);
   if (minutes < 60) {
-    return `${minutes} minutes`
+    return `${minutes} minutes`;
   }
 
-  let hours = Math.floor(minutes / 60)
-  minutes = minutes % 60
+  const hours = Math.floor(minutes / 60);
+  minutes = minutes % 60;
   if (minutes === 0) {
     if (hours === 1) {
-      return `${hours} hour`
+      return `${hours} hour`;
     } else {
-      return `${hours} hours`
+      return `${hours} hours`;
     }
   } else {
-    let fractionalHours = Math.round(minutes / 60 * 10) / 10
-    return `${hours + fractionalHours} hours`
+    const fractionalHours = Math.round((minutes / 60) * 10) / 10;
+    return `${hours + fractionalHours} hours`;
   }
+}
+
+function renderCompactTime(ms: number): string {
+  const minutes = msToMinutes(ms);
+  if (minutes < 1) {
+    return '< 1 min';
+  }
+  if (minutes < 60) {
+    return `${minutes} min`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return remainingMinutes ? `${hours} hr ${remainingMinutes} min` : `${hours} hr`;
+}
+
+function getTopItemWidth(item: ActivitySessions, items: ActivitySessions[]): string {
+  const maxDurationMs = Math.max(...items.map((topItem) => topItem.totalDurationMs), 1);
+  return `${Math.max((item.totalDurationMs / maxDurationMs) * 100, 8)}%`;
+}
+
+function getTopItemPercentage(item: ActivitySessions, items: ActivitySessions[]): string {
+  const totalDurationMs = items.reduce((total, topItem) => total + topItem.totalDurationMs, 0);
+  if (!totalDurationMs) {
+    return '0%';
+  }
+  return `${Math.round((item.totalDurationMs / totalDurationMs) * 100)}%`;
+}
+
+function getTopItemColor(item: ActivitySessions): string {
+  const activity = item.activity || Activity.Other;
+  const colorKey = getTailwindClassFromActivity(activity) as keyof typeof Color;
+  return Color[colorKey] || Color['neutral-400'];
+}
+
+function getTopItemActivityLabel(item: ActivitySessions): string {
+  return (
+    ACTIVITY_LABELS[getActivityGroupFromActivityName(item.activity || Activity.Other)] || 'Other'
+  );
 }
 
 async function handleDayChange(event: Event) {
-  const value = (event.target as HTMLInputElement).value
-  if (!value) return
-  selectedDay.value = new Date(value)
-  await loadData()
+  const value = (event.target as HTMLInputElement).value;
+  if (!value) return;
+  selectedDay.value = new Date(value);
+  await loadData();
 }
 
 function getNearestFullHourTime(time: number, offset: number): number {
-  const nextFullHour = new Date(time)
-  nextFullHour.setHours(nextFullHour.getHours() + offset, 0, 0, 0)
-  return nextFullHour.getTime()
+  const nextFullHour = new Date(time);
+  nextFullHour.setHours(nextFullHour.getHours() + offset, 0, 0, 0);
+  return nextFullHour.getTime();
 }
 
 function getTimeString(date: Date | string | number): string {
-  const d = new Date(date)
-  const hours = d.getHours().toString().padStart(2, '0')
-  const minutes = d.getMinutes().toString().padStart(2, '0')
-  return `${hours}:${minutes}`
+  const d = new Date(date);
+  const hours = d.getHours().toString().padStart(2, '0');
+  const minutes = d.getMinutes().toString().padStart(2, '0');
+  return `${hours}:${minutes}`;
 }
 
 function getDayLabel(date: Date): string {
-  const today = new Date()
-  const yesterday = new Date()
-  yesterday.setDate(yesterday.getDate() - 1)
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
 
   if (
     date.getDate() === today.getDate() &&
     date.getMonth() === today.getMonth() &&
     date.getFullYear() === today.getFullYear()
   ) {
-    return 'Today'
+    return 'Today';
   } else if (
     date.getDate() === yesterday.getDate() &&
     date.getMonth() === yesterday.getMonth() &&
     date.getFullYear() === yesterday.getFullYear()
   ) {
-    return 'Yesterday'
+    return 'Yesterday';
   } else {
     return date.toLocaleDateString(undefined, {
       weekday: 'short',
       month: 'short',
       day: 'numeric',
       year: 'numeric'
-    })
+    });
   }
 }
 </script>
@@ -162,65 +257,101 @@ function getDayLabel(date: Date): string {
 <template>
   <!-- No data for this day -->
   <template v-if="!allWindowActivities || allWindowActivities.length === 0">
-    <div class="flex justify-center items-center h-screen">
+    <div class="flex h-screen items-center justify-center">
       <!-- day picker -->
-      <div class="absolute top-6 right-6 z-10">
-        <input type="date" :value="selectedDay.toISOString().substring(0, 10)" @change="handleDayChange"
+      <div class="absolute right-6 top-6 z-10">
+        <input
+          type="date"
+          :value="selectedDay.toISOString().substring(0, 10)"
           :max="new Date().toISOString().substring(0, 10)"
-          class="rounded px-2 py-1 bg-white text-gray-800 border border-gray-300 dark:bg-neutral-700 dark:text-slate-200 dark:border-neutral-600" style="min-width: 140px;" />
+          class="rounded border border-gray-300 bg-white px-2 py-1 text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          style="min-width: 140px"
+          @change="handleDayChange"
+        />
       </div>
       <div class="text-center text-gray-800 dark:text-gray-200">
         <h1 class="mb-8 text-2xl font-bold">No data for this day.</h1>
-        <span class="text-gray-600 dark:text-gray-400">There is no data recorded for this date. Please select a different day.</span>
+        <span class="text-gray-600 dark:text-gray-400"
+          >There is no data recorded for this date. Please select a different day.</span
+        >
       </div>
     </div>
   </template>
 
   <!-- Retrospection dashboard -->
   <template v-else>
-    <div class="view h-screen flex flex-col overflow-y-auto">
+    <div class="view flex h-screen flex-col overflow-y-auto">
       <!-- day picker -->
-      <div class="absolute top-6 right-6 z-10">
-        <input type="date" :value="selectedDay.toISOString().substring(0, 10)" @change="handleDayChange"
+      <div class="absolute right-6 top-6 z-10">
+        <input
+          type="date"
+          :value="selectedDay.toISOString().substring(0, 10)"
           :max="new Date().toISOString().substring(0, 10)"
-          class="rounded px-2 py-1 bg-white text-gray-800 border border-gray-300 dark:bg-neutral-700 dark:text-slate-200 dark:border-neutral-600" style="min-width: 140px;" />
+          class="rounded border border-gray-300 bg-white px-2 py-1 text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          style="min-width: 140px"
+          @change="handleDayChange"
+        />
       </div>
 
       <div>
-        <h1 class="mb-3 text-2xl font-bold primary-blue">{{ getDayLabel(selectedDay) }} - in Review</h1>
-        <div class="subline mb-8 text-gray-600 dark:text-gray-400">Take a moment to reflect on your workday.</div>
+        <h1 class="primary-blue mb-3 text-2xl font-bold">
+          {{ getDayLabel(selectedDay) }} - in Review
+        </h1>
+        <div class="subline mb-8 text-gray-600 dark:text-gray-400">
+          Take a moment to reflect on your workday.
+        </div>
 
         <!-- Timeline Visualization -->
-        <h1 class="mt-8 font-bold mb-2 text-xl text-gray-900 dark:text-gray-100">Activities over time</h1>
-        <StackedBarChart v-if="!isLoading && chartDataWindowActivities" :data="chartDataWindowActivities"
+        <h1 class="mb-2 mt-8 text-xl font-bold text-gray-900 dark:text-gray-100">
+          Activities over time
+        </h1>
+        <StackedBarChart
+          v-if="!isLoading && chartDataWindowActivities"
+          :data="chartDataWindowActivities"
           :start-date="getNearestFullHourTime(earliestUserComputerActivity, 0)"
-          :end-date="getNearestFullHourTime(latestUserComputerActivity, 1)" type="WINDOW_ACTIVITY" />
+          :end-date="getNearestFullHourTime(latestUserComputerActivity, 1)"
+          type="WINDOW_ACTIVITY"
+        />
 
         <!-- Info Tiles -->
-        <h1 class="mt-8 font-bold mb-2 text-xl text-gray-900 dark:text-gray-100">Insights of your day</h1>
+        <h1 class="mb-2 mt-8 text-xl font-bold text-gray-900 dark:text-gray-100">
+          Insights of your day
+        </h1>
         <div class="tile-grid">
-
           <!-- Tile 1: Longest active period -->
-          <div v-if="longestTimeActive" class="text-gray-800 bg-gray-100 border border-gray-200 rounded px-4 py-3 dark:text-slate-200 dark:bg-neutral-800 dark:border-transparent">
-            <h2 class="leading-4 primary-blue font-bold">Longest active period</h2>
+          <div
+            v-if="longestTimeActive"
+            class="rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
+          >
+            <h2 class="primary-blue font-bold leading-4">Longest active period</h2>
             <p class="mt-2">
-              Your longest active streak was <b>{{ renderTime(longestTimeActive!.duration * 60000) }}</b> (between {{
-                getTimeString(longestTimeActive!.from) }} and {{ getTimeString(longestTimeActive!.to) }}).
+              Your longest active streak was
+              <b>{{ renderTime(longestTimeActive!.duration * 60000) }}</b> (between
+              {{ getTimeString(longestTimeActive!.from) }} and
+              {{ getTimeString(longestTimeActive!.to) }}).
             </p>
           </div>
 
           <!-- Tile 2: Active hours -->
-          <div v-if="topActivities" class="text-gray-800 bg-gray-100 border border-gray-200 rounded px-4 py-3 dark:text-slate-200 dark:bg-neutral-800 dark:border-transparent">
-            <h2 class="leading-4 primary-blue font-bold">Active hours on computer</h2>
+          <div
+            v-if="topActivities"
+            class="rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
+          >
+            <h2 class="primary-blue font-bold leading-4">Active hours on computer</h2>
             <p class="mt-2">
-              You were active for <b>{{ renderTime(latestUserComputerActivity - earliestUserComputerActivity) }}</b> (between {{
-                getTimeString(earliestUserComputerActivity) }} and {{ getTimeString(latestUserComputerActivity) }}).
+              You were active for
+              <b>{{ renderTime(latestUserComputerActivity - earliestUserComputerActivity) }}</b>
+              (between {{ getTimeString(earliestUserComputerActivity) }} and
+              {{ getTimeString(latestUserComputerActivity) }}).
             </p>
           </div>
 
           <!-- Tile 3: Top apps -->
-          <div v-if="topApps" class="text-gray-800 bg-gray-100 border border-gray-200 rounded px-4 py-3 dark:text-slate-200 dark:bg-neutral-800 dark:border-transparent">
-            <h2 class="leading-4 primary-blue font-bold">Top apps</h2>
+          <div
+            v-if="topApps"
+            class="rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
+          >
+            <h2 class="primary-blue font-bold leading-4">Top apps</h2>
             <ol class="mt-2 list-decimal pl-4">
               <li v-for="(appSession, index) in topApps" :key="index">
                 {{ appSession.type }}: {{ renderTime(appSession.totalDurationMs) }}
@@ -229,15 +360,102 @@ function getDayLabel(date: Date): string {
           </div>
 
           <!-- Tile 4: Top activities -->
-          <div v-if="topActivities" class="text-gray-800 bg-gray-100 border border-gray-200 rounded px-4 py-3 dark:text-slate-200 dark:bg-neutral-800 dark:border-transparent">
-            <h2 class="leading-4 primary-blue font-bold">Top activities pursued</h2>
+          <div
+            v-if="topActivities"
+            class="rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
+          >
+            <h2 class="primary-blue font-bold leading-4">Top activities pursued</h2>
             <ol class="mt-2 list-decimal pl-4">
               <li v-for="(activitySession, index) in topActivities" :key="index">
-                {{ ACTIVITY_LABELS[activitySession.type] || 'Other' }}: {{ renderTime(activitySession.totalDurationMs) }}
+                {{ ACTIVITY_LABELS[activitySession.type] || 'Other' }}:
+                {{ renderTime(activitySession.totalDurationMs) }}
               </li>
             </ol>
           </div>
+        </div>
 
+        <!-- Website and window title details -->
+        <div v-if="topItemsAvailable">
+          <div class="mb-2 mt-8">
+            <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">Details of your day</h1>
+          </div>
+          <div class="tile-grid">
+            <div
+              v-if="topWebsites.length"
+              class="top-item-card rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
+            >
+              <h2 class="primary-blue font-bold leading-4">Top websites</h2>
+              <ol class="top-item-list">
+                <li
+                  v-for="(website, index) in topWebsites"
+                  :key="website.type"
+                  class="top-item-row"
+                >
+                  <div
+                    class="top-item-bar"
+                    :style="{
+                      width: getTopItemWidth(website, topWebsites),
+                      backgroundColor: getTopItemColor(website)
+                    }"
+                  ></div>
+                  <div class="top-item-content">
+                    <span class="top-item-rank">{{ index + 1 }}</span>
+                    <span
+                      class="top-item-label"
+                      :title="`${website.type} · ${getTopItemActivityLabel(website)}`"
+                      >{{ website.type }}</span
+                    >
+                    <span class="top-item-metric">
+                      <span class="top-item-time">{{
+                        renderCompactTime(website.totalDurationMs)
+                      }}</span>
+                      <span class="top-item-percentage">{{
+                        getTopItemPercentage(website, topWebsites)
+                      }}</span>
+                    </span>
+                  </div>
+                </li>
+              </ol>
+            </div>
+
+            <div
+              v-if="topWindowTitles.length"
+              class="top-item-card rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
+            >
+              <h2 class="primary-blue font-bold leading-4">Top window titles</h2>
+              <ol class="top-item-list">
+                <li
+                  v-for="(windowTitle, index) in topWindowTitles"
+                  :key="windowTitle.type"
+                  class="top-item-row"
+                >
+                  <div
+                    class="top-item-bar"
+                    :style="{
+                      width: getTopItemWidth(windowTitle, topWindowTitles),
+                      backgroundColor: getTopItemColor(windowTitle)
+                    }"
+                  ></div>
+                  <div class="top-item-content">
+                    <span class="top-item-rank">{{ index + 1 }}</span>
+                    <span
+                      class="top-item-label"
+                      :title="`${windowTitle.type} · ${getTopItemActivityLabel(windowTitle)}`"
+                      >{{ windowTitle.type }}</span
+                    >
+                    <span class="top-item-metric">
+                      <span class="top-item-time">{{
+                        renderCompactTime(windowTitle.totalDurationMs)
+                      }}</span>
+                      <span class="top-item-percentage">{{
+                        getTopItemPercentage(windowTitle, topWindowTitles)
+                      }}</span>
+                    </span>
+                  </div>
+                </li>
+              </ol>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -264,5 +482,150 @@ h2.primary-blue {
   grid-template-columns: repeat(2, 1fr);
   gap: 1.2rem;
   width: 100%;
+}
+
+.top-item-card {
+  min-height: 154px;
+}
+
+.top-item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin: 0.8rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.top-item-row {
+  position: relative;
+  min-height: 34px;
+  overflow: hidden;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+:global(.dark) .top-item-row {
+  border-color: #303030;
+  background: #202020;
+}
+
+.top-item-bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  opacity: 0.14;
+  border-radius: inherit;
+}
+
+:global(.dark) .top-item-bar {
+  top: 0;
+  bottom: 0;
+  width: 4px !important;
+  opacity: 0.9;
+  border-radius: 0;
+}
+
+.top-item-bar-1 {
+  background: #2563eb;
+}
+
+.top-item-bar-2 {
+  background: #16a34a;
+}
+
+.top-item-bar-3 {
+  background: #d97706;
+}
+
+:global(.dark) .top-item-bar-1 {
+  background: #1d4ed8;
+}
+
+:global(.dark) .top-item-bar-2 {
+  background: #15803d;
+}
+
+:global(.dark) .top-item-bar-3 {
+  background: #b45309;
+}
+
+.top-item-content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1.4rem minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 34px;
+  padding: 0.35rem 0.6rem;
+}
+
+:global(.dark) .top-item-content {
+  padding-left: 0.8rem;
+}
+
+.top-item-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  color: #ffffff;
+  background: #4b5563;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+:global(.dark) .top-item-rank {
+  color: #d4d4d8;
+  background: #303030;
+}
+
+.top-item-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+:global(.dark) .top-item-label {
+  color: #e4e4e7;
+}
+
+.top-item-metric {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  white-space: nowrap;
+}
+
+.top-item-time {
+  color: #374151;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+:global(.dark) .top-item-time {
+  color: #d4d4d8;
+}
+
+.top-item-percentage {
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+:global(.dark) .top-item-percentage {
+  color: #a3a3a3;
+}
+
+@media (max-width: 720px) {
+  .tile-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

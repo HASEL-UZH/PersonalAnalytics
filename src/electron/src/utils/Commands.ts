@@ -5,9 +5,13 @@ import UserInputDto from '../../shared/dto/UserInputDto';
 import WindowActivityDto from '../../shared/dto/WindowActivityDto';
 import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
 import DailySurveyDto, { DailySurveyResponseInput } from '../../shared/dto/DailySurveyDto';
-import { WorkHoursDto } from '../../shared/dto/WorkHoursDto'
-import { Settings } from 'electron/main'
-import type { DailySurveySamplingType, ExperienceSamplingAnswerType } from '../../shared/StudyConfiguration';
+import { WorkHoursDto } from '../../shared/dto/WorkHoursDto';
+import { Settings } from 'electron/main';
+import type {
+  DailySurveySamplingType,
+  ExperienceSamplingAnswerType
+} from '../../shared/StudyConfiguration';
+import type { ActivitySessions, TimeActive } from './retrospection/types';
 
 type Commands = {
   createExperienceSample: (
@@ -51,9 +55,11 @@ type Commands = {
   startAllTrackers: () => void;
   triggerPermissionCheckAccessibility: (prompt: boolean) => boolean;
   triggerPermissionCheckScreenRecording: () => boolean;
-  retrospectionGetActivities: (date: Date) => Promise<any[]>;
-  retrospectionLoadLongestTimeActive: (date: Date) => Promise<any>;
-  retrospectionGetTopThreeMostActiveApps: (date: Date) => Promise<any[]>;
+  retrospectionGetActivities: (date: Date) => Promise<ActivitySessions[]>;
+  retrospectionLoadLongestTimeActive: (date: Date) => Promise<TimeActive | undefined>;
+  retrospectionGetTopThreeMostActiveApps: (date: Date) => Promise<ActivitySessions[]>;
+  retrospectionGetTopThreeWebsites: (date: Date) => Promise<ActivitySessions[]>;
+  retrospectionGetTopThreeWindowTitles: (date: Date) => Promise<ActivitySessions[]>;
   openRetrospection: () => Promise<void>;
   closeRetrospectionWindow: () => void;
   createDailySurveyResponses: (

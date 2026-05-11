@@ -5,18 +5,18 @@ export enum DataPointType {
 }
 
 export interface ChartDataPoint {
-  start: Date
-  end: Date
-  color: string
-  type: DataPointType
-  activity: Activity
+  start: Date;
+  end: Date;
+  color: string;
+  type: DataPointType;
+  activity: Activity;
 }
 
 export interface PieChartDataPoint {
-  name: string
-  value: number
-  color: string
-  type?: string
+  name: string;
+  value: number;
+  color: string;
+  type?: string;
 }
 
 export enum Activity {
@@ -44,15 +44,16 @@ export enum Activity {
 }
 
 export interface TimeActive {
-  from: Date
-  to: Date
-  duration: number
+  from: Date;
+  to: Date;
+  duration: number;
 }
 
 export interface ActivitySessions {
-  type: string
-  totalDurationMs: number
-  sessions: TimeActive[]
+  type: string;
+  totalDurationMs: number;
+  sessions: TimeActive[];
+  activity?: string;
 }
 
 export enum Color {

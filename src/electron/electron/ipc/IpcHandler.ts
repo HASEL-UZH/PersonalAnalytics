@@ -22,12 +22,23 @@ import { DailySurveyService } from '../main/services/DailySurveyService';
 import { is } from '../main/services/utils/helpers';
 import { JSDOM } from 'jsdom';
 import DOMPurify from 'dompurify';
-import { WorkScheduleService } from 'electron/main/services/WorkScheduleService'
-import { WorkHoursDto } from 'shared/dto/WorkHoursDto'
-import { getActivitySessions, getAppUsageSessions, getLongestTimeActiveInsight, ActivitySessions, TimeActive } from '../main/services/RetrospectionService'
-import { SchedulingService } from '../main/services/SchedulingService'
+import { WorkScheduleService } from 'electron/main/services/WorkScheduleService';
+import { WorkHoursDto } from 'shared/dto/WorkHoursDto';
+import {
+  getActivitySessions,
+  getAppUsageSessions,
+  getLongestTimeActiveInsight,
+  getTopWebsiteSessions,
+  getTopWindowTitleSessions,
+  ActivitySessions,
+  TimeActive
+} from '../main/services/RetrospectionService';
+import { SchedulingService } from '../main/services/SchedulingService';
 import path from 'path';
-import type { DailySurveySamplingType, ExperienceSamplingAnswerType } from '../../shared/StudyConfiguration';
+import type {
+  DailySurveySamplingType,
+  ExperienceSamplingAnswerType
+} from '../../shared/StudyConfiguration';
 import { DailySurveyTracker } from '../main/services/trackers/DailySurveyTracker';
 import { UsageDataService } from '../main/services/UsageDataService';
 import { UsageDataEventType } from '../enums/UsageDataEventType.enum';
@@ -102,6 +113,8 @@ export class IpcHandler {
       retrospectionGetActivities: this.retrospectionGetActivities,
       retrospectionLoadLongestTimeActive: this.retrospectionLoadLongestTimeActive,
       retrospectionGetTopThreeMostActiveApps: this.retrospectionGetTopThreeMostActiveApps,
+      retrospectionGetTopThreeWebsites: this.retrospectionGetTopThreeWebsites,
+      retrospectionGetTopThreeWindowTitles: this.retrospectionGetTopThreeWindowTitles,
       openRetrospection: this.openRetrospection,
       closeRetrospectionWindow: this.closeRetrospectionWindow,
       createDailySurveyResponses: this.createDailySurveyResponses,
@@ -172,7 +185,7 @@ export class IpcHandler {
   private closeDataExportWindow(): void {
     this.windowService.closeDataExportWindow();
   }
-  
+
   private async getWorkHours(): Promise<WorkHoursDto> {
     return this.workScheduleService.getWorkSchedule();
   }
@@ -269,7 +282,7 @@ export class IpcHandler {
   private async revealItemInFolder(path: string): Promise<void> {
     this.windowService.showItemInFolder(path);
   }
-  
+
   private async openUploadUrl(): Promise<void> {
     this.windowService.openExternal();
   }
@@ -282,14 +295,16 @@ export class IpcHandler {
       cancelId: 1,
       title: 'Confirm Data Donation',
       message: `Do you agree to donate and upload your data to the ${studyConfig.name} study?`,
-      detail: 'Your data will be uploaded via a secure, encrypted connection to a secure, encrypted store operated by the University of Zurich (Data Donation Lab). Your data will be processed in accordance with the study\'s consent form.'
+      detail:
+        "Your data will be uploaded via a secure, encrypted connection to a secure, encrypted store operated by the University of Zurich (Data Donation Lab). Your data will be processed in accordance with the study's consent form."
     });
     return response === 0;
   }
 
   private async showDataExportError(errorMessage?: string): Promise<void> {
-    const message = `Please try again. If the export keeps failing, contact the study team (${studyConfig.contactName}, ${studyConfig.contactEmail}) and send them a screenshot of this error.` 
-                      + (errorMessage ? `\n\nError message: ${errorMessage}` : '');
+    const message =
+      `Please try again. If the export keeps failing, contact the study team (${studyConfig.contactName}, ${studyConfig.contactEmail}) and send them a screenshot of this error.` +
+      (errorMessage ? `\n\nError message: ${errorMessage}` : '');
     dialog.showErrorBox('Study Data Export failed', message);
   }
 
@@ -328,13 +343,35 @@ export class IpcHandler {
     }
   }
 
-  private async retrospectionGetTopThreeMostActiveApps(date: Date): Promise<ActivitySessions[] | undefined> {
+  private async retrospectionGetTopThreeMostActiveApps(
+    date: Date
+  ): Promise<ActivitySessions[] | undefined> {
     try {
       return (await getAppUsageSessions(new Date(date)))
         .sort((a, b) => b.totalDurationMs - a.totalDurationMs)
         .slice(0, 3);
     } catch (error) {
       LOG.error('Error loading top apps', error);
+    }
+  }
+
+  private async retrospectionGetTopThreeWebsites(
+    date: Date
+  ): Promise<ActivitySessions[] | undefined> {
+    try {
+      return await getTopWebsiteSessions(new Date(date), 3);
+    } catch (error) {
+      LOG.error('Error loading top websites', error);
+    }
+  }
+
+  private async retrospectionGetTopThreeWindowTitles(
+    date: Date
+  ): Promise<ActivitySessions[] | undefined> {
+    try {
+      return await getTopWindowTitleSessions(new Date(date), 3);
+    } catch (error) {
+      LOG.error('Error loading top window titles', error);
     }
   }
 
@@ -362,7 +399,10 @@ export class IpcHandler {
     this.windowService.closeDailySurveyWindow(skipped);
   }
 
-  private async postponeDailySurvey(samplingType: DailySurveySamplingType, minutes: number): Promise<void> {
+  private async postponeDailySurvey(
+    samplingType: DailySurveySamplingType,
+    minutes: number
+  ): Promise<void> {
     UsageDataService.createNewUsageDataEvent(
       UsageDataEventType.DailySurveyPostponed,
       JSON.stringify({ samplingType, postponedMinutes: minutes })
