@@ -481,8 +481,10 @@ h2.primary-blue {
   background: #f3f4f6;
 }
 
-:global(.dark) .activity-pie-hole {
-  background: #262626;
+@media (prefers-color-scheme: dark) {
+  .activity-pie-hole {
+    background: #262626;
+  }
 }
 
 .activity-breakdown-list {
