@@ -23,8 +23,8 @@ const allWindowActivities = ref<ActivitySessions[]>([]);
 const chartDataWindowActivities = ref<ChartDataPoint[]>();
 const longestTimeActive = ref<TimeActive | undefined>(undefined);
 const topApps = ref<ActivitySessions[] | undefined>(undefined);
-const topActivities = ref<ActivitySessions[]>([]);
 const ACTIVITY_BREAKDOWN_COVERAGE = 0.9;
+const ACTIVITY_BREAKDOWN_MAX_ITEMS = 6;
 
 interface ActivityBreakdownDataPoint extends PieChartDataPoint {
   percentage: number;
@@ -55,6 +55,7 @@ const latestUserComputerActivity = computed((): number => {
   );
 });
 
+// Total tracked activity time is the denominator for percentages and the 90% cutoff.
 const activityBreakdownTotalMs = computed((): number => {
   return (
     allWindowActivities.value?.reduce((total, activitySession) => {
@@ -63,6 +64,7 @@ const activityBreakdownTotalMs = computed((): number => {
   );
 });
 
+// Groups raw activities into the same activity categories and colors used by the timeline.
 const activityBreakdownData = computed((): ActivityBreakdownDataPoint[] => {
   const totalDurationMs = activityBreakdownTotalMs.value;
   if (!totalDurationMs) {
@@ -79,6 +81,7 @@ const activityBreakdownData = computed((): ActivityBreakdownDataPoint[] => {
   });
 
   const sortedActivities = Array.from(groupTotals.entries())
+    .filter(([activityGroup]) => activityGroup !== 'Other')
     .map(([activityGroup, value]) => {
       const colorKey = getTailwindClassFromActivity(activityGroup, true) as keyof typeof Color;
       return {
@@ -96,7 +99,10 @@ const activityBreakdownData = computed((): ActivityBreakdownDataPoint[] => {
   const visibleActivities: ActivityBreakdownDataPoint[] = [];
 
   for (const activity of sortedActivities) {
-    if (includedDurationMs / totalDurationMs >= ACTIVITY_BREAKDOWN_COVERAGE) {
+    if (
+      visibleActivities.length >= ACTIVITY_BREAKDOWN_MAX_ITEMS ||
+      includedDurationMs / totalDurationMs >= ACTIVITY_BREAKDOWN_COVERAGE
+    ) {
       break;
     }
     visibleActivities.push(activity);
@@ -106,6 +112,14 @@ const activityBreakdownData = computed((): ActivityBreakdownDataPoint[] => {
   return visibleActivities;
 });
 
+const activityBreakdownTitle = computed((): string => {
+  const shownActivities = activityBreakdownData.value.length;
+  return shownActivities
+    ? `Activity Breakdown (top ${shownActivities} activities)`
+    : 'Activity Breakdown';
+});
+
+// Builds the donut from visible activities and leaves any dropped tail as a neutral segment.
 const activityBreakdownStyle = computed((): CSSProperties => {
   if (!activityBreakdownData.value.length) {
     return {};
@@ -163,10 +177,6 @@ async function loadWindowActivities() {
     selectedDay.value
   )) as ActivitySessions[];
   windowActivitiesToChartData();
-  topActivities.value =
-    [...allWindowActivities.value]
-      ?.sort((a: ActivitySessions, b: ActivitySessions) => b.totalDurationMs - a.totalDurationMs)
-      .slice(0, 3) ?? [];
 }
 
 async function loadLongestTimeActive() {
@@ -357,7 +367,7 @@ function getDayLabel(date: Date): string {
 
           <!-- Tile 2: Active hours -->
           <div
-            v-if="topActivities"
+            v-if="chartDataWindowActivities?.length"
             class="rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
           >
             <h2 class="primary-blue font-bold leading-4">Active hours on computer</h2>
@@ -387,7 +397,7 @@ function getDayLabel(date: Date): string {
             v-if="activityBreakdownData.length"
             class="activity-breakdown-card rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
           >
-            <h2 class="primary-blue font-bold leading-4">Activity Breakdown</h2>
+            <h2 class="primary-blue font-bold leading-4">{{ activityBreakdownTitle }}</h2>
             <div class="activity-breakdown-content">
               <div class="activity-pie" :style="activityBreakdownStyle" aria-hidden="true">
                 <div class="activity-pie-hole"></div>
@@ -405,26 +415,12 @@ function getDayLabel(date: Date): string {
                     ></span>
                     <span class="activity-breakdown-name">{{ activity.name }}</span>
                   </span>
-                  <span class="activity-breakdown-time">{{
+                  <span class="activity-breakdown-time text-slate-700 dark:!text-slate-100">{{
                     renderCompactTime(activity.value)
                   }}</span>
                 </li>
               </ol>
             </div>
-          </div>
-
-          <!-- Tile 5: Top activities -->
-          <div
-            v-if="topActivities"
-            class="rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
-          >
-            <h2 class="primary-blue font-bold leading-4">Top activities pursued</h2>
-            <ol class="mt-2 list-decimal pl-4">
-              <li v-for="(activitySession, index) in topActivities" :key="index">
-                {{ ACTIVITY_LABELS[activitySession.type] || 'Other' }}:
-                {{ renderTime(activitySession.totalDurationMs) }}
-              </li>
-            </ol>
           </div>
         </div>
       </div>
@@ -485,6 +481,10 @@ h2.primary-blue {
   .activity-pie-hole {
     background: #262626;
   }
+
+  .activity-breakdown-time {
+    color: #f1f5f9;
+  }
 }
 
 .activity-breakdown-list {
@@ -503,8 +503,7 @@ h2.primary-blue {
   align-items: center;
   gap: 0.75rem;
   min-width: 0;
-  font-size: 0.9rem;
-  line-height: 1.1rem;
+  line-height: 1.5rem;
 }
 
 .activity-breakdown-label {
@@ -528,13 +527,13 @@ h2.primary-blue {
 }
 
 .activity-breakdown-time {
-  color: #374151;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
 }
 
-:global(.dark) .activity-breakdown-time {
-  color: #e5e7eb;
+:global(.dark) .activity-breakdown-time,
+:global([data-theme='dark']) .activity-breakdown-time {
+  color: #f1f5f9;
 }
 
 @media (max-width: 720px) {
