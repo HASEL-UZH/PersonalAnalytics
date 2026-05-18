@@ -19,6 +19,17 @@ export interface ActivitySessions {
 
 type WindowActivitySessionKeySelector = (activity: WindowActivityEntity) => string | null;
 
+const BROWSER_PROCESS_NAMES = [
+  'Google Chrome',
+  'Microsoft Edge',
+  'Mozilla Firefox',
+  'Firefox',
+  'Safari',
+  'Arc',
+  'Brave Browser',
+  'Opera'
+];
+
 /**
  * converts a date object to a minute of the day (0-1439)
  * @param date - date object
@@ -115,6 +126,48 @@ function addActivitySessionEntry(
   map.set(key, entry);
 }
 
+function addSessionWithActiveMinuteSplits(
+  addEntry: (key: string | null, from: Date, to: Date, activity?: string | undefined) => void,
+  sessionKey: string | null,
+  from: Date,
+  to: Date,
+  activity: string,
+  activeMinutesSet: Set<number>,
+  date: Date
+) {
+  if (!sessionKey || to.getTime() <= from.getTime()) {
+    return;
+  }
+
+  const startMinute = getMinuteOfDay(from);
+  const endMinute = getMinuteOfDay(to);
+
+  let sessionStart = from;
+  if (startMinute + 1 < endMinute) {
+    // Split a window span when user-input data shows inactivity inside it.
+    let inSession = true;
+    for (let m = startMinute; m < endMinute; m++) {
+      if (!activeMinutesSet.has(m) && inSession) {
+        inSession = false;
+        let sessionEnd = getDateFromMinuteOfDay(m, date);
+        sessionEnd = sessionEnd.getTime() > to.getTime() ? to : sessionEnd;
+        addEntry(sessionKey, sessionStart, sessionEnd, activity);
+      } else if (!activeMinutesSet.has(m) && !inSession) {
+        sessionStart = getDateFromMinuteOfDay(m, date);
+      } else if (activeMinutesSet.has(m) && !inSession) {
+        sessionStart = getDateFromMinuteOfDay(m, date);
+        inSession = true;
+      } else if (activeMinutesSet.has(m) && inSession) {
+        // session is continuously active
+      } else {
+        LOG.error('Unexpected state in session reconstruction');
+      }
+    }
+  }
+
+  addEntry(sessionKey, sessionStart, to, activity);
+}
+
 /**
  * active window activity sessions grouped by a derived key.
  * @param getSessionKey - derives the session grouping key from a raw window activity entry
@@ -144,43 +197,15 @@ async function getWindowActivitySessionsByKey(
     if (lastWindowActivity && getSessionKey(lastWindowActivity) !== currentSessionKey) {
       // we found a new window activity for a different app
       const sessionKey = getSessionKey(lastWindowActivity);
-      if (sessionKey) {
-        const end = new Date(activity.ts);
-        const start = new Date(lastWindowActivity.ts);
-
-        const startMinute = getMinuteOfDay(start);
-        const endMinute = getMinuteOfDay(end);
-
-        let from = start;
-        if (startMinute + 1 < endMinute) {
-          // the session is longer than 1 minute. Let's see if the session is interrupted by
-          // inactive phases where the user may have left the computer or fell asleep
-          let inSession = true;
-          // check all minutes in between
-          for (let m = startMinute; m < endMinute; m++) {
-            if (!activeMinutesSet.has(m) && inSession) {
-              // session interrupted
-              inSession = false;
-              let to = getDateFromMinuteOfDay(m, date);
-              to = to.getTime() > end.getTime() ? end : to;
-              addEntry(sessionKey, from, to, lastWindowActivity.activity);
-            } else if (!activeMinutesSet.has(m) && !inSession) {
-              // session was already interrupted, and not yet resumed
-              from = getDateFromMinuteOfDay(m, date);
-            } else if (activeMinutesSet.has(m) && !inSession) {
-              // session was interrupted, but user is active again
-              from = getDateFromMinuteOfDay(m, date);
-              inSession = true;
-            } else if (activeMinutesSet.has(m) && inSession) {
-              // session is continuously active
-            } else {
-              LOG.error('Unexpected state in session reconstruction');
-            }
-          }
-        }
-
-        addEntry(sessionKey, from, end, lastWindowActivity.activity);
-      }
+      addSessionWithActiveMinuteSplits(
+        addEntry,
+        sessionKey,
+        new Date(lastWindowActivity.ts),
+        new Date(activity.ts),
+        lastWindowActivity.activity,
+        activeMinutesSet,
+        date
+      );
       lastWindowActivity = activity;
     }
 
@@ -188,6 +213,22 @@ async function getWindowActivitySessionsByKey(
       // initialize the lastWindowActivity in the first iteration
       lastWindowActivity = activity;
     }
+  }
+
+  if (lastWindowActivity) {
+    const sessionKey = getSessionKey(lastWindowActivity);
+    const start = new Date(lastWindowActivity.ts);
+    const end = new Date(start);
+    end.setMinutes(end.getMinutes() + 1);
+    addSessionWithActiveMinuteSplits(
+      addEntry,
+      sessionKey,
+      start,
+      end,
+      lastWindowActivity.activity,
+      activeMinutesSet,
+      date
+    );
   }
 
   return Array.from(sessionsMap.values());
@@ -220,7 +261,49 @@ function getDomainFromUrl(url: string | null): string | null {
   }
 }
 
-function cleanWindowTitle(windowTitle: string | null, processName: string | null): string | null {
+function isGenericBrowserTitle(title: string): boolean {
+  return (
+    /^(\d+\s+)?(or more\s+)?pages?$/i.test(title) ||
+    /^(new tab|about:blank|start page|untitled)$/i.test(title)
+  );
+}
+
+function getReadableUrlTitle(title: string): string | null {
+  if (!/^[\w.-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(title)) {
+    return null;
+  }
+
+  try {
+    const normalizedTitle = /^[a-z]+:\/\//i.test(title) ? title : `https://${title}`;
+    const parsedUrl = new URL(normalizedTitle);
+    const hostname = parsedUrl.hostname.replace(/^www\./, '');
+    const pathParts = parsedUrl.pathname.split('/').filter(Boolean);
+    const relevantPath = pathParts.slice(-2).join('/');
+    return relevantPath ? `${hostname}/${relevantPath}` : hostname;
+  } catch (error) {
+    LOG.warn('Could not clean URL-like window title', title, error);
+    return null;
+  }
+}
+
+function stripPathFragment(fragment: string): string {
+  const readableUrlTitle = getReadableUrlTitle(fragment);
+  if (readableUrlTitle) {
+    return readableUrlTitle;
+  }
+
+  return fragment.replace(/(?:~|\/Users\/|\/[A-Za-z0-9._-]+|[A-Za-z]:\\)[^\s|]+/g, (path) => {
+    const normalizedPath = path.replace(/\\/g, '/');
+    const pathParts = normalizedPath.split('/').filter(Boolean);
+    return pathParts.at(-1) || path;
+  });
+}
+
+function cleanWindowTitle(
+  windowTitle: string | null,
+  processName: string | null,
+  url: string | null = null
+): string | null {
   if (!windowTitle) {
     return null;
   }
@@ -230,12 +313,27 @@ function cleanWindowTitle(windowTitle: string | null, processName: string | null
     return null;
   }
 
-  if (processName) {
-    const suffixes = [` - ${processName}`, ` — ${processName}`, ` | ${processName}`];
-    const matchingSuffix = suffixes.find((suffix) => title.endsWith(suffix));
-    if (matchingSuffix) {
-      title = title.slice(0, -matchingSuffix.length).trim();
-    }
+  const suffixNames = [processName, ...BROWSER_PROCESS_NAMES].filter(Boolean) as string[];
+  const segments = title
+    .split(/\s+(?:-|—|–|\|)\s+/)
+    .map((segment) => stripPathFragment(segment.trim()))
+    .filter(Boolean);
+
+  while (
+    segments.length > 1 &&
+    suffixNames.some((suffixName) => segments.at(-1)?.toLowerCase() === suffixName.toLowerCase())
+  ) {
+    segments.pop();
+  }
+
+  while (segments.length > 1 && isGenericBrowserTitle(segments[0])) {
+    segments.shift();
+  }
+
+  title = segments.length ? segments.join(' - ') : stripPathFragment(title);
+
+  if (isGenericBrowserTitle(title)) {
+    return getDomainFromUrl(url);
   }
 
   return title || null;
@@ -243,7 +341,12 @@ function cleanWindowTitle(windowTitle: string | null, processName: string | null
 
 function isRelevantTopItem(session: ActivitySessions): boolean {
   const normalizedType = session.type.trim().toLowerCase();
-  return normalizedType !== 'other' && normalizedType !== 'unknown' && normalizedType !== 'idle';
+  return (
+    normalizedType !== 'other' &&
+    normalizedType !== 'unknown' &&
+    normalizedType !== 'idle' &&
+    !isGenericBrowserTitle(session.type)
+  );
 }
 
 /**
@@ -288,7 +391,10 @@ export async function getTopWebsiteSessions(date: Date, limit = 3): Promise<Acti
       if (activity.activity !== 'WorkRelatedBrowsing') {
         return null;
       }
-      return getDomainFromUrl(activity.url);
+      return (
+        cleanWindowTitle(activity.windowTitle, activity.processName, activity.url) ||
+        getDomainFromUrl(activity.url)
+      );
     }, date)
   )
     .filter(isRelevantTopItem)
@@ -311,7 +417,7 @@ export async function getTopWindowTitleSessions(
       if (browsingActivities.has(activity.activity)) {
         return null;
       }
-      return cleanWindowTitle(activity.windowTitle, activity.processName);
+      return cleanWindowTitle(activity.windowTitle, activity.processName, activity.url);
     }, date)
   )
     .filter(isRelevantTopItem)

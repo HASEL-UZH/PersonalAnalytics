@@ -186,14 +186,6 @@ function getTopItemWidth(item: ActivitySessions, items: ActivitySessions[]): str
   return `${Math.max((item.totalDurationMs / maxDurationMs) * 100, 8)}%`;
 }
 
-function getTopItemPercentage(item: ActivitySessions, items: ActivitySessions[]): string {
-  const totalDurationMs = items.reduce((total, topItem) => total + topItem.totalDurationMs, 0);
-  if (!totalDurationMs) {
-    return '0%';
-  }
-  return `${Math.round((item.totalDurationMs / totalDurationMs) * 100)}%`;
-}
-
 function getTopItemColor(item: ActivitySessions): string {
   const activity = item.activity || Activity.Other;
   const colorKey = getTailwindClassFromActivity(activity) as keyof typeof Color;
@@ -374,87 +366,63 @@ function getDayLabel(date: Date): string {
           </div>
         </div>
 
-        <!-- Website and window title details -->
-        <div v-if="topItemsAvailable">
-          <div class="mb-2 mt-8">
-            <h1 class="text-xl font-bold text-gray-900 dark:text-gray-100">Details of your day</h1>
+        <div v-if="topItemsAvailable" class="tile-grid mt-8">
+          <div
+            v-if="topWebsites.length"
+            class="top-item-card rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
+          >
+            <h2 class="primary-blue font-bold leading-4">Top websites</h2>
+            <ol class="top-item-list">
+              <li
+                v-for="website in topWebsites"
+                :key="website.type"
+                class="top-item-row"
+                :title="`${website.type} · ${getTopItemActivityLabel(website)}`"
+              >
+                <div
+                  class="top-item-bar"
+                  :style="{
+                    width: getTopItemWidth(website, topWebsites),
+                    backgroundColor: getTopItemColor(website)
+                  }"
+                ></div>
+                <div class="top-item-content">
+                  <span class="top-item-label">{{ website.type }}</span>
+                  <span class="top-item-time">{{
+                    renderCompactTime(website.totalDurationMs)
+                  }}</span>
+                </div>
+              </li>
+            </ol>
           </div>
-          <div class="tile-grid">
-            <div
-              v-if="topWebsites.length"
-              class="top-item-card rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
-            >
-              <h2 class="primary-blue font-bold leading-4">Top websites</h2>
-              <ol class="top-item-list">
-                <li
-                  v-for="(website, index) in topWebsites"
-                  :key="website.type"
-                  class="top-item-row"
-                >
-                  <div
-                    class="top-item-bar"
-                    :style="{
-                      width: getTopItemWidth(website, topWebsites),
-                      backgroundColor: getTopItemColor(website)
-                    }"
-                  ></div>
-                  <div class="top-item-content">
-                    <span class="top-item-rank">{{ index + 1 }}</span>
-                    <span
-                      class="top-item-label"
-                      :title="`${website.type} · ${getTopItemActivityLabel(website)}`"
-                      >{{ website.type }}</span
-                    >
-                    <span class="top-item-metric">
-                      <span class="top-item-time">{{
-                        renderCompactTime(website.totalDurationMs)
-                      }}</span>
-                      <span class="top-item-percentage">{{
-                        getTopItemPercentage(website, topWebsites)
-                      }}</span>
-                    </span>
-                  </div>
-                </li>
-              </ol>
-            </div>
 
-            <div
-              v-if="topWindowTitles.length"
-              class="top-item-card rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
-            >
-              <h2 class="primary-blue font-bold leading-4">Top window titles</h2>
-              <ol class="top-item-list">
-                <li
-                  v-for="(windowTitle, index) in topWindowTitles"
-                  :key="windowTitle.type"
-                  class="top-item-row"
-                >
-                  <div
-                    class="top-item-bar"
-                    :style="{
-                      width: getTopItemWidth(windowTitle, topWindowTitles),
-                      backgroundColor: getTopItemColor(windowTitle)
-                    }"
-                  ></div>
-                  <div class="top-item-content">
-                    <span class="top-item-rank">{{ index + 1 }}</span>
-                    <span
-                      class="top-item-label"
-                      :title="`${windowTitle.type} · ${getTopItemActivityLabel(windowTitle)}`"
-                      >{{ windowTitle.type }}</span
-                    >
-                    <span class="top-item-metric">
-                      <span class="top-item-time">{{
-                        renderCompactTime(windowTitle.totalDurationMs)
-                      }}</span>
-                      <span class="top-item-percentage">{{
-                        getTopItemPercentage(windowTitle, topWindowTitles)
-                      }}</span>
-                    </span>
-                  </div>
-                </li>
-              </ol>
-            </div>
+          <div
+            v-if="topWindowTitles.length"
+            class="top-item-card rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
+          >
+            <h2 class="primary-blue font-bold leading-4">Top window titles</h2>
+            <ol class="top-item-list">
+              <li
+                v-for="windowTitle in topWindowTitles"
+                :key="windowTitle.type"
+                class="top-item-row"
+                :title="`${windowTitle.type} · ${getTopItemActivityLabel(windowTitle)}`"
+              >
+                <div
+                  class="top-item-bar"
+                  :style="{
+                    width: getTopItemWidth(windowTitle, topWindowTitles),
+                    backgroundColor: getTopItemColor(windowTitle)
+                  }"
+                ></div>
+                <div class="top-item-content">
+                  <span class="top-item-label">{{ windowTitle.type }}</span>
+                  <span class="top-item-time">{{
+                    renderCompactTime(windowTitle.totalDurationMs)
+                  }}</span>
+                </div>
+              </li>
+            </ol>
           </div>
         </div>
       </div>
@@ -485,102 +453,52 @@ h2.primary-blue {
 }
 
 .top-item-card {
-  min-height: 154px;
+  min-height: 132px;
 }
 
 .top-item-list {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
-  margin: 0.8rem 0 0;
+  gap: 0.4rem;
+  margin: 0.65rem 0 0;
   padding: 0;
   list-style: none;
 }
 
 .top-item-row {
   position: relative;
-  min-height: 34px;
+  min-height: 30px;
   overflow: hidden;
   border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border-radius: 4px;
   background: #ffffff;
 }
 
 :global(.dark) .top-item-row {
-  border-color: #303030;
-  background: #202020;
+  border-color: #3f3f46;
+  background: #27272a;
 }
 
 .top-item-bar {
   position: absolute;
   inset: 0 auto 0 0;
-  opacity: 0.14;
+  opacity: 0.12;
   border-radius: inherit;
 }
 
 :global(.dark) .top-item-bar {
-  top: 0;
-  bottom: 0;
-  width: 4px !important;
-  opacity: 0.9;
-  border-radius: 0;
-}
-
-.top-item-bar-1 {
-  background: #2563eb;
-}
-
-.top-item-bar-2 {
-  background: #16a34a;
-}
-
-.top-item-bar-3 {
-  background: #d97706;
-}
-
-:global(.dark) .top-item-bar-1 {
-  background: #1d4ed8;
-}
-
-:global(.dark) .top-item-bar-2 {
-  background: #15803d;
-}
-
-:global(.dark) .top-item-bar-3 {
-  background: #b45309;
+  opacity: 0.12;
 }
 
 .top-item-content {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 1.4rem minmax(0, 1fr) max-content;
+  grid-template-columns: minmax(0, 1fr) max-content;
   align-items: center;
-  gap: 0.6rem;
-  min-height: 34px;
-  padding: 0.35rem 0.6rem;
-}
-
-:global(.dark) .top-item-content {
-  padding-left: 0.8rem;
-}
-
-.top-item-rank {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.35rem;
-  height: 1.35rem;
-  border-radius: 50%;
-  color: #ffffff;
-  background: #4b5563;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-:global(.dark) .top-item-rank {
-  color: #d4d4d8;
-  background: #303030;
+  gap: 0.75rem;
+  min-height: 30px;
+  padding: 0.25rem 0.55rem;
 }
 
 .top-item-label {
@@ -589,38 +507,20 @@ h2.primary-blue {
   text-overflow: ellipsis;
   white-space: nowrap;
   color: #1f2937;
-  font-weight: 600;
 }
 
 :global(.dark) .top-item-label {
   color: #e4e4e7;
 }
 
-.top-item-metric {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.45rem;
+.top-item-time {
+  color: #374151;
+  font-weight: 600;
   white-space: nowrap;
 }
 
-.top-item-time {
-  color: #374151;
-  font-size: 0.85rem;
-  font-weight: 700;
-}
-
 :global(.dark) .top-item-time {
-  color: #d4d4d8;
-}
-
-.top-item-percentage {
-  color: #6b7280;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-:global(.dark) .top-item-percentage {
-  color: #a3a3a3;
+  color: #f1f5f9;
 }
 
 @media (max-width: 720px) {
