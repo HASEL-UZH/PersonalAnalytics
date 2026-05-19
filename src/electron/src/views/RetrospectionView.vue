@@ -366,7 +366,7 @@ function getDayLabel(date: Date): string {
           </div>
         </div>
 
-        <div v-if="topItemsAvailable" class="tile-grid mt-8">
+        <div v-if="topItemsAvailable" class="top-item-grid tile-grid">
           <div
             v-if="topWebsites.length"
             class="top-item-card rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
@@ -379,18 +379,20 @@ function getDayLabel(date: Date): string {
                 class="top-item-row"
                 :title="`${website.type} · ${getTopItemActivityLabel(website)}`"
               >
-                <div
-                  class="top-item-bar"
-                  :style="{
-                    width: getTopItemWidth(website, topWebsites),
-                    backgroundColor: getTopItemColor(website)
-                  }"
-                ></div>
                 <div class="top-item-content">
                   <span class="top-item-label">{{ website.type }}</span>
                   <span class="top-item-time">{{
                     renderCompactTime(website.totalDurationMs)
                   }}</span>
+                </div>
+                <div class="top-item-track">
+                  <div
+                    class="top-item-bar"
+                    :style="{
+                      width: getTopItemWidth(website, topWebsites),
+                      backgroundColor: getTopItemColor(website)
+                    }"
+                  ></div>
                 </div>
               </li>
             </ol>
@@ -408,18 +410,20 @@ function getDayLabel(date: Date): string {
                 class="top-item-row"
                 :title="`${windowTitle.type} · ${getTopItemActivityLabel(windowTitle)}`"
               >
-                <div
-                  class="top-item-bar"
-                  :style="{
-                    width: getTopItemWidth(windowTitle, topWindowTitles),
-                    backgroundColor: getTopItemColor(windowTitle)
-                  }"
-                ></div>
                 <div class="top-item-content">
                   <span class="top-item-label">{{ windowTitle.type }}</span>
                   <span class="top-item-time">{{
                     renderCompactTime(windowTitle.totalDurationMs)
                   }}</span>
+                </div>
+                <div class="top-item-track">
+                  <div
+                    class="top-item-bar"
+                    :style="{
+                      width: getTopItemWidth(windowTitle, topWindowTitles),
+                      backgroundColor: getTopItemColor(windowTitle)
+                    }"
+                  ></div>
                 </div>
               </li>
             </ol>
@@ -452,53 +456,54 @@ h2.primary-blue {
   width: 100%;
 }
 
+.top-item-grid {
+  margin-top: 1.2rem;
+}
+
 .top-item-card {
-  min-height: 132px;
+  min-height: 118px;
 }
 
 .top-item-list {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  margin: 0.65rem 0 0;
+  gap: 0.3rem;
+  margin: 0.4rem 0 0;
   padding: 0;
   list-style: none;
 }
 
 .top-item-row {
-  position: relative;
-  min-height: 30px;
-  overflow: hidden;
+  min-height: 0;
   border: 1px solid #d1d5db;
   border-radius: 4px;
   background: #ffffff;
+  padding: 0.25rem 0.5rem;
 }
 
-:global(.dark) .top-item-row {
-  border-color: #3f3f46;
-  background: #27272a;
+.top-item-track {
+  height: 0.35rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #f3f4f6;
 }
 
 .top-item-bar {
-  position: absolute;
-  inset: 0 auto 0 0;
-  opacity: 0.12;
+  height: 100%;
   border-radius: inherit;
 }
 
-:global(.dark) .top-item-bar {
-  opacity: 0.12;
+:global(.dark) .top-item-track {
+  background: #111111;
 }
 
 .top-item-content {
-  position: relative;
-  z-index: 1;
   display: grid;
   grid-template-columns: minmax(0, 1fr) max-content;
   align-items: center;
   gap: 0.75rem;
-  min-height: 30px;
-  padding: 0.25rem 0.55rem;
+  margin-bottom: 0.15rem;
+  line-height: 1.25rem;
 }
 
 .top-item-label {
@@ -510,7 +515,7 @@ h2.primary-blue {
 }
 
 :global(.dark) .top-item-label {
-  color: #e4e4e7;
+  color: #ffffff;
 }
 
 .top-item-time {
@@ -520,7 +525,23 @@ h2.primary-blue {
 }
 
 :global(.dark) .top-item-time {
-  color: #f1f5f9;
+  color: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  .top-item-row {
+    border-color: #3a3a3a;
+    background: #202020;
+  }
+
+  .top-item-track {
+    background: #111111;
+  }
+
+  .top-item-label,
+  .top-item-time {
+    color: #ffffff;
+  }
 }
 
 @media (max-width: 720px) {
