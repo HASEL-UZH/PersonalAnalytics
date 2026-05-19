@@ -59,6 +59,7 @@ type Commands = {
   createDailySurveyResponses: (
     promptedAt: Date,
     samplingType: DailySurveySamplingType,
+    scheduledDate: Date | null,
     responses: DailySurveyResponseInput[]
   ) => Promise<void>;
   resizeDailySurveyWindow: (height: number) => void;

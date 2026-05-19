@@ -22,7 +22,14 @@ const language =
   'en';
 
 const promptedAt = new Date();
-const isLateSubmission = scheduledDate && (promptedAt.getTime() - scheduledDate.getTime()) > 12 * 60 * 60 * 1000;
+const isSurveyFromPreviousDay = computed(() => {
+  if (!scheduledDate) return false;
+  const today = new Date(promptedAt);
+  today.setHours(0, 0, 0, 0);
+  const scheduledDay = new Date(scheduledDate);
+  scheduledDay.setHours(0, 0, 0, 0);
+  return scheduledDay < today;
+});
 const scheduledDateString = scheduledDate
   ? new Intl.DateTimeFormat(language, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).format(scheduledDate)
   : '';
@@ -89,7 +96,7 @@ async function submitSurvey() {
       };
     });
 
-    await typedIpcRenderer.invoke('createDailySurveyResponses', promptedAt, samplingType, responseInputs);
+    await typedIpcRenderer.invoke('createDailySurveyResponses', promptedAt, samplingType, scheduledDate, responseInputs);
     await typedIpcRenderer.invoke('closeDailySurveyWindow', false);
   } catch (error) {
     console.error('Error submitting daily survey', error);
@@ -109,7 +116,7 @@ async function skipSurvey() {
       skipped: true
     }));
 
-    await typedIpcRenderer.invoke('createDailySurveyResponses', promptedAt, samplingType, responseInputs);
+    await typedIpcRenderer.invoke('createDailySurveyResponses', promptedAt, samplingType, scheduledDate, responseInputs);
     await typedIpcRenderer.invoke('closeDailySurveyWindow', true);
   } catch (error) {
     console.error('Error skipping daily survey', error);
@@ -131,13 +138,15 @@ async function postpone(minutes: number) {
     </div>
 
     <div class="postpone-bar">
+      <template v-if="!isSurveyFromPreviousDay">
       <button class="postpone-button" :disabled="isSubmitting" @click="postpone(5)">Remind me again in 5 minutes</button>
       <button class="postpone-button" :disabled="isSubmitting" @click="postpone(15)">Remind me again in 15 minutes</button>
       <button class="postpone-button" :disabled="isSubmitting" @click="postpone(60)">Remind me again in 60 minutes</button>
+      </template>
       <button class="postpone-button" :disabled="isSubmitting" @click="skipSurvey()">Skip</button>
     </div>
 
-    <div v-if="isLateSubmission" class="late-notice">
+    <div v-if="isSurveyFromPreviousDay" class="late-notice">
       This survey was originally scheduled for {{ scheduledDateString }}.
     </div>
 

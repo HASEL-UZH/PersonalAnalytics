@@ -349,9 +349,13 @@ export class IpcHandler {
   private async createDailySurveyResponses(
     promptedAt: Date,
     samplingType: DailySurveySamplingType,
+    scheduledDate: Date | null,
     responses: DailySurveyResponseInput[]
   ): Promise<void> {
     await this.dailySurveyService.createDailySurveyResponses(promptedAt, samplingType, responses);
+    if (this.dailySurveyTracker) {
+      await this.dailySurveyTracker.complete(samplingType, scheduledDate ? new Date(scheduledDate) : null);
+    }
   }
 
   private resizeDailySurveyWindow(height: number): void {
@@ -363,13 +367,16 @@ export class IpcHandler {
   }
 
   private async postponeDailySurvey(samplingType: DailySurveySamplingType, minutes: number): Promise<void> {
+    if (this.dailySurveyTracker) {
+      const wasPostponed = await this.dailySurveyTracker.postpone(samplingType, minutes);
+      if (!wasPostponed) {
+        return;
+      }
+    }
     UsageDataService.createNewUsageDataEvent(
       UsageDataEventType.DailySurveyPostponed,
       JSON.stringify({ samplingType, postponedMinutes: minutes })
     );
-    if (this.dailySurveyTracker) {
-      await this.dailySurveyTracker.postpone(samplingType, minutes);
-    }
     this.windowService.closeDailySurveyWindow(false, false);
   }
 

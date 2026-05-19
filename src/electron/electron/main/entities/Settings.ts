@@ -63,4 +63,10 @@ export class Settings extends BaseEntity {
 
   @Column('datetime', { nullable: true })
   nextDailySurveyEveningInvocation: Date;
+
+  @Column('datetime', { nullable: true })
+  postponedDailySurveyMorningUntil: Date | null;
+
+  @Column('datetime', { nullable: true })
+  postponedDailySurveyEveningUntil: Date | null;
 }
