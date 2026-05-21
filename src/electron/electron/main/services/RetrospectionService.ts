@@ -19,7 +19,31 @@ export interface ActivitySessions {
 
 type WindowActivitySessionKeySelector = (activity: WindowActivityEntity) => string | null;
 
-const BROWSER_PROCESS_NAMES = [
+// Mirrored from PA.WindowsActivityTracker/typescript/src/mappings/browsers.ts.
+// Used here to recognize browser processes without importing tracker source into the main bundle.
+const BROWSER_PROCESS_NAME_PARTS = [
+  'arc',
+  'brave',
+  'chrome',
+  'chromium',
+  'dia',
+  'edge',
+  'firefox',
+  'wavebox',
+  'mighty',
+  'sigmaos',
+  'opera',
+  'safari',
+  'tor',
+  'vivaldi',
+  'ecosia',
+  'duckduckgo',
+  'avg_web_browser'
+];
+
+// Browser window titles often append the user-facing app name, not the process-name token.
+// Example: "Pull request review - GitHub - Microsoft Edge" should drop "Microsoft Edge".
+const BROWSER_TITLE_SUFFIX_NAMES = [
   'Google Chrome',
   'Microsoft Edge',
   'Mozilla Firefox',
@@ -29,6 +53,17 @@ const BROWSER_PROCESS_NAMES = [
   'Brave Browser',
   'Opera'
 ];
+
+function isBrowserProcessName(processName: string | null): boolean {
+  if (!processName) {
+    return false;
+  }
+
+  const normalizedProcessName = processName.toLowerCase().replace(/[^a-z0-9_]+/g, '');
+  return BROWSER_PROCESS_NAME_PARTS.some((browser) =>
+    normalizedProcessName.includes(browser.replace(/[^a-z0-9_]+/g, ''))
+  );
+}
 
 /**
  * converts a date object to a minute of the day (0-1439)
@@ -126,6 +161,17 @@ function addActivitySessionEntry(
   map.set(key, entry);
 }
 
+/**
+ * Adds one tracked window span to the aggregate map, but only for minutes where user input exists.
+ *
+ * The window tracker records "focused window changed at 10:00" and then "focused window changed at
+ * 10:30". That implies a 30-minute window span. The user may still have been inactive for part of
+ * it, so this method walks the minutes between 10:00 and 10:30 and splits the span around inactive
+ * minutes before adding the active pieces.
+ *
+ * Example: active minutes 10:00-10:10 and 10:20-10:30 become two sessions instead of one 30-minute
+ * session.
+ */
 function addSessionWithActiveMinuteSplits(
   addEntry: (key: string | null, from: Date, to: Date, activity?: string | undefined) => void,
   sessionKey: string | null,
@@ -169,9 +215,27 @@ function addSessionWithActiveMinuteSplits(
 }
 
 /**
- * active window activity sessions grouped by a derived key.
- * @param getSessionKey - derives the session grouping key from a raw window activity entry
- * @returns all usage sessions per prop, including the total duration
+ * Builds active window sessions grouped by a caller-provided session key.
+ *
+ * The caller decides what counts as "the same thing" by returning a string for each raw window row.
+ * For top apps that string is the raw `processName` (for example "Code"). For activity totals it is
+ * the raw `activity` (for example "WorkRelatedBrowsing"). For top websites and top window titles,
+ * it is a cleaned display label, such as "github.com/pull/123" for browser rows or
+ * "Implementation notes" for non-browser rows. Adjacent rows with the same string are
+ * combined into one total.
+ *
+ * Processing steps:
+ * 1. Load all window activity rows and active user-input minutes for the selected day.
+ * 2. Ignore window rows in minutes where the user was not active.
+ * 3. Keep the current raw row open until that grouping string changes.
+ * 4. Close the previous row into one or more active-only sessions.
+ * 5. Add a one-minute fallback for the final row because there is no next window row to close it.
+ *
+ * Example: if GitHub is focused from 10:00 until a Code window appears at 10:24, the grouping
+ * string "github.com/pull/123" gets a 24-minute session.
+ *
+ * @param getSessionKey - returns the grouping string for a raw window activity entry
+ * @returns all usage sessions for the chosen key, including total active duration
  */
 async function getWindowActivitySessionsByKey(
   getSessionKey: WindowActivitySessionKeySelector,
@@ -246,6 +310,13 @@ async function getWindowActivitySessionsByType(
   return await getWindowActivitySessionsByKey((activity) => activity[prop], date);
 }
 
+/**
+ * Extracts the hostname from a URL when the tracker captured one.
+ *
+ * A bare domain such as "github.com" is often less useful than the visible page title, but it is
+ * better than hiding the website row entirely when no usable title is available.
+ * Example: "https://github.com/HASEL-UZH/PersonalAnalytics/pull/123" -> "github.com".
+ */
 function getDomainFromUrl(url: string | null): string | null {
   if (!url) {
     return null;
@@ -268,6 +339,14 @@ function isGenericBrowserTitle(title: string): boolean {
   );
 }
 
+/**
+ * Turns URL-like window titles into a compact, readable label.
+ *
+ * Some browsers expose a title that is effectively the URL, for example
+ * "github.com/HASEL-UZH/PersonalAnalytics/pull/123". For display we keep the domain plus the last
+ * two path parts, producing "github.com/pull/123". This avoids unreadable full paths while still
+ * preserving more context than only "github.com".
+ */
 function getReadableUrlTitle(title: string): string | null {
   if (!/^[\w.-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(title)) {
     return null;
@@ -286,6 +365,13 @@ function getReadableUrlTitle(title: string): string | null {
   }
 }
 
+/**
+ * Replaces path-heavy title fragments with the final path segment.
+ *
+ * Example: "vim ~/code/activitywatch/aw-server/file.py" becomes
+ * "vim file.py". URL-like fragments are handled first so
+ * "github.com/project/pull/123" does not collapse to only "123".
+ */
 function stripPathFragment(fragment: string): string {
   const readableUrlTitle = getReadableUrlTitle(fragment);
   if (readableUrlTitle) {
@@ -299,6 +385,22 @@ function stripPathFragment(fragment: string): string {
   });
 }
 
+/**
+ * Cleans noisy app/browser window titles before they are used as top-item labels.
+ *
+ * Substeps:
+ * 1. Trim empty titles.
+ * 2. Split on common title separators (`-`, `—`, `–`, `|`).
+ * 3. Shorten path-like fragments and URL-like fragments.
+ * 4. Remove trailing app/browser suffixes such as "Microsoft Edge".
+ * 5. Remove generic browser prefixes such as "4 or more pages".
+ * 6. If the remaining title is still generic, fall back to the captured URL domain.
+ *
+ * Examples:
+ * "4 or more pages - Overleaf - Microsoft Edge" -> "Overleaf"
+ * "github.com/HASEL-UZH/PersonalAnalytics/pull/123" -> "github.com/pull/123"
+ * "vim ~/code/activitywatch/aw-server/file.py" -> "vim file.py"
+ */
 function cleanWindowTitle(
   windowTitle: string | null,
   processName: string | null,
@@ -313,7 +415,10 @@ function cleanWindowTitle(
     return null;
   }
 
-  const suffixNames = [processName, ...BROWSER_PROCESS_NAMES].filter(Boolean) as string[];
+  const suffixNames = [
+    processName,
+    ...(isBrowserProcessName(processName) ? BROWSER_TITLE_SUFFIX_NAMES : [])
+  ].filter(Boolean) as string[];
   const segments = title
     .split(/\s+(?:-|—|–|\|)\s+/)
     .map((segment) => stripPathFragment(segment.trim()))

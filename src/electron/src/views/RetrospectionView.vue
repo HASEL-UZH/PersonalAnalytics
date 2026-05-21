@@ -475,7 +475,6 @@ h2.primary-blue {
 
 .top-item-row {
   min-height: 0;
-  border: 1px solid #d1d5db;
   border-radius: 4px;
   background: #ffffff;
   padding: 0.25rem 0.5rem;
@@ -530,7 +529,6 @@ h2.primary-blue {
 
 @media (prefers-color-scheme: dark) {
   .top-item-row {
-    border-color: #3a3a3a;
     background: #202020;
   }
 
