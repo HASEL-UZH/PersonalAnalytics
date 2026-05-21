@@ -511,6 +511,7 @@ h2.primary-blue {
   text-overflow: ellipsis;
   white-space: nowrap;
   color: #1f2937;
+  font-weight: 400;
 }
 
 :global(.dark) .top-item-label {
@@ -519,7 +520,7 @@ h2.primary-blue {
 
 .top-item-time {
   color: #374151;
-  font-weight: 600;
+  font-weight: 400;
   white-space: nowrap;
 }
 

@@ -54,6 +54,22 @@ const BROWSER_TITLE_SUFFIX_NAMES = [
   'Opera'
 ];
 
+const TOP_WEBSITE_ACTIVITIES = new Set([
+  'WorkRelatedBrowsing',
+  'DevCode',
+  'DevDebug',
+  'DevReview',
+  'DevVc',
+  'ReadWriteDocument',
+  'Planning'
+]);
+
+const EXCLUDED_TOP_WINDOW_TITLE_ACTIVITIES = new Set([
+  'WorkRelatedBrowsing',
+  'WorkUnrelatedBrowsing',
+  'SocialMedia'
+]);
+
 function isBrowserProcessName(processName: string | null): boolean {
   if (!processName) {
     return false;
@@ -393,11 +409,12 @@ function stripPathFragment(fragment: string): string {
  * 2. Split on common title separators (`-`, `—`, `–`, `|`).
  * 3. Shorten path-like fragments and URL-like fragments.
  * 4. Remove trailing app/browser suffixes such as "Microsoft Edge".
- * 5. Remove generic browser prefixes such as "4 or more pages".
+ * 5. Remove generic browser fragments such as "4 or more pages".
  * 6. If the remaining title is still generic, fall back to the captured URL domain.
  *
  * Examples:
  * "4 or more pages - Overleaf - Microsoft Edge" -> "Overleaf"
+ * "Overleaf - 4 or more pages - Microsoft Edge" -> "Overleaf"
  * "github.com/HASEL-UZH/PersonalAnalytics/pull/123" -> "github.com/pull/123"
  * "vim ~/code/activitywatch/aw-server/file.py" -> "vim file.py"
  */
@@ -431,8 +448,11 @@ function cleanWindowTitle(
     segments.pop();
   }
 
-  while (segments.length > 1 && isGenericBrowserTitle(segments[0])) {
-    segments.shift();
+  if (segments.length > 1) {
+    const meaningfulSegments = segments.filter((segment) => !isGenericBrowserTitle(segment));
+    if (meaningfulSegments.length > 0) {
+      segments.splice(0, segments.length, ...meaningfulSegments);
+    }
   }
 
   title = segments.length ? segments.join(' - ') : stripPathFragment(title);
@@ -442,6 +462,16 @@ function cleanWindowTitle(
   }
 
   return title || null;
+}
+
+function isTopWebsiteActivity(activity: WindowActivityEntity): boolean {
+  return TOP_WEBSITE_ACTIVITIES.has(activity.activity);
+}
+
+function isWebsiteWindowActivity(activity: WindowActivityEntity): boolean {
+  return (
+    isTopWebsiteActivity(activity) && (isBrowserProcessName(activity.processName) || !!activity.url)
+  );
 }
 
 function isRelevantTopItem(session: ActivitySessions): boolean {
@@ -493,7 +523,7 @@ export async function getAppUsageSessions(date: Date): Promise<ActivitySessions[
 export async function getTopWebsiteSessions(date: Date, limit = 3): Promise<ActivitySessions[]> {
   return (
     await getWindowActivitySessionsByKey((activity) => {
-      if (activity.activity !== 'WorkRelatedBrowsing') {
+      if (!isWebsiteWindowActivity(activity)) {
         return null;
       }
       return (
@@ -511,15 +541,12 @@ export async function getTopWindowTitleSessions(
   date: Date,
   limit = 3
 ): Promise<ActivitySessions[]> {
-  const browsingActivities = new Set([
-    'WorkRelatedBrowsing',
-    'WorkUnrelatedBrowsing',
-    'SocialMedia'
-  ]);
-
   return (
     await getWindowActivitySessionsByKey((activity) => {
-      if (browsingActivities.has(activity.activity)) {
+      if (
+        EXCLUDED_TOP_WINDOW_TITLE_ACTIVITIES.has(activity.activity) ||
+        isWebsiteWindowActivity(activity)
+      ) {
         return null;
       }
       return cleanWindowTitle(activity.windowTitle, activity.processName, activity.url);
