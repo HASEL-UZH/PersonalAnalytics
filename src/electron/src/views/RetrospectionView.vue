@@ -25,6 +25,7 @@ const longestTimeActive = ref<TimeActive | undefined>(undefined);
 const topApps = ref<ActivitySessions[] | undefined>(undefined);
 const ACTIVITY_BREAKDOWN_COVERAGE = 0.9;
 const ACTIVITY_BREAKDOWN_MAX_ITEMS = 6;
+const EXCLUDED_ACTIVITY_BREAKDOWN_GROUPS = new Set(['Other', 'Unknown']);
 
 interface ActivityBreakdownDataPoint extends PieChartDataPoint {
   percentage: number;
@@ -74,6 +75,12 @@ const activityBreakdownData = computed((): ActivityBreakdownDataPoint[] => {
   const groupTotals = new Map<string, number>();
   allWindowActivities.value.forEach((activitySession) => {
     const activityGroup = getActivityGroupFromActivityName(activitySession.type);
+    if (
+      EXCLUDED_ACTIVITY_BREAKDOWN_GROUPS.has(activityGroup) ||
+      EXCLUDED_ACTIVITY_BREAKDOWN_GROUPS.has(activitySession.type)
+    ) {
+      return;
+    }
     groupTotals.set(
       activityGroup,
       (groupTotals.get(activityGroup) ?? 0) + activitySession.totalDurationMs
@@ -81,11 +88,10 @@ const activityBreakdownData = computed((): ActivityBreakdownDataPoint[] => {
   });
 
   const sortedActivities = Array.from(groupTotals.entries())
-    .filter(([activityGroup]) => activityGroup !== 'Other')
     .map(([activityGroup, value]) => {
       const colorKey = getTailwindClassFromActivity(activityGroup, true) as keyof typeof Color;
       return {
-        name: ACTIVITY_LABELS[activityGroup] || 'Other',
+        name: ACTIVITY_LABELS[activityGroup],
         value,
         color: Color[colorKey],
         type: activityGroup,
@@ -490,7 +496,7 @@ h2.primary-blue {
 .activity-breakdown-list {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.15rem;
   min-width: 0;
   margin: 0;
   padding: 0;
@@ -503,7 +509,7 @@ h2.primary-blue {
   align-items: center;
   gap: 0.75rem;
   min-width: 0;
-  line-height: 1.5rem;
+  line-height: 1.3rem;
 }
 
 .activity-breakdown-label {
@@ -527,7 +533,6 @@ h2.primary-blue {
 }
 
 .activity-breakdown-time {
-  font-weight: 700;
   white-space: nowrap;
 }
 
