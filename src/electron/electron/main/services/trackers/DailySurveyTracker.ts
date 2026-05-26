@@ -4,7 +4,10 @@ import { Tracker } from './Tracker';
 import getMainLogger from '../../../config/Logger';
 import { Settings } from '../../entities/Settings';
 import { WorkScheduleService } from '../WorkScheduleService';
-import type { DailySurveyConfig, DailySurveySamplingType } from '../../../../shared/StudyConfiguration';
+import type {
+  DailySurveyConfig,
+  DailySurveySamplingType
+} from '../../../../shared/StudyConfiguration';
 
 const LOG = getMainLogger('DailySurveyTracker');
 
@@ -64,7 +67,12 @@ export class DailySurveyTracker implements Tracker {
         const nextInvocation = settings[invocationField];
         const postponedUntil = settings[postponedUntilField];
         const isPostponed = postponedUntil && postponedUntil > now;
-        if (nextInvocation && nextInvocation <= now && !isPostponed && !this.openSurveyKeys.has(survey.samplingType)) {
+        if (
+          nextInvocation &&
+          nextInvocation <= now &&
+          !isPostponed &&
+          !this.openSurveyKeys.has(survey.samplingType)
+        ) {
           LOG.info(`Daily survey (${survey.samplingType}) is due`);
           this.openSurveyKeys.add(survey.samplingType);
           await this.windowService.createDailySurveyWindow(survey.samplingType, nextInvocation);
@@ -87,10 +95,15 @@ export class DailySurveyTracker implements Tracker {
         !isPostponed &&
         !this.openSurveyKeys.has(survey.samplingType)
       ) {
-        LOG.info(`Daily survey (${survey.samplingType}) was due at ${settings[invocationField]}, showing now`);
+        LOG.info(
+          `Daily survey (${survey.samplingType}) was due at ${settings[invocationField]}, showing now`
+        );
         this.openSurveyKeys.add(survey.samplingType);
         // Keep nextInvocation unchanged until submit/skip so unattended app starts do not lose the original survey date.
-        await this.windowService.createDailySurveyWindow(survey.samplingType, settings[invocationField]);
+        await this.windowService.createDailySurveyWindow(
+          survey.samplingType,
+          settings[invocationField]
+        );
       } else if (!settings[invocationField]) {
         await this.scheduleNextForSurvey(survey);
       }
@@ -143,13 +156,20 @@ export class DailySurveyTracker implements Tracker {
     return fallback;
   }
 
-  private getInvocationField(samplingType: DailySurveySamplingType): 'nextDailySurveyMorningInvocation' | 'nextDailySurveyEveningInvocation' {
+  private getInvocationField(
+    samplingType: DailySurveySamplingType
+  ): 'nextDailySurveyMorningInvocation' | 'nextDailySurveyEveningInvocation' {
     if (samplingType === 'morning') return 'nextDailySurveyMorningInvocation';
     if (samplingType === 'evening') return 'nextDailySurveyEveningInvocation';
     throw new Error(`Unknown samplingType: ${samplingType}`);
   }
 
-  private getPostponedUntilField(samplingType: DailySurveySamplingType): 'postponedDailySurveyMorningUntil' | 'postponedDailySurveyEveningUntil' {
+  /**
+   * Returns the Settings column that stores the postponed-until timestamp for the given daily survey type.
+   */
+  private getPostponedUntilField(
+    samplingType: DailySurveySamplingType
+  ): 'postponedDailySurveyMorningUntil' | 'postponedDailySurveyEveningUntil' {
     if (samplingType === 'morning') return 'postponedDailySurveyMorningUntil';
     if (samplingType === 'evening') return 'postponedDailySurveyEveningUntil';
     throw new Error(`Unknown samplingType: ${samplingType}`);
@@ -163,7 +183,10 @@ export class DailySurveyTracker implements Tracker {
     return compare < today;
   }
 
-  public async complete(samplingType: DailySurveySamplingType, scheduledDate?: Date | null): Promise<void> {
+  public async complete(
+    samplingType: DailySurveySamplingType,
+    scheduledDate?: Date | null
+  ): Promise<void> {
     this.openSurveyKeys.delete(samplingType);
 
     if (!scheduledDate) {
@@ -182,7 +205,9 @@ export class DailySurveyTracker implements Tracker {
     const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
     const scheduledDate = settings[this.getInvocationField(samplingType)];
     if (scheduledDate && this.isBeforeToday(scheduledDate)) {
-      LOG.info(`Daily survey (${samplingType}) was scheduled on a previous day and cannot be postponed`);
+      LOG.info(
+        `Daily survey (${samplingType}) was scheduled on a previous day and cannot be postponed`
+      );
       return false;
     }
 
