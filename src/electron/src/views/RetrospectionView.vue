@@ -8,11 +8,7 @@ import {
   DataPointType,
   TimeActive
 } from '../utils/retrospection/types';
-import {
-  ACTIVITY_LABELS,
-  getActivityGroupFromActivityName,
-  getTailwindClassFromActivity
-} from '../utils/retrospection/utils';
+import { ACTIVITY_LABELS, getTailwindClassFromActivity } from '../utils/retrospection/utils';
 import StackedBarChart from '../components/StackedBarChart.vue';
 
 const typedIpcRenderer = window.ipcRenderer;
@@ -190,12 +186,6 @@ function getTopItemColor(item: ActivitySessions): string {
   const activity = item.activity || Activity.Other;
   const colorKey = getTailwindClassFromActivity(activity) as keyof typeof Color;
   return Color[colorKey] || Color['neutral-400'];
-}
-
-function getTopItemActivityLabel(item: ActivitySessions): string {
-  return (
-    ACTIVITY_LABELS[getActivityGroupFromActivityName(item.activity || Activity.Other)] || 'Other'
-  );
 }
 
 async function handleDayChange(event: Event) {
@@ -377,7 +367,7 @@ function getDayLabel(date: Date): string {
                 v-for="website in topWebsites"
                 :key="website.type"
                 class="top-item-row"
-                :title="`${website.type} · ${getTopItemActivityLabel(website)}`"
+                :title="website.type"
               >
                 <div class="top-item-content">
                   <span class="top-item-label">{{ website.type }}</span>
@@ -408,7 +398,7 @@ function getDayLabel(date: Date): string {
                 v-for="windowTitle in topWindowTitles"
                 :key="windowTitle.type"
                 class="top-item-row"
-                :title="`${windowTitle.type} · ${getTopItemActivityLabel(windowTitle)}`"
+                :title="windowTitle.type"
               >
                 <div class="top-item-content">
                   <span class="top-item-label">{{ windowTitle.type }}</span>
@@ -475,9 +465,7 @@ h2.primary-blue {
 
 .top-item-row {
   min-height: 0;
-  border-radius: 4px;
-  background: #ffffff;
-  padding: 0.25rem 0.5rem;
+  padding: 0.2rem 0;
 }
 
 .top-item-track {
@@ -529,10 +517,6 @@ h2.primary-blue {
 }
 
 @media (prefers-color-scheme: dark) {
-  .top-item-row {
-    background: #202020;
-  }
-
   .top-item-track {
     background: #111111;
   }

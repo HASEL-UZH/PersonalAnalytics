@@ -41,6 +41,22 @@ const BROWSER_PROCESS_NAME_PARTS = [
   'avg_web_browser'
 ];
 
+const BROWSER_PROCESS_NAME_ALIASES = new Set(
+  [
+    ...BROWSER_PROCESS_NAME_PARTS,
+    'arc browser',
+    'brave browser',
+    'dia browser',
+    'google chrome',
+    'microsoft edge',
+    'mozilla firefox',
+    'msedge',
+    'opera browser',
+    'tor browser',
+    'vivaldi browser'
+  ].map(normalizeProcessName)
+);
+
 // Browser window titles often append the user-facing app name, not the process-name token.
 // Example: "Pull request review - GitHub - Microsoft Edge" should drop "Microsoft Edge".
 const BROWSER_TITLE_SUFFIX_NAMES = [
@@ -70,14 +86,26 @@ const EXCLUDED_TOP_WINDOW_TITLE_ACTIVITIES = new Set([
   'SocialMedia'
 ]);
 
+/**
+ * Normalizes process names so browser aliases can be compared independent of casing or separators.
+ * Example: "Microsoft Edge" -> "microsoftedge".
+ */
+function normalizeProcessName(processName: string): string {
+  return processName.toLowerCase().replace(/[^a-z0-9_]+/g, '');
+}
+
 function isBrowserProcessName(processName: string | null): boolean {
   if (!processName) {
     return false;
   }
 
-  const normalizedProcessName = processName.toLowerCase().replace(/[^a-z0-9_]+/g, '');
-  return BROWSER_PROCESS_NAME_PARTS.some((browser) =>
-    normalizedProcessName.includes(browser.replace(/[^a-z0-9_]+/g, ''))
+  const normalizedProcessName = normalizeProcessName(processName);
+  if (BROWSER_PROCESS_NAME_ALIASES.has(normalizedProcessName)) {
+    return true;
+  }
+
+  return BROWSER_PROCESS_NAME_PARTS.some(
+    (browser) => normalizedProcessName.includes(normalizeProcessName(browser)) && browser.length > 3
   );
 }
 
@@ -350,9 +378,21 @@ function getDomainFromUrl(url: string | null): string | null {
 
 function isGenericBrowserTitle(title: string): boolean {
   return (
-    /^(\d+\s+)?(or more\s+)?pages?$/i.test(title) ||
+    /^(\d+\s+)?((or\s+)?more\s+|other\s+|additional\s+)?pages?$/i.test(title) ||
     /^(new tab|about:blank|start page|untitled)$/i.test(title)
   );
+}
+
+/**
+ * Removes browser tab-count fragments from otherwise useful page titles.
+ * Example: "Overleaf 4 or more pages" -> "Overleaf".
+ */
+function removeGenericBrowserTabCountFragments(title: string): string {
+  return title
+    .replace(/\b\d+\s+(?:(?:or\s+)?more|other|additional)\s+pages?\b/gi, '')
+    .replace(/\s{2,}/g, ' ')
+    .replace(/^\s*(?:-|—|–|\|)\s*|\s*(?:-|—|–|\|)\s*$/g, '')
+    .trim();
 }
 
 /**
@@ -415,6 +455,7 @@ function stripPathFragment(fragment: string): string {
  * Examples:
  * "4 or more pages - Overleaf - Microsoft Edge" -> "Overleaf"
  * "Overleaf - 4 or more pages - Microsoft Edge" -> "Overleaf"
+ * "Overleaf 4 or more pages - Microsoft Edge" -> "Overleaf"
  * "github.com/HASEL-UZH/PersonalAnalytics/pull/123" -> "github.com/pull/123"
  * "vim ~/code/activitywatch/aw-server/file.py" -> "vim file.py"
  */
@@ -436,9 +477,14 @@ function cleanWindowTitle(
     processName,
     ...(isBrowserProcessName(processName) ? BROWSER_TITLE_SUFFIX_NAMES : [])
   ].filter(Boolean) as string[];
+  const isBrowserTitle = isBrowserProcessName(processName) || !!url;
   const segments = title
     .split(/\s+(?:-|—|–|\|)\s+/)
-    .map((segment) => stripPathFragment(segment.trim()))
+    .map((segment) =>
+      stripPathFragment(
+        isBrowserTitle ? removeGenericBrowserTabCountFragments(segment.trim()) : segment.trim()
+      )
+    )
     .filter(Boolean);
 
   while (
@@ -464,10 +510,16 @@ function cleanWindowTitle(
   return title || null;
 }
 
+/**
+ * Checks whether a raw activity category should contribute to the Top websites card.
+ */
 function isTopWebsiteActivity(activity: WindowActivityEntity): boolean {
   return TOP_WEBSITE_ACTIVITIES.has(activity.activity);
 }
 
+/**
+ * Checks whether an activity should be treated as a website row instead of a native window-title row.
+ */
 function isWebsiteWindowActivity(activity: WindowActivityEntity): boolean {
   return (
     isTopWebsiteActivity(activity) && (isBrowserProcessName(activity.processName) || !!activity.url)
