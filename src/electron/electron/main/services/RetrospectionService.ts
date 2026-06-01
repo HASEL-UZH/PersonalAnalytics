@@ -15,6 +15,7 @@ export interface ActivitySessions {
   totalDurationMs: number;
   sessions: TimeActive[];
   activity?: string;
+  tooltipTitle?: string;
 }
 
 type WindowActivitySessionKeySelector = (activity: WindowActivityEntity) => string | null;
@@ -85,6 +86,15 @@ const EXCLUDED_TOP_WINDOW_TITLE_ACTIVITIES = new Set([
   'WorkUnrelatedBrowsing',
   'SocialMedia'
 ]);
+
+const ACTIVITY_TITLE_SUFFIX_NAMES = [
+  'Coding',
+  'Planning',
+  'Read/Write Document',
+  'Work Related Browsing',
+  'Work Unrelated Browsing',
+  'Social Media'
+];
 
 /**
  * Normalizes process names so browser aliases can be compared independent of casing or separators.
@@ -400,10 +410,10 @@ function removeGenericBrowserTabCountFragments(title: string): string {
  *
  * Some browsers expose a title that is effectively the URL, for example
  * "github.com/HASEL-UZH/PersonalAnalytics/pull/123". For display we keep the domain plus the last
- * two path parts, producing "github.com/pull/123". This avoids unreadable full paths while still
- * preserving more context than only "github.com".
+ * two path parts, producing "github.com/pull/123". Hover labels can include "..." to show that the
+ * original path was shortened.
  */
-function getReadableUrlTitle(title: string): string | null {
+function getReadableUrlTitle(title: string, includeEllipsis = false): string | null {
   if (!/^[\w.-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(title)) {
     return null;
   }
@@ -414,7 +424,8 @@ function getReadableUrlTitle(title: string): string | null {
     const hostname = parsedUrl.hostname.replace(/^www\./, '');
     const pathParts = parsedUrl.pathname.split('/').filter(Boolean);
     const relevantPath = pathParts.slice(-2).join('/');
-    return relevantPath ? `${hostname}/${relevantPath}` : hostname;
+    const ellipsis = includeEllipsis && pathParts.length > 2 ? '.../' : '';
+    return relevantPath ? `${hostname}/${ellipsis}${relevantPath}` : hostname;
   } catch (error) {
     LOG.warn('Could not clean URL-like window title', title, error);
     return null;
@@ -422,23 +433,70 @@ function getReadableUrlTitle(title: string): string | null {
 }
 
 /**
+ * Shortens a filesystem path to its final segment, optionally keeping the root plus "...".
+ */
+function shortenPath(path: string, includeEllipsis: boolean): string {
+  const normalizedPath = path.replace(/\\/g, '/');
+  const pathParts = normalizedPath.split('/').filter(Boolean);
+  const fileName = pathParts.at(-1);
+  if (!fileName) {
+    return path;
+  }
+
+  if (!includeEllipsis || pathParts.length < 2) {
+    return fileName;
+  }
+
+  if (normalizedPath.startsWith('~/')) {
+    return `~/.../${fileName}`;
+  }
+
+  const windowsDrive = normalizedPath.match(/^[A-Za-z]:\//);
+  if (windowsDrive) {
+    return `${windowsDrive[0]}.../${fileName}`;
+  }
+
+  if (normalizedPath.startsWith('/')) {
+    return `/.../${fileName}`;
+  }
+
+  return `.../${fileName}`;
+}
+
+/**
+ * Checks whether a title segment is an app or activity suffix, including versioned app names.
+ */
+function isTitleSuffix(segment: string, suffixNames: string[]): boolean {
+  const normalizedSegment = segment.toLowerCase();
+  return suffixNames.some((suffixName) => {
+    const normalizedSuffixName = suffixName.toLowerCase();
+    return (
+      normalizedSegment === normalizedSuffixName ||
+      normalizedSegment.startsWith(`${normalizedSuffixName} (`)
+    );
+  });
+}
+
+/**
  * Replaces path-heavy title fragments with the final path segment.
  *
  * Example: "vim ~/code/activitywatch/aw-server/file.py" becomes
- * "vim file.py". URL-like fragments are handled first so
- * "github.com/project/pull/123" does not collapse to only "123".
+ * "vim file.py". Hover labels can keep the root plus "..." as a shortening marker.
  */
-function stripPathFragment(fragment: string): string {
-  const readableUrlTitle = getReadableUrlTitle(fragment);
+function stripPathFragment(fragment: string, includeEllipsis = false): string {
+  const readableUrlTitle = getReadableUrlTitle(fragment, includeEllipsis);
   if (readableUrlTitle) {
     return readableUrlTitle;
   }
 
-  return fragment.replace(/(?:~|\/Users\/|\/[A-Za-z0-9._-]+|[A-Za-z]:\\)[^\s|]+/g, (path) => {
-    const normalizedPath = path.replace(/\\/g, '/');
-    const pathParts = normalizedPath.split('/').filter(Boolean);
-    return pathParts.at(-1) || path;
-  });
+  if (/^(?:~\/|\/|[A-Za-z]:[\\/]).+/.test(fragment)) {
+    return shortenPath(fragment, includeEllipsis);
+  }
+
+  return fragment.replace(
+    /(^|\s)((?:~\/|\/Users\/|\/[A-Za-z0-9._-]+|[A-Za-z]:\\)[^\s|]+)/g,
+    (_match, prefix, path) => `${prefix}${shortenPath(path, includeEllipsis)}`
+  );
 }
 
 /**
@@ -448,7 +506,7 @@ function stripPathFragment(fragment: string): string {
  * 1. Trim empty titles.
  * 2. Split on common title separators (`-`, `—`, `–`, `|`).
  * 3. Shorten path-like fragments and URL-like fragments.
- * 4. Remove trailing app/browser suffixes such as "Microsoft Edge".
+ * 4. Remove trailing app/browser/activity suffixes such as "Microsoft Edge".
  * 5. Remove generic browser fragments such as "4 or more pages".
  * 6. If the remaining title is still generic, fall back to the captured URL domain.
  *
@@ -462,7 +520,8 @@ function stripPathFragment(fragment: string): string {
 function cleanWindowTitle(
   windowTitle: string | null,
   processName: string | null,
-  url: string | null = null
+  url: string | null = null,
+  includeEllipsis = false
 ): string | null {
   if (!windowTitle) {
     return null;
@@ -475,22 +534,21 @@ function cleanWindowTitle(
 
   const suffixNames = [
     processName,
-    ...(isBrowserProcessName(processName) ? BROWSER_TITLE_SUFFIX_NAMES : [])
+    ...(isBrowserProcessName(processName) ? BROWSER_TITLE_SUFFIX_NAMES : []),
+    ...ACTIVITY_TITLE_SUFFIX_NAMES
   ].filter(Boolean) as string[];
   const isBrowserTitle = isBrowserProcessName(processName) || !!url;
   const segments = title
     .split(/\s+(?:-|—|–|\|)\s+/)
     .map((segment) =>
       stripPathFragment(
-        isBrowserTitle ? removeGenericBrowserTabCountFragments(segment.trim()) : segment.trim()
+        isBrowserTitle ? removeGenericBrowserTabCountFragments(segment.trim()) : segment.trim(),
+        includeEllipsis
       )
     )
     .filter(Boolean);
 
-  while (
-    segments.length > 1 &&
-    suffixNames.some((suffixName) => segments.at(-1)?.toLowerCase() === suffixName.toLowerCase())
-  ) {
+  while (segments.length > 1 && isTitleSuffix(segments.at(-1) || '', suffixNames)) {
     segments.pop();
   }
 
@@ -501,9 +559,13 @@ function cleanWindowTitle(
     }
   }
 
-  title = segments.length ? segments.join(' - ') : stripPathFragment(title);
+  title = segments.length ? segments.join(' - ') : stripPathFragment(title, includeEllipsis);
 
   if (isGenericBrowserTitle(title)) {
+    return getDomainFromUrl(url);
+  }
+
+  if (isTitleSuffix(title, suffixNames)) {
     return getDomainFromUrl(url);
   }
 
@@ -573,26 +635,36 @@ export async function getAppUsageSessions(date: Date): Promise<ActivitySessions[
 }
 
 export async function getTopWebsiteSessions(date: Date, limit = 3): Promise<ActivitySessions[]> {
+  const tooltipTitles = new Map<string, string>();
   return (
     await getWindowActivitySessionsByKey((activity) => {
       if (!isWebsiteWindowActivity(activity)) {
         return null;
       }
-      return (
+      const key =
         cleanWindowTitle(activity.windowTitle, activity.processName, activity.url) ||
-        getDomainFromUrl(activity.url)
+        getDomainFromUrl(activity.url);
+      if (!key) {
+        return null;
+      }
+      tooltipTitles.set(
+        key,
+        cleanWindowTitle(activity.windowTitle, activity.processName, activity.url, true) || key
       );
+      return key;
     }, date)
   )
     .filter(isRelevantTopItem)
     .sort((a, b) => b.totalDurationMs - a.totalDurationMs)
-    .slice(0, limit);
+    .slice(0, limit)
+    .map((session) => ({ ...session, tooltipTitle: tooltipTitles.get(session.type) }));
 }
 
 export async function getTopWindowTitleSessions(
   date: Date,
   limit = 3
 ): Promise<ActivitySessions[]> {
+  const tooltipTitles = new Map<string, string>();
   return (
     await getWindowActivitySessionsByKey((activity) => {
       if (
@@ -601,12 +673,21 @@ export async function getTopWindowTitleSessions(
       ) {
         return null;
       }
-      return cleanWindowTitle(activity.windowTitle, activity.processName, activity.url);
+      const key = cleanWindowTitle(activity.windowTitle, activity.processName, activity.url);
+      if (!key) {
+        return null;
+      }
+      tooltipTitles.set(
+        key,
+        cleanWindowTitle(activity.windowTitle, activity.processName, activity.url, true) || key
+      );
+      return key;
     }, date)
   )
     .filter(isRelevantTopItem)
     .sort((a, b) => b.totalDurationMs - a.totalDurationMs)
-    .slice(0, limit);
+    .slice(0, limit)
+    .map((session) => ({ ...session, tooltipTitle: tooltipTitles.get(session.type) }));
 }
 
 /**

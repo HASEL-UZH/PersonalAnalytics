@@ -54,6 +54,7 @@ export interface ActivitySessions {
   totalDurationMs: number;
   sessions: TimeActive[];
   activity?: string;
+  tooltipTitle?: string;
 }
 
 export enum Color {

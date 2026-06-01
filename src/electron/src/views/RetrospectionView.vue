@@ -367,7 +367,7 @@ function getDayLabel(date: Date): string {
                 v-for="website in topWebsites"
                 :key="website.type"
                 class="top-item-row"
-                :title="website.type"
+                :title="website.tooltipTitle || website.type"
               >
                 <div class="top-item-content">
                   <span class="top-item-label">{{ website.type }}</span>
@@ -398,7 +398,7 @@ function getDayLabel(date: Date): string {
                 v-for="windowTitle in topWindowTitles"
                 :key="windowTitle.type"
                 class="top-item-row"
-                :title="windowTitle.type"
+                :title="windowTitle.tooltipTitle || windowTitle.type"
               >
                 <div class="top-item-content">
                   <span class="top-item-label">{{ windowTitle.type }}</span>
