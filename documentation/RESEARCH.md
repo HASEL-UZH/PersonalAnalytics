@@ -227,6 +227,8 @@ Citing the repository:
 
 ## Research that used PersonalAnalytics
 PersonalAnalytics-legacy was used in the following peer-reviewed research projects (and other non-peer reviewed projects too, such as master and bachelor theses):
+- [TSE'26](https://hasel.dev/wp-content/uploads/2026/03/TaskSnap_One_Task_at_a_Time_With_Snapshots_deSouza_.pdf) TaskSnap: One Task at a Time With Snapshots. Juliana G. de Souza, Remy Egloff, Thomas Fritz, André N. Meyer
+- [DIS'25](https://hasel.dev/wp-content/uploads/2025/06/2025_AIRbar_preprint.pdf) ‘Stick to’ Three: Fostering Awareness, Intentions, and Reflections on the Top Daily Tasks. André Meyer. Nimra Ahmed. Isabelle Cuber. Sebastian Richner. Elaine Huang. Gail Murphy. Thomas Fritz.
 - [CSCW'25](https://hasel.dev/wp-content/uploads/2024/12/2025_FlowTeams_CSCW25_PrePrint.pdf]) Better Balancing Focused Work and Collaboration in Hybrid Teams by Cultivating the Sharing of Work Schedules. André Meyer. Thomas Fritz.
 - [CHI'24](https://dl.acm.org/doi/pdf/10.1145/3613904.3643021) Examining the Use of VR as a Study Aid for University Students with ADHD. Isabelle Cuber. Juliana de Souza. Irene Jacobs. Caroline Lowman. David Shepherd. Thomas Fritz
 - [CHI'20](https://andre-meyer.ch/CHI20) Supporting Software Developers’ Focused Work on Window-Based Desktops. Jan Pilzer, Raphael Rosenast. André Meyer. Elaine Huang. Thomas Fritz.

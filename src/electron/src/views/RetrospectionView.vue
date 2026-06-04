@@ -1,14 +1,19 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, type CSSProperties } from 'vue';
 import {
   Activity,
-  ActivitySessions,
-  ChartDataPoint,
   Color,
   DataPointType,
-  TimeActive
+  type ActivitySessions,
+  type ChartDataPoint,
+  type PieChartDataPoint,
+  type TimeActive
 } from '../utils/retrospection/types';
-import { ACTIVITY_LABELS, getTailwindClassFromActivity } from '../utils/retrospection/utils';
+import {
+  ACTIVITY_LABELS,
+  getActivityGroupFromActivityName,
+  getTailwindClassFromActivity
+} from '../utils/retrospection/utils';
 import StackedBarChart from '../components/StackedBarChart.vue';
 
 const typedIpcRenderer = window.ipcRenderer;
@@ -18,9 +23,15 @@ const allWindowActivities = ref<ActivitySessions[]>([]);
 const chartDataWindowActivities = ref<ChartDataPoint[]>();
 const longestTimeActive = ref<TimeActive | undefined>(undefined);
 const topApps = ref<ActivitySessions[] | undefined>(undefined);
-const topActivities = ref<ActivitySessions[]>([]);
 const topWebsites = ref<ActivitySessions[]>([]);
 const topWindowTitles = ref<ActivitySessions[]>([]);
+const ACTIVITY_BREAKDOWN_COVERAGE = 0.9;
+const ACTIVITY_BREAKDOWN_MAX_ITEMS = 6;
+const EXCLUDED_ACTIVITY_BREAKDOWN_GROUPS = new Set(['Other', 'Unknown']);
+
+interface ActivityBreakdownDataPoint extends PieChartDataPoint {
+  percentage: number;
+}
 
 const earliestUserComputerActivity = computed((): number => {
   return (
@@ -49,6 +60,97 @@ const latestUserComputerActivity = computed((): number => {
 
 const topItemsAvailable = computed((): boolean => {
   return topWebsites.value.length > 0 || topWindowTitles.value.length > 0;
+});
+
+// Total tracked activity time is the denominator for percentages and the 90% cutoff.
+const activityBreakdownTotalMs = computed((): number => {
+  return (
+    allWindowActivities.value?.reduce((total, activitySession) => {
+      return total + activitySession.totalDurationMs;
+    }, 0) ?? 0
+  );
+});
+
+// Groups raw activities into the same activity categories and colors used by the timeline.
+const activityBreakdownData = computed((): ActivityBreakdownDataPoint[] => {
+  const totalDurationMs = activityBreakdownTotalMs.value;
+  if (!totalDurationMs) {
+    return [];
+  }
+
+  const groupTotals = new Map<string, number>();
+  allWindowActivities.value.forEach((activitySession) => {
+    const activityGroup = getActivityGroupFromActivityName(activitySession.type);
+    if (
+      EXCLUDED_ACTIVITY_BREAKDOWN_GROUPS.has(activityGroup) ||
+      EXCLUDED_ACTIVITY_BREAKDOWN_GROUPS.has(activitySession.type)
+    ) {
+      return;
+    }
+    groupTotals.set(
+      activityGroup,
+      (groupTotals.get(activityGroup) ?? 0) + activitySession.totalDurationMs
+    );
+  });
+
+  const sortedActivities = Array.from(groupTotals.entries())
+    .map(([activityGroup, value]) => {
+      const colorKey = getTailwindClassFromActivity(activityGroup, true) as keyof typeof Color;
+      return {
+        name: ACTIVITY_LABELS[activityGroup],
+        value,
+        color: Color[colorKey],
+        type: activityGroup,
+        percentage: value / totalDurationMs
+      };
+    })
+    .filter((activity) => activity.value > 0)
+    .sort((a, b) => b.value - a.value);
+
+  let includedDurationMs = 0;
+  const visibleActivities: ActivityBreakdownDataPoint[] = [];
+
+  for (const activity of sortedActivities) {
+    if (
+      visibleActivities.length >= ACTIVITY_BREAKDOWN_MAX_ITEMS ||
+      includedDurationMs / totalDurationMs >= ACTIVITY_BREAKDOWN_COVERAGE
+    ) {
+      break;
+    }
+    visibleActivities.push(activity);
+    includedDurationMs += activity.value;
+  }
+
+  return visibleActivities;
+});
+
+const activityBreakdownTitle = computed((): string => {
+  const shownActivities = activityBreakdownData.value.length;
+  return shownActivities
+    ? `Activity Breakdown (top ${shownActivities} activities)`
+    : 'Activity Breakdown';
+});
+
+// Builds the donut from visible activities and leaves any dropped tail as a neutral segment.
+const activityBreakdownStyle = computed((): CSSProperties => {
+  if (!activityBreakdownData.value.length) {
+    return {};
+  }
+
+  let offset = 0;
+  const segments = activityBreakdownData.value.map((activity) => {
+    const start = offset;
+    offset += activity.percentage * 360;
+    return `${activity.color} ${start}deg ${offset}deg`;
+  });
+
+  if (offset < 360) {
+    segments.push(`${Color['neutral-200']} ${offset}deg 360deg`);
+  }
+
+  return {
+    background: `conic-gradient(${segments.join(', ')})`
+  };
 });
 
 onMounted(async () => {
@@ -89,10 +191,6 @@ async function loadWindowActivities() {
     selectedDay.value
   )) as ActivitySessions[];
   windowActivitiesToChartData();
-  topActivities.value =
-    allWindowActivities.value
-      ?.sort((a: ActivitySessions, b: ActivitySessions) => b.totalDurationMs - a.totalDurationMs)
-      .slice(0, 3) ?? [];
 }
 
 async function loadLongestTimeActive() {
@@ -316,7 +414,7 @@ function getDayLabel(date: Date): string {
 
           <!-- Tile 2: Active hours -->
           <div
-            v-if="topActivities"
+            v-if="chartDataWindowActivities?.length"
             class="rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
           >
             <h2 class="primary-blue font-bold leading-4">Active hours on computer</h2>
@@ -341,18 +439,35 @@ function getDayLabel(date: Date): string {
             </ol>
           </div>
 
-          <!-- Tile 4: Top activities -->
+          <!-- Tile 4: Activity breakdown -->
           <div
-            v-if="topActivities"
-            class="rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
+            v-if="activityBreakdownData.length"
+            class="activity-breakdown-card rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
           >
-            <h2 class="primary-blue font-bold leading-4">Top activities pursued</h2>
-            <ol class="mt-2 list-decimal pl-4">
-              <li v-for="(activitySession, index) in topActivities" :key="index">
-                {{ ACTIVITY_LABELS[activitySession.type] || 'Other' }}:
-                {{ renderTime(activitySession.totalDurationMs) }}
-              </li>
-            </ol>
+            <h2 class="primary-blue font-bold leading-4">{{ activityBreakdownTitle }}</h2>
+            <div class="activity-breakdown-content">
+              <div class="activity-pie" :style="activityBreakdownStyle" aria-hidden="true">
+                <div class="activity-pie-hole"></div>
+              </div>
+              <ol class="activity-breakdown-list">
+                <li
+                  v-for="activity in activityBreakdownData"
+                  :key="activity.type"
+                  :title="`${activity.name}: ${renderCompactTime(activity.value)}`"
+                >
+                  <span class="activity-breakdown-label">
+                    <span
+                      class="activity-breakdown-dot"
+                      :style="{ backgroundColor: activity.color }"
+                    ></span>
+                    <span class="activity-breakdown-name">{{ activity.name }}</span>
+                  </span>
+                  <span class="activity-breakdown-time text-slate-700 dark:!text-slate-100">{{
+                    renderCompactTime(activity.value)
+                  }}</span>
+                </li>
+              </ol>
+            </div>
           </div>
         </div>
 
@@ -468,22 +583,6 @@ h2.primary-blue {
   padding: 0.2rem 0;
 }
 
-.top-item-track {
-  height: 0.35rem;
-  overflow: hidden;
-  border-radius: 999px;
-  background: #f3f4f6;
-}
-
-.top-item-bar {
-  height: 100%;
-  border-radius: inherit;
-}
-
-:global(.dark) .top-item-track {
-  background: #111111;
-}
-
 .top-item-content {
   display: grid;
   grid-template-columns: minmax(0, 1fr) max-content;
@@ -502,18 +601,106 @@ h2.primary-blue {
   font-weight: 400;
 }
 
-:global(.dark) .top-item-label {
-  color: #ffffff;
-}
-
 .top-item-time {
   color: #374151;
   font-weight: 400;
   white-space: nowrap;
 }
 
+.top-item-track {
+  height: 0.35rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #f3f4f6;
+}
+
+.top-item-bar {
+  height: 100%;
+  border-radius: inherit;
+}
+
+:global(.dark) .top-item-track {
+  background: #111111;
+}
+
+:global(.dark) .top-item-label,
 :global(.dark) .top-item-time {
   color: #ffffff;
+}
+
+.activity-breakdown-card {
+  min-height: 128px;
+}
+
+.activity-breakdown-content {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.activity-pie {
+  position: relative;
+  width: 86px;
+  height: 86px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+.activity-pie-hole {
+  position: absolute;
+  inset: 20px;
+  border-radius: 50%;
+  background: #f3f4f6;
+}
+
+.activity-breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.activity-breakdown-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  line-height: 1.3rem;
+}
+
+.activity-breakdown-label {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 0.45rem;
+}
+
+.activity-breakdown-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+.activity-breakdown-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activity-breakdown-time {
+  white-space: nowrap;
+}
+
+:global(.dark) .activity-breakdown-time,
+:global([data-theme='dark']) .activity-breakdown-time {
+  color: #f1f5f9;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -525,11 +712,34 @@ h2.primary-blue {
   .top-item-time {
     color: #ffffff;
   }
+
+  .activity-pie-hole {
+    background: #262626;
+  }
+
+  .activity-breakdown-time {
+    color: #f1f5f9;
+  }
 }
 
 @media (max-width: 720px) {
   .tile-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .activity-breakdown-content {
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+
+  .activity-pie {
+    width: 72px;
+    height: 72px;
+  }
+
+  .activity-pie-hole {
+    inset: 17px;
   }
 }
 </style>

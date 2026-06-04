@@ -71,7 +71,7 @@ const studyConfig: StudyConfiguration = {
       userDefinedInterval_h: [0.5, 1, 2, 3, 4]
     },
     dailySurveyTracker: {
-      enabled: false,
+      enabled: true,
       surveys: [
         {
           samplingType: 'morning',

@@ -6,6 +6,9 @@ The monitoring component captures computer interaction data including user input
 
 Anyone is welcome to contribute to PersonalAnalytics by extending it with new trackers or improving existing ones. Feel free to use PersonalAnalytics to get insights into your own work habits, or use it for research studies. In case you re-use PersonalAnalytics, ensure to provide proper [attribution as described here](./documentation/RESEARCH.md).
 
+> [!NOTE]
+> PersonalAnalytics is a [featured project](https://maintainermonth.github.com/academia/personal-analytics-maintainer-spotlight) on the Github Academic Maintainer Spotlight!
+
 
 ## 🧑‍💻 Installation & Usage as a User
 Anyone may install PersonalAnalytics on their Windows or macOS device to non-intrusively collect computer interaction data, and analyze their activity, time spent and work habits for themselves. In the future, once we'll re-introduce the Retrospection (i.e. visualizations of the collected and self-reported data), it will be much easier to gain insights again.
@@ -26,6 +29,7 @@ Learn more about how to use [PersonalAnalytics for your research project](./docu
 - [Data Collection & Privacy Policy](./documentation/PRIVACY.md)
 - [Contributions](./documentation/RESEARCH.md#contributions-guide)
 - [Information on the old PersonalAnalytics](./documentation/LEGACY.md)
+- [Interview discussing the project](https://maintainermonth.github.com/academia/personal-analytics-maintainer-spotlight)
 - Questions? Contact [Dr. André Meyer](mailto:ameyer@ifi.uzh.ch)
 
 
