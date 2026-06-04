@@ -32,6 +32,8 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
         run: npm ci
+      - name: Test
+        run: npm test
       - name: Build
         shell: bash
         run: |
