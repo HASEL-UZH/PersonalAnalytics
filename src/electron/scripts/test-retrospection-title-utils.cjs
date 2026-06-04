@@ -143,12 +143,12 @@ const cases = [
   },
   {
     name: 'visible windows file paths keep the old final-segment format without ellipsis',
-    actual: stripPathFragment('C:\\Users\\grigor\\DevEx'),
+    actual: stripPathFragment('C:\\Users\\username\\DevEx'),
     expected: 'DevEx'
   },
   {
     name: 'hover windows file paths include ellipsis when shortened',
-    actual: stripPathFragment('C:\\Users\\grigor\\DevEx', true),
+    actual: stripPathFragment('C:\\Users\\username\\DevEx', true),
     expected: 'C:/.../DevEx'
   },
   {
@@ -198,6 +198,41 @@ const cases = [
     name: 'Microsoft Edge remains a recognized browser',
     actual: isBrowserProcessName('Microsoft Edge'),
     expected: true
+  },
+  {
+    name: 'MAXQDA forward-slash path with version suffix is shortened to filename',
+    actual: cleanWindowTitle(
+      'C:/Users/<username>/OneDrive//Research/Project/2026-Project.mqda - MAXQDA Analytics Pro (26.2.1)',
+      'MAXQDA Analytics Pro'
+    ),
+    expected: '2026-Project.mqda'
+  },
+  {
+    name: 'Edge grouped-tabs title strips tab-count fragment',
+    actual: cleanWindowTitle(
+      'Structure - Chapters & Plays - Google Docs and 2 more pages - School - Microsoft​ Edge',
+      'Microsoft Edge',
+      null
+    ),
+    expected: 'Structure - Chapters & Plays - Google Docs - School - Microsoft​ Edge'
+  },
+  {
+    name: 'Edge grouped-tabs with GitHub PR strips tab-count fragment',
+    actual: cleanWindowTitle(
+      '[#515] Add top websites and window titles by grigor-dochev · Pull Request #522 · HASEL-UZH/PersonalAnalytics and 1 more page - School - Microsoft​ Edge',
+      'Microsoft Edge',
+      null
+    ),
+    expected: '[#515] Add top websites and window titles by grigor-dochev · Pull Request #522 · HASEL-UZH/PersonalAnalytics - School - Microsoft​ Edge'
+  },
+  {
+    name: 'Edge grouped-tabs with GitHub PR strips tab-count fragment',
+    actual: cleanWindowTitle(
+      'Untitled and 5 more pages - Personal - Microsoft​ Edge',
+      'Microsoft Edge',
+      null
+    ),
+    expected: 'Personal - Microsoft​ Edge' // i am not sure about what should be returned here, as it's basically not useful either way...
   }
 ];
 
