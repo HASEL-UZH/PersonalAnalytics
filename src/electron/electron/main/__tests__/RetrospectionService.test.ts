@@ -11,6 +11,7 @@ jest.unstable_mockModule('electron', () => ({
 const {
   cleanWindowTitle,
   getReadableUrlTitle,
+  isBrowserProcessName,
   removeGenericBrowserTabCountFragments,
   stripPathFragment
 } = await import('../services/RetrospectionService');

@@ -20,7 +20,8 @@
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts,.vue --fix",
     "lint:fix": "eslint --fix . --ext .js,.jsx,.ts,.tsx,.vue",
     "format": "prettier --write .",
-    "test": "node --experimental-vm-modules node_modules/jest-cli/bin/jest.js --config jest.config.json"
+    "test": "node --experimental-vm-modules node_modules/jest-cli/bin/jest.js --config jest.config.json",
+    "test:retrospection": "npm test -- --runInBand electron/main/__tests__/RetrospectionService.test.ts"
   },
   "repository": {
     "type": "git",
