@@ -1,6 +1,7 @@
 import { UserInputEntity } from '../entities/UserInputEntity';
 import { WindowActivityEntity } from '../entities/WindowActivityEntity';
 import { getMainLogger } from '../../config/Logger';
+import { Activity } from '../../../src/utils/retrospection/types';
 
 const LOG = getMainLogger('RetrospectionService');
 
@@ -71,6 +72,8 @@ const BROWSER_TITLE_SUFFIX_NAMES = [
   'Opera'
 ];
 
+const BROWSER_PROFILE_TITLE_NAMES = ['Personal', 'School', 'Work'];
+
 const TOP_WEBSITE_ACTIVITIES = new Set([
   'WorkRelatedBrowsing',
   'DevCode',
@@ -87,14 +90,12 @@ const EXCLUDED_TOP_WINDOW_TITLE_ACTIVITIES = new Set([
   'SocialMedia'
 ]);
 
-const ACTIVITY_TITLE_SUFFIX_NAMES = [
-  'Coding',
-  'Planning',
-  'Read/Write Document',
-  'Work Related Browsing',
-  'Work Unrelated Browsing',
-  'Social Media'
-];
+const ACTIVITY_TITLE_SUFFIX_ALIASES: Partial<Record<Activity, string[]>> = {
+  [Activity.DevCode]: ['Coding'],
+  [Activity.DevDebug]: ['Coding'],
+  [Activity.DevReview]: ['Coding'],
+  [Activity.DevVc]: ['Coding']
+};
 
 /**
  * Normalizes process names so browser aliases can be compared independent of casing or separators.
@@ -104,7 +105,7 @@ function normalizeProcessName(processName: string): string {
   return processName.toLowerCase().replace(/[^a-z0-9_]+/g, '');
 }
 
-function isBrowserProcessName(processName: string | null): boolean {
+export function isBrowserProcessName(processName: string | null): boolean {
   if (!processName) {
     return false;
   }
@@ -386,9 +387,14 @@ function getDomainFromUrl(url: string | null): string | null {
   }
 }
 
+/**
+ * Checks whether a browser title fragment is too generic to display as a useful top item.
+ * Example: "New Tab" and "and 2 more pages" are generic, but "Overleaf" is not.
+ */
 function isGenericBrowserTitle(title: string): boolean {
   return (
-    /^(\d+\s+)?((or\s+)?more\s+|other\s+|additional\s+)?pages?$/i.test(title) ||
+    /^((and\s+)?\d+\s+)?((or\s+)?more\s+|other\s+|additional\s+)?pages?$/i.test(title) ||
+    /^and\s+((or\s+)?more\s+|other\s+|additional\s+)?pages?$/i.test(title) ||
     /^(new tab|about:blank|start page|untitled)$/i.test(title)
   );
 }
@@ -397,9 +403,10 @@ function isGenericBrowserTitle(title: string): boolean {
  * Removes browser tab-count fragments from otherwise useful page titles.
  * Example: "Overleaf 4 or more pages" -> "Overleaf".
  */
-function removeGenericBrowserTabCountFragments(title: string): string {
+export function removeGenericBrowserTabCountFragments(title: string): string {
   return title
-    .replace(/\b\d+\s+(?:(?:or\s+)?more|other|additional)\s+pages?\b/gi, '')
+    .replace(/\b(?:and\s+)?(?:\d+\s+)?(?:(?:or\s+)?more|other|additional)\s+pages?\b/gi, '')
+    .replace(/\band\s*(?=(?:-|—|–|\||$))/gi, '')
     .replace(/\s{2,}/g, ' ')
     .replace(/^\s*(?:-|—|–|\|)\s*|\s*(?:-|—|–|\|)\s*$/g, '')
     .trim();
@@ -413,7 +420,7 @@ function removeGenericBrowserTabCountFragments(title: string): string {
  * two path parts, producing "github.com/pull/123". Hover labels can include "..." to show that the
  * original path was shortened.
  */
-function getReadableUrlTitle(title: string, includeEllipsis = false): string | null {
+export function getReadableUrlTitle(title: string, includeEllipsis = false): string | null {
   if (!/^[\w.-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(title)) {
     return null;
   }
@@ -434,6 +441,7 @@ function getReadableUrlTitle(title: string, includeEllipsis = false): string | n
 
 /**
  * Shortens a filesystem path to its final segment, optionally keeping the root plus "...".
+ * Example: "C:\Users\username\DevEx" becomes "DevEx", or "C:/.../DevEx" for hover labels.
  */
 function shortenPath(path: string, includeEllipsis: boolean): string {
   const normalizedPath = path.replace(/\\/g, '/');
@@ -465,16 +473,38 @@ function shortenPath(path: string, includeEllipsis: boolean): string {
 
 /**
  * Checks whether a title segment is an app or activity suffix, including versioned app names.
+ * Example: "MAXQDA Analytics Pro (26.2.1)" matches the suffix "MAXQDA Analytics Pro".
  */
 function isTitleSuffix(segment: string, suffixNames: string[]): boolean {
-  const normalizedSegment = segment.toLowerCase();
+  const normalizedSegment = normalizeProcessName(segment);
   return suffixNames.some((suffixName) => {
-    const normalizedSuffixName = suffixName.toLowerCase();
+    const normalizedSuffixName = normalizeProcessName(suffixName);
     return (
       normalizedSegment === normalizedSuffixName ||
-      normalizedSegment.startsWith(`${normalizedSuffixName} (`)
+      (normalizedSegment.startsWith(normalizedSuffixName) && /\(.+\)/.test(segment))
     );
   });
+}
+
+/**
+ * Builds suffix names from the raw activity ID plus aliases that do not normalize from the ID.
+ * Example: "ReadWriteDocument" matches "Read/Write Document"; "DevCode" also matches "Coding".
+ */
+function getActivityTitleSuffixes(activity: string | null): string[] {
+  if (!activity || !(activity in Activity)) {
+    return [];
+  }
+
+  const activityId = activity as Activity;
+  return [activityId, ...(ACTIVITY_TITLE_SUFFIX_ALIASES[activityId] || [])];
+}
+
+/**
+ * Checks whether a remaining browser segment is only a profile name, not page content.
+ * Example: "Personal" is a browser profile label and should not become a top window title.
+ */
+function isBrowserProfileTitle(title: string): boolean {
+  return isTitleSuffix(title, BROWSER_PROFILE_TITLE_NAMES);
 }
 
 /**
@@ -483,7 +513,7 @@ function isTitleSuffix(segment: string, suffixNames: string[]): boolean {
  * Example: "vim ~/code/activitywatch/aw-server/file.py" becomes
  * "vim file.py". Hover labels can keep the root plus "..." as a shortening marker.
  */
-function stripPathFragment(fragment: string, includeEllipsis = false): string {
+export function stripPathFragment(fragment: string, includeEllipsis = false): string {
   const readableUrlTitle = getReadableUrlTitle(fragment, includeEllipsis);
   if (readableUrlTitle) {
     return readableUrlTitle;
@@ -517,11 +547,12 @@ function stripPathFragment(fragment: string, includeEllipsis = false): string {
  * "github.com/HASEL-UZH/PersonalAnalytics/pull/123" -> "github.com/pull/123"
  * "vim ~/code/activitywatch/aw-server/file.py" -> "vim file.py"
  */
-function cleanWindowTitle(
+export function cleanWindowTitle(
   windowTitle: string | null,
   processName: string | null,
   url: string | null = null,
-  includeEllipsis = false
+  includeEllipsis = false,
+  activity: string | null = null
 ): string | null {
   if (!windowTitle) {
     return null;
@@ -535,7 +566,7 @@ function cleanWindowTitle(
   const suffixNames = [
     processName,
     ...(isBrowserProcessName(processName) ? BROWSER_TITLE_SUFFIX_NAMES : []),
-    ...ACTIVITY_TITLE_SUFFIX_NAMES
+    ...getActivityTitleSuffixes(activity)
   ].filter(Boolean) as string[];
   const isBrowserTitle = isBrowserProcessName(processName) || !!url;
   const segments = title
@@ -553,9 +584,13 @@ function cleanWindowTitle(
   }
 
   if (segments.length > 1) {
-    const meaningfulSegments = segments.filter((segment) => !isGenericBrowserTitle(segment));
+    const meaningfulSegments = segments.filter(
+      (segment) => !isGenericBrowserTitle(segment) && !isBrowserProfileTitle(segment)
+    );
     if (meaningfulSegments.length > 0) {
       segments.splice(0, segments.length, ...meaningfulSegments);
+    } else {
+      return getDomainFromUrl(url);
     }
   }
 
@@ -566,6 +601,10 @@ function cleanWindowTitle(
   }
 
   if (isTitleSuffix(title, suffixNames)) {
+    return getDomainFromUrl(url);
+  }
+
+  if (isBrowserTitle && isBrowserProfileTitle(title)) {
     return getDomainFromUrl(url);
   }
 
@@ -642,14 +681,25 @@ export async function getTopWebsiteSessions(date: Date, limit = 3): Promise<Acti
         return null;
       }
       const key =
-        cleanWindowTitle(activity.windowTitle, activity.processName, activity.url) ||
-        getDomainFromUrl(activity.url);
+        cleanWindowTitle(
+          activity.windowTitle,
+          activity.processName,
+          activity.url,
+          false,
+          activity.activity
+        ) || getDomainFromUrl(activity.url);
       if (!key) {
         return null;
       }
       tooltipTitles.set(
         key,
-        cleanWindowTitle(activity.windowTitle, activity.processName, activity.url, true) || key
+        cleanWindowTitle(
+          activity.windowTitle,
+          activity.processName,
+          activity.url,
+          true,
+          activity.activity
+        ) || key
       );
       return key;
     }, date)
@@ -673,13 +723,25 @@ export async function getTopWindowTitleSessions(
       ) {
         return null;
       }
-      const key = cleanWindowTitle(activity.windowTitle, activity.processName, activity.url);
+      const key = cleanWindowTitle(
+        activity.windowTitle,
+        activity.processName,
+        activity.url,
+        false,
+        activity.activity
+      );
       if (!key) {
         return null;
       }
       tooltipTitles.set(
         key,
-        cleanWindowTitle(activity.windowTitle, activity.processName, activity.url, true) || key
+        cleanWindowTitle(
+          activity.windowTitle,
+          activity.processName,
+          activity.url,
+          true,
+          activity.activity
+        ) || key
       );
       return key;
     }, date)
