@@ -532,9 +532,8 @@ export class WindowService {
       },
       ...(studyConfig.trackers.dailySurveyTracker?.enabled
         ? studyConfig.trackers.dailySurveyTracker.surveys.map((survey) => ({
-            label: `Daily Survey (${survey.samplingType === 'morning' ? 'Start-of-Workday' : 'End-of-Workday'})`,
+            label: `Answer ${survey.samplingType === 'morning' ? 'Start-of-Workday' : 'End-of-Workday'} Pop-Up`,
             click: () => this.createDailySurveyWindow(survey.samplingType),
-            visible: is.dev,
           }))
         : []),
       {

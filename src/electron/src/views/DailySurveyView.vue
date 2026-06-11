@@ -151,7 +151,7 @@ async function postpone(minutes: number) {
     </div>
 
     <div class="survey-instructions">
-      For the following questions and statements, please consider <strong>only this past work day</strong>:
+      For the following questions and statements, please consider <strong>only this {{ samplingType === 'morning' ? 'upcoming' : 'past' }} work day</strong>:
     </div>
 
     <div class="questions-container">
