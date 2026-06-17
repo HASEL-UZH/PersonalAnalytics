@@ -293,6 +293,36 @@ async function handleDayChange(event: Event) {
   await loadData();
 }
 
+const isToday = computed(() => {
+  const today = new Date();
+  return (
+    selectedDay.value.getDate() === today.getDate() &&
+    selectedDay.value.getMonth() === today.getMonth() &&
+    selectedDay.value.getFullYear() === today.getFullYear()
+  );
+});
+
+async function navigateToPreviousDay() {
+  const newDate = new Date(selectedDay.value);
+  newDate.setDate(newDate.getDate() - 1);
+  selectedDay.value = newDate;
+  await loadData();
+}
+
+async function navigateToNextDay() {
+  if (isToday.value) return;
+  const newDate = new Date(selectedDay.value);
+  newDate.setDate(newDate.getDate() + 1);
+  selectedDay.value = newDate;
+  await loadData();
+}
+
+async function navigateToToday() {
+  if (isToday.value) return;
+  selectedDay.value = new Date();
+  await loadData();
+}
+
 function getNearestFullHourTime(time: number, offset: number): number {
   const nextFullHour = new Date(time);
   nextFullHour.setHours(nextFullHour.getHours() + offset, 0, 0, 0);
@@ -339,15 +369,33 @@ function getDayLabel(date: Date): string {
   <template v-if="!allWindowActivities || allWindowActivities.length === 0">
     <div class="flex h-screen items-center justify-center">
       <!-- day picker -->
-      <div class="absolute right-6 top-6 z-10">
+      <div class="absolute right-6 top-6 z-10 flex items-center gap-1">
+        <button
+          :disabled="isToday"
+          class="h-8 rounded border border-gray-300 bg-white px-3 text-sm text-gray-800 disabled:opacity-40 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          @click="navigateToToday"
+        >Today</button>
+        <button
+          class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          @click="navigateToPreviousDay"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
         <input
           type="date"
           :value="selectedDay.toISOString().substring(0, 10)"
           :max="new Date().toISOString().substring(0, 10)"
-          class="rounded border border-gray-300 bg-white px-2 py-1 text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
           style="min-width: 140px"
           @change="handleDayChange"
         />
+        <button
+          :disabled="isToday"
+          class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 disabled:opacity-40 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          @click="navigateToNextDay"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
       </div>
       <div class="text-center text-gray-800 dark:text-gray-200">
         <h1 class="mb-8 text-2xl font-bold">No data for this day.</h1>
@@ -362,20 +410,38 @@ function getDayLabel(date: Date): string {
   <template v-else>
     <div class="view flex h-screen flex-col overflow-y-auto">
       <!-- day picker -->
-      <div class="absolute right-6 top-6 z-10">
+      <div class="absolute right-6 top-6 z-10 flex items-center gap-1">
+        <button
+          :disabled="isToday"
+          class="h-8 rounded border border-gray-300 bg-white px-3 text-sm text-gray-800 disabled:opacity-40 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          @click="navigateToToday"
+        >Today</button>
+        <button
+          class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          @click="navigateToPreviousDay"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
         <input
           type="date"
           :value="selectedDay.toISOString().substring(0, 10)"
           :max="new Date().toISOString().substring(0, 10)"
-          class="rounded border border-gray-300 bg-white px-2 py-1 text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
           style="min-width: 140px"
           @change="handleDayChange"
         />
+        <button
+          :disabled="isToday"
+          class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 disabled:opacity-40 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          @click="navigateToNextDay"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
       </div>
 
       <div>
         <h1 class="primary-blue mb-3 text-2xl font-bold">
-          {{ getDayLabel(selectedDay) }} - in Review
+          {{ getDayLabel(selectedDay) }}  in Review
         </h1>
         <div class="subline mb-8 text-gray-600 dark:text-gray-400">
           Take a moment to reflect on your workday.
