@@ -60,6 +60,7 @@ type Commands = {
   retrospectionGetTopThreeMostActiveApps: (date: Date) => Promise<ActivitySessions[]>;
   retrospectionGetTopThreeWebsites: (date: Date) => Promise<ActivitySessions[]>;
   retrospectionGetTopThreeWindowTitles: (date: Date) => Promise<ActivitySessions[]>;
+  retrospectionGetSelfReports: (date: Date) => Promise<ExperienceSamplingDto[]>;
   openRetrospection: () => Promise<void>;
   closeRetrospectionWindow: () => void;
   createDailySurveyResponses: (
