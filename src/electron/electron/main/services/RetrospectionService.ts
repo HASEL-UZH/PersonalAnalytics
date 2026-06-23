@@ -2,6 +2,9 @@ import { UserInputEntity } from '../entities/UserInputEntity';
 import { WindowActivityEntity } from '../entities/WindowActivityEntity';
 import { getMainLogger } from '../../config/Logger';
 import { Activity } from '../../../src/utils/retrospection/types';
+import { app, nativeImage } from 'electron';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import path from 'node:path';
 
 const LOG = getMainLogger('RetrospectionService');
 
@@ -9,6 +12,8 @@ export interface TimeActive {
   from: Date;
   to: Date;
   duration: number;
+  details?: TimelineHoverDetail[];
+  hiddenDetailCount?: number;
 }
 
 export interface ActivitySessions {
@@ -20,6 +25,28 @@ export interface ActivitySessions {
 }
 
 type WindowActivitySessionKeySelector = (activity: WindowActivityEntity) => string | null;
+
+export interface TimelineHoverDetail {
+  title: string;
+  appName?: string | null;
+  durationMs: number;
+  tooltipTitle?: string;
+  activity?: string;
+  iconDataUrl?: string;
+}
+
+interface WindowActivityDetailSpan {
+  from: Date;
+  to: Date;
+  activity: string;
+  title: string;
+  appName?: string | null;
+  tooltipTitle?: string;
+  iconDataUrl?: string;
+}
+
+const APP_ICON_DATA_URL_CACHE = new Map<string, Promise<string | undefined>>();
+const APP_ICON_SIZE = 16;
 
 // Mirrored from PA.WindowsActivityTracker/typescript/src/mappings/browsers.ts.
 // Used here to recognize browser processes without importing tracker source into the main bundle.
@@ -216,6 +243,57 @@ function addActivitySessionEntry(
   map.set(key, entry);
 }
 
+function getActiveMinuteSpans(
+  from: Date,
+  to: Date,
+  activeMinutesSet: Set<number>,
+  date: Date
+): TimeActive[] {
+  if (to.getTime() <= from.getTime()) {
+    return [];
+  }
+
+  const spans: TimeActive[] = [];
+  const addSpan = (spanFrom: Date, spanTo: Date) => {
+    if (spanTo.getTime() <= spanFrom.getTime()) {
+      return;
+    }
+    spans.push({
+      from: spanFrom,
+      to: spanTo,
+      duration: spanTo.getTime() - spanFrom.getTime()
+    });
+  };
+
+  const startMinute = getMinuteOfDay(from);
+  const endMinute = getMinuteOfDay(to);
+
+  let sessionStart = from;
+  if (startMinute + 1 < endMinute) {
+    let inSession = true;
+    for (let m = startMinute; m < endMinute; m++) {
+      if (!activeMinutesSet.has(m) && inSession) {
+        inSession = false;
+        let sessionEnd = getDateFromMinuteOfDay(m, date);
+        sessionEnd = sessionEnd.getTime() > to.getTime() ? to : sessionEnd;
+        addSpan(sessionStart, sessionEnd);
+      } else if (!activeMinutesSet.has(m) && !inSession) {
+        sessionStart = getDateFromMinuteOfDay(m, date);
+      } else if (activeMinutesSet.has(m) && !inSession) {
+        sessionStart = getDateFromMinuteOfDay(m, date);
+        inSession = true;
+      } else if (activeMinutesSet.has(m) && inSession) {
+        // session is continuously active
+      } else {
+        LOG.error('Unexpected state in session reconstruction');
+      }
+    }
+  }
+
+  addSpan(sessionStart, to);
+  return spans;
+}
+
 /**
  * Adds one tracked window span to the aggregate map, but only for minutes where user input exists.
  *
@@ -240,33 +318,9 @@ function addSessionWithActiveMinuteSplits(
     return;
   }
 
-  const startMinute = getMinuteOfDay(from);
-  const endMinute = getMinuteOfDay(to);
-
-  let sessionStart = from;
-  if (startMinute + 1 < endMinute) {
-    // Split a window span when user-input data shows inactivity inside it.
-    let inSession = true;
-    for (let m = startMinute; m < endMinute; m++) {
-      if (!activeMinutesSet.has(m) && inSession) {
-        inSession = false;
-        let sessionEnd = getDateFromMinuteOfDay(m, date);
-        sessionEnd = sessionEnd.getTime() > to.getTime() ? to : sessionEnd;
-        addEntry(sessionKey, sessionStart, sessionEnd, activity);
-      } else if (!activeMinutesSet.has(m) && !inSession) {
-        sessionStart = getDateFromMinuteOfDay(m, date);
-      } else if (activeMinutesSet.has(m) && !inSession) {
-        sessionStart = getDateFromMinuteOfDay(m, date);
-        inSession = true;
-      } else if (activeMinutesSet.has(m) && inSession) {
-        // session is continuously active
-      } else {
-        LOG.error('Unexpected state in session reconstruction');
-      }
-    }
-  }
-
-  addEntry(sessionKey, sessionStart, to, activity);
+  getActiveMinuteSpans(from, to, activeMinutesSet, date).forEach((span) => {
+    addEntry(sessionKey, span.from, span.to, activity);
+  });
 }
 
 /**
@@ -637,6 +691,329 @@ function isRelevantTopItem(session: ActivitySessions): boolean {
   );
 }
 
+function getTimelineHoverTitle(activity: WindowActivityEntity): string | null {
+  const cleanedTitle = cleanWindowTitle(
+    activity.windowTitle,
+    activity.processName,
+    activity.url,
+    false,
+    activity.activity
+  );
+  return (
+    cleanedTitle || getDomainFromUrl(activity.url) || activity.processName || activity.activity
+  );
+}
+
+function getTimelineHoverTooltipTitle(activity: WindowActivityEntity, title: string): string {
+  return (
+    cleanWindowTitle(
+      activity.windowTitle,
+      activity.processName,
+      activity.url,
+      true,
+      activity.activity
+    ) || title
+  );
+}
+
+function normalizeIconName(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+function getMacAppBundlePath(processPath: string | null): string | null {
+  if (!processPath) {
+    return null;
+  }
+
+  const appBundleMatch = processPath.match(/^(.+?\.app)(?:\/|$)/);
+  return appBundleMatch?.[1] || null;
+}
+
+function getPersonalAnalyticsIconDataUrl(): string | undefined {
+  const iconPath = path.join(
+    process.env.VITE_PUBLIC || process.env.DIST || '',
+    'IconColored@2x.png'
+  );
+  return getIconDataUrlFromPath(iconPath);
+}
+
+function getPlistIconFileName(infoPlistPath: string): string | undefined {
+  if (!existsSync(infoPlistPath)) {
+    return undefined;
+  }
+
+  try {
+    const infoPlist = readFileSync(infoPlistPath, 'utf8');
+    const iconMatch = infoPlist.match(/<key>CFBundleIconFile<\/key>\s*<string>([^<]+)<\/string>/);
+    return iconMatch?.[1];
+  } catch (error) {
+    LOG.debug('Could not read app icon plist', infoPlistPath, error);
+    return undefined;
+  }
+}
+
+function getIconDataUrlFromPath(iconPath: string | undefined): string | undefined {
+  if (!iconPath || !existsSync(iconPath)) {
+    return undefined;
+  }
+
+  const icon = nativeImage.createFromPath(iconPath);
+  if (icon.isEmpty()) {
+    return undefined;
+  }
+
+  return icon.resize({ width: APP_ICON_SIZE, height: APP_ICON_SIZE }).toDataURL();
+}
+
+function getBundleResourceIconDataUrl(
+  appBundlePath: string,
+  processName: string | null
+): string | undefined {
+  const resourcesPath = path.join(appBundlePath, 'Contents', 'Resources');
+  if (!existsSync(resourcesPath)) {
+    return undefined;
+  }
+
+  const resourceFiles = readdirSync(resourcesPath).filter((file) => /\.(?:icns|png)$/i.test(file));
+  const normalizedProcessName = processName ? normalizeIconName(processName) : '';
+  const processSpecificFiles = normalizedProcessName
+    ? resourceFiles.filter((file) => {
+        const normalizedFile = normalizeIconName(path.parse(file).name);
+        return (
+          normalizedFile.includes(normalizedProcessName) && !normalizedFile.includes('template')
+        );
+      })
+    : [];
+
+  const plistIconFile = getPlistIconFileName(path.join(appBundlePath, 'Contents', 'Info.plist'));
+  const plistIconCandidates = plistIconFile
+    ? [
+        plistIconFile,
+        path.extname(plistIconFile) ? plistIconFile : `${plistIconFile}.icns`,
+        path.extname(plistIconFile) ? plistIconFile : `${plistIconFile}.png`
+      ]
+    : [];
+
+  const candidateFiles = [
+    ...processSpecificFiles,
+    'app.icns',
+    'icon.icns',
+    'icon.png',
+    'Icon.icns',
+    'Icon.png',
+    'AppIcon.icns',
+    'AppIcon.png',
+    ...plistIconCandidates,
+    ...resourceFiles.filter((file) => !normalizeIconName(file).includes('template'))
+  ];
+
+  const seenFiles = new Set<string>();
+  for (const file of candidateFiles) {
+    if (seenFiles.has(file)) {
+      continue;
+    }
+    seenFiles.add(file);
+
+    const iconDataUrl = getIconDataUrlFromPath(path.join(resourcesPath, file));
+    if (iconDataUrl) {
+      return iconDataUrl;
+    }
+  }
+
+  return undefined;
+}
+
+async function getProcessIconDataUrl(
+  processPath: string | null,
+  processName: string | null
+): Promise<string | undefined> {
+  const cacheKey = `${processPath || ''}\u0000${processName || ''}`;
+  const cachedIcon = APP_ICON_DATA_URL_CACHE.get(cacheKey);
+  if (cachedIcon) {
+    return cachedIcon;
+  }
+
+  const iconPromise = (async () => {
+    const appBundlePath = getMacAppBundlePath(processPath);
+    if (
+      processName === 'Electron' &&
+      processPath?.includes('/PersonalAnalytics/') &&
+      processPath.includes('/node_modules/electron/')
+    ) {
+      const personalAnalyticsIcon = getPersonalAnalyticsIconDataUrl();
+      if (personalAnalyticsIcon) {
+        return personalAnalyticsIcon;
+      }
+    }
+
+    if (appBundlePath) {
+      const bundleIcon = getBundleResourceIconDataUrl(appBundlePath, processName);
+      if (bundleIcon) {
+        return bundleIcon;
+      }
+    }
+
+    if (!processPath) {
+      return undefined;
+    }
+
+    return app
+      .getFileIcon(appBundlePath || processPath, { size: 'small' })
+      .then((icon) => {
+        if (icon.isEmpty()) {
+          return undefined;
+        }
+        return icon.resize({ width: APP_ICON_SIZE, height: APP_ICON_SIZE }).toDataURL();
+      })
+      .catch((error) => {
+        LOG.debug('Could not load app icon for retrospection timeline', processPath, error);
+        return undefined;
+      });
+  })();
+
+  APP_ICON_DATA_URL_CACHE.set(cacheKey, iconPromise);
+  return iconPromise;
+}
+
+async function addWindowActivityDetailSpan(
+  spans: WindowActivityDetailSpan[],
+  activity: WindowActivityEntity,
+  from: Date,
+  to: Date,
+  activeMinutesSet: Set<number>,
+  date: Date
+) {
+  const title = getTimelineHoverTitle(activity);
+  if (!title || to.getTime() <= from.getTime()) {
+    return;
+  }
+
+  const tooltipTitle = getTimelineHoverTooltipTitle(activity, title);
+  const iconDataUrl = await getProcessIconDataUrl(activity.processPath, activity.processName);
+  getActiveMinuteSpans(from, to, activeMinutesSet, date).forEach((span) => {
+    spans.push({
+      from: span.from,
+      to: span.to,
+      activity: activity.activity,
+      title,
+      appName: activity.processName,
+      tooltipTitle,
+      iconDataUrl
+    });
+  });
+}
+
+async function getWindowActivityDetailSpans(date: Date): Promise<WindowActivityDetailSpan[]> {
+  const windowActivityToday = await getWindowActivities(date);
+  const activeMinutesSet = await getActiveMinutesSet(date);
+  const spans: WindowActivityDetailSpan[] = [];
+
+  let lastWindowActivity: WindowActivityEntity | undefined = undefined;
+  for (const activity of windowActivityToday) {
+    if (!activeMinutesSet.has(getMinuteOfDay(new Date(activity.ts)))) {
+      continue;
+    }
+
+    if (lastWindowActivity) {
+      await addWindowActivityDetailSpan(
+        spans,
+        lastWindowActivity,
+        new Date(lastWindowActivity.ts),
+        new Date(activity.ts),
+        activeMinutesSet,
+        date
+      );
+    }
+
+    lastWindowActivity = activity;
+  }
+
+  if (lastWindowActivity) {
+    const start = new Date(lastWindowActivity.ts);
+    const end = new Date(start);
+    end.setMinutes(end.getMinutes() + 1);
+    await addWindowActivityDetailSpan(
+      spans,
+      lastWindowActivity,
+      start,
+      end,
+      activeMinutesSet,
+      date
+    );
+  }
+
+  return spans;
+}
+
+function getOverlapDurationMs(
+  firstStart: Date,
+  firstEnd: Date,
+  secondStart: Date,
+  secondEnd: Date
+): number {
+  return Math.max(
+    0,
+    Math.min(firstEnd.getTime(), secondEnd.getTime()) -
+      Math.max(firstStart.getTime(), secondStart.getTime())
+  );
+}
+
+function addTimelineHoverDetailsToSessions(
+  activitySessions: ActivitySessions[],
+  detailSpans: WindowActivityDetailSpan[],
+  limit = 3
+): ActivitySessions[] {
+  return activitySessions.map((activitySession) => {
+    const sessions = activitySession.sessions.map((session) => {
+      const detailsByKey = new Map<string, TimelineHoverDetail>();
+
+      detailSpans.forEach((detailSpan) => {
+        if (detailSpan.activity !== activitySession.type) {
+          return;
+        }
+
+        const overlapDurationMs = getOverlapDurationMs(
+          session.from,
+          session.to,
+          detailSpan.from,
+          detailSpan.to
+        );
+        if (overlapDurationMs <= 0) {
+          return;
+        }
+
+        const detailKey = `${detailSpan.title}\u0000${detailSpan.appName || ''}`;
+        const existingDetail = detailsByKey.get(detailKey);
+        if (existingDetail) {
+          existingDetail.durationMs += overlapDurationMs;
+        } else {
+          detailsByKey.set(detailKey, {
+            title: detailSpan.title,
+            appName: detailSpan.appName,
+            tooltipTitle: detailSpan.tooltipTitle,
+            activity: detailSpan.activity,
+            iconDataUrl: detailSpan.iconDataUrl,
+            durationMs: overlapDurationMs
+          });
+        }
+      });
+
+      const details = Array.from(detailsByKey.values()).sort((a, b) => b.durationMs - a.durationMs);
+
+      return {
+        ...session,
+        details: details.slice(0, limit),
+        hiddenDetailCount: Math.max(0, details.length - limit)
+      };
+    });
+
+    return {
+      ...activitySession,
+      sessions
+    };
+  });
+}
+
 /**
  * finds the longest time period of the given day where user input was detected continuously
  * @returns the longest active time period
@@ -763,26 +1140,28 @@ export async function getActivitySessions(
   excludeUnspecificActivities = true
 ): Promise<ActivitySessions[]> {
   const sessions = await getWindowActivitySessionsByType('activity', date);
-  if (excludeUnspecificActivities) {
-    return sessions.filter((s) =>
-      [
-        'DevCode',
-        'DevDebug',
-        'DevReview',
-        'DevVc',
-        'Planning',
-        'ReadWriteDocument',
-        'Design',
-        'GenerativeAI',
-        'PlannedMeeting',
-        'Email',
-        'InstantMessaging',
-        'WorkRelatedBrowsing',
-        'WorkUnrelatedBrowsing',
-        'SocialMedia',
-        'FileManagement'
-      ].includes(s.type)
-    );
-  }
-  return sessions;
+  const filteredSessions = excludeUnspecificActivities
+    ? sessions.filter((s) =>
+        [
+          'DevCode',
+          'DevDebug',
+          'DevReview',
+          'DevVc',
+          'Planning',
+          'ReadWriteDocument',
+          'Design',
+          'GenerativeAI',
+          'PlannedMeeting',
+          'Email',
+          'InstantMessaging',
+          'WorkRelatedBrowsing',
+          'WorkUnrelatedBrowsing',
+          'SocialMedia',
+          'FileManagement'
+        ].includes(s.type)
+      )
+    : sessions;
+
+  const detailSpans = await getWindowActivityDetailSpans(date);
+  return addTimelineHoverDetailsToSessions(filteredSessions, detailSpans);
 }
