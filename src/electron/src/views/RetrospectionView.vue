@@ -15,6 +15,7 @@ import {
   getTailwindClassFromActivity
 } from '../utils/retrospection/utils';
 import StackedBarChart from '../components/StackedBarChart.vue';
+import studyConfig from '../../shared/study.config';
 
 const typedIpcRenderer = window.ipcRenderer;
 const isLoading = ref(false);
@@ -28,6 +29,7 @@ const topWindowTitles = ref<ActivitySessions[]>([]);
 const ACTIVITY_BREAKDOWN_COVERAGE = 0.9;
 const ACTIVITY_BREAKDOWN_MAX_ITEMS = 6;
 const EXCLUDED_ACTIVITY_BREAKDOWN_GROUPS = new Set(['Other', 'Unknown']);
+const isWindowActivityTrackerEnabled = studyConfig.trackers.windowActivityTracker.enabled;
 
 interface ActivityBreakdownDataPoint extends PieChartDataPoint {
   percentage: number;
@@ -177,7 +179,9 @@ function windowActivitiesToChartData() {
         activity: activitySession.type as Activity,
         start: session.from,
         end: session.to,
-        color: getTailwindClassFromActivity(activitySession.type)
+        color: getTailwindClassFromActivity(activitySession.type),
+        details: session.details,
+        hiddenDetailCount: session.hiddenDetailCount
       });
     });
   });
@@ -374,12 +378,25 @@ function getDayLabel(date: Date): string {
           :disabled="isToday"
           class="h-8 rounded border border-gray-300 bg-white px-3 text-sm text-gray-800 disabled:opacity-40 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
           @click="navigateToToday"
-        >Today</button>
+        >
+          Today
+        </button>
         <button
           class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
           @click="navigateToPreviousDay"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><polyline points="15 18 9 12 15 6"/></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="h-4 w-4"
+          >
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
         </button>
         <input
           type="date"
@@ -394,14 +411,33 @@ function getDayLabel(date: Date): string {
           class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 disabled:opacity-40 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
           @click="navigateToNextDay"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><polyline points="9 18 15 12 9 6"/></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="h-4 w-4"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
         </button>
       </div>
       <div class="text-center text-gray-800 dark:text-gray-200">
-        <h1 class="mb-8 text-2xl font-bold">No data for this day.</h1>
-        <span class="text-gray-600 dark:text-gray-400"
-          >There is no data recorded for this date. Please select a different day.</span
-        >
+        <template v-if="isWindowActivityTrackerEnabled">
+          <h1 class="mb-8 text-2xl font-bold">No data for this day.</h1>
+          <span class="text-gray-600 dark:text-gray-400"
+            >There is no data recorded for this date. Please select a different day.</span
+          >
+        </template>
+        <template v-else>
+          <h1 class="mb-8 text-2xl font-bold">Retrospection data is not available.</h1>
+          <span class="text-gray-600 dark:text-gray-400"
+            >Window activity tracking is disabled for this study.</span
+          >
+        </template>
       </div>
     </div>
   </template>
@@ -415,12 +451,25 @@ function getDayLabel(date: Date): string {
           :disabled="isToday"
           class="h-8 rounded border border-gray-300 bg-white px-3 text-sm text-gray-800 disabled:opacity-40 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
           @click="navigateToToday"
-        >Today</button>
+        >
+          Today
+        </button>
         <button
           class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
           @click="navigateToPreviousDay"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><polyline points="15 18 9 12 15 6"/></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="h-4 w-4"
+          >
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
         </button>
         <input
           type="date"
@@ -435,13 +484,24 @@ function getDayLabel(date: Date): string {
           class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 disabled:opacity-40 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
           @click="navigateToNextDay"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><polyline points="9 18 15 12 9 6"/></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="h-4 w-4"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
         </button>
       </div>
 
       <div>
         <h1 class="primary-blue mb-3 text-2xl font-bold">
-          {{ getDayLabel(selectedDay) }}  in Review
+          {{ getDayLabel(selectedDay) }} in Review
         </h1>
         <div class="subline mb-8 text-gray-600 dark:text-gray-400">
           Take a moment to reflect on your workday.
