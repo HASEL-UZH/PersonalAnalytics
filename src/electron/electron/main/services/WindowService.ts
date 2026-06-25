@@ -318,6 +318,18 @@ export class WindowService {
     }
   }
 
+  public async focusOrCreateRetrospectionWindow(): Promise<void> {
+    if (this.retrospectionWindow) {
+      if (this.retrospectionWindow.isMinimized()) {
+        this.retrospectionWindow.restore()
+      }
+      this.retrospectionWindow.show()
+      this.retrospectionWindow.focus()
+    } else {
+      await this.createRetrospectionWindow()
+    }
+  }
+
   public closeRetrospectionWindow() {
     if (this.retrospectionWindow) {
       this.retrospectionWindow.close()
@@ -462,6 +474,12 @@ export class WindowService {
     shell.showItemInFolder(path)
   }
 
+  public popUpTrayContextMenu(): void {
+    if (this.tray) {
+      this.tray.popUpContextMenu()
+    }
+  }
+
   public async openExternal(): Promise<void> {
     this.hasOpenedDataExportUrl = true
     shell.openExternal(studyConfig.uploadUrl)
@@ -478,7 +496,6 @@ export class WindowService {
     menuTemplate[1].enabled = updaterMenuEnabled
 
     this.tray.setContextMenu(Menu.buildFromTemplate(menuTemplate))
-    this.tray.on("click", () => { this.tray?.popUpContextMenu() })
     this.tray.setToolTip(`${is.dev ? '[DEV MODE] ' : ''}Personal Analytics is running...\n\nYou are participating in: ${studyConfig.name}`)
   }
 
@@ -492,6 +509,20 @@ export class WindowService {
     const trayImage = nativeImage.createFromPath(appIcon)
     trayImage.setTemplateImage(true)
     this.tray = new Tray(trayImage)
+    const retrospectionEnabled = studyConfig.enableRetrospection ?? true
+    this.tray.on('click', () => {
+      if (!retrospectionEnabled) {
+        this.tray.popUpContextMenu()
+      }
+    })
+    this.tray.on('double-click', () => {
+      if (retrospectionEnabled) {
+        this.focusOrCreateRetrospectionWindow().catch((err) => LOG.error('Error opening retrospection from tray double-click', err))
+      }
+    })
+    this.tray.on('right-click', () => {
+      this.tray.popUpContextMenu()
+    })
     await this.updateTray()
   }
 

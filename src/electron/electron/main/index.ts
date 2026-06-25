@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { app, dialog, powerMonitor, systemPreferences } from 'electron';
+import { app, BrowserWindow, dialog, Notification, powerMonitor, systemPreferences } from 'electron';
 import { release } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -52,11 +52,33 @@ if (process.platform === 'win32') {
   app.setAppUserModelId(app.getName());
 }
 
+let runningNotification: Notification | null = null;
+
 if (!is.dev && !app.requestSingleInstanceLock()) {
   console.log('Another instance of the app is already running');
   app.quit();
   process.exit(0);
 }
+
+// Windows: taskbar pin / Start-menu click triggers a second instance
+app.on('second-instance', (_event, argv) => {
+  if (argv.includes('--hidden')) return
+  if (studyConfig.enableRetrospection ?? true) {
+    windowService.focusOrCreateRetrospectionWindow().catch((err) => console.error('Error opening retrospection from second-instance', err))
+  } else {
+    windowService.popUpTrayContextMenu()
+  }
+})
+
+// macOS: dock-icon click when no window is visible
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length > 0) return
+  if (studyConfig.enableRetrospection ?? true) {
+    windowService.focusOrCreateRetrospectionWindow().catch((err) => console.error('Error opening retrospection from activate', err))
+  } else {
+    windowService.popUpTrayContextMenu()
+  }
+})
 
 if (is.macOS) {
   app.dock.hide();
@@ -162,16 +184,26 @@ app.whenReady().then(async () => {
       settings.onboardingShown = true;
       await settings.save();
     
-    // show PA running page when it was not shown before (on macOS) OR if it was manually started
-    } else if (
-      (is.macOS &&
-      onboardingShown &&
-      !studyAndTrackersStartedShown) ||
-      (! isAutoLaunch)
-    ) {
+    // show the final onboarding page once on the first start after onboarding completes
+    } else if (!studyAndTrackersStartedShown) {
       await windowService.createOnboardingWindow('study-trackers-started');
       settings.studyAndTrackersStartedShown = true;
       await settings.save();
+
+    // manual fresh start (not auto-launched at login): confirm via toast that the app is running
+    } else if (!isAutoLaunch) {
+      if (Notification.isSupported()) {
+        runningNotification = new Notification({
+          title: 'PersonalAnalytics is running',
+          body: 'Monitoring your activity in the background. Use the system tray icon to access features.',
+        });
+        if (studyConfig.enableRetrospection ?? true) {
+          runningNotification.on('click', () => {
+            windowService.focusOrCreateRetrospectionWindow().catch(console.error);
+          });
+        }
+        runningNotification.show();
+      }
     }
 
     if (macOSHasRequiredPermissions) {
