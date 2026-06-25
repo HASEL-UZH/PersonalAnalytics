@@ -16,13 +16,13 @@ const LOG = getMainLogger('WindowService')
 
 export class WindowService {
   private readonly appUpdaterService: AppUpdaterService
-  private tray: Tray
-  private experienceSamplingWindow: BrowserWindow
-  private dailySurveyWindow: BrowserWindow
-  private onboardingWindow: BrowserWindow
-  private dataExportWindow: BrowserWindow
-  private settingsWindow: BrowserWindow
-  private retrospectionWindow: BrowserWindow
+  private tray: Tray | null = null
+  private experienceSamplingWindow: BrowserWindow | null = null
+  private dailySurveyWindow: BrowserWindow | null = null
+  private onboardingWindow: BrowserWindow | null = null
+  private dataExportWindow: BrowserWindow | null = null
+  private settingsWindow: BrowserWindow | null = null
+  private retrospectionWindow: BrowserWindow | null = null
 
   private hasOpenedDataExportUrl: boolean = false;
   private hasRevealedDataEportFolder: boolean = false;
@@ -471,13 +471,14 @@ export class WindowService {
     updaterLabel: string = 'Check for updates',
     updaterMenuEnabled: boolean = false
   ): Promise<void> {
+    if (!this.tray) return
     LOG.debug('Updating tray')
     const menuTemplate: MenuItemConstructorOptions[] = await this.getTrayMenuTemplate()
     menuTemplate[1].label = updaterLabel
     menuTemplate[1].enabled = updaterMenuEnabled
 
     this.tray.setContextMenu(Menu.buildFromTemplate(menuTemplate))
-    this.tray.on("click", () => { this.tray.popUpContextMenu() })
+    this.tray.on("click", () => { this.tray?.popUpContextMenu() })
     this.tray.setToolTip(`Personal Analytics is running...\n\nYou are participating in: ${studyConfig.name}`)
   }
 
@@ -495,7 +496,8 @@ export class WindowService {
   }
 
   private async getTrayMenuTemplate(): Promise<MenuItemConstructorOptions[]> {
-    const settings: Settings = await Settings.findOne({ where: { onlyOneEntityShouldExist: 1 } })
+    const settings: Settings | null = await Settings.findOne({ where: { onlyOneEntityShouldExist: 1 } })
+    if (!settings) return []
 
     const es = studyConfig.trackers.experienceSamplingTracker;
     const allowDisable = es.allowUserToDisable ?? true;
