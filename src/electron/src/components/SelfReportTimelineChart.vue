@@ -45,6 +45,11 @@ interface SelfReportSeries {
   points: SelfReportPoint[];
 }
 
+interface AxisLabel {
+  value: number;
+  label: string;
+}
+
 const props = defineProps({
   data: {
     type: Array as PropType<ExperienceSamplingDto[]>,
@@ -61,7 +66,7 @@ const props = defineProps({
 });
 
 const svgWidth = 760;
-const svgHeight = 230;
+const svgHeight = 190;
 const chart = ref<SVGElement | null>(null);
 const tooltip = ref<HTMLElement | null>(null);
 const darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -174,6 +179,68 @@ function getLabel(point: SelfReportPoint, position: 'low' | 'mid' | 'high'): str
   return point.labels.length === 3 ? point.labels[1] : 'Mid';
 }
 
+function getMidScaleValue(scale: number): number {
+  return Math.ceil(scale / 2);
+}
+
+function getScaleAxisLabels(scale: number): AxisLabel[] {
+  const midValue = getMidScaleValue(scale);
+  return [
+    { value: 0, label: '1' },
+    { value: (midValue - 1) / (scale - 1), label: `${midValue}` },
+    { value: 1, label: `${scale}` }
+  ];
+}
+
+function haveSameLabels(a: string[], b: string[]): boolean {
+  return a.length === b.length && a.every((label, index) => label === b[index]);
+}
+
+function getActualAxisLabels(point: SelfReportPoint): AxisLabel[] {
+  return [
+    { value: 0, label: getLabel(point, 'low') },
+    { value: 0.5, label: getLabel(point, 'mid') },
+    { value: 1, label: getLabel(point, 'high') }
+  ];
+}
+
+function getAxisLabels(): AxisLabel[] {
+  const selectedSeries = selectedQuestion.value
+    ? series.value.find((item) => item.question === selectedQuestion.value)
+    : null;
+  const labelReferencePoint =
+    selectedSeries?.points[0] ?? (series.value.length === 1 ? series.value[0].points[0] : null);
+  if (labelReferencePoint) {
+    return getActualAxisLabels(labelReferencePoint);
+  }
+
+  const firstPoint = series.value[0]?.points[0];
+  if (!firstPoint) {
+    return [
+      { value: 0, label: 'Min' },
+      { value: 0.5, label: 'Mid' },
+      { value: 1, label: 'Max' }
+    ];
+  }
+
+  const allSameScale = series.value.every((item) => item.points[0]?.scale === firstPoint.scale);
+  const allSameLabels = series.value.every((item) =>
+    haveSameLabels(item.points[0]?.labels ?? [], firstPoint.labels)
+  );
+  if (allSameScale && allSameLabels && firstPoint.labels.length > 0) {
+    return getActualAxisLabels(firstPoint);
+  }
+  if (allSameScale) {
+    return getScaleAxisLabels(firstPoint.scale);
+  }
+
+  return [
+    { value: 0, label: 'Min' },
+    { value: 0.5, label: 'Mid' },
+    { value: 1, label: 'Max' }
+  ];
+}
+
 function toggleQuestion(question: string) {
   selectedQuestion.value = selectedQuestion.value === question ? null : question;
   rebuildChart();
@@ -224,12 +291,7 @@ function buildChart() {
       .attr('stroke-width', 1);
   });
 
-  const labelReferencePoint = series.value.length === 1 ? series.value[0].points[0] : null;
-  [
-    { value: 0, label: labelReferencePoint ? getLabel(labelReferencePoint, 'low') : 'Low' },
-    { value: 0.5, label: labelReferencePoint ? getLabel(labelReferencePoint, 'mid') : 'Mid' },
-    { value: 1, label: labelReferencePoint ? getLabel(labelReferencePoint, 'high') : 'High' }
-  ].forEach((tick) => {
+  getAxisLabels().forEach((tick) => {
     svg
       .append('text')
       .attr('x', width - 4)
@@ -254,6 +316,8 @@ function buildChart() {
         .attr('fill', 'none')
         .attr('stroke', item.color)
         .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '5 5')
+        .attr('stroke-linecap', 'round')
         .attr('opacity', getSeriesOpacity(item.question))
         .attr('d', line);
     }
@@ -266,7 +330,7 @@ function buildChart() {
       .append('circle')
       .attr('cx', (point) => x(point.promptedAt))
       .attr('cy', (point) => y(point.normalizedValue))
-      .attr('r', 4)
+      .attr('r', 5.5)
       .attr('fill', item.color)
       .attr('stroke', isDark.value ? '#171717' : '#ffffff')
       .attr('stroke-width', 1.5)
@@ -306,7 +370,6 @@ function moveTooltip(event: MouseEvent, point: SelfReportPoint, color: string) {
   }
 
   const timeFormat = d3.timeFormat('%H:%M');
-  const label = point.labels[point.value - 1] ? ` (${point.labels[point.value - 1]})` : '';
   d3.select(tooltip.value)
     .style('left', `${event.clientX}px`)
     .style('top', `${event.clientY}px`)
@@ -316,8 +379,17 @@ function moveTooltip(event: MouseEvent, point: SelfReportPoint, color: string) {
   questionElement.style.color = color;
   questionElement.textContent = point.question;
   const valueElement = document.createElement('div');
-  valueElement.textContent = `${timeFormat(point.promptedAt)}: ${point.value}/${point.scale}${label}`;
-  tooltip.value.replaceChildren(questionElement, valueElement);
+  valueElement.textContent = `${timeFormat(point.promptedAt)}: ${point.value}/${point.scale}`;
+  const scaleElement = document.createElement('div');
+  scaleElement.textContent = getTooltipScaleText(point);
+  tooltip.value.replaceChildren(questionElement, valueElement, scaleElement);
+}
+
+function getTooltipScaleText(point: SelfReportPoint): string {
+  if (point.labels.length === 0) {
+    return `Scale: 1-${point.scale}`;
+  }
+  return `Scale: ${point.labels.join(' / ')}`;
 }
 </script>
 

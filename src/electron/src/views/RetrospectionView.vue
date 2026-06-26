@@ -452,13 +452,17 @@ function getDayLabel(date: Date): string {
       <div class="absolute right-6 top-6 z-10 flex items-center gap-1">
         <button
           :disabled="isToday"
+          aria-label="Show today"
           class="h-8 rounded border border-gray-300 bg-white px-3 text-sm text-gray-800 disabled:opacity-40 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          title="Show today"
           @click="navigateToToday"
         >
           Today
         </button>
         <button
+          aria-label="Show previous day"
           class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          title="Show previous day"
           @click="navigateToPreviousDay"
         >
           <svg
@@ -484,7 +488,9 @@ function getDayLabel(date: Date): string {
         />
         <button
           :disabled="isToday"
+          aria-label="Show next day"
           class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 disabled:opacity-40 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          title="Show next day"
           @click="navigateToNextDay"
         >
           <svg
@@ -517,13 +523,17 @@ function getDayLabel(date: Date): string {
       <div class="absolute right-6 top-6 z-10 flex items-center gap-1">
         <button
           :disabled="isToday"
+          aria-label="Show today"
           class="h-8 rounded border border-gray-300 bg-white px-3 text-sm text-gray-800 disabled:opacity-40 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          title="Show today"
           @click="navigateToToday"
         >
           Today
         </button>
         <button
+          aria-label="Show previous day"
           class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          title="Show previous day"
           @click="navigateToPreviousDay"
         >
           <svg
@@ -549,7 +559,9 @@ function getDayLabel(date: Date): string {
         />
         <button
           :disabled="isToday"
+          aria-label="Show next day"
           class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 disabled:opacity-40 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          title="Show next day"
           @click="navigateToNextDay"
         >
           <svg
@@ -587,24 +599,6 @@ function getDayLabel(date: Date): string {
             :end-date="getNearestFullHourTime(latestUserComputerActivity, 1)"
             type="WINDOW_ACTIVITY"
           />
-        </template>
-
-        <template v-if="experienceSamplingEnabled">
-          <h1 class="mb-2 mt-8 text-xl font-bold text-gray-900 dark:text-gray-100">
-            Self-reports over time
-          </h1>
-          <SelfReportTimelineChart
-            v-if="!isLoading && hasLikertSelfReports"
-            :data="selfReports"
-            :start-date="getNearestFullHourTime(selfReportTimelineStartDate, 0)"
-            :end-date="getNearestFullHourTime(selfReportTimelineEndDate, 1)"
-          />
-          <div
-            v-else-if="!isLoading"
-            class="rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-700 dark:border-transparent dark:bg-neutral-800 dark:text-slate-300"
-          >
-            No self-reports were recorded for this day.
-          </div>
         </template>
 
         <!-- Info Tiles -->
@@ -751,6 +745,25 @@ function getDayLabel(date: Date): string {
             </ol>
           </div>
         </div>
+
+        <!-- Self-report Visualization -->
+        <template v-if="experienceSamplingEnabled">
+          <h1 class="mb-2 mt-8 text-xl font-bold text-gray-900 dark:text-gray-100">
+            Self-reports over time
+          </h1>
+          <SelfReportTimelineChart
+            v-if="!isLoading && hasLikertSelfReports"
+            :data="selfReports"
+            :start-date="getNearestFullHourTime(selfReportTimelineStartDate, 0)"
+            :end-date="getNearestFullHourTime(selfReportTimelineEndDate, 1)"
+          />
+          <div
+            v-else-if="!isLoading"
+            class="rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-700 dark:border-transparent dark:bg-neutral-800 dark:text-slate-300"
+          >
+            No self-reports were recorded for this day.
+          </div>
+        </template>
       </div>
     </div>
   </template>
