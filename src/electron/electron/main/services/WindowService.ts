@@ -479,7 +479,7 @@ export class WindowService {
 
     this.tray.setContextMenu(Menu.buildFromTemplate(menuTemplate))
     this.tray.on("click", () => { this.tray?.popUpContextMenu() })
-    this.tray.setToolTip(`Personal Analytics is running...\n\nYou are participating in: ${studyConfig.name}`)
+    this.tray.setToolTip(`${is.dev ? '[DEV MODE] ' : ''}Personal Analytics is running...\n\nYou are participating in: ${studyConfig.name}`)
   }
 
   private async createTray(): Promise<void> {
@@ -506,6 +506,8 @@ export class WindowService {
       (!allowDisable || (settings?.userDisabledExperienceSampling ?? 0) === 0);
     
     const trayMenuItems: MenuItemConstructorOptions[] = [
+      { label: '⚠ DEV MODE', enabled: false, visible: is.dev },
+      { type: 'separator', visible: is.dev },
       { label: `Version ${app.getVersion()}`, enabled: false },
       {
         label: 'Check for updates',

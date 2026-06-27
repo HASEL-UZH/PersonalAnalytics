@@ -52,7 +52,7 @@ if (process.platform === 'win32') {
   app.setAppUserModelId(app.getName());
 }
 
-if (!app.requestSingleInstanceLock()) {
+if (!is.dev && !app.requestSingleInstanceLock()) {
   console.log('Another instance of the app is already running');
   app.quit();
   process.exit(0);
