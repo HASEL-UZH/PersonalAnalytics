@@ -158,8 +158,22 @@ function renderTooltipDetailIcon(detail: TimelineHoverDetail): string {
   `;
 }
 
+function renderTooltipDuration(durationInMs: number): string {
+  const totalMinutes = Math.round(durationInMs / 60000);
+  if (totalMinutes < 1) {
+    return '< 1 min';
+  }
+  if (totalMinutes < 60) {
+    return `${totalMinutes} min`;
+  }
+
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return minutes ? `${hours} h ${minutes} min` : `${hours} h`;
+}
+
 function renderTooltipDetail(detail: TimelineHoverDetail): string {
-  const duration = msToReadableFormat(detail.durationMs, false, false);
+  const duration = renderTooltipDuration(detail.durationMs);
   const title = escapeHtml(detail.title);
   const tooltipTitle = escapeHtml(detail.tooltipTitle || detail.title);
   const appName = detail.appName ? escapeHtml(detail.appName) : '';
@@ -181,11 +195,12 @@ function renderTooltipDetail(detail: TimelineHoverDetail): string {
 }
 
 function renderTooltipDetails(dataPoint: ChartDataPoint): string {
-  if (!dataPoint.details?.length) {
+  const details = dataPoint.details?.filter((detail) => detail.durationMs >= 60000) || [];
+  if (!details.length) {
     return '';
   }
 
-  const detailRows = dataPoint.details.map(renderTooltipDetail).join('');
+  const detailRows = details.map(renderTooltipDetail).join('');
   const hiddenDetailCount = dataPoint.hiddenDetailCount || 0;
   const hiddenRow =
     hiddenDetailCount > 0 ? `<li style="color: #64748b;">+ ${hiddenDetailCount} more</li>` : '';
@@ -291,17 +306,12 @@ function buildChart() {
     })
     .on('mousemove', function (this: SVGRectElement, event: MouseEvent, d: unknown) {
       const dataPoint = d as ChartDataPoint;
-      const durationInMinutes = msToReadableFormat(
-        dataPoint.end.getTime() - dataPoint.start.getTime(),
-        false,
-        false
-      );
+      const duration = renderTooltipDuration(dataPoint.end.getTime() - dataPoint.start.getTime());
 
       const barBoundingRect = this.getBoundingClientRect();
 
       const tooltipContent = `
-        <div class="text-${dataPoint.color}" style="font-weight: 600; text-align: center;">${ACTIVITY_LABELS[getActivityGroupFromActivityName(dataPoint.activity)]}</div>
-        <div style="text-align: center;">${timeFormat(dataPoint.start)} - ${timeFormat(dataPoint.end)} (${durationInMinutes})</div>
+        <div class="text-${dataPoint.color}" style="font-weight: 600; text-align: center;">${ACTIVITY_LABELS[getActivityGroupFromActivityName(dataPoint.activity)]} ${timeFormat(dataPoint.start)} - ${timeFormat(dataPoint.end)} (${duration})</div>
         ${renderTooltipDetails(dataPoint)}
       `;
 

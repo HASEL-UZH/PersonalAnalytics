@@ -47,6 +47,8 @@ interface WindowActivityDetailSpan {
 
 const APP_ICON_DATA_URL_CACHE = new Map<string, Promise<string | undefined>>();
 const APP_ICON_SIZE = 16;
+const TIMELINE_HOVER_DETAIL_LIMIT = 4;
+const MIN_TIMELINE_HOVER_DETAIL_DURATION_MS = 60_000;
 
 // Mirrored from PA.WindowsActivityTracker/typescript/src/mappings/browsers.ts.
 // Used here to recognize browser processes without importing tracker source into the main bundle.
@@ -961,7 +963,7 @@ function getOverlapDurationMs(
 function addTimelineHoverDetailsToSessions(
   activitySessions: ActivitySessions[],
   detailSpans: WindowActivityDetailSpan[],
-  limit = 3
+  limit = TIMELINE_HOVER_DETAIL_LIMIT
 ): ActivitySessions[] {
   return activitySessions.map((activitySession) => {
     const sessions = activitySession.sessions.map((session) => {
@@ -998,7 +1000,9 @@ function addTimelineHoverDetailsToSessions(
         }
       });
 
-      const details = Array.from(detailsByKey.values()).sort((a, b) => b.durationMs - a.durationMs);
+      const details = Array.from(detailsByKey.values())
+        .filter((detail) => detail.durationMs >= MIN_TIMELINE_HOVER_DETAIL_DURATION_MS)
+        .sort((a, b) => b.durationMs - a.durationMs);
 
       return {
         ...session,
