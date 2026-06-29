@@ -311,7 +311,10 @@ function buildChart() {
       const barBoundingRect = this.getBoundingClientRect();
 
       const tooltipContent = `
-        <div class="text-${dataPoint.color}" style="font-weight: 600; text-align: center;">${ACTIVITY_LABELS[getActivityGroupFromActivityName(dataPoint.activity)]} ${timeFormat(dataPoint.start)} - ${timeFormat(dataPoint.end)} (${duration})</div>
+        <div style="text-align: center;">
+          <span class="text-${dataPoint.color}" style="font-weight: 600;">${ACTIVITY_LABELS[getActivityGroupFromActivityName(dataPoint.activity)]}</span>
+          <span>${timeFormat(dataPoint.start)} - ${timeFormat(dataPoint.end)} (${duration})</span>
+        </div>
         ${renderTooltipDetails(dataPoint)}
       `;
 
@@ -485,6 +488,8 @@ function rebuildChartWithAnimation() {
 <style scoped>
 #tooltip {
   position: absolute;
+  font-size: 12px;
+  line-height: 1.35;
   text-align: left;
   width: auto;
   max-width: 360px;
