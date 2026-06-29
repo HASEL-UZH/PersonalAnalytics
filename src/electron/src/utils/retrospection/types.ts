@@ -49,6 +49,10 @@ export interface TimeActive {
   duration: number;
 }
 
+export interface ActiveHoursInsight {
+  activeDurationMs: number;
+}
+
 export interface ActivitySessions {
   type: string;
   totalDurationMs: number;

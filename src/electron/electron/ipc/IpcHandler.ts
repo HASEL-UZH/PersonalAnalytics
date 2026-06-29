@@ -26,6 +26,7 @@ import { WorkScheduleService } from 'electron/main/services/WorkScheduleService'
 import { WorkHoursDto } from 'shared/dto/WorkHoursDto';
 import {
   getActivitySessions,
+  getActiveHoursInsight,
   getAppUsageSessions,
   getLongestTimeActiveInsight,
   getTopWebsiteSessions,
@@ -110,6 +111,7 @@ export class IpcHandler {
       startAllTrackers: this.startAllTrackers,
       triggerPermissionCheckAccessibility: this.triggerPermissionCheckAccessibility,
       triggerPermissionCheckScreenRecording: this.triggerPermissionCheckScreenRecording,
+      retrospectionGetActiveHours: this.retrospectionGetActiveHours,
       retrospectionGetActivities: this.retrospectionGetActivities,
       retrospectionLoadLongestTimeActive: this.retrospectionLoadLongestTimeActive,
       retrospectionGetTopThreeMostActiveApps: this.retrospectionGetTopThreeMostActiveApps,
@@ -333,6 +335,10 @@ export class IpcHandler {
 
   private async retrospectionGetActivities(date: Date): Promise<ActivitySessions[]> {
     return await getActivitySessions(new Date(date));
+  }
+
+  private async retrospectionGetActiveHours(date: Date) {
+    return await getActiveHoursInsight(new Date(date));
   }
 
   private async retrospectionLoadLongestTimeActive(date: Date): Promise<TimeActive | undefined> {
