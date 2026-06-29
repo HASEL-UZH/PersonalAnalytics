@@ -14,6 +14,8 @@
         :class="{
           'self-report-legend-item-muted': selectedQuestion && selectedQuestion !== item.question
         }"
+        :aria-label="`Focus self-report question: ${item.question}`"
+        :title="item.question"
         @click="toggleQuestion(item.question)"
       >
         <span class="self-report-legend-dot" :style="{ backgroundColor: item.color }"></span>
@@ -377,19 +379,21 @@ function moveTooltip(event: MouseEvent, point: SelfReportPoint, color: string) {
 
   const questionElement = document.createElement('div');
   questionElement.style.color = color;
+  questionElement.style.fontWeight = '600';
   questionElement.textContent = point.question;
-  const valueElement = document.createElement('div');
-  valueElement.textContent = `${timeFormat(point.promptedAt)}: ${point.value}/${point.scale}`;
-  const scaleElement = document.createElement('div');
-  scaleElement.textContent = getTooltipScaleText(point);
-  tooltip.value.replaceChildren(questionElement, valueElement, scaleElement);
+  const ratingElement = document.createElement('div');
+  ratingElement.textContent = `Rating: ${point.value} on a scale from 1-${point.scale}${getTooltipScaleSuffix(point)}`;
+  const timeElement = document.createElement('div');
+  timeElement.textContent = `Self-report taken at: ${timeFormat(point.promptedAt)}`;
+  tooltip.value.replaceChildren(questionElement, ratingElement, timeElement);
 }
 
-function getTooltipScaleText(point: SelfReportPoint): string {
+function getTooltipScaleSuffix(point: SelfReportPoint): string {
   if (point.labels.length === 0) {
-    return `Scale: 1-${point.scale}`;
+    return '';
   }
   return `Scale: ${point.labels.join(' / ')}`;
+  return ` (${point.labels.join(' / ')})`;
 }
 </script>
 
@@ -444,10 +448,10 @@ function getTooltipScaleText(point: SelfReportPoint): string {
 .self-report-tooltip {
   position: fixed;
   width: max-content;
-  max-width: 280px;
+  max-width: 360px;
   pointer-events: none;
   z-index: 9999;
-  text-align: center;
+  text-align: left;
   font-size: 0.75rem;
   line-height: 1.2rem;
 }
