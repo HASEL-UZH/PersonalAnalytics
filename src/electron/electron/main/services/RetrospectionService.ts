@@ -3,6 +3,7 @@ import { WindowActivityEntity } from '../entities/WindowActivityEntity';
 import { getMainLogger } from '../../config/Logger';
 import { Activity } from '../../../src/utils/retrospection/types';
 import { getProcessIconDataUrl } from './utils/AppIconHelper';
+import { getOverlapDurationMs } from './utils/helpers';
 
 const LOG = getMainLogger('RetrospectionService');
 
@@ -689,8 +690,10 @@ function isRelevantTopItem(session: ActivitySessions): boolean {
   );
 }
 
-// Short display label shown inside the tooltip row; keeps paths/domains compact.
-function getTimelineHoverTitle(activity: WindowActivityEntity): string | null {
+/**
+ * Returns the short display label shown inside a timeline tooltip row.
+ */
+function getShortTimelineHoverTitle(activity: WindowActivityEntity): string | null {
   const cleanedTitle = cleanWindowTitle(
     activity.windowTitle,
     activity.processName,
@@ -703,8 +706,10 @@ function getTimelineHoverTitle(activity: WindowActivityEntity): string | null {
   );
 }
 
-// Longer hover title for the row's native browser tooltip; keeps ellipses for shortened paths.
-function getTimelineHoverTooltipTitle(activity: WindowActivityEntity, title: string): string {
+/**
+ * Returns the longer native tooltip label for a timeline tooltip row.
+ */
+function getLongTimelineHoverTitle(activity: WindowActivityEntity, fallbackTitle: string): string {
   return (
     cleanWindowTitle(
       activity.windowTitle,
@@ -712,7 +717,7 @@ function getTimelineHoverTooltipTitle(activity: WindowActivityEntity, title: str
       activity.url,
       true,
       activity.activity
-    ) || title
+    ) || fallbackTitle
   );
 }
 
@@ -724,12 +729,12 @@ async function addWindowActivityDetailSpan(
   activeMinutesSet: Set<number>,
   date: Date
 ) {
-  const title = getTimelineHoverTitle(activity);
+  const title = getShortTimelineHoverTitle(activity);
   if (!title || to.getTime() <= from.getTime()) {
     return;
   }
 
-  const tooltipTitle = getTimelineHoverTooltipTitle(activity, title);
+  const tooltipTitle = getLongTimelineHoverTitle(activity, title);
   const iconDataUrl = await getProcessIconDataUrl(activity.processPath, activity.processName);
   getActiveMinuteSpans(from, to, activeMinutesSet, date).forEach((span) => {
     spans.push({
@@ -784,19 +789,6 @@ async function getWindowActivityDetailSpans(date: Date): Promise<WindowActivityD
   }
 
   return spans;
-}
-
-function getOverlapDurationMs(
-  firstStart: Date,
-  firstEnd: Date,
-  secondStart: Date,
-  secondEnd: Date
-): number {
-  return Math.max(
-    0,
-    Math.min(firstEnd.getTime(), secondEnd.getTime()) -
-      Math.max(firstStart.getTime(), secondStart.getTime())
-  );
 }
 
 function addTimelineHoverDetailsToSessions(

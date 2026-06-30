@@ -14,6 +14,8 @@ import * as d3 from 'd3';
 import { Color } from '../utils/retrospection/types';
 import {
   ACTIVITY_LABELS,
+  clamp,
+  escapeHtml,
   getActivityGroupFromActivityName,
   getBarColorFromDataPoint,
   msToReadableFormat,
@@ -126,15 +128,6 @@ function getActiveTaskTotalTimeSpentPerActivityGroupArray() {
   return activeTaskTotalTimeSpentPerActivityGroup;
 }
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
 function shouldShowAppName(detail: TimelineHoverDetail): boolean {
   if (!detail.appName) {
     return false;
@@ -211,10 +204,6 @@ function renderTooltipDetails(dataPoint: ChartDataPoint): string {
       ${hiddenRow}
     </ol>
   `;
-}
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max);
 }
 
 function positionTooltip(event: MouseEvent, barBoundingRect: DOMRect) {
