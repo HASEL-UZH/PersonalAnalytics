@@ -13,6 +13,7 @@ import {
 import {
   ACTIVITY_LABELS,
   getActivityGroupFromActivityName,
+  msToDecimalHours,
   getTailwindClassFromActivity
 } from '../utils/retrospection/utils';
 import StackedBarChart from '../components/StackedBarChart.vue';
@@ -289,10 +290,6 @@ function renderCompactTime(ms: number): string {
   return remainingMinutes ? `${hours} hr ${remainingMinutes} min` : `${hours} hr`;
 }
 
-function renderDecimalHours(ms: number): string {
-  return `${(ms / 3600000).toFixed(1)} hours`;
-}
-
 function getTopItemWidth(item: ActivitySessions, items: ActivitySessions[]): string {
   const maxDurationMs = Math.max(...items.map((topItem) => topItem.totalDurationMs), 1);
   return `${Math.max((item.totalDurationMs / maxDurationMs) * 100, 8)}%`;
@@ -518,14 +515,14 @@ function getDayLabel(date: Date): string {
               <div>
                 <dt class="inline">Active on the computer:</dt>
                 <dd class="ml-1 inline">
-                  <b>{{ renderDecimalHours(activeHoursInsight?.activeDurationMs ?? 0) }}</b>
+                  <b>{{ msToDecimalHours(activeHoursInsight?.activeDurationMs ?? 0) }}</b>
                 </dd>
               </div>
               <div>
                 <dt class="inline">Spanning work:</dt>
                 <dd class="ml-1 inline">
                   <b>{{
-                    renderDecimalHours(latestUserComputerActivity - earliestUserComputerActivity)
+                    msToDecimalHours(latestUserComputerActivity - earliestUserComputerActivity)
                   }}</b>
                   (between {{ getTimeString(earliestUserComputerActivity) }} and
                   {{ getTimeString(latestUserComputerActivity) }})

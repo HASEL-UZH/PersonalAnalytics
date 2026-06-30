@@ -2,6 +2,7 @@ import { UserInputEntity } from '../entities/UserInputEntity';
 import { WindowActivityEntity } from '../entities/WindowActivityEntity';
 import { getMainLogger } from '../../config/Logger';
 import { Activity, type ActiveHoursInsight } from '../../../src/utils/retrospection/types';
+import { formatSqliteLocalDateTime } from './utils/helpers';
 
 const LOG = getMainLogger('RetrospectionService');
 
@@ -120,22 +121,6 @@ export function isBrowserProcessName(processName: string | null): boolean {
   return BROWSER_PROCESS_NAME_PARTS.some(
     (browser) => normalizedProcessName.includes(normalizeProcessName(browser)) && browser.length > 3
   );
-}
-
-/**
- * Formats a date as a SQLite-local datetime string.
- *
- * Retrospection queries compare against `datetime(..., 'localtime')`, so parameters must be local
- * wall-clock timestamps instead of UTC ISO strings.
- */
-function formatSqliteLocalDateTime(date: Date): string {
-  const year = date.getFullYear();
-  const month = `${date.getMonth() + 1}`.padStart(2, '0');
-  const day = `${date.getDate()}`.padStart(2, '0');
-  const hours = `${date.getHours()}`.padStart(2, '0');
-  const minutes = `${date.getMinutes()}`.padStart(2, '0');
-  const seconds = `${date.getSeconds()}`.padStart(2, '0');
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
 /**
