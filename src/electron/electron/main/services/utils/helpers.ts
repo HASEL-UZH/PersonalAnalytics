@@ -17,10 +17,23 @@ export function generateAlphaNumericString(length: number = 0): string {
     throw new Error('Length must be greater than 0');
   }
 
-  const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789'; // removed 0, O, I and l from options to avoid participant IDs that are ambiguous 
+  const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789'; // removed 0, O, I and l from options to avoid participant IDs that are ambiguous
   let result = '';
   for (let i = 0; i < length; i++) {
     result += characters.charAt(Math.floor(Math.random() * characters.length));
   }
   return result;
+}
+
+export function getOverlapDurationMs(
+  firstStart: Date,
+  firstEnd: Date,
+  secondStart: Date,
+  secondEnd: Date
+): number {
+  return Math.max(
+    0,
+    Math.min(firstEnd.getTime(), secondEnd.getTime()) -
+      Math.max(firstStart.getTime(), secondStart.getTime())
+  );
 }
