@@ -15,6 +15,8 @@ import {
   getTailwindClassFromActivity
 } from '../utils/retrospection/utils';
 import StackedBarChart from '../components/StackedBarChart.vue';
+import SelfReportTimelineChart from '../components/SelfReportTimelineChart.vue';
+import type ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
 import studyConfig from '../../shared/study.config';
 
 const typedIpcRenderer = window.ipcRenderer;
@@ -26,9 +28,11 @@ const longestTimeActive = ref<TimeActive | undefined>(undefined);
 const topApps = ref<ActivitySessions[] | undefined>(undefined);
 const topWebsites = ref<ActivitySessions[]>([]);
 const topWindowTitles = ref<ActivitySessions[]>([]);
+const selfReports = ref<ExperienceSamplingDto[]>([]);
 const ACTIVITY_BREAKDOWN_COVERAGE = 0.9;
 const ACTIVITY_BREAKDOWN_MAX_ITEMS = 6;
 const EXCLUDED_ACTIVITY_BREAKDOWN_GROUPS = new Set(['Other', 'Unknown']);
+const experienceSamplingEnabled = studyConfig.trackers.experienceSamplingTracker.enabled;
 const isWindowActivityTrackerEnabled = studyConfig.trackers.windowActivityTracker.enabled;
 
 interface ActivityBreakdownDataPoint extends PieChartDataPoint {
@@ -62,6 +66,64 @@ const latestUserComputerActivity = computed((): number => {
 
 const topItemsAvailable = computed((): boolean => {
   return topWebsites.value.length > 0 || topWindowTitles.value.length > 0;
+});
+
+const hasActivityData = computed((): boolean => {
+  return (chartDataWindowActivities.value?.length ?? 0) > 0;
+});
+
+const hasLikertSelfReports = computed((): boolean => {
+  return selfReports.value.some((report) => {
+    return (
+      report.answerType === 'LikertScale' &&
+      !report.skipped &&
+      report.response !== null &&
+      report.scale !== null &&
+      Number.isFinite(Number(report.response))
+    );
+  });
+});
+
+const hasRetrospectionData = computed((): boolean => {
+  return hasActivityData.value || hasLikertSelfReports.value;
+});
+
+const earliestSelfReport = computed((): number => {
+  return selfReports.value.reduce((acc, report) => {
+    const promptedAt = new Date(report.promptedAt).getTime();
+    return promptedAt < acc ? promptedAt : acc;
+  }, Number.MAX_SAFE_INTEGER);
+});
+
+const latestSelfReport = computed((): number => {
+  return selfReports.value.reduce((acc, report) => {
+    const promptedAt = new Date(report.promptedAt).getTime();
+    return promptedAt > acc ? promptedAt : acc;
+  }, 0);
+});
+
+const timelineStartDate = computed((): number => {
+  const candidates = [
+    hasActivityData.value ? earliestUserComputerActivity.value : null,
+    hasLikertSelfReports.value ? earliestSelfReport.value : null
+  ].filter((value): value is number => value !== null && Number.isFinite(value));
+  return Math.min(...candidates);
+});
+
+const timelineEndDate = computed((): number => {
+  const candidates = [
+    hasActivityData.value ? latestUserComputerActivity.value : null,
+    hasLikertSelfReports.value ? latestSelfReport.value : null
+  ].filter((value): value is number => value !== null && Number.isFinite(value));
+  return Math.max(...candidates);
+});
+
+const selfReportTimelineStartDate = computed((): number => {
+  return hasActivityData.value ? earliestUserComputerActivity.value : timelineStartDate.value;
+});
+
+const selfReportTimelineEndDate = computed((): number => {
+  return hasActivityData.value ? latestUserComputerActivity.value : timelineEndDate.value;
 });
 
 // Total tracked activity time is the denominator for percentages and the 90% cutoff.
@@ -165,6 +227,7 @@ async function loadData() {
   await loadMostActiveApps();
   await loadTopWebsites();
   await loadTopWindowTitles();
+  await loadSelfReports();
   await loadWindowActivities();
   isLoading.value = false;
 }
@@ -238,6 +301,22 @@ async function loadTopWindowTitles() {
     )) as ActivitySessions[];
   } catch (error) {
     console.error('Error loading top window titles', error);
+  }
+}
+
+async function loadSelfReports() {
+  if (!experienceSamplingEnabled) {
+    selfReports.value = [];
+    return;
+  }
+  try {
+    selfReports.value = (await typedIpcRenderer.invoke(
+      'retrospectionGetSelfReports',
+      selectedDay.value
+    )) as ExperienceSamplingDto[];
+  } catch (error) {
+    selfReports.value = [];
+    console.error('Error loading self reports', error);
   }
 }
 
@@ -370,19 +449,23 @@ function getDayLabel(date: Date): string {
 
 <template>
   <!-- No data for this day -->
-  <template v-if="!allWindowActivities || allWindowActivities.length === 0">
+  <template v-if="!isLoading && !hasRetrospectionData">
     <div class="flex h-screen items-center justify-center">
       <!-- day picker -->
       <div class="absolute right-6 top-6 z-10 flex items-center gap-1">
         <button
           :disabled="isToday"
+          aria-label="Show today"
           class="h-8 rounded border border-gray-300 bg-white px-3 text-sm text-gray-800 disabled:opacity-40 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          title="Show today"
           @click="navigateToToday"
         >
           Today
         </button>
         <button
+          aria-label="Show previous day"
           class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          title="Show previous day"
           @click="navigateToPreviousDay"
         >
           <svg
@@ -408,7 +491,9 @@ function getDayLabel(date: Date): string {
         />
         <button
           :disabled="isToday"
+          aria-label="Show next day"
           class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 disabled:opacity-40 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          title="Show next day"
           @click="navigateToNextDay"
         >
           <svg
@@ -449,13 +534,17 @@ function getDayLabel(date: Date): string {
       <div class="absolute right-6 top-6 z-10 flex items-center gap-1">
         <button
           :disabled="isToday"
+          aria-label="Show today"
           class="h-8 rounded border border-gray-300 bg-white px-3 text-sm text-gray-800 disabled:opacity-40 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          title="Show today"
           @click="navigateToToday"
         >
           Today
         </button>
         <button
+          aria-label="Show previous day"
           class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          title="Show previous day"
           @click="navigateToPreviousDay"
         >
           <svg
@@ -481,7 +570,9 @@ function getDayLabel(date: Date): string {
         />
         <button
           :disabled="isToday"
+          aria-label="Show next day"
           class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 disabled:opacity-40 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          title="Show next day"
           @click="navigateToNextDay"
         >
           <svg
@@ -508,22 +599,27 @@ function getDayLabel(date: Date): string {
         </div>
 
         <!-- Timeline Visualization -->
-        <h1 class="mb-2 mt-8 text-xl font-bold text-gray-900 dark:text-gray-100">
-          Activities over time
-        </h1>
-        <StackedBarChart
-          v-if="!isLoading && chartDataWindowActivities"
-          :data="chartDataWindowActivities"
-          :start-date="getNearestFullHourTime(earliestUserComputerActivity, 0)"
-          :end-date="getNearestFullHourTime(latestUserComputerActivity, 1)"
-          type="WINDOW_ACTIVITY"
-        />
+        <template v-if="hasActivityData">
+          <h1 class="mb-2 mt-8 text-xl font-bold text-gray-900 dark:text-gray-100">
+            Activities over time
+          </h1>
+          <StackedBarChart
+            v-if="!isLoading && chartDataWindowActivities"
+            :data="chartDataWindowActivities"
+            :start-date="getNearestFullHourTime(earliestUserComputerActivity, 0)"
+            :end-date="getNearestFullHourTime(latestUserComputerActivity, 1)"
+            type="WINDOW_ACTIVITY"
+          />
+        </template>
 
         <!-- Info Tiles -->
-        <h1 class="mb-2 mt-8 text-xl font-bold text-gray-900 dark:text-gray-100">
+        <h1
+          v-if="hasActivityData"
+          class="mb-2 mt-8 text-xl font-bold text-gray-900 dark:text-gray-100"
+        >
           Insights of your day
         </h1>
-        <div class="tile-grid">
+        <div v-if="hasActivityData" class="tile-grid">
           <!-- Tile 1: Longest active period -->
           <div
             v-if="longestTimeActive"
@@ -554,7 +650,7 @@ function getDayLabel(date: Date): string {
 
           <!-- Tile 3: Top apps -->
           <div
-            v-if="topApps"
+            v-if="topApps?.length"
             class="rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
           >
             <h2 class="primary-blue font-bold leading-4">Top apps</h2>
@@ -597,7 +693,7 @@ function getDayLabel(date: Date): string {
           </div>
         </div>
 
-        <div v-if="topItemsAvailable" class="top-item-grid tile-grid">
+        <div v-if="hasActivityData && topItemsAvailable" class="top-item-grid tile-grid">
           <div
             v-if="topWebsites.length"
             class="top-item-card rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
@@ -660,6 +756,25 @@ function getDayLabel(date: Date): string {
             </ol>
           </div>
         </div>
+
+        <!-- Self-report Visualization -->
+        <template v-if="experienceSamplingEnabled">
+          <h1 class="mb-2 mt-8 text-xl font-bold text-gray-900 dark:text-gray-100">
+            Self-reports over time
+          </h1>
+          <SelfReportTimelineChart
+            v-if="!isLoading && hasLikertSelfReports"
+            :data="selfReports"
+            :start-date="getNearestFullHourTime(selfReportTimelineStartDate, 0)"
+            :end-date="getNearestFullHourTime(selfReportTimelineEndDate, 1)"
+          />
+          <div
+            v-else-if="!isLoading"
+            class="rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-700 dark:border-transparent dark:bg-neutral-800 dark:text-slate-300"
+          >
+            No self-reports were recorded for this day.
+          </div>
+        </template>
       </div>
     </div>
   </template>
