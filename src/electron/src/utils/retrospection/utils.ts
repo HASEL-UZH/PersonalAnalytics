@@ -25,6 +25,10 @@ export function msToReadableFormat(
     : `${formatWithoutSeconds}`;
 }
 
+export function msToDecimalHours(durationInMs: number): string {
+  return `${(durationInMs / 3600000).toFixed(1)} hours`
+}
+
 const ACTIVITY_GROUPS: Record<string, Activity[]> = {
   Development: [Activity.DevCode, Activity.DevDebug, Activity.DevReview, Activity.DevVc],
   Planning: [Activity.Planning],

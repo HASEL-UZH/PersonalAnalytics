@@ -4,6 +4,7 @@ import {
   Activity,
   Color,
   DataPointType,
+  type ActiveHoursInsight,
   type ActivitySessions,
   type ChartDataPoint,
   type PieChartDataPoint,
@@ -12,6 +13,7 @@ import {
 import {
   ACTIVITY_LABELS,
   getActivityGroupFromActivityName,
+  msToDecimalHours,
   getTailwindClassFromActivity
 } from '../utils/retrospection/utils';
 import StackedBarChart from '../components/StackedBarChart.vue';
@@ -25,6 +27,7 @@ const selectedDay = ref(new Date());
 const allWindowActivities = ref<ActivitySessions[]>([]);
 const chartDataWindowActivities = ref<ChartDataPoint[]>();
 const longestTimeActive = ref<TimeActive | undefined>(undefined);
+const activeHoursInsight = ref<ActiveHoursInsight | undefined>(undefined);
 const topApps = ref<ActivitySessions[] | undefined>(undefined);
 const topWebsites = ref<ActivitySessions[]>([]);
 const topWindowTitles = ref<ActivitySessions[]>([]);
@@ -223,6 +226,7 @@ onMounted(async () => {
 
 async function loadData() {
   isLoading.value = true;
+  await loadActiveHours();
   await loadLongestTimeActive();
   await loadMostActiveApps();
   await loadTopWebsites();
@@ -258,6 +262,17 @@ async function loadWindowActivities() {
     selectedDay.value
   )) as ActivitySessions[];
   windowActivitiesToChartData();
+}
+
+async function loadActiveHours() {
+  try {
+    activeHoursInsight.value = (await typedIpcRenderer.invoke(
+      'retrospectionGetActiveHours',
+      selectedDay.value
+    )) as ActiveHoursInsight;
+  } catch (error) {
+    console.error('Error loading active hours', error);
+  }
 }
 
 async function loadLongestTimeActive() {
@@ -372,8 +387,20 @@ function getTopItemColor(item: ActivitySessions): string {
 async function handleDayChange(event: Event) {
   const value = (event.target as HTMLInputElement).value;
   if (!value) return;
-  selectedDay.value = new Date(value);
+  selectedDay.value = parseDateInputValue(value);
   await loadData();
+}
+
+function parseDateInputValue(value: string): Date {
+  const [year, month, day] = value.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+function formatDateInputValue(date: Date): string {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 const isToday = computed(() => {
@@ -483,8 +510,8 @@ function getDayLabel(date: Date): string {
         </button>
         <input
           type="date"
-          :value="selectedDay.toISOString().substring(0, 10)"
-          :max="new Date().toISOString().substring(0, 10)"
+          :value="formatDateInputValue(selectedDay)"
+          :max="formatDateInputValue(new Date())"
           class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
           style="min-width: 140px"
           @change="handleDayChange"
@@ -562,8 +589,8 @@ function getDayLabel(date: Date): string {
         </button>
         <input
           type="date"
-          :value="selectedDay.toISOString().substring(0, 10)"
-          :max="new Date().toISOString().substring(0, 10)"
+          :value="formatDateInputValue(selectedDay)"
+          :max="formatDateInputValue(new Date())"
           class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
           style="min-width: 140px"
           @change="handleDayChange"
@@ -639,13 +666,25 @@ function getDayLabel(date: Date): string {
             v-if="chartDataWindowActivities?.length"
             class="rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
           >
-            <h2 class="primary-blue font-bold leading-4">Active hours on computer</h2>
-            <p class="mt-2">
-              You were active for
-              <b>{{ renderTime(latestUserComputerActivity - earliestUserComputerActivity) }}</b>
-              (between {{ getTimeString(earliestUserComputerActivity) }} and
-              {{ getTimeString(latestUserComputerActivity) }}).
-            </p>
+            <h2 class="primary-blue font-bold leading-4">Active hours</h2>
+            <dl class="mt-2 space-y-1">
+              <div>
+                <dt class="inline">Active on the computer:</dt>
+                <dd class="ml-1 inline">
+                  <b>{{ msToDecimalHours(activeHoursInsight?.activeDurationMs ?? 0) }}</b>
+                </dd>
+              </div>
+              <div>
+                <dt class="inline">Spanning work:</dt>
+                <dd class="ml-1 inline">
+                  <b>{{
+                    msToDecimalHours(latestUserComputerActivity - earliestUserComputerActivity)
+                  }}</b>
+                  (between {{ getTimeString(earliestUserComputerActivity) }} and
+                  {{ getTimeString(latestUserComputerActivity) }})
+                </dd>
+              </div>
+            </dl>
           </div>
 
           <!-- Tile 3: Top apps -->

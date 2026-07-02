@@ -22,6 +22,8 @@ jest.unstable_mockModule('electron', () => ({
 const {
   cleanWindowTitle,
   getReadableUrlTitle,
+  getRetrospectionWorkdayRange,
+  getWorkdayMinuteIndex,
   isBrowserProcessName,
   removeGenericBrowserTabCountFragments,
   stripPathFragment
@@ -261,4 +263,26 @@ const cases: [string, string | boolean | null, string | boolean | null][] = [
 
 test.each(cases)('.cleanWindowTitle helpers: %s', (_name, actual, expected) => {
   expect(actual).toBe(expected);
+});
+
+test('retrospection workday uses a 04:00 local cutoff', () => {
+  const { start, end } = getRetrospectionWorkdayRange(new Date(2026, 5, 29, 12, 0));
+
+  expect(start.getFullYear()).toBe(2026);
+  expect(start.getMonth()).toBe(5);
+  expect(start.getDate()).toBe(29);
+  expect(start.getHours()).toBe(4);
+  expect(start.getMinutes()).toBe(0);
+  expect(end.getFullYear()).toBe(2026);
+  expect(end.getMonth()).toBe(5);
+  expect(end.getDate()).toBe(30);
+  expect(end.getHours()).toBe(4);
+  expect(end.getMinutes()).toBe(0);
+});
+
+test('workday minute index carries late-night activity into the selected workday', () => {
+  const { start } = getRetrospectionWorkdayRange(new Date(2026, 5, 29, 12, 0));
+
+  expect(getWorkdayMinuteIndex(new Date(2026, 5, 29, 4, 0), start)).toBe(0);
+  expect(getWorkdayMinuteIndex(new Date(2026, 5, 30, 2, 30), start)).toBe(22 * 60 + 30);
 });

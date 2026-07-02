@@ -1,9 +1,9 @@
 import { UserInputEntity } from '../entities/UserInputEntity';
 import { WindowActivityEntity } from '../entities/WindowActivityEntity';
 import { getMainLogger } from '../../config/Logger';
-import { Activity } from '../../../src/utils/retrospection/types';
+import { Activity, type ActiveHoursInsight } from '../../../src/utils/retrospection/types';
 import { getProcessIconDataUrl } from './utils/AppIconHelper';
-import { getOverlapDurationMs } from './utils/helpers';
+import { formatSqliteLocalDateTime, getOverlapDurationMs } from './utils/helpers';
 
 const LOG = getMainLogger('RetrospectionService');
 
@@ -46,6 +46,7 @@ interface WindowActivityDetailSpan {
 
 const TIMELINE_HOVER_DETAIL_LIMIT = 4;
 const MIN_TIMELINE_HOVER_DETAIL_DURATION_MS = 60_000;
+const WORKDAY_CUTOFF_HOUR = 4;
 
 // Mirrored from PA.WindowsActivityTracker/typescript/src/mappings/browsers.ts.
 // Used here to recognize browser processes without importing tracker source into the main bundle.
@@ -147,41 +148,51 @@ export function isBrowserProcessName(processName: string | null): boolean {
 }
 
 /**
- * converts a date object to a minute of the day (0-1439)
- * @param date - date object
- * @returns the minute of the day (0-1439)
+ * Returns the retrospection workday range for the selected calendar day.
+ *
+ * A workday starts at 04:00 local time and ends at 04:00 the next local day, so late-night work
+ * before 04:00 is attributed to the previous workday.
  */
-function getMinuteOfDay(date: Date): number {
-  return date.getHours() * 60 + date.getMinutes();
+export function getRetrospectionWorkdayRange(date: Date | string): { start: Date; end: Date } {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  const start = new Date(d.getFullYear(), d.getMonth(), d.getDate(), WORKDAY_CUTOFF_HOUR, 0, 0, 0);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 1);
+  return { start, end };
 }
 
 /**
- * constructs a date object from a minute of the day (0-1439)
- * @param minuteOfDay - minute of the day (0-1439)
- * @returns a date object
+ * Converts a timestamp to a minute offset in the 04:00-to-04:00 workday.
  */
-function getDateFromMinuteOfDay(minuteOfDay: number, baseDate?: Date): Date {
-  const d = baseDate ? new Date(baseDate) : new Date();
-  d.setHours(Math.floor(minuteOfDay / 60), minuteOfDay % 60, 0, 0);
-  return d;
+export function getWorkdayMinuteIndex(date: Date, workdayStart: Date): number {
+  return Math.floor((date.getTime() - workdayStart.getTime()) / 60000);
 }
 
 /**
- * finds and returns all minutes of the day (0-1439) where user input was detected
+ * Constructs a date object from a minute offset in the 04:00-to-04:00 workday.
+ */
+function getDateFromWorkdayMinuteIndex(minuteIndex: number, workdayStart: Date): Date {
+  return new Date(workdayStart.getTime() + minuteIndex * 60000);
+}
+
+/**
+ * finds and returns all minutes of the workday (0-1439) where user input was detected
  * @param date - date to check
- * @returns a Set of active minutes for the given day; minute encoded from 0 to 1439
+ * @returns a Set of active minutes for the given workday; minute encoded from 0 to 1439
  */
 async function getActiveMinutesSet(date: Date | string): Promise<Set<number>> {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  const daystr = d.toISOString().split('T')[0]; // e.g 2025-02-28
-  // get all user input entries for the day in local timezone
+  const workdayRange = getRetrospectionWorkdayRange(date);
+  const workdayStart = formatSqliteLocalDateTime(workdayRange.start);
+  const workdayEnd = formatSqliteLocalDateTime(workdayRange.end);
+  // get all user input entries for the 04:00-to-04:00 workday in local timezone
   const userInputToday = await UserInputEntity.createQueryBuilder('userInput')
     .select([
       'userInput.*',
       // Convert UTC timestamp to local time using strftime
       "datetime(userInput.tsStart, 'localtime') as tsStart"
     ])
-    .where("date(userInput.tsStart, 'localtime') = :daystr", { daystr })
+    .where("datetime(userInput.tsStart, 'localtime') >= :workdayStart", { workdayStart })
+    .andWhere("datetime(userInput.tsStart, 'localtime') < :workdayEnd", { workdayEnd })
     .orderBy('userInput.tsStart', 'ASC')
     .getRawMany();
 
@@ -189,7 +200,10 @@ async function getActiveMinutesSet(date: Date | string): Promise<Set<number>> {
   const activeMinutesSet: Set<number> = new Set();
   userInputToday.forEach((el) => {
     if (el.clickTotal > 0 || el.keysTotal > 0 || el.scrollDelta > 0 || el.movedDistance > 0) {
-      activeMinutesSet.add(getMinuteOfDay(new Date(el.tsStart)));
+      const minuteIndex = getWorkdayMinuteIndex(new Date(el.tsStart), workdayRange.start);
+      if (minuteIndex >= 0 && minuteIndex < 24 * 60) {
+        activeMinutesSet.add(minuteIndex);
+      }
     }
   });
 
@@ -201,12 +215,14 @@ async function getActiveMinutesSet(date: Date | string): Promise<Set<number>> {
  * @returns all window activities for the given day
  */
 export async function getWindowActivities(date: Date | string): Promise<WindowActivityEntity[]> {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  const daystr = d.toISOString().split('T')[0];
+  const workdayRange = getRetrospectionWorkdayRange(date);
+  const workdayStart = formatSqliteLocalDateTime(workdayRange.start);
+  const workdayEnd = formatSqliteLocalDateTime(workdayRange.end);
 
   const res = await WindowActivityEntity.createQueryBuilder('windowActivity')
     .select(['windowActivity.*', "datetime(windowActivity.ts, 'localtime') as ts"])
-    .where("date(windowActivity.ts, 'localtime') = :daystr", { daystr })
+    .where("datetime(windowActivity.ts, 'localtime') >= :workdayStart", { workdayStart })
+    .andWhere("datetime(windowActivity.ts, 'localtime') < :workdayEnd", { workdayEnd })
     .orderBy('windowActivity.ts', 'ASC')
     .getRawMany();
 
@@ -246,7 +262,7 @@ function getActiveMinuteSpans(
   from: Date,
   to: Date,
   activeMinutesSet: Set<number>,
-  date: Date
+  workdayStart: Date
 ): TimeActive[] {
   if (to.getTime() <= from.getTime()) {
     return [];
@@ -264,8 +280,8 @@ function getActiveMinuteSpans(
     });
   };
 
-  const startMinute = getMinuteOfDay(from);
-  const endMinute = getMinuteOfDay(to);
+  const startMinute = getWorkdayMinuteIndex(from, workdayStart);
+  const endMinute = getWorkdayMinuteIndex(to, workdayStart);
 
   let sessionStart = from;
   if (startMinute + 1 < endMinute) {
@@ -273,13 +289,13 @@ function getActiveMinuteSpans(
     for (let m = startMinute; m < endMinute; m++) {
       if (!activeMinutesSet.has(m) && inSession) {
         inSession = false;
-        let sessionEnd = getDateFromMinuteOfDay(m, date);
+        let sessionEnd = getDateFromWorkdayMinuteIndex(m, workdayStart);
         sessionEnd = sessionEnd.getTime() > to.getTime() ? to : sessionEnd;
         addSpan(sessionStart, sessionEnd);
       } else if (!activeMinutesSet.has(m) && !inSession) {
-        sessionStart = getDateFromMinuteOfDay(m, date);
+        sessionStart = getDateFromWorkdayMinuteIndex(m, workdayStart);
       } else if (activeMinutesSet.has(m) && !inSession) {
-        sessionStart = getDateFromMinuteOfDay(m, date);
+        sessionStart = getDateFromWorkdayMinuteIndex(m, workdayStart);
         inSession = true;
       } else if (activeMinutesSet.has(m) && inSession) {
         // session is continuously active
@@ -311,13 +327,13 @@ function addSessionWithActiveMinuteSplits(
   to: Date,
   activity: string,
   activeMinutesSet: Set<number>,
-  date: Date
+  workdayStart: Date
 ) {
   if (!sessionKey || to.getTime() <= from.getTime()) {
     return;
   }
 
-  getActiveMinuteSpans(from, to, activeMinutesSet, date).forEach((span) => {
+  getActiveMinuteSpans(from, to, activeMinutesSet, workdayStart).forEach((span) => {
     addEntry(sessionKey, span.from, span.to, activity);
   });
 }
@@ -351,6 +367,7 @@ async function getWindowActivitySessionsByKey(
 ): Promise<ActivitySessions[]> {
   const windowActivityToday = await getWindowActivities(date);
   const activeMinutesSet = await getActiveMinutesSet(date);
+  const workdayStart = getRetrospectionWorkdayRange(date).start;
   // encodes session per processName (=app)
   const sessionsMap: Map<string, ActivitySessions> = new Map();
   // helper function to add an entry to the sessionsMap
@@ -359,7 +376,7 @@ async function getWindowActivitySessionsByKey(
   // reconstruct the day so far by iterating over the window activities
   let lastWindowActivity: WindowActivityEntity | undefined = undefined;
   for (const activity of windowActivityToday) {
-    if (!activeMinutesSet.has(getMinuteOfDay(new Date(activity.ts)))) {
+    if (!activeMinutesSet.has(getWorkdayMinuteIndex(new Date(activity.ts), workdayStart))) {
       // found window activity during a minute without any logged user input
       // skip for safety
       continue;
@@ -376,7 +393,7 @@ async function getWindowActivitySessionsByKey(
         new Date(activity.ts),
         lastWindowActivity.activity,
         activeMinutesSet,
-        date
+        workdayStart
       );
       lastWindowActivity = activity;
     }
@@ -399,7 +416,7 @@ async function getWindowActivitySessionsByKey(
       end,
       lastWindowActivity.activity,
       activeMinutesSet,
-      date
+      workdayStart
     );
   }
 
@@ -727,7 +744,7 @@ async function addWindowActivityDetailSpan(
   from: Date,
   to: Date,
   activeMinutesSet: Set<number>,
-  date: Date
+  workdayStart: Date
 ) {
   const title = getShortTimelineHoverTitle(activity);
   if (!title || to.getTime() <= from.getTime()) {
@@ -736,7 +753,7 @@ async function addWindowActivityDetailSpan(
 
   const tooltipTitle = getLongTimelineHoverTitle(activity, title);
   const iconDataUrl = await getProcessIconDataUrl(activity.processPath, activity.processName);
-  getActiveMinuteSpans(from, to, activeMinutesSet, date).forEach((span) => {
+  getActiveMinuteSpans(from, to, activeMinutesSet, workdayStart).forEach((span) => {
     spans.push({
       from: span.from,
       to: span.to,
@@ -752,11 +769,12 @@ async function addWindowActivityDetailSpan(
 async function getWindowActivityDetailSpans(date: Date): Promise<WindowActivityDetailSpan[]> {
   const windowActivityToday = await getWindowActivities(date);
   const activeMinutesSet = await getActiveMinutesSet(date);
+  const workdayStart = getRetrospectionWorkdayRange(date).start;
   const spans: WindowActivityDetailSpan[] = [];
 
   let lastWindowActivity: WindowActivityEntity | undefined = undefined;
   for (const activity of windowActivityToday) {
-    if (!activeMinutesSet.has(getMinuteOfDay(new Date(activity.ts)))) {
+    if (!activeMinutesSet.has(getWorkdayMinuteIndex(new Date(activity.ts), workdayStart))) {
       continue;
     }
 
@@ -767,7 +785,7 @@ async function getWindowActivityDetailSpans(date: Date): Promise<WindowActivityD
         new Date(lastWindowActivity.ts),
         new Date(activity.ts),
         activeMinutesSet,
-        date
+        workdayStart
       );
     }
 
@@ -784,7 +802,7 @@ async function getWindowActivityDetailSpans(date: Date): Promise<WindowActivityD
       start,
       end,
       activeMinutesSet,
-      date
+      workdayStart
     );
   }
 
@@ -855,26 +873,47 @@ function addTimelineHoverDetailsToSessions(
  */
 export async function getLongestTimeActiveInsight(date: Date): Promise<TimeActive> {
   const activeMinutesSet = await getActiveMinutesSet(date); // encoded from 0 to 1439
+  const workdayStart = getRetrospectionWorkdayRange(date).start;
 
   let longest: TimeActive = { from: new Date(), to: new Date(), duration: -1 };
   let periodStart: number | undefined = undefined;
   for (let m = 0; m < 24 * 60; m++) {
-    if (activeMinutesSet.has(m) && !periodStart) {
+    if (activeMinutesSet.has(m) && periodStart === undefined) {
       periodStart = m;
-    } else if (!activeMinutesSet.has(m) && periodStart) {
+    } else if (!activeMinutesSet.has(m) && periodStart !== undefined) {
       const duration = m - periodStart;
       if (duration > longest.duration) {
         longest = {
-          from: getDateFromMinuteOfDay(periodStart, date),
-          to: getDateFromMinuteOfDay(m, date),
+          from: getDateFromWorkdayMinuteIndex(periodStart, workdayStart),
+          to: getDateFromWorkdayMinuteIndex(m, workdayStart),
           duration
         };
       }
       periodStart = undefined;
     }
   }
+  if (periodStart !== undefined) {
+    const duration = 24 * 60 - periodStart;
+    if (duration > longest.duration) {
+      longest = {
+        from: getDateFromWorkdayMinuteIndex(periodStart, workdayStart),
+        to: getDateFromWorkdayMinuteIndex(24 * 60, workdayStart),
+        duration
+      };
+    }
+  }
 
   return longest;
+}
+
+/**
+ * Total time with detected user input during the 04:00-to-04:00 workday.
+ */
+export async function getActiveHoursInsight(date: Date): Promise<ActiveHoursInsight> {
+  const activeMinutesSet = await getActiveMinutesSet(date);
+  return {
+    activeDurationMs: activeMinutesSet.size * 60000
+  };
 }
 
 /**

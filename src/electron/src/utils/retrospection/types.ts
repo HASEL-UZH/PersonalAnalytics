@@ -53,6 +53,10 @@ export interface TimeActive {
   hiddenDetailCount?: number;
 }
 
+export interface ActiveHoursInsight {
+  activeDurationMs: number;
+}
+
 export interface ActivitySessions {
   type: string;
   totalDurationMs: number;
