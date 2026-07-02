@@ -117,6 +117,7 @@ export class IpcHandler {
       retrospectionGetTopThreeMostActiveApps: this.retrospectionGetTopThreeMostActiveApps,
       retrospectionGetTopThreeWebsites: this.retrospectionGetTopThreeWebsites,
       retrospectionGetTopThreeWindowTitles: this.retrospectionGetTopThreeWindowTitles,
+      retrospectionGetSelfReports: this.retrospectionGetSelfReports,
       openRetrospection: this.openRetrospection,
       closeRetrospectionWindow: this.closeRetrospectionWindow,
       createDailySurveyResponses: this.createDailySurveyResponses,
@@ -379,6 +380,10 @@ export class IpcHandler {
     } catch (error) {
       LOG.error('Error loading top window titles', error);
     }
+  }
+
+  private async retrospectionGetSelfReports(date: Date): Promise<ExperienceSamplingDto[]> {
+    return await this.experienceSamplingService.getExperienceSamplingDtosForDay(new Date(date));
   }
 
   private async openRetrospection(): Promise<void> {

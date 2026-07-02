@@ -1,6 +1,17 @@
 import { expect, jest, test } from '@jest/globals';
 
 jest.unstable_mockModule('electron', () => ({
+  app: {
+    getFileIcon: jest.fn()
+  },
+  nativeImage: {
+    createFromPath: jest.fn(() => ({
+      isEmpty: () => true,
+      resize: () => ({
+        toDataURL: () => ''
+      })
+    }))
+  },
   default: {
     app: {
       isPackaged: false

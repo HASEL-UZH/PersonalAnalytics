@@ -1,28 +1,28 @@
-import { Color, Activity } from './types'
+import { Color, Activity } from './types';
 
 export function msToReadableFormat(
   durationInMs: number,
   flashColon: boolean = false,
   showSeconds: boolean = false
 ): string {
-  const flash: ':' | ' ' = flashColon ? (Math.floor(Date.now() / 1000) % 2 === 0 ? ':' : ' ') : ':'
+  const flash: ':' | ' ' = flashColon ? (Math.floor(Date.now() / 1000) % 2 === 0 ? ':' : ' ') : ':';
 
-  const hours = Math.floor(durationInMs / (1000 * 60 * 60))
-  const minutes = Math.floor((durationInMs % (1000 * 60 * 60)) / (1000 * 60))
-  const seconds = Math.floor((durationInMs % (1000 * 60)) / 1000)
+  const hours = Math.floor(durationInMs / (1000 * 60 * 60));
+  const minutes = Math.floor((durationInMs % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((durationInMs % (1000 * 60)) / 1000);
 
-  const formattedHours = String(hours).padStart(2, '0')
-  const formattedMinutes = String(minutes).padStart(2, '0')
-  const formattedSeconds = String(seconds).padStart(2, '0')
+  const formattedHours = String(hours).padStart(2, '0');
+  const formattedMinutes = String(minutes).padStart(2, '0');
+  const formattedSeconds = String(seconds).padStart(2, '0');
 
-  let formatWithoutSeconds = `${formattedHours}${flash}${formattedMinutes}`
+  let formatWithoutSeconds = `${formattedHours}${flash}${formattedMinutes}`;
   if (formatWithoutSeconds === '00:00') {
-    formatWithoutSeconds = '< 00:01'
+    formatWithoutSeconds = '< 00:01';
   }
 
   return showSeconds
     ? `${formattedHours}${flash}${formattedMinutes}${flash}${formattedSeconds}`
-    : `${formatWithoutSeconds}`
+    : `${formatWithoutSeconds}`;
 }
 
 export function msToDecimalHours(durationInMs: number): string {
@@ -44,7 +44,7 @@ const ACTIVITY_GROUPS: Record<string, Activity[]> = {
   FileManagement: [Activity.FileManagement],
   Other: [Activity.Unknown, Activity.Other, Activity.OtherRdp],
   Idle: [Activity.Idle]
-}
+};
 
 export const TW_CLASS_ACTIVITY_MAPPINGS: Record<string, string> = {
   Development: 'sky-400',
@@ -60,8 +60,8 @@ export const TW_CLASS_ACTIVITY_MAPPINGS: Record<string, string> = {
   SocialMedia: 'red-600',
   FileManagement: 'teal-600',
   Other: 'neutral-400',
-  Idle: 'neutral-400',
-}
+  Idle: 'neutral-400'
+};
 
 export const ACTIVITY_LABELS: Record<string, string> = {
   Development: 'Coding',
@@ -78,23 +78,36 @@ export const ACTIVITY_LABELS: Record<string, string> = {
   FileManagement: 'File Management',
   Other: 'Other',
   Idle: 'Idle'
-}
+};
 
 export function getBarColorFromDataPoint(tailwindColorClass: string): string {
-  return (Color as any)[tailwindColorClass]
+  return (Color as any)[tailwindColorClass];
 }
 
 export function getActivityGroupFromActivityName(activityName: string): string {
   const activityGroup: string | undefined = Object.keys(ACTIVITY_GROUPS).find((group) =>
     ACTIVITY_GROUPS[group].includes(activityName as Activity)
-  )
-  return activityGroup || 'Other'
+  );
+  return activityGroup || 'Other';
 }
 
 export function getTailwindClassFromActivity(activityName: string, isGroup = false): string {
   if (isGroup) {
-    return TW_CLASS_ACTIVITY_MAPPINGS[activityName]
+    return TW_CLASS_ACTIVITY_MAPPINGS[activityName];
   }
-  const activityGroup = getActivityGroupFromActivityName(activityName)
-  return TW_CLASS_ACTIVITY_MAPPINGS[activityGroup]
+  const activityGroup = getActivityGroupFromActivityName(activityName);
+  return TW_CLASS_ACTIVITY_MAPPINGS[activityGroup];
+}
+
+export function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+export function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
 }
