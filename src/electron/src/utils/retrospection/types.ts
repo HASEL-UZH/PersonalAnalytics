@@ -10,6 +10,8 @@ export interface ChartDataPoint {
   color: string;
   type: DataPointType;
   activity: Activity;
+  details?: TimelineHoverDetail[];
+  hiddenDetailCount?: number;
 }
 
 export interface PieChartDataPoint {
@@ -47,6 +49,8 @@ export interface TimeActive {
   from: Date;
   to: Date;
   duration: number;
+  details?: TimelineHoverDetail[];
+  hiddenDetailCount?: number;
 }
 
 export interface ActivitySessions {
@@ -55,6 +59,15 @@ export interface ActivitySessions {
   sessions: TimeActive[];
   activity?: string;
   tooltipTitle?: string;
+}
+
+export interface TimelineHoverDetail {
+  title: string;
+  appName?: string | null;
+  durationMs: number;
+  tooltipTitle?: string;
+  activity?: string;
+  iconDataUrl?: string;
 }
 
 export enum Color {

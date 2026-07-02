@@ -33,6 +33,7 @@ const ACTIVITY_BREAKDOWN_COVERAGE = 0.9;
 const ACTIVITY_BREAKDOWN_MAX_ITEMS = 6;
 const EXCLUDED_ACTIVITY_BREAKDOWN_GROUPS = new Set(['Other', 'Unknown']);
 const experienceSamplingEnabled = studyConfig.trackers.experienceSamplingTracker.enabled;
+const isWindowActivityTrackerEnabled = studyConfig.trackers.windowActivityTracker.enabled;
 
 interface ActivityBreakdownDataPoint extends PieChartDataPoint {
   percentage: number;
@@ -241,7 +242,9 @@ function windowActivitiesToChartData() {
         activity: activitySession.type as Activity,
         start: session.from,
         end: session.to,
-        color: getTailwindClassFromActivity(activitySession.type)
+        color: getTailwindClassFromActivity(activitySession.type),
+        details: session.details,
+        hiddenDetailCount: session.hiddenDetailCount
       });
     });
   });
@@ -508,10 +511,18 @@ function getDayLabel(date: Date): string {
         </button>
       </div>
       <div class="text-center text-gray-800 dark:text-gray-200">
-        <h1 class="mb-8 text-2xl font-bold">No data for this day.</h1>
-        <span class="text-gray-600 dark:text-gray-400"
-          >There is no data recorded for this date. Please select a different day.</span
-        >
+        <template v-if="isWindowActivityTrackerEnabled">
+          <h1 class="mb-8 text-2xl font-bold">No data for this day.</h1>
+          <span class="text-gray-600 dark:text-gray-400"
+            >There is no data recorded for this date. Please select a different day.</span
+          >
+        </template>
+        <template v-else>
+          <h1 class="mb-8 text-2xl font-bold">Retrospection data is not available.</h1>
+          <span class="text-gray-600 dark:text-gray-400"
+            >Window activity tracking is disabled for this study.</span
+          >
+        </template>
       </div>
     </div>
   </template>
