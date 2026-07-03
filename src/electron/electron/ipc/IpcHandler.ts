@@ -26,6 +26,7 @@ import { WorkScheduleService } from 'electron/main/services/WorkScheduleService'
 import { WorkHoursDto } from 'shared/dto/WorkHoursDto';
 import {
   getActivitySessions,
+  getActiveHoursInsight,
   getAppUsageSessions,
   getLongestTimeActiveInsight,
   getTopWebsiteSessions,
@@ -110,11 +111,13 @@ export class IpcHandler {
       startAllTrackers: this.startAllTrackers,
       triggerPermissionCheckAccessibility: this.triggerPermissionCheckAccessibility,
       triggerPermissionCheckScreenRecording: this.triggerPermissionCheckScreenRecording,
+      retrospectionGetActiveHours: this.retrospectionGetActiveHours,
       retrospectionGetActivities: this.retrospectionGetActivities,
       retrospectionLoadLongestTimeActive: this.retrospectionLoadLongestTimeActive,
       retrospectionGetTopThreeMostActiveApps: this.retrospectionGetTopThreeMostActiveApps,
       retrospectionGetTopThreeWebsites: this.retrospectionGetTopThreeWebsites,
       retrospectionGetTopThreeWindowTitles: this.retrospectionGetTopThreeWindowTitles,
+      retrospectionGetSelfReports: this.retrospectionGetSelfReports,
       openRetrospection: this.openRetrospection,
       closeRetrospectionWindow: this.closeRetrospectionWindow,
       createDailySurveyResponses: this.createDailySurveyResponses,
@@ -335,6 +338,10 @@ export class IpcHandler {
     return await getActivitySessions(new Date(date));
   }
 
+  private async retrospectionGetActiveHours(date: Date) {
+    return await getActiveHoursInsight(new Date(date));
+  }
+
   private async retrospectionLoadLongestTimeActive(date: Date): Promise<TimeActive | undefined> {
     try {
       return await getLongestTimeActiveInsight(new Date(date));
@@ -373,6 +380,10 @@ export class IpcHandler {
     } catch (error) {
       LOG.error('Error loading top window titles', error);
     }
+  }
+
+  private async retrospectionGetSelfReports(date: Date): Promise<ExperienceSamplingDto[]> {
+    return await this.experienceSamplingService.getExperienceSamplingDtosForDay(new Date(date));
   }
 
   private async openRetrospection(): Promise<void> {

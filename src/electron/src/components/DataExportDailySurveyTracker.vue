@@ -55,8 +55,7 @@ function formatResponseOptions(d: DailySurveyDto): string {
       <h2>Your Daily Survey data</h2>
       <p>
         Your responses to the daily survey questions will also be shared with the
-        researchers. They do <b>not</b> contain any sensitive data.</p>
-        <p>Here is a sample of your unmodified data:</p>
+        researchers. Here is a sample of your unmodified data:</p>
     </div>
     <div class="max-h-48 overflow-auto">
       <table
