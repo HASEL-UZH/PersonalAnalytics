@@ -497,6 +497,63 @@ export class WindowService {
 
     this.tray.setContextMenu(Menu.buildFromTemplate(menuTemplate))
     this.tray.setToolTip(`${is.dev ? '[DEV MODE] ' : ''}Personal Analytics is running...\n\nYou are participating in: ${studyConfig.name}`)
+
+    await this.updateJumpList()
+  }
+
+  public async updateJumpList(): Promise<void> {
+    if (!is.windows) {
+      return
+    }
+
+    const settings: Settings | null = await Settings.findOne({ where: { onlyOneEntityShouldExist: 1 } })
+    const es = studyConfig.trackers.experienceSamplingTracker
+    const allowDisable = es.allowUserToDisable ?? true
+    const showSelfReflection =
+      es.enabled === true &&
+      (!allowDisable || (settings?.userDisabledExperienceSampling ?? 0) === 0)
+
+    // In dev, process.execPath is the bare electron.exe binary, which needs the app path
+    // as its first argument or it just shows Electron's own "no app loaded" screen.
+    const jumpListArgs = (flag: string): string => is.dev ? `"${app.getAppPath()}" ${flag}` : flag
+
+    const items: Electron.JumpListItem[] = []
+
+    if (studyConfig.enableRetrospection ?? true) {
+      items.push({
+        type: 'task',
+        title: 'Retrospection',
+        description: 'Open the retrospection window',
+        program: process.execPath,
+        args: jumpListArgs('--jumplist-retrospection'),
+        iconPath: process.execPath,
+        iconIndex: 0
+      })
+    }
+
+    if (showSelfReflection) {
+      items.push({
+        type: 'task',
+        title: 'Add Self-Reflection',
+        description: 'Open the self-reflection pop-up',
+        program: process.execPath,
+        args: jumpListArgs('--jumplist-self-reflection'),
+        iconPath: process.execPath,
+        iconIndex: 0
+      })
+    }
+
+    items.push({
+      type: 'task',
+      title: 'Settings',
+      description: 'Open settings',
+      program: process.execPath,
+      args: jumpListArgs('--jumplist-settings'),
+      iconPath: process.execPath,
+      iconIndex: 0
+    })
+
+    app.setJumpList([{ type: 'tasks', items }])
   }
 
   private async createTray(): Promise<void> {
@@ -581,8 +638,15 @@ export class WindowService {
         click: () => this.createSettingsWindow()
       },
       {
-        label: 'Onboarding',
+        label: '[DEV MODE] Onboarding',
         click: () => this.createOnboardingWindow(),
+        visible: is.dev
+      },
+      {
+        label: '[DEV MODE] Open App Folder',
+        click: (): void => {
+          shell.showItemInFolder(path.join(app.getPath('userData'), 'database.sqlite'))
+        },
         visible: is.dev
       },
       {

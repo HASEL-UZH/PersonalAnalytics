@@ -58,5 +58,6 @@ module.exports = {
     deleteAppDataOnUninstall: true,
     differentialPackage: false,
     artifactName: '${productName}-${version}-Windows.${ext}',
+    createDesktopShortcut: false,
   }
 };

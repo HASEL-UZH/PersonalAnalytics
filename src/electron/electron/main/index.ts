@@ -67,10 +67,31 @@ function showRunningNotification(): void {
   runningNotification.show();
 }
 
-if (!is.dev && !app.requestSingleInstanceLock()) {
+// In dev, the lock is normally skipped so a dev instance can run alongside an already-running
+// production install. Jump list launches are the exception: they must still route to whichever
+// instance is already running instead of spawning a duplicate.
+const isJumpListLaunch = process.argv.some((arg) => arg.startsWith('--jumplist-'));
+if ((!is.dev || isJumpListLaunch) && !app.requestSingleInstanceLock()) {
   console.log('Another instance of the app is already running');
   app.quit();
   process.exit(0);
+}
+
+// Windows: jump list task clicked. Returns true if argv matched a jump list task.
+function handleJumpListArgs(argv: string[]): boolean {
+  if (argv.includes('--jumplist-retrospection')) {
+    windowService.focusOrCreateRetrospectionWindow().catch((err) => console.error('Error opening retrospection from jump list', err))
+    return true
+  }
+  if (argv.includes('--jumplist-self-reflection')) {
+    windowService.createExperienceSamplingWindow(true).catch((err) => console.error('Error opening self-reflection from jump list', err))
+    return true
+  }
+  if (argv.includes('--jumplist-settings')) {
+    windowService.createSettingsWindow().catch((err) => console.error('Error opening settings from jump list', err))
+    return true
+  }
+  return false
 }
 
 // Windows: taskbar pin / Start-menu click triggers a second instance.
@@ -80,6 +101,7 @@ app.on('second-instance', (_event, argv) => {
   if (argv.includes('--hidden')) return
   setImmediate(() => {
     try {
+      if (handleJumpListArgs(argv)) return
       if (studyConfig.enableRetrospection ?? true) {
         windowService.focusOrCreateRetrospectionWindow().catch((err) => console.error('Error opening retrospection from second-instance', err))
       } else {
@@ -210,8 +232,10 @@ app.whenReady().then(async () => {
       await settings.save();
 
     // manual fresh start (not auto-launched at login): confirm via toast that the app is running
-    } else if (!isAutoLaunch) {
-      showRunningNotification();
+    } else if (!handleJumpListArgs(process.argv)) {
+      if (!isAutoLaunch) {
+        showRunningNotification();
+      }
     }
 
     if (macOSHasRequiredPermissions) {
