@@ -47,12 +47,25 @@ if (release().startsWith('6.1')) {
   app.disableHardwareAcceleration();
 }
 
-// Set application name for Windows 10+ notifications
-if (process.platform === 'win32') {
-  app.setAppUserModelId(app.getName());
-}
+// Must match the electron-builder appId and run before any window/tray is created.
+app.setAppUserModelId('ch.ifi.hasel.personal-analytics');
 
 let runningNotification: Notification | null = null;
+
+// confirm via toast that the app is already running, instead of opening a window directly
+function showRunningNotification(): void {
+  if (!Notification.isSupported()) return;
+  runningNotification = new Notification({
+    title: 'PersonalAnalytics is running',
+    body: `Monitoring your activity in the background. Use the ${process.platform === 'darwin' ? 'menubar' : 'system tray'} icon to access features.`,
+  });
+  if (studyConfig.enableRetrospection ?? true) {
+    runningNotification.on('click', () => {
+      windowService.focusOrCreateRetrospectionWindow().catch(console.error);
+    });
+  }
+  runningNotification.show();
+}
 
 if (!is.dev && !app.requestSingleInstanceLock()) {
   console.log('Another instance of the app is already running');
@@ -60,14 +73,22 @@ if (!is.dev && !app.requestSingleInstanceLock()) {
   process.exit(0);
 }
 
-// Windows: taskbar pin / Start-menu click triggers a second instance
+// Windows: taskbar pin / Start-menu click triggers a second instance.
+// Deferred via setImmediate: creating native UI synchronously inside this callback
+// (which fires from Windows' inter-process messaging) can be unstable.
 app.on('second-instance', (_event, argv) => {
   if (argv.includes('--hidden')) return
-  if (studyConfig.enableRetrospection ?? true) {
-    windowService.focusOrCreateRetrospectionWindow().catch((err) => console.error('Error opening retrospection from second-instance', err))
-  } else {
-    windowService.popUpTrayContextMenu()
-  }
+  setImmediate(() => {
+    try {
+      if (studyConfig.enableRetrospection ?? true) {
+        windowService.focusOrCreateRetrospectionWindow().catch((err) => console.error('Error opening retrospection from second-instance', err))
+      } else {
+        showRunningNotification()
+      }
+    } catch (err) {
+      console.error('Error handling second-instance', err)
+    }
+  })
 })
 
 // macOS: dock-icon click when no window is visible
@@ -93,8 +114,6 @@ dotenv.config();
 
 
 app.whenReady().then(async () => {
-  app.setAppUserModelId('ch.ifi.hasel.personal-analytics');
-
   if (!is.dev) {
     app.setLoginItemSettings({
       openAtLogin: true,
@@ -192,18 +211,7 @@ app.whenReady().then(async () => {
 
     // manual fresh start (not auto-launched at login): confirm via toast that the app is running
     } else if (!isAutoLaunch) {
-      if (Notification.isSupported()) {
-        runningNotification = new Notification({
-          title: 'PersonalAnalytics is running',
-          body: 'Monitoring your activity in the background. Use the system tray icon to access features.',
-        });
-        if (studyConfig.enableRetrospection ?? true) {
-          runningNotification.on('click', () => {
-            windowService.focusOrCreateRetrospectionWindow().catch(console.error);
-          });
-        }
-        runningNotification.show();
-      }
+      showRunningNotification();
     }
 
     if (macOSHasRequiredPermissions) {
