@@ -117,7 +117,8 @@ export class WindowService {
   public resizeExperienceSamplingWindow(height: number) {
     if (this.experienceSamplingWindow) {
       const minHeight = 120
-      const maxHeight = 600
+      const { height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
+      const maxHeight = Math.min(Math.round(screenHeight * 0.85), 900)
       const clamped = Math.max(minHeight, Math.min(maxHeight, height))
       this.experienceSamplingWindow.setContentSize(500, clamped)
     }
