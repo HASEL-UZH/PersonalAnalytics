@@ -152,6 +152,11 @@ export function isBrowserProcessName(processName: string | null): boolean {
  *
  * A workday starts at 04:00 local time and ends at 04:00 the next local day, so late-night work
  * before 04:00 is attributed to the previous workday.
+ *
+ * Every retrospection data query and visualization must resolve "a day" through this range so
+ * that all charts and tiles agree on which workday an entry belongs to. Matching the plain local
+ * calendar date instead (e.g., "date(column, 'localtime') = :day") attributes work between
+ * midnight and 04:00 to the next day, making those entries disagree with the activity timeline.
  */
 export function getRetrospectionWorkdayRange(date: Date | string): { start: Date; end: Date } {
   const d = typeof date === 'string' ? new Date(date) : date;

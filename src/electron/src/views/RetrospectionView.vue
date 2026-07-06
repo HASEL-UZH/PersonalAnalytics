@@ -224,6 +224,9 @@ onMounted(async () => {
   await loadData();
 });
 
+// selectedDay is a calendar date; the main process resolves it to the 04:00-to-04:00 local
+// workday (getRetrospectionWorkdayRange), so work before 04:00 belongs to the previous day.
+// Every data query and visualization for a day must apply that same range uniformly.
 async function loadData() {
   isLoading.value = true;
   await loadActiveHours();
