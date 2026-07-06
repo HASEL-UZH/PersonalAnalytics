@@ -1,6 +1,7 @@
 import { ExperienceSamplingResponseEntity } from '../entities/ExperienceSamplingResponseEntity';
 import getMainLogger from '../../config/Logger';
 import ExperienceSamplingDto from '../../../shared/dto/ExperienceSamplingDto';
+import type { ExperienceSamplingResponseInput } from '../../../shared/dto/ExperienceSamplingDto';
 import type { ExperienceSamplingAnswerType } from '../../../shared/StudyConfiguration';
 
 const LOG = getMainLogger('ExperienceSamplingService');
@@ -46,6 +47,29 @@ export class ExperienceSamplingService {
       skipped,
       trigger
     });
+  }
+
+  public async createExperienceSamples(
+    promptedAt: Date,
+    responses: ExperienceSamplingResponseInput[],
+    trigger: 'manual' | 'auto' = 'auto'
+  ): Promise<void> {
+    LOG.debug(
+      `createExperienceSamples: promptedAt=${promptedAt}, responseCount=${responses.length}, trigger=${trigger}`
+    );
+    const entities = responses.map((r) => {
+      const entity = new ExperienceSamplingResponseEntity();
+      entity.promptedAt = promptedAt;
+      entity.question = r.question;
+      entity.answerType = r.answerType;
+      entity.responseOptions = r.responseOptions;
+      entity.scale = r.scale;
+      entity.response = r.response;
+      entity.skipped = r.skipped;
+      entity.trigger = trigger;
+      return entity;
+    });
+    await ExperienceSamplingResponseEntity.save(entities);
   }
 
   public async getMostRecentExperienceSamplingDtos(
