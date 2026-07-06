@@ -113,12 +113,11 @@ app.on('second-instance', (_event, argv) => {
   })
 })
 
-// macOS: dock-icon click when no window is visible
+// macOS: app re-opened via Finder/Spotlight/Launchpad (dock icon is hidden)
 app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length > 0) return
   if (studyConfig.enableRetrospection ?? true) {
     windowService.focusOrCreateRetrospectionWindow().catch((err) => console.error('Error opening retrospection from activate', err))
-  } else {
+  } else if (BrowserWindow.getAllWindows().length === 0) {
     windowService.popUpTrayContextMenu()
   }
 })
@@ -231,9 +230,10 @@ app.whenReady().then(async () => {
       settings.studyAndTrackersStartedShown = true;
       await settings.save();
 
-    // manual fresh start (not auto-launched at login): confirm via toast that the app is running
+    // manual fresh start: confirm via toast that the app is running. Windows only —
+    // macOS can't reliably distinguish auto-launches at login (would toast at every login).
     } else if (!handleJumpListArgs(process.argv)) {
-      if (!isAutoLaunch) {
+      if (is.windows && !isAutoLaunch) {
         showRunningNotification();
       }
     }

@@ -17,6 +17,7 @@ const LOG = getMainLogger('WindowService')
 export class WindowService {
   private readonly appUpdaterService: AppUpdaterService
   private tray: Tray | null = null
+  private trayMenu: Menu | null = null
   private experienceSamplingWindow: BrowserWindow | null = null
   private dailySurveyWindow: BrowserWindow | null = null
   private onboardingWindow: BrowserWindow | null = null
@@ -476,7 +477,7 @@ export class WindowService {
 
   public popUpTrayContextMenu(): void {
     if (this.tray) {
-      this.tray.popUpContextMenu()
+      this.tray.popUpContextMenu(this.trayMenu ?? undefined)
     }
   }
 
@@ -495,7 +496,12 @@ export class WindowService {
     menuTemplate[1].label = updaterLabel
     menuTemplate[1].enabled = updaterMenuEnabled
 
-    this.tray.setContextMenu(Menu.buildFromTemplate(menuTemplate))
+    this.trayMenu = Menu.buildFromTemplate(menuTemplate)
+    // macOS with retrospection enabled: leave the context menu unset — setContextMenu would
+    // swallow click events, so a click opens the retrospection and right-click shows the menu.
+    if (!(is.macOS && (studyConfig.enableRetrospection ?? true))) {
+      this.tray.setContextMenu(this.trayMenu)
+    }
     this.tray.setToolTip(`${is.dev ? '[DEV MODE] ' : ''}Personal Analytics is running...\n\nYou are participating in: ${studyConfig.name}`)
 
     await this.updateJumpList()
@@ -569,7 +575,10 @@ export class WindowService {
     const retrospectionEnabled = studyConfig.enableRetrospection ?? true
     this.tray.on('click', () => {
       if (!retrospectionEnabled) {
-        this.tray.popUpContextMenu()
+        this.popUpTrayContextMenu()
+      } else if (is.macOS) {
+        // only fires on macOS since no context menu is set there (see updateTray)
+        this.focusOrCreateRetrospectionWindow().catch((err) => LOG.error('Error opening retrospection from tray click', err))
       }
     })
     this.tray.on('double-click', () => {
@@ -578,7 +587,7 @@ export class WindowService {
       }
     })
     this.tray.on('right-click', () => {
-      this.tray.popUpContextMenu()
+      this.popUpTrayContextMenu()
     })
     await this.updateTray()
   }
