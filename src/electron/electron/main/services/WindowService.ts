@@ -47,6 +47,11 @@ export class WindowService {
   }
 
   public async createExperienceSamplingWindow(isManuallyTriggered: boolean = false) {
+    if (studyConfig.trackers.experienceSamplingTracker.questions.length === 0) {
+      LOG.warn('No experience sampling questions configured; not opening popup')
+      return
+    }
+
     if (this.experienceSamplingWindow) {
       this.experienceSamplingWindow.close()
       this.experienceSamplingWindow = null

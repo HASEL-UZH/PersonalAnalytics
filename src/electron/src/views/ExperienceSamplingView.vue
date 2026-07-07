@@ -9,21 +9,25 @@ import type {
 import type { ExperienceSamplingResponseInput } from '../../shared/dto/ExperienceSamplingDto';
 
 type ResponseValue = string | number | string[] | null;
+type DisplayedQuestionView = {
+  question: ExperienceSamplingQuestion;
+  scale: number[];
+  choiceOptions: string[];
+  useChoiceDropdown: boolean;
+  choiceSelectSize: number;
+  responseOptionsSnapshot: string;
+};
 
 const esConfig = studyConfig.trackers.experienceSamplingTracker;
 const studyQuestions = esConfig.questions;
 const showAllQuestionsTogether = (esConfig.showAllQuestionsTogether ?? false) === true;
 
 const randomQuestionNr = Math.floor(Math.random() * studyQuestions.length);
-const displayedQuestions = computed<ExperienceSamplingQuestion[]>(() => {
-  if (showAllQuestionsTogether) {
-    return studyQuestions;
-  }
-
-  const selectedQuestion = studyQuestions[randomQuestionNr];
-  return selectedQuestion ? [selectedQuestion] : [];
-});
-const hasQuestions = computed(() => displayedQuestions.value.length > 0);
+const selectedQuestion = studyQuestions[randomQuestionNr];
+const displayedQuestionViews: DisplayedQuestionView[] = (
+  showAllQuestionsTogether ? studyQuestions : selectedQuestion ? [selectedQuestion] : []
+).map(toDisplayedQuestionView);
+const hasQuestions = displayedQuestionViews.length > 0;
 
 const language =
   (typeof navigator !== 'undefined' &&
@@ -56,10 +60,7 @@ async function measureAndResize() {
   const topBar = el.querySelector<HTMLElement>('.notification-top-bar');
   const questionArea = el.querySelector<HTMLElement>('.questions-scroll');
   const actionSide = el.querySelector<HTMLElement>('.action-side');
-  const contentHeight = Math.max(
-    questionArea?.scrollHeight ?? 0,
-    actionSide?.scrollHeight ?? 0
-  );
+  const contentHeight = Math.max(questionArea?.scrollHeight ?? 0, actionSide?.scrollHeight ?? 0);
   const naturalHeight = (topBar?.scrollHeight ?? 0) + contentHeight;
   typedIpcRenderer.invoke('resizeExperienceSamplingWindow', Math.ceil(naturalHeight) + 2);
 }
@@ -69,7 +70,7 @@ onMounted(() => {
 });
 
 const needsSubmitButton = computed(() => {
-  if (!hasQuestions.value) {
+  if (!hasQuestions) {
     return false;
   }
 
@@ -77,49 +78,44 @@ const needsSubmitButton = computed(() => {
     return true;
   }
 
-  const selectedQuestion = displayedQuestions.value[0];
+  const selectedQuestion = displayedQuestionViews[0]?.question;
   return (
     selectedQuestion?.answerType === 'TextResponse' ||
     selectedQuestion?.answerType === 'MultiChoice'
   );
 });
 
-const allDisplayedQuestionsAnswered = computed(() => {
-  return (
-    displayedQuestions.value.length > 0 &&
-    displayedQuestions.value.every((question, index) => isAnswerReady(index, question))
-  );
+const hasAtLeastOneAnswer = computed(() => {
+  return displayedQuestionViews.some(({ question }, index) => isAnswerReady(index, question));
 });
 
 const isSubmitDisabled = computed(() => {
   if (showAllQuestionsTogether) {
-    return !allDisplayedQuestionsAnswered.value;
+    return !hasAtLeastOneAnswer.value;
   }
 
-  const selectedQuestion = displayedQuestions.value[0];
+  const selectedQuestion = displayedQuestionViews[0]?.question;
   return selectedQuestion ? !isAnswerReady(0, selectedQuestion) : true;
 });
 
-function getScale(question: ExperienceSamplingQuestion): number[] {
-  return question.answerType === 'LikertScale'
-    ? Array.from({ length: question.scale }, (_, i) => i + 1)
-    : [];
-}
+function toDisplayedQuestionView(question: ExperienceSamplingQuestion): DisplayedQuestionView {
+  const scale =
+    question.answerType === 'LikertScale'
+      ? Array.from({ length: question.scale }, (_, i) => i + 1)
+      : [];
+  const choiceOptions =
+    question.answerType === 'SingleChoice' || question.answerType === 'MultiChoice'
+      ? question.responseOptions
+      : [];
 
-function getChoiceOptions(question: ExperienceSamplingQuestion): string[] {
-  if (question.answerType === 'SingleChoice' || question.answerType === 'MultiChoice') {
-    return question.responseOptions;
-  }
-  return [];
-}
-
-function useChoiceDropdown(question: ExperienceSamplingQuestion): boolean {
-  return getChoiceOptions(question).length >= 10;
-}
-
-function choiceSelectSize(question: ExperienceSamplingQuestion): number {
-  const choiceOptions = getChoiceOptions(question);
-  return Math.min(Math.max(choiceOptions.length, 6), 10);
+  return {
+    question,
+    scale,
+    choiceOptions,
+    useChoiceDropdown: choiceOptions.length >= 10,
+    choiceSelectSize: Math.min(Math.max(choiceOptions.length, 6), 10),
+    responseOptionsSnapshot: buildResponseOptionsSnapshot(question)
+  };
 }
 
 function setResponse(index: number, type: ExperienceSamplingAnswerType, value: ResponseValue) {
@@ -205,14 +201,15 @@ function formatResponseValue(
 }
 
 function buildResponseInput(
-  question: ExperienceSamplingQuestion,
+  questionView: DisplayedQuestionView,
   index: number,
   skipped: boolean
 ): ExperienceSamplingResponseInput {
+  const { question } = questionView;
   return {
     question: question.question,
     answerType: question.answerType,
-    responseOptions: buildResponseOptionsSnapshot(question),
+    responseOptions: questionView.responseOptionsSnapshot,
     scale: question.answerType === 'LikertScale' ? question.scale : null,
     response: skipped ? null : formatResponseValue(question, responses.value[index]?.value),
     skipped
@@ -230,7 +227,7 @@ async function answerLikertQuestion(
 
   setResponse(index, 'LikertScale', value);
   if (!showAllQuestionsTogether) {
-    await createExperienceSample(index, question);
+    await submitSingleQuestion(index);
   }
 }
 
@@ -245,7 +242,7 @@ async function selectSingleChoiceOption(
 
   setResponse(index, 'SingleChoice', option);
   if (!showAllQuestionsTogether) {
-    await createExperienceSample(index, question);
+    await submitSingleQuestion(index);
   }
 }
 
@@ -265,7 +262,7 @@ async function onSingleChoiceDropdownChange(
 
   setResponse(index, 'SingleChoice', value);
   if (!showAllQuestionsTogether) {
-    await createExperienceSample(index, question);
+    await submitSingleQuestion(index);
   }
 }
 
@@ -304,107 +301,63 @@ function onTextInput(index: number, event: Event) {
   setResponse(index, 'TextResponse', (event.target as HTMLInputElement).value);
 }
 
-async function createExperienceSample(index: number, question: ExperienceSamplingQuestion) {
-  if (!isAnswerReady(index, question)) {
-    return;
-  }
-
+async function submitResponseInputs(
+  responseInputs: ExperienceSamplingResponseInput[],
+  skippedExperienceSampling: boolean,
+  mode: 'answer' | 'skip',
+  errorMessage: string
+) {
   isSubmitting.value = true;
-  submitMode.value = 'answer';
+  submitMode.value = mode;
   try {
-    const responseValue = formatResponseValue(question, responses.value[index]?.value);
-    await Promise.all([
-      typedIpcRenderer.invoke(
-        'createExperienceSample',
-        promptedAt,
-        question.question,
-        question.answerType,
-        buildResponseOptionsSnapshot(question),
-        question.answerType === 'LikertScale' ? question.scale : null,
-        responseValue ?? undefined,
-        false,
-        trigger
-      ),
-      new Promise((resolve) => setTimeout(resolve, 150))
-    ]);
-    await typedIpcRenderer.invoke('closeExperienceSamplingWindow', false);
-  } catch (error) {
-    console.error('Error creating experience sample', error);
-  } finally {
-    isSubmitting.value = false;
-    submitMode.value = null;
-  }
-}
-
-async function submitDisplayedQuestions() {
-  if (!showAllQuestionsTogether) {
-    const selectedQuestion = displayedQuestions.value[0];
-    if (selectedQuestion) {
-      await createExperienceSample(0, selectedQuestion);
-    }
-    return;
-  }
-
-  if (!allDisplayedQuestionsAnswered.value) {
-    return;
-  }
-
-  isSubmitting.value = true;
-  submitMode.value = 'answer';
-  try {
-    const responseInputs = displayedQuestions.value.map((question, index) =>
-      buildResponseInput(question, index, false)
-    );
     await Promise.all([
       typedIpcRenderer.invoke('createExperienceSamples', promptedAt, responseInputs, trigger),
       new Promise((resolve) => setTimeout(resolve, 150))
     ]);
-    await typedIpcRenderer.invoke('closeExperienceSamplingWindow', false);
+    await typedIpcRenderer.invoke('closeExperienceSamplingWindow', skippedExperienceSampling);
   } catch (error) {
-    console.error('Error creating experience samples', error);
+    console.error(errorMessage, error);
   } finally {
     isSubmitting.value = false;
     submitMode.value = null;
   }
 }
 
-async function skipExperienceSample() {
-  isSubmitting.value = true;
-  submitMode.value = 'skip';
-  try {
-    const questions = displayedQuestions.value;
-    if (showAllQuestionsTogether) {
-      const responseInputs = questions.map((question, index) =>
-        buildResponseInput(question, index, true)
-      );
-      await Promise.all([
-        typedIpcRenderer.invoke('createExperienceSamples', promptedAt, responseInputs, trigger),
-        new Promise((resolve) => setTimeout(resolve, 150))
-      ]);
-    } else if (questions[0]) {
-      const selectedQuestion = questions[0];
-      await Promise.all([
-        typedIpcRenderer.invoke(
-          'createExperienceSample',
-          promptedAt,
-          selectedQuestion.question,
-          selectedQuestion.answerType,
-          buildResponseOptionsSnapshot(selectedQuestion),
-          selectedQuestion.answerType === 'LikertScale' ? selectedQuestion.scale : null,
-          undefined,
-          true,
-          trigger
-        ),
-        new Promise((resolve) => setTimeout(resolve, 150))
-      ]);
-    }
-    await typedIpcRenderer.invoke('closeExperienceSamplingWindow', true);
-  } catch (error) {
-    console.error('Error skipping experience sample', error);
-  } finally {
-    isSubmitting.value = false;
-    submitMode.value = null;
+async function submitSingleQuestion(index: number) {
+  const selectedQuestionView = displayedQuestionViews[index];
+  if (!selectedQuestionView || !isAnswerReady(index, selectedQuestionView.question)) {
+    return;
   }
+
+  await submitResponseInputs(
+    [buildResponseInput(selectedQuestionView, index, false)],
+    false,
+    'answer',
+    'Error creating experience sample'
+  );
+}
+
+async function submitDisplayedQuestions() {
+  if (!showAllQuestionsTogether) {
+    await submitSingleQuestion(0);
+    return;
+  }
+
+  if (!hasAtLeastOneAnswer.value) {
+    return;
+  }
+
+  const responseInputs = displayedQuestionViews.map((questionView, index) =>
+    buildResponseInput(questionView, index, false)
+  );
+  await submitResponseInputs(responseInputs, false, 'answer', 'Error creating experience samples');
+}
+
+async function skipExperienceSample() {
+  const responseInputs = displayedQuestionViews.map((questionView, index) =>
+    buildResponseInput(questionView, index, true)
+  );
+  await submitResponseInputs(responseInputs, true, 'skip', 'Error skipping experience sample');
 }
 </script>
 <template>
@@ -417,151 +370,162 @@ async function skipExperienceSample() {
       <div class="questions-scroll flex flex-1 p-4 pt-1">
         <div v-if="hasQuestions" class="flex flex-1 flex-col">
           <div
-            v-for="(question, index) in displayedQuestions"
-            :key="`${index}-${question.question}`"
+            v-for="(questionView, index) in displayedQuestionViews"
+            :key="`${index}-${questionView.question.question}`"
             class="question-block"
             :class="{ 'question-block-stacked': showAllQuestionsTogether }"
           >
-            <p class="prompt">{{ question.question }}</p>
+            <template v-if="questionView.question.answerType === 'LikertScale'">
+              <p class="prompt">{{ questionView.question.question }}</p>
 
-            <div v-if="question.answerType === 'LikertScale'" class="mt-2 flex flex-row gap-1.5">
-              <button
-                v-for="value in getScale(question)"
-                :key="value"
-                type="button"
-                class="sample-answer"
-                :class="{ 'sample-answer-selected': responses[index]?.value === value }"
-                :disabled="isSubmitting"
-                @click="answerLikertQuestion(index, question, value)"
-              >
-                <span
-                  v-if="!(isSubmitting && submitMode === 'answer' && !showAllQuestionsTogether)"
+              <div class="mt-2 flex flex-row gap-1.5">
+                <button
+                  v-for="value in questionView.scale"
+                  :key="value"
+                  type="button"
+                  class="sample-answer"
+                  :class="{ 'sample-answer-selected': responses[index]?.value === value }"
+                  :disabled="isSubmitting"
+                  @click="answerLikertQuestion(index, questionView.question, value)"
                 >
-                  {{ value }}
-                </span>
-                <span v-else>
-                  <span class="loading loading-spinner loading-xs" />
-                </span>
-              </button>
-            </div>
-
-            <div
-              v-if="question.answerType === 'LikertScale'"
-              class="mt-1 flex flex-row text-sm text-gray-400 dark:text-gray-500"
-            >
-              <div class="basis-1/3">{{ question.responseOptions[0] }}</div>
-              <div class="basis-1/3 text-center">
-                <span v-if="question.responseOptions.length === 3">
-                  {{ question.responseOptions[1] }}
-                </span>
+                  <span
+                    v-if="!(isSubmitting && submitMode === 'answer' && !showAllQuestionsTogether)"
+                  >
+                    {{ value }}
+                  </span>
+                  <span v-else>
+                    <span class="loading loading-spinner loading-xs" />
+                  </span>
+                </button>
               </div>
-              <div class="basis-1/3 text-right">
-                {{ question.responseOptions[2] || question.responseOptions[1] }}
-              </div>
-            </div>
 
-            <div v-if="question.answerType === 'TextResponse'" class="mt-2 flex flex-col">
-              <div class="text-answer-content">
-                <div v-if="question.responseOptions === 'singleLine'" class="text-answer-wrapper">
-                  <input
-                    class="text-answer-input"
-                    :maxlength="question.maxLength"
-                    :value="getTextResponse(index)"
-                    :disabled="isSubmitting"
-                    type="text"
-                    @input="onTextInput(index, $event)"
-                  />
-                  <span class="char-counter">
-                    {{ getTextResponse(index).length }}/{{ question.maxLength }}
+              <div class="mt-1 flex flex-row text-sm text-gray-400 dark:text-gray-500">
+                <div class="basis-1/3">{{ questionView.question.responseOptions[0] }}</div>
+                <div class="basis-1/3 text-center">
+                  <span v-if="questionView.question.responseOptions.length === 3">
+                    {{ questionView.question.responseOptions[1] }}
                   </span>
                 </div>
-                <div v-else class="text-answer-wrapper text-answer-wrapper-multi">
-                  <textarea
-                    class="text-answer-textarea"
-                    :maxlength="question.maxLength"
-                    :value="getTextResponse(index)"
-                    :disabled="isSubmitting"
-                    @input="onTextInput(index, $event)"
-                  />
-                  <span class="char-counter">
-                    {{ getTextResponse(index).length }}/{{ question.maxLength }}
-                  </span>
+                <div class="basis-1/3 text-right">
+                  {{
+                    questionView.question.responseOptions[2] ||
+                    questionView.question.responseOptions[1]
+                  }}
                 </div>
               </div>
-            </div>
+            </template>
 
-            <div
-              v-if="question.answerType === 'SingleChoice' || question.answerType === 'MultiChoice'"
-              class="mt-1 flex flex-col"
-            >
-              <div class="choice-hint">
-                {{ question.answerType === 'SingleChoice' ? 'Pick one' : 'Pick one or more' }}
-              </div>
-              <div class="choice-answer-content">
-                <div v-if="!useChoiceDropdown(question)" class="choice-list">
-                  <button
-                    v-for="option in getChoiceOptions(question)"
-                    :key="option"
-                    class="choice-option"
-                    :class="{ 'choice-option-selected': isChoiceSelected(index, option) }"
-                    :disabled="isSubmitting"
-                    @click="
-                      question.answerType === 'SingleChoice'
-                        ? selectSingleChoiceOption(index, question, option)
-                        : toggleMultiChoiceOption(index, question, option)
-                    "
+            <template v-else-if="questionView.question.answerType === 'TextResponse'">
+              <p class="prompt">{{ questionView.question.question }}</p>
+              <div class="mt-2 flex flex-col">
+                <div class="text-answer-content">
+                  <div
+                    v-if="questionView.question.responseOptions === 'singleLine'"
+                    class="text-answer-wrapper"
                   >
-                    {{ option }}
-                  </button>
+                    <input
+                      class="text-answer-input"
+                      :maxlength="questionView.question.maxLength"
+                      :value="getTextResponse(index)"
+                      :disabled="isSubmitting"
+                      type="text"
+                      @input="onTextInput(index, $event)"
+                    />
+                    <span class="char-counter">
+                      {{ getTextResponse(index).length }}/{{ questionView.question.maxLength }}
+                    </span>
+                  </div>
+                  <div v-else class="text-answer-wrapper text-answer-wrapper-multi">
+                    <textarea
+                      class="text-answer-textarea"
+                      :maxlength="questionView.question.maxLength"
+                      :value="getTextResponse(index)"
+                      :disabled="isSubmitting"
+                      @input="onTextInput(index, $event)"
+                    />
+                    <span class="char-counter">
+                      {{ getTextResponse(index).length }}/{{ questionView.question.maxLength }}
+                    </span>
+                  </div>
                 </div>
+              </div>
+            </template>
 
-                <div v-else>
-                  <select
-                    v-if="question.answerType === 'SingleChoice'"
-                    class="choice-select"
-                    :value="(responses[index]?.value as string) ?? ''"
-                    :disabled="isSubmitting"
-                    @change="
-                      onSingleChoiceDropdownChange(
-                        index,
-                        question,
-                        ($event.target as HTMLSelectElement).value
-                      )
-                    "
-                  >
-                    <option value="" disabled>Select an option</option>
-                    <option
-                      v-for="option in getChoiceOptions(question)"
+            <template v-else>
+              <p class="prompt">{{ questionView.question.question }}</p>
+              <div class="mt-1 flex flex-col">
+                <div class="choice-hint">
+                  {{
+                    questionView.question.answerType === 'SingleChoice'
+                      ? 'Pick one'
+                      : 'Pick one or more'
+                  }}
+                </div>
+                <div class="choice-answer-content">
+                  <div v-if="!questionView.useChoiceDropdown" class="choice-list">
+                    <button
+                      v-for="option in questionView.choiceOptions"
                       :key="option"
-                      :value="option"
+                      class="choice-option"
+                      :class="{ 'choice-option-selected': isChoiceSelected(index, option) }"
+                      :disabled="isSubmitting"
+                      @click="
+                        questionView.question.answerType === 'SingleChoice'
+                          ? selectSingleChoiceOption(index, questionView.question, option)
+                          : toggleMultiChoiceOption(index, questionView.question, option)
+                      "
                     >
                       {{ option }}
-                    </option>
-                  </select>
+                    </button>
+                  </div>
 
-                  <select
-                    v-else
-                    class="choice-select choice-select-multi"
-                    :size="choiceSelectSize(question)"
-                    multiple
-                    :disabled="isSubmitting"
-                    @change="onMultiChoiceDropdownChange(index, question, $event)"
-                  >
-                    <option
-                      v-for="option in getChoiceOptions(question)"
-                      :key="option"
-                      :value="option"
-                      :selected="getMultiChoiceResponse(index).includes(option)"
+                  <div v-else>
+                    <select
+                      v-if="questionView.question.answerType === 'SingleChoice'"
+                      class="choice-select"
+                      :value="(responses[index]?.value as string) ?? ''"
+                      :disabled="isSubmitting"
+                      @change="
+                        onSingleChoiceDropdownChange(
+                          index,
+                          questionView.question,
+                          ($event.target as HTMLSelectElement).value
+                        )
+                      "
                     >
-                      {{ option }}
-                    </option>
-                  </select>
+                      <option value="" disabled>Select an option</option>
+                      <option
+                        v-for="option in questionView.choiceOptions"
+                        :key="option"
+                        :value="option"
+                      >
+                        {{ option }}
+                      </option>
+                    </select>
+
+                    <select
+                      v-else
+                      class="choice-select choice-select-multi"
+                      :size="questionView.choiceSelectSize"
+                      multiple
+                      :disabled="isSubmitting"
+                      @change="onMultiChoiceDropdownChange(index, questionView.question, $event)"
+                    >
+                      <option
+                        v-for="option in questionView.choiceOptions"
+                        :key="option"
+                        :value="option"
+                        :selected="getMultiChoiceResponse(index).includes(option)"
+                      >
+                        {{ option }}
+                      </option>
+                    </select>
+                  </div>
                 </div>
               </div>
-            </div>
+            </template>
           </div>
         </div>
-        <div v-else class="empty-state">No self-reflection questions configured.</div>
       </div>
       <div
         class="action-side flex cursor-pointer self-stretch border-l border-gray-200 dark:border-gray-600"
@@ -839,15 +803,6 @@ async function skipExperienceSample() {
     color: #111827;
   }
 
-  .empty-state {
-    display: flex;
-    min-height: 5rem;
-    flex: 1;
-    align-items: center;
-    color: #6b7280;
-    font-size: 0.875rem;
-  }
-
   @media (prefers-color-scheme: dark) {
     .skip-button {
       color: #9ca3af;
@@ -858,9 +813,6 @@ async function skipExperienceSample() {
       color: #e5e7eb;
     }
 
-    .empty-state {
-      color: #9ca3af;
-    }
   }
 }
 </style>
