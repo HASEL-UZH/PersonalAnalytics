@@ -5,7 +5,7 @@
       class="self-report-tooltip rounded border border-gray-200 bg-white p-2 text-gray-700 opacity-0 shadow-lg transition-opacity duration-300 ease-in-out dark:border-transparent dark:bg-neutral-800 dark:text-neutral-300 dark:shadow-neutral-800/80"
     ></div>
     <svg ref="chart" :width="svgWidth" :height="svgHeight"></svg>
-    <div v-if="series.length > 1" class="self-report-legend">
+    <div v-if="series.length > 0" class="self-report-legend">
       <button
         v-for="item in series"
         :key="item.question"
@@ -281,6 +281,8 @@ function buildChart() {
   const x = d3.scaleTime().domain([props.startDate, props.endDate]).range([0, width]);
   const y = d3.scaleLinear().domain([0, 1]).range([height, 0]);
   const timeFormat = d3.timeFormat('%H:%M');
+  const formatTimeTick = (value: Date | d3.NumberValue) =>
+    timeFormat(value instanceof Date ? value : new Date(Number(value)));
 
   [0, 0.5, 1].forEach((tick) => {
     svg
@@ -351,7 +353,7 @@ function buildChart() {
     .append('g')
     .attr('class', 'x axis')
     .attr('transform', `translate(0, ${height})`)
-    .call(d3.axisBottom(x).tickFormat(timeFormat as any))
+    .call(d3.axisBottom(x).tickFormat(formatTimeTick))
     .selectAll('text')
     .style('fill', axisColor);
 
@@ -392,7 +394,6 @@ function getTooltipScaleSuffix(point: SelfReportPoint): string {
   if (point.labels.length === 0) {
     return '';
   }
-  return `Scale: ${point.labels.join(' / ')}`;
   return ` (${point.labels.join(' / ')})`;
 }
 </script>
