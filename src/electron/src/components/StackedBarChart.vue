@@ -141,11 +141,11 @@ function getDetailInitial(detail: TimelineHoverDetail): string {
 
 function renderTooltipDetailIcon(detail: TimelineHoverDetail): string {
   if (detail.iconDataUrl) {
-    return `<img src="${escapeHtml(detail.iconDataUrl)}" alt="" style="width: 16px; height: 16px; border-radius: 4px; flex: 0 0 auto;" />`;
+    return `<img src="${escapeHtml(detail.iconDataUrl)}" alt="" style="width: 28px; height: 28px; flex: 0 0 auto; object-fit: contain;" />`;
   }
 
   return `
-    <span style="width: 16px; height: 16px; border-radius: 4px; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; background: rgba(148, 163, 184, 0.22); color: #64748b; font-size: 10px; font-weight: 700;">
+    <span style="width: 28px; height: 28px; border-radius: 6px; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; background: rgba(148, 163, 184, 0.22); color: #64748b; font-size: 13px; font-weight: 700;">
       ${escapeHtml(getDetailInitial(detail))}
     </span>
   `;
@@ -176,7 +176,7 @@ function renderTooltipDetail(detail: TimelineHoverDetail): string {
 
   return `
     <li title="${tooltipTitle}" style="display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center;">
-      <span style="min-width: 0; display: inline-flex; align-items: center; gap: 6px;">
+      <span style="min-width: 0; display: inline-flex; align-items: center; gap: 8px;">
         ${renderTooltipDetailIcon(detail)}
         <span style="min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
           ${title}${appLabel ? `<span style="color: #94a3b8;"> &middot; </span>${appLabel}` : ''}
