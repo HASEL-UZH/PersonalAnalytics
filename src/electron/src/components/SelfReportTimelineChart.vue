@@ -5,7 +5,7 @@
       class="self-report-tooltip rounded border border-gray-200 bg-white p-2 text-gray-700 opacity-0 shadow-lg transition-opacity duration-300 ease-in-out dark:border-transparent dark:bg-neutral-800 dark:text-neutral-300 dark:shadow-neutral-800/80"
     ></div>
     <svg ref="chart" :width="svgWidth" :height="svgHeight"></svg>
-    <div v-if="series.length > 0" class="self-report-legend">
+    <div class="self-report-legend">
       <button
         v-for="item in series"
         :key="item.question"
