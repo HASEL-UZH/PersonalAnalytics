@@ -491,7 +491,7 @@ export function removeGenericBrowserTabCountFragments(title: string): string {
  * original path was shortened.
  */
 export function getReadableUrlTitle(title: string, includeEllipsis = false): string | null {
-  if (!/^[\w.-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(title)) {
+  if (!/^[\w.-]+\.[a-z]{2,}(?:\/|[?#]|:\d|$)/i.test(title)) {
     return null;
   }
 
