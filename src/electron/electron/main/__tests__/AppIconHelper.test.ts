@@ -12,13 +12,41 @@ const OUTLOOK_PROCESS_PATH = 'C:\\Program Files\\Microsoft Office\\root\\Office1
 const TEAMS_PROCESS_PATH = 'C:\\Users\\test\\AppData\\Local\\Microsoft\\Teams\\current\\Teams.exe';
 const GITHUB_DESKTOP_PROCESS_PATH =
   'C:\\Users\\test\\AppData\\Local\\GitHubDesktop\\GitHubDesktop.exe';
+const WINDOWS_APPS_FILE_ICON_PROCESS_PATH =
+  'C:\\Program Files\\WindowsApps\\FallbackApp_1.0.0.0_x64__test\\FallbackApp.exe';
+const WINDOWS_APPS_TEAMS_PROCESS_PATH =
+  'C:\\Program Files\\WindowsApps\\MSTeams_26163.407.4851.7751_x64__8wekyb3d8bbwe\\ms-teams.exe';
+const WINDOWS_APPS_WHATSAPP_PROCESS_PATH =
+  'C:\\Program Files\\WindowsApps\\5319275A.WhatsAppDesktop_2.2625.101.0_x64__cv1g1gvanyjgm\\WhatsApp.Root.exe';
+const WINDOWS_APPS_CLAUDE_PROCESS_PATH =
+  'C:\\Program Files\\WindowsApps\\Claude_1.14271.0.0_x64__pzs8sxrjxfjjc\\app\\Claude.exe';
+const WINDOWS_APPS_PACKAGE_ICON_CASES = [
+  {
+    name: 'Microsoft Teams',
+    processPath: WINDOWS_APPS_TEAMS_PROCESS_PATH,
+    processId: 11064
+  },
+  {
+    name: 'WhatsApp',
+    processPath: WINDOWS_APPS_WHATSAPP_PROCESS_PATH,
+    processId: 21800
+  },
+  {
+    name: 'Claude',
+    processPath: WINDOWS_APPS_CLAUDE_PROCESS_PATH,
+    processId: 35132
+  }
+];
 const WINDOWS_NATIVE_ICON_PROCESS_PATHS = [
   OUTLOOK_PROCESS_PATH,
   TEAMS_PROCESS_PATH,
-  GITHUB_DESKTOP_PROCESS_PATH
+  GITHUB_DESKTOP_PROCESS_PATH,
+  WINDOWS_APPS_FILE_ICON_PROCESS_PATH
 ];
 const NATIVE_ICON_BUFFER = Buffer.from('native-file-icon');
 const NATIVE_ICON_DATA_URL = 'data:image/png;base64,native-file-icon';
+const WINDOWS_APPS_PACKAGE_ICON_BUFFER = Buffer.from('windows-app-package-icon');
+const WINDOWS_APPS_PACKAGE_ICON_DATA_URL = 'data:image/png;base64,windows-app-package-icon';
 const MAC_WORD_PROCESS_PATH = '/Applications/Microsoft Word.app/Contents/MacOS/Microsoft Word';
 const MAC_WORD_INFO_PLIST_PATH = '/Applications/Microsoft Word.app/Contents/Info.plist';
 const MAC_WORD_RESOURCES_PATH = '/Applications/Microsoft Word.app/Contents/Resources';
@@ -49,21 +77,39 @@ const createFromPathMock = jest.fn((iconPath: string) => ({
 const createFromBufferMock = jest.fn((buffer: Buffer) => ({
   isEmpty: () => false,
   resize: () => ({
-    toDataURL: () =>
-      buffer.equals(NATIVE_ICON_BUFFER) ? NATIVE_ICON_DATA_URL : 'data:image/png;base64,mac-word'
+    toDataURL: () => {
+      if (buffer.equals(NATIVE_ICON_BUFFER)) {
+        return NATIVE_ICON_DATA_URL;
+      }
+
+      if (buffer.equals(WINDOWS_APPS_PACKAGE_ICON_BUFFER)) {
+        return WINDOWS_APPS_PACKAGE_ICON_DATA_URL;
+      }
+
+      return 'data:image/png;base64,mac-word';
+    }
   })
 }));
 
-const extractFileIconMock = jest.fn((iconPath: string) => {
-  if (
-    WINDOWS_NATIVE_ICON_PROCESS_PATHS.includes(iconPath) ||
-    iconPath === MAC_TEAMS_APP_BUNDLE_PATH
-  ) {
-    return NATIVE_ICON_BUFFER;
-  }
-
-  return undefined;
+const getPackageIconMock = jest.fn((_: number, processPath: string) => {
+  return WINDOWS_APPS_PACKAGE_ICON_CASES.some((app) => app.processPath === processPath)
+    ? WINDOWS_APPS_PACKAGE_ICON_BUFFER
+    : undefined;
 });
+
+const extractFileIconMock = Object.assign(
+  jest.fn((iconPath: string) => {
+    if (
+      WINDOWS_NATIVE_ICON_PROCESS_PATHS.includes(iconPath) ||
+      iconPath === MAC_TEAMS_APP_BUNDLE_PATH
+    ) {
+      return NATIVE_ICON_BUFFER;
+    }
+
+    return undefined;
+  }),
+  { getPackageIcon: getPackageIconMock }
+);
 
 const existsSyncMock = jest.fn((filePath: string) => {
   return [
@@ -160,6 +206,7 @@ beforeEach(() => {
   createFromPathMock.mockClear();
   resizeMock.mockClear();
   createFromBufferMock.mockClear();
+  getPackageIconMock.mockClear();
   extractFileIconMock.mockClear();
   existsSyncMock.mockClear();
   readFileSyncMock.mockClear();
@@ -180,7 +227,8 @@ test('uses Windows visual elements assets when the executable icon is unavailabl
 test.each([
   ['Microsoft Outlook', OUTLOOK_PROCESS_PATH],
   ['Microsoft Teams', TEAMS_PROCESS_PATH],
-  ['GitHub Desktop', GITHUB_DESKTOP_PROCESS_PATH]
+  ['GitHub Desktop', GITHUB_DESKTOP_PROCESS_PATH],
+  ['Windows App Package Fallback', WINDOWS_APPS_FILE_ICON_PROCESS_PATH]
 ])(
   'uses the native file icon extractor for %s before Windows fallback assets',
   async (name, path) => {
@@ -191,6 +239,27 @@ test.each([
     expect(getFileIconMock).not.toHaveBeenCalled();
   }
 );
+
+test.each(WINDOWS_APPS_PACKAGE_ICON_CASES)(
+  'uses the Windows package icon for $name installed under WindowsApps',
+  async ({ name, processPath, processId }) => {
+    await expect(getProcessIconDataUrl(processPath, name, processId)).resolves.toBe(
+      WINDOWS_APPS_PACKAGE_ICON_DATA_URL
+    );
+    expect(getPackageIconMock).toHaveBeenCalledWith(processId, processPath, 16);
+    expect(createFromBufferMock).toHaveBeenCalledWith(WINDOWS_APPS_PACKAGE_ICON_BUFFER);
+    expect(extractFileIconMock).not.toHaveBeenCalled();
+    expect(createFromPathMock).not.toHaveBeenCalled();
+    expect(getFileIconMock).not.toHaveBeenCalled();
+  }
+);
+
+test('uses the Windows package icon without a live process ID', async () => {
+  await expect(getProcessIconDataUrl(WINDOWS_APPS_CLAUDE_PROCESS_PATH, 'Claude')).resolves.toBe(
+    WINDOWS_APPS_PACKAGE_ICON_DATA_URL
+  );
+  expect(getPackageIconMock).toHaveBeenCalledWith(0, WINDOWS_APPS_CLAUDE_PROCESS_PATH, 16);
+});
 
 test('falls back to the Electron shell icon when no Windows visual elements manifest exists', async () => {
   await expect(getProcessIconDataUrl(SHELL_ICON_PROCESS_PATH, 'Shell Icon App')).resolves.toBe(

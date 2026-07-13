@@ -54,6 +54,10 @@ function isWindowsProcessPath(processPath: string): boolean {
   return /^[a-zA-Z]:[\\/]/.test(processPath) || processPath.includes('\\');
 }
 
+function isWindowsAppsProcessPath(processPath: string): boolean {
+  return isWindowsProcessPath(processPath) && /[\\/]WindowsApps[\\/]/i.test(processPath);
+}
+
 function getPathModuleForProcessPath(processPath: string) {
   return isWindowsProcessPath(processPath) ? path.win32 : path;
 }
@@ -267,6 +271,32 @@ function getNativeFileIconDataUrl(iconPath: string | undefined): string | undefi
   }
 }
 
+function getWindowsAppsPackageIconDataUrl(
+  processPath: string | null,
+  processId: number | null
+): string | undefined {
+  if (!processPath || !isWindowsAppsProcessPath(processPath)) {
+    return undefined;
+  }
+
+  try {
+    const iconBuffer = extractFileIcon.getPackageIcon?.(processId ?? 0, processPath, APP_ICON_SIZE);
+    if (!iconBuffer?.length) {
+      return undefined;
+    }
+
+    const icon = nativeImage.createFromBuffer(iconBuffer);
+    if (icon.isEmpty()) {
+      return undefined;
+    }
+
+    return icon.resize({ width: APP_ICON_SIZE, height: APP_ICON_SIZE }).toDataURL();
+  } catch (error) {
+    LOG.debug('Could not extract Windows app package icon', processPath, error);
+    return undefined;
+  }
+}
+
 function getMacIcnsDataUrlViaSips(iconPath: string): string | undefined {
   const tempDirectory = mkdtempSync(path.join(tmpdir(), 'personal-analytics-icon-'));
   const pngPath = path.join(tempDirectory, 'icon.png');
@@ -353,9 +383,10 @@ function getBundleResourceIconDataUrl(
  */
 export async function getProcessIconDataUrl(
   processPath: string | null,
-  processName: string | null
+  processName: string | null,
+  processId: number | null = null
 ): Promise<string | undefined> {
-  const cacheKey = `${processPath || ''}\u0000${processName || ''}`;
+  const cacheKey = `${processPath || ''}\u0000${processName || ''}\u0000${processId ?? ''}`;
   const cachedIcon = APP_ICON_DATA_URL_CACHE.get(cacheKey);
   if (cachedIcon) {
     return cachedIcon;
@@ -372,6 +403,11 @@ export async function getProcessIconDataUrl(
       if (personalAnalyticsIcon) {
         return personalAnalyticsIcon;
       }
+    }
+
+    const windowsAppsPackageIcon = getWindowsAppsPackageIconDataUrl(processPath, processId);
+    if (windowsAppsPackageIcon) {
+      return windowsAppsPackageIcon;
     }
 
     const nativeFileIcon = getNativeFileIconDataUrl(appBundlePath || processPath);
