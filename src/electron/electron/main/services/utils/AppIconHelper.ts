@@ -1,4 +1,5 @@
 import { app, nativeImage } from 'electron';
+import extractFileIcon from 'extract-file-icon';
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -7,7 +8,7 @@ import { getMainLogger } from '../../../config/Logger';
 
 const LOG = getMainLogger('AppIconHelper');
 const APP_ICON_DATA_URL_CACHE = new Map<string, Promise<string | undefined>>();
-const APP_ICON_SIZE = 64;
+const APP_ICON_SIZE = 16;
 const WINDOWS_LOGO_ATTRIBUTE_PRIORITY = [
   'Square44x44Logo',
   'SmallLogo',
@@ -243,6 +244,29 @@ function getIconDataUrlFromPath(iconPath: string | undefined): string | undefine
   return icon.resize({ width: APP_ICON_SIZE, height: APP_ICON_SIZE }).toDataURL();
 }
 
+function getNativeFileIconDataUrl(iconPath: string | undefined): string | undefined {
+  if (!iconPath) {
+    return undefined;
+  }
+
+  try {
+    const iconBuffer = extractFileIcon(iconPath, APP_ICON_SIZE);
+    if (!iconBuffer?.length) {
+      return undefined;
+    }
+
+    const icon = nativeImage.createFromBuffer(iconBuffer);
+    if (icon.isEmpty()) {
+      return undefined;
+    }
+
+    return icon.resize({ width: APP_ICON_SIZE, height: APP_ICON_SIZE }).toDataURL();
+  } catch (error) {
+    LOG.debug('Could not extract native app icon', iconPath, error);
+    return undefined;
+  }
+}
+
 function getMacIcnsDataUrlViaSips(iconPath: string): string | undefined {
   const tempDirectory = mkdtempSync(path.join(tmpdir(), 'personal-analytics-icon-'));
   const pngPath = path.join(tempDirectory, 'icon.png');
@@ -348,6 +372,11 @@ export async function getProcessIconDataUrl(
       if (personalAnalyticsIcon) {
         return personalAnalyticsIcon;
       }
+    }
+
+    const nativeFileIcon = getNativeFileIconDataUrl(appBundlePath || processPath);
+    if (nativeFileIcon) {
+      return nativeFileIcon;
     }
 
     if (appBundlePath) {

@@ -8,10 +8,23 @@ const WORD_TARGET_ICON_PATH =
   'C:\\Program Files\\Microsoft Office\\root\\Office16\\Assets\\WordLogo.targetsize-32.png';
 const SHELL_ICON_PROCESS_PATH = 'C:\\Tools\\ShellIconApp\\ShellIconApp.exe';
 const SHELL_ICON_DATA_URL = 'data:image/png;base64,shell';
+const OUTLOOK_PROCESS_PATH = 'C:\\Program Files\\Microsoft Office\\root\\Office16\\OUTLOOK.EXE';
+const TEAMS_PROCESS_PATH = 'C:\\Users\\test\\AppData\\Local\\Microsoft\\Teams\\current\\Teams.exe';
+const GITHUB_DESKTOP_PROCESS_PATH =
+  'C:\\Users\\test\\AppData\\Local\\GitHubDesktop\\GitHubDesktop.exe';
+const WINDOWS_NATIVE_ICON_PROCESS_PATHS = [
+  OUTLOOK_PROCESS_PATH,
+  TEAMS_PROCESS_PATH,
+  GITHUB_DESKTOP_PROCESS_PATH
+];
+const NATIVE_ICON_BUFFER = Buffer.from('native-file-icon');
+const NATIVE_ICON_DATA_URL = 'data:image/png;base64,native-file-icon';
 const MAC_WORD_PROCESS_PATH = '/Applications/Microsoft Word.app/Contents/MacOS/Microsoft Word';
 const MAC_WORD_INFO_PLIST_PATH = '/Applications/Microsoft Word.app/Contents/Info.plist';
 const MAC_WORD_RESOURCES_PATH = '/Applications/Microsoft Word.app/Contents/Resources';
 const MAC_WORD_ICON_PATH = '/Applications/Microsoft Word.app/Contents/Resources/Word_macOS.icns';
+const MAC_TEAMS_PROCESS_PATH = '/Applications/Microsoft Teams.app/Contents/MacOS/Microsoft Teams';
+const MAC_TEAMS_APP_BUNDLE_PATH = '/Applications/Microsoft Teams.app';
 const SIPS_TEMP_DIRECTORY = '/tmp/personal-analytics-icon-test';
 const SIPS_PNG_PATH = '/tmp/personal-analytics-icon-test/icon.png';
 
@@ -33,14 +46,24 @@ const createFromPathMock = jest.fn((iconPath: string) => ({
   resize: resizeMock
 }));
 
-const createFromBufferResizeMock = jest.fn(() => ({
-  toDataURL: () => 'data:image/png;base64,mac-word'
+const createFromBufferMock = jest.fn((buffer: Buffer) => ({
+  isEmpty: () => false,
+  resize: () => ({
+    toDataURL: () =>
+      buffer.equals(NATIVE_ICON_BUFFER) ? NATIVE_ICON_DATA_URL : 'data:image/png;base64,mac-word'
+  })
 }));
 
-const createFromBufferMock = jest.fn(() => ({
-  isEmpty: () => false,
-  resize: createFromBufferResizeMock
-}));
+const extractFileIconMock = jest.fn((iconPath: string) => {
+  if (
+    WINDOWS_NATIVE_ICON_PROCESS_PATHS.includes(iconPath) ||
+    iconPath === MAC_TEAMS_APP_BUNDLE_PATH
+  ) {
+    return NATIVE_ICON_BUFFER;
+  }
+
+  return undefined;
+});
 
 const existsSyncMock = jest.fn((filePath: string) => {
   return [
@@ -126,6 +149,10 @@ jest.unstable_mockModule('node:child_process', () => ({
   execFileSync: execFileSyncMock
 }));
 
+jest.unstable_mockModule('extract-file-icon', () => ({
+  default: extractFileIconMock
+}));
+
 const { getProcessIconDataUrl } = await import('../services/utils/AppIconHelper');
 
 beforeEach(() => {
@@ -133,7 +160,7 @@ beforeEach(() => {
   createFromPathMock.mockClear();
   resizeMock.mockClear();
   createFromBufferMock.mockClear();
-  createFromBufferResizeMock.mockClear();
+  extractFileIconMock.mockClear();
   existsSyncMock.mockClear();
   readFileSyncMock.mockClear();
   readdirSyncMock.mockClear();
@@ -147,8 +174,23 @@ test('uses Windows visual elements assets when the executable icon is unavailabl
     'data:image/png;base64,word'
   );
   expect(createFromPathMock).toHaveBeenCalledWith(WORD_TARGET_ICON_PATH);
-  expect(resizeMock).toHaveBeenCalledWith({ width: 64, height: 64 });
+  expect(resizeMock).toHaveBeenCalledWith({ width: 16, height: 16 });
 });
+
+test.each([
+  ['Microsoft Outlook', OUTLOOK_PROCESS_PATH],
+  ['Microsoft Teams', TEAMS_PROCESS_PATH],
+  ['GitHub Desktop', GITHUB_DESKTOP_PROCESS_PATH]
+])(
+  'uses the native file icon extractor for %s before Windows fallback assets',
+  async (name, path) => {
+    await expect(getProcessIconDataUrl(path, name)).resolves.toBe(NATIVE_ICON_DATA_URL);
+    expect(extractFileIconMock).toHaveBeenCalledWith(path, 16);
+    expect(createFromBufferMock).toHaveBeenCalledWith(NATIVE_ICON_BUFFER);
+    expect(createFromPathMock).not.toHaveBeenCalled();
+    expect(getFileIconMock).not.toHaveBeenCalled();
+  }
+);
 
 test('falls back to the Electron shell icon when no Windows visual elements manifest exists', async () => {
   await expect(getProcessIconDataUrl(SHELL_ICON_PROCESS_PATH, 'Shell Icon App')).resolves.toBe(
@@ -168,6 +210,12 @@ test('converts macOS icns app icons when Electron cannot load them directly', as
     { stdio: 'ignore' }
   );
   expect(createFromBufferMock).toHaveBeenCalledWith(Buffer.from('converted-png'));
-  expect(createFromBufferResizeMock).toHaveBeenCalledWith({ width: 64, height: 64 });
   expect(rmSyncMock).toHaveBeenCalledWith(SIPS_TEMP_DIRECTORY, { recursive: true, force: true });
+});
+
+test('uses the macOS app bundle with the native file icon extractor', async () => {
+  await expect(getProcessIconDataUrl(MAC_TEAMS_PROCESS_PATH, 'Microsoft Teams')).resolves.toBe(
+    NATIVE_ICON_DATA_URL
+  );
+  expect(extractFileIconMock).toHaveBeenCalledWith(MAC_TEAMS_APP_BUNDLE_PATH, 16);
 });
