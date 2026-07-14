@@ -20,6 +20,7 @@ import StackedBarChart from '../components/StackedBarChart.vue';
 import SelfReportTimelineChart from '../components/SelfReportTimelineChart.vue';
 import type ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
 import studyConfig from '../../shared/study.config';
+import { getRetrospectionTimelineBounds } from '../../shared/retrospection/Workday';
 
 const typedIpcRenderer = window.ipcRenderer;
 const isLoading = ref(false);
@@ -106,6 +107,11 @@ const latestSelfReport = computed((): number => {
 });
 
 const timelineStartDate = computed((): number => {
+  const bounds = getRetrospectionTimelineBounds(selectedDay.value, [
+    ...(chartDataWindowActivities.value ?? []).flatMap((point) => [point.start, point.end]),
+    ...selfReports.value.map((report) => report.promptedAt)
+  ]);
+  if (bounds) return bounds.start;
   const candidates = [
     hasActivityData.value ? earliestUserComputerActivity.value : null,
     hasLikertSelfReports.value ? earliestSelfReport.value : null
@@ -114,6 +120,11 @@ const timelineStartDate = computed((): number => {
 });
 
 const timelineEndDate = computed((): number => {
+  const bounds = getRetrospectionTimelineBounds(selectedDay.value, [
+    ...(chartDataWindowActivities.value ?? []).flatMap((point) => [point.start, point.end]),
+    ...selfReports.value.map((report) => report.promptedAt)
+  ]);
+  if (bounds) return bounds.end;
   const candidates = [
     hasActivityData.value ? latestUserComputerActivity.value : null,
     hasLikertSelfReports.value ? latestSelfReport.value : null
@@ -122,11 +133,11 @@ const timelineEndDate = computed((): number => {
 });
 
 const selfReportTimelineStartDate = computed((): number => {
-  return hasActivityData.value ? earliestUserComputerActivity.value : timelineStartDate.value;
+  return timelineStartDate.value;
 });
 
 const selfReportTimelineEndDate = computed((): number => {
-  return hasActivityData.value ? latestUserComputerActivity.value : timelineEndDate.value;
+  return timelineEndDate.value;
 });
 
 // Total tracked activity time is the denominator for percentages and the 90% cutoff.
@@ -226,14 +237,17 @@ onMounted(async () => {
 
 async function loadData() {
   isLoading.value = true;
-  await loadActiveHours();
-  await loadLongestTimeActive();
-  await loadMostActiveApps();
-  await loadTopWebsites();
-  await loadTopWindowTitles();
-  await loadSelfReports();
-  await loadWindowActivities();
-  isLoading.value = false;
+  try {
+    await loadActiveHours();
+    await loadLongestTimeActive();
+    await loadMostActiveApps();
+    await loadTopWebsites();
+    await loadTopWindowTitles();
+    await loadSelfReports();
+    await loadWindowActivities();
+  } finally {
+    isLoading.value = false;
+  }
 }
 
 function windowActivitiesToChartData() {
@@ -257,11 +271,17 @@ function windowActivitiesToChartData() {
 }
 
 async function loadWindowActivities() {
-  allWindowActivities.value = (await typedIpcRenderer.invoke(
-    'retrospectionGetActivities',
-    selectedDay.value
-  )) as ActivitySessions[];
-  windowActivitiesToChartData();
+  try {
+    allWindowActivities.value = (await typedIpcRenderer.invoke(
+      'retrospectionGetActivities',
+      selectedDay.value
+    )) as ActivitySessions[];
+    windowActivitiesToChartData();
+  } catch (error) {
+    console.error('Error loading window activities', error);
+    allWindowActivities.value = [];
+    chartDataWindowActivities.value = [];
+  }
 }
 
 async function loadActiveHours() {
