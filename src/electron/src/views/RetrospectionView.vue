@@ -8,6 +8,7 @@ import {
   type ActivitySessions,
   type ChartDataPoint,
   type PieChartDataPoint,
+  type RetrospectionDataSection,
   type TimeActive
 } from '../utils/retrospection/types';
 import {
@@ -18,26 +19,53 @@ import {
 } from '../utils/retrospection/utils';
 import StackedBarChart from '../components/StackedBarChart.vue';
 import SelfReportTimelineChart from '../components/SelfReportTimelineChart.vue';
+import RetrospectionTopItemsCard from '../components/RetrospectionTopItemsCard.vue';
 import type ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
 import studyConfig from '../../shared/study.config';
-import { getRetrospectionTimelineBounds } from '../../shared/retrospection/Workday';
+import typedIpcRenderer from '../utils/typedIpcRenderer';
+import { getRetrospectionTrackerAvailability } from '../utils/retrospection/availability';
+import {
+  getRetrospectionTimelineBounds,
+  getRetrospectionWorkdayRange
+} from '../../shared/retrospection/Workday';
 
-const typedIpcRenderer = window.ipcRenderer;
 const isLoading = ref(false);
 const selectedDay = ref(new Date());
 const allWindowActivities = ref<ActivitySessions[]>([]);
-const chartDataWindowActivities = ref<ChartDataPoint[]>();
+const chartDataWindowActivities = ref<ChartDataPoint[]>([]);
 const longestTimeActive = ref<TimeActive | undefined>(undefined);
 const activeHoursInsight = ref<ActiveHoursInsight | undefined>(undefined);
-const topApps = ref<ActivitySessions[] | undefined>(undefined);
+const topApps = ref<ActivitySessions[]>([]);
 const topWebsites = ref<ActivitySessions[]>([]);
 const topWindowTitles = ref<ActivitySessions[]>([]);
 const selfReports = ref<ExperienceSamplingDto[]>([]);
+const loadErrors = ref<RetrospectionDataSection[]>([]);
 const ACTIVITY_BREAKDOWN_COVERAGE = 0.9;
 const ACTIVITY_BREAKDOWN_MAX_ITEMS = 6;
 const EXCLUDED_ACTIVITY_BREAKDOWN_GROUPS = new Set(['Other', 'Unknown']);
 const experienceSamplingEnabled = studyConfig.trackers.experienceSamplingTracker.enabled;
 const isWindowActivityTrackerEnabled = studyConfig.trackers.windowActivityTracker.enabled;
+const isUserInputTrackerEnabled = studyConfig.trackers.userInputTracker.enabled;
+const trackerAvailability = getRetrospectionTrackerAvailability(
+  isWindowActivityTrackerEnabled,
+  isUserInputTrackerEnabled,
+  experienceSamplingEnabled
+);
+const activityInsightsEnabled = trackerAvailability.activityInsightsEnabled;
+const trackerAvailabilityMessages = trackerAvailability.messages;
+let loadRequestVersion = 0;
+
+const SECTION_LABELS: Record<RetrospectionDataSection, string> = {
+  activities: 'activity timeline',
+  activeHours: 'active hours',
+  longestActivePeriod: 'longest active period',
+  topApps: 'top apps',
+  topWebsites: 'top websites',
+  topWindowTitles: 'top window titles',
+  selfReports: 'self-reports',
+  dashboard: 'retrospection dashboard'
+};
+const SECTION_ORDER = Object.keys(SECTION_LABELS) as RetrospectionDataSection[];
 
 interface ActivityBreakdownDataPoint extends PieChartDataPoint {
   percentage: number;
@@ -69,75 +97,103 @@ const latestUserComputerActivity = computed((): number => {
 });
 
 const topItemsAvailable = computed((): boolean => {
-  return topWebsites.value.length > 0 || topWindowTitles.value.length > 0;
+  return (
+    topApps.value.length > 0 || topWebsites.value.length > 0 || topWindowTitles.value.length > 0
+  );
 });
 
 const hasActivityData = computed((): boolean => {
   return (chartDataWindowActivities.value?.length ?? 0) > 0;
 });
 
+function isVisibleLikertSelfReport(report: ExperienceSamplingDto): boolean {
+  return (
+    report.answerType === 'LikertScale' &&
+    !report.skipped &&
+    report.response !== null &&
+    report.scale !== null &&
+    Number.isFinite(Number(report.response))
+  );
+}
+
 const hasLikertSelfReports = computed((): boolean => {
-  return selfReports.value.some((report) => {
-    return (
-      report.answerType === 'LikertScale' &&
-      !report.skipped &&
-      report.response !== null &&
-      report.scale !== null &&
-      Number.isFinite(Number(report.response))
-    );
-  });
+  return selfReports.value.some(isVisibleLikertSelfReport);
+});
+
+const hasLongestActivePeriod = computed((): boolean => {
+  return (longestTimeActive.value?.duration ?? -1) > 0;
+});
+
+const hasActivityInsightData = computed((): boolean => {
+  return (
+    hasActivityData.value ||
+    (activeHoursInsight.value?.activeDurationMs ?? 0) > 0 ||
+    hasLongestActivePeriod.value ||
+    topApps.value.length > 0 ||
+    topItemsAvailable.value
+  );
 });
 
 const hasRetrospectionData = computed((): boolean => {
-  return hasActivityData.value || hasLikertSelfReports.value;
+  return hasActivityInsightData.value || hasLikertSelfReports.value;
 });
 
-const earliestSelfReport = computed((): number => {
-  return selfReports.value.reduce((acc, report) => {
-    const promptedAt = new Date(report.promptedAt).getTime();
-    return promptedAt < acc ? promptedAt : acc;
-  }, Number.MAX_SAFE_INTEGER);
+const hasLoadErrors = computed((): boolean => loadErrors.value.length > 0);
+
+const failedSectionLabels = computed((): string => {
+  return loadErrors.value.map((section) => SECTION_LABELS[section]).join(', ');
 });
 
-const latestSelfReport = computed((): number => {
-  return selfReports.value.reduce((acc, report) => {
-    const promptedAt = new Date(report.promptedAt).getTime();
-    return promptedAt > acc ? promptedAt : acc;
-  }, 0);
+const emptyStateTitle = computed((): string => {
+  if (hasLoadErrors.value) {
+    return 'Retrospection data could not be loaded.';
+  }
+  if (!activityInsightsEnabled && !experienceSamplingEnabled) {
+    return 'Retrospection data is not available.';
+  }
+  return 'No data for this day.';
+});
+
+const emptyStateDescription = computed((): string => {
+  if (hasLoadErrors.value) {
+    return `The following sections failed to load: ${failedSectionLabels.value}. Please try again or select a different day.`;
+  }
+  if (!activityInsightsEnabled && !experienceSamplingEnabled) {
+    return 'The trackers required for activity insights and self-reports are disabled for this study.';
+  }
+  if (!activityInsightsEnabled) {
+    const reason = !isWindowActivityTrackerEnabled
+      ? 'Window activity tracking is disabled.'
+      : 'User-input tracking is disabled.';
+    return `No visualizable self-reports were recorded for this date. ${reason}`;
+  }
+  if (!experienceSamplingEnabled) {
+    return 'No activity data was recorded for this date. Experience sampling is disabled.';
+  }
+  return 'There is no activity or visualizable self-report data recorded for this date. Please select a different day.';
+});
+
+const timelineBounds = computed(() => {
+  const activityTimestamps =
+    chartDataWindowActivities.value?.flatMap((activity) => [activity.start, activity.end]) ?? [];
+  const selfReportTimestamps = selfReports.value
+    .filter(isVisibleLikertSelfReport)
+    .map((report) => report.promptedAt);
+
+  return getRetrospectionTimelineBounds(selectedDay.value, [
+    ...activityTimestamps,
+    ...selfReportTimestamps
+  ]);
 });
 
 const timelineStartDate = computed((): number => {
-  const bounds = getRetrospectionTimelineBounds(selectedDay.value, [
-    ...(chartDataWindowActivities.value ?? []).flatMap((point) => [point.start, point.end]),
-    ...selfReports.value.map((report) => report.promptedAt)
-  ]);
-  if (bounds) return bounds.start;
-  const candidates = [
-    hasActivityData.value ? earliestUserComputerActivity.value : null,
-    hasLikertSelfReports.value ? earliestSelfReport.value : null
-  ].filter((value): value is number => value !== null && Number.isFinite(value));
-  return Math.min(...candidates);
+  return (
+    timelineBounds.value?.start ?? getRetrospectionWorkdayRange(selectedDay.value).start.getTime()
+  );
 });
 
 const timelineEndDate = computed((): number => {
-  const bounds = getRetrospectionTimelineBounds(selectedDay.value, [
-    ...(chartDataWindowActivities.value ?? []).flatMap((point) => [point.start, point.end]),
-    ...selfReports.value.map((report) => report.promptedAt)
-  ]);
-  if (bounds) return bounds.end;
-  const candidates = [
-    hasActivityData.value ? latestUserComputerActivity.value : null,
-    hasLikertSelfReports.value ? latestSelfReport.value : null
-  ].filter((value): value is number => value !== null && Number.isFinite(value));
-  return Math.max(...candidates);
-});
-
-const selfReportTimelineStartDate = computed((): number => {
-  return timelineStartDate.value;
-});
-
-const selfReportTimelineEndDate = computed((): number => {
-  return timelineEndDate.value;
+  return timelineBounds.value?.end ?? getRetrospectionWorkdayRange(selectedDay.value).end.getTime();
 });
 
 // Total tracked activity time is the denominator for percentages and the 90% cutoff.
@@ -236,24 +292,58 @@ onMounted(async () => {
 });
 
 async function loadData() {
+  const requestVersion = ++loadRequestVersion;
+  const requestedDay = new Date(selectedDay.value);
+
   isLoading.value = true;
+  loadErrors.value = [];
+  resetRetrospectionData();
+
   try {
-    await loadActiveHours();
-    await loadLongestTimeActive();
-    await loadMostActiveApps();
-    await loadTopWebsites();
-    await loadTopWindowTitles();
-    await loadSelfReports();
-    await loadWindowActivities();
+    const dashboard = await typedIpcRenderer.invoke('retrospectionGetDashboard', requestedDay);
+
+    if (requestVersion !== loadRequestVersion) {
+      return;
+    }
+
+    allWindowActivities.value = dashboard.activities;
+    chartDataWindowActivities.value = windowActivitiesToChartData(dashboard.activities);
+    activeHoursInsight.value = dashboard.activeHours;
+    longestTimeActive.value = dashboard.longestActivePeriod;
+    topApps.value = dashboard.topApps;
+    topWebsites.value = dashboard.topWebsites;
+    topWindowTitles.value = dashboard.topWindowTitles;
+    selfReports.value = dashboard.selfReports;
+    const errors = new Set(dashboard.errors);
+    loadErrors.value = SECTION_ORDER.filter((section) => errors.has(section));
+  } catch (error) {
+    console.error('Unexpected error loading the retrospection dashboard', error);
+    if (requestVersion === loadRequestVersion) {
+      resetRetrospectionData();
+      loadErrors.value = ['dashboard'];
+    }
   } finally {
-    isLoading.value = false;
+    if (requestVersion === loadRequestVersion) {
+      isLoading.value = false;
+    }
   }
 }
 
-function windowActivitiesToChartData() {
+function resetRetrospectionData() {
+  allWindowActivities.value = [];
+  chartDataWindowActivities.value = [];
+  longestTimeActive.value = undefined;
+  activeHoursInsight.value = undefined;
+  topApps.value = [];
+  topWebsites.value = [];
+  topWindowTitles.value = [];
+  selfReports.value = [];
+}
+
+function windowActivitiesToChartData(activities: ActivitySessions[]): ChartDataPoint[] {
   const dataPoints: ChartDataPoint[] = [];
 
-  allWindowActivities.value?.forEach((activitySession: ActivitySessions) => {
+  activities.forEach((activitySession: ActivitySessions) => {
     activitySession.sessions.forEach((session: TimeActive) => {
       dataPoints.push({
         type: DataPointType.WINDOW_ACTIVITY,
@@ -267,92 +357,11 @@ function windowActivitiesToChartData() {
     });
   });
 
-  chartDataWindowActivities.value = dataPoints;
+  return dataPoints;
 }
 
-async function loadWindowActivities() {
-  try {
-    allWindowActivities.value = (await typedIpcRenderer.invoke(
-      'retrospectionGetActivities',
-      selectedDay.value
-    )) as ActivitySessions[];
-    windowActivitiesToChartData();
-  } catch (error) {
-    console.error('Error loading window activities', error);
-    allWindowActivities.value = [];
-    chartDataWindowActivities.value = [];
-  }
-}
-
-async function loadActiveHours() {
-  try {
-    activeHoursInsight.value = (await typedIpcRenderer.invoke(
-      'retrospectionGetActiveHours',
-      selectedDay.value
-    )) as ActiveHoursInsight;
-  } catch (error) {
-    console.error('Error loading active hours', error);
-  }
-}
-
-async function loadLongestTimeActive() {
-  try {
-    longestTimeActive.value = (await typedIpcRenderer.invoke(
-      'retrospectionLoadLongestTimeActive',
-      selectedDay.value
-    )) as TimeActive;
-  } catch (error) {
-    console.error('Error loading longest time active', error);
-  }
-}
-
-async function loadMostActiveApps() {
-  try {
-    topApps.value = (await typedIpcRenderer.invoke(
-      'retrospectionGetTopThreeMostActiveApps',
-      selectedDay.value
-    )) as ActivitySessions[];
-  } catch (error) {
-    console.error('Error loading most active apps', error);
-  }
-}
-
-async function loadTopWebsites() {
-  try {
-    topWebsites.value = (await typedIpcRenderer.invoke(
-      'retrospectionGetTopThreeWebsites',
-      selectedDay.value
-    )) as ActivitySessions[];
-  } catch (error) {
-    console.error('Error loading top websites', error);
-  }
-}
-
-async function loadTopWindowTitles() {
-  try {
-    topWindowTitles.value = (await typedIpcRenderer.invoke(
-      'retrospectionGetTopThreeWindowTitles',
-      selectedDay.value
-    )) as ActivitySessions[];
-  } catch (error) {
-    console.error('Error loading top window titles', error);
-  }
-}
-
-async function loadSelfReports() {
-  if (!experienceSamplingEnabled) {
-    selfReports.value = [];
-    return;
-  }
-  try {
-    selfReports.value = (await typedIpcRenderer.invoke(
-      'retrospectionGetSelfReports',
-      selectedDay.value
-    )) as ExperienceSamplingDto[];
-  } catch (error) {
-    selfReports.value = [];
-    console.error('Error loading self reports', error);
-  }
+function hasSectionLoadError(section: RetrospectionDataSection): boolean {
+  return loadErrors.value.includes(section);
 }
 
 function msToMinutes(ms: number): number {
@@ -391,17 +400,6 @@ function renderCompactTime(ms: number): string {
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
   return remainingMinutes ? `${hours} hr ${remainingMinutes} min` : `${hours} hr`;
-}
-
-function getTopItemWidth(item: ActivitySessions, items: ActivitySessions[]): string {
-  const maxDurationMs = Math.max(...items.map((topItem) => topItem.totalDurationMs), 1);
-  return `${Math.max((item.totalDurationMs / maxDurationMs) * 100, 8)}%`;
-}
-
-function getTopItemColor(item: ActivitySessions): string {
-  const activity = item.activity || Activity.Other;
-  const colorKey = getTailwindClassFromActivity(activity) as keyof typeof Color;
-  return Color[colorKey] || Color['neutral-400'];
 }
 
 async function handleDayChange(event: Event) {
@@ -453,12 +451,6 @@ async function navigateToToday() {
   await loadData();
 }
 
-function getNearestFullHourTime(time: number, offset: number): number {
-  const nextFullHour = new Date(time);
-  nextFullHour.setHours(nextFullHour.getHours() + offset, 0, 0, 0);
-  return nextFullHour.getTime();
-}
-
 function getTimeString(date: Date | string | number): string {
   const d = new Date(date);
   const hours = d.getHours().toString().padStart(2, '0');
@@ -495,8 +487,18 @@ function getDayLabel(date: Date): string {
 </script>
 
 <template>
+  <template v-if="isLoading">
+    <div
+      class="flex h-screen items-center justify-center text-gray-600 dark:text-gray-300"
+      role="status"
+      aria-live="polite"
+    >
+      Loading retrospection…
+    </div>
+  </template>
+
   <!-- No data for this day -->
-  <template v-if="!isLoading && !hasRetrospectionData">
+  <template v-else-if="!hasRetrospectionData">
     <div class="flex h-screen items-center justify-center">
       <!-- day picker -->
       <div class="absolute right-6 top-6 z-10 flex items-center gap-1">
@@ -557,19 +559,20 @@ function getDayLabel(date: Date): string {
           </svg>
         </button>
       </div>
-      <div class="text-center text-gray-800 dark:text-gray-200">
-        <template v-if="isWindowActivityTrackerEnabled">
-          <h1 class="mb-8 text-2xl font-bold">No data for this day.</h1>
-          <span class="text-gray-600 dark:text-gray-400"
-            >There is no data recorded for this date. Please select a different day.</span
-          >
-        </template>
-        <template v-else>
-          <h1 class="mb-8 text-2xl font-bold">Retrospection data is not available.</h1>
-          <span class="text-gray-600 dark:text-gray-400"
-            >Window activity tracking is disabled for this study.</span
-          >
-        </template>
+      <div
+        class="max-w-xl px-8 text-center text-gray-800 dark:text-gray-200"
+        :role="hasLoadErrors ? 'alert' : undefined"
+      >
+        <h1 class="mb-8 text-2xl font-bold">{{ emptyStateTitle }}</h1>
+        <p class="text-gray-600 dark:text-gray-400">{{ emptyStateDescription }}</p>
+        <button
+          v-if="hasLoadErrors"
+          type="button"
+          class="mt-6 rounded border border-gray-300 bg-white px-4 py-2 text-sm text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
+          @click="loadData"
+        >
+          Try again
+        </button>
       </div>
     </div>
   </template>
@@ -645,6 +648,23 @@ function getDayLabel(date: Date): string {
           Take a moment to reflect on your workday.
         </div>
 
+        <div
+          v-if="hasLoadErrors"
+          role="alert"
+          class="mb-6 rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
+        >
+          Some retrospection sections could not be loaded: {{ failedSectionLabels }}. Available
+          sections are shown below.
+          <button type="button" class="ml-1 underline" @click="loadData">Try again</button>
+        </div>
+
+        <div
+          v-if="trackerAvailabilityMessages.length"
+          class="mb-6 rounded border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-gray-300"
+        >
+          <p v-for="message in trackerAvailabilityMessages" :key="message">{{ message }}</p>
+        </div>
+
         <!-- Timeline Visualization -->
         <template v-if="hasActivityData">
           <h1 class="mb-2 mt-8 text-xl font-bold text-gray-900 dark:text-gray-100">
@@ -653,23 +673,23 @@ function getDayLabel(date: Date): string {
           <StackedBarChart
             v-if="!isLoading && chartDataWindowActivities"
             :data="chartDataWindowActivities"
-            :start-date="getNearestFullHourTime(earliestUserComputerActivity, 0)"
-            :end-date="getNearestFullHourTime(latestUserComputerActivity, 1)"
+            :start-date="timelineStartDate"
+            :end-date="timelineEndDate"
             type="WINDOW_ACTIVITY"
           />
         </template>
 
         <!-- Info Tiles -->
         <h1
-          v-if="hasActivityData"
+          v-if="hasActivityInsightData"
           class="mb-2 mt-8 text-xl font-bold text-gray-900 dark:text-gray-100"
         >
           Insights of your day
         </h1>
-        <div v-if="hasActivityData" class="tile-grid">
+        <div v-if="hasActivityInsightData" class="tile-grid">
           <!-- Tile 1: Longest active period -->
           <div
-            v-if="longestTimeActive"
+            v-if="hasLongestActivePeriod && longestTimeActive"
             class="rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
           >
             <h2 class="primary-blue font-bold leading-4">Longest active period</h2>
@@ -683,7 +703,9 @@ function getDayLabel(date: Date): string {
 
           <!-- Tile 2: Active hours -->
           <div
-            v-if="chartDataWindowActivities?.length"
+            v-if="
+              activeHoursInsight && (activeHoursInsight.activeDurationMs > 0 || hasActivityData)
+            "
             class="rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
           >
             <h2 class="primary-blue font-bold leading-4">Active hours</h2>
@@ -694,7 +716,7 @@ function getDayLabel(date: Date): string {
                   <b>{{ msToDecimalHours(activeHoursInsight?.activeDurationMs ?? 0) }}</b>
                 </dd>
               </div>
-              <div>
+              <div v-if="hasActivityData">
                 <dt class="inline">Spanning work:</dt>
                 <dd class="ml-1 inline">
                   <b>{{
@@ -707,20 +729,7 @@ function getDayLabel(date: Date): string {
             </dl>
           </div>
 
-          <!-- Tile 3: Top apps -->
-          <div
-            v-if="topApps?.length"
-            class="rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
-          >
-            <h2 class="primary-blue font-bold leading-4">Top apps</h2>
-            <ol class="mt-2 list-decimal pl-4">
-              <li v-for="(appSession, index) in topApps" :key="index">
-                {{ appSession.type }}: {{ renderTime(appSession.totalDurationMs) }}
-              </li>
-            </ol>
-          </div>
-
-          <!-- Tile 4: Activity breakdown -->
+          <!-- Tile 3: Activity breakdown -->
           <div
             v-if="activityBreakdownData.length"
             class="activity-breakdown-card rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
@@ -752,68 +761,24 @@ function getDayLabel(date: Date): string {
           </div>
         </div>
 
-        <div v-if="hasActivityData && topItemsAvailable" class="top-item-grid tile-grid">
-          <div
+        <h1
+          v-if="topItemsAvailable"
+          class="mb-2 mt-8 text-xl font-bold text-gray-900 dark:text-gray-100"
+        >
+          Time spent
+        </h1>
+        <div v-if="topItemsAvailable" class="top-item-grid tile-grid">
+          <RetrospectionTopItemsCard v-if="topApps.length" title="Top apps" :items="topApps" />
+          <RetrospectionTopItemsCard
             v-if="topWebsites.length"
-            class="top-item-card rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
-          >
-            <h2 class="primary-blue font-bold leading-4">Top websites</h2>
-            <ol class="top-item-list">
-              <li
-                v-for="website in topWebsites"
-                :key="website.type"
-                class="top-item-row"
-                :title="website.tooltipTitle || website.type"
-              >
-                <div class="top-item-content">
-                  <span class="top-item-label">{{ website.type }}</span>
-                  <span class="top-item-time">{{
-                    renderCompactTime(website.totalDurationMs)
-                  }}</span>
-                </div>
-                <div class="top-item-track">
-                  <div
-                    class="top-item-bar"
-                    :style="{
-                      width: getTopItemWidth(website, topWebsites),
-                      backgroundColor: getTopItemColor(website)
-                    }"
-                  ></div>
-                </div>
-              </li>
-            </ol>
-          </div>
-
-          <div
+            title="Top websites"
+            :items="topWebsites"
+          />
+          <RetrospectionTopItemsCard
             v-if="topWindowTitles.length"
-            class="top-item-card rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-800 dark:border-transparent dark:bg-neutral-800 dark:text-slate-200"
-          >
-            <h2 class="primary-blue font-bold leading-4">Top window titles</h2>
-            <ol class="top-item-list">
-              <li
-                v-for="windowTitle in topWindowTitles"
-                :key="windowTitle.type"
-                class="top-item-row"
-                :title="windowTitle.tooltipTitle || windowTitle.type"
-              >
-                <div class="top-item-content">
-                  <span class="top-item-label">{{ windowTitle.type }}</span>
-                  <span class="top-item-time">{{
-                    renderCompactTime(windowTitle.totalDurationMs)
-                  }}</span>
-                </div>
-                <div class="top-item-track">
-                  <div
-                    class="top-item-bar"
-                    :style="{
-                      width: getTopItemWidth(windowTitle, topWindowTitles),
-                      backgroundColor: getTopItemColor(windowTitle)
-                    }"
-                  ></div>
-                </div>
-              </li>
-            </ol>
-          </div>
+            title="Top window titles"
+            :items="topWindowTitles"
+          />
         </div>
 
         <!-- Self-report Visualization -->
@@ -824,14 +789,20 @@ function getDayLabel(date: Date): string {
           <SelfReportTimelineChart
             v-if="!isLoading && hasLikertSelfReports"
             :data="selfReports"
-            :start-date="getNearestFullHourTime(selfReportTimelineStartDate, 0)"
-            :end-date="getNearestFullHourTime(selfReportTimelineEndDate, 1)"
+            :start-date="timelineStartDate"
+            :end-date="timelineEndDate"
           />
+          <div
+            v-else-if="!isLoading && hasSectionLoadError('selfReports')"
+            class="rounded border border-red-200 bg-red-50 px-4 py-3 text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
+          >
+            Self-reports could not be loaded for this day.
+          </div>
           <div
             v-else-if="!isLoading"
             class="rounded border border-gray-200 bg-gray-100 px-4 py-3 text-gray-700 dark:border-transparent dark:bg-neutral-800 dark:text-slate-300"
           >
-            No self-reports were recorded for this day.
+            No self-reports that can be visualized were recorded for this day.
           </div>
         </template>
       </div>
@@ -856,76 +827,14 @@ h2.primary-blue {
 
 .tile-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
   gap: 1.2rem;
   width: 100%;
 }
 
 .top-item-grid {
-  margin-top: 1.2rem;
-}
-
-.top-item-card {
-  min-height: 118px;
-}
-
-.top-item-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  margin: 0.4rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.top-item-row {
-  min-height: 0;
-  padding: 0.2rem 0;
-}
-
-.top-item-content {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) max-content;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.15rem;
-  line-height: 1.25rem;
-}
-
-.top-item-label {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: #1f2937;
-  font-weight: 400;
-}
-
-.top-item-time {
-  color: #374151;
-  font-weight: 400;
-  white-space: nowrap;
-}
-
-.top-item-track {
-  height: 0.35rem;
-  overflow: hidden;
-  border-radius: 999px;
-  background: #f3f4f6;
-}
-
-.top-item-bar {
-  height: 100%;
-  border-radius: inherit;
-}
-
-:global(.dark) .top-item-track {
-  background: #111111;
-}
-
-:global(.dark) .top-item-label,
-:global(.dark) .top-item-time {
-  color: #ffffff;
+  margin-top: 0;
 }
 
 .activity-breakdown-card {
@@ -1004,15 +913,6 @@ h2.primary-blue {
 }
 
 @media (prefers-color-scheme: dark) {
-  .top-item-track {
-    background: #111111;
-  }
-
-  .top-item-label,
-  .top-item-time {
-    color: #ffffff;
-  }
-
   .activity-pie-hole {
     background: #262626;
   }
@@ -1022,7 +922,13 @@ h2.primary-blue {
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 960px) {
+  .tile-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
   .tile-grid {
     grid-template-columns: 1fr;
   }

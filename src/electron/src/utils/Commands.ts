@@ -13,7 +13,7 @@ import type {
   DailySurveySamplingType,
   ExperienceSamplingAnswerType
 } from '../../shared/StudyConfiguration';
-import type { ActiveHoursInsight, ActivitySessions, TimeActive } from './retrospection/types';
+import type { RetrospectionDashboard } from './retrospection/types';
 
 type Commands = {
   createExperienceSample: (
@@ -62,13 +62,7 @@ type Commands = {
   startAllTrackers: () => void;
   triggerPermissionCheckAccessibility: (prompt: boolean) => boolean;
   triggerPermissionCheckScreenRecording: () => boolean;
-  retrospectionGetActiveHours: (date: Date) => Promise<ActiveHoursInsight>;
-  retrospectionGetActivities: (date: Date) => Promise<ActivitySessions[]>;
-  retrospectionLoadLongestTimeActive: (date: Date) => Promise<TimeActive | undefined>;
-  retrospectionGetTopThreeMostActiveApps: (date: Date) => Promise<ActivitySessions[]>;
-  retrospectionGetTopThreeWebsites: (date: Date) => Promise<ActivitySessions[]>;
-  retrospectionGetTopThreeWindowTitles: (date: Date) => Promise<ActivitySessions[]>;
-  retrospectionGetSelfReports: (date: Date) => Promise<ExperienceSamplingDto[]>;
+  retrospectionGetDashboard: (date: Date) => Promise<RetrospectionDashboard>;
   openRetrospection: () => Promise<void>;
   closeRetrospectionWindow: () => void;
   createDailySurveyResponses: (
