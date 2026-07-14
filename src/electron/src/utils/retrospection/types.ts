@@ -1,3 +1,5 @@
+import type ExperienceSamplingDto from '../../../shared/dto/ExperienceSamplingDto';
+
 export enum DataPointType {
   USER_COMPUTER_ACTIVITY = 'USER_COMPUTER_ACTIVITY',
   TASK_ACTIVITY = 'TASK_ACTIVITY',
@@ -63,6 +65,7 @@ export interface ActivitySessions {
   sessions: TimeActive[];
   activity?: string;
   tooltipTitle?: string;
+  iconDataUrl?: string;
 }
 
 export interface TimelineHoverDetail {
@@ -72,6 +75,27 @@ export interface TimelineHoverDetail {
   tooltipTitle?: string;
   activity?: string;
   iconDataUrl?: string;
+}
+
+export type RetrospectionDataSection =
+  | 'activities'
+  | 'activeHours'
+  | 'longestActivePeriod'
+  | 'topApps'
+  | 'topWebsites'
+  | 'topWindowTitles'
+  | 'selfReports'
+  | 'dashboard';
+
+export interface RetrospectionDashboard {
+  activities: ActivitySessions[];
+  activeHours?: ActiveHoursInsight;
+  longestActivePeriod?: TimeActive;
+  topApps: ActivitySessions[];
+  topWebsites: ActivitySessions[];
+  topWindowTitles: ActivitySessions[];
+  selfReports: ExperienceSamplingDto[];
+  errors: RetrospectionDataSection[];
 }
 
 export enum Color {
