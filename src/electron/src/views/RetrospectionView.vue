@@ -43,16 +43,16 @@ const loadErrors = ref<RetrospectionDataSection[]>([]);
 const ACTIVITY_BREAKDOWN_COVERAGE = 0.9;
 const ACTIVITY_BREAKDOWN_MAX_ITEMS = 6;
 const EXCLUDED_ACTIVITY_BREAKDOWN_GROUPS = new Set(['Other', 'Unknown']);
-const experienceSamplingEnabled = studyConfig.trackers.experienceSamplingTracker.enabled;
-const isWindowActivityTrackerEnabled = studyConfig.trackers.windowActivityTracker.enabled;
-const isUserInputTrackerEnabled = studyConfig.trackers.userInputTracker.enabled;
 const trackerAvailability = getRetrospectionTrackerAvailability(
-  isWindowActivityTrackerEnabled,
-  isUserInputTrackerEnabled,
-  experienceSamplingEnabled
+  studyConfig.trackers.windowActivityTracker,
+  studyConfig.trackers.userInputTracker,
+  studyConfig.trackers.experienceSamplingTracker
 );
 const activityInsightsEnabled = trackerAvailability.activityInsightsEnabled;
+const experienceSamplingEnabled = trackerAvailability.selfReportsEnabled;
 const trackerAvailabilityMessages = trackerAvailability.messages;
+const activityInsightMessages = trackerAvailability.activityInsightMessages;
+const selfReportMessages = trackerAvailability.selfReportMessages;
 let loadRequestVersion = 0;
 
 const SECTION_LABELS: Record<RetrospectionDataSection, string> = {
@@ -149,7 +149,7 @@ const emptyStateTitle = computed((): string => {
     return 'Retrospection data could not be loaded.';
   }
   if (!activityInsightsEnabled && !experienceSamplingEnabled) {
-    return 'Retrospection data is not available.';
+    return 'No retrospection data can be visualized.';
   }
   return 'No data for this day.';
 });
@@ -159,16 +159,13 @@ const emptyStateDescription = computed((): string => {
     return `The following sections failed to load: ${failedSectionLabels.value}. Please try again or select a different day.`;
   }
   if (!activityInsightsEnabled && !experienceSamplingEnabled) {
-    return 'The trackers required for activity insights and self-reports are disabled for this study.';
+    return trackerAvailabilityMessages.join(' ');
   }
   if (!activityInsightsEnabled) {
-    const reason = !isWindowActivityTrackerEnabled
-      ? 'Window activity tracking is disabled.'
-      : 'User-input tracking is disabled.';
-    return `No visualizable self-reports were recorded for this date. ${reason}`;
+    return `No visualizable self-reports were recorded for this date. ${activityInsightMessages.join(' ')}`;
   }
   if (!experienceSamplingEnabled) {
-    return 'No activity data was recorded for this date. Experience sampling is disabled.';
+    return `No activity data was recorded for this date. ${selfReportMessages.join(' ')}`;
   }
   return 'There is no activity or visualizable self-report data recorded for this date. Please select a different day.';
 });

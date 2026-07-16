@@ -1,29 +1,45 @@
 export interface RetrospectionTrackerAvailability {
   activityInsightsEnabled: boolean;
   selfReportsEnabled: boolean;
+  activityInsightMessages: string[];
+  selfReportMessages: string[];
   messages: string[];
 }
 
+interface TrackerAvailabilityConfig {
+  name: string;
+  enabled: boolean;
+}
+
 export function getRetrospectionTrackerAvailability(
-  windowActivityEnabled: boolean,
-  userInputEnabled: boolean,
-  experienceSamplingEnabled: boolean
+  windowActivityMonitor: TrackerAvailabilityConfig,
+  userInputMonitor: TrackerAvailabilityConfig,
+  experienceSampling: TrackerAvailabilityConfig
 ): RetrospectionTrackerAvailability {
-  const messages: string[] = [];
-  if (!windowActivityEnabled) {
-    messages.push('Window activity tracking is disabled, so activity insights are unavailable.');
-  } else if (!userInputEnabled) {
-    messages.push(
-      'User-input tracking is disabled, so active-time-based activity insights are unavailable.'
+  const activityInsightMessages: string[] = [];
+  const selfReportMessages: string[] = [];
+
+  if (!windowActivityMonitor.enabled) {
+    activityInsightMessages.push(
+      `${windowActivityMonitor.name} is disabled, so no activity insights can be visualized.`
     );
   }
-  if (!experienceSamplingEnabled) {
-    messages.push('Experience sampling is disabled, so self-reports are unavailable.');
+  if (!userInputMonitor.enabled) {
+    activityInsightMessages.push(
+      `${userInputMonitor.name} is disabled, so no activity insights can be visualized.`
+    );
+  }
+  if (!experienceSampling.enabled) {
+    selfReportMessages.push(
+      `${experienceSampling.name} is disabled, so no self-reports can be visualized.`
+    );
   }
 
   return {
-    activityInsightsEnabled: windowActivityEnabled && userInputEnabled,
-    selfReportsEnabled: experienceSamplingEnabled,
-    messages
+    activityInsightsEnabled: windowActivityMonitor.enabled && userInputMonitor.enabled,
+    selfReportsEnabled: experienceSampling.enabled,
+    activityInsightMessages,
+    selfReportMessages,
+    messages: [...activityInsightMessages, ...selfReportMessages]
   };
 }
