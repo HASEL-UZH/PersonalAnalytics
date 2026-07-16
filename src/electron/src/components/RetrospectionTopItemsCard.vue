@@ -169,12 +169,17 @@ h2.primary-blue {
   border-radius: inherit;
 }
 
-:global(.dark) .top-item-track {
-  background: #111111;
-}
+@media (prefers-color-scheme: dark) {
+  .top-item-track {
+    background: #111111;
+  }
 
-:global(.dark) .top-item-label,
-:global(.dark) .top-item-time {
-  color: #ffffff;
+  .top-item-label {
+    color: #e2e8f0;
+  }
+
+  .top-item-time {
+    color: #cbd5e1;
+  }
 }
 </style>
