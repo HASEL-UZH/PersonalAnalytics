@@ -1,7 +1,7 @@
 import { expect, test } from '@jest/globals';
 import { jest } from '@jest/globals';
 import type { WindowActivityEntity } from '../entities/WindowActivityEntity';
-import type { RetrospectionSnapshot } from '../services/retrospection/RetrospectionSnapshot';
+import type { RetrospectionWorkdayData } from '../services/retrospection/RetrospectionWorkdayData';
 
 const mockIcon = {
   isEmpty: () => false,
@@ -41,19 +41,19 @@ const windowActivities = [
     windowTitle: 'Pull request review - GitHub - Microsoft Edge'
   }
 ] as WindowActivityEntity[];
-const snapshot: RetrospectionSnapshot = { activeMinutes, windowActivities, workdayStart };
+const workdayData: RetrospectionWorkdayData = { activeMinutes, windowActivities, workdayStart };
 
-test('active-hours figures derive their values from the shared snapshot', () => {
-  expect(buildActiveHoursFigure(snapshot)).toEqual({ activeDurationMs: 62 * 60_000 });
-  expect(buildLongestActivePeriodFigure(snapshot)).toEqual({
+test('active-hours figures derive their values from the shared workday data', () => {
+  expect(buildActiveHoursFigure(workdayData)).toEqual({ activeDurationMs: 62 * 60_000 });
+  expect(buildLongestActivePeriodFigure(workdayData)).toEqual({
     from: new Date(2026, 6, 14, 9),
     to: new Date(2026, 6, 14, 10, 2),
     duration: 62
   });
 });
 
-test('top figures independently transform and decorate the same raw snapshot', async () => {
-  const topApps = await buildTopAppsFigure(snapshot);
+test('top figures independently transform and decorate the same raw workday data', async () => {
+  const topApps = await buildTopAppsFigure(workdayData);
   expect(
     topApps.map(({ type, totalDurationMs }) => ({
       type,
@@ -66,14 +66,14 @@ test('top figures independently transform and decorate the same raw snapshot', a
   expect(topApps.every((item) => item.iconDataUrl === 'data:image/png;base64,mock-icon')).toBe(
     true
   );
-  expect(await buildTopWebsitesFigure(snapshot)).toEqual([
+  expect(await buildTopWebsitesFigure(workdayData)).toEqual([
     expect.objectContaining({
       type: 'Pull request review - GitHub',
       totalDurationMs: 60_000,
       iconDataUrl: 'data:image/png;base64,mock-icon'
     })
   ]);
-  expect(await buildTopWindowTitlesFigure(snapshot)).toEqual([
+  expect(await buildTopWindowTitlesFigure(workdayData)).toEqual([
     expect.objectContaining({
       type: 'main.ts',
       totalDurationMs: 60 * 60_000,

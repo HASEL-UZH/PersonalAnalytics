@@ -1,8 +1,11 @@
+/** Builds the grouped activity timeline and enriches its sessions with hover details. */
 import { Activity, type ActivitySessions } from '../../../../../src/utils/retrospection/types';
-import type { RetrospectionSnapshot } from '../RetrospectionSnapshot';
-import { addTimelineHoverDetails } from '../TimelineDetails';
+import type { RetrospectionWorkdayData } from '../RetrospectionWorkdayData';
+import { addActivityTimelineHoverDetails } from '../ActivityTimelineDetails';
 import { getWindowActivitySessionsByType } from '../WindowActivitySessions';
 
+// Activity also contains unspecific states such as Other, Idle, Unknown, and Uncategorized. This
+// explicit subset is the set that should remain visible in retrospection figures.
 const SPECIFIC_ACTIVITY_TYPES = new Set<Activity>([
   Activity.DevCode,
   Activity.DevDebug,
@@ -27,12 +30,12 @@ export function isSpecificRetrospectionActivity(activityType: string): boolean {
 }
 
 export async function buildActivityTimelineFigure(
-  snapshot: RetrospectionSnapshot,
+  workdayData: RetrospectionWorkdayData,
   excludeUnspecificActivities = true
 ): Promise<ActivitySessions[]> {
-  const sessions = getWindowActivitySessionsByType(snapshot, 'activity');
+  const sessions = getWindowActivitySessionsByType(workdayData, 'activity');
   const filteredSessions = excludeUnspecificActivities
     ? sessions.filter((session) => isSpecificRetrospectionActivity(session.type))
     : sessions;
-  return await addTimelineHoverDetails(snapshot, filteredSessions);
+  return await addActivityTimelineHoverDetails(workdayData, filteredSessions);
 }

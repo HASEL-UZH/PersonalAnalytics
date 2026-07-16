@@ -1,5 +1,6 @@
+/** Builds and ranks non-browser artifact/window-title sessions for the dashboard. */
 import type { ActivitySessions } from '../../../../../src/utils/retrospection/types';
-import type { RetrospectionSnapshot } from '../RetrospectionSnapshot';
+import type { RetrospectionWorkdayData } from '../RetrospectionWorkdayData';
 import { addProcessIconsToSessions, type ProcessIconSource } from '../TopItemIcons';
 import { getWindowActivitySessionsByKey } from '../WindowActivitySessions';
 import {
@@ -10,12 +11,12 @@ import {
 } from '../WindowTitle';
 
 export async function buildTopWindowTitlesFigure(
-  snapshot: RetrospectionSnapshot,
+  workdayData: RetrospectionWorkdayData,
   limit = 3
 ): Promise<ActivitySessions[]> {
   const tooltipTitles = new Map<string, string>();
   const iconSources = new Map<string, ProcessIconSource>();
-  const topWindowTitles = getWindowActivitySessionsByKey(snapshot, (activity) => {
+  const topWindowTitles = getWindowActivitySessionsByKey(workdayData, (activity) => {
     if (
       EXCLUDED_TOP_WINDOW_TITLE_ACTIVITIES.has(activity.activity) ||
       isWebsiteWindowActivity(activity)

@@ -1,3 +1,7 @@
+/**
+ * Normalizes window titles and URLs into readable labels used by timeline hover details and the
+ * top-website and top-window-title figures.
+ */
 import { getMainLogger } from '../../../config/Logger';
 import type { WindowActivityEntity } from '../../entities/WindowActivityEntity';
 import { Activity, type ActivitySessions } from '../../../../src/utils/retrospection/types';

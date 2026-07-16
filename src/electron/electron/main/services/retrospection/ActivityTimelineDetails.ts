@@ -1,3 +1,7 @@
+/**
+ * Builds the per-session detail rows shown when hovering an activity-timeline bar. It is specific
+ * to the activity timeline; the other figures do not use these hover details.
+ */
 import type { WindowActivityEntity } from '../../entities/WindowActivityEntity';
 import type {
   ActivitySessions,
@@ -6,7 +10,7 @@ import type {
 import { getWorkdayMinuteIndex } from '../../../../shared/retrospection/Workday';
 import { getProcessIconDataUrl } from '../utils/AppIconHelper';
 import { getOverlapDurationMs } from '../utils/helpers';
-import type { RetrospectionSnapshot } from './RetrospectionSnapshot';
+import type { RetrospectionWorkdayData } from './RetrospectionWorkdayData';
 import { getActiveMinuteSpans } from './WindowActivitySessions';
 import { getLongTimelineHoverTitle, getShortTimelineHoverTitle } from './WindowTitle';
 
@@ -28,7 +32,7 @@ async function addWindowActivityDetailSpan(
   activity: WindowActivityEntity,
   from: Date,
   to: Date,
-  snapshot: RetrospectionSnapshot
+  workdayData: RetrospectionWorkdayData
 ): Promise<void> {
   const title = getShortTimelineHoverTitle(activity);
   if (!title || to.getTime() <= from.getTime()) {
@@ -37,29 +41,31 @@ async function addWindowActivityDetailSpan(
 
   const tooltipTitle = getLongTimelineHoverTitle(activity, title);
   const iconDataUrl = await getProcessIconDataUrl(activity.processPath, activity.processName);
-  getActiveMinuteSpans(from, to, snapshot.activeMinutes, snapshot.workdayStart).forEach((span) => {
-    spans.push({
-      from: span.from,
-      to: span.to,
-      activity: activity.activity,
-      title,
-      appName: activity.processName,
-      tooltipTitle,
-      iconDataUrl
-    });
-  });
+  getActiveMinuteSpans(from, to, workdayData.activeMinutes, workdayData.workdayStart).forEach(
+    (span) => {
+      spans.push({
+        from: span.from,
+        to: span.to,
+        activity: activity.activity,
+        title,
+        appName: activity.processName,
+        tooltipTitle,
+        iconDataUrl
+      });
+    }
+  );
 }
 
 async function getWindowActivityDetailSpans(
-  snapshot: RetrospectionSnapshot
+  workdayData: RetrospectionWorkdayData
 ): Promise<WindowActivityDetailSpan[]> {
   const spans: WindowActivityDetailSpan[] = [];
   let lastWindowActivity: WindowActivityEntity | undefined;
 
-  for (const activity of snapshot.windowActivities) {
+  for (const activity of workdayData.windowActivities) {
     if (
-      !snapshot.activeMinutes.has(
-        getWorkdayMinuteIndex(new Date(activity.ts), snapshot.workdayStart)
+      !workdayData.activeMinutes.has(
+        getWorkdayMinuteIndex(new Date(activity.ts), workdayData.workdayStart)
       )
     ) {
       continue;
@@ -71,7 +77,7 @@ async function getWindowActivityDetailSpans(
         lastWindowActivity,
         new Date(lastWindowActivity.ts),
         new Date(activity.ts),
-        snapshot
+        workdayData
       );
     }
     lastWindowActivity = activity;
@@ -81,13 +87,13 @@ async function getWindowActivityDetailSpans(
     const start = new Date(lastWindowActivity.ts);
     const end = new Date(start);
     end.setMinutes(end.getMinutes() + 1);
-    await addWindowActivityDetailSpan(spans, lastWindowActivity, start, end, snapshot);
+    await addWindowActivityDetailSpan(spans, lastWindowActivity, start, end, workdayData);
   }
 
   return spans;
 }
 
-function addTimelineHoverDetailsToSessions(
+function addActivityTimelineHoverDetailsToSessions(
   activitySessions: ActivitySessions[],
   detailSpans: WindowActivityDetailSpan[],
   limit = TIMELINE_HOVER_DETAIL_LIMIT
@@ -141,10 +147,10 @@ function addTimelineHoverDetailsToSessions(
   }));
 }
 
-export async function addTimelineHoverDetails(
-  snapshot: RetrospectionSnapshot,
+export async function addActivityTimelineHoverDetails(
+  workdayData: RetrospectionWorkdayData,
   activitySessions: ActivitySessions[]
 ): Promise<ActivitySessions[]> {
-  const detailSpans = await getWindowActivityDetailSpans(snapshot);
-  return addTimelineHoverDetailsToSessions(activitySessions, detailSpans);
+  const detailSpans = await getWindowActivityDetailSpans(workdayData);
+  return addActivityTimelineHoverDetailsToSessions(activitySessions, detailSpans);
 }

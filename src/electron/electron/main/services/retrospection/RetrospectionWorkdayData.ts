@@ -1,3 +1,7 @@
+/**
+ * Loads the raw Window Activity Monitor and User Input Monitor records for one retrospection
+ * workday. Figure modules share this data so a dashboard load queries each source only once.
+ */
 import { UserInputEntity } from '../../entities/UserInputEntity';
 import { WindowActivityEntity } from '../../entities/WindowActivityEntity';
 import {
@@ -18,7 +22,8 @@ interface RawWindowActivity extends Omit<WindowActivityEntity, 'ts'> {
   ts: Date | string;
 }
 
-export interface RetrospectionSnapshot {
+/** Raw tracker data and derived active-minute indexes shared by retrospection figures. */
+export interface RetrospectionWorkdayData {
   activeMinutes: Set<number>;
   windowActivities: WindowActivityEntity[];
   workdayStart: Date;
@@ -69,10 +74,10 @@ export async function getWindowActivitiesForWorkday(
   return rows.map((row) => ({ ...row, ts: new Date(row.ts) }) as WindowActivityEntity);
 }
 
-/** Loads the raw tracker data once for every figure on the selected workday. */
-export async function loadRetrospectionSnapshot(
+/** Loads the shared raw data once for every figure on the selected workday. */
+export async function loadRetrospectionWorkdayData(
   date: Date | string
-): Promise<RetrospectionSnapshot> {
+): Promise<RetrospectionWorkdayData> {
   const { start } = getRetrospectionWorkdayRange(date);
   const [windowActivities, activeMinutes] = await Promise.all([
     getWindowActivitiesForWorkday(date),

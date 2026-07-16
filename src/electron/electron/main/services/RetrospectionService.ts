@@ -8,9 +8,9 @@ import type {
 } from '../../../src/utils/retrospection/types';
 import {
   getWindowActivitiesForWorkday,
-  loadRetrospectionSnapshot,
-  type RetrospectionSnapshot
-} from './retrospection/RetrospectionSnapshot';
+  loadRetrospectionWorkdayData,
+  type RetrospectionWorkdayData
+} from './retrospection/RetrospectionWorkdayData';
 import {
   buildActiveHoursFigure,
   buildLongestActivePeriodFigure
@@ -59,18 +59,18 @@ function emptyActivityDashboard(
 }
 
 /**
- * Builds every tracker-backed figure from one shared workday snapshot.
- * A figure failure is isolated to its own section, while a snapshot failure marks all activity
+ * Builds every tracker-backed figure from one shared set of workday data.
+ * A figure failure is isolated to its own section, while a data-loading failure marks all activity
  * sections unavailable because none of them can be calculated without the raw tracker data.
  */
 export async function getRetrospectionActivityDashboard(
   date: Date
 ): Promise<RetrospectionActivityDashboard> {
-  let snapshot: RetrospectionSnapshot;
+  let workdayData: RetrospectionWorkdayData;
   try {
-    snapshot = await loadRetrospectionSnapshot(date);
+    workdayData = await loadRetrospectionWorkdayData(date);
   } catch (error) {
-    LOG.error('Error loading retrospection snapshot', error);
+    LOG.error('Error loading retrospection workday data', error);
     return emptyActivityDashboard([...ACTIVITY_SECTION_ORDER]);
   }
 
@@ -91,12 +91,16 @@ export async function getRetrospectionActivityDashboard(
 
   const [activities, activeHours, longestActivePeriod, topApps, topWebsites, topWindowTitles] =
     await Promise.all([
-      buildFigure('activities', () => buildActivityTimelineFigure(snapshot), []),
-      buildFigure('activeHours', () => buildActiveHoursFigure(snapshot), undefined),
-      buildFigure('longestActivePeriod', () => buildLongestActivePeriodFigure(snapshot), undefined),
-      buildFigure('topApps', () => buildTopAppsFigure(snapshot), []),
-      buildFigure('topWebsites', () => buildTopWebsitesFigure(snapshot), []),
-      buildFigure('topWindowTitles', () => buildTopWindowTitlesFigure(snapshot), [])
+      buildFigure('activities', () => buildActivityTimelineFigure(workdayData), []),
+      buildFigure('activeHours', () => buildActiveHoursFigure(workdayData), undefined),
+      buildFigure(
+        'longestActivePeriod',
+        () => buildLongestActivePeriodFigure(workdayData),
+        undefined
+      ),
+      buildFigure('topApps', () => buildTopAppsFigure(workdayData), []),
+      buildFigure('topWebsites', () => buildTopWebsitesFigure(workdayData), []),
+      buildFigure('topWindowTitles', () => buildTopWindowTitlesFigure(workdayData), [])
     ]);
 
   return {
@@ -110,30 +114,30 @@ export async function getRetrospectionActivityDashboard(
   };
 }
 
-// Compatibility façade for callers and focused tests. Dashboard IPC uses the shared snapshot above.
+// Compatibility façade for callers and focused tests. Dashboard IPC uses the shared workday data.
 export const getWindowActivities = getWindowActivitiesForWorkday;
 
 export async function getActiveHoursInsight(date: Date): Promise<ActiveHoursInsight> {
-  return buildActiveHoursFigure(await loadRetrospectionSnapshot(date));
+  return buildActiveHoursFigure(await loadRetrospectionWorkdayData(date));
 }
 
 export async function getLongestTimeActiveInsight(date: Date): Promise<TimeActive> {
-  return buildLongestActivePeriodFigure(await loadRetrospectionSnapshot(date));
+  return buildLongestActivePeriodFigure(await loadRetrospectionWorkdayData(date));
 }
 
 export async function getAppUsageSessions(date: Date): Promise<ActivitySessions[]> {
-  return buildAppUsageFigure(await loadRetrospectionSnapshot(date));
+  return buildAppUsageFigure(await loadRetrospectionWorkdayData(date));
 }
 
 export async function getTopWebsiteSessions(date: Date, limit = 3): Promise<ActivitySessions[]> {
-  return buildTopWebsitesFigure(await loadRetrospectionSnapshot(date), limit);
+  return buildTopWebsitesFigure(await loadRetrospectionWorkdayData(date), limit);
 }
 
 export async function getTopWindowTitleSessions(
   date: Date,
   limit = 3
 ): Promise<ActivitySessions[]> {
-  return buildTopWindowTitlesFigure(await loadRetrospectionSnapshot(date), limit);
+  return buildTopWindowTitlesFigure(await loadRetrospectionWorkdayData(date), limit);
 }
 
 export async function getActivitySessions(
@@ -141,7 +145,7 @@ export async function getActivitySessions(
   excludeUnspecificActivities = true
 ): Promise<ActivitySessions[]> {
   return await buildActivityTimelineFigure(
-    await loadRetrospectionSnapshot(date),
+    await loadRetrospectionWorkdayData(date),
     excludeUnspecificActivities
   );
 }

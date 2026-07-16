@@ -1,3 +1,7 @@
+/**
+ * Converts consecutive window-activity records into duration-bearing sessions, splitting them at
+ * inactive minutes so every figure uses the same active-time calculation.
+ */
 import { getMainLogger } from '../../../config/Logger';
 import type { WindowActivityEntity } from '../../entities/WindowActivityEntity';
 import type { ActivitySessions, TimeActive } from '../../../../src/utils/retrospection/types';
@@ -5,7 +9,7 @@ import {
   getDateFromWorkdayMinuteIndex,
   getWorkdayMinuteIndex
 } from '../../../../shared/retrospection/Workday';
-import type { RetrospectionSnapshot } from './RetrospectionSnapshot';
+import type { RetrospectionWorkdayData } from './RetrospectionWorkdayData';
 
 const LOG = getMainLogger('WindowActivitySessions');
 
@@ -88,29 +92,31 @@ function addSessionWithActiveMinuteSplits(
   from: Date,
   to: Date,
   activity: string,
-  snapshot: RetrospectionSnapshot
+  workdayData: RetrospectionWorkdayData
 ): void {
   if (!sessionKey || to.getTime() <= from.getTime()) {
     return;
   }
 
-  getActiveMinuteSpans(from, to, snapshot.activeMinutes, snapshot.workdayStart).forEach((span) => {
-    addActivitySessionEntry(sessions, sessionKey, span.from, span.to, activity);
-  });
+  getActiveMinuteSpans(from, to, workdayData.activeMinutes, workdayData.workdayStart).forEach(
+    (span) => {
+      addActivitySessionEntry(sessions, sessionKey, span.from, span.to, activity);
+    }
+  );
 }
 
-/** Reconstructs active-only sessions from a snapshot without performing database queries. */
+/** Reconstructs active-only sessions from workday data without performing database queries. */
 export function getWindowActivitySessionsByKey(
-  snapshot: RetrospectionSnapshot,
+  workdayData: RetrospectionWorkdayData,
   getSessionKey: WindowActivitySessionKeySelector
 ): ActivitySessions[] {
   const sessions = new Map<string, ActivitySessions>();
   let lastWindowActivity: WindowActivityEntity | undefined;
 
-  for (const activity of snapshot.windowActivities) {
+  for (const activity of workdayData.windowActivities) {
     if (
-      !snapshot.activeMinutes.has(
-        getWorkdayMinuteIndex(new Date(activity.ts), snapshot.workdayStart)
+      !workdayData.activeMinutes.has(
+        getWorkdayMinuteIndex(new Date(activity.ts), workdayData.workdayStart)
       )
     ) {
       continue;
@@ -124,7 +130,7 @@ export function getWindowActivitySessionsByKey(
         new Date(lastWindowActivity.ts),
         new Date(activity.ts),
         lastWindowActivity.activity,
-        snapshot
+        workdayData
       );
       lastWindowActivity = activity;
     }
@@ -142,7 +148,7 @@ export function getWindowActivitySessionsByKey(
       start,
       end,
       lastWindowActivity.activity,
-      snapshot
+      workdayData
     );
   }
 
@@ -150,8 +156,8 @@ export function getWindowActivitySessionsByKey(
 }
 
 export function getWindowActivitySessionsByType(
-  snapshot: RetrospectionSnapshot,
+  workdayData: RetrospectionWorkdayData,
   property: 'processName' | 'activity'
 ): ActivitySessions[] {
-  return getWindowActivitySessionsByKey(snapshot, (activity) => activity[property]);
+  return getWindowActivitySessionsByKey(workdayData, (activity) => activity[property]);
 }

@@ -1,3 +1,7 @@
+/**
+ * Resolves application icons for top-app, top-website, and top-window-title sessions and attaches
+ * renderer-safe data URLs to the corresponding figure data.
+ */
 import type { ActivitySessions } from '../../../../src/utils/retrospection/types';
 import { getProcessIconDataUrl } from '../utils/AppIconHelper';
 
@@ -6,7 +10,7 @@ export interface ProcessIconSource {
   processPath: string | null;
 }
 
-/** Adds renderer-safe process icons using the same resolver as timeline hover details. */
+/** Adds renderer-safe process icons using the same resolver as activity-timeline hover details. */
 export async function addProcessIconsToSessions(
   sessions: ActivitySessions[],
   getIconSource: (session: ActivitySessions) => ProcessIconSource | undefined

@@ -1,7 +1,7 @@
 import { afterEach, expect, jest, test } from '@jest/globals';
 import { UserInputEntity } from '../entities/UserInputEntity';
 import { WindowActivityEntity } from '../entities/WindowActivityEntity';
-import { loadRetrospectionSnapshot } from '../services/retrospection/RetrospectionSnapshot';
+import { loadRetrospectionWorkdayData } from '../services/retrospection/RetrospectionWorkdayData';
 
 interface MockQueryBuilder {
   select: ReturnType<typeof jest.fn>;
@@ -25,7 +25,7 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-test('loads each raw tracker source once for the whole workday snapshot', async () => {
+test('loads each raw tracker source once for the whole workday', async () => {
   const windowBuilder = createQueryBuilder([
     {
       activity: 'DevCode',
@@ -52,12 +52,12 @@ test('loads each raw tracker source once for the whole workday snapshot', async 
     .spyOn(UserInputEntity, 'createQueryBuilder')
     .mockReturnValue(inputBuilder as never);
 
-  const snapshot = await loadRetrospectionSnapshot(new Date(2026, 6, 14));
+  const workdayData = await loadRetrospectionWorkdayData(new Date(2026, 6, 14));
 
   expect(windowQuery).toHaveBeenCalledTimes(1);
   expect(inputQuery).toHaveBeenCalledTimes(1);
-  expect(snapshot.windowActivities).toHaveLength(1);
-  expect(snapshot.windowActivities[0].ts).toBeInstanceOf(Date);
-  expect(snapshot.activeMinutes).toEqual(new Set([5 * 60]));
-  expect(snapshot.workdayStart).toEqual(new Date(2026, 6, 14, 4));
+  expect(workdayData.windowActivities).toHaveLength(1);
+  expect(workdayData.windowActivities[0].ts).toBeInstanceOf(Date);
+  expect(workdayData.activeMinutes).toEqual(new Set([5 * 60]));
+  expect(workdayData.workdayStart).toEqual(new Date(2026, 6, 14, 4));
 });
