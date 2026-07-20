@@ -21,9 +21,6 @@ export class TrackerService {
   private readonly windowService: WindowService;
   private readonly workScheduleService: WorkScheduleService;
   private checkIfUITIsWorkingJob: schedule.Job;
-  private windowActivityTracker: Tracker | undefined;
-  private userInputTracker: Tracker | undefined;
-  private experienceSamplingTracker: ExperienceSamplingTracker | undefined;
 
   constructor(
     trackerConfig: TrackerConfig,
@@ -62,7 +59,6 @@ export class TrackerService {
         screenRecordingPermission
       );
       this.trackers.push(userInputTracker);
-      this.windowActivityTracker = userInputTracker;
     } else if (
       this.config.userInputTracker.enabled &&
       trackerType === TrackerType.UserInputTracker
@@ -71,7 +67,6 @@ export class TrackerService {
       const { intervalInMs, collectKeyDetails = false } = this.config.userInputTracker; // default to false for collectKeyDetails to avoid collecting potentially sensitive data if not explicitly enabled
       const userInputTracker = new UIT.UserInputTracker(callback, intervalInMs, collectKeyDetails);
       this.trackers.push(userInputTracker);
-      this.userInputTracker = userInputTracker;
     } else if (
       this.config.experienceSamplingTracker.enabled &&
       trackerType === TrackerType.ExperienceSamplingTracker
@@ -83,7 +78,6 @@ export class TrackerService {
         this.config.experienceSamplingTracker.samplingRandomization
       );
       this.trackers.push(experienceSamplingTracker);
-      this.experienceSamplingTracker = experienceSamplingTracker;
     } else if (trackerType === TrackerType.DaysParticipatedTracker) {
       const daysParticipatedTracker = new DaysParticipatedTracker();
       this.trackers.push(daysParticipatedTracker);
@@ -172,68 +166,34 @@ export class TrackerService {
   }
 
   /**
-   * Returns labels from the tracker implementations rather than duplicating them in study config.
-   * Disabled trackers are created temporarily but never started, solely to read their display name.
+   * Returns the tracker display labels from the tracker implementations (single source of truth)
+   * rather than duplicating them in the study config. The names are static, so no tracker instance
+   * needs to be created here.
    */
   public async getRetrospectionTrackerConfigs(): Promise<{
     windowActivityMonitor: RetrospectionTrackerConfig;
     userInputMonitor: RetrospectionTrackerConfig;
     experienceSampling: RetrospectionTrackerConfig;
   }> {
-    const [windowActivityName, userInputName, experienceSamplingName] = await Promise.all([
-      this.getWindowActivityTrackerName(),
-      this.getUserInputTrackerName(),
-      this.getExperienceSamplingTrackerName()
+    const [WAT, UIT] = await Promise.all([
+      import('windows-activity-tracker'),
+      import('user-input-tracker')
     ]);
 
     return {
       windowActivityMonitor: {
-        name: windowActivityName,
+        name: WAT.WindowsActivityTracker.NAME,
         enabled: this.config.windowActivityTracker.enabled
       },
-      userInputMonitor: { name: userInputName, enabled: this.config.userInputTracker.enabled },
+      userInputMonitor: {
+        name: UIT.UserInputTracker.NAME,
+        enabled: this.config.userInputTracker.enabled
+      },
       experienceSampling: {
-        name: experienceSamplingName,
+        name: ExperienceSamplingTracker.NAME,
         enabled: this.config.experienceSamplingTracker.enabled
       }
     };
-  }
-
-  private async getWindowActivityTrackerName(): Promise<string> {
-    if (this.windowActivityTracker) {
-      return this.windowActivityTracker.name;
-    }
-    const WAT = await import('windows-activity-tracker');
-    return new WAT.WindowsActivityTracker(() => undefined).name;
-  }
-
-  private async getUserInputTrackerName(): Promise<string> {
-    if (this.userInputTracker) {
-      return this.userInputTracker.name;
-    }
-    const UIT = await import('user-input-tracker');
-    const tracker = new UIT.UserInputTracker(
-      () => undefined,
-      this.config.userInputTracker.intervalInMs,
-      false
-    );
-    try {
-      return tracker.name;
-    } finally {
-      tracker.terminate();
-    }
-  }
-
-  private getExperienceSamplingTrackerName(): string {
-    if (this.experienceSamplingTracker) {
-      return this.experienceSamplingTracker.name;
-    }
-    return new ExperienceSamplingTracker(
-      this.windowService,
-      this.workScheduleService,
-      this.config.experienceSamplingTracker.intervalInMs,
-      this.config.experienceSamplingTracker.samplingRandomization
-    ).name;
   }
 
   private isTrackerAlreadyRegistered(trackerType: TrackerType) {
