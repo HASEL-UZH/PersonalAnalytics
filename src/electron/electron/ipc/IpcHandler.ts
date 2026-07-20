@@ -40,6 +40,7 @@ import type {
 import { DailySurveyTracker } from '../main/services/trackers/DailySurveyTracker';
 import { UsageDataService } from '../main/services/UsageDataService';
 import { UsageDataEventType } from '../enums/UsageDataEventType.enum';
+import { getRetrospectionTrackerAvailability } from '../../src/utils/retrospection/availability';
 
 const LOG = getMainLogger('IpcHandler');
 
@@ -335,10 +336,14 @@ export class IpcHandler {
   }
 
   private async retrospectionGetDashboard(date: Date): Promise<RetrospectionDashboard> {
-    const activityInsightsEnabled =
-      studyConfig.trackers.windowActivityTracker.enabled &&
-      studyConfig.trackers.userInputTracker.enabled;
-    const selfReportsEnabled = studyConfig.trackers.experienceSamplingTracker.enabled;
+    const trackerConfigs = await this.trackerService.getRetrospectionTrackerConfigs();
+    const trackerAvailability = getRetrospectionTrackerAvailability(
+      trackerConfigs.windowActivityMonitor,
+      trackerConfigs.userInputMonitor,
+      trackerConfigs.experienceSampling
+    );
+    const activityInsightsEnabled = trackerAvailability.activityInsightsEnabled;
+    const selfReportsEnabled = trackerAvailability.selfReportsEnabled;
     const activityPromise = activityInsightsEnabled
       ? getRetrospectionActivityDashboard(new Date(date))
       : Promise.resolve({
@@ -367,6 +372,7 @@ export class IpcHandler {
     return {
       ...activityDashboard,
       selfReports: selfReportResult.selfReports,
+      trackerAvailability,
       errors: [...activityDashboard.errors, ...selfReportResult.errors]
     };
   }

@@ -6,15 +6,15 @@ export interface RetrospectionTrackerAvailability {
   messages: string[];
 }
 
-interface TrackerAvailabilityConfig {
+export interface RetrospectionTrackerConfig {
   name: string;
   enabled: boolean;
 }
 
 export function getRetrospectionTrackerAvailability(
-  windowActivityMonitor: TrackerAvailabilityConfig,
-  userInputMonitor: TrackerAvailabilityConfig,
-  experienceSampling: TrackerAvailabilityConfig
+  windowActivityMonitor: RetrospectionTrackerConfig,
+  userInputMonitor: RetrospectionTrackerConfig,
+  experienceSampling: RetrospectionTrackerConfig
 ): RetrospectionTrackerAvailability {
   const activityInsightMessages: string[] = [];
   const selfReportMessages: string[] = [];

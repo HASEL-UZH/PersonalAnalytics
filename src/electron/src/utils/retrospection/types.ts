@@ -1,4 +1,5 @@
 import type ExperienceSamplingDto from '../../../shared/dto/ExperienceSamplingDto';
+import type { RetrospectionTrackerAvailability } from './availability';
 
 export enum DataPointType {
   USER_COMPUTER_ACTIVITY = 'USER_COMPUTER_ACTIVITY',
@@ -95,6 +96,7 @@ export interface RetrospectionDashboard {
   topWebsites: ActivitySessions[];
   topWindowTitles: ActivitySessions[];
   selfReports: ExperienceSamplingDto[];
+  trackerAvailability: RetrospectionTrackerAvailability;
   errors: RetrospectionDataSection[];
 }
 

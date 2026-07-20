@@ -21,9 +21,8 @@ import StackedBarChart from '../components/StackedBarChart.vue';
 import SelfReportTimelineChart from '../components/SelfReportTimelineChart.vue';
 import RetrospectionTopItemsCard from '../components/RetrospectionTopItemsCard.vue';
 import type ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
-import studyConfig from '../../shared/study.config';
 import typedIpcRenderer from '../utils/typedIpcRenderer';
-import { getRetrospectionTrackerAvailability } from '../utils/retrospection/availability';
+import type { RetrospectionTrackerAvailability } from '../utils/retrospection/availability';
 import {
   getRetrospectionTimelineBounds,
   getRetrospectionWorkdayRange
@@ -43,16 +42,18 @@ const loadErrors = ref<RetrospectionDataSection[]>([]);
 const ACTIVITY_BREAKDOWN_COVERAGE = 0.9;
 const ACTIVITY_BREAKDOWN_MAX_ITEMS = 6;
 const EXCLUDED_ACTIVITY_BREAKDOWN_GROUPS = new Set(['Other', 'Unknown']);
-const trackerAvailability = getRetrospectionTrackerAvailability(
-  studyConfig.trackers.windowActivityTracker,
-  studyConfig.trackers.userInputTracker,
-  studyConfig.trackers.experienceSamplingTracker
+const trackerAvailability = ref<RetrospectionTrackerAvailability | null>(null);
+const activityInsightsEnabled = computed(
+  () => trackerAvailability.value?.activityInsightsEnabled ?? false
 );
-const activityInsightsEnabled = trackerAvailability.activityInsightsEnabled;
-const experienceSamplingEnabled = trackerAvailability.selfReportsEnabled;
-const trackerAvailabilityMessages = trackerAvailability.messages;
-const activityInsightMessages = trackerAvailability.activityInsightMessages;
-const selfReportMessages = trackerAvailability.selfReportMessages;
+const experienceSamplingEnabled = computed(
+  () => trackerAvailability.value?.selfReportsEnabled ?? false
+);
+const trackerAvailabilityMessages = computed(() => trackerAvailability.value?.messages ?? []);
+const activityInsightMessages = computed(
+  () => trackerAvailability.value?.activityInsightMessages ?? []
+);
+const selfReportMessages = computed(() => trackerAvailability.value?.selfReportMessages ?? []);
 let loadRequestVersion = 0;
 
 const SECTION_LABELS: Record<RetrospectionDataSection, string> = {
@@ -148,7 +149,7 @@ const emptyStateTitle = computed((): string => {
   if (hasLoadErrors.value) {
     return 'Retrospection data could not be loaded.';
   }
-  if (!activityInsightsEnabled && !experienceSamplingEnabled) {
+  if (!activityInsightsEnabled.value && !experienceSamplingEnabled.value) {
     return 'No retrospection data can be visualized.';
   }
   return 'No data for this day.';
@@ -158,14 +159,14 @@ const emptyStateDescription = computed((): string => {
   if (hasLoadErrors.value) {
     return `The following sections failed to load: ${failedSectionLabels.value}. Please try again or select a different day.`;
   }
-  if (!activityInsightsEnabled && !experienceSamplingEnabled) {
-    return trackerAvailabilityMessages.join(' ');
+  if (!activityInsightsEnabled.value && !experienceSamplingEnabled.value) {
+    return trackerAvailabilityMessages.value.join(' ');
   }
-  if (!activityInsightsEnabled) {
-    return `No visualizable self-reports were recorded for this date. ${activityInsightMessages.join(' ')}`;
+  if (!activityInsightsEnabled.value) {
+    return `No visualizable self-reports were recorded for this date. ${activityInsightMessages.value.join(' ')}`;
   }
-  if (!experienceSamplingEnabled) {
-    return `No activity data was recorded for this date. ${selfReportMessages.join(' ')}`;
+  if (!experienceSamplingEnabled.value) {
+    return `No activity data was recorded for this date. ${selfReportMessages.value.join(' ')}`;
   }
   return 'There is no activity or visualizable self-report data recorded for this date. Please select a different day.';
 });
@@ -311,6 +312,7 @@ async function loadData() {
     topWebsites.value = dashboard.topWebsites;
     topWindowTitles.value = dashboard.topWindowTitles;
     selfReports.value = dashboard.selfReports;
+    trackerAvailability.value = dashboard.trackerAvailability;
     const errors = new Set(dashboard.errors);
     loadErrors.value = SECTION_ORDER.filter((section) => errors.has(section));
   } catch (error) {
