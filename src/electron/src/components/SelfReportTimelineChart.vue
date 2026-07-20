@@ -1,5 +1,5 @@
 <template>
-  <div class="self-report-chart">
+  <div ref="chartContainer" class="self-report-chart">
     <div
       ref="tooltip"
       class="self-report-tooltip rounded border border-gray-200 bg-white p-2 text-gray-700 opacity-0 shadow-lg transition-opacity duration-300 ease-in-out dark:border-transparent dark:bg-neutral-800 dark:text-neutral-300 dark:shadow-neutral-800/80"
@@ -67,13 +67,15 @@ const props = defineProps({
   }
 });
 
-const svgWidth = 760;
+const svgWidth = ref(760);
 const svgHeight = 190;
+const chartContainer = ref<HTMLElement | null>(null);
 const chart = ref<SVGElement | null>(null);
 const tooltip = ref<HTMLElement | null>(null);
 const darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 const isDark = ref(darkMediaQuery.matches);
 const selectedQuestion = ref<string | null>(null);
+let resizeObserver: ResizeObserver | undefined;
 
 const palette = [
   Color['blue-600'],
@@ -141,11 +143,23 @@ watch([() => props.startDate, () => props.endDate, series], () => {
 
 onMounted(() => {
   darkMediaQuery.addEventListener('change', onThemeChange);
+  updateChartWidth();
+  resizeObserver = new ResizeObserver(() => {
+    const previousWidth = svgWidth.value;
+    updateChartWidth();
+    if (svgWidth.value !== previousWidth) {
+      rebuildChart();
+    }
+  });
+  if (chartContainer.value) {
+    resizeObserver.observe(chartContainer.value);
+  }
   rebuildChart();
 });
 
 onUnmounted(() => {
   darkMediaQuery.removeEventListener('change', onThemeChange);
+  resizeObserver?.disconnect();
 });
 
 function onThemeChange(e: MediaQueryListEvent) {
@@ -261,13 +275,20 @@ function rebuildChart() {
   buildChart();
 }
 
+function updateChartWidth(): void {
+  const width = Math.floor(chartContainer.value?.getBoundingClientRect().width ?? 0);
+  if (width > 0) {
+    svgWidth.value = width;
+  }
+}
+
 function buildChart() {
   if (!chart.value) {
     return;
   }
 
   const margin = { top: 22, right: 0, bottom: 34, left: 0 };
-  const width = svgWidth - margin.left - margin.right;
+  const width = svgWidth.value - margin.left - margin.right;
   const height = svgHeight - margin.top - margin.bottom;
   const axisColor = isDark.value ? '#a3a3a3' : '#374151';
   const gridColor = isDark.value ? '#404040' : '#e5e7eb';
@@ -349,13 +370,22 @@ function buildChart() {
       );
   });
 
-  svg
+  const axisLabels = svg
     .append('g')
     .attr('class', 'x axis')
     .attr('transform', `translate(0, ${height})`)
     .call(d3.axisBottom(x).tickFormat(formatTimeTick))
     .selectAll('text')
     .style('fill', axisColor);
+
+  const labels = axisLabels.nodes();
+  labels.forEach((label, index) => {
+    if (index === 0) {
+      d3.select(label).attr('text-anchor', 'start').attr('x', 4);
+    } else if (index === labels.length - 1) {
+      d3.select(label).attr('text-anchor', 'end').attr('x', -4);
+    }
+  });
 
   svg.selectAll('.x.axis path, .x.axis line').style('stroke', axisColor);
 }
@@ -401,7 +431,12 @@ function getTooltipScaleSuffix(point: SelfReportPoint): string {
 <style scoped>
 .self-report-chart {
   position: relative;
-  width: 760px;
+  width: 100%;
+  min-width: 0;
+}
+
+.self-report-chart svg {
+  display: block;
   max-width: 100%;
 }
 
