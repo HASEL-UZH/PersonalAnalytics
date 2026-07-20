@@ -94,7 +94,9 @@ function handleJumpListArgs(argv: string[]): boolean {
   return false
 }
 
-// Windows: taskbar pin / Start-menu click triggers a second instance.
+// Windows: taskbar pin / Start-menu click triggers a second instance. On macOS this is
+// reached by `open -n`; it should confirm that the existing app is running rather than opening
+// Retrospection, which remains the behaviour for normal Dock/menubar activation below.
 // Deferred via setImmediate: creating native UI synchronously inside this callback
 // (which fires from Windows' inter-process messaging) can be unstable.
 app.on('second-instance', (_event, argv) => {
@@ -102,6 +104,10 @@ app.on('second-instance', (_event, argv) => {
   setImmediate(() => {
     try {
       if (handleJumpListArgs(argv)) return
+      if (is.macOS) {
+        showRunningNotification()
+        return
+      }
       if (studyConfig.enableRetrospection ?? true) {
         windowService.focusOrCreateRetrospectionWindow().catch((err) => console.error('Error opening retrospection from second-instance', err))
       } else {
