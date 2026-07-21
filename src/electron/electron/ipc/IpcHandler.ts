@@ -16,7 +16,9 @@ import { UserInputTrackerService } from '../main/services/trackers/UserInputTrac
 import { DataExportService } from '../main/services/DataExportService';
 import UserInputDto from '../../shared/dto/UserInputDto';
 import WindowActivityDto from '../../shared/dto/WindowActivityDto';
-import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
+import ExperienceSamplingDto, {
+  ExperienceSamplingResponseInput
+} from '../../shared/dto/ExperienceSamplingDto';
 import DailySurveyDto, { DailySurveyResponseInput } from '../../shared/dto/DailySurveyDto';
 import { DailySurveyService } from '../main/services/DailySurveyService';
 import { is } from '../main/services/utils/helpers';
@@ -94,6 +96,7 @@ export class IpcHandler {
       setSettingsProp: this.setSettingsProp,
       getSettings: this.getSettings,
       createExperienceSample: this.createExperienceSample,
+      createExperienceSamples: this.createExperienceSamples,
       resizeExperienceSamplingWindow: this.resizeExperienceSamplingWindow,
       closeExperienceSamplingWindow: this.closeExperienceSamplingWindow,
       closeOnboardingWindow: this.closeOnboardingWindow,
@@ -161,6 +164,14 @@ export class IpcHandler {
       skipped,
       trigger
     );
+  }
+
+  private async createExperienceSamples(
+    promptedAt: Date,
+    responses: ExperienceSamplingResponseInput[],
+    trigger: 'manual' | 'auto' = 'auto'
+  ) {
+    await this.experienceSamplingService.createExperienceSamples(promptedAt, responses, trigger);
   }
 
   private openLogs() {

@@ -1,7 +1,12 @@
 import { ExperienceSamplingResponseEntity } from '../entities/ExperienceSamplingResponseEntity';
 import getMainLogger from '../../config/Logger';
 import ExperienceSamplingDto from '../../../shared/dto/ExperienceSamplingDto';
+import type { ExperienceSamplingResponseInput } from '../../../shared/dto/ExperienceSamplingDto';
 import type { ExperienceSamplingAnswerType } from '../../../shared/StudyConfiguration';
+import {
+  formatSqliteLocalDateTime,
+  getRetrospectionWorkdayRange
+} from '../../../shared/retrospection/Workday';
 
 const LOG = getMainLogger('ExperienceSamplingService');
 
@@ -48,6 +53,29 @@ export class ExperienceSamplingService {
     });
   }
 
+  public async createExperienceSamples(
+    promptedAt: Date,
+    responses: ExperienceSamplingResponseInput[],
+    trigger: 'manual' | 'auto' = 'auto'
+  ): Promise<void> {
+    LOG.debug(
+      `createExperienceSamples: promptedAt=${promptedAt}, responseCount=${responses.length}, trigger=${trigger}`
+    );
+    const entities = responses.map((r) => {
+      const entity = new ExperienceSamplingResponseEntity();
+      entity.promptedAt = promptedAt;
+      entity.question = r.question;
+      entity.answerType = r.answerType;
+      entity.responseOptions = r.responseOptions;
+      entity.scale = r.scale;
+      entity.response = r.response;
+      entity.skipped = r.skipped;
+      entity.trigger = trigger;
+      return entity;
+    });
+    await ExperienceSamplingResponseEntity.save(entities);
+  }
+
   public async getMostRecentExperienceSamplingDtos(
     itemCount: number
   ): Promise<ExperienceSamplingDto[]> {
@@ -61,12 +89,18 @@ export class ExperienceSamplingService {
   public async getExperienceSamplingDtosForDay(
     date: Date | string
   ): Promise<ExperienceSamplingDto[]> {
-    const d = typeof date === 'string' ? new Date(date) : date;
-    const daystr = d.toISOString().split('T')[0];
+    const workdayRange = getRetrospectionWorkdayRange(date);
+    const workdayStart = formatSqliteLocalDateTime(workdayRange.start);
+    const workdayEnd = formatSqliteLocalDateTime(workdayRange.end);
     const experienceSamplingResponses = await ExperienceSamplingResponseEntity.createQueryBuilder(
       'experienceSampling'
     )
-      .where("date(experienceSampling.promptedAt, 'localtime') = :daystr", { daystr })
+      .where("datetime(experienceSampling.promptedAt, 'localtime') >= :workdayStart", {
+        workdayStart
+      })
+      .andWhere("datetime(experienceSampling.promptedAt, 'localtime') < :workdayEnd", {
+        workdayEnd
+      })
       .orderBy('experienceSampling.promptedAt', 'ASC')
       .getMany();
 

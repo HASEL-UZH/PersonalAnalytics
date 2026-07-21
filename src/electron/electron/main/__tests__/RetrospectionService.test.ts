@@ -61,6 +61,16 @@ const cases: [string, string | boolean | null, string | boolean | null][] = [
     'github.com/pull/123'
   ],
   [
+    'browser page titles with colon after a domain-like brand are not treated as URLs',
+    cleanWindowTitle('Levels.fyi: Overview', 'Microsoft Edge'),
+    'Levels.fyi: Overview'
+  ],
+  [
+    'browser product titles with colon after a domain-like brand are not treated as URLs',
+    cleanWindowTitle('Amazon.ca: Product Name', 'Microsoft Edge'),
+    'Amazon.ca: Product Name'
+  ],
+  [
     'hover URL-only window titles include ellipsis when shortened',
     cleanWindowTitle(
       'github.com/HASEL-UZH/PersonalAnalytics/pull/123',

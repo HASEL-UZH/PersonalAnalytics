@@ -3,7 +3,15 @@ import { WindowActivityEntity } from '../entities/WindowActivityEntity';
 import { getMainLogger } from '../../config/Logger';
 import { Activity, type ActiveHoursInsight } from '../../../src/utils/retrospection/types';
 import { getProcessIconDataUrl } from './utils/AppIconHelper';
-import { formatSqliteLocalDateTime, getOverlapDurationMs } from './utils/helpers';
+import { getOverlapDurationMs } from './utils/helpers';
+import {
+  formatSqliteLocalDateTime,
+  getDateFromWorkdayMinuteIndex,
+  getRetrospectionWorkdayRange,
+  getWorkdayMinuteIndex
+} from '../../../shared/retrospection/Workday';
+
+export { getRetrospectionWorkdayRange, getWorkdayMinuteIndex };
 
 const LOG = getMainLogger('RetrospectionService');
 
@@ -46,7 +54,6 @@ interface WindowActivityDetailSpan {
 
 const TIMELINE_HOVER_DETAIL_LIMIT = 4;
 const MIN_TIMELINE_HOVER_DETAIL_DURATION_MS = 60_000;
-const WORKDAY_CUTOFF_HOUR = 4;
 
 // Mirrored from PA.WindowsActivityTracker/typescript/src/mappings/browsers.ts.
 // Used here to recognize browser processes without importing tracker source into the main bundle.
@@ -147,38 +154,6 @@ export function isBrowserProcessName(processName: string | null): boolean {
   );
 }
 
-/**
- * Returns the retrospection workday range for the selected calendar day.
- *
- * A workday starts at 04:00 local time and ends at 04:00 the next local day, so late-night work
- * before 04:00 is attributed to the previous workday.
- *
- * Every retrospection data query and visualization must resolve "a day" through this range so
- * that all charts and tiles agree on which workday an entry belongs to. Matching the plain local
- * calendar date instead (e.g., "date(column, 'localtime') = :day") attributes work between
- * midnight and 04:00 to the next day, making those entries disagree with the activity timeline.
- */
-export function getRetrospectionWorkdayRange(date: Date | string): { start: Date; end: Date } {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  const start = new Date(d.getFullYear(), d.getMonth(), d.getDate(), WORKDAY_CUTOFF_HOUR, 0, 0, 0);
-  const end = new Date(start);
-  end.setDate(end.getDate() + 1);
-  return { start, end };
-}
-
-/**
- * Converts a timestamp to a minute offset in the 04:00-to-04:00 workday.
- */
-export function getWorkdayMinuteIndex(date: Date, workdayStart: Date): number {
-  return Math.floor((date.getTime() - workdayStart.getTime()) / 60000);
-}
-
-/**
- * Constructs a date object from a minute offset in the 04:00-to-04:00 workday.
- */
-function getDateFromWorkdayMinuteIndex(minuteIndex: number, workdayStart: Date): Date {
-  return new Date(workdayStart.getTime() + minuteIndex * 60000);
-}
 
 /**
  * finds and returns all minutes of the workday (0-1439) where user input was detected
@@ -496,7 +471,7 @@ export function removeGenericBrowserTabCountFragments(title: string): string {
  * original path was shortened.
  */
 export function getReadableUrlTitle(title: string, includeEllipsis = false): string | null {
-  if (!/^[\w.-]+\.[a-z]{2,}(?:[/:?#]|$)/i.test(title)) {
+  if (!/^[\w.-]+\.[a-z]{2,}(?:\/|[?#]|:\d|$)/i.test(title)) {
     return null;
   }
 
@@ -757,7 +732,11 @@ async function addWindowActivityDetailSpan(
   }
 
   const tooltipTitle = getLongTimelineHoverTitle(activity, title);
-  const iconDataUrl = await getProcessIconDataUrl(activity.processPath, activity.processName);
+  const iconDataUrl = await getProcessIconDataUrl(
+    activity.processPath,
+    activity.processName,
+    activity.processId
+  );
   getActiveMinuteSpans(from, to, activeMinutesSet, workdayStart).forEach((span) => {
     spans.push({
       from: span.from,
@@ -1031,6 +1010,7 @@ export async function getActivitySessions(
           'Design',
           'GenerativeAI',
           'PlannedMeeting',
+          'InformalMeeting',
           'Email',
           'InstantMessaging',
           'WorkRelatedBrowsing',

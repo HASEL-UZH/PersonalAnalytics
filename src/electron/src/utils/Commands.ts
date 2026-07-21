@@ -3,7 +3,9 @@ import { DataExportType } from '../../shared/DataExportType.enum';
 import { DataExportFormat } from '../../shared/DataExportFormat.enum';
 import UserInputDto from '../../shared/dto/UserInputDto';
 import WindowActivityDto from '../../shared/dto/WindowActivityDto';
-import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
+import ExperienceSamplingDto, {
+  ExperienceSamplingResponseInput
+} from '../../shared/dto/ExperienceSamplingDto';
 import DailySurveyDto, { DailySurveyResponseInput } from '../../shared/dto/DailySurveyDto';
 import { WorkHoursDto } from '../../shared/dto/WorkHoursDto';
 import { Settings } from 'electron/main';
@@ -22,6 +24,11 @@ type Commands = {
     scale?: number | null,
     response?: string,
     skipped?: boolean,
+    trigger?: 'manual' | 'auto'
+  ) => Promise<void>;
+  createExperienceSamples: (
+    promptedAt: Date,
+    responses: ExperienceSamplingResponseInput[],
     trigger?: 'manual' | 'auto'
   ) => Promise<void>;
   resizeExperienceSamplingWindow: (height: number) => void;
