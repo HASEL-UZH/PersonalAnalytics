@@ -8,6 +8,7 @@ import { getProcessIconDataUrl } from '../utils/AppIconHelper';
 export interface ProcessIconSource {
   processName: string | null;
   processPath: string | null;
+  processId: number | null;
 }
 
 /** Adds renderer-safe process icons using the same resolver as activity-timeline hover details. */
@@ -22,7 +23,11 @@ export async function addProcessIconsToSessions(
         return session;
       }
 
-      const iconDataUrl = await getProcessIconDataUrl(source.processPath, source.processName);
+      const iconDataUrl = await getProcessIconDataUrl(
+        source.processPath,
+        source.processName,
+        source.processId
+      );
       return iconDataUrl ? { ...session, iconDataUrl } : session;
     })
   );

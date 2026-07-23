@@ -40,7 +40,11 @@ async function addWindowActivityDetailSpan(
   }
 
   const tooltipTitle = getLongTimelineHoverTitle(activity, title);
-  const iconDataUrl = await getProcessIconDataUrl(activity.processPath, activity.processName);
+  const iconDataUrl = await getProcessIconDataUrl(
+    activity.processPath,
+    activity.processName,
+    activity.processId
+  );
   getActiveMinuteSpans(from, to, workdayData.activeMinutes, workdayData.workdayStart).forEach(
     (span) => {
       spans.push({

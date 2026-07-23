@@ -17,7 +17,8 @@ export async function buildTopAppsFigure(
     if (activity.processName && !iconSources.has(activity.processName)) {
       iconSources.set(activity.processName, {
         processName: activity.processName,
-        processPath: activity.processPath
+        processPath: activity.processPath,
+        processId: activity.processId
       });
     }
   });
