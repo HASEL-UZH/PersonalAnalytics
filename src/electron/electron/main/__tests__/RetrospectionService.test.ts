@@ -1,4 +1,9 @@
 import { expect, jest, test } from '@jest/globals';
+import {
+  getRetrospectionTimelineBounds,
+  getRetrospectionWorkdayRange,
+  getWorkdayMinuteIndex
+} from '../../../shared/retrospection/Workday';
 
 jest.unstable_mockModule('electron', () => ({
   app: {
@@ -22,9 +27,8 @@ jest.unstable_mockModule('electron', () => ({
 const {
   cleanWindowTitle,
   getReadableUrlTitle,
-  getRetrospectionWorkdayRange,
-  getWorkdayMinuteIndex,
   isBrowserProcessName,
+  isSpecificRetrospectionActivity,
   removeGenericBrowserTabCountFragments,
   stripPathFragment
 } = await import('../services/RetrospectionService');
@@ -295,4 +299,66 @@ test('workday minute index carries late-night activity into the selected workday
 
   expect(getWorkdayMinuteIndex(new Date(2026, 5, 29, 4, 0), start)).toBe(0);
   expect(getWorkdayMinuteIndex(new Date(2026, 5, 30, 2, 30), start)).toBe(22 * 60 + 30);
+});
+
+test('date-only workday inputs are interpreted as local calendar dates', () => {
+  const { start, end } = getRetrospectionWorkdayRange('2026-06-29');
+
+  expect(start).toEqual(new Date(2026, 5, 29, 4, 0, 0, 0));
+  expect(end).toEqual(new Date(2026, 5, 30, 4, 0, 0, 0));
+});
+
+test('timeline bounds include both activity and self-report timestamps', () => {
+  const bounds = getRetrospectionTimelineBounds(new Date(2026, 5, 29), [
+    new Date(2026, 5, 29, 9, 15),
+    new Date(2026, 5, 29, 17, 10),
+    new Date(2026, 5, 29, 8, 20),
+    new Date(2026, 5, 29, 18, 5)
+  ]);
+
+  expect(bounds).toEqual({
+    start: new Date(2026, 5, 29, 8, 0).getTime(),
+    end: new Date(2026, 5, 29, 19, 0).getTime()
+  });
+});
+
+test('timeline bounds include late-night timestamps and clamp to the 04:00 workday end', () => {
+  const bounds = getRetrospectionTimelineBounds(new Date(2026, 5, 29), [
+    new Date(2026, 5, 29, 23, 10),
+    new Date(2026, 5, 30, 3, 45),
+    new Date(2026, 5, 30, 5, 0)
+  ]);
+
+  expect(bounds).toEqual({
+    start: new Date(2026, 5, 29, 23, 0).getTime(),
+    end: new Date(2026, 5, 30, 4, 0).getTime()
+  });
+});
+
+test('a single self-report receives a non-zero one-hour timeline domain', () => {
+  const bounds = getRetrospectionTimelineBounds(new Date(2026, 5, 29), [
+    new Date(2026, 5, 29, 10, 0)
+  ]);
+
+  expect(bounds).toEqual({
+    start: new Date(2026, 5, 29, 10, 0).getTime(),
+    end: new Date(2026, 5, 29, 11, 0).getTime()
+  });
+});
+
+test('an exact-hour timeline end keeps one hour of trailing chart space', () => {
+  const bounds = getRetrospectionTimelineBounds(new Date(2026, 5, 29), [
+    new Date(2026, 5, 29, 9, 0),
+    new Date(2026, 5, 29, 17, 0)
+  ]);
+
+  expect(bounds).toEqual({
+    start: new Date(2026, 5, 29, 9, 0).getTime(),
+    end: new Date(2026, 5, 29, 18, 0).getTime()
+  });
+});
+
+test('informal meetings are treated as specific retrospection activities', () => {
+  expect(isSpecificRetrospectionActivity('InformalMeeting')).toBe(true);
+  expect(isSpecificRetrospectionActivity('Other')).toBe(false);
 });
