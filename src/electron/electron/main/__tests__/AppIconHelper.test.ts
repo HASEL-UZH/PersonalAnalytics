@@ -269,17 +269,26 @@ test('falls back to the Electron shell icon when no Windows visual elements mani
 });
 
 test('converts macOS icns app icons when Electron cannot load them directly', async () => {
-  await expect(getProcessIconDataUrl(MAC_WORD_PROCESS_PATH, 'Microsoft Word')).resolves.toBe(
-    'data:image/png;base64,mac-word'
-  );
-  expect(createFromPathMock).toHaveBeenCalledWith(MAC_WORD_ICON_PATH);
-  expect(execFileSyncMock).toHaveBeenCalledWith(
-    '/usr/bin/sips',
-    ['-s', 'format', 'png', '--out', SIPS_PNG_PATH, MAC_WORD_ICON_PATH],
-    { stdio: 'ignore' }
-  );
-  expect(createFromBufferMock).toHaveBeenCalledWith(Buffer.from('converted-png'));
-  expect(rmSyncMock).toHaveBeenCalledWith(SIPS_TEMP_DIRECTORY, { recursive: true, force: true });
+  const platformDescriptor = Object.getOwnPropertyDescriptor(process, 'platform');
+  Object.defineProperty(process, 'platform', { ...platformDescriptor, value: 'darwin' });
+
+  try {
+    await expect(getProcessIconDataUrl(MAC_WORD_PROCESS_PATH, 'Microsoft Word')).resolves.toBe(
+      'data:image/png;base64,mac-word'
+    );
+    expect(createFromPathMock).toHaveBeenCalledWith(MAC_WORD_ICON_PATH);
+    expect(execFileSyncMock).toHaveBeenCalledWith(
+      '/usr/bin/sips',
+      ['-s', 'format', 'png', '--out', SIPS_PNG_PATH, MAC_WORD_ICON_PATH],
+      { stdio: 'ignore' }
+    );
+    expect(createFromBufferMock).toHaveBeenCalledWith(Buffer.from('converted-png'));
+    expect(rmSyncMock).toHaveBeenCalledWith(SIPS_TEMP_DIRECTORY, { recursive: true, force: true });
+  } finally {
+    if (platformDescriptor) {
+      Object.defineProperty(process, 'platform', platformDescriptor);
+    }
+  }
 });
 
 test('uses the macOS app bundle with the native file icon extractor', async () => {
