@@ -126,7 +126,7 @@ async function skipSurvey() {
 }
 
 async function postpone(minutes: number) {
-  await typedIpcRenderer.invoke('postponeDailySurvey', samplingType, minutes);
+  await typedIpcRenderer.invoke('postponeDailySurvey', samplingType, scheduledDate, minutes);
 }
 </script>
 <template>
