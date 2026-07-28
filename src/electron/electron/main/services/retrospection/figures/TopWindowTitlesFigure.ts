@@ -49,7 +49,8 @@ export async function buildTopWindowTitlesFigure(
     if (!iconSources.has(key)) {
       iconSources.set(key, {
         processName: activity.processName,
-        processPath: activity.processPath
+        processPath: activity.processPath,
+        processId: activity.processId
       });
     }
     return key;

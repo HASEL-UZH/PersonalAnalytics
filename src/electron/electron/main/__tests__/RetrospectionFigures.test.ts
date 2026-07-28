@@ -7,10 +7,19 @@ const mockIcon = {
   isEmpty: () => false,
   resize: () => ({ toDataURL: () => 'data:image/png;base64,mock-icon' })
 };
+const getProcessIconDataUrlMock = jest.fn(async () => 'data:image/png;base64,mock-icon');
+
 jest.unstable_mockModule('electron', () => ({
   app: { getFileIcon: jest.fn(async () => mockIcon), isPackaged: false },
-  nativeImage: { createFromPath: jest.fn(() => mockIcon) },
+  nativeImage: {
+    createFromBuffer: jest.fn(() => mockIcon),
+    createFromPath: jest.fn(() => mockIcon)
+  },
   default: { app: { isPackaged: false } }
+}));
+
+jest.unstable_mockModule('../services/utils/AppIconHelper', () => ({
+  getProcessIconDataUrl: getProcessIconDataUrlMock
 }));
 
 const { buildActiveHoursFigure, buildLongestActivePeriodFigure } =
@@ -20,6 +29,8 @@ const { buildTopWebsitesFigure } =
   await import('../services/retrospection/figures/TopWebsitesFigure');
 const { buildTopWindowTitlesFigure } =
   await import('../services/retrospection/figures/TopWindowTitlesFigure');
+const { buildActivityTimelineFigure } =
+  await import('../services/retrospection/figures/ActivityTimelineFigure');
 
 const workdayStart = new Date(2026, 6, 14, 4);
 const activeMinutes = new Set(Array.from({ length: 62 }, (_, index) => 5 * 60 + index));
@@ -28,6 +39,7 @@ const windowActivities = [
     activity: 'DevCode',
     processName: 'Code',
     processPath: '/mock/Code',
+    processId: 101,
     ts: new Date(2026, 6, 14, 9),
     url: null,
     windowTitle: 'main.ts - Code'
@@ -36,6 +48,7 @@ const windowActivities = [
     activity: 'WorkRelatedBrowsing',
     processName: 'Microsoft Edge',
     processPath: '/mock/Microsoft Edge',
+    processId: 202,
     ts: new Date(2026, 6, 14, 10),
     url: 'https://github.com/HASEL-UZH/PersonalAnalytics/pull/540',
     windowTitle: 'Pull request review - GitHub - Microsoft Edge'
@@ -53,6 +66,7 @@ test('active-hours figures derive their values from the shared workday data', ()
 });
 
 test('top figures independently transform and decorate the same raw workday data', async () => {
+  getProcessIconDataUrlMock.mockClear();
   const topApps = await buildTopAppsFigure(workdayData);
   expect(
     topApps.map(({ type, totalDurationMs }) => ({
@@ -80,4 +94,23 @@ test('top figures independently transform and decorate the same raw workday data
       iconDataUrl: 'data:image/png;base64,mock-icon'
     })
   ]);
+  expect(getProcessIconDataUrlMock).toHaveBeenCalledWith('/mock/Code', 'Code', 101);
+  expect(getProcessIconDataUrlMock).toHaveBeenCalledWith(
+    '/mock/Microsoft Edge',
+    'Microsoft Edge',
+    202
+  );
+});
+
+test('timeline details pass the recorded process ID to the icon resolver', async () => {
+  getProcessIconDataUrlMock.mockClear();
+
+  await buildActivityTimelineFigure(workdayData);
+
+  expect(getProcessIconDataUrlMock).toHaveBeenCalledWith('/mock/Code', 'Code', 101);
+  expect(getProcessIconDataUrlMock).toHaveBeenCalledWith(
+    '/mock/Microsoft Edge',
+    'Microsoft Edge',
+    202
+  );
 });

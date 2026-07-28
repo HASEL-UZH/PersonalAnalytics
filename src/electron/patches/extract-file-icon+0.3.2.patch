@@ -1,0 +1,448 @@
+diff --git a/node_modules/extract-file-icon/binding.gyp b/node_modules/extract-file-icon/binding.gyp
+index 28bdfbc..ef8cbea 100644
+--- a/node_modules/extract-file-icon/binding.gyp
++++ b/node_modules/extract-file-icon/binding.gyp
+@@ -9,8 +9,13 @@
+           'link_settings': {
+             'libraries': [
+               'Gdiplus.lib',
++              'Shell32.lib',
+             ],
+           },
++          'defines': [
++            '_WIN32_WINNT=0x0603',
++            'WINVER=0x0603',
++          ],
+           'sources': [
+             'lib/addon.cc',
+           ],
+diff --git a/node_modules/extract-file-icon/dist/index.d.ts b/node_modules/extract-file-icon/dist/index.d.ts
+index 2df1855..bc6310b 100644
+--- a/node_modules/extract-file-icon/dist/index.d.ts
++++ b/node_modules/extract-file-icon/dist/index.d.ts
+@@ -1,3 +1,8 @@
+ /// <reference types="node" />
+-declare const getFileIcon: (path: string, size?: 16 | 32 | 64 | 256) => Buffer;
++type IconSize = 16 | 32 | 64 | 256;
++interface ExtractFileIcon {
++    (path: string, size?: IconSize): Buffer | undefined;
++    getPackageIcon(processId: number, path: string, size?: IconSize): Buffer | undefined;
++}
++declare const getFileIcon: ExtractFileIcon;
+ export = getFileIcon;
+diff --git a/node_modules/extract-file-icon/dist/index.js b/node_modules/extract-file-icon/dist/index.js
+index 886c2ad..2763652 100644
+--- a/node_modules/extract-file-icon/dist/index.js
++++ b/node_modules/extract-file-icon/dist/index.js
+@@ -1,13 +1,21 @@
+ "use strict";
+ const os_1 = require("os");
+ let getIcon;
++let getPackageIcon;
+ if (os_1.platform() === "win32" || os_1.platform() === 'darwin') {
+-    getIcon = require("../build/Release/addon.node").getIcon;
++    const addon = require("../build/Release/addon.node");
++    getIcon = addon.getIcon;
++    getPackageIcon = addon.getPackageIcon;
+ }
+ const getFileIcon = (path, size = 64) => {
+     if (!getIcon)
+         return;
+     return getIcon(path, size);
+ };
++getFileIcon.getPackageIcon = (processId, path, size = 64) => {
++    if (!getPackageIcon)
++        return;
++    return getPackageIcon(processId, path, size);
++};
+ module.exports = getFileIcon;
+ //# sourceMappingURL=index.js.map
+diff --git a/node_modules/extract-file-icon/lib/addon.cc b/node_modules/extract-file-icon/lib/addon.cc
+index 80f73c0..556060b 100644
+--- a/node_modules/extract-file-icon/lib/addon.cc
++++ b/node_modules/extract-file-icon/lib/addon.cc
+@@ -1,13 +1,18 @@
+ #include <Windows.h>
++#include <appmodel.h>
+ #include <Commctrl.h>
+ #include <CommonControls.h>
++#include <ShObjIdl.h>
+ #include <napi.h>
+ #include <algorithm>
+ #include <cstddef>
++#include <cstdint>
+ #include <cwchar>
++#include <cwctype>
+ #include <memory>
+-#include <vector>
++#include <string>
+ #include <system_error>
++#include <vector>
+ 
+ namespace Gdiplus {
+ using std::max;
+@@ -17,13 +22,19 @@ using std::min;
+ 
+ class ComInit {
+    public:
+-    ComInit() { CoInitializeEx(0, COINIT_MULTITHREADED); }
++    ComInit() : initialized(SUCCEEDED(CoInitializeEx(0, COINIT_MULTITHREADED))) {}
+ 
+-    ~ComInit() { CoUninitialize(); }
++    ~ComInit() {
++        if (initialized) {
++            CoUninitialize();
++        }
++    }
+ 
+    private:
+     ComInit(const ComInit &);
+     ComInit &operator=(const ComInit &);
++
++    bool initialized;
+ };
+ 
+ class GdiPlusInit {
+@@ -112,6 +123,52 @@ std::unique_ptr<Gdiplus::Bitmap> CreateBitmapFromIcon(
+     return bitmap;
+ }
+ 
++std::unique_ptr<Gdiplus::Bitmap> CreateBitmapFromHBitmap(
++    HBITMAP hBitmap, std::vector<std::int32_t> &buffer) {
++    BITMAP bm = {0};
++    if (hBitmap == nullptr || GetObject(hBitmap, sizeof(bm), std::addressof(bm)) == 0 ||
++        bm.bmWidth <= 0 || bm.bmHeight <= 0) {
++        return nullptr;
++    }
++
++    auto hDC = GetDC(nullptr);
++    if (hDC == nullptr) {
++        return nullptr;
++    }
++
++    BITMAPINFO bmi = {0};
++    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
++    bmi.bmiHeader.biWidth = bm.bmWidth;
++    bmi.bmiHeader.biHeight = -bm.bmHeight;
++    bmi.bmiHeader.biPlanes = 1;
++    bmi.bmiHeader.biBitCount = 32;
++    bmi.bmiHeader.biCompression = BI_RGB;
++
++    const auto pixelCount = static_cast<std::size_t>(bm.bmWidth) * bm.bmHeight;
++    buffer.resize(pixelCount);
++    const auto scanLines = GetDIBits(hDC, hBitmap, 0, bm.bmHeight, buffer.data(),
++                                     std::addressof(bmi), DIB_RGB_COLORS);
++    ReleaseDC(nullptr, hDC);
++
++    if (scanLines != bm.bmHeight) {
++        return nullptr;
++    }
++
++    const auto hasAlpha = std::any_of(
++        buffer.begin(), buffer.end(),
++        [](std::int32_t pixel) { return (pixel & 0xFF000000) != 0; });
++    if (!hasAlpha) {
++        for (auto &pixel : buffer) {
++            pixel |= 0xFF000000;
++        }
++    }
++
++    return std::unique_ptr<Gdiplus::Bitmap>(new Gdiplus::Bitmap(
++        bm.bmWidth, bm.bmHeight, bm.bmWidth * sizeof(std::int32_t),
++        PixelFormat32bppARGB,
++        static_cast<BYTE *>(static_cast<void *>(buffer.data()))));
++}
++
+ int GetEncoderClsid(const WCHAR *format, CLSID *pClsid) {
+     UINT num = 0u;
+     UINT size = 0u;
+@@ -142,11 +199,10 @@ int GetEncoderClsid(const WCHAR *format, CLSID *pClsid) {
+     return -1;
+ }
+ 
+-std::vector<unsigned char> HIconToPNG(HICON hIcon) {
+-    GdiPlusInit init;
+-
+-    std::vector<std::int32_t> buffer;
+-    auto bitmap = CreateBitmapFromIcon(hIcon, buffer);
++std::vector<unsigned char> BitmapToPNG(Gdiplus::Bitmap *bitmap) {
++    if (bitmap == nullptr || bitmap->GetLastStatus() != Gdiplus::Status::Ok) {
++        return std::vector<unsigned char>{};
++    }
+ 
+     CLSID encoder;
+     if (GetEncoderClsid(L"image/png", std::addressof(encoder)) == -1) {
+@@ -187,9 +243,29 @@ std::vector<unsigned char> HIconToPNG(HICON hIcon) {
+     return result;
+ }
+ 
++std::vector<unsigned char> HIconToPNG(HICON hIcon) {
++    GdiPlusInit init;
++
++    std::vector<std::int32_t> buffer;
++    auto bitmap = CreateBitmapFromIcon(hIcon, buffer);
++    return BitmapToPNG(bitmap.get());
++}
++
++std::vector<unsigned char> HBitmapToPNG(HBITMAP hBitmap) {
++    GdiPlusInit init;
++
++    std::vector<std::int32_t> buffer;
++    auto bitmap = CreateBitmapFromHBitmap(hBitmap, buffer);
++    return BitmapToPNG(bitmap.get());
++}
++
+ std::wstring Utf8ToWide(const std::string &src) {
+     const auto size =
+         MultiByteToWideChar(CP_UTF8, 0u, src.data(), -1, nullptr, 0u);
++    if (size == 0) {
++        return std::wstring{};
++    }
++
+     std::vector<wchar_t> dest(size, L'\0');
+ 
+     if (MultiByteToWideChar(CP_UTF8, 0u, src.data(), -1, dest.data(),
+@@ -198,7 +274,193 @@ std::wstring Utf8ToWide(const std::string &src) {
+                                 std::system_category()};
+     }
+ 
+-    return std::wstring{dest.begin(), dest.end()};
++    return std::wstring{dest.data()};
++}
++
++bool ProcessPathMatches(HANDLE process, const std::wstring &expectedPath) {
++    std::vector<wchar_t> processPath(MAX_PATH);
++
++    while (processPath.size() <= 32768) {
++        DWORD processPathLength = static_cast<DWORD>(processPath.size());
++        if (QueryFullProcessImageNameW(process, 0, processPath.data(),
++                                       std::addressof(processPathLength))) {
++            return _wcsicmp(processPath.data(), expectedPath.c_str()) == 0;
++        }
++
++        if (GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
++            return false;
++        }
++
++        processPath.resize(processPath.size() * 2);
++    }
++
++    return false;
++}
++
++std::wstring GetApplicationUserModelIdForProcess(
++    DWORD processId, const std::wstring &expectedPath) {
++    if (processId == 0 || expectedPath.empty()) {
++        return std::wstring{};
++    }
++
++    auto process = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, processId);
++    if (process == nullptr) {
++        return std::wstring{};
++    }
++
++    std::wstring applicationUserModelId;
++    if (ProcessPathMatches(process, expectedPath)) {
++        UINT32 applicationUserModelIdLength = 0;
++        const auto firstResult = GetApplicationUserModelId(
++            process, std::addressof(applicationUserModelIdLength), nullptr);
++        if (firstResult == ERROR_INSUFFICIENT_BUFFER &&
++            applicationUserModelIdLength > 0) {
++            std::vector<wchar_t> buffer(applicationUserModelIdLength, L'\0');
++            if (GetApplicationUserModelId(process,
++                                          std::addressof(applicationUserModelIdLength),
++                                          buffer.data()) == ERROR_SUCCESS) {
++                applicationUserModelId = std::wstring(buffer.data());
++            }
++        }
++    }
++
++    CloseHandle(process);
++    return applicationUserModelId;
++}
++
++std::wstring GetWindowsAppsPackageFullName(const std::wstring &processPath) {
++    std::wstring normalizedPath(processPath);
++    std::replace(normalizedPath.begin(), normalizedPath.end(), L'/', L'\\');
++
++    const std::wstring windowsAppsMarker = L"\\windowsapps\\";
++    const auto markerPosition = std::search(
++        normalizedPath.begin(), normalizedPath.end(), windowsAppsMarker.begin(),
++        windowsAppsMarker.end(), [](wchar_t first, wchar_t second) {
++            return std::towlower(first) == std::towlower(second);
++        });
++    if (markerPosition == normalizedPath.end()) {
++        return std::wstring{};
++    }
++
++    const auto packageStart = static_cast<std::size_t>(
++        markerPosition - normalizedPath.begin() + windowsAppsMarker.size());
++    const auto packageEnd = normalizedPath.find(L'\\', packageStart);
++    if (packageEnd == packageStart) {
++        return std::wstring{};
++    }
++
++    return normalizedPath.substr(packageStart, packageEnd - packageStart);
++}
++
++std::vector<std::wstring> GetPackageApplicationUserModelIds(
++    const std::wstring &packageFullName) {
++    PACKAGE_INFO_REFERENCE packageInfoReference = nullptr;
++    if (OpenPackageInfoByFullName(packageFullName.c_str(), 0,
++                                  std::addressof(packageInfoReference)) != ERROR_SUCCESS) {
++        return std::vector<std::wstring>{};
++    }
++
++    UINT32 bufferLength = 0;
++    UINT32 applicationCount = 0;
++    const auto firstResult = GetPackageApplicationIds(
++        packageInfoReference, std::addressof(bufferLength), nullptr,
++        std::addressof(applicationCount));
++    if (firstResult != ERROR_INSUFFICIENT_BUFFER || bufferLength == 0 ||
++        applicationCount == 0) {
++        ClosePackageInfo(packageInfoReference);
++        return std::vector<std::wstring>{};
++    }
++
++    std::vector<BYTE> buffer(bufferLength);
++    const auto result = GetPackageApplicationIds(
++        packageInfoReference, std::addressof(bufferLength), buffer.data(),
++        std::addressof(applicationCount));
++    ClosePackageInfo(packageInfoReference);
++    if (result != ERROR_SUCCESS) {
++        return std::vector<std::wstring>{};
++    }
++
++    const auto applicationUserModelIds =
++        reinterpret_cast<PCWSTR *>(static_cast<void *>(buffer.data()));
++    std::vector<std::wstring> applicationIds;
++    applicationIds.reserve(applicationCount);
++    for (UINT32 index = 0; index < applicationCount; index++) {
++        if (applicationUserModelIds[index] != nullptr) {
++            applicationIds.emplace_back(applicationUserModelIds[index]);
++        }
++    }
++
++    return applicationIds;
++}
++
++std::vector<unsigned char> GetApplicationUserModelIcon(
++    const std::wstring &applicationUserModelId, int size) {
++    ComInit init;
++
++    const auto appsFolderPath =
++        std::wstring(L"shell:AppsFolder\\") + applicationUserModelId;
++    IShellItem *shellItem = nullptr;
++    if (FAILED(SHCreateItemFromParsingName(appsFolderPath.c_str(), nullptr,
++                                           IID_PPV_ARGS(std::addressof(shellItem))))) {
++        return std::vector<unsigned char>{};
++    }
++
++    IShellItemImageFactory *imageFactory = nullptr;
++    const auto interfaceResult =
++        shellItem->QueryInterface(IID_PPV_ARGS(std::addressof(imageFactory)));
++    shellItem->Release();
++    if (FAILED(interfaceResult)) {
++        return std::vector<unsigned char>{};
++    }
++
++    HBITMAP hBitmap = nullptr;
++    const SIZE iconSize = {size, size};
++    const auto imageResult = imageFactory->GetImage(
++        iconSize, static_cast<SIIGBF>(SIIGBF_ICONONLY | SIIGBF_BIGGERSIZEOK),
++        std::addressof(hBitmap));
++    imageFactory->Release();
++    if (FAILED(imageResult) || hBitmap == nullptr) {
++        return std::vector<unsigned char>{};
++    }
++
++    const auto icon = HBitmapToPNG(hBitmap);
++    DeleteObject(hBitmap);
++    return icon;
++}
++
++std::vector<unsigned char> GetWindowsAppsPackageIcon(
++    DWORD processId, const std::string &processPath, int size) {
++    const auto wideProcessPath = Utf8ToWide(processPath);
++    const auto packageFullName = GetWindowsAppsPackageFullName(wideProcessPath);
++    if (packageFullName.empty()) {
++        return std::vector<unsigned char>{};
++    }
++
++    const auto processApplicationUserModelId =
++        GetApplicationUserModelIdForProcess(processId, wideProcessPath);
++    if (!processApplicationUserModelId.empty()) {
++        const auto icon =
++            GetApplicationUserModelIcon(processApplicationUserModelId, size);
++        if (!icon.empty()) {
++            return icon;
++        }
++    }
++
++    for (const auto &applicationUserModelId :
++         GetPackageApplicationUserModelIds(packageFullName)) {
++        if (!processApplicationUserModelId.empty() &&
++            _wcsicmp(applicationUserModelId.c_str(),
++                      processApplicationUserModelId.c_str()) == 0) {
++            continue;
++        }
++
++        const auto icon = GetApplicationUserModelIcon(applicationUserModelId, size);
++        if (!icon.empty()) {
++            return icon;
++        }
++    }
++
++    return std::vector<unsigned char>{};
+ }
+ 
+ std::vector<unsigned char> GetIcon(const std::string &name, int size,
+@@ -255,21 +517,45 @@ std::vector<unsigned char> GetIcon(const std::string &name, int size,
+     return buffer;
+ }
+ 
++Napi::Buffer<char> CreateBuffer(Napi::Env env,
++                                const std::vector<unsigned char> &data) {
++    if (data.empty()) {
++        return Napi::Buffer<char>::New(env, 0);
++    }
++
++    return Napi::Buffer<char>::Copy(
++        env, reinterpret_cast<const char *>(data.data()), data.size());
++}
++
+ Napi::Buffer<char> getIcon(const Napi::CallbackInfo &info) {
+     Napi::Env env{info.Env()};
+ 
+     auto path{info[0].As<Napi::String>().Utf8Value()};
+     auto data = GetIcon(path, info[1].As<Napi::Number>().Int32Value(), 0);
+ 
+-    uint8_t *arr = &data[0];
++    return CreateBuffer(env, data);
++}
+ 
+-    return Napi::Buffer<char>::Copy(
+-        env, static_cast<char *>(static_cast<void *>(arr)), data.size());
++Napi::Buffer<char> getPackageIcon(const Napi::CallbackInfo &info) {
++    Napi::Env env{info.Env()};
++    if (info.Length() < 3 || !info[0].IsNumber() || !info[1].IsString() ||
++        !info[2].IsNumber()) {
++        return Napi::Buffer<char>::New(env, 0);
++    }
++
++    const auto processId = info[0].As<Napi::Number>().Uint32Value();
++    const auto processPath = info[1].As<Napi::String>().Utf8Value();
++    const auto size = info[2].As<Napi::Number>().Int32Value();
++    const auto data = GetWindowsAppsPackageIcon(processId, processPath, size);
++
++    return CreateBuffer(env, data);
+ }
+ 
+ Napi::Object Init(Napi::Env env, Napi::Object exports) {
+     exports.Set(Napi::String::New(env, "getIcon"),
+                 Napi::Function::New(env, getIcon));
++    exports.Set(Napi::String::New(env, "getPackageIcon"),
++                Napi::Function::New(env, getPackageIcon));
+ 
+     return exports;
+ }
