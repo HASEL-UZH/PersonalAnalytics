@@ -5,8 +5,6 @@ const findOneByMock = jest.fn();
 const scheduleJobMock = jest.fn();
 const createDailySurveyWindowMock = jest.fn();
 const closeDailySurveyWindowMock = jest.fn();
-const logInfoMock = jest.fn();
-const logErrorMock = jest.fn();
 
 jest.unstable_mockModule('node-schedule', () => ({
   scheduleJob: scheduleJobMock
@@ -26,10 +24,12 @@ jest.unstable_mockModule('../services/WorkScheduleService', () => ({
   WorkScheduleService: class WorkScheduleService {}
 }));
 
+// Silences logging; no test asserts on it.
 jest.unstable_mockModule('../../config/Logger', () => ({
   default: () => ({
-    info: logInfoMock,
-    error: logErrorMock
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn()
   })
 }));
 
