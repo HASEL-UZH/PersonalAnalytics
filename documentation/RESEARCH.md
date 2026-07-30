@@ -151,7 +151,7 @@ git submodule update
 ```
 
 After cloning this repository using your favorite git client, you need to install the dependencies.
-Make sure you use node version >=20. You can install the dependencies by running the following command in the root directory of the project:
+Make sure you use Node.js 24. You can install the dependencies by running the following command in the root directory of the project:
 ```bash
 cd src/electron
 npm install
