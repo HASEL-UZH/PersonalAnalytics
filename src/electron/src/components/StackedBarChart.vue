@@ -16,13 +16,13 @@ import * as d3 from 'd3';
 import { Color } from '../utils/retrospection/types';
 import {
   ACTIVITY_LABELS,
-  clamp,
   escapeHtml,
   getActivityGroupFromActivityName,
   getBarColorFromDataPoint,
   msToReadableFormat,
   TW_CLASS_ACTIVITY_MAPPINGS
 } from '../utils/retrospection/utils';
+import { positionTooltipWithinViewport } from '../utils/tooltipPosition';
 import {
   DataPointType,
   ChartDataPoint,
@@ -216,34 +216,16 @@ function renderTooltipDetails(dataPoint: ChartDataPoint): string {
 }
 
 function positionTooltip(event: MouseEvent, barBoundingRect: DOMRect) {
-  const viewportPadding = 8;
-  const tooltipGap = 10;
-  const tooltip = d3.select<HTMLDivElement, unknown>('#tooltip');
-  const tooltipNode = tooltip.node();
+  const tooltipNode = document.querySelector<HTMLDivElement>('#tooltip');
   if (!tooltipNode) {
     return;
   }
 
-  const tooltipRect = tooltipNode.getBoundingClientRect();
-  const maxLeft = Math.max(
-    viewportPadding,
-    window.innerWidth - tooltipRect.width - viewportPadding
-  );
-  const left = clamp(event.clientX - tooltipRect.width / 2, viewportPadding, maxLeft);
-
-  const topAboveBar = barBoundingRect.top - tooltipRect.height - tooltipGap;
-  const topBelowBar = barBoundingRect.bottom + tooltipGap;
-  const maxTop = Math.max(
-    viewportPadding,
-    window.innerHeight - tooltipRect.height - viewportPadding
-  );
-  const top =
-    topAboveBar >= viewportPadding ? topAboveBar : clamp(topBelowBar, viewportPadding, maxTop);
-
-  tooltip
-    .style('left', `${left + window.scrollX}px`)
-    .style('top', `${top + window.scrollY}px`)
-    .style('transform', 'none');
+  positionTooltipWithinViewport(tooltipNode, {
+    x: event.clientX,
+    top: barBoundingRect.top,
+    bottom: barBoundingRect.bottom
+  });
 }
 
 function buildChart() {
@@ -487,12 +469,12 @@ function drawLegend(legendData: LegendDataPoint[], enableClickableLegend = false
 }
 
 #tooltip {
-  position: absolute;
+  position: fixed;
   font-size: 12px;
   line-height: 1.35;
   text-align: left;
   width: auto;
-  max-width: 360px;
+  max-width: min(360px, calc(100vw - 16px));
   height: auto;
   padding: 5px 10px;
   border-radius: 10px;
