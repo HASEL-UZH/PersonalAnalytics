@@ -79,7 +79,11 @@ type Commands = {
   ) => Promise<void>;
   resizeDailySurveyWindow: (height: number) => void;
   closeDailySurveyWindow: (skipped: boolean) => void;
-  postponeDailySurvey: (samplingType: DailySurveySamplingType, minutes: number) => Promise<void>;
+  postponeDailySurvey: (
+    samplingType: DailySurveySamplingType,
+    scheduledDate: Date | null,
+    minutes: number
+  ) => Promise<void>;
   getMostRecentDailySurveyDtos: (itemCount: number) => Promise<DailySurveyDto[]>;
 };
 export default Commands;
