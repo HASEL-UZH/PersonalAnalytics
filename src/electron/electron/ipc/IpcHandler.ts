@@ -42,6 +42,7 @@ import type {
   DailySurveySamplingType,
   ExperienceSamplingAnswerType
 } from '../../shared/StudyConfiguration';
+import type { RetrospectionWorkdayRange } from '../../shared/retrospection/Workday';
 import { DailySurveyTracker } from '../main/services/trackers/DailySurveyTracker';
 import { UsageDataService } from '../main/services/UsageDataService';
 import { UsageDataEventType } from '../enums/UsageDataEventType.enum';
@@ -345,27 +346,27 @@ export class IpcHandler {
     }
   }
 
-  private async retrospectionGetActivities(date: Date): Promise<ActivitySessions[]> {
-    return await getActivitySessions(new Date(date));
+  private async retrospectionGetActivities(workdayRange: RetrospectionWorkdayRange): Promise<ActivitySessions[]> {
+    return await getActivitySessions(workdayRange);
   }
 
-  private async retrospectionGetActiveHours(date: Date) {
-    return await getActiveHoursInsight(new Date(date));
+  private async retrospectionGetActiveHours(workdayRange: RetrospectionWorkdayRange) {
+    return await getActiveHoursInsight(workdayRange);
   }
 
-  private async retrospectionLoadLongestTimeActive(date: Date): Promise<TimeActive | undefined> {
+  private async retrospectionLoadLongestTimeActive(workdayRange: RetrospectionWorkdayRange): Promise<TimeActive | undefined> {
     try {
-      return await getLongestTimeActiveInsight(new Date(date));
+      return await getLongestTimeActiveInsight(workdayRange);
     } catch (error) {
       LOG.error('Error loading longest time active', error);
     }
   }
 
   private async retrospectionGetTopThreeMostActiveApps(
-    date: Date
+    workdayRange: RetrospectionWorkdayRange
   ): Promise<ActivitySessions[] | undefined> {
     try {
-      return (await getAppUsageSessions(new Date(date)))
+      return (await getAppUsageSessions(workdayRange))
         .sort((a, b) => b.totalDurationMs - a.totalDurationMs)
         .slice(0, 3);
     } catch (error) {
@@ -374,27 +375,27 @@ export class IpcHandler {
   }
 
   private async retrospectionGetTopThreeWebsites(
-    date: Date
+    workdayRange: RetrospectionWorkdayRange
   ): Promise<ActivitySessions[] | undefined> {
     try {
-      return await getTopWebsiteSessions(new Date(date), 3);
+      return await getTopWebsiteSessions(workdayRange, 3);
     } catch (error) {
       LOG.error('Error loading top websites', error);
     }
   }
 
   private async retrospectionGetTopThreeWindowTitles(
-    date: Date
+    workdayRange: RetrospectionWorkdayRange
   ): Promise<ActivitySessions[] | undefined> {
     try {
-      return await getTopWindowTitleSessions(new Date(date), 3);
+      return await getTopWindowTitleSessions(workdayRange, 3);
     } catch (error) {
       LOG.error('Error loading top window titles', error);
     }
   }
 
-  private async retrospectionGetSelfReports(date: Date): Promise<ExperienceSamplingDto[]> {
-    return await this.experienceSamplingService.getExperienceSamplingDtosForDay(new Date(date));
+  private async retrospectionGetSelfReports(workdayRange: RetrospectionWorkdayRange): Promise<ExperienceSamplingDto[]> {
+    return await this.experienceSamplingService.getExperienceSamplingDtosForDay(workdayRange);
   }
 
   private async openRetrospection(): Promise<void> {

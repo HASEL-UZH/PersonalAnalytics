@@ -13,6 +13,7 @@ import type {
   DailySurveySamplingType,
   ExperienceSamplingAnswerType
 } from '../../shared/StudyConfiguration';
+import type { RetrospectionWorkdayRange } from '../../shared/retrospection/Workday';
 import type { ActiveHoursInsight, ActivitySessions, TimeActive } from './retrospection/types';
 
 type Commands = {
@@ -62,13 +63,13 @@ type Commands = {
   startAllTrackers: () => void;
   triggerPermissionCheckAccessibility: (prompt: boolean) => boolean;
   triggerPermissionCheckScreenRecording: () => boolean;
-  retrospectionGetActiveHours: (date: Date) => Promise<ActiveHoursInsight>;
-  retrospectionGetActivities: (date: Date) => Promise<ActivitySessions[]>;
-  retrospectionLoadLongestTimeActive: (date: Date) => Promise<TimeActive | undefined>;
-  retrospectionGetTopThreeMostActiveApps: (date: Date) => Promise<ActivitySessions[]>;
-  retrospectionGetTopThreeWebsites: (date: Date) => Promise<ActivitySessions[]>;
-  retrospectionGetTopThreeWindowTitles: (date: Date) => Promise<ActivitySessions[]>;
-  retrospectionGetSelfReports: (date: Date) => Promise<ExperienceSamplingDto[]>;
+  retrospectionGetActiveHours: (workdayRange: RetrospectionWorkdayRange) => Promise<ActiveHoursInsight>;
+  retrospectionGetActivities: (workdayRange: RetrospectionWorkdayRange) => Promise<ActivitySessions[]>;
+  retrospectionLoadLongestTimeActive: (workdayRange: RetrospectionWorkdayRange) => Promise<TimeActive | undefined>;
+  retrospectionGetTopThreeMostActiveApps: (workdayRange: RetrospectionWorkdayRange) => Promise<ActivitySessions[]>;
+  retrospectionGetTopThreeWebsites: (workdayRange: RetrospectionWorkdayRange) => Promise<ActivitySessions[]>;
+  retrospectionGetTopThreeWindowTitles: (workdayRange: RetrospectionWorkdayRange) => Promise<ActivitySessions[]>;
+  retrospectionGetSelfReports: (workdayRange: RetrospectionWorkdayRange) => Promise<ExperienceSamplingDto[]>;
   openRetrospection: () => Promise<void>;
   closeRetrospectionWindow: () => void;
   createDailySurveyResponses: (

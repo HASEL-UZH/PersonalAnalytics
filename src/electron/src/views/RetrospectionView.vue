@@ -20,11 +20,15 @@ import StackedBarChart from '../components/StackedBarChart.vue';
 import SelfReportTimelineChart from '../components/SelfReportTimelineChart.vue';
 import type ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
 import studyConfig from '../../shared/study.config';
-import { getRetrospectionTimelineBounds } from '../../shared/retrospection/Workday';
+import {
+  getRetrospectionTimelineBoundsForRange,
+  getRetrospectionWorkdayRange,
+  type RetrospectionWorkdayRange
+} from '../../shared/retrospection/Workday';
 
 const typedIpcRenderer = window.ipcRenderer;
 const isLoading = ref(false);
-const selectedDay = ref(new Date());
+const selectedDay = ref(formatDateInputValue(new Date()));
 const allWindowActivities = ref<ActivitySessions[]>([]);
 const chartDataWindowActivities = ref<ChartDataPoint[]>();
 const longestTimeActive = ref<TimeActive | undefined>(undefined);
@@ -38,6 +42,7 @@ const ACTIVITY_BREAKDOWN_MAX_ITEMS = 6;
 const EXCLUDED_ACTIVITY_BREAKDOWN_GROUPS = new Set(['Other', 'Unknown']);
 const experienceSamplingEnabled = studyConfig.trackers.experienceSamplingTracker.enabled;
 const isWindowActivityTrackerEnabled = studyConfig.trackers.windowActivityTracker.enabled;
+const selectedWorkdayRange = computed(() => getRetrospectionWorkdayRange(selectedDay.value));
 
 interface ActivityBreakdownDataPoint extends PieChartDataPoint {
   percentage: number;
@@ -107,7 +112,7 @@ const latestSelfReport = computed((): number => {
 });
 
 const timelineStartDate = computed((): number => {
-  const bounds = getRetrospectionTimelineBounds(selectedDay.value, [
+  const bounds = getRetrospectionTimelineBoundsForRange(selectedWorkdayRange.value, [
     ...(chartDataWindowActivities.value ?? []).flatMap((point) => [point.start, point.end]),
     ...selfReports.value.map((report) => report.promptedAt)
   ]);
@@ -120,7 +125,7 @@ const timelineStartDate = computed((): number => {
 });
 
 const timelineEndDate = computed((): number => {
-  const bounds = getRetrospectionTimelineBounds(selectedDay.value, [
+  const bounds = getRetrospectionTimelineBoundsForRange(selectedWorkdayRange.value, [
     ...(chartDataWindowActivities.value ?? []).flatMap((point) => [point.start, point.end]),
     ...selfReports.value.map((report) => report.promptedAt)
   ]);
@@ -235,19 +240,19 @@ onMounted(async () => {
   await loadData();
 });
 
-// selectedDay is a calendar date; the main process resolves it to the 04:00-to-04:00 local
-// workday (getRetrospectionWorkdayRange), so work before 04:00 belongs to the previous day.
-// Every data query and visualization for a day must apply that same range uniformly.
+// The renderer resolves the local 04:00-to-04:00 workday once and sends the resulting UTC
+// boundaries to the main process, so an already-running main process cannot use a stale timezone.
 async function loadData() {
   isLoading.value = true;
+  const workdayRange = selectedWorkdayRange.value;
   try {
-    await loadActiveHours();
-    await loadLongestTimeActive();
-    await loadMostActiveApps();
-    await loadTopWebsites();
-    await loadTopWindowTitles();
-    await loadSelfReports();
-    await loadWindowActivities();
+    await loadActiveHours(workdayRange);
+    await loadLongestTimeActive(workdayRange);
+    await loadMostActiveApps(workdayRange);
+    await loadTopWebsites(workdayRange);
+    await loadTopWindowTitles(workdayRange);
+    await loadSelfReports(workdayRange);
+    await loadWindowActivities(workdayRange);
   } finally {
     isLoading.value = false;
   }
@@ -273,11 +278,11 @@ function windowActivitiesToChartData() {
   chartDataWindowActivities.value = dataPoints;
 }
 
-async function loadWindowActivities() {
+async function loadWindowActivities(workdayRange: RetrospectionWorkdayRange) {
   try {
     allWindowActivities.value = (await typedIpcRenderer.invoke(
       'retrospectionGetActivities',
-      selectedDay.value
+      workdayRange
     )) as ActivitySessions[];
     windowActivitiesToChartData();
   } catch (error) {
@@ -287,62 +292,62 @@ async function loadWindowActivities() {
   }
 }
 
-async function loadActiveHours() {
+async function loadActiveHours(workdayRange: RetrospectionWorkdayRange) {
   try {
     activeHoursInsight.value = (await typedIpcRenderer.invoke(
       'retrospectionGetActiveHours',
-      selectedDay.value
+      workdayRange
     )) as ActiveHoursInsight;
   } catch (error) {
     console.error('Error loading active hours', error);
   }
 }
 
-async function loadLongestTimeActive() {
+async function loadLongestTimeActive(workdayRange: RetrospectionWorkdayRange) {
   try {
     longestTimeActive.value = (await typedIpcRenderer.invoke(
       'retrospectionLoadLongestTimeActive',
-      selectedDay.value
+      workdayRange
     )) as TimeActive;
   } catch (error) {
     console.error('Error loading longest time active', error);
   }
 }
 
-async function loadMostActiveApps() {
+async function loadMostActiveApps(workdayRange: RetrospectionWorkdayRange) {
   try {
     topApps.value = (await typedIpcRenderer.invoke(
       'retrospectionGetTopThreeMostActiveApps',
-      selectedDay.value
+      workdayRange
     )) as ActivitySessions[];
   } catch (error) {
     console.error('Error loading most active apps', error);
   }
 }
 
-async function loadTopWebsites() {
+async function loadTopWebsites(workdayRange: RetrospectionWorkdayRange) {
   try {
     topWebsites.value = (await typedIpcRenderer.invoke(
       'retrospectionGetTopThreeWebsites',
-      selectedDay.value
+      workdayRange
     )) as ActivitySessions[];
   } catch (error) {
     console.error('Error loading top websites', error);
   }
 }
 
-async function loadTopWindowTitles() {
+async function loadTopWindowTitles(workdayRange: RetrospectionWorkdayRange) {
   try {
     topWindowTitles.value = (await typedIpcRenderer.invoke(
       'retrospectionGetTopThreeWindowTitles',
-      selectedDay.value
+      workdayRange
     )) as ActivitySessions[];
   } catch (error) {
     console.error('Error loading top window titles', error);
   }
 }
 
-async function loadSelfReports() {
+async function loadSelfReports(workdayRange: RetrospectionWorkdayRange) {
   if (!experienceSamplingEnabled) {
     selfReports.value = [];
     return;
@@ -350,7 +355,7 @@ async function loadSelfReports() {
   try {
     selfReports.value = (await typedIpcRenderer.invoke(
       'retrospectionGetSelfReports',
-      selectedDay.value
+      workdayRange
     )) as ExperienceSamplingDto[];
   } catch (error) {
     selfReports.value = [];
@@ -410,7 +415,7 @@ function getTopItemColor(item: ActivitySessions): string {
 async function handleDayChange(event: Event) {
   const value = (event.target as HTMLInputElement).value;
   if (!value) return;
-  selectedDay.value = parseDateInputValue(value);
+  selectedDay.value = value;
   await loadData();
 }
 
@@ -427,32 +432,27 @@ function formatDateInputValue(date: Date): string {
 }
 
 const isToday = computed(() => {
-  const today = new Date();
-  return (
-    selectedDay.value.getDate() === today.getDate() &&
-    selectedDay.value.getMonth() === today.getMonth() &&
-    selectedDay.value.getFullYear() === today.getFullYear()
-  );
+  return selectedDay.value === formatDateInputValue(new Date());
 });
 
 async function navigateToPreviousDay() {
-  const newDate = new Date(selectedDay.value);
+  const newDate = parseDateInputValue(selectedDay.value);
   newDate.setDate(newDate.getDate() - 1);
-  selectedDay.value = newDate;
+  selectedDay.value = formatDateInputValue(newDate);
   await loadData();
 }
 
 async function navigateToNextDay() {
   if (isToday.value) return;
-  const newDate = new Date(selectedDay.value);
+  const newDate = parseDateInputValue(selectedDay.value);
   newDate.setDate(newDate.getDate() + 1);
-  selectedDay.value = newDate;
+  selectedDay.value = formatDateInputValue(newDate);
   await loadData();
 }
 
 async function navigateToToday() {
   if (isToday.value) return;
-  selectedDay.value = new Date();
+  selectedDay.value = formatDateInputValue(new Date());
   await loadData();
 }
 
@@ -469,7 +469,8 @@ function getTimeString(date: Date | string | number): string {
   return `${hours}:${minutes}`;
 }
 
-function getDayLabel(date: Date): string {
+function getDayLabel(day: string): string {
+  const date = parseDateInputValue(day);
   const today = new Date();
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
@@ -533,7 +534,7 @@ function getDayLabel(date: Date): string {
         </button>
         <input
           type="date"
-          :value="formatDateInputValue(selectedDay)"
+          :value="selectedDay"
           :max="formatDateInputValue(new Date())"
           class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
           style="min-width: 140px"
@@ -612,7 +613,7 @@ function getDayLabel(date: Date): string {
         </button>
         <input
           type="date"
-          :value="formatDateInputValue(selectedDay)"
+          :value="selectedDay"
           :max="formatDateInputValue(new Date())"
           class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
           style="min-width: 140px"

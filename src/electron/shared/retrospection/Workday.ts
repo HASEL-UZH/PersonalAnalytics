@@ -43,17 +43,25 @@ export function getDateFromWorkdayMinuteIndex(minuteIndex: number, workdayStart:
   return new Date(workdayStart.getTime() + minuteIndex * 60000);
 }
 
-/** Formats a local timestamp for SQLite `datetime(..., 'localtime')` comparison. */
-export function formatSqliteLocalDateTime(date: Date): string {
+/** Formats an instant as the UTC datetime format used by the SQLite tracker tables. */
+export function formatSqliteUtcDateTime(date: Date): string {
   const parts = [
-    date.getFullYear(),
-    `${date.getMonth() + 1}`.padStart(2, '0'),
-    `${date.getDate()}`.padStart(2, '0')
+    date.getUTCFullYear(),
+    `${date.getUTCMonth() + 1}`.padStart(2, '0'),
+    `${date.getUTCDate()}`.padStart(2, '0')
   ];
-  const time = [date.getHours(), date.getMinutes(), date.getSeconds()]
+  const time = [date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()]
     .map((value) => `${value}`.padStart(2, '0'))
     .join(':');
   return `${parts.join('-')} ${time}`;
+}
+
+/** Parses the timezone-less UTC datetime strings persisted by TypeORM's SQLite driver. */
+export function parseSqliteUtcDateTime(value: Date | string): Date {
+  if (value instanceof Date) return value;
+
+  const timestamp = value.includes('T') ? value : value.replace(' ', 'T');
+  return new Date(/(?:Z|[+-]\d{2}:?\d{2})$/i.test(timestamp) ? timestamp : `${timestamp}Z`);
 }
 
 function floorToLocalHour(timestamp: number): number {
@@ -67,6 +75,17 @@ export function getRetrospectionTimelineBounds(
   selectedDay: Date | string,
   timestamps: Array<Date | number | string | null | undefined>
 ): RetrospectionTimelineBounds | null {
+  return getRetrospectionTimelineBoundsForRange(
+    getRetrospectionWorkdayRange(selectedDay),
+    timestamps
+  );
+}
+
+/** Computes timeline bounds from a workday range already resolved in the current UI timezone. */
+export function getRetrospectionTimelineBoundsForRange(
+  workdayRange: RetrospectionWorkdayRange,
+  timestamps: Array<Date | number | string | null | undefined>
+): RetrospectionTimelineBounds | null {
   const values = timestamps
     .map((timestamp) =>
       timestamp instanceof Date
@@ -76,9 +95,8 @@ export function getRetrospectionTimelineBounds(
           : timestamp
     )
     .filter((timestamp): timestamp is number => typeof timestamp === 'number' && Number.isFinite(timestamp));
-  const { start: workdayStartDate, end: workdayEndDate } = getRetrospectionWorkdayRange(selectedDay);
-  const workdayStart = workdayStartDate.getTime();
-  const workdayEnd = workdayEndDate.getTime();
+  const workdayStart = workdayRange.start.getTime();
+  const workdayEnd = workdayRange.end.getTime();
   const inRange = values.filter((timestamp) => timestamp >= workdayStart && timestamp < workdayEnd);
   if (!inRange.length) return null;
 

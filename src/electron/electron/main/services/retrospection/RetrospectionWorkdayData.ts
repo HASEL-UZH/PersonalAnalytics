@@ -5,9 +5,10 @@
 import { UserInputEntity } from '../../entities/UserInputEntity';
 import { WindowActivityEntity } from '../../entities/WindowActivityEntity';
 import {
-  formatSqliteLocalDateTime,
-  getRetrospectionWorkdayRange,
-  getWorkdayMinuteIndex
+  formatSqliteUtcDateTime,
+  getWorkdayMinuteIndex,
+  parseSqliteUtcDateTime,
+  type RetrospectionWorkdayRange
 } from '../../../../shared/retrospection/Workday';
 
 interface RawUserInput {
@@ -29,14 +30,13 @@ export interface RetrospectionWorkdayData {
   workdayStart: Date;
 }
 
-export async function getActiveMinutesForWorkday(date: Date | string): Promise<Set<number>> {
-  const { start, end } = getRetrospectionWorkdayRange(date);
-  const workdayStart = formatSqliteLocalDateTime(start);
-  const workdayEnd = formatSqliteLocalDateTime(end);
+export async function getActiveMinutesForWorkday(workdayRange: RetrospectionWorkdayRange): Promise<Set<number>> {
+  const workdayStart = formatSqliteUtcDateTime(workdayRange.start);
+  const workdayEnd = formatSqliteUtcDateTime(workdayRange.end);
   const userInput = await UserInputEntity.createQueryBuilder('userInput')
-    .select(['userInput.*', "datetime(userInput.tsStart, 'localtime') as tsStart"])
-    .where("datetime(userInput.tsStart, 'localtime') >= :workdayStart", { workdayStart })
-    .andWhere("datetime(userInput.tsStart, 'localtime') < :workdayEnd", { workdayEnd })
+    .select(['userInput.*'])
+    .where('userInput.tsStart >= :workdayStart', { workdayStart })
+    .andWhere('userInput.tsStart < :workdayEnd', { workdayEnd })
     .orderBy('userInput.tsStart', 'ASC')
     .getRawMany<RawUserInput>();
 
@@ -48,7 +48,7 @@ export async function getActiveMinutesForWorkday(date: Date | string): Promise<S
       (entry.scrollDelta ?? 0) > 0 ||
       (entry.movedDistance ?? 0) > 0
     ) {
-      const minuteIndex = getWorkdayMinuteIndex(new Date(entry.tsStart), start);
+      const minuteIndex = getWorkdayMinuteIndex(parseSqliteUtcDateTime(entry.tsStart), workdayRange.start);
       if (minuteIndex >= 0 && minuteIndex < 24 * 60) {
         activeMinutes.add(minuteIndex);
       }
@@ -59,30 +59,28 @@ export async function getActiveMinutesForWorkday(date: Date | string): Promise<S
 }
 
 export async function getWindowActivitiesForWorkday(
-  date: Date | string
+  workdayRange: RetrospectionWorkdayRange
 ): Promise<WindowActivityEntity[]> {
-  const { start, end } = getRetrospectionWorkdayRange(date);
-  const workdayStart = formatSqliteLocalDateTime(start);
-  const workdayEnd = formatSqliteLocalDateTime(end);
+  const workdayStart = formatSqliteUtcDateTime(workdayRange.start);
+  const workdayEnd = formatSqliteUtcDateTime(workdayRange.end);
   const rows = await WindowActivityEntity.createQueryBuilder('windowActivity')
-    .select(['windowActivity.*', "datetime(windowActivity.ts, 'localtime') as ts"])
-    .where("datetime(windowActivity.ts, 'localtime') >= :workdayStart", { workdayStart })
-    .andWhere("datetime(windowActivity.ts, 'localtime') < :workdayEnd", { workdayEnd })
+    .select(['windowActivity.*'])
+    .where('windowActivity.ts >= :workdayStart', { workdayStart })
+    .andWhere('windowActivity.ts < :workdayEnd', { workdayEnd })
     .orderBy('windowActivity.ts', 'ASC')
     .getRawMany<RawWindowActivity>();
 
-  return rows.map((row) => ({ ...row, ts: new Date(row.ts) }) as WindowActivityEntity);
+  return rows.map((row) => ({ ...row, ts: parseSqliteUtcDateTime(row.ts) }) as WindowActivityEntity);
 }
 
 /** Loads the shared raw data once for every figure on the selected workday. */
 export async function loadRetrospectionWorkdayData(
-  date: Date | string
+  workdayRange: RetrospectionWorkdayRange
 ): Promise<RetrospectionWorkdayData> {
-  const { start } = getRetrospectionWorkdayRange(date);
   const [windowActivities, activeMinutes] = await Promise.all([
-    getWindowActivitiesForWorkday(date),
-    getActiveMinutesForWorkday(date)
+    getWindowActivitiesForWorkday(workdayRange),
+    getActiveMinutesForWorkday(workdayRange)
   ]);
 
-  return { activeMinutes, windowActivities, workdayStart: start };
+  return { activeMinutes, windowActivities, workdayStart: workdayRange.start };
 }

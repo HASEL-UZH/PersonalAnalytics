@@ -22,6 +22,7 @@ import {
 import { buildAppUsageFigure, buildTopAppsFigure } from './retrospection/figures/TopAppsFigure';
 import { buildTopWebsitesFigure } from './retrospection/figures/TopWebsitesFigure';
 import { buildTopWindowTitlesFigure } from './retrospection/figures/TopWindowTitlesFigure';
+import type { RetrospectionWorkdayRange } from '../../../shared/retrospection/Workday';
 
 const LOG = getMainLogger('RetrospectionService');
 
@@ -64,11 +65,11 @@ function emptyActivityDashboard(
  * sections unavailable because none of them can be calculated without the raw tracker data.
  */
 export async function getRetrospectionActivityDashboard(
-  date: Date
+  workdayRange: RetrospectionWorkdayRange
 ): Promise<RetrospectionActivityDashboard> {
   let workdayData: RetrospectionWorkdayData;
   try {
-    workdayData = await loadRetrospectionWorkdayData(date);
+    workdayData = await loadRetrospectionWorkdayData(workdayRange);
   } catch (error) {
     LOG.error('Error loading retrospection workday data', error);
     return emptyActivityDashboard([...ACTIVITY_SECTION_ORDER]);
@@ -117,35 +118,35 @@ export async function getRetrospectionActivityDashboard(
 // Compatibility façade for callers and focused tests. Dashboard IPC uses the shared workday data.
 export const getWindowActivities = getWindowActivitiesForWorkday;
 
-export async function getActiveHoursInsight(date: Date): Promise<ActiveHoursInsight> {
-  return buildActiveHoursFigure(await loadRetrospectionWorkdayData(date));
+export async function getActiveHoursInsight(workdayRange: RetrospectionWorkdayRange): Promise<ActiveHoursInsight> {
+  return buildActiveHoursFigure(await loadRetrospectionWorkdayData(workdayRange));
 }
 
-export async function getLongestTimeActiveInsight(date: Date): Promise<TimeActive> {
-  return buildLongestActivePeriodFigure(await loadRetrospectionWorkdayData(date));
+export async function getLongestTimeActiveInsight(workdayRange: RetrospectionWorkdayRange): Promise<TimeActive> {
+  return buildLongestActivePeriodFigure(await loadRetrospectionWorkdayData(workdayRange));
 }
 
-export async function getAppUsageSessions(date: Date): Promise<ActivitySessions[]> {
-  return buildAppUsageFigure(await loadRetrospectionWorkdayData(date));
+export async function getAppUsageSessions(workdayRange: RetrospectionWorkdayRange): Promise<ActivitySessions[]> {
+  return buildAppUsageFigure(await loadRetrospectionWorkdayData(workdayRange));
 }
 
-export async function getTopWebsiteSessions(date: Date, limit = 3): Promise<ActivitySessions[]> {
-  return buildTopWebsitesFigure(await loadRetrospectionWorkdayData(date), limit);
+export async function getTopWebsiteSessions(workdayRange: RetrospectionWorkdayRange, limit = 3): Promise<ActivitySessions[]> {
+  return buildTopWebsitesFigure(await loadRetrospectionWorkdayData(workdayRange), limit);
 }
 
 export async function getTopWindowTitleSessions(
-  date: Date,
+  workdayRange: RetrospectionWorkdayRange,
   limit = 3
 ): Promise<ActivitySessions[]> {
-  return buildTopWindowTitlesFigure(await loadRetrospectionWorkdayData(date), limit);
+  return buildTopWindowTitlesFigure(await loadRetrospectionWorkdayData(workdayRange), limit);
 }
 
 export async function getActivitySessions(
-  date: Date,
+  workdayRange: RetrospectionWorkdayRange,
   excludeUnspecificActivities = true
 ): Promise<ActivitySessions[]> {
   return await buildActivityTimelineFigure(
-    await loadRetrospectionWorkdayData(date),
+    await loadRetrospectionWorkdayData(workdayRange),
     excludeUnspecificActivities
   );
 }
