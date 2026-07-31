@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, type CSSProperties } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, type CSSProperties } from 'vue';
 import {
   Activity,
   Color,
@@ -29,6 +29,7 @@ import {
 const typedIpcRenderer = window.ipcRenderer;
 const isLoading = ref(false);
 const selectedDay = ref(formatDateInputValue(new Date()));
+const timezoneVersion = ref(0);
 const allWindowActivities = ref<ActivitySessions[]>([]);
 const chartDataWindowActivities = ref<ChartDataPoint[]>();
 const longestTimeActive = ref<TimeActive | undefined>(undefined);
@@ -40,9 +41,13 @@ const selfReports = ref<ExperienceSamplingDto[]>([]);
 const ACTIVITY_BREAKDOWN_COVERAGE = 0.9;
 const ACTIVITY_BREAKDOWN_MAX_ITEMS = 6;
 const EXCLUDED_ACTIVITY_BREAKDOWN_GROUPS = new Set(['Other', 'Unknown']);
+const TIMEZONE_CHECK_INTERVAL_MS = 1_000;
 const experienceSamplingEnabled = studyConfig.trackers.experienceSamplingTracker.enabled;
 const isWindowActivityTrackerEnabled = studyConfig.trackers.windowActivityTracker.enabled;
-const selectedWorkdayRange = computed(() => getRetrospectionWorkdayRange(selectedDay.value));
+const selectedWorkdayRange = computed(() => {
+  void timezoneVersion.value;
+  return getRetrospectionWorkdayRange(selectedDay.value);
+});
 
 interface ActivityBreakdownDataPoint extends PieChartDataPoint {
   percentage: number;
@@ -237,7 +242,21 @@ const activityBreakdownStyle = computed((): CSSProperties => {
 });
 
 onMounted(async () => {
+  window.addEventListener('focus', refreshForTimezoneChange);
+  document.addEventListener('visibilitychange', refreshForTimezoneChange);
+  // macOS can apply a timezone change after the focus event that follows a settings change.
+  timezoneCheckInterval = window.setInterval(() => {
+    void refreshForTimezoneChange();
+  }, TIMEZONE_CHECK_INTERVAL_MS);
   await loadData();
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('focus', refreshForTimezoneChange);
+  document.removeEventListener('visibilitychange', refreshForTimezoneChange);
+  if (timezoneCheckInterval !== undefined) {
+    window.clearInterval(timezoneCheckInterval);
+  }
 });
 
 // The renderer resolves the local 04:00-to-04:00 workday once and sends the resulting UTC
@@ -453,6 +472,30 @@ async function navigateToNextDay() {
 async function navigateToToday() {
   if (isToday.value) return;
   selectedDay.value = formatDateInputValue(new Date());
+  await loadData();
+}
+
+let currentTimezoneKey = getTimezoneKey();
+let currentLocalDay = formatDateInputValue(new Date());
+let timezoneCheckInterval: number | undefined;
+
+function getTimezoneKey(): string {
+  return `${Intl.DateTimeFormat().resolvedOptions().timeZone}|${new Date().getTimezoneOffset()}`;
+}
+
+async function refreshForTimezoneChange(): Promise<void> {
+  if (document.visibilityState === 'hidden') return;
+
+  const nextTimezoneKey = getTimezoneKey();
+  if (nextTimezoneKey === currentTimezoneKey) return;
+
+  const wasShowingToday = selectedDay.value === currentLocalDay;
+  currentTimezoneKey = nextTimezoneKey;
+  currentLocalDay = formatDateInputValue(new Date());
+  timezoneVersion.value++;
+  if (wasShowingToday) {
+    selectedDay.value = currentLocalDay;
+  }
   await loadData();
 }
 
