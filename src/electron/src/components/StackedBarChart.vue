@@ -1,15 +1,17 @@
 <template>
-  <div
-    id="tooltip"
-    class="rounded border border-gray-200 bg-white p-2 text-gray-700 opacity-0 shadow-lg transition-opacity duration-300 ease-in-out dark:border-transparent dark:bg-neutral-800 dark:text-neutral-300 dark:shadow-neutral-800/80"
-  >
-    <span id="content"></span>
+  <div ref="chartContainer" class="stacked-bar-chart">
+    <div
+      id="tooltip"
+      class="rounded border border-gray-200 bg-white p-2 text-gray-700 opacity-0 shadow-lg transition-opacity duration-300 ease-in-out dark:border-transparent dark:bg-neutral-800 dark:text-neutral-300 dark:shadow-neutral-800/80"
+    >
+      <span id="content"></span>
+    </div>
+    <svg ref="chart" :width="svgWidth" :height="svgHeight"></svg>
   </div>
-  <svg ref="chart" :width="svgWidth" :height="svgHeight"></svg>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch, type PropType } from 'vue';
 import * as d3 from 'd3';
 import { Color } from '../utils/retrospection/types';
 import {
@@ -29,7 +31,7 @@ import {
 
 const props = defineProps({
   data: {
-    type: Array,
+    type: Array as PropType<ChartDataPoint[]>,
     required: true
   },
   type: {
@@ -49,53 +51,60 @@ const props = defineProps({
   }
 });
 
-const svgWidth = 760;
+const svgWidth = ref(760);
+const svgHeight = ref(135);
+const chartContainer = ref<HTMLElement | null>(null);
 const chart = ref<SVGElement | null>();
 const chartSelectedLegendItem = ref<string | null>();
 const darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 const isDark = ref(darkMediaQuery.matches);
+let resizeObserver: ResizeObserver | undefined;
 
 function onThemeChange(e: MediaQueryListEvent) {
   isDark.value = e.matches;
-  d3.select(chart.value!).selectAll('*').remove();
-  buildChart();
+  rebuildChart();
 }
-
-const chartStartDate = ref<number>();
-const chartEndDate = ref<number>();
 
 onMounted(() => {
   darkMediaQuery.addEventListener('change', onThemeChange);
-  const minStartTime = new Date(props.startDate).setHours(0, 0, 0, 0);
-  const maxEndTime = new Date(props.endDate).setHours(23, 59, 59, 999);
-  if (props.startDate > minStartTime) {
-    chartStartDate.value = props.startDate;
-  } else {
-    chartStartDate.value = minStartTime;
+  updateChartWidth();
+  resizeObserver = new ResizeObserver(() => {
+    const previousWidth = svgWidth.value;
+    updateChartWidth();
+    if (svgWidth.value !== previousWidth) {
+      rebuildChart();
+    }
+  });
+  if (chartContainer.value) {
+    resizeObserver.observe(chartContainer.value);
   }
-  if (props.endDate <= maxEndTime) {
-    chartEndDate.value = props.endDate;
-  } else {
-    chartEndDate.value = maxEndTime;
-  }
-  buildChart();
+  rebuildChart();
 });
 
 onUnmounted(() => {
   darkMediaQuery.removeEventListener('change', onThemeChange);
+  resizeObserver?.disconnect();
 });
 
-const svgHeight = computed(() => {
-  if (props.type === 'WINDOW_ACTIVITY') {
-    return 135;
-  } else {
-    return 100;
+watch([() => props.data, () => props.startDate, () => props.endDate], rebuildChart);
+
+function rebuildChart() {
+  if (!chart.value) {
+    return;
   }
-});
+  chartSelectedLegendItem.value = null;
+  svgHeight.value = props.type === 'WINDOW_ACTIVITY' ? 135 : 100;
+  d3.select('#tooltip').style('opacity', '0');
+  d3.select(chart.value).selectAll('*').remove();
+  buildChart();
+}
 
-watch([() => props.data], () => {
-  rebuildChartWithAnimation();
-});
+function updateChartWidth(): void {
+  const width = Math.floor(chartContainer.value?.getBoundingClientRect().width ?? 0);
+  if (width > 0) {
+    svgWidth.value = width;
+  }
+}
 
 function getActiveTaskTotalTimeSpentPerActivityGroupArray() {
   const activeTaskTotalTimeSpentPerActivityGroup: {
@@ -104,9 +113,9 @@ function getActiveTaskTotalTimeSpentPerActivityGroupArray() {
     timeInPercentage: number;
   }[] = [];
   let totalTimeSpent = 0;
-  props.data.forEach((dataPoint: any) => {
+  props.data.forEach((dataPoint) => {
     const activityGroup = getActivityGroupFromActivityName(dataPoint.activity);
-    const totalTime = dataPoint.end - dataPoint.start;
+    const totalTime = dataPoint.end.getTime() - dataPoint.start.getTime();
     const existingActivityGroup = activeTaskTotalTimeSpentPerActivityGroup.find(
       (item) => item.activityGroup === activityGroup
     );
@@ -239,17 +248,15 @@ function positionTooltip(event: MouseEvent, barBoundingRect: DOMRect) {
 
 function buildChart() {
   const margin = { top: 20, right: 0, bottom: 30, left: 0 };
-  const width = svgWidth - margin.left - margin.right;
-  const height = svgHeight.value - margin.top - margin.bottom;
+  const width = svgWidth.value - margin.left - margin.right;
 
   const barHeight = 35;
   const barYOffset = -10;
 
   const svg = d3
     .select(chart.value!)
-    .append('svg')
-    .attr('width', width + margin.left + margin.right)
-    .attr('height', height + margin.top + margin.bottom)
+    .attr('width', svgWidth.value)
+    .attr('height', svgHeight.value)
     .append('g')
     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
@@ -260,29 +267,31 @@ function buildChart() {
     .attr('width', width)
     .attr('y', barYOffset)
     .attr('height', barHeight)
-    .attr('fill', isDark.value ? (Color as any)['neutral-800'] : '#e5e7eb')
+    .attr('fill', isDark.value ? Color['neutral-800'] : '#e5e7eb')
     .style('opacity', 1)
     .attr('rx', 8);
 
-  const x = d3.scaleTime().domain([chartStartDate.value!, chartEndDate.value!]).range([0, width]);
+  const x = d3.scaleTime().domain([props.startDate, props.endDate]).range([0, width]);
 
   const timeFormat = d3.timeFormat('%H:%M');
+  const formatTimeTick = (value: Date | d3.NumberValue) =>
+    timeFormat(value instanceof Date ? value : new Date(Number(value)));
 
   svg
-    .selectAll('.bar')
+    .selectAll<SVGRectElement, ChartDataPoint>('.bar')
     .data(props.data)
     .enter()
     .append('rect')
-    .attr('class', (d: any) => {
+    .attr('class', (d) => {
       return `bar bar-${getActivityGroupFromActivityName(d.activity)}`;
     })
-    .attr('x', (d: any) => x(d.start))
-    .attr('width', (d: any) => x(d.end) - x(d.start))
+    .attr('x', (d) => x(d.start))
+    .attr('width', (d) => x(d.end) - x(d.start))
     .attr('y', barYOffset)
     .attr('height', barHeight)
-    .style('fill', (d: any) => {
+    .style('fill', (d) => {
       if (d.type === DataPointType.USER_COMPUTER_ACTIVITY) {
-        return (Color as any)['neutral-400'];
+        return Color['neutral-400'];
       }
       return getBarColorFromDataPoint(d.color);
     })
@@ -318,13 +327,22 @@ function buildChart() {
   }
 
   const axisColor = isDark.value ? '#a3a3a3' : '#374151';
-  svg
+  const axisLabels = svg
     .append('g')
     .attr('class', 'x axis')
     .attr('transform', `translate(0, ${barYOffset + barHeight})`)
-    .call(d3.axisBottom(x).tickFormat(timeFormat as any))
+    .call(d3.axisBottom(x).tickFormat(formatTimeTick))
     .selectAll('text')
     .style('fill', axisColor);
+
+  const labels = axisLabels.nodes();
+  labels.forEach((label, index) => {
+    if (index === 0) {
+      d3.select(label).attr('text-anchor', 'start').attr('x', 4);
+    } else if (index === labels.length - 1) {
+      d3.select(label).attr('text-anchor', 'end').attr('x', -4);
+    }
+  });
 
   svg.selectAll('.x.axis path, .x.axis line').style('stroke', axisColor);
 }
@@ -340,9 +358,10 @@ function getLegendDataForWindowActivity(): LegendDataPoint[] {
   const activeTaskTotalTimeSpentPerActivityGroup =
     getActiveTaskTotalTimeSpentPerActivityGroupArray();
   activeTaskTotalTimeSpentPerActivityGroup.forEach((item) => {
+    const colorKey = TW_CLASS_ACTIVITY_MAPPINGS[item.activityGroup] as keyof typeof Color;
     legendData.push({
       text: `${ACTIVITY_LABELS[item.activityGroup] || 'Other'} (${msToReadableFormat(item.totalTime, false, false)})`,
-      color: (Color as any)[TW_CLASS_ACTIVITY_MAPPINGS[item.activityGroup]],
+      color: Color[colorKey],
       key: item.activityGroup
     });
   });
@@ -384,7 +403,7 @@ function drawLegend(legendData: LegendDataPoint[], enableClickableLegend = false
       const current = d3.select(this);
       const currentNodeWidth = current.node()!.getBBox().width;
       let previousWidth = totalWidth;
-      if (previousWidth + currentNodeWidth + 35 > svgWidth) {
+      if (previousWidth + currentNodeWidth + 35 > svgWidth.value) {
         startNewLinesAtItemIndex.push(i);
         totalWidth = legendStartPositionX;
         previousWidth = legendStartPositionX;
@@ -403,9 +422,9 @@ function drawLegend(legendData: LegendDataPoint[], enableClickableLegend = false
   if (enableClickableLegend) {
     d3.select(chart.value!)
       .select('.legend')
-      .selectAll('.legend-label')
+      .selectAll<SVGTextElement, LegendDataPoint>('.legend-label')
       .attr('cursor', 'pointer')
-      .on('click', function (_e: any, d: any) {
+      .on('click', function (_event: MouseEvent, d: LegendDataPoint) {
         d3.select(chart.value!).selectAll(`.legend-label`).style('opacity', null);
         d3.select(chart.value!).selectAll(`.legend-dot`).style('opacity', null);
         d3.select(chart.value!).selectAll(`.bar`).style('opacity', null);
@@ -447,34 +466,26 @@ function drawLegend(legendData: LegendDataPoint[], enableClickableLegend = false
       return d.color;
     })
     .style('opacity', 1);
-}
 
-function rebuildChartWithAnimation() {
-  chartSelectedLegendItem.value = null;
-  const margin = { top: 20, right: 20, bottom: 40, left: 20 };
-  const width = svgWidth - margin.left - margin.right;
-  const svg = d3.select(chart.value!).select('svg');
-  const x = d3.scaleTime().domain([chartStartDate.value!, chartEndDate.value!]).range([0, width]);
-
-  const bars = svg.selectAll('.bar').data(props.data);
-
-  bars
-    .transition()
-    .duration(300)
-    .attr('x', (d: any) => x(d.start))
-    .attr('width', (d: any) => x(d.end) - x(d.start))
-    .style('opacity', 1);
-
-  bars.exit().transition().duration(300).attr('width', 0).remove();
-
-  // Update legend
-  if (props.type === 'WINDOW_ACTIVITY') {
-    drawLegend(getLegendDataForWindowActivity(), true);
-  }
+  svgHeight.value = Math.max(
+    svgHeight.value,
+    legendStartPositionY + lineHeight * currentLegendItemLine + 18
+  );
 }
 </script>
 
 <style scoped>
+.stacked-bar-chart {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.stacked-bar-chart svg {
+  display: block;
+  max-width: 100%;
+}
+
 #tooltip {
   position: absolute;
   font-size: 12px;

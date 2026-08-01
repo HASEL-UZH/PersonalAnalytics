@@ -5,6 +5,7 @@ export default interface WindowActivityDto {
   processPath: string | null;
   processId: number | null;
   url: string | null;
+  artifactName: string | null;
   activity: string;
   ts: Date;
   createdAt: Date;
