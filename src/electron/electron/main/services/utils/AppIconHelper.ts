@@ -298,8 +298,8 @@ function getWindowsAppsPackageIconDataUrl(
 }
 
 function getMacIcnsDataUrlViaSips(iconPath: string): string | undefined {
-  const tempDirectory = mkdtempSync(path.join(tmpdir(), 'personal-analytics-icon-'));
-  const pngPath = path.join(tempDirectory, 'icon.png');
+  const tempDirectory = mkdtempSync(path.posix.join(tmpdir(), 'personal-analytics-icon-'));
+  const pngPath = path.posix.join(tempDirectory, 'icon.png');
 
   try {
     execFileSync('/usr/bin/sips', ['-s', 'format', 'png', '--out', pngPath, iconPath], {
@@ -324,7 +324,7 @@ function getBundleResourceIconDataUrl(
   appBundlePath: string,
   processName: string | null
 ): string | undefined {
-  const resourcesPath = path.join(appBundlePath, 'Contents', 'Resources');
+  const resourcesPath = path.posix.join(appBundlePath, 'Contents', 'Resources');
   if (!existsSync(resourcesPath)) {
     return undefined;
   }
@@ -340,7 +340,9 @@ function getBundleResourceIconDataUrl(
       })
     : [];
 
-  const plistIconFile = getPlistIconFileName(path.join(appBundlePath, 'Contents', 'Info.plist'));
+  const plistIconFile = getPlistIconFileName(
+    path.posix.join(appBundlePath, 'Contents', 'Info.plist')
+  );
   const plistIconCandidates = plistIconFile
     ? [
         plistIconFile,
@@ -369,7 +371,7 @@ function getBundleResourceIconDataUrl(
     }
     seenFiles.add(file);
 
-    const iconDataUrl = getIconDataUrlFromPath(path.join(resourcesPath, file));
+    const iconDataUrl = getIconDataUrlFromPath(path.posix.join(resourcesPath, file));
     if (iconDataUrl) {
       return iconDataUrl;
     }
