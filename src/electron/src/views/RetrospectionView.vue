@@ -652,8 +652,7 @@ function getDayLabel(date: Date): string {
           role="alert"
           class="mb-6 rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
         >
-          Some retrospection sections could not be loaded: {{ failedSectionLabels }}. Available
-          sections are shown below.
+          One or more visualizations could not be loaded: {{ failedSectionLabels }}. 
           <button type="button" class="ml-1 underline" @click="loadData">Try again</button>
         </div>
 
