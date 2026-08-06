@@ -78,6 +78,6 @@ export class SchedulingService {
       return
     }
 
-    await this.windowService.createRetrospectionWindow()
+    await this.windowService.focusOrCreateRetrospectionWindow()
   }
 }

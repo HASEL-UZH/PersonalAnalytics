@@ -344,7 +344,7 @@ export class WindowService {
     }
   }
 
-  public async createRetrospectionWindow() {
+  private async createRetrospectionWindow() {
     this.closeRetrospectionWindow()
 
     const __filename = fileURLToPath(import.meta.url)
@@ -650,7 +650,7 @@ export class WindowService {
         : []),
       {
         label: 'Retrospection',
-        click: () => this.createRetrospectionWindow(),
+        click: () => this.focusOrCreateRetrospectionWindow(),
         visible: studyConfig.enableRetrospection ?? true
       },
       {
