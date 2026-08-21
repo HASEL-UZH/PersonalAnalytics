@@ -30,6 +30,7 @@ import { computed, onMounted, onUnmounted, ref, watch, type PropType } from 'vue
 import * as d3 from 'd3';
 import type ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
 import { Color } from '../utils/retrospection/types';
+import { positionTooltipWithinViewport } from '../utils/tooltipPosition';
 
 interface SelfReportPoint {
   id: string;
@@ -404,11 +405,6 @@ function moveTooltip(event: MouseEvent, point: SelfReportPoint, color: string) {
   }
 
   const timeFormat = d3.timeFormat('%H:%M');
-  d3.select(tooltip.value)
-    .style('left', `${event.clientX}px`)
-    .style('top', `${event.clientY}px`)
-    .style('transform', 'translate(-50%, -120%)');
-
   const questionElement = document.createElement('div');
   questionElement.style.color = color;
   questionElement.style.fontWeight = '600';
@@ -418,6 +414,13 @@ function moveTooltip(event: MouseEvent, point: SelfReportPoint, color: string) {
   const timeElement = document.createElement('div');
   timeElement.textContent = `Self-report taken at: ${timeFormat(point.promptedAt)}`;
   tooltip.value.replaceChildren(questionElement, ratingElement, timeElement);
+
+  const pointRect = (event.currentTarget as SVGCircleElement | null)?.getBoundingClientRect();
+  positionTooltipWithinViewport(tooltip.value, {
+    x: event.clientX,
+    top: pointRect?.top ?? event.clientY,
+    bottom: pointRect?.bottom ?? event.clientY
+  });
 }
 
 function getTooltipScaleSuffix(point: SelfReportPoint): string {
@@ -484,7 +487,7 @@ function getTooltipScaleSuffix(point: SelfReportPoint): string {
 .self-report-tooltip {
   position: fixed;
   width: max-content;
-  max-width: 360px;
+  max-width: min(360px, calc(100vw - 16px));
   pointer-events: none;
   z-index: 9999;
   text-align: left;
