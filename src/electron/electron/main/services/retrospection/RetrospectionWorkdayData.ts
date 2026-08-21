@@ -33,6 +33,9 @@ export interface RetrospectionWorkdayData {
 export async function getActiveMinutesForWorkday(workdayRange: RetrospectionWorkdayRange): Promise<Set<number>> {
   const workdayStart = formatSqliteUtcDateTime(workdayRange.start);
   const workdayEnd = formatSqliteUtcDateTime(workdayRange.end);
+  const workdayMinuteCount = Math.round(
+    (workdayRange.end.getTime() - workdayRange.start.getTime()) / 60_000
+  );
   const userInput = await UserInputEntity.createQueryBuilder('userInput')
     .select(['userInput.*'])
     .where('userInput.tsStart >= :workdayStart', { workdayStart })
@@ -49,7 +52,7 @@ export async function getActiveMinutesForWorkday(workdayRange: RetrospectionWork
       (entry.movedDistance ?? 0) > 0
     ) {
       const minuteIndex = getWorkdayMinuteIndex(parseSqliteUtcDateTime(entry.tsStart), workdayRange.start);
-      if (minuteIndex >= 0 && minuteIndex < 24 * 60) {
+      if (minuteIndex >= 0 && minuteIndex < workdayMinuteCount) {
         activeMinutes.add(minuteIndex);
       }
     }

@@ -41,7 +41,6 @@ const selfReports = ref<ExperienceSamplingDto[]>([]);
 const ACTIVITY_BREAKDOWN_COVERAGE = 0.9;
 const ACTIVITY_BREAKDOWN_MAX_ITEMS = 6;
 const EXCLUDED_ACTIVITY_BREAKDOWN_GROUPS = new Set(['Other', 'Unknown']);
-const TIMEZONE_CHECK_INTERVAL_MS = 1_000;
 const experienceSamplingEnabled = studyConfig.trackers.experienceSamplingTracker.enabled;
 const isWindowActivityTrackerEnabled = studyConfig.trackers.windowActivityTracker.enabled;
 const selectedWorkdayRange = computed(() => {
@@ -244,19 +243,12 @@ const activityBreakdownStyle = computed((): CSSProperties => {
 onMounted(async () => {
   window.addEventListener('focus', refreshForTimezoneChange);
   document.addEventListener('visibilitychange', refreshForTimezoneChange);
-  // macOS can apply a timezone change after the focus event that follows a settings change.
-  timezoneCheckInterval = window.setInterval(() => {
-    void refreshForTimezoneChange();
-  }, TIMEZONE_CHECK_INTERVAL_MS);
   await loadData();
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener('focus', refreshForTimezoneChange);
   document.removeEventListener('visibilitychange', refreshForTimezoneChange);
-  if (timezoneCheckInterval !== undefined) {
-    window.clearInterval(timezoneCheckInterval);
-  }
 });
 
 // The renderer resolves the local 04:00-to-04:00 workday once and sends the resulting UTC
@@ -477,7 +469,6 @@ async function navigateToToday() {
 
 let currentTimezoneKey = getTimezoneKey();
 let currentLocalDay = formatDateInputValue(new Date());
-let timezoneCheckInterval: number | undefined;
 
 function getTimezoneKey(): string {
   return `${Intl.DateTimeFormat().resolvedOptions().timeZone}|${new Date().getTimezoneOffset()}`;

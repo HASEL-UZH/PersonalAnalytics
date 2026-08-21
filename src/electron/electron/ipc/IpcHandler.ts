@@ -42,7 +42,10 @@ import type {
   DailySurveySamplingType,
   ExperienceSamplingAnswerType
 } from '../../shared/StudyConfiguration';
-import type { RetrospectionWorkdayRange } from '../../shared/retrospection/Workday';
+import {
+  normalizeRetrospectionWorkdayRange,
+  type RetrospectionWorkdayRange
+} from '../../shared/retrospection/Workday';
 import { DailySurveyTracker } from '../main/services/trackers/DailySurveyTracker';
 import { UsageDataService } from '../main/services/UsageDataService';
 import { UsageDataEventType } from '../enums/UsageDataEventType.enum';
@@ -347,16 +350,16 @@ export class IpcHandler {
   }
 
   private async retrospectionGetActivities(workdayRange: RetrospectionWorkdayRange): Promise<ActivitySessions[]> {
-    return await getActivitySessions(workdayRange);
+    return await getActivitySessions(normalizeRetrospectionWorkdayRange(workdayRange));
   }
 
   private async retrospectionGetActiveHours(workdayRange: RetrospectionWorkdayRange) {
-    return await getActiveHoursInsight(workdayRange);
+    return await getActiveHoursInsight(normalizeRetrospectionWorkdayRange(workdayRange));
   }
 
   private async retrospectionLoadLongestTimeActive(workdayRange: RetrospectionWorkdayRange): Promise<TimeActive | undefined> {
     try {
-      return await getLongestTimeActiveInsight(workdayRange);
+      return await getLongestTimeActiveInsight(normalizeRetrospectionWorkdayRange(workdayRange));
     } catch (error) {
       LOG.error('Error loading longest time active', error);
     }
@@ -366,7 +369,7 @@ export class IpcHandler {
     workdayRange: RetrospectionWorkdayRange
   ): Promise<ActivitySessions[] | undefined> {
     try {
-      return (await getAppUsageSessions(workdayRange))
+      return (await getAppUsageSessions(normalizeRetrospectionWorkdayRange(workdayRange)))
         .sort((a, b) => b.totalDurationMs - a.totalDurationMs)
         .slice(0, 3);
     } catch (error) {
@@ -378,7 +381,7 @@ export class IpcHandler {
     workdayRange: RetrospectionWorkdayRange
   ): Promise<ActivitySessions[] | undefined> {
     try {
-      return await getTopWebsiteSessions(workdayRange, 3);
+      return await getTopWebsiteSessions(normalizeRetrospectionWorkdayRange(workdayRange), 3);
     } catch (error) {
       LOG.error('Error loading top websites', error);
     }
@@ -388,14 +391,16 @@ export class IpcHandler {
     workdayRange: RetrospectionWorkdayRange
   ): Promise<ActivitySessions[] | undefined> {
     try {
-      return await getTopWindowTitleSessions(workdayRange, 3);
+      return await getTopWindowTitleSessions(normalizeRetrospectionWorkdayRange(workdayRange), 3);
     } catch (error) {
       LOG.error('Error loading top window titles', error);
     }
   }
 
   private async retrospectionGetSelfReports(workdayRange: RetrospectionWorkdayRange): Promise<ExperienceSamplingDto[]> {
-    return await this.experienceSamplingService.getExperienceSamplingDtosForDay(workdayRange);
+    return await this.experienceSamplingService.getExperienceSamplingDtosForDay(
+      normalizeRetrospectionWorkdayRange(workdayRange)
+    );
   }
 
   private async openRetrospection(): Promise<void> {

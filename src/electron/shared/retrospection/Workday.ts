@@ -5,6 +5,11 @@ export interface RetrospectionWorkdayRange {
   end: Date;
 }
 
+export interface RetrospectionWorkdayRangeInput {
+  start: Date | string;
+  end: Date | string;
+}
+
 export interface RetrospectionTimelineBounds {
   start: number;
   end: number;
@@ -32,6 +37,25 @@ export function getRetrospectionWorkdayRange(date: Date | string): Retrospection
   );
   const end = new Date(start);
   end.setDate(end.getDate() + 1);
+  return { start, end };
+}
+
+export function normalizeRetrospectionWorkdayRange(
+  workdayRange: RetrospectionWorkdayRangeInput
+): RetrospectionWorkdayRange {
+  const start =
+    workdayRange.start instanceof Date
+      ? new Date(workdayRange.start.getTime())
+      : new Date(workdayRange.start);
+  const end =
+    workdayRange.end instanceof Date
+      ? new Date(workdayRange.end.getTime())
+      : new Date(workdayRange.end);
+
+  if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end <= start) {
+    throw new TypeError('Invalid retrospection workday range');
+  }
+
   return { start, end };
 }
 
