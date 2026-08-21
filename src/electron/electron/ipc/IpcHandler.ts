@@ -410,10 +410,15 @@ export class IpcHandler {
 
   private async postponeDailySurvey(
     samplingType: DailySurveySamplingType,
+    scheduledDate: Date | null,
     minutes: number
   ): Promise<void> {
     if (this.dailySurveyTracker) {
-      const wasPostponed = await this.dailySurveyTracker.postpone(samplingType, minutes);
+      const wasPostponed = await this.dailySurveyTracker.postpone(
+        samplingType,
+        scheduledDate ? new Date(scheduledDate) : null,
+        minutes
+      );
       if (!wasPostponed) {
         return;
       }

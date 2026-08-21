@@ -95,6 +95,9 @@ You can find more information on electron-builder here: https://www.electron.bui
 | `surveys[].requireAllAnswers`   | Whether all questions must be answered before the survey can be submitted. If `false`, partial submissions are allowed. Can be set independently for each survey.                                                                                                                                                                                                                         |                 | `false`       |
 | `surveys[].questions`           | An array of questions to present in the survey. All questions are shown in order. Each question uses the same format as ExperienceSamplingTracker questions and supports `answerType` values: `’LikertScale’`, `’SingleChoice’`, `’MultiChoice’`, and `’TextResponse’`.                                                                                                                    | ✅               |               |
 
+##### Overdue Daily Surveys
+If PersonalAnalytics is closed or the machine is asleep when a daily survey is due, the survey is shown at the next opportunity and keeps its **original** scheduled date. This means a response's `promptedAt` can be up to 3 calendar days after the `scheduledDate` it refers to — use `scheduledDate` when relating responses to a specific day. Surveys older than 3 calendar days are discarded without being shown (see `MAX_MISSED_SURVEY_AGE_DAYS` in [DailySurveyTracker.ts](../src/electron/electron/main/services/trackers/DailySurveyTracker.ts)). Only the most recent unanswered survey per sampling type is kept: if a new survey comes due before the previous one is answered, the older one is discarded. Participants cannot postpone a survey from a previous day.
+
 ## Contributions Guide
 Anyone is welcome to contribute to PersonalAnalytics, for example by fixing bugs, extending it with new trackers or improving existing ones.
 
