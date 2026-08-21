@@ -378,7 +378,7 @@ export class IpcHandler {
   }
 
   private async openRetrospection(): Promise<void> {
-    await this.windowService.createRetrospectionWindow();
+    await this.windowService.focusOrCreateRetrospectionWindow();
   }
 
   private closeRetrospectionWindow(): void {
