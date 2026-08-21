@@ -344,7 +344,7 @@ export class WindowService {
     }
   }
 
-  public async createRetrospectionWindow() {
+  private async createRetrospectionWindow() {
     this.closeRetrospectionWindow()
 
     const __filename = fileURLToPath(import.meta.url)
@@ -352,10 +352,10 @@ export class WindowService {
     const preload = join(__dirname, '../preload/index.mjs')
 
     this.retrospectionWindow = new BrowserWindow({
-      width: 850,
-      height: 800,
+      width: 1120,
+      height: 850,
       minWidth: 800,
-      minHeight: 750,
+      minHeight: 720,
       show: false,
       minimizable: false,
       maximizable: false,
@@ -650,7 +650,7 @@ export class WindowService {
         : []),
       {
         label: 'Retrospection',
-        click: () => this.createRetrospectionWindow(),
+        click: () => this.focusOrCreateRetrospectionWindow(),
         visible: studyConfig.enableRetrospection ?? true
       },
       {

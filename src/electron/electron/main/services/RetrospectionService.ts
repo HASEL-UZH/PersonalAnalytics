@@ -118,19 +118,28 @@ export async function getRetrospectionActivityDashboard(
 // Compatibility façade for callers and focused tests. Dashboard IPC uses the shared workday data.
 export const getWindowActivities = getWindowActivitiesForWorkday;
 
-export async function getActiveHoursInsight(workdayRange: RetrospectionWorkdayRange): Promise<ActiveHoursInsight> {
+export async function getActiveHoursInsight(
+  workdayRange: RetrospectionWorkdayRange
+): Promise<ActiveHoursInsight> {
   return buildActiveHoursFigure(await loadRetrospectionWorkdayData(workdayRange));
 }
 
-export async function getLongestTimeActiveInsight(workdayRange: RetrospectionWorkdayRange): Promise<TimeActive> {
+export async function getLongestTimeActiveInsight(
+  workdayRange: RetrospectionWorkdayRange
+): Promise<TimeActive> {
   return buildLongestActivePeriodFigure(await loadRetrospectionWorkdayData(workdayRange));
 }
 
-export async function getAppUsageSessions(workdayRange: RetrospectionWorkdayRange): Promise<ActivitySessions[]> {
+export async function getAppUsageSessions(
+  workdayRange: RetrospectionWorkdayRange
+): Promise<ActivitySessions[]> {
   return buildAppUsageFigure(await loadRetrospectionWorkdayData(workdayRange));
 }
 
-export async function getTopWebsiteSessions(workdayRange: RetrospectionWorkdayRange, limit = 3): Promise<ActivitySessions[]> {
+export async function getTopWebsiteSessions(
+  workdayRange: RetrospectionWorkdayRange,
+  limit = 3
+): Promise<ActivitySessions[]> {
   return buildTopWebsitesFigure(await loadRetrospectionWorkdayData(workdayRange), limit);
 }
 

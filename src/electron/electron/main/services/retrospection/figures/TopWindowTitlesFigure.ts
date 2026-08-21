@@ -24,7 +24,7 @@ export async function buildTopWindowTitlesFigure(
       return null;
     }
 
-    const key = cleanWindowTitle(
+    const key = activity.artifactName || cleanWindowTitle(
       activity.windowTitle,
       activity.processName,
       activity.url,
@@ -37,6 +37,7 @@ export async function buildTopWindowTitlesFigure(
 
     tooltipTitles.set(
       key,
+      activity.artifactName ||
       cleanWindowTitle(
         activity.windowTitle,
         activity.processName,

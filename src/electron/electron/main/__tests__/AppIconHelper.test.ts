@@ -201,6 +201,18 @@ jest.unstable_mockModule('extract-file-icon', () => ({
 
 const { getProcessIconDataUrl } = await import('../services/utils/AppIconHelper');
 
+// AppIconHelper gates its macOS code paths on process.platform, so those tests have to fake it.
+async function withPlatform(platform: NodeJS.Platform, run: () => Promise<void>): Promise<void> {
+  const originalPlatform = process.platform;
+  Object.defineProperty(process, 'platform', { value: platform, configurable: true });
+
+  try {
+    await run();
+  } finally {
+    Object.defineProperty(process, 'platform', { value: originalPlatform, configurable: true });
+  }
+}
+
 beforeEach(() => {
   getFileIconMock.mockClear();
   createFromPathMock.mockClear();
@@ -268,10 +280,13 @@ test('falls back to the Electron shell icon when no Windows visual elements mani
   expect(getFileIconMock).toHaveBeenCalledWith(SHELL_ICON_PROCESS_PATH, { size: 'small' });
 });
 
-test('converts macOS icns app icons when Electron cannot load them directly', async () => {
-  await expect(getProcessIconDataUrl(MAC_WORD_PROCESS_PATH, 'Microsoft Word')).resolves.toBe(
-    'data:image/png;base64,mac-word'
-  );
+test('converts macOS .icns app icons when Electron cannot load them directly', async () => {
+  await withPlatform('darwin', async () => {
+    await expect(getProcessIconDataUrl(MAC_WORD_PROCESS_PATH, 'Microsoft Word')).resolves.toBe(
+      'data:image/png;base64,mac-word'
+    );
+  });
+
   expect(createFromPathMock).toHaveBeenCalledWith(MAC_WORD_ICON_PATH);
   expect(execFileSyncMock).toHaveBeenCalledWith(
     '/usr/bin/sips',

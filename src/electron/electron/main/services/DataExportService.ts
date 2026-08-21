@@ -133,10 +133,11 @@ export class DataExportService {
       const items: {
         windowTitle: string;
         url: string;
+        artifactName: string | null;
         id: string;
       }[] = await WindowActivityEntity.getRepository()
         .createQueryBuilder('window_activity')
-        .select('id, windowTitle, url')
+        .select('id, windowTitle, url, artifactName')
         .getRawMany();
       for (const item of items) {
         if (windowActivityExportType === DataExportType.Obfuscate) {
@@ -144,10 +145,18 @@ export class DataExportService {
             item.windowTitle
           );
           const randomizeUrl = this.windowActivityTrackerService.randomizeUrl(item.url);
+          const randomizeArtifactName = item.artifactName
+            ? this.windowActivityTrackerService.randomizeString(item.artifactName)
+            : null;
           const obfuscateWindowActivities = db.prepare(
-            'UPDATE window_activity SET windowTitle = ?, url = ? WHERE id = ?'
+            'UPDATE window_activity SET windowTitle = ?, url = ?, artifactName = ? WHERE id = ?'
           );
-          obfuscateWindowActivities.run(randomizeWindowTitle, randomizeUrl, item.id);
+          obfuscateWindowActivities.run(
+            randomizeWindowTitle,
+            randomizeUrl,
+            randomizeArtifactName,
+            item.id
+          );
         } else if (
           windowActivityExportType === DataExportType.ObfuscateWithTerms &&
           obfuscationTerms.length > 0
@@ -158,15 +167,17 @@ export class DataExportService {
           lowerCaseObfuscationTerms.forEach((term: string) => {
             if (
               item.windowTitle?.toLowerCase().includes(term) ||
-              item.url?.toLowerCase().includes(term)
+              item.url?.toLowerCase().includes(term) ||
+              item.artifactName?.toLowerCase().includes(term)
             ) {
               const obfuscateWindowActivities = db.prepare(
-                'UPDATE window_activity SET windowTitle = ?, url = ? WHERE id = ?'
+                'UPDATE window_activity SET windowTitle = ?, url = ?, artifactName = ? WHERE id = ?'
               );
               const windowTitle = item.windowTitle ? '[anonymized]' : undefined;
               const url = item.url ? '[anonymized]' : undefined;
+              const artifactName = item.artifactName ? '[anonymized]' : null;
 
-              obfuscateWindowActivities.run(windowTitle, url, item.id);
+              obfuscateWindowActivities.run(windowTitle, url, artifactName, item.id);
             }
           });
         }

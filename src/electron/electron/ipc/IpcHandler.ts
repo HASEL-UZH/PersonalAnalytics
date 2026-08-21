@@ -26,29 +26,25 @@ import { JSDOM } from 'jsdom';
 import DOMPurify from 'dompurify';
 import { WorkScheduleService } from 'electron/main/services/WorkScheduleService';
 import { WorkHoursDto } from 'shared/dto/WorkHoursDto';
-import {
-  getActivitySessions,
-  getActiveHoursInsight,
-  getAppUsageSessions,
-  getLongestTimeActiveInsight,
-  getTopWebsiteSessions,
-  getTopWindowTitleSessions,
-  ActivitySessions,
-  TimeActive
-} from '../main/services/RetrospectionService';
+import { getRetrospectionActivityDashboard } from '../main/services/RetrospectionService';
+import type {
+  RetrospectionDashboard,
+  RetrospectionDataSection
+} from '../../src/utils/retrospection/types';
 import { SchedulingService } from '../main/services/SchedulingService';
 import path from 'path';
 import type {
   DailySurveySamplingType,
   ExperienceSamplingAnswerType
 } from '../../shared/StudyConfiguration';
-import {
-  normalizeRetrospectionWorkdayRange,
-  type RetrospectionWorkdayRange
-} from '../../shared/retrospection/Workday';
 import { DailySurveyTracker } from '../main/services/trackers/DailySurveyTracker';
 import { UsageDataService } from '../main/services/UsageDataService';
 import { UsageDataEventType } from '../enums/UsageDataEventType.enum';
+import { getRetrospectionTrackerAvailability } from '../../src/utils/retrospection/availability';
+import {
+  normalizeRetrospectionWorkdayRange,
+  type RetrospectionWorkdayRangeInput
+} from '../../shared/retrospection/Workday';
 
 const LOG = getMainLogger('IpcHandler');
 
@@ -118,13 +114,7 @@ export class IpcHandler {
       startAllTrackers: this.startAllTrackers,
       triggerPermissionCheckAccessibility: this.triggerPermissionCheckAccessibility,
       triggerPermissionCheckScreenRecording: this.triggerPermissionCheckScreenRecording,
-      retrospectionGetActiveHours: this.retrospectionGetActiveHours,
-      retrospectionGetActivities: this.retrospectionGetActivities,
-      retrospectionLoadLongestTimeActive: this.retrospectionLoadLongestTimeActive,
-      retrospectionGetTopThreeMostActiveApps: this.retrospectionGetTopThreeMostActiveApps,
-      retrospectionGetTopThreeWebsites: this.retrospectionGetTopThreeWebsites,
-      retrospectionGetTopThreeWindowTitles: this.retrospectionGetTopThreeWindowTitles,
-      retrospectionGetSelfReports: this.retrospectionGetSelfReports,
+      retrospectionGetDashboard: this.retrospectionGetDashboard,
       openRetrospection: this.openRetrospection,
       closeRetrospectionWindow: this.closeRetrospectionWindow,
       createDailySurveyResponses: this.createDailySurveyResponses,
@@ -349,62 +339,53 @@ export class IpcHandler {
     }
   }
 
-  private async retrospectionGetActivities(workdayRange: RetrospectionWorkdayRange): Promise<ActivitySessions[]> {
-    return await getActivitySessions(normalizeRetrospectionWorkdayRange(workdayRange));
-  }
-
-  private async retrospectionGetActiveHours(workdayRange: RetrospectionWorkdayRange) {
-    return await getActiveHoursInsight(normalizeRetrospectionWorkdayRange(workdayRange));
-  }
-
-  private async retrospectionLoadLongestTimeActive(workdayRange: RetrospectionWorkdayRange): Promise<TimeActive | undefined> {
-    try {
-      return await getLongestTimeActiveInsight(normalizeRetrospectionWorkdayRange(workdayRange));
-    } catch (error) {
-      LOG.error('Error loading longest time active', error);
-    }
-  }
-
-  private async retrospectionGetTopThreeMostActiveApps(
-    workdayRange: RetrospectionWorkdayRange
-  ): Promise<ActivitySessions[] | undefined> {
-    try {
-      return (await getAppUsageSessions(normalizeRetrospectionWorkdayRange(workdayRange)))
-        .sort((a, b) => b.totalDurationMs - a.totalDurationMs)
-        .slice(0, 3);
-    } catch (error) {
-      LOG.error('Error loading top apps', error);
-    }
-  }
-
-  private async retrospectionGetTopThreeWebsites(
-    workdayRange: RetrospectionWorkdayRange
-  ): Promise<ActivitySessions[] | undefined> {
-    try {
-      return await getTopWebsiteSessions(normalizeRetrospectionWorkdayRange(workdayRange), 3);
-    } catch (error) {
-      LOG.error('Error loading top websites', error);
-    }
-  }
-
-  private async retrospectionGetTopThreeWindowTitles(
-    workdayRange: RetrospectionWorkdayRange
-  ): Promise<ActivitySessions[] | undefined> {
-    try {
-      return await getTopWindowTitleSessions(normalizeRetrospectionWorkdayRange(workdayRange), 3);
-    } catch (error) {
-      LOG.error('Error loading top window titles', error);
-    }
-  }
-
-  private async retrospectionGetSelfReports(workdayRange: RetrospectionWorkdayRange): Promise<ExperienceSamplingDto[]> {
-    return await this.experienceSamplingService.getExperienceSamplingDtosForDay(
-      normalizeRetrospectionWorkdayRange(workdayRange)
+  private async retrospectionGetDashboard(
+    workdayRange: RetrospectionWorkdayRangeInput
+  ): Promise<RetrospectionDashboard> {
+    const normalizedWorkdayRange = normalizeRetrospectionWorkdayRange(workdayRange);
+    const trackerConfigs = await this.trackerService.getRetrospectionTrackerConfigs();
+    const trackerAvailability = getRetrospectionTrackerAvailability(
+      trackerConfigs.windowActivityMonitor,
+      trackerConfigs.userInputMonitor,
+      trackerConfigs.experienceSampling
     );
+    const activityInsightsEnabled = trackerAvailability.activityInsightsEnabled;
+    const selfReportsEnabled = trackerAvailability.selfReportsEnabled;
+    const activityPromise = activityInsightsEnabled
+      ? getRetrospectionActivityDashboard(normalizedWorkdayRange)
+      : Promise.resolve({
+          activities: [],
+          activeHours: undefined,
+          longestActivePeriod: undefined,
+          topApps: [],
+          topWebsites: [],
+          topWindowTitles: [],
+          errors: [] as RetrospectionDataSection[]
+        });
+    const selfReportsPromise = selfReportsEnabled
+      ? this.experienceSamplingService
+          .getExperienceSamplingDtosForDay(normalizedWorkdayRange)
+          .then((selfReports) => ({ selfReports, errors: [] as RetrospectionDataSection[] }))
+          .catch((error) => {
+            LOG.error('Error loading retrospection self-reports', error);
+            return { selfReports: [], errors: ['selfReports'] as RetrospectionDataSection[] };
+          })
+      : Promise.resolve({ selfReports: [], errors: [] as RetrospectionDataSection[] });
+
+    const [activityDashboard, selfReportResult] = await Promise.all([
+      activityPromise,
+      selfReportsPromise
+    ]);
+    return {
+      ...activityDashboard,
+      selfReports: selfReportResult.selfReports,
+      trackerAvailability,
+      errors: [...activityDashboard.errors, ...selfReportResult.errors]
+    };
   }
 
   private async openRetrospection(): Promise<void> {
-    await this.windowService.createRetrospectionWindow();
+    await this.windowService.focusOrCreateRetrospectionWindow();
   }
 
   private closeRetrospectionWindow(): void {

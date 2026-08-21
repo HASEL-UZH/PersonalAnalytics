@@ -30,7 +30,9 @@ export interface RetrospectionWorkdayData {
   workdayStart: Date;
 }
 
-export async function getActiveMinutesForWorkday(workdayRange: RetrospectionWorkdayRange): Promise<Set<number>> {
+export async function getActiveMinutesForWorkday(
+  workdayRange: RetrospectionWorkdayRange
+): Promise<Set<number>> {
   const workdayStart = formatSqliteUtcDateTime(workdayRange.start);
   const workdayEnd = formatSqliteUtcDateTime(workdayRange.end);
   const workdayMinuteCount = Math.round(
@@ -51,7 +53,10 @@ export async function getActiveMinutesForWorkday(workdayRange: RetrospectionWork
       (entry.scrollDelta ?? 0) > 0 ||
       (entry.movedDistance ?? 0) > 0
     ) {
-      const minuteIndex = getWorkdayMinuteIndex(parseSqliteUtcDateTime(entry.tsStart), workdayRange.start);
+      const minuteIndex = getWorkdayMinuteIndex(
+        parseSqliteUtcDateTime(entry.tsStart),
+        workdayRange.start
+      );
       if (minuteIndex >= 0 && minuteIndex < workdayMinuteCount) {
         activeMinutes.add(minuteIndex);
       }
@@ -73,7 +78,9 @@ export async function getWindowActivitiesForWorkday(
     .orderBy('windowActivity.ts', 'ASC')
     .getRawMany<RawWindowActivity>();
 
-  return rows.map((row) => ({ ...row, ts: parseSqliteUtcDateTime(row.ts) }) as WindowActivityEntity);
+  return rows.map(
+    (row) => ({ ...row, ts: parseSqliteUtcDateTime(row.ts) }) as WindowActivityEntity
+  );
 }
 
 /** Loads the shared raw data once for every figure on the selected workday. */

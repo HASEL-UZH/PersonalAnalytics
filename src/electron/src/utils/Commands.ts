@@ -14,7 +14,7 @@ import type {
   ExperienceSamplingAnswerType
 } from '../../shared/StudyConfiguration';
 import type { RetrospectionWorkdayRange } from '../../shared/retrospection/Workday';
-import type { ActiveHoursInsight, ActivitySessions, TimeActive } from './retrospection/types';
+import type { RetrospectionDashboard } from './retrospection/types';
 
 type Commands = {
   createExperienceSample: (
@@ -63,13 +63,9 @@ type Commands = {
   startAllTrackers: () => void;
   triggerPermissionCheckAccessibility: (prompt: boolean) => boolean;
   triggerPermissionCheckScreenRecording: () => boolean;
-  retrospectionGetActiveHours: (workdayRange: RetrospectionWorkdayRange) => Promise<ActiveHoursInsight>;
-  retrospectionGetActivities: (workdayRange: RetrospectionWorkdayRange) => Promise<ActivitySessions[]>;
-  retrospectionLoadLongestTimeActive: (workdayRange: RetrospectionWorkdayRange) => Promise<TimeActive | undefined>;
-  retrospectionGetTopThreeMostActiveApps: (workdayRange: RetrospectionWorkdayRange) => Promise<ActivitySessions[]>;
-  retrospectionGetTopThreeWebsites: (workdayRange: RetrospectionWorkdayRange) => Promise<ActivitySessions[]>;
-  retrospectionGetTopThreeWindowTitles: (workdayRange: RetrospectionWorkdayRange) => Promise<ActivitySessions[]>;
-  retrospectionGetSelfReports: (workdayRange: RetrospectionWorkdayRange) => Promise<ExperienceSamplingDto[]>;
+  retrospectionGetDashboard: (
+    workdayRange: RetrospectionWorkdayRange
+  ) => Promise<RetrospectionDashboard>;
   openRetrospection: () => Promise<void>;
   closeRetrospectionWindow: () => void;
   createDailySurveyResponses: (
