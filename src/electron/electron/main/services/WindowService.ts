@@ -17,6 +17,7 @@ const LOG = getMainLogger('WindowService')
 export class WindowService {
   private readonly appUpdaterService: AppUpdaterService
   private tray: Tray | null = null
+  private trayMenu: Menu | null = null
   private experienceSamplingWindow: BrowserWindow | null = null
   private dailySurveyWindow: BrowserWindow | null = null
   private onboardingWindow: BrowserWindow | null = null
@@ -47,6 +48,11 @@ export class WindowService {
   }
 
   public async createExperienceSamplingWindow(isManuallyTriggered: boolean = false) {
+    if (studyConfig.trackers.experienceSamplingTracker.questions.length === 0) {
+      LOG.warn('No experience sampling questions configured; not opening popup')
+      return
+    }
+
     if (this.experienceSamplingWindow) {
       this.experienceSamplingWindow.close()
       this.experienceSamplingWindow = null
@@ -117,7 +123,8 @@ export class WindowService {
   public resizeExperienceSamplingWindow(height: number) {
     if (this.experienceSamplingWindow) {
       const minHeight = 120
-      const maxHeight = 600
+      const { height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
+      const maxHeight = Math.min(Math.round(screenHeight * 0.85), 900)
       const clamped = Math.max(minHeight, Math.min(maxHeight, height))
       this.experienceSamplingWindow.setContentSize(500, clamped)
     }
@@ -318,6 +325,18 @@ export class WindowService {
     }
   }
 
+  public async focusOrCreateRetrospectionWindow(): Promise<void> {
+    if (this.retrospectionWindow) {
+      if (this.retrospectionWindow.isMinimized()) {
+        this.retrospectionWindow.restore()
+      }
+      this.retrospectionWindow.show()
+      this.retrospectionWindow.focus()
+    } else {
+      await this.createRetrospectionWindow()
+    }
+  }
+
   public closeRetrospectionWindow() {
     if (this.retrospectionWindow) {
       this.retrospectionWindow.close()
@@ -325,7 +344,7 @@ export class WindowService {
     }
   }
 
-  public async createRetrospectionWindow() {
+  private async createRetrospectionWindow() {
     this.closeRetrospectionWindow()
 
     const __filename = fileURLToPath(import.meta.url)
@@ -333,10 +352,10 @@ export class WindowService {
     const preload = join(__dirname, '../preload/index.mjs')
 
     this.retrospectionWindow = new BrowserWindow({
-      width: 850,
-      height: 800,
+      width: 1120,
+      height: 850,
       minWidth: 800,
-      minHeight: 750,
+      minHeight: 720,
       show: false,
       minimizable: false,
       maximizable: false,
@@ -462,6 +481,12 @@ export class WindowService {
     shell.showItemInFolder(path)
   }
 
+  public popUpTrayContextMenu(): void {
+    if (this.tray) {
+      this.tray.popUpContextMenu(this.trayMenu ?? undefined)
+    }
+  }
+
   public async openExternal(): Promise<void> {
     this.hasOpenedDataExportUrl = true
     shell.openExternal(studyConfig.uploadUrl)
@@ -474,12 +499,76 @@ export class WindowService {
     if (!this.tray) return
     LOG.debug('Updating tray')
     const menuTemplate: MenuItemConstructorOptions[] = await this.getTrayMenuTemplate()
-    menuTemplate[1].label = updaterLabel
-    menuTemplate[1].enabled = updaterMenuEnabled
+    const updaterMenuItem = menuTemplate.find((item) => item.id === 'check-for-updates')
+    if (updaterMenuItem) {
+      updaterMenuItem.label = updaterLabel
+      updaterMenuItem.enabled = updaterMenuEnabled
+    }
 
-    this.tray.setContextMenu(Menu.buildFromTemplate(menuTemplate))
-    this.tray.on("click", () => { this.tray?.popUpContextMenu() })
+    this.trayMenu = Menu.buildFromTemplate(menuTemplate)
+    // macOS with retrospection enabled: leave the context menu unset — setContextMenu would
+    // swallow click events, so a click opens the retrospection and right-click shows the menu.
+    if (!(is.macOS && (studyConfig.enableRetrospection ?? true))) {
+      this.tray.setContextMenu(this.trayMenu)
+    }
     this.tray.setToolTip(`${is.dev ? '[DEV MODE] ' : ''}Personal Analytics is running...\n\nYou are participating in: ${studyConfig.name}`)
+
+    await this.updateJumpList()
+  }
+
+  public async updateJumpList(): Promise<void> {
+    if (!is.windows) {
+      return
+    }
+
+    const settings: Settings | null = await Settings.findOne({ where: { onlyOneEntityShouldExist: 1 } })
+    const es = studyConfig.trackers.experienceSamplingTracker
+    const allowDisable = es.allowUserToDisable ?? true
+    const showSelfReflection =
+      es.enabled === true &&
+      (!allowDisable || (settings?.userDisabledExperienceSampling ?? 0) === 0)
+
+    // In dev, process.execPath is the bare electron.exe binary, which needs the app path
+    // as its first argument or it just shows Electron's own "no app loaded" screen.
+    const jumpListArgs = (flag: string): string => is.dev ? `"${app.getAppPath()}" ${flag}` : flag
+
+    const items: Electron.JumpListItem[] = []
+
+    if (studyConfig.enableRetrospection ?? true) {
+      items.push({
+        type: 'task',
+        title: 'Retrospection',
+        description: 'Open the retrospection window',
+        program: process.execPath,
+        args: jumpListArgs('--jumplist-retrospection'),
+        iconPath: process.execPath,
+        iconIndex: 0
+      })
+    }
+
+    if (showSelfReflection) {
+      items.push({
+        type: 'task',
+        title: 'Add Self-Reflection',
+        description: 'Open the self-reflection pop-up',
+        program: process.execPath,
+        args: jumpListArgs('--jumplist-self-reflection'),
+        iconPath: process.execPath,
+        iconIndex: 0
+      })
+    }
+
+    items.push({
+      type: 'task',
+      title: 'Settings',
+      description: 'Open settings',
+      program: process.execPath,
+      args: jumpListArgs('--jumplist-settings'),
+      iconPath: process.execPath,
+      iconIndex: 0
+    })
+
+    app.setJumpList([{ type: 'tasks', items }])
   }
 
   private async createTray(): Promise<void> {
@@ -492,6 +581,23 @@ export class WindowService {
     const trayImage = nativeImage.createFromPath(appIcon)
     trayImage.setTemplateImage(true)
     this.tray = new Tray(trayImage)
+    const retrospectionEnabled = studyConfig.enableRetrospection ?? true
+    this.tray.on('click', () => {
+      if (!retrospectionEnabled) {
+        this.popUpTrayContextMenu()
+      } else if (is.macOS) {
+        // only fires on macOS since no context menu is set there (see updateTray)
+        this.focusOrCreateRetrospectionWindow().catch((err) => LOG.error('Error opening retrospection from tray click', err))
+      }
+    })
+    this.tray.on('double-click', () => {
+      if (retrospectionEnabled) {
+        this.focusOrCreateRetrospectionWindow().catch((err) => LOG.error('Error opening retrospection from tray double-click', err))
+      }
+    })
+    this.tray.on('right-click', () => {
+      this.popUpTrayContextMenu()
+    })
     await this.updateTray()
   }
 
@@ -506,10 +612,12 @@ export class WindowService {
       (!allowDisable || (settings?.userDisabledExperienceSampling ?? 0) === 0);
     
     const trayMenuItems: MenuItemConstructorOptions[] = [
-      { label: '⚠ DEV MODE', enabled: false, visible: is.dev },
-      { type: 'separator', visible: is.dev },
+      ...(is.dev
+        ? [{ label: '⚠ DEV MODE', enabled: false }, { type: 'separator' as const }]
+        : []),
       { label: `Version ${app.getVersion()}`, enabled: false },
       {
+        id: 'check-for-updates',
         label: 'Check for updates',
         enabled: false,
         click: () => this.appUpdaterService.checkForUpdates({ silent: false })
@@ -542,7 +650,7 @@ export class WindowService {
         : []),
       {
         label: 'Retrospection',
-        click: () => this.createRetrospectionWindow(),
+        click: () => this.focusOrCreateRetrospectionWindow(),
         visible: studyConfig.enableRetrospection ?? true
       },
       {
@@ -550,8 +658,15 @@ export class WindowService {
         click: () => this.createSettingsWindow()
       },
       {
-        label: 'Onboarding',
+        label: '[DEV MODE] Onboarding',
         click: () => this.createOnboardingWindow(),
+        visible: is.dev
+      },
+      {
+        label: '[DEV MODE] Open App Folder',
+        click: (): void => {
+          shell.showItemInFolder(path.join(app.getPath('userData'), 'database.sqlite'))
+        },
         visible: is.dev
       },
       {

@@ -75,6 +75,7 @@
     "better-sqlite3-multiple-ciphers": "^9.4.0",
     "dompurify": "^3.3.2",
     "electron-log": "^5.1.1",
+    "extract-file-icon": "^0.3.2",
     "form-data": "^4.0.6",
     "jsdom": "^25.0.1",
     "node-schedule": "^2.1.1",

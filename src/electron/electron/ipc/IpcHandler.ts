@@ -16,7 +16,9 @@ import { UserInputTrackerService } from '../main/services/trackers/UserInputTrac
 import { DataExportService } from '../main/services/DataExportService';
 import UserInputDto from '../../shared/dto/UserInputDto';
 import WindowActivityDto from '../../shared/dto/WindowActivityDto';
-import ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
+import ExperienceSamplingDto, {
+  ExperienceSamplingResponseInput
+} from '../../shared/dto/ExperienceSamplingDto';
 import DailySurveyDto, { DailySurveyResponseInput } from '../../shared/dto/DailySurveyDto';
 import { DailySurveyService } from '../main/services/DailySurveyService';
 import { is } from '../main/services/utils/helpers';
@@ -24,16 +26,11 @@ import { JSDOM } from 'jsdom';
 import DOMPurify from 'dompurify';
 import { WorkScheduleService } from 'electron/main/services/WorkScheduleService';
 import { WorkHoursDto } from 'shared/dto/WorkHoursDto';
-import {
-  getActivitySessions,
-  getActiveHoursInsight,
-  getAppUsageSessions,
-  getLongestTimeActiveInsight,
-  getTopWebsiteSessions,
-  getTopWindowTitleSessions,
-  ActivitySessions,
-  TimeActive
-} from '../main/services/RetrospectionService';
+import { getRetrospectionActivityDashboard } from '../main/services/RetrospectionService';
+import type {
+  RetrospectionDashboard,
+  RetrospectionDataSection
+} from '../../src/utils/retrospection/types';
 import { SchedulingService } from '../main/services/SchedulingService';
 import path from 'path';
 import type {
@@ -43,6 +40,11 @@ import type {
 import { DailySurveyTracker } from '../main/services/trackers/DailySurveyTracker';
 import { UsageDataService } from '../main/services/UsageDataService';
 import { UsageDataEventType } from '../enums/UsageDataEventType.enum';
+import { getRetrospectionTrackerAvailability } from '../../src/utils/retrospection/availability';
+import {
+  normalizeRetrospectionWorkdayRange,
+  type RetrospectionWorkdayRangeInput
+} from '../../shared/retrospection/Workday';
 
 const LOG = getMainLogger('IpcHandler');
 
@@ -94,6 +96,7 @@ export class IpcHandler {
       setSettingsProp: this.setSettingsProp,
       getSettings: this.getSettings,
       createExperienceSample: this.createExperienceSample,
+      createExperienceSamples: this.createExperienceSamples,
       resizeExperienceSamplingWindow: this.resizeExperienceSamplingWindow,
       closeExperienceSamplingWindow: this.closeExperienceSamplingWindow,
       closeOnboardingWindow: this.closeOnboardingWindow,
@@ -111,13 +114,7 @@ export class IpcHandler {
       startAllTrackers: this.startAllTrackers,
       triggerPermissionCheckAccessibility: this.triggerPermissionCheckAccessibility,
       triggerPermissionCheckScreenRecording: this.triggerPermissionCheckScreenRecording,
-      retrospectionGetActiveHours: this.retrospectionGetActiveHours,
-      retrospectionGetActivities: this.retrospectionGetActivities,
-      retrospectionLoadLongestTimeActive: this.retrospectionLoadLongestTimeActive,
-      retrospectionGetTopThreeMostActiveApps: this.retrospectionGetTopThreeMostActiveApps,
-      retrospectionGetTopThreeWebsites: this.retrospectionGetTopThreeWebsites,
-      retrospectionGetTopThreeWindowTitles: this.retrospectionGetTopThreeWindowTitles,
-      retrospectionGetSelfReports: this.retrospectionGetSelfReports,
+      retrospectionGetDashboard: this.retrospectionGetDashboard,
       openRetrospection: this.openRetrospection,
       closeRetrospectionWindow: this.closeRetrospectionWindow,
       createDailySurveyResponses: this.createDailySurveyResponses,
@@ -161,6 +158,14 @@ export class IpcHandler {
       skipped,
       trigger
     );
+  }
+
+  private async createExperienceSamples(
+    promptedAt: Date,
+    responses: ExperienceSamplingResponseInput[],
+    trigger: 'manual' | 'auto' = 'auto'
+  ) {
+    await this.experienceSamplingService.createExperienceSamples(promptedAt, responses, trigger);
   }
 
   private openLogs() {
@@ -334,60 +339,53 @@ export class IpcHandler {
     }
   }
 
-  private async retrospectionGetActivities(date: Date): Promise<ActivitySessions[]> {
-    return await getActivitySessions(new Date(date));
-  }
+  private async retrospectionGetDashboard(
+    workdayRange: RetrospectionWorkdayRangeInput
+  ): Promise<RetrospectionDashboard> {
+    const normalizedWorkdayRange = normalizeRetrospectionWorkdayRange(workdayRange);
+    const trackerConfigs = await this.trackerService.getRetrospectionTrackerConfigs();
+    const trackerAvailability = getRetrospectionTrackerAvailability(
+      trackerConfigs.windowActivityMonitor,
+      trackerConfigs.userInputMonitor,
+      trackerConfigs.experienceSampling
+    );
+    const activityInsightsEnabled = trackerAvailability.activityInsightsEnabled;
+    const selfReportsEnabled = trackerAvailability.selfReportsEnabled;
+    const activityPromise = activityInsightsEnabled
+      ? getRetrospectionActivityDashboard(normalizedWorkdayRange)
+      : Promise.resolve({
+          activities: [],
+          activeHours: undefined,
+          longestActivePeriod: undefined,
+          topApps: [],
+          topWebsites: [],
+          topWindowTitles: [],
+          errors: [] as RetrospectionDataSection[]
+        });
+    const selfReportsPromise = selfReportsEnabled
+      ? this.experienceSamplingService
+          .getExperienceSamplingDtosForDay(normalizedWorkdayRange)
+          .then((selfReports) => ({ selfReports, errors: [] as RetrospectionDataSection[] }))
+          .catch((error) => {
+            LOG.error('Error loading retrospection self-reports', error);
+            return { selfReports: [], errors: ['selfReports'] as RetrospectionDataSection[] };
+          })
+      : Promise.resolve({ selfReports: [], errors: [] as RetrospectionDataSection[] });
 
-  private async retrospectionGetActiveHours(date: Date) {
-    return await getActiveHoursInsight(new Date(date));
-  }
-
-  private async retrospectionLoadLongestTimeActive(date: Date): Promise<TimeActive | undefined> {
-    try {
-      return await getLongestTimeActiveInsight(new Date(date));
-    } catch (error) {
-      LOG.error('Error loading longest time active', error);
-    }
-  }
-
-  private async retrospectionGetTopThreeMostActiveApps(
-    date: Date
-  ): Promise<ActivitySessions[] | undefined> {
-    try {
-      return (await getAppUsageSessions(new Date(date)))
-        .sort((a, b) => b.totalDurationMs - a.totalDurationMs)
-        .slice(0, 3);
-    } catch (error) {
-      LOG.error('Error loading top apps', error);
-    }
-  }
-
-  private async retrospectionGetTopThreeWebsites(
-    date: Date
-  ): Promise<ActivitySessions[] | undefined> {
-    try {
-      return await getTopWebsiteSessions(new Date(date), 3);
-    } catch (error) {
-      LOG.error('Error loading top websites', error);
-    }
-  }
-
-  private async retrospectionGetTopThreeWindowTitles(
-    date: Date
-  ): Promise<ActivitySessions[] | undefined> {
-    try {
-      return await getTopWindowTitleSessions(new Date(date), 3);
-    } catch (error) {
-      LOG.error('Error loading top window titles', error);
-    }
-  }
-
-  private async retrospectionGetSelfReports(date: Date): Promise<ExperienceSamplingDto[]> {
-    return await this.experienceSamplingService.getExperienceSamplingDtosForDay(new Date(date));
+    const [activityDashboard, selfReportResult] = await Promise.all([
+      activityPromise,
+      selfReportsPromise
+    ]);
+    return {
+      ...activityDashboard,
+      selfReports: selfReportResult.selfReports,
+      trackerAvailability,
+      errors: [...activityDashboard.errors, ...selfReportResult.errors]
+    };
   }
 
   private async openRetrospection(): Promise<void> {
-    await this.windowService.createRetrospectionWindow();
+    await this.windowService.focusOrCreateRetrospectionWindow();
   }
 
   private closeRetrospectionWindow(): void {
@@ -419,10 +417,15 @@ export class IpcHandler {
 
   private async postponeDailySurvey(
     samplingType: DailySurveySamplingType,
+    scheduledDate: Date | null,
     minutes: number
   ): Promise<void> {
     if (this.dailySurveyTracker) {
-      const wasPostponed = await this.dailySurveyTracker.postpone(samplingType, minutes);
+      const wasPostponed = await this.dailySurveyTracker.postpone(
+        samplingType,
+        scheduledDate ? new Date(scheduledDate) : null,
+        minutes
+      );
       if (!wasPostponed) {
         return;
       }

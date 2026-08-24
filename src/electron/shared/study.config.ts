@@ -21,17 +21,20 @@ const studyConfig: StudyConfiguration = {
   trackers: {
     enabledWorkHours: true,
     windowActivityTracker: {
+      name: 'Window Activity Monitor',
       enabled: true,
       intervalInMs: 1000,
       trackUrls: false,
       trackWindowTitles: true
     },
     userInputTracker: {
+      name: 'User Input Monitor',
       enabled: true,
       intervalInMs: 60000,
       collectKeyDetails: true
     },
     experienceSamplingTracker: {
+      name: 'Experience Sampling',
       enabled: true,
       questions: [
         {
@@ -46,7 +49,7 @@ const studyConfig: StudyConfiguration = {
           answerType: 'LikertScale',
           scale: 5,
           responseOptions: ['not well', 'moderately well', 'very well']
-        },
+        }
         // {
         //   question: 'What is one aspect that affected your ability to focus the most in the last session?',
         //   answerType: 'TextResponse',
@@ -64,6 +67,7 @@ const studyConfig: StudyConfiguration = {
         //   responseOptions: ['Notifications', 'Meetings', 'Context switching', 'Personal interruptions', 'None']
         // }
       ],
+      showAllQuestionsTogether: false,
       intervalInMs: 1000 * 60 * 60 * 1, // default interval (must be listed in userDefinedInterval_h if set)
       samplingRandomization: 0.2, // 20% randomization, so the interval will be between 48 and 72 minutes
       allowUserToDisable: true,

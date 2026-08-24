@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { app, dialog, powerMonitor, systemPreferences } from 'electron';
+import { app, BrowserWindow, dialog, Notification, powerMonitor, systemPreferences } from 'electron';
 import { release } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -47,16 +47,86 @@ if (release().startsWith('6.1')) {
   app.disableHardwareAcceleration();
 }
 
-// Set application name for Windows 10+ notifications
-if (process.platform === 'win32') {
-  app.setAppUserModelId(app.getName());
+// Must match the electron-builder appId and run before any window/tray is created.
+app.setAppUserModelId('ch.ifi.hasel.personal-analytics');
+
+let runningNotification: Notification | null = null;
+
+// confirm via toast that the app is already running, instead of opening a window directly
+function showRunningNotification(): void {
+  if (!Notification.isSupported()) return;
+  runningNotification = new Notification({
+    title: 'PersonalAnalytics is running',
+    body: `Monitoring your activity in the background. Use the ${process.platform === 'darwin' ? 'menubar' : 'system tray'} icon to access features.`,
+  });
+  if (studyConfig.enableRetrospection ?? true) {
+    runningNotification.on('click', () => {
+      windowService.focusOrCreateRetrospectionWindow().catch(console.error);
+    });
+  }
+  runningNotification.show();
 }
 
-if (!is.dev && !app.requestSingleInstanceLock()) {
+// In dev, the lock is normally skipped so a dev instance can run alongside an already-running
+// production install. Jump list launches are the exception: they must still route to whichever
+// instance is already running instead of spawning a duplicate.
+const isJumpListLaunch = process.argv.some((arg) => arg.startsWith('--jumplist-'));
+if ((!is.dev || isJumpListLaunch) && !app.requestSingleInstanceLock()) {
   console.log('Another instance of the app is already running');
   app.quit();
   process.exit(0);
 }
+
+// Windows: jump list task clicked. Returns true if argv matched a jump list task.
+function handleJumpListArgs(argv: string[]): boolean {
+  if (argv.includes('--jumplist-retrospection')) {
+    windowService.focusOrCreateRetrospectionWindow().catch((err) => console.error('Error opening retrospection from jump list', err))
+    return true
+  }
+  if (argv.includes('--jumplist-self-reflection')) {
+    windowService.createExperienceSamplingWindow(true).catch((err) => console.error('Error opening self-reflection from jump list', err))
+    return true
+  }
+  if (argv.includes('--jumplist-settings')) {
+    windowService.createSettingsWindow().catch((err) => console.error('Error opening settings from jump list', err))
+    return true
+  }
+  return false
+}
+
+// Windows: taskbar pin / Start-menu click triggers a second instance. On macOS this is
+// reached by `open -n`; it should confirm that the existing app is running rather than opening
+// Retrospection, which remains the behaviour for normal Dock/menubar activation below.
+// Deferred via setImmediate: creating native UI synchronously inside this callback
+// (which fires from Windows' inter-process messaging) can be unstable.
+app.on('second-instance', (_event, argv) => {
+  if (argv.includes('--hidden')) return
+  setImmediate(() => {
+    try {
+      if (handleJumpListArgs(argv)) return
+      if (is.macOS) {
+        showRunningNotification()
+        return
+      }
+      if (studyConfig.enableRetrospection ?? true) {
+        windowService.focusOrCreateRetrospectionWindow().catch((err) => console.error('Error opening retrospection from second-instance', err))
+      } else {
+        showRunningNotification()
+      }
+    } catch (err) {
+      console.error('Error handling second-instance', err)
+    }
+  })
+})
+
+// macOS: app re-opened via Finder/Spotlight/Launchpad (dock icon is hidden)
+app.on('activate', () => {
+  if (studyConfig.enableRetrospection ?? true) {
+    windowService.focusOrCreateRetrospectionWindow().catch((err) => console.error('Error opening retrospection from activate', err))
+  } else if (BrowserWindow.getAllWindows().length === 0) {
+    windowService.popUpTrayContextMenu()
+  }
+})
 
 if (is.macOS) {
   app.dock.hide();
@@ -71,8 +141,6 @@ dotenv.config();
 
 
 app.whenReady().then(async () => {
-  app.setAppUserModelId('ch.ifi.hasel.personal-analytics');
-
   if (!is.dev) {
     app.setLoginItemSettings({
       openAtLogin: true,
@@ -162,16 +230,18 @@ app.whenReady().then(async () => {
       settings.onboardingShown = true;
       await settings.save();
     
-    // show PA running page when it was not shown before (on macOS) OR if it was manually started
-    } else if (
-      (is.macOS &&
-      onboardingShown &&
-      !studyAndTrackersStartedShown) ||
-      (! isAutoLaunch)
-    ) {
+    // show the final onboarding page once on the first start after onboarding completes
+    } else if (!studyAndTrackersStartedShown) {
       await windowService.createOnboardingWindow('study-trackers-started');
       settings.studyAndTrackersStartedShown = true;
       await settings.save();
+
+    // manual fresh start: confirm via toast that the app is running. Windows only —
+    // macOS can't reliably distinguish auto-launches at login (would toast at every login).
+    } else if (!handleJumpListArgs(process.argv)) {
+      if (is.windows && !isAutoLaunch) {
+        showRunningNotification();
+      }
     }
 
     if (macOSHasRequiredPermissions) {
