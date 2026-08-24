@@ -35,6 +35,7 @@ export async function getActiveMinutesForWorkday(
 ): Promise<Set<number>> {
   const workdayStart = formatSqliteUtcDateTime(workdayRange.start);
   const workdayEnd = formatSqliteUtcDateTime(workdayRange.end);
+  // A local 04:00-to-04:00 workday spans 23 or 25 hours across a DST transition.
   const workdayMinuteCount = Math.round(
     (workdayRange.end.getTime() - workdayRange.start.getTime()) / 60_000
   );

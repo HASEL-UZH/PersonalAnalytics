@@ -40,6 +40,7 @@ export function getRetrospectionWorkdayRange(date: Date | string): Retrospection
   return { start, end };
 }
 
+/** Converts serialized IPC range boundaries to validated Date instances for internal services. */
 export function normalizeRetrospectionWorkdayRange(
   workdayRange: RetrospectionWorkdayRangeInput
 ): RetrospectionWorkdayRange {
