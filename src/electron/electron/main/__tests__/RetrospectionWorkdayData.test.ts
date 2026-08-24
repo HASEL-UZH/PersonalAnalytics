@@ -52,12 +52,16 @@ test('loads each raw tracker source once for the whole workday', async () => {
     .spyOn(UserInputEntity, 'createQueryBuilder')
     .mockReturnValue(inputBuilder as never);
 
-  const workdayData = await loadRetrospectionWorkdayData(new Date(2026, 6, 14));
+  const workdayRange = {
+    start: new Date('2026-07-14T04:00:00.000Z'),
+    end: new Date('2026-07-15T04:00:00.000Z')
+  };
+  const workdayData = await loadRetrospectionWorkdayData(workdayRange);
 
   expect(windowQuery).toHaveBeenCalledTimes(1);
   expect(inputQuery).toHaveBeenCalledTimes(1);
   expect(workdayData.windowActivities).toHaveLength(1);
   expect(workdayData.windowActivities[0].ts).toBeInstanceOf(Date);
   expect(workdayData.activeMinutes).toEqual(new Set([5 * 60]));
-  expect(workdayData.workdayStart).toEqual(new Date(2026, 6, 14, 4));
+  expect(workdayData.workdayStart).toEqual(workdayRange.start);
 });

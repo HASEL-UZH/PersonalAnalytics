@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, type CSSProperties } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, type CSSProperties } from 'vue';
 import {
   Activity,
   Color,
@@ -24,12 +24,14 @@ import type ExperienceSamplingDto from '../../shared/dto/ExperienceSamplingDto';
 import typedIpcRenderer from '../utils/typedIpcRenderer';
 import type { RetrospectionTrackerAvailability } from '../utils/retrospection/availability';
 import {
-  getRetrospectionTimelineBounds,
-  getRetrospectionWorkdayRange
+  getRetrospectionTimelineBoundsForRange,
+  getRetrospectionWorkdayRange,
+  type RetrospectionWorkdayRange
 } from '../../shared/retrospection/Workday';
 
 const isLoading = ref(false);
-const selectedDay = ref(new Date());
+const selectedDay = ref(formatDateInputValue(new Date()));
+const timezoneVersion = ref(0);
 const allWindowActivities = ref<ActivitySessions[]>([]);
 const chartDataWindowActivities = ref<ChartDataPoint[]>([]);
 const longestTimeActive = ref<TimeActive | undefined>(undefined);
@@ -42,6 +44,10 @@ const loadErrors = ref<RetrospectionDataSection[]>([]);
 const ACTIVITY_BREAKDOWN_COVERAGE = 0.9;
 const ACTIVITY_BREAKDOWN_MAX_ITEMS = 6;
 const EXCLUDED_ACTIVITY_BREAKDOWN_GROUPS = new Set(['Other', 'Unknown']);
+const selectedWorkdayRange = computed<RetrospectionWorkdayRange>(() => {
+  void timezoneVersion.value;
+  return getRetrospectionWorkdayRange(selectedDay.value);
+});
 const trackerAvailability = ref<RetrospectionTrackerAvailability | null>(null);
 const activityInsightsEnabled = computed(
   () => trackerAvailability.value?.activityInsightsEnabled ?? false
@@ -178,20 +184,18 @@ const timelineBounds = computed(() => {
     .filter(isVisibleLikertSelfReport)
     .map((report) => report.promptedAt);
 
-  return getRetrospectionTimelineBounds(selectedDay.value, [
+  return getRetrospectionTimelineBoundsForRange(selectedWorkdayRange.value, [
     ...activityTimestamps,
     ...selfReportTimestamps
   ]);
 });
 
 const timelineStartDate = computed((): number => {
-  return (
-    timelineBounds.value?.start ?? getRetrospectionWorkdayRange(selectedDay.value).start.getTime()
-  );
+  return timelineBounds.value?.start ?? selectedWorkdayRange.value.start.getTime();
 });
 
 const timelineEndDate = computed((): number => {
-  return timelineBounds.value?.end ?? getRetrospectionWorkdayRange(selectedDay.value).end.getTime();
+  return timelineBounds.value?.end ?? selectedWorkdayRange.value.end.getTime();
 });
 
 // Total tracked activity time is the denominator for percentages and the 90% cutoff.
@@ -286,19 +290,26 @@ const activityBreakdownStyle = computed((): CSSProperties => {
 });
 
 onMounted(async () => {
+  window.addEventListener('focus', refreshForTimezoneChange);
+  document.addEventListener('visibilitychange', refreshForTimezoneChange);
   await loadData();
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('focus', refreshForTimezoneChange);
+  document.removeEventListener('visibilitychange', refreshForTimezoneChange);
 });
 
 async function loadData() {
   const requestVersion = ++loadRequestVersion;
-  const requestedDay = new Date(selectedDay.value);
+  const workdayRange = selectedWorkdayRange.value;
 
   isLoading.value = true;
   loadErrors.value = [];
   resetRetrospectionData();
 
   try {
-    const dashboard = await typedIpcRenderer.invoke('retrospectionGetDashboard', requestedDay);
+    const dashboard = await typedIpcRenderer.invoke('retrospectionGetDashboard', workdayRange);
 
     if (requestVersion !== loadRequestVersion) {
       return;
@@ -404,7 +415,7 @@ function renderCompactTime(ms: number): string {
 async function handleDayChange(event: Event) {
   const value = (event.target as HTMLInputElement).value;
   if (!value) return;
-  selectedDay.value = parseDateInputValue(value);
+  selectedDay.value = value;
   await loadData();
 }
 
@@ -421,32 +432,50 @@ function formatDateInputValue(date: Date): string {
 }
 
 const isToday = computed(() => {
-  const today = new Date();
-  return (
-    selectedDay.value.getDate() === today.getDate() &&
-    selectedDay.value.getMonth() === today.getMonth() &&
-    selectedDay.value.getFullYear() === today.getFullYear()
-  );
+  return selectedDay.value === formatDateInputValue(new Date());
 });
 
 async function navigateToPreviousDay() {
-  const newDate = new Date(selectedDay.value);
+  const newDate = parseDateInputValue(selectedDay.value);
   newDate.setDate(newDate.getDate() - 1);
-  selectedDay.value = newDate;
+  selectedDay.value = formatDateInputValue(newDate);
   await loadData();
 }
 
 async function navigateToNextDay() {
   if (isToday.value) return;
-  const newDate = new Date(selectedDay.value);
+  const newDate = parseDateInputValue(selectedDay.value);
   newDate.setDate(newDate.getDate() + 1);
-  selectedDay.value = newDate;
+  selectedDay.value = formatDateInputValue(newDate);
   await loadData();
 }
 
 async function navigateToToday() {
   if (isToday.value) return;
-  selectedDay.value = new Date();
+  selectedDay.value = formatDateInputValue(new Date());
+  await loadData();
+}
+
+let currentTimezoneKey = getTimezoneKey();
+let currentLocalDay = formatDateInputValue(new Date());
+
+function getTimezoneKey(): string {
+  return `${Intl.DateTimeFormat().resolvedOptions().timeZone}|${new Date().getTimezoneOffset()}`;
+}
+
+async function refreshForTimezoneChange(): Promise<void> {
+  if (document.visibilityState === 'hidden') return;
+
+  const nextTimezoneKey = getTimezoneKey();
+  if (nextTimezoneKey === currentTimezoneKey) return;
+
+  const wasShowingToday = selectedDay.value === currentLocalDay;
+  currentTimezoneKey = nextTimezoneKey;
+  currentLocalDay = formatDateInputValue(new Date());
+  timezoneVersion.value++;
+  if (wasShowingToday) {
+    selectedDay.value = currentLocalDay;
+  }
   await loadData();
 }
 
@@ -457,7 +486,8 @@ function getTimeString(date: Date | string | number): string {
   return `${hours}:${minutes}`;
 }
 
-function getDayLabel(date: Date): string {
+function getDayLabel(day: string): string {
+  const date = parseDateInputValue(day);
   const today = new Date();
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
@@ -531,7 +561,7 @@ function getDayLabel(date: Date): string {
         </button>
         <input
           type="date"
-          :value="formatDateInputValue(selectedDay)"
+          :value="selectedDay"
           :max="formatDateInputValue(new Date())"
           class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
           style="min-width: 140px"
@@ -611,7 +641,7 @@ function getDayLabel(date: Date): string {
         </button>
         <input
           type="date"
-          :value="formatDateInputValue(selectedDay)"
+          :value="selectedDay"
           :max="formatDateInputValue(new Date())"
           class="h-8 rounded border border-gray-300 bg-white px-2 text-gray-800 dark:border-neutral-600 dark:bg-neutral-700 dark:text-slate-200"
           style="min-width: 140px"

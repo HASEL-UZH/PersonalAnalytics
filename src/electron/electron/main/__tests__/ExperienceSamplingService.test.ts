@@ -31,31 +31,20 @@ beforeEach(() => {
   createQueryBuilder.mockReturnValue({ where });
 });
 
-test('self-reports are queried using the selected 04:00-to-04:00 local workday', async () => {
+test('self-reports are queried using the selected workday', async () => {
   const service = new ExperienceSamplingService();
+  const workdayRange = {
+    start: new Date('2026-06-29T04:00:00.000Z'),
+    end: new Date('2026-06-30T04:00:00.000Z')
+  };
 
-  await service.getExperienceSamplingDtosForDay(new Date(2026, 5, 29, 0, 0));
+  await service.getExperienceSamplingDtosForDay(workdayRange);
 
   expect(createQueryBuilder).toHaveBeenCalledWith('experienceSampling');
-  expect(where).toHaveBeenCalledWith(
-    "datetime(experienceSampling.promptedAt, 'localtime') >= :workdayStart",
-    { workdayStart: '2026-06-29 04:00:00' }
-  );
-  expect(andWhere).toHaveBeenCalledWith(
-    "datetime(experienceSampling.promptedAt, 'localtime') < :workdayEnd",
-    { workdayEnd: '2026-06-30 04:00:00' }
-  );
-});
-
-test('date-only self-report queries do not pass through UTC date conversion', async () => {
-  const service = new ExperienceSamplingService();
-
-  await service.getExperienceSamplingDtosForDay('2026-06-29');
-
-  expect(where).toHaveBeenCalledWith(expect.any(String), {
+  expect(where).toHaveBeenCalledWith('experienceSampling.promptedAt >= :workdayStart', {
     workdayStart: '2026-06-29 04:00:00'
   });
-  expect(andWhere).toHaveBeenCalledWith(expect.any(String), {
+  expect(andWhere).toHaveBeenCalledWith('experienceSampling.promptedAt < :workdayEnd', {
     workdayEnd: '2026-06-30 04:00:00'
   });
 });

@@ -13,6 +13,7 @@ import type {
   DailySurveySamplingType,
   ExperienceSamplingAnswerType
 } from '../../shared/StudyConfiguration';
+import type { RetrospectionWorkdayRange } from '../../shared/retrospection/Workday';
 import type { RetrospectionDashboard } from './retrospection/types';
 
 type Commands = {
@@ -62,7 +63,9 @@ type Commands = {
   startAllTrackers: () => void;
   triggerPermissionCheckAccessibility: (prompt: boolean) => boolean;
   triggerPermissionCheckScreenRecording: () => boolean;
-  retrospectionGetDashboard: (date: Date) => Promise<RetrospectionDashboard>;
+  retrospectionGetDashboard: (
+    workdayRange: RetrospectionWorkdayRange
+  ) => Promise<RetrospectionDashboard>;
   openRetrospection: () => Promise<void>;
   closeRetrospectionWindow: () => void;
   createDailySurveyResponses: (

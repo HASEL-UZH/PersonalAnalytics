@@ -41,6 +41,10 @@ import { DailySurveyTracker } from '../main/services/trackers/DailySurveyTracker
 import { UsageDataService } from '../main/services/UsageDataService';
 import { UsageDataEventType } from '../enums/UsageDataEventType.enum';
 import { getRetrospectionTrackerAvailability } from '../../src/utils/retrospection/availability';
+import {
+  normalizeRetrospectionWorkdayRange,
+  type RetrospectionWorkdayRangeInput
+} from '../../shared/retrospection/Workday';
 
 const LOG = getMainLogger('IpcHandler');
 
@@ -335,7 +339,10 @@ export class IpcHandler {
     }
   }
 
-  private async retrospectionGetDashboard(date: Date): Promise<RetrospectionDashboard> {
+  private async retrospectionGetDashboard(
+    workdayRange: RetrospectionWorkdayRangeInput
+  ): Promise<RetrospectionDashboard> {
+    const normalizedWorkdayRange = normalizeRetrospectionWorkdayRange(workdayRange);
     const trackerConfigs = await this.trackerService.getRetrospectionTrackerConfigs();
     const trackerAvailability = getRetrospectionTrackerAvailability(
       trackerConfigs.windowActivityMonitor,
@@ -345,7 +352,7 @@ export class IpcHandler {
     const activityInsightsEnabled = trackerAvailability.activityInsightsEnabled;
     const selfReportsEnabled = trackerAvailability.selfReportsEnabled;
     const activityPromise = activityInsightsEnabled
-      ? getRetrospectionActivityDashboard(new Date(date))
+      ? getRetrospectionActivityDashboard(normalizedWorkdayRange)
       : Promise.resolve({
           activities: [],
           activeHours: undefined,
@@ -357,7 +364,7 @@ export class IpcHandler {
         });
     const selfReportsPromise = selfReportsEnabled
       ? this.experienceSamplingService
-          .getExperienceSamplingDtosForDay(new Date(date))
+          .getExperienceSamplingDtosForDay(normalizedWorkdayRange)
           .then((selfReports) => ({ selfReports, errors: [] as RetrospectionDataSection[] }))
           .catch((error) => {
             LOG.error('Error loading retrospection self-reports', error);
