@@ -38,9 +38,47 @@ export class WindowService {
         this.updateTray(label, enabled)
       }
     )
-    if (!is.dev) {
+    if (is.macOS) {
+      this.configureMacOSApplicationWindows()
+    } else if (!is.dev) {
       Menu.setApplicationMenu(null)
     }
+  }
+
+  private configureMacOSApplicationWindows(): void {
+    const applicationMenuTemplate: MenuItemConstructorOptions[] = [
+      { role: 'appMenu' },
+      { role: 'editMenu' },
+      ...(is.dev ? [{ role: 'viewMenu' as const }] : []),
+      { role: 'windowMenu' }
+    ]
+    Menu.setApplicationMenu(Menu.buildFromTemplate(applicationMenuTemplate))
+
+    // Normal windows temporarily turn the tray app into a foreground macOS app.
+    app.on('browser-window-created', (_event, window) => {
+      if (window.isAlwaysOnTop()) return
+
+      window.on('show', () => {
+        app.setActivationPolicy('regular')
+        app.show()
+        app.focus({ steal: true })
+        void app.dock.show()
+          .then(() => {
+            app.focus({ steal: true })
+            if (!window.isDestroyed()) window.focus()
+          })
+          .catch((error) => LOG.error('Could not activate application window', error))
+      })
+
+      window.on('closed', () => this.hideDockIfNoApplicationWindows())
+    })
+  }
+
+  private hideDockIfNoApplicationWindows(): void {
+    const hasApplicationWindow = BrowserWindow.getAllWindows().some(
+      (window) => !window.isDestroyed() && !window.isAlwaysOnTop()
+    )
+    if (!hasApplicationWindow) app.dock.hide()
   }
 
   public async init(): Promise<void> {
@@ -387,10 +425,6 @@ export class WindowService {
       this.dataExportWindow.destroy()
       this.dataExportWindow = null
     }
-
-    if (is.macOS) {
-      app.dock.hide()
-    }
   }
 
   public async createDataExportWindow() {
@@ -426,23 +460,6 @@ export class WindowService {
       shell.openExternal(details.url)
       return { action: 'deny' }
     })
-
-    if (is.macOS && !is.dev) {
-      const template = [
-        {
-          label: 'Edit',
-          submenu: [
-            { label: 'Copy', accelerator: 'CmdOrCtrl+C', selector: 'copy:' },
-            { label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:' }
-          ]
-        }
-      ]
-      Menu.setApplicationMenu(Menu.buildFromTemplate(template))
-    }
-
-    if (is.macOS) {
-      await app.dock.show()
-    }
 
     this.dataExportWindow.show()
 
