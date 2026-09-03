@@ -46,7 +46,7 @@ defineProps({
   </article>
 </template>
 <style lang="less">
-@import '@/styles/index.less';
+@import '@/styles/variables.less';
 @import '../styles/tailwind-apply.css';
 .subject-badge {
   background-color: @primary-color;

@@ -247,7 +247,7 @@ async function postpone(minutes: number) {
   </div>
 </template>
 <style lang="less" scoped>
-@import '@/styles/index.less';
+@import '@/styles/variables.less';
 @import '../styles/tailwind-apply.css';
 
 .daily-survey {
