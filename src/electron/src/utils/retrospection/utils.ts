@@ -1,32 +1,24 @@
 import { Color, Activity } from './types';
 
-export function msToReadableFormat(
-  durationInMs: number,
-  flashColon: boolean = false,
-  showSeconds: boolean = false
-): string {
-  const flash: ':' | ' ' = flashColon ? (Math.floor(Date.now() / 1000) % 2 === 0 ? ':' : ' ') : ':';
-
-  const hours = Math.floor(durationInMs / (1000 * 60 * 60));
-  const minutes = Math.floor((durationInMs % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((durationInMs % (1000 * 60)) / 1000);
-
-  const formattedHours = String(hours).padStart(2, '0');
-  const formattedMinutes = String(minutes).padStart(2, '0');
-  const formattedSeconds = String(seconds).padStart(2, '0');
-
-  let formatWithoutSeconds = `${formattedHours}${flash}${formattedMinutes}`;
-  if (formatWithoutSeconds === '00:00') {
-    formatWithoutSeconds = '< 00:01';
+export function formatDuration(durationInMs: number): string {
+  if (!Number.isFinite(durationInMs) || durationInMs <= 0) {
+    return '0 mins';
   }
 
-  return showSeconds
-    ? `${formattedHours}${flash}${formattedMinutes}${flash}${formattedSeconds}`
-    : `${formatWithoutSeconds}`;
-}
+  const totalMinutes = Math.round(durationInMs / 60_000);
+  if (totalMinutes < 1) {
+    return '< 1 min';
+  }
+  if (totalMinutes < 60) {
+    return `${totalMinutes} ${totalMinutes === 1 ? 'min' : 'mins'}`;
+  }
 
-export function msToDecimalHours(durationInMs: number): string {
-  return `${(durationInMs / 3600000).toFixed(1)} hours`
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  const formattedHours = `${hours} ${hours === 1 ? 'hr' : 'hrs'}`;
+  return minutes === 0
+    ? formattedHours
+    : `${formattedHours} ${minutes} ${minutes === 1 ? 'min' : 'mins'}`;
 }
 
 const ACTIVITY_GROUPS: Record<string, Activity[]> = {

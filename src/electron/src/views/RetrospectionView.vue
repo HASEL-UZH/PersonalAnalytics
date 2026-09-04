@@ -13,8 +13,8 @@ import {
 } from '../utils/retrospection/types';
 import {
   ACTIVITY_LABELS,
+  formatDuration,
   getActivityGroupFromActivityName,
-  msToDecimalHours,
   getTailwindClassFromActivity
 } from '../utils/retrospection/utils';
 import StackedBarChart from '../components/StackedBarChart.vue';
@@ -374,44 +374,6 @@ function hasSectionLoadError(section: RetrospectionDataSection): boolean {
   return loadErrors.value.includes(section);
 }
 
-function msToMinutes(ms: number): number {
-  return Math.round(ms / 60000);
-}
-
-function renderTime(ms: number): string {
-  let minutes = msToMinutes(ms);
-  if (minutes < 60) {
-    return `${minutes} minutes`;
-  }
-
-  const hours = Math.floor(minutes / 60);
-  minutes = minutes % 60;
-  if (minutes === 0) {
-    if (hours === 1) {
-      return `${hours} hour`;
-    } else {
-      return `${hours} hours`;
-    }
-  } else {
-    const fractionalHours = Math.round((minutes / 60) * 10) / 10;
-    return `${hours + fractionalHours} hours`;
-  }
-}
-
-function renderCompactTime(ms: number): string {
-  const minutes = msToMinutes(ms);
-  if (minutes < 1) {
-    return '< 1 min';
-  }
-  if (minutes < 60) {
-    return `${minutes} min`;
-  }
-
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-  return remainingMinutes ? `${hours} hr ${remainingMinutes} min` : `${hours} hr`;
-}
-
 async function handleDayChange(event: Event) {
   const value = (event.target as HTMLInputElement).value;
   if (!value) return;
@@ -723,7 +685,7 @@ function getDayLabel(day: string): string {
             <h2 class="primary-blue font-bold leading-4">Longest active period</h2>
             <p class="mt-2">
               Your longest active streak was
-              <b>{{ renderTime(longestTimeActive!.duration * 60000) }}</b> (between
+              <b>{{ formatDuration(longestTimeActive!.duration * 60000) }}</b> (between
               {{ getTimeString(longestTimeActive!.from) }} and
               {{ getTimeString(longestTimeActive!.to) }}).
             </p>
@@ -741,14 +703,14 @@ function getDayLabel(day: string): string {
               <div>
                 <dt class="inline">Active on the computer:</dt>
                 <dd class="ml-1 inline">
-                  <b>{{ msToDecimalHours(activeHoursInsight?.activeDurationMs ?? 0) }}</b>
+                  <b>{{ formatDuration(activeHoursInsight?.activeDurationMs ?? 0) }}</b>
                 </dd>
               </div>
               <div v-if="hasActivityData">
                 <dt class="inline">Spanning work:</dt>
                 <dd class="ml-1 inline">
                   <b>{{
-                    msToDecimalHours(latestUserComputerActivity - earliestUserComputerActivity)
+                    formatDuration(latestUserComputerActivity - earliestUserComputerActivity)
                   }}</b>
                   (between {{ getTimeString(earliestUserComputerActivity) }} and
                   {{ getTimeString(latestUserComputerActivity) }})
@@ -771,7 +733,7 @@ function getDayLabel(day: string): string {
                 <li
                   v-for="activity in activityBreakdownData"
                   :key="activity.type"
-                  :title="`${activity.name}: ${renderCompactTime(activity.value)}`"
+                  :title="`${activity.name}: ${formatDuration(activity.value)}`"
                 >
                   <span class="activity-breakdown-label">
                     <span
@@ -781,7 +743,7 @@ function getDayLabel(day: string): string {
                     <span class="activity-breakdown-name">{{ activity.name }}</span>
                   </span>
                   <span class="activity-breakdown-time text-slate-700 dark:!text-slate-100">{{
-                    renderCompactTime(activity.value)
+                    formatDuration(activity.value)
                   }}</span>
                 </li>
               </ol>
