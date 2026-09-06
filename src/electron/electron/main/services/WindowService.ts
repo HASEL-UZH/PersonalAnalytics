@@ -46,14 +46,6 @@ export class WindowService {
   }
 
   private configureMacOSApplicationWindows(): void {
-    const applicationMenuTemplate: MenuItemConstructorOptions[] = [
-      { role: 'appMenu' },
-      { role: 'editMenu' },
-      ...(is.dev ? [{ role: 'viewMenu' as const }] : []),
-      { role: 'windowMenu' }
-    ]
-    Menu.setApplicationMenu(Menu.buildFromTemplate(applicationMenuTemplate))
-
     // Normal windows temporarily turn the tray app into a foreground macOS app.
     app.on('browser-window-created', (_event, window) => {
       if (window.isAlwaysOnTop()) return
@@ -72,6 +64,45 @@ export class WindowService {
 
       window.on('closed', () => this.hideDockIfNoApplicationWindows())
     })
+  }
+
+  private async updateMacOSApplicationMenu(): Promise<void> {
+    const settings: Settings | null = await Settings.findOne({ where: { onlyOneEntityShouldExist: 1 } })
+    const showSelfReportMenu = this.shouldShowSelfReportMenu(settings)
+    const applicationMenuTemplate: MenuItemConstructorOptions[] = [
+      {
+        label: 'PersonalAnalytics',
+        submenu: [
+          { role: 'about', label: 'About PersonalAnalytics' },
+          { type: 'separator' },
+          ...(studyConfig.enableRetrospection ?? true
+            ? [{ label: 'Retrospection', click: () => this.focusOrCreateRetrospectionWindow() }]
+            : []),
+          ...(showSelfReportMenu
+            ? [{ label: 'Add Self-Reflection', click: () => this.createExperienceSamplingWindow(true) }]
+            : []),
+          { label: 'Settings', click: () => this.createSettingsWindow() },
+          { type: 'separator' },
+          { role: 'services' },
+          { type: 'separator' },
+          { role: 'hide', label: 'Hide PersonalAnalytics' },
+          { role: 'hideOthers' },
+          { role: 'unhide' },
+          { type: 'separator' },
+          { role: 'quit', label: 'Quit PersonalAnalytics' }
+        ]
+      },
+      ...(is.dev ? [{ role: 'viewMenu' as const }] : []),
+      { role: 'windowMenu' }
+    ]
+    Menu.setApplicationMenu(Menu.buildFromTemplate(applicationMenuTemplate))
+  }
+
+  private shouldShowSelfReportMenu(settings: Settings | null): boolean {
+    const es = studyConfig.trackers.experienceSamplingTracker
+    const allowDisable = es.allowUserToDisable ?? true
+    return es.enabled === true &&
+      (!allowDisable || (settings?.userDisabledExperienceSampling ?? 0) === 0)
   }
 
   private hideDockIfNoApplicationWindows(): void {
@@ -523,6 +554,9 @@ export class WindowService {
     }
 
     this.trayMenu = Menu.buildFromTemplate(menuTemplate)
+    if (is.macOS) {
+      await this.updateMacOSApplicationMenu()
+    }
     // macOS with retrospection enabled: leave the context menu unset — setContextMenu would
     // swallow click events, so a click opens the retrospection and right-click shows the menu.
     if (!(is.macOS && (studyConfig.enableRetrospection ?? true))) {
@@ -622,11 +656,7 @@ export class WindowService {
     const settings: Settings | null = await Settings.findOne({ where: { onlyOneEntityShouldExist: 1 } })
     if (!settings) return []
 
-    const es = studyConfig.trackers.experienceSamplingTracker;
-    const allowDisable = es.allowUserToDisable ?? true;
-    const showSelfReportMenu =
-      es.enabled === true &&
-      (!allowDisable || (settings?.userDisabledExperienceSampling ?? 0) === 0);
+    const showSelfReportMenu = this.shouldShowSelfReportMenu(settings);
     
     const trayMenuItems: MenuItemConstructorOptions[] = [
       ...(is.dev
