@@ -38,9 +38,78 @@ export class WindowService {
         this.updateTray(label, enabled)
       }
     )
-    if (!is.dev) {
+    if (is.macOS) {
+      this.configureMacOSApplicationWindows()
+    } else if (!is.dev) {
       Menu.setApplicationMenu(null)
     }
+  }
+
+  private configureMacOSApplicationWindows(): void {
+    // Normal windows temporarily turn the tray app into a foreground macOS app.
+    app.on('browser-window-created', (_event, window) => {
+      if (window.isAlwaysOnTop()) return
+
+      window.on('show', () => {
+        app.setActivationPolicy('regular')
+        app.show()
+        app.focus({ steal: true })
+        void app.dock.show()
+          .then(() => {
+            app.focus({ steal: true })
+            if (!window.isDestroyed()) window.focus()
+          })
+          .catch((error) => LOG.error('Could not activate application window', error))
+      })
+
+      window.on('closed', () => this.hideDockIfNoApplicationWindows())
+    })
+  }
+
+  private async updateMacOSApplicationMenu(): Promise<void> {
+    const settings: Settings | null = await Settings.findOne({ where: { onlyOneEntityShouldExist: 1 } })
+    const showSelfReportMenu = this.shouldShowSelfReportMenu(settings)
+    const applicationMenuTemplate: MenuItemConstructorOptions[] = [
+      {
+        label: 'PersonalAnalytics',
+        submenu: [
+          { role: 'about', label: 'About PersonalAnalytics' },
+          { type: 'separator' },
+          ...(studyConfig.enableRetrospection ?? true
+            ? [{ label: 'Retrospection', click: () => this.focusOrCreateRetrospectionWindow() }]
+            : []),
+          ...(showSelfReportMenu
+            ? [{ label: 'Add Self-Reflection', click: () => this.createExperienceSamplingWindow(true) }]
+            : []),
+          { label: 'Settings', click: () => this.createSettingsWindow() },
+          { type: 'separator' },
+          { role: 'services' },
+          { type: 'separator' },
+          { role: 'hide', label: 'Hide PersonalAnalytics' },
+          { role: 'hideOthers' },
+          { role: 'unhide' },
+          { type: 'separator' },
+          { role: 'quit', label: 'Quit PersonalAnalytics' }
+        ]
+      },
+      ...(is.dev ? [{ role: 'viewMenu' as const }] : []),
+      { role: 'windowMenu' }
+    ]
+    Menu.setApplicationMenu(Menu.buildFromTemplate(applicationMenuTemplate))
+  }
+
+  private shouldShowSelfReportMenu(settings: Settings | null): boolean {
+    const es = studyConfig.trackers.experienceSamplingTracker
+    const allowDisable = es.allowUserToDisable ?? true
+    return es.enabled === true &&
+      (!allowDisable || (settings?.userDisabledExperienceSampling ?? 0) === 0)
+  }
+
+  private hideDockIfNoApplicationWindows(): void {
+    const hasApplicationWindow = BrowserWindow.getAllWindows().some(
+      (window) => !window.isDestroyed() && !window.isAlwaysOnTop()
+    )
+    if (!hasApplicationWindow) app.dock.hide()
   }
 
   public async init(): Promise<void> {
@@ -387,10 +456,6 @@ export class WindowService {
       this.dataExportWindow.destroy()
       this.dataExportWindow = null
     }
-
-    if (is.macOS) {
-      app.dock.hide()
-    }
   }
 
   public async createDataExportWindow() {
@@ -426,23 +491,6 @@ export class WindowService {
       shell.openExternal(details.url)
       return { action: 'deny' }
     })
-
-    if (is.macOS && !is.dev) {
-      const template = [
-        {
-          label: 'Edit',
-          submenu: [
-            { label: 'Copy', accelerator: 'CmdOrCtrl+C', selector: 'copy:' },
-            { label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:' }
-          ]
-        }
-      ]
-      Menu.setApplicationMenu(Menu.buildFromTemplate(template))
-    }
-
-    if (is.macOS) {
-      await app.dock.show()
-    }
 
     this.dataExportWindow.show()
 
@@ -506,6 +554,9 @@ export class WindowService {
     }
 
     this.trayMenu = Menu.buildFromTemplate(menuTemplate)
+    if (is.macOS) {
+      await this.updateMacOSApplicationMenu()
+    }
     // macOS with retrospection enabled: leave the context menu unset — setContextMenu would
     // swallow click events, so a click opens the retrospection and right-click shows the menu.
     if (!(is.macOS && (studyConfig.enableRetrospection ?? true))) {
@@ -605,11 +656,7 @@ export class WindowService {
     const settings: Settings | null = await Settings.findOne({ where: { onlyOneEntityShouldExist: 1 } })
     if (!settings) return []
 
-    const es = studyConfig.trackers.experienceSamplingTracker;
-    const allowDisable = es.allowUserToDisable ?? true;
-    const showSelfReportMenu =
-      es.enabled === true &&
-      (!allowDisable || (settings?.userDisabledExperienceSampling ?? 0) === 0);
+    const showSelfReportMenu = this.shouldShowSelfReportMenu(settings);
     
     const trayMenuItems: MenuItemConstructorOptions[] = [
       ...(is.dev
