@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, PropType } from 'vue';
+import { computed, ref, PropType } from 'vue';
 import { DataExportType } from '../../shared/DataExportType.enum';
 import WindowActivityDto from '../../shared/dto/WindowActivityDto';
 
@@ -25,6 +25,9 @@ const emits = defineEmits(['optionChanged', 'obfuscationTermsChanged', 'obfuscat
 const selectedOption = ref<string>(props.defaultValue);
 const obfuscationTermsInput = ref<string>('');
 
+// URLs are only collected for supported browsers, so hide the column if the sample has none
+const hasUrls = computed(() => props.data?.some((d) => d.url && d.url.length > 0) ?? false);
+
 const emitOptionChanged = async () => {
   emits('optionChanged', selectedOption.value);
 };
@@ -41,8 +44,15 @@ const emitObfuscateSampleData = async () => {
   <div class="my-5 border border-slate-400 p-2">
     <div class="prose max-w-none">
       <h2>How do you want to share your Window Activity data?</h2>
+      <p>
+        This records which application or window was in focus at which time, along with the program
+        name, a timestamp, and an activity category that PersonalAnalytics derives locally from the
+        window (for example coding, email or browsing). Window titles may occasionally contain
+        sensitive content, such as document and project names, so you can choose to obfuscate them
+        below. The sample updates to show exactly what the researchers would receive.
+      </p>
     </div>
-    <div class="mt-4 flex w-1/2 flex-col">
+    <div class="mt-4 flex w-full flex-col">
       <div class="form-control">
         <label class="label flex cursor-pointer items-center justify-start">
           <input
@@ -52,7 +62,7 @@ const emitObfuscateSampleData = async () => {
             class="radio checked:bg-blue-500"
             @change="emitOptionChanged"
           />
-          <span class="label-text ml-2">Share data as-is</span>
+          <span class="label-text ml-2"><b>Share data as-is</b></span>
         </label>
       </div>
       <div class="form-control">
@@ -64,7 +74,10 @@ const emitObfuscateSampleData = async () => {
             class="radio checked:bg-blue-500"
             @change="emitOptionChanged"
           />
-          <span class="label-text ml-2">Obfuscate potentially sensitive data</span>
+          <span class="label-text ml-2"
+            ><b>Obfuscate potentially sensitive data</b>
+            <span class="opacity-70">&nbsp;(each title becomes a random placeholder)</span></span
+          >
         </label>
       </div>
       <div class="form-control">
@@ -77,7 +90,10 @@ const emitObfuscateSampleData = async () => {
             @change="emitOptionChanged"
           />
           <span class="label-text ml-2"
-            >Only obfuscate data with the following (comma-separated) list of terms</span
+            ><b>Only obfuscate data with the following (comma-separated) list of terms</b>
+            <span class="opacity-70"
+              >&nbsp;(entries matching your terms become [anonymized], the rest stays as-is)</span
+            ></span
           >
         </label>
       </div>
@@ -105,7 +121,7 @@ const emitObfuscateSampleData = async () => {
             class="radio checked:bg-blue-500"
             @change="emitOptionChanged"
           />
-          <span class="label-text ml-2">Do not share this data</span>
+          <span class="label-text ml-2"><b>Do not share this data</b></span>
         </label>
       </div>
     </div>
@@ -126,7 +142,7 @@ const emitObfuscateSampleData = async () => {
           <thead class="border-b">
             <tr>
               <th>Window Title</th>
-              <th>URL</th>
+              <th v-if="hasUrls">URL</th>
               <th>Activity</th>
               <th>Process Name</th>
               <th>Process Path</th>
@@ -139,7 +155,7 @@ const emitObfuscateSampleData = async () => {
               <td>
                 <div class="max-w-56 truncate">{{ windowActivity.windowTitle }}</div>
               </td>
-              <td>
+              <td v-if="hasUrls">
                 <div class="max-w-56 truncate">{{ windowActivity.url }}</div>
               </td>
               <td>{{ windowActivity.activity }}</td>

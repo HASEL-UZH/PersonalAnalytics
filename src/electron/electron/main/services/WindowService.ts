@@ -465,14 +465,15 @@ export class WindowService {
     const __dirname = dirname(__filename)
     const preload = join(__dirname, '../preload/index.mjs')
     this.dataExportWindow = new BrowserWindow({
-      width: 1200,
+      width: 1280,
       height: 850,
       show: false,
-      minimizable: false,
-      maximizable: false,
-      minWidth: 1200,
+      minimizable: true,
+      maximizable: true,
+      minWidth: 1280,
       minHeight: 850,
       fullscreenable: false,
+      resizable: true,
       title: 'PersonalAnalytics: Data Export',
       webPreferences: {
         preload
