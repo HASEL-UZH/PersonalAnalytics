@@ -1,25 +1,7 @@
 import { ipcRenderer, contextBridge } from 'electron';
 
-contextBridge.exposeInMainWorld('ipcRenderer', withPrototype(ipcRenderer));
-window.ipcRenderer = ipcRenderer;
-
-// `exposeInMainWorld` can't detect attributes and methods of `prototype`, manually patching it.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function withPrototype(obj: Record<string, any>) {
-  const protos = Object.getPrototypeOf(obj);
-
-  for (const [key, value] of Object.entries(protos)) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) continue;
-
-    if (typeof value === 'function') {
-      // Some native APIs, like `NodeJS.EventEmitter['on']`, don't work in the Renderer process. Wrapping them into a function.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      obj[key] = function (...args: any) {
-        return value.call(obj, ...args);
-      };
-    } else {
-      obj[key] = value;
-    }
-  }
-  return obj;
-}
+// Electron 29 no longer allows the native ipcRenderer object to cross the context bridge. Expose
+// only the renderer operation used by the application through a plain wrapper instead.
+contextBridge.exposeInMainWorld('ipcRenderer', {
+  invoke: (channel: string, ...args: unknown[]) => ipcRenderer.invoke(channel, ...args)
+});
