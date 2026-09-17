@@ -18,6 +18,9 @@ export class WindowActivityEntity extends BaseTrackedEntity {
   @Column('text', { nullable: true })
   url: string | null;
 
+  @Column('text', { nullable: true })
+  artifactName: string | null;
+
   @Column('text', { nullable: false })
   activity: string;
 

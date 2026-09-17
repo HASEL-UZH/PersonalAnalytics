@@ -13,9 +13,22 @@ const LOG = getMainLogger('DailySurveyTracker');
 
 const weekDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
+// Three days bridges a long weekend without asking participants to recall much further back.
+const MAX_MISSED_SURVEY_AGE_DAYS = 3;
+
+type DailySurveyDateField =
+  | 'nextDailySurveyMorningInvocation'
+  | 'nextDailySurveyEveningInvocation'
+  | 'pendingDailySurveyMorningScheduledDate'
+  | 'pendingDailySurveyEveningScheduledDate'
+  | 'postponedDailySurveyMorningUntil'
+  | 'postponedDailySurveyEveningUntil';
+
 export class DailySurveyTracker implements Tracker {
   private checkJob: schedule.Job;
-  private openSurveyKeys = new Set<DailySurveySamplingType>();
+  private shownSurveyDates = new Map<DailySurveySamplingType, number>();
+  private activeSurvey: { samplingType: DailySurveySamplingType; scheduledDate: number } | null =
+    null;
   private readonly windowService: WindowService;
   private readonly workScheduleService: WorkScheduleService;
   private readonly surveys: DailySurveyConfig[];
@@ -35,7 +48,7 @@ export class DailySurveyTracker implements Tracker {
 
   public async start(): Promise<void> {
     try {
-      await this.scheduleAllSurveys();
+      await this.processSurveys();
       this.startCheckJob();
       this.isRunning = true;
     } catch (error) {
@@ -47,6 +60,10 @@ export class DailySurveyTracker implements Tracker {
   public async resume(): Promise<void> {
     LOG.info('Resuming DailySurveyTracker');
     this.isRunning = true;
+    // Callers do not await resume(); the check job below retries every minute.
+    await this.processSurveys().catch((error) =>
+      LOG.error(`Error processing daily surveys while resuming: ${error}`)
+    );
     this.startCheckJob();
   }
 
@@ -57,73 +74,141 @@ export class DailySurveyTracker implements Tracker {
 
   private startCheckJob(): void {
     this.checkJob?.cancel();
-    this.checkJob = schedule.scheduleJob('* * * * *', async () => {
-      const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
-      const now = new Date();
-
-      for (const survey of this.surveys) {
-        const invocationField = this.getInvocationField(survey.samplingType);
-        const postponedUntilField = this.getPostponedUntilField(survey.samplingType);
-        const nextInvocation = settings[invocationField];
-        const postponedUntil = settings[postponedUntilField];
-        const isPostponed = postponedUntil && postponedUntil > now;
-        if (
-          nextInvocation &&
-          nextInvocation <= now &&
-          !isPostponed &&
-          !this.openSurveyKeys.has(survey.samplingType)
-        ) {
-          LOG.info(`Daily survey (${survey.samplingType}) is due`);
-          this.openSurveyKeys.add(survey.samplingType);
-          await this.windowService.createDailySurveyWindow(survey.samplingType, nextInvocation);
-        }
-      }
-    });
+    // node-schedule ignores the returned promise; not caught inside processSurveys() so start() can still throw.
+    this.checkJob = schedule.scheduleJob('* * * * *', () =>
+      this.processSurveys().catch((error) => LOG.error(`Error processing daily surveys: ${error}`))
+    );
   }
 
-  private async scheduleAllSurveys(): Promise<void> {
+  private async processSurveys(): Promise<void> {
+    const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
+    const now = new Date();
+
     for (const survey of this.surveys) {
-      const invocationField = this.getInvocationField(survey.samplingType);
-      const postponedUntilField = this.getPostponedUntilField(survey.samplingType);
-      const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
-      const now = new Date();
-      const postponedUntil = settings[postponedUntilField];
-      const isPostponed = postponedUntil && postponedUntil > now;
-      if (
-        settings[invocationField] &&
-        settings[invocationField] <= now &&
-        !isPostponed &&
-        !this.openSurveyKeys.has(survey.samplingType)
-      ) {
-        LOG.info(
-          `Daily survey (${survey.samplingType}) was due at ${settings[invocationField]}, showing now`
-        );
-        this.openSurveyKeys.add(survey.samplingType);
-        // Keep nextInvocation unchanged until submit/skip so unattended app starts do not lose the original survey date.
-        await this.windowService.createDailySurveyWindow(
-          survey.samplingType,
-          settings[invocationField]
-        );
-      } else if (!settings[invocationField]) {
-        await this.scheduleNextForSurvey(survey);
-      }
+      await this.processSurvey(survey, settings, now);
     }
   }
 
-  private async scheduleNextForSurvey(survey: DailySurveyConfig): Promise<void> {
-    const nextInvocation = await this.computeNextInvocation(survey);
-    const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
+  private async processSurvey(
+    survey: DailySurveyConfig,
+    settings: Settings,
+    now: Date
+  ): Promise<void> {
+    const samplingType = survey.samplingType;
+    const invocationField = this.getInvocationField(samplingType);
+    const pendingField = this.getPendingScheduledDateField(samplingType);
+    const postponedUntilField = this.getPostponedUntilField(samplingType);
+    let pendingScheduledDate = settings[pendingField];
 
-    settings[this.getInvocationField(survey.samplingType)] = nextInvocation;
-    settings[this.getPostponedUntilField(survey.samplingType)] = null;
+    if (pendingScheduledDate && this.isMissedSurveyExpired(pendingScheduledDate, now)) {
+      LOG.info(
+        `Daily survey (${samplingType}) from ${pendingScheduledDate} is older than ${MAX_MISSED_SURVEY_AGE_DAYS} days and will not be shown`
+      );
+      settings[pendingField] = null;
+      settings[postponedUntilField] = null;
+      await settings.save();
 
-    await settings.save();
+      if (this.isActiveSurvey(samplingType, pendingScheduledDate)) {
+        this.windowService.closeDailySurveyWindow(false, false);
+      }
+      this.clearShownSurvey(samplingType, pendingScheduledDate);
+
+      pendingScheduledDate = null;
+    }
+
+    const nextInvocation = settings[invocationField];
+    const isPostponed = this.isSurveyPostponed(settings, samplingType, now);
+
+    if (!nextInvocation) {
+      await this.scheduleNextForSurvey(survey, settings, now);
+    } else if (nextInvocation <= now && !isPostponed) {
+      if (this.isMissedSurveyExpired(nextInvocation, now)) {
+        LOG.info(
+          `Daily survey (${samplingType}) due at ${nextInvocation} is older than ${MAX_MISSED_SURVEY_AGE_DAYS} days and will not be shown`
+        );
+        await this.scheduleNextForSurvey(survey, settings, now);
+      } else {
+        if (pendingScheduledDate && pendingScheduledDate.getTime() !== nextInvocation.getTime()) {
+          LOG.info(
+            `Replacing unanswered ${samplingType} daily survey from ${pendingScheduledDate} with the current survey`
+          );
+        }
+
+        // Preserve the unanswered date while scheduling the next workday independently.
+        // scheduleNextForSurvey() clears the postponed-until field.
+        settings[pendingField] = nextInvocation;
+        await this.scheduleNextForSurvey(survey, settings, now);
+        pendingScheduledDate = nextInvocation;
+      }
+    }
+
+    if (pendingScheduledDate && !this.isSurveyPostponed(settings, samplingType, now)) {
+      await this.showPendingSurvey(samplingType, pendingScheduledDate);
+    }
+  }
+
+  private async showPendingSurvey(
+    samplingType: DailySurveySamplingType,
+    scheduledDate: Date
+  ): Promise<void> {
+    if (this.shownSurveyDates.get(samplingType) === scheduledDate.getTime()) {
+      return;
+    }
+
+    LOG.info(`Daily survey (${samplingType}) was due at ${scheduledDate}, showing now`);
+    await this.windowService.createDailySurveyWindow(samplingType, scheduledDate);
+    this.shownSurveyDates.set(samplingType, scheduledDate.getTime());
+    this.activeSurvey = { samplingType, scheduledDate: scheduledDate.getTime() };
+  }
+
+  /** Whether the given survey currently owns the daily survey window. */
+  private isActiveSurvey(samplingType: DailySurveySamplingType, scheduledDate: Date): boolean {
+    return (
+      this.activeSurvey?.samplingType === samplingType &&
+      this.activeSurvey.scheduledDate === scheduledDate.getTime()
+    );
+  }
+
+  /** Forgets that the survey was shown, so it can be shown again (e.g. after a postponement elapses). */
+  private clearShownSurvey(samplingType: DailySurveySamplingType, scheduledDate: Date): void {
+    if (this.shownSurveyDates.get(samplingType) === scheduledDate.getTime()) {
+      this.shownSurveyDates.delete(samplingType);
+    }
+    if (this.isActiveSurvey(samplingType, scheduledDate)) {
+      this.activeSurvey = null;
+    }
+  }
+
+  private isSurveyPostponed(
+    settings: Settings,
+    samplingType: DailySurveySamplingType,
+    now: Date
+  ): boolean {
+    const postponedUntil = settings[this.getPostponedUntilField(samplingType)];
+    return postponedUntil !== null && postponedUntil > now;
+  }
+
+  private async scheduleNextForSurvey(
+    survey: DailySurveyConfig,
+    settings?: Settings,
+    now: Date = new Date()
+  ): Promise<void> {
+    const nextInvocation = await this.computeNextInvocation(survey, now);
+    const settingsToUpdate =
+      settings ?? (await Settings.findOneBy({ onlyOneEntityShouldExist: 1 }));
+
+    settingsToUpdate[this.getInvocationField(survey.samplingType)] = nextInvocation;
+    settingsToUpdate[this.getPostponedUntilField(survey.samplingType)] = null;
+
+    await settingsToUpdate.save();
     LOG.info(`Next ${survey.samplingType} daily survey scheduled for ${nextInvocation}`);
   }
 
-  private async computeNextInvocation(survey: DailySurveyConfig): Promise<Date> {
+  private async computeNextInvocation(
+    survey: DailySurveyConfig,
+    now: Date = new Date()
+  ): Promise<Date> {
     const schedule = await this.workScheduleService.getWorkSchedule();
-    const now = new Date();
 
     for (let dayOffset = 0; dayOffset <= 7; dayOffset++) {
       const candidate = new Date(now);
@@ -156,27 +241,45 @@ export class DailySurveyTracker implements Tracker {
     return fallback;
   }
 
-  private getInvocationField(
-    samplingType: DailySurveySamplingType
-  ): 'nextDailySurveyMorningInvocation' | 'nextDailySurveyEveningInvocation' {
+  /** Returns the Settings column that stores when the *next* survey of the given type is due. */
+  private getInvocationField(samplingType: DailySurveySamplingType): DailySurveyDateField {
     if (samplingType === 'morning') return 'nextDailySurveyMorningInvocation';
     if (samplingType === 'evening') return 'nextDailySurveyEveningInvocation';
     throw new Error(`Unknown samplingType: ${samplingType}`);
   }
 
   /**
-   * Returns the Settings column that stores the postponed-until timestamp for the given daily survey type.
+   * Returns the Settings column that stores the *original* scheduled date of the survey still
+   * awaiting an answer, so an overdue survey is not re-dated on restart. Cleared on submit/skip.
    */
-  private getPostponedUntilField(
+  private getPendingScheduledDateField(
     samplingType: DailySurveySamplingType
-  ): 'postponedDailySurveyMorningUntil' | 'postponedDailySurveyEveningUntil' {
+  ): DailySurveyDateField {
+    if (samplingType === 'morning') return 'pendingDailySurveyMorningScheduledDate';
+    if (samplingType === 'evening') return 'pendingDailySurveyEveningScheduledDate';
+    throw new Error(`Unknown samplingType: ${samplingType}`);
+  }
+
+  /** Returns the Settings column that stores the postponed-until timestamp for the given type. */
+  private getPostponedUntilField(samplingType: DailySurveySamplingType): DailySurveyDateField {
     if (samplingType === 'morning') return 'postponedDailySurveyMorningUntil';
     if (samplingType === 'evening') return 'postponedDailySurveyEveningUntil';
     throw new Error(`Unknown samplingType: ${samplingType}`);
   }
 
-  private isBeforeToday(date: Date): boolean {
-    const today = new Date();
+  private isMissedSurveyExpired(scheduledDate: Date, now: Date): boolean {
+    return this.getLocalCalendarDayDifference(scheduledDate, now) > MAX_MISSED_SURVEY_AGE_DAYS;
+  }
+
+  private getLocalCalendarDayDifference(olderDate: Date, newerDate: Date): number {
+    const localDayTimestamp = (date: Date): number =>
+      Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+
+    return Math.floor((localDayTimestamp(newerDate) - localDayTimestamp(olderDate)) / 86_400_000);
+  }
+
+  private isBeforeToday(date: Date, now: Date): boolean {
+    const today = new Date(now);
     today.setHours(0, 0, 0, 0);
     const compare = new Date(date);
     compare.setHours(0, 0, 0, 0);
@@ -187,35 +290,51 @@ export class DailySurveyTracker implements Tracker {
     samplingType: DailySurveySamplingType,
     scheduledDate?: Date | null
   ): Promise<void> {
-    this.openSurveyKeys.delete(samplingType);
-
     if (!scheduledDate) {
       return;
     }
 
-    const survey = this.surveys.find((s) => s.samplingType === samplingType);
-    if (!survey) {
-      throw new Error(`Unknown daily survey samplingType: ${samplingType}`);
+    const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
+    const pendingField = this.getPendingScheduledDateField(samplingType);
+    const pendingScheduledDate = settings[pendingField];
+    if (!pendingScheduledDate || pendingScheduledDate.getTime() !== scheduledDate.getTime()) {
+      return;
     }
 
-    await this.scheduleNextForSurvey(survey);
+    this.clearShownSurvey(samplingType, scheduledDate);
+    settings[pendingField] = null;
+    settings[this.getPostponedUntilField(samplingType)] = null;
+    await settings.save();
   }
 
-  public async postpone(samplingType: DailySurveySamplingType, minutes: number): Promise<boolean> {
+  public async postpone(
+    samplingType: DailySurveySamplingType,
+    scheduledDate: Date | null,
+    minutes: number
+  ): Promise<boolean> {
+    if (!scheduledDate) {
+      return false;
+    }
+
+    const now = new Date();
     const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
-    const scheduledDate = settings[this.getInvocationField(samplingType)];
-    if (scheduledDate && this.isBeforeToday(scheduledDate)) {
+    const pendingScheduledDate = settings[this.getPendingScheduledDateField(samplingType)];
+    if (
+      !pendingScheduledDate ||
+      pendingScheduledDate.getTime() !== scheduledDate.getTime() ||
+      this.isBeforeToday(scheduledDate, now)
+    ) {
       LOG.info(
         `Daily survey (${samplingType}) was scheduled on a previous day and cannot be postponed`
       );
       return false;
     }
 
-    const newTime = new Date(Date.now() + minutes * 60 * 1000);
+    const newTime = new Date(now.getTime() + minutes * 60 * 1000);
 
     // Store postponement separately so the original scheduled day remains available for late-survey messaging.
     settings[this.getPostponedUntilField(samplingType)] = newTime;
-    this.openSurveyKeys.delete(samplingType);
+    this.clearShownSurvey(samplingType, scheduledDate);
 
     await settings.save();
     LOG.info(`Daily survey (${samplingType}) postponed by ${minutes} minutes to ${newTime}`);

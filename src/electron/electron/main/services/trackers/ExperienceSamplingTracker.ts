@@ -18,7 +18,8 @@ export class ExperienceSamplingTracker implements Tracker {
   private readonly intervalInMs: number;
   private readonly samplingRandomization: number;
 
-  public readonly name: string = 'Experience Sampling';
+  public static readonly NAME = 'Experience Sampling';
+  public readonly name: string = ExperienceSamplingTracker.NAME;
   public isRunning: boolean = false;
 
   constructor(windowService: WindowService, workScheduleService: WorkScheduleService, intervalInMs: number, samplingRandomization: number) {

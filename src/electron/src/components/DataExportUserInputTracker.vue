@@ -31,10 +31,16 @@ const emitChange = () => {
 </script>
 <template>
   <div class="my-5 border border-slate-400 p-2">
-    <div class="prose">
+    <div class="prose max-w-none">
       <h2>How do you want to share your User Input data?</h2>
+      <p>
+        This captures how much you typed, clicked, scrolled, and moved the mouse per time interval.
+        It could be used, for example, to tell active work apart from idle time, or to distinguish
+        creating information from consuming it. No keystrokes or key contents are ever recorded,
+        only the totals shown below, so this data cannot reveal what you wrote.
+      </p>
     </div>
-    <div class="mt-4 flex w-1/3 flex-col">
+    <div class="mt-4 flex w-full flex-col">
       <div class="form-control">
         <label class="label flex cursor-pointer items-center justify-start">
           <input
@@ -44,7 +50,7 @@ const emitChange = () => {
             class="radio checked:bg-blue-500"
             @change="emitChange"
           />
-          <span class="label-text ml-2">Share data as-is</span>
+          <span class="label-text ml-2"><b>Share data as-is</b></span>
         </label>
       </div>
       <div class="form-control">
@@ -56,12 +62,9 @@ const emitChange = () => {
             class="radio checked:bg-blue-500"
             @change="emitChange"
           />
-          <span class="label-text ml-2">Do not share this data</span>
+          <span class="label-text ml-2"><b>Do not share this data</b></span>
         </label>
       </div>
-    </div>
-    <div class="prose mt-5">
-      <p>Here is a sample of your anonymized User Input data:</p>
     </div>
     <div
       class="relative mt-5"
@@ -91,7 +94,7 @@ const emitChange = () => {
             <tr v-for="windowActivity in data" :key="windowActivity.id">
               <td>{{ windowActivity.keysTotal }}</td>
               <td>{{ windowActivity.clickTotal }}</td>
-              <td>{{ windowActivity.movedDistance }}</td>
+              <td>{{ Math.round(windowActivity.movedDistance) }}</td>
               <td>{{ windowActivity.scrollDelta }}</td>
               <td>{{ windowActivity.tsStart.toLocaleString() }}</td>
               <td>{{ windowActivity.tsEnd.toLocaleString() }}</td>

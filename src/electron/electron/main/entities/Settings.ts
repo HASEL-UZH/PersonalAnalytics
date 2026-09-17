@@ -59,10 +59,16 @@ export class Settings extends BaseEntity {
   userDisabledRetrospection: number;
 
   @Column('datetime', { nullable: true })
-  nextDailySurveyMorningInvocation: Date;
+  nextDailySurveyMorningInvocation: Date | null;
 
   @Column('datetime', { nullable: true })
-  nextDailySurveyEveningInvocation: Date;
+  nextDailySurveyEveningInvocation: Date | null;
+
+  @Column('datetime', { nullable: true })
+  pendingDailySurveyMorningScheduledDate: Date | null;
+
+  @Column('datetime', { nullable: true })
+  pendingDailySurveyEveningScheduledDate: Date | null;
 
   @Column('datetime', { nullable: true })
   postponedDailySurveyMorningUntil: Date | null;

@@ -373,7 +373,17 @@ function revealItemInFolder(event: Event) {
               </p>
             </article>
           </div>
-          <div v-if="currentNamedStep === 'export-2'" key="1" class="-mt-5">
+          <div v-if="currentNamedStep === 'export-2'" key="1" class="flex w-full flex-col">
+            <h1 class="mb-4 text-4xl font-medium text-neutral-800 dark:text-neutral-300">
+              Customize Data Export
+            </h1>
+            <article class="prose max-w-none">
+              <p>
+                Below you see each type of data collected on your machine, with a sample of recent
+                entries. <b class="dark:text-white">Nothing leaves your computer</b> until you
+                confirm on the next page.
+              </p>
+            </article>
             <DataExportWindowActivityTracker
               v-if="studyConfig.trackers.windowActivityTracker.enabled"
               :study-info="studyInfo"

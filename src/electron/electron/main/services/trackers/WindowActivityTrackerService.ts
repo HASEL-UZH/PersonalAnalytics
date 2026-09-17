@@ -20,6 +20,7 @@ export class WindowActivityTrackerService {
       processPath: window.processPath,
       processId: window.processId,
       url: window.url,
+      artifactName: window.artifactName,
       activity: window.activity,
       ts: window.ts
     });
@@ -37,6 +38,7 @@ export class WindowActivityTrackerService {
         processPath: item.processPath,
         processId: item.processId,
         url: item.url,
+        artifactName: item.artifactName,
         activity: item.activity,
         ts: item.ts,
         id: item.id,
@@ -63,6 +65,9 @@ export class WindowActivityTrackerService {
         processPath: activity.processPath,
         processId: activity.processId,
         activity: activity.activity,
+        artifactName: activity.artifactName
+          ? this.randomizeString(activity.artifactName)
+          : null,
         ts: activity.ts,
         id: activity.id,
         createdAt: activity.createdAt,

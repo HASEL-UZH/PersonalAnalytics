@@ -277,6 +277,7 @@ export function isRelevantTopItem(session: ActivitySessions): boolean {
 
 export function getShortTimelineHoverTitle(activity: WindowActivityEntity): string | null {
   return (
+    activity.artifactName ||
     cleanWindowTitle(
       activity.windowTitle,
       activity.processName,
@@ -295,6 +296,7 @@ export function getLongTimelineHoverTitle(
   fallbackTitle: string
 ): string {
   return (
+    activity.artifactName ||
     cleanWindowTitle(
       activity.windowTitle,
       activity.processName,

@@ -54,8 +54,10 @@ function formatResponseOptions(d: DailySurveyDto): string {
     <div class="prose max-w-none">
       <h2>Your Daily Survey data</h2>
       <p>
-        Your responses to the daily survey questions will also be shared with the
-        researchers. Here is a sample of your unmodified data:</p>
+        These are your answers to the daily end-of-day survey. They could be used to compare your
+        own summary of a work day against the data collected that day. They are shared unmodified,
+        as shown below.
+      </p>
     </div>
     <div class="max-h-48 overflow-auto">
       <table

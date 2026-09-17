@@ -13,7 +13,8 @@ import type {
   DailySurveySamplingType,
   ExperienceSamplingAnswerType
 } from '../../shared/StudyConfiguration';
-import type { ActiveHoursInsight, ActivitySessions, TimeActive } from './retrospection/types';
+import type { RetrospectionWorkdayRange } from '../../shared/retrospection/Workday';
+import type { RetrospectionDashboard } from './retrospection/types';
 
 type Commands = {
   createExperienceSample: (
@@ -62,13 +63,9 @@ type Commands = {
   startAllTrackers: () => void;
   triggerPermissionCheckAccessibility: (prompt: boolean) => boolean;
   triggerPermissionCheckScreenRecording: () => boolean;
-  retrospectionGetActiveHours: (date: Date) => Promise<ActiveHoursInsight>;
-  retrospectionGetActivities: (date: Date) => Promise<ActivitySessions[]>;
-  retrospectionLoadLongestTimeActive: (date: Date) => Promise<TimeActive | undefined>;
-  retrospectionGetTopThreeMostActiveApps: (date: Date) => Promise<ActivitySessions[]>;
-  retrospectionGetTopThreeWebsites: (date: Date) => Promise<ActivitySessions[]>;
-  retrospectionGetTopThreeWindowTitles: (date: Date) => Promise<ActivitySessions[]>;
-  retrospectionGetSelfReports: (date: Date) => Promise<ExperienceSamplingDto[]>;
+  retrospectionGetDashboard: (
+    workdayRange: RetrospectionWorkdayRange
+  ) => Promise<RetrospectionDashboard>;
   openRetrospection: () => Promise<void>;
   closeRetrospectionWindow: () => void;
   createDailySurveyResponses: (
@@ -79,7 +76,11 @@ type Commands = {
   ) => Promise<void>;
   resizeDailySurveyWindow: (height: number) => void;
   closeDailySurveyWindow: (skipped: boolean) => void;
-  postponeDailySurvey: (samplingType: DailySurveySamplingType, minutes: number) => Promise<void>;
+  postponeDailySurvey: (
+    samplingType: DailySurveySamplingType,
+    scheduledDate: Date | null,
+    minutes: number
+  ) => Promise<void>;
   getMostRecentDailySurveyDtos: (itemCount: number) => Promise<DailySurveyDto[]>;
 };
 export default Commands;

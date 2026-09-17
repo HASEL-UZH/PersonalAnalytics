@@ -11,6 +11,7 @@ import { MoreThanOrEqual } from 'typeorm';
 import { WorkScheduleService } from '../WorkScheduleService';
 import { DaysParticipatedTracker } from './DaysParticipatedTracker';
 import { DailySurveyTracker } from './DailySurveyTracker';
+import type { RetrospectionTrackerConfig } from '../../../../src/utils/retrospection/availability';
 
 const LOG = getMainLogger('TrackerService');
 
@@ -162,6 +163,37 @@ export class TrackerService {
 
   public getDailySurveyTracker(): DailySurveyTracker | undefined {
     return this.trackers.find((t) => t instanceof DailySurveyTracker) as DailySurveyTracker | undefined;
+  }
+
+  /**
+   * Returns the tracker display labels from the tracker implementations (single source of truth)
+   * rather than duplicating them in the study config. The names are static, so no tracker instance
+   * needs to be created here.
+   */
+  public async getRetrospectionTrackerConfigs(): Promise<{
+    windowActivityMonitor: RetrospectionTrackerConfig;
+    userInputMonitor: RetrospectionTrackerConfig;
+    experienceSampling: RetrospectionTrackerConfig;
+  }> {
+    const [WAT, UIT] = await Promise.all([
+      import('windows-activity-tracker'),
+      import('user-input-tracker')
+    ]);
+
+    return {
+      windowActivityMonitor: {
+        name: WAT.WindowsActivityTracker.NAME,
+        enabled: this.config.windowActivityTracker.enabled
+      },
+      userInputMonitor: {
+        name: UIT.UserInputTracker.NAME,
+        enabled: this.config.userInputTracker.enabled
+      },
+      experienceSampling: {
+        name: ExperienceSamplingTracker.NAME,
+        enabled: this.config.experienceSamplingTracker.enabled
+      }
+    };
   }
 
   private isTrackerAlreadyRegistered(trackerType: TrackerType) {

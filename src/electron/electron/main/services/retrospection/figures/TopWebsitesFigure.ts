@@ -22,6 +22,7 @@ export async function buildTopWebsitesFigure(
     }
 
     const key =
+      activity.artifactName ||
       cleanWindowTitle(
         activity.windowTitle,
         activity.processName,
@@ -35,6 +36,7 @@ export async function buildTopWebsitesFigure(
 
     tooltipTitles.set(
       key,
+      activity.artifactName ||
       cleanWindowTitle(
         activity.windowTitle,
         activity.processName,

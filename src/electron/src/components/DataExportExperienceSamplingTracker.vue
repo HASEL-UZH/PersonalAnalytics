@@ -56,8 +56,10 @@ function formatResponseOptions(d: ExperienceSamplingDto): string {
     <div class="prose max-w-none">
       <h2>Your Self Reported data</h2>
       <p>
-        Your responses to the self-reflection questions will also be shared with the
-        researchers. Here is a sample of your unmodified data:</p>
+        These are your answers to the short pop-up questions during the study: the question, your
+        response, and when you answered. They could be used to relate how you experienced your work
+        to what the collected data shows around that moment.
+      </p>
     </div>
     <div class="max-h-48 overflow-auto">
       <table
