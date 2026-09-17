@@ -8,6 +8,7 @@ dist-electron
 release
 *.local
 *.sqlite
+*.sqlite.*.bak
 
 # Editor directories and files
 .vscode/.debug.env
