@@ -151,10 +151,12 @@ git submodule update
 ```
 
 After cloning this repository using your favorite git client, you need to install the dependencies.
-Make sure you use node version >=20. You can install the dependencies by running the following command in the root directory of the project:
+Make sure you use Node.js version >=22.12.0. Install the tracker dependencies before the application, as the local tracker packages are built when they are installed:
 ```bash
 cd src/electron
-npm install
+npm ci --prefix PA.UserInputTracker/typescript
+npm ci --prefix PA.WindowsActivityTracker/typescript
+npm ci
 ```
 This will install all the dependencies required to build and run PersonalAnalytics. This will also call the `postinstall` script, which will make sure that the native dependencies are built for your platform.
 

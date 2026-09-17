@@ -1,9 +1,11 @@
 /** @type {import('tailwindcss').Config} */
+import typography from '@tailwindcss/typography';
 import colors from 'tailwindcss/colors';
+import daisyui from 'daisyui';
 
-module.exports = {
+export default {
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
-  plugins: [require('@tailwindcss/typography'), require('daisyui')],
+  plugins: [typography, daisyui],
   theme: {
     extend: {
       colors: {

@@ -7,7 +7,7 @@ on:
 
 env:
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
-  NODE_VERSION: 20
+  NODE_VERSION: 22
 
 jobs:
   build:
@@ -32,7 +32,10 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci --prefix PA.UserInputTracker/typescript
+          npm ci --prefix PA.WindowsActivityTracker/typescript
+          npm ci
       - name: Test
         run: npm test
       - name: Build
