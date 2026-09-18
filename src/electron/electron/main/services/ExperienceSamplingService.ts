@@ -35,7 +35,7 @@ export class ExperienceSamplingService {
     responseOptions: string | null,
     scale: number | null,
     response?: string,
-    skipped: boolean,
+    skipped: boolean = false,
     trigger: 'manual' | 'auto' = 'auto'
   ): Promise<void> {
     LOG.debug(

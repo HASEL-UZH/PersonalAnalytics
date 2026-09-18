@@ -1,0 +1,41 @@
+@import "tailwindcss";
+@source "../../index.html";
+@source "../";
+@source inline("{active:,focus:,}{bg,border,border-l,border-b,outline,text}-{amber,fuchsia,teal,rose,red,sky,orange,yellow,violet,pink,green,blue,neutral}-{300,400,500,600,800}");
+
+@plugin "@tailwindcss/typography";
+@plugin "daisyui" {
+  themes: light --default, dark --prefersdark;
+}
+
+/* Preserve Tailwind 3's unqualified radius and border defaults. */
+@theme {
+  --radius: 0.25rem;
+}
+
+@layer base {
+  *, ::before, ::after, ::backdrop, ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+/* DaisyUI 5 removed these form helpers; keep the existing form layout. */
+@layer components {
+  .form-control {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-control .label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.25rem;
+    white-space: normal;
+  }
+
+  .label-text {
+    font-size: 0.875rem;
+    color: var(--color-base-content);
+  }
+}

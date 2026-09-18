@@ -102,7 +102,7 @@ onMounted(async () => {
   </div>
 </template>
 <style lang="less">
-@import '../../styles/index';
+@import '../../styles/variables';
 .primary-blue {
   color: @primary-color;
 }

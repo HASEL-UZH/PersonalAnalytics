@@ -72,7 +72,7 @@ function getTopItemInitial(item: ActivitySessions): string {
 </template>
 
 <style lang="less" scoped>
-@import '../styles/index';
+@import '../styles/variables';
 
 h2.primary-blue {
   color: @primary-color;

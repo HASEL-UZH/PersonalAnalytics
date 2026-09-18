@@ -355,7 +355,7 @@ function revealItemInFolder(event: Event) {
                 If you want to review the complete data file before sharing it with the researchers,
                 please refer to this guide. The <b class="dark:text-white">password</b> required for
                 opening the exported file is:
-                <span class="password-badge">PersonalAnalytics_{{ studyInfo.subjectId }}</span
+                <span class="password-badge badge badge-neutral">PersonalAnalytics_{{ studyInfo.subjectId }}</span
                 >.
               </p>
             </article>
@@ -445,7 +445,6 @@ function revealItemInFolder(event: Event) {
 </template>
 <style lang="less" scoped>
 @import '../styles/variables.less';
-@import '@/styles/tailwind-apply.css';
 .password-badge {
   background-color: @primary-color;
 }

@@ -247,8 +247,7 @@ async function postpone(minutes: number) {
   </div>
 </template>
 <style lang="less" scoped>
-@import '@/styles/index.less';
-@import '../styles/tailwind-apply.css';
+@import '@/styles/variables.less';
 
 .daily-survey {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
