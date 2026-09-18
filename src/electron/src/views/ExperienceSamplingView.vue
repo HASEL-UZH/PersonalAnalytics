@@ -553,7 +553,6 @@ async function skipExperienceSample() {
 </template>
 <style lang="less" scoped>
 @import '@/styles/variables.less';
-@import '../styles/tailwind-apply.css';
 
 .experience-sampling-notification {
   height: 100vh;

@@ -2,8 +2,6 @@ import fs from 'node:fs';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import electron from 'vite-plugin-electron/simple';
-import tailwindcss from 'tailwindcss';
-import autoprefixer from 'autoprefixer';
 import pkg from './package.json';
 
 // https://vitejs.dev/config/
@@ -57,9 +55,6 @@ export default defineConfig(({ command }) => {
       preprocessorOptions: {
         less: {},
       },
-      postcss: {
-        plugins: [tailwindcss(), autoprefixer()],
-      } as any,
     },
     resolve: {
       alias: {

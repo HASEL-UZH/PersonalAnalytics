@@ -1,5 +1,3 @@
-const { notarize } = require("@electron/notarize");
-
 exports.default = async function notarizeMacos(context) {
   const { electronPlatformName, appOutDir } = context;
   if (electronPlatformName !== "darwin") {
@@ -24,8 +22,8 @@ exports.default = async function notarizeMacos(context) {
   const appName = context.packager.appInfo.productFilename;
 
   // These environment variables are set in the GitHub Actions secrets
+  const { notarize } = await import("@electron/notarize");
   await notarize({
-    tool: "notarytool",
     appPath: `${appOutDir}/${appName}.app`,
     appleId: process.env.APPLE_ID,
     appleIdPassword: process.env.APPLE_APP_SPECIFIC_PASSWORD,

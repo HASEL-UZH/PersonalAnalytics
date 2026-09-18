@@ -4,7 +4,8 @@
 </template>
 <style>
 #app {
-  @apply h-full overflow-hidden;
+  height: 100%;
+  overflow: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
