@@ -312,25 +312,29 @@ export class DailySurveyTracker implements Tracker {
     scheduledDate: Date | null,
     minutes: number
   ): Promise<boolean> {
-    if (!scheduledDate) {
-      return false;
-    }
-
     const now = new Date();
     const settings: Settings = await Settings.findOneBy({ onlyOneEntityShouldExist: 1 });
-    const pendingScheduledDate = settings[this.getPendingScheduledDateField(samplingType)];
+    const pendingField = this.getPendingScheduledDateField(samplingType);
+    const pendingScheduledDate = settings[pendingField];
     if (
-      !pendingScheduledDate ||
-      pendingScheduledDate.getTime() !== scheduledDate.getTime() ||
-      this.isBeforeToday(scheduledDate, now)
+      scheduledDate &&
+      (!pendingScheduledDate ||
+        pendingScheduledDate.getTime() !== scheduledDate.getTime() ||
+        this.isBeforeToday(scheduledDate, now))
     ) {
       LOG.info(
-        `Daily survey (${samplingType}) was scheduled on a previous day and cannot be postponed`
+        `Daily survey (${samplingType}) is no longer pending or was scheduled on a previous day and cannot be postponed`
       );
       return false;
     }
 
     const newTime = new Date(now.getTime() + minutes * 60 * 1000);
+
+    // Tray-opened surveys have no scheduled date; create a reminder for today, or reuse today's pending survey.
+    scheduledDate ??= pendingScheduledDate && !this.isBeforeToday(pendingScheduledDate, now)
+      ? pendingScheduledDate
+      : now;
+    settings[pendingField] = scheduledDate;
 
     // Store postponement separately so the original scheduled day remains available for late-survey messaging.
     settings[this.getPostponedUntilField(samplingType)] = newTime;
