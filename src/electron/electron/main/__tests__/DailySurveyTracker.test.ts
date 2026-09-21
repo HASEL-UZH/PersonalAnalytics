@@ -245,3 +245,21 @@ test('stores a current-day postponement separately from its scheduled date', asy
   expect(settings.postponedDailySurveyEveningUntil).toEqual(localDate(14, 11));
   expect(settings.save).toHaveBeenCalledTimes(1);
 });
+
+test('retries a failed window load without aborting app startup or losing the survey date', async () => {
+  const originalScheduledDate = localDate(14, 9);
+  const settings = createSettings({ nextDailySurveyEveningInvocation: originalScheduledDate });
+  findOneByMock.mockResolvedValue(settings);
+  createDailySurveyWindowMock.mockRejectedValueOnce(new Error('ERR_FAILED (-2) loading daily survey'));
+  const tracker = createTracker();
+
+  await expect(tracker.start()).resolves.toBeUndefined();
+  expect(tracker.isRunning).toBe(true);
+  expect(settings.pendingDailySurveyEveningScheduledDate).toEqual(originalScheduledDate);
+  const checkAgain = scheduleJobMock.mock.calls[0][1] as () => Promise<void>;
+  await checkAgain();
+  expect(createDailySurveyWindowMock).toHaveBeenCalledTimes(2);
+  expect(createDailySurveyWindowMock).toHaveBeenLastCalledWith('evening', originalScheduledDate);
+  await checkAgain();
+  expect(createDailySurveyWindowMock).toHaveBeenCalledTimes(2);
+});
