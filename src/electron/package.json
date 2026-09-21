@@ -28,7 +28,7 @@
     "url": "https://github.com/HASEL-UZH/PersonalAnalytics"
   },
   "engines": {
-    "node": "^22.13.0 || >=24.11.0"
+    "node": "^24.15.0"
   },
   "devDependencies": {
     "@electron/notarize": "^3.1.1",
