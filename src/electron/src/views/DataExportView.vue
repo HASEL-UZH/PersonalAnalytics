@@ -20,6 +20,7 @@ const LOG = getRendererLogger('DataExportView');
 const currentStep = ref(0);
 const transitionName = ref('slide-lef-right');
 const isLoading = ref(true);
+const loadError = ref('');
 const studyDescriptionExpanded = ref(false);
 
 const studyInfo = ref<StudyInfoDto>();
@@ -55,7 +56,7 @@ const currentNamedStep = computed(() => {
   return availableSteps[currentStep.value];
 });
 
-onMounted(async () => {
+async function loadExportData() {
   studyInfo.value = (await typedIpcRenderer.invoke('getStudyInfo')) as StudyInfoDto;
   if (studyConfig.trackers.experienceSamplingTracker.enabled) {
     exportExperienceSamplesSelectedOption.value = DataExportType.All;
@@ -81,8 +82,22 @@ onMounted(async () => {
     exportUserInputSelectedOption.value = DataExportType.All;
     mostRecentUserInputs.value = await typedIpcRenderer.invoke('getMostRecentUserInputDtos', 20);
   }
-  isLoading.value = false;
-});
+}
+
+async function initializeExport() {
+  loadError.value = '';
+  isLoading.value = true;
+  try {
+    await loadExportData();
+  } catch (error) {
+    LOG.error('Failed to load data export', error);
+    loadError.value = error instanceof Error ? error.message : String(error);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+onMounted(initializeExport);
 
 async function handleWindowActivityExportConfigChanged(newSelectedOption: DataExportType) {
   if (mostRecentWindowActivities.value && newSelectedOption === DataExportType.Obfuscate) {
@@ -232,8 +247,13 @@ function revealItemInFolder(event: Event) {
 
 <template>
   <div class="h-screen p-5">
+    <div v-if="loadError" role="alert" class="flex h-full flex-col items-center justify-center gap-4 dark:text-neutral-300">
+      <p>Could not load data export.</p>
+      <p class="max-w-full break-words text-sm">{{ loadError }}</p>
+      <button class="btn" @click="initializeExport">Retry</button>
+    </div>
     <div
-      v-if="!studyInfo || isExporting"
+      v-else-if="!studyInfo || isLoading || isExporting"
       class="flex h-full w-full items-center justify-center overflow-y-scroll"
     >
       <span class="loading loading-spinner loading-lg" />
@@ -355,7 +375,7 @@ function revealItemInFolder(event: Event) {
                 If you want to review the complete data file before sharing it with the researchers,
                 please refer to this guide. The <b class="dark:text-white">password</b> required for
                 opening the exported file is:
-                <span class="password-badge">PersonalAnalytics_{{ studyInfo.subjectId }}</span
+                <span class="password-badge badge badge-neutral">PersonalAnalytics_{{ studyInfo.subjectId }}</span
                 >.
               </p>
             </article>
@@ -373,7 +393,17 @@ function revealItemInFolder(event: Event) {
               </p>
             </article>
           </div>
-          <div v-if="currentNamedStep === 'export-2'" key="1" class="-mt-5">
+          <div v-if="currentNamedStep === 'export-2'" key="1" class="flex w-full flex-col">
+            <h1 class="mb-4 text-4xl font-medium text-neutral-800 dark:text-neutral-300">
+              Customize Data Export
+            </h1>
+            <article class="prose max-w-none">
+              <p>
+                Below you see each type of data collected on your machine, with a sample of recent
+                entries. <b class="dark:text-white">Nothing leaves your computer</b> until you
+                confirm on the next page.
+              </p>
+            </article>
             <DataExportWindowActivityTracker
               v-if="studyConfig.trackers.windowActivityTracker.enabled"
               :study-info="studyInfo"
@@ -435,7 +465,6 @@ function revealItemInFolder(event: Event) {
 </template>
 <style lang="less" scoped>
 @import '../styles/variables.less';
-@import '@/styles/tailwind-apply.css';
 .password-badge {
   background-color: @primary-color;
 }

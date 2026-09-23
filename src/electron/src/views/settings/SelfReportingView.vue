@@ -165,7 +165,7 @@ onMounted(load)
 </template>
 
 <style lang="less" scoped>
-@import '../../styles/index';
+@import '../../styles/variables';
 
 .primary-blue {
   color: @primary-color;

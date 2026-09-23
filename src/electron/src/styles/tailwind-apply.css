@@ -1,8 +1,9 @@
 /* added to split out tailwind utilities into a plain CSS file **/
+@reference './tailwind.css';
 
 /* used in StudyInfo.vue */
 .subject-badge {
-  @apply badge badge-neutral text-white;
+  @apply text-white;
 }
 
 /* used in ExperienceSamplingView.vue  */ 
@@ -26,5 +27,5 @@
 
 /* used in DataExportView.vue */
 .password-badge {
-  @apply badge badge-neutral font-bold text-white;
+  @apply font-bold text-white;
 }

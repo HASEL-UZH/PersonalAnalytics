@@ -17,9 +17,9 @@ import { Color } from '../utils/retrospection/types';
 import {
   ACTIVITY_LABELS,
   escapeHtml,
+  formatDuration,
   getActivityGroupFromActivityName,
   getBarColorFromDataPoint,
-  msToReadableFormat,
   TW_CLASS_ACTIVITY_MAPPINGS
 } from '../utils/retrospection/utils';
 import { positionTooltipWithinViewport } from '../utils/tooltipPosition';
@@ -160,22 +160,8 @@ function renderTooltipDetailIcon(detail: TimelineHoverDetail): string {
   `;
 }
 
-function renderTooltipDuration(durationInMs: number): string {
-  const totalMinutes = Math.round(durationInMs / 60000);
-  if (totalMinutes < 1) {
-    return '< 1 min';
-  }
-  if (totalMinutes < 60) {
-    return `${totalMinutes} min`;
-  }
-
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  return minutes ? `${hours} h ${minutes} min` : `${hours} h`;
-}
-
 function renderTooltipDetail(detail: TimelineHoverDetail): string {
-  const duration = renderTooltipDuration(detail.durationMs);
+  const duration = formatDuration(detail.durationMs);
   const title = escapeHtml(detail.title);
   const tooltipTitle = escapeHtml(detail.tooltipTitle || detail.title);
   const appName = detail.appName ? escapeHtml(detail.appName) : '';
@@ -286,7 +272,7 @@ function buildChart() {
     })
     .on('mousemove', function (this: SVGRectElement, event: MouseEvent, d: unknown) {
       const dataPoint = d as ChartDataPoint;
-      const duration = renderTooltipDuration(dataPoint.end.getTime() - dataPoint.start.getTime());
+      const duration = formatDuration(dataPoint.end.getTime() - dataPoint.start.getTime());
 
       const barBoundingRect = this.getBoundingClientRect();
 
@@ -342,7 +328,7 @@ function getLegendDataForWindowActivity(): LegendDataPoint[] {
   activeTaskTotalTimeSpentPerActivityGroup.forEach((item) => {
     const colorKey = TW_CLASS_ACTIVITY_MAPPINGS[item.activityGroup] as keyof typeof Color;
     legendData.push({
-      text: `${ACTIVITY_LABELS[item.activityGroup] || 'Other'} (${msToReadableFormat(item.totalTime, false, false)})`,
+      text: `${ACTIVITY_LABELS[item.activityGroup] || 'Other'} (${formatDuration(item.totalTime)})`,
       color: Color[colorKey],
       key: item.activityGroup
     });
