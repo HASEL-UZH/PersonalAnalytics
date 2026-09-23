@@ -21,6 +21,7 @@ const requiresAnyPermission = requiresAccessibilityPermission || requiresScreenR
 const currentStep = ref(0);
 const transitionName = ref('slide-lef-right');
 const isLoading = ref(false);
+const loadError = ref('');
 
 const studyInfo = ref<StudyInfoDto>();
 const permissionCheckInterval = ref<NodeJS.Timeout | null>();
@@ -78,7 +79,7 @@ const workHoursRef = ref<WorkHoursDto>({
 
 const activeTimesEnabled = ref(true);
 
-onMounted(async () => {
+async function loadOnboarding() {
   studyInfo.value = await typedIpcRenderer.invoke('getStudyInfo');
 
   if (isMacOS && requiresAnyPermission) {
@@ -108,7 +109,19 @@ onMounted(async () => {
       console.error('Onboarding Active Times: failed to load', error);
     }
   }
-});
+}
+
+async function initializeOnboarding() {
+  loadError.value = '';
+  try {
+    await loadOnboarding();
+  } catch (error) {
+    console.error('Failed to load onboarding', error);
+    loadError.value = error instanceof Error ? error.message : String(error);
+  }
+}
+
+onMounted(initializeOnboarding);
 
 async function closeOnboardingWindow() {
   await typedIpcRenderer.invoke('closeOnboardingWindow');
@@ -176,7 +189,12 @@ const onChangeActiveTimesEnabled = async (e: Event) => {
 
 <template>
   <div class="onboarding-view h-screen">
-    <div v-if="!studyInfo" class="flex h-full w-full items-center justify-center">
+    <div v-if="loadError" role="alert" class="flex h-full flex-col items-center justify-center gap-4 dark:text-neutral-300">
+      <p>Could not load onboarding.</p>
+      <p class="max-w-full break-words text-sm">{{ loadError }}</p>
+      <button class="btn" @click="initializeOnboarding">Retry</button>
+    </div>
+    <div v-else-if="!studyInfo" class="flex h-full w-full items-center justify-center">
       <span class="loading loading-spinner loading-lg" />
     </div>
     <div v-else class="relative flex h-full flex-col justify-between dark:text-neutral-400">

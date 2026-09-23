@@ -2,8 +2,6 @@ import fs from 'node:fs';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import electron from 'vite-plugin-electron/simple';
-import tailwindcss from 'tailwindcss';
-import autoprefixer from 'autoprefixer';
 import pkg from './package.json';
 
 // https://vitejs.dev/config/
@@ -26,7 +24,7 @@ export default defineConfig(({ command }) => {
               sourcemap,
               minify: isBuild,
               outDir: 'dist-electron/main',
-              rollupOptions: {
+              rolldownOptions: {
                 // Some third-party Node.js libraries may not be built correctly by Vite, especially `C/C++` addons,
                 // we can use `external` to exclude them to ensure they work correctly.
                 // Others need to put them in `dependencies` to ensure they are collected into `app.asar` after the app is built.
@@ -37,15 +35,15 @@ export default defineConfig(({ command }) => {
           }
         },
         preload: {
-          // Shortcut of `build.rollupOptions.input`.
-          // Preload scripts may contain Web assets, so use the `build.rollupOptions.input` instead `build.lib.entry`.
+          // Shortcut of `build.rolldownOptions.input`.
+          // Preload scripts may contain Web assets, so use `build.rolldownOptions.input` instead of `build.lib.entry`.
           input: 'electron/preload/index.ts',
           vite: {
             build: {
               sourcemap: sourcemap ? 'inline' : undefined, // #332
               minify: isBuild,
               outDir: 'dist-electron/preload',
-              rollupOptions: {
+              rolldownOptions: {
                 external: Object.keys('dependencies' in pkg ? pkg.dependencies : {})
               }
             }
@@ -57,9 +55,6 @@ export default defineConfig(({ command }) => {
       preprocessorOptions: {
         less: {},
       },
-      postcss: {
-        plugins: [tailwindcss(), autoprefixer()],
-      } as any,
     },
     resolve: {
       alias: {

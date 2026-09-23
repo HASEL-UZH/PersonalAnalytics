@@ -49,11 +49,12 @@ export class DailySurveyTracker implements Tracker {
   public async start(): Promise<void> {
     try {
       await this.processSurveys();
-      this.startCheckJob();
-      this.isRunning = true;
     } catch (error) {
       LOG.error(`Error starting DailySurveyTracker: ${error}`);
-      throw error;
+    } finally {
+      // A failed window load must not abort app startup or prevent the next reminder check.
+      this.startCheckJob();
+      this.isRunning = true;
     }
   }
 
@@ -74,7 +75,7 @@ export class DailySurveyTracker implements Tracker {
 
   private startCheckJob(): void {
     this.checkJob?.cancel();
-    // node-schedule ignores the returned promise; not caught inside processSurveys() so start() can still throw.
+    // node-schedule ignores the returned promise; log failures without stopping future checks.
     this.checkJob = schedule.scheduleJob('* * * * *', () =>
       this.processSurveys().catch((error) => LOG.error(`Error processing daily surveys: ${error}`))
     );
