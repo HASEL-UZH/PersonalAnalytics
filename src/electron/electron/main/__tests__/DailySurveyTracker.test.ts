@@ -263,3 +263,47 @@ test('retries a failed window load without aborting app startup or losing the su
   await checkAgain();
   expect(createDailySurveyWindowMock).toHaveBeenCalledTimes(2);
 });
+
+test.each([5, 15, 60])('reminds again after postponing a manually opened survey by %i minutes', async (minutes) => {
+  const nextInvocation = localDate(14, 18);
+  const settings = createSettings({ nextDailySurveyEveningInvocation: nextInvocation });
+  findOneByMock.mockResolvedValue(settings);
+  const tracker = createTracker();
+
+  await expect(tracker.postpone('evening', null, minutes)).resolves.toBe(true);
+  expect(settings.pendingDailySurveyEveningScheduledDate).toEqual(localDate(14, 10));
+  expect(settings.postponedDailySurveyEveningUntil).toEqual(localDate(14, 10, minutes));
+  expect(settings.nextDailySurveyEveningInvocation).toEqual(nextInvocation);
+
+  // Starting a new tracker also checks that the reminder survives an app restart.
+  await tracker.start();
+  expect(createDailySurveyWindowMock).not.toHaveBeenCalled();
+  jest.setSystemTime(localDate(14, 10, minutes));
+  await tracker.resume();
+  expect(createDailySurveyWindowMock).toHaveBeenCalledWith('evening', localDate(14, 10));
+});
+
+test('a manual reminder preserves a pending survey from today and allows it to reopen', async () => {
+  const originalScheduledDate = localDate(14, 9);
+  const settings = createSettings({
+    pendingDailySurveyMorningScheduledDate: originalScheduledDate,
+    nextDailySurveyMorningInvocation: localDate(15, 9)
+  });
+  findOneByMock.mockResolvedValue(settings);
+  const tracker = createTracker([morningSurvey]);
+  await tracker.start();
+
+  await expect(tracker.postpone('morning', null, 5)).resolves.toBe(true);
+  expect(settings.pendingDailySurveyMorningScheduledDate).toEqual(originalScheduledDate);
+  jest.setSystemTime(localDate(14, 10, 5));
+  await tracker.resume();
+  expect(createDailySurveyWindowMock).toHaveBeenCalledTimes(2);
+  expect(createDailySurveyWindowMock).toHaveBeenLastCalledWith('morning', originalScheduledDate);
+});
+
+test('does not postpone a scheduled survey that is no longer pending', async () => {
+  const settings = createSettings();
+  findOneByMock.mockResolvedValue(settings);
+  await expect(createTracker().postpone('evening', localDate(14, 9), 5)).resolves.toBe(false);
+  expect(settings.save).not.toHaveBeenCalled();
+});

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import { Activity, Color, type ActivitySessions } from '../utils/retrospection/types';
-import { getTailwindClassFromActivity } from '../utils/retrospection/utils';
+import { formatDuration, getTailwindClassFromActivity } from '../utils/retrospection/utils';
 
 defineProps({
   title: {
@@ -13,20 +13,6 @@ defineProps({
     required: true
   }
 });
-
-function renderCompactTime(ms: number): string {
-  const minutes = Math.round(ms / 60_000);
-  if (minutes < 1) {
-    return '< 1 min';
-  }
-  if (minutes < 60) {
-    return `${minutes} min`;
-  }
-
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-  return remainingMinutes ? `${hours} hr ${remainingMinutes} min` : `${hours} hr`;
-}
 
 function getTopItemWidth(item: ActivitySessions, items: ActivitySessions[]): string {
   const maxDurationMs = Math.max(...items.map((topItem) => topItem.totalDurationMs), 1);
@@ -69,7 +55,7 @@ function getTopItemInitial(item: ActivitySessions): string {
             </span>
             <span class="top-item-label">{{ item.type }}</span>
           </span>
-          <span class="top-item-time">{{ renderCompactTime(item.totalDurationMs) }}</span>
+          <span class="top-item-time">{{ formatDuration(item.totalDurationMs) }}</span>
         </div>
         <div class="top-item-track">
           <div
