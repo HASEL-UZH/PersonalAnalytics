@@ -43,17 +43,8 @@ In 2024, we've revived the project in creating a multi-platform app using TypeSc
 This work is carried by the following main contributors: 
 - [Dr. André Meyer](https://www.andre-meyer.ch) (University of Zurich, main contributor to the project)
 - [Prof. Dr. Thomas Fritz](http://www.ifi.uzh.ch/en/seal/people/fritz.html) (University of Zurich)
-- [Roy Rutishauser](https://github.com/royru) (contributor)
 - [Grigor Dochev](https://github.com/grigor-dochev) (contributor)
-- [Sebastian Richner](https://github.com/SRichner) (contributor)
-- [Chris Satterfield](https://github.com/csatterfield) (contributor to MacOS-legacy version)
-- [Jan Pilzer](https://github.com/hirse) (contributor to Windows-legacy version)
-- [Alexander Lill](https://github.com/alexanderlill) (tester)
-- [Isabelle Cuber](https://github.com/isicu) (tester)
-- Dr. Manuela Züger (prev. University of Zurich, contributor to Windows-legacy version)
-- Dr. Sebastian Müller (prev. University of Zurich, contributor to Windows-legacy version)
-- [Dr. Tom Zimmermann](https://www.microsoft.com/en-us/research/people/tzimmer/) (Microsoft Research)
-- [Prof. Dr. Gail C. Murphy](https://blogs.ubc.ca/gailcmurphy/) (University of British Columbia)
+- [Roy Rutishauser](https://github.com/royru) (contributor)
 
 
 ## 📨 Contact
