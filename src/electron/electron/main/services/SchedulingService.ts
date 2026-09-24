@@ -9,21 +9,39 @@ const LOG = getMainLogger('SchedulingService')
 
 export class SchedulingService {
   private retrospectionJobs: schedule.Job[] = []
+  private cleanupJob: schedule.Job | undefined
   private readonly windowService: WindowService
+  private workSchedule: WorkHoursDto
 
   constructor(windowService: WindowService, workSchedule: WorkHoursDto) {
     this.windowService = windowService
+    this.workSchedule = workSchedule
     LOG.info('Initializing SchedulingService with work schedule')
     this.updateRetrospectionJobs(workSchedule)
+    this.scheduleCleanupJob()
+  }
 
+  // node-schedule's timers can silently stop firing after the system wakes from
+  // sleep (see https://github.com/node-schedule/node-schedule/issues/13). Since
+  // this service isn't a Tracker resumed via TrackerService, main/index.ts calls
+  // this explicitly on powerMonitor's 'resume' event to recreate the jobs.
+  public resume(): void {
+    LOG.info('Resuming SchedulingService: recreating scheduled jobs')
+    this.updateRetrospectionJobs(this.workSchedule)
+    this.scheduleCleanupJob()
+  }
+
+  private scheduleCleanupJob(): void {
+    this.cleanupJob?.cancel()
     // cleanup job daily at 4am
-    schedule.scheduleJob('0 4 * * *', async (): Promise<void> => {
+    this.cleanupJob = schedule.scheduleJob('0 4 * * *', async (): Promise<void> => {
       LOG.info('Running 4am cleanup: closing retrospection window')
       this.windowService.closeRetrospectionWindow()
     })
   }
 
   public updateRetrospectionJobs(workSchedule: WorkHoursDto): void {
+    this.workSchedule = workSchedule
     // cancel existing retrospection jobs
     if (this.retrospectionJobs.length > 0) {
       this.retrospectionJobs.forEach(j => j.cancel())

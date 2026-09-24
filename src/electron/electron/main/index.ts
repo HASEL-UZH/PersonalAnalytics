@@ -41,6 +41,7 @@ const windowService: WindowService = new WindowService(appUpdaterService);
 const experienceSamplingService: ExperienceSamplingService = new ExperienceSamplingService();
 const trackers: TrackerService = new TrackerService(studyConfig.trackers, windowService, workScheduleService);
 const ipcHandler: IpcHandler = new IpcHandler(windowService, trackers, experienceSamplingService, workScheduleService);
+let schedulingService: SchedulingService | undefined;
 
 // Disable GPU Acceleration for Windows 7
 if (release().startsWith('6.1')) {
@@ -159,7 +160,7 @@ app.whenReady().then(async () => {
 
     if (studyConfig.enableRetrospection ?? true) {
       const workSchedule = await workScheduleService.getWorkSchedule();
-      const schedulingService = new SchedulingService(windowService, workSchedule);
+      schedulingService = new SchedulingService(windowService, workSchedule);
       ipcHandler.setSchedulingService(schedulingService);
     }
 
@@ -260,6 +261,10 @@ app.whenReady().then(async () => {
       });
       powerMonitor.on('resume', async (): Promise<void> => {
         LOG.debug('The system is resuming');
+        // SchedulingService isn't a Tracker, so it isn't covered by resumeAllTrackers();
+        // its node-schedule jobs need to be explicitly recreated after sleep (see
+        // https://github.com/node-schedule/node-schedule/issues/13).
+        schedulingService?.resume();
         await Promise.all([
           trackers.resumeAllTrackers(),
           UsageDataService.createNewUsageDataEvent(UsageDataEventType.SystemResume)
