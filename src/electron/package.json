@@ -44,7 +44,7 @@
     "@vue/eslint-config-prettier": "^10.2.0",
     "@vue/eslint-config-typescript": "^14.9.0",
     "daisyui": "^5.7.40",
-    "electron": "^44.4.2",
+    "electron": "^44.9.1",
     "electron-builder": "^26.15.3",
     "electron-updater": "^6.8.9",
     "eslint": "^10.10.0",
