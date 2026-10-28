@@ -64,3 +64,38 @@ jobs:
           AZURE_CERT_PROFILE_NAME: ${{ secrets.AZURE_CERT_PROFILE_NAME }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+      # each mac job publishes its own latest-mac.yml and the last one overwrites the other,
+      # so we keep both and merge them in the merge-mac-update-info job below
+      - name: Upload latest-mac.yml for merging
+        if: matrix.mac_arch
+        uses: actions/upload-artifact@v4
+        with:
+          name: latest-mac-${{ matrix.mac_arch }}
+          path: src/electron/release/*/latest-mac.yml
+          if-no-files-found: error
+
+  merge-mac-update-info:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: latest-mac-*
+      - name: Merge arm64 and x64 latest-mac.yml and upload to release
+        run: |
+          VERSION=$(jq -r .version src/electron/package.json)
+          for arch in arm64 x64; do
+            if [ "$(yq '.version' latest-mac-$arch/latest-mac.yml)" != "$VERSION" ]; then
+              echo "latest-mac-$arch/latest-mac.yml does not match version $VERSION" && exit 1
+            fi
+          done
+          # x64 stays the top-level path (fallback for old updaters), arm64 Macs pick the arm64 entry from files
+          yq '.files += load("latest-mac-arm64/latest-mac.yml").files' latest-mac-x64/latest-mac.yml > latest-mac.yml
+          cat latest-mac.yml
+          # make sure we never publish a manifest that leaves one architecture without an update
+          if [ "$(yq '[.files[].url | select(test("arm64.*[.]zip$"))] | length' latest-mac.yml)" != "1" ] || \
+             [ "$(yq '[.files[].url | select(test("x64.*[.]zip$"))] | length' latest-mac.yml)" != "1" ]; then
+            echo "merged latest-mac.yml must contain exactly one arm64 and one x64 zip" && exit 1
+          fi
+          gh release upload "v$VERSION" latest-mac.yml --clobber --repo ${{ github.repository }}
