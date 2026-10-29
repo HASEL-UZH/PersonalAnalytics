@@ -86,12 +86,14 @@ jobs:
         run: |
           VERSION=$(jq -r .version src/electron/package.json)
           for arch in arm64 x64; do
-            if [ "$(yq '.version' latest-mac-$arch/latest-mac.yml)" != "$VERSION" ]; then
-              echo "latest-mac-$arch/latest-mac.yml does not match version $VERSION" && exit 1
+            # upload-artifact keeps the path after the wildcard, so the file sits in latest-mac-<arch>/<version>/
+            mv latest-mac-$arch/*/latest-mac.yml latest-mac-$arch.yml
+            if [ "$(yq '.version' latest-mac-$arch.yml)" != "$VERSION" ]; then
+              echo "latest-mac-$arch.yml does not match version $VERSION" && exit 1
             fi
           done
           # x64 stays the top-level path (fallback for old updaters), arm64 Macs pick the arm64 entry from files
-          yq '.files += load("latest-mac-arm64/latest-mac.yml").files' latest-mac-x64/latest-mac.yml > latest-mac.yml
+          yq '.files += load("latest-mac-arm64.yml").files' latest-mac-x64.yml > latest-mac.yml
           cat latest-mac.yml
           # make sure we never publish a manifest that leaves one architecture without an update
           if [ "$(yq '[.files[].url | select(test("arm64.*[.]zip$"))] | length' latest-mac.yml)" != "1" ] || \
