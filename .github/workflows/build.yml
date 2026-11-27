@@ -28,7 +28,7 @@ jobs:
         with:
           submodules: true
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies
@@ -68,7 +68,7 @@ jobs:
       # so we keep both and merge them in the merge-mac-update-info job below
       - name: Upload latest-mac.yml for merging
         if: matrix.mac_arch
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: latest-mac-${{ matrix.mac_arch }}
           path: src/electron/release/*/latest-mac.yml
@@ -79,7 +79,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           pattern: latest-mac-*
       - name: Merge arm64 and x64 latest-mac.yml and upload to release
